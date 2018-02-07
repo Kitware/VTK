@@ -47,7 +47,7 @@ EXTERNL int
 nc_inq_dimids_f(int ncid, int *ndims, int *fdimids, int parent);
 
 EXTERNL int 
-nc_insert_array_compound_f(int ncid, int typeid, char *name, 
+nc_insert_array_compound_f(int ncid, int typeid1, char *name, 
 			   size_t offset, nc_type field_typeid,
 			   int ndims, int *dim_sizesp);
 

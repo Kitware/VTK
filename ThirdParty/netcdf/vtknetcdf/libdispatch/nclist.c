@@ -6,10 +6,7 @@
 
 #include "nclist.h"
 
-static ncelem ncDATANULL = (ncelem)0;
-/*static int ncinitialized=0;*/
-
-int nclistnull(ncelem e) {return e == ncDATANULL;}
+int nclistnull(void* e) {return e == NULL;}
 
 #ifndef TRUE
 #define TRUE 1
@@ -26,7 +23,7 @@ NClist* nclistnew(void)
   NClist* l;
 /*
   if(!ncinitialized) {
-    memset((void*)&ncDATANULL,0,sizeof(ncelem));
+    memset((void*)&ncDATANULL,0,sizeof(void*));
     ncinitialized = 1;
   }
 */
@@ -50,16 +47,31 @@ nclistfree(NClist* l)
   return TRUE;
 }
 
+/*
+Free a list and its contents
+*/
 int
-nclistsetalloc(NClist* l, unsigned int sz)
+nclistfreeall(NClist* l)
 {
-  ncelem* newcontent;
+  unsigned long i;
+  if(l == NULL) return TRUE;
+  for(i=0;i<l->length;i++) {
+      void* value = l->content[i];
+      if(value != NULL) free(value);
+  }
+  return nclistfree(l);
+}
+
+int
+nclistsetalloc(NClist* l, unsigned long sz)
+{
+  void** newcontent = NULL;
   if(l == NULL) return FALSE;
   if(sz <= 0) {sz = (l->length?2*l->length:DEFAULTALLOC);}
   if(l->alloc >= sz) {return TRUE;}
-  newcontent=(ncelem*)calloc(sz,sizeof(ncelem));
-  if(l->alloc > 0 && l->length > 0 && l->content != NULL) {
-    memcpy((void*)newcontent,(void*)l->content,sizeof(ncelem)*l->length);
+  newcontent=(void**)calloc(sz,sizeof(void*));
+  if(newcontent != NULL && l->alloc > 0 && l->length > 0 && l->content != NULL) {
+    memcpy((void*)newcontent,(void*)l->content,sizeof(void*)*l->length);
   }
   if(l->content != NULL) free(l->content);
   l->content=newcontent;
@@ -68,7 +80,7 @@ nclistsetalloc(NClist* l, unsigned int sz)
 }
 
 int
-nclistsetlength(NClist* l, unsigned int sz)
+nclistsetlength(NClist* l, unsigned long sz)
 {
   if(l == NULL) return FALSE;
   if(sz > l->alloc && !nclistsetalloc(l,sz)) return FALSE;
@@ -76,16 +88,17 @@ nclistsetlength(NClist* l, unsigned int sz)
   return TRUE;
 }
 
-ncelem
-nclistget(NClist* l, unsigned int index)
+void*
+nclistget(NClist* l, unsigned long index)
 {
-  if(l == NULL || l->length == 0) return ncDATANULL;
-  if(index >= l->length) return ncDATANULL;
+  if(l == NULL || l->length == 0) return NULL;
+  if(index >= l->length) return NULL;
   return l->content[index];
 }
 
+/* Insert at position i of l; will overwrite previous value */
 int
-nclistset(NClist* l, unsigned int index, ncelem elem)
+nclistset(NClist* l, unsigned long index, void* elem)
 {
   if(l == NULL) return FALSE;
   if(index >= l->length) return FALSE;
@@ -95,20 +108,20 @@ nclistset(NClist* l, unsigned int index, ncelem elem)
 
 /* Insert at position i of l; will push up elements i..|seq|. */
 int
-nclistinsert(NClist* l, unsigned int index, ncelem elem)
+nclistinsert(NClist* l, unsigned long index, void* elem)
 {
-  int i; /* do not make unsigned */
+  long i; /* do not make unsigned */
   if(l == NULL) return FALSE;
   if(index > l->length) return FALSE;
   nclistsetalloc(l,0);
-  for(i=(int)l->length;i>index;i--) l->content[i] = l->content[i-1];
+  for(i=(long)l->length;i>index;i--) l->content[i] = l->content[i-1];
   l->content[index] = elem;
   l->length++;
   return TRUE;
 }
 
 int
-nclistpush(NClist* l, ncelem elem)
+nclistpush(NClist* l, void* elem)
 {
   if(l == NULL) return FALSE;
   if(l->length >= l->alloc) nclistsetalloc(l,0);
@@ -117,28 +130,28 @@ nclistpush(NClist* l, ncelem elem)
   return TRUE;
 }
 
-ncelem
+void*
 nclistpop(NClist* l)
 {
-  if(l == NULL || l->length == 0) return ncDATANULL;
+  if(l == NULL || l->length == 0) return NULL;
   l->length--;  
   return l->content[l->length];
 }
 
-ncelem
+void*
 nclisttop(NClist* l)
 {
-  if(l == NULL || l->length == 0) return ncDATANULL;
+  if(l == NULL || l->length == 0) return NULL;
   return l->content[l->length - 1];
 }
 
-ncelem
-nclistremove(NClist* l, unsigned int i)
+void*
+nclistremove(NClist* l, unsigned long i)
 {
-  unsigned int len;
-  ncelem elem;
-  if(l == NULL || (len=l->length) == 0) return ncDATANULL;
-  if(i >= len) return ncDATANULL;
+  unsigned long len;
+  void* elem;
+  if(l == NULL || (len=l->length) == 0) return NULL;
+  if(i >= len) return NULL;
   elem = l->content[i];
   for(i+=1;i<len;i++) l->content[i-1] = l->content[i];
   l->length--;
@@ -146,24 +159,45 @@ nclistremove(NClist* l, unsigned int i)
 }
 
 /* Duplicate and return the content (null terminate) */
-ncelem*
+void**
 nclistdup(NClist* l)
 {
-    ncelem* result = (ncelem*)malloc(sizeof(ncelem)*(l->length+1));
-    memcpy((void*)result,(void*)l->content,sizeof(ncelem)*l->length);
-    result[l->length] = (ncelem)0;
+    void** result = (void**)malloc(sizeof(void*)*(l->length+1));
+    memcpy((void*)result,(void*)l->content,sizeof(void*)*l->length);
+    result[l->length] = (void*)0;
     return result;
 }
 
 int
-nclistcontains(NClist* list, ncelem elem)
+nclistcontains(NClist* l, void* elem)
 {
-    unsigned int i;
-    for(i=0;i<nclistlength(list);i++) {
-	if(elem == nclistget(list,i)) return 1;
+    unsigned long i;
+    for(i=0;i<nclistlength(l);i++) {
+	if(elem == nclistget(l,i)) return 1;
     }
     return 0;
 }
+
+/* Remove element by value; only removes first encountered */
+int
+nclistelemremove(NClist* l, void* elem)
+{
+  unsigned long len;
+  unsigned long i;
+  int found = 0;
+  if(l == NULL || (len=l->length) == 0) return 0;
+  for(i=0;i<nclistlength(l);i++) {
+    void* candidate = l->content[i];
+    if(elem == candidate) {
+      for(i+=1;i<len;i++) l->content[i-1] = l->content[i];
+      l->length--;
+      found = 1;
+      break;
+    }
+  }
+  return found;
+}
+
 
 /* Extends nclist to include a unique operator 
    which remove duplicate values; NULL values removed
@@ -171,13 +205,13 @@ nclistcontains(NClist* list, ncelem elem)
 */
 
 int
-nclistunique(NClist* list)
+nclistunique(NClist* l)
 {
-    unsigned int i,j,k,len;
-    ncelem* content;
-    if(list == NULL || list->length == 0) return 1;
-    len = list->length;
-    content = list->content;
+    unsigned long i,j,k,len;
+    void** content;
+    if(l == NULL || l->length == 0) return 1;
+    len = l->length;
+    content = l->content;
     for(i=0;i<len;i++) {
         for(j=i+1;j<len;j++) {
 	    if(content[i] == content[j]) {
@@ -187,15 +221,25 @@ nclistunique(NClist* list)
 	    }
 	}
     }
-    list->length = len;
+    l->length = len;
     return 1;
 }
 
 NClist*
-nclistclone(NClist* list)
+nclistclone(NClist* l)
 {
     NClist* clone = nclistnew();
-    *clone = *list;
-    clone->content = nclistdup(list);
+    *clone = *l;
+    clone->content = nclistdup(l);
     return clone;
+}
+
+void*
+nclistextract(NClist* l)
+{
+    void* result = l->content;
+    l->alloc = 0;
+    l->length = 0;
+    l->content = NULL;
+    return result;
 }

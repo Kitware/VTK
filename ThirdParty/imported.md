@@ -2,6 +2,7 @@
 
   * [diy2](diy2/update.sh)
   * [eigen](eigen/update.sh)
+  * [exodusII](exodusII/update.sh)
   * [expat](expat/update.sh)
   * [gl2ps](gl2ps/update.sh)
   * [glew](glew/update.sh)
@@ -14,6 +15,7 @@
   * [lz4](lz4/update.sh)
   * [metaio](../Utilities/MetaIO/update.sh)
   * [mpi4py](mpi4py/update.sh)
+  * [netcdf](netcdf/update.sh)
   * [png](png/update.sh)
   * [sqlite](sqlite/update.sh)
   * [tiff](tiff/update.sh)

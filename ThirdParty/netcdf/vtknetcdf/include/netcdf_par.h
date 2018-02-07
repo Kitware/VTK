@@ -1,9 +1,12 @@
-/*
+/*! \file
+ *
+ * Main header file for the Parallel C API.
+ *
  * Copyright 2010 University Corporation for Atmospheric
  * Research/Unidata. See COPYRIGHT file for more info.
  *
  * This header file is for the parallel I/O functions of netCDF.
- * 
+ *
  */
 /* "$Id: netcdf_par.h,v 1.1 2010/06/01 15:46:49 ed Exp $" */
 
@@ -11,7 +14,10 @@
 #define NETCDF_PAR_H 1
 
 #include <mpi.h>
-#include <netcdf.h>
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 /* Use these with nc_var_par_access(). */
 #define NC_INDEPENDENT 0
@@ -33,10 +39,14 @@ extern int
 nc_var_par_access(int ncid, int varid, int par_access);
 
 extern int
-nc_create_par_fortran(const char *path, int cmode, int comm, 
+nc_create_par_fortran(const char *path, int cmode, int comm,
 		      int info, int *ncidp);
 extern int
-nc_open_par_fortran(const char *path, int mode, int comm, 
+nc_open_par_fortran(const char *path, int mode, int comm,
 		    int info, int *ncidp);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* NETCDF_PAR_H */

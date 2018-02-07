@@ -1,253 +1,315 @@
-PROJECT(vtkExodus2)
+set(EXODUSII_BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS}")
 
-INCLUDE_REGULAR_EXPRESSION(".*")
+set(sources
+  src/deprecated/ex_get_concat_node_sets.c
+  src/deprecated/ex_get_concat_side_sets.c
+  src/deprecated/ex_get_elem_attr.c
+  src/deprecated/ex_get_elem_attr_names.c
+  src/deprecated/ex_get_elem_blk_ids.c
+  src/deprecated/ex_get_elem_block.c
+  src/deprecated/ex_get_elem_conn.c
+  src/deprecated/ex_get_elem_map.c
+  src/deprecated/ex_get_elem_num_map.c
+  src/deprecated/ex_get_elem_var.c
+  src/deprecated/ex_get_elem_var_tab.c
+  src/deprecated/ex_get_elem_var_time.c
+  src/deprecated/ex_get_glob_var_time.c
+  src/deprecated/ex_get_glob_vars.c
+  src/deprecated/ex_get_n_attr.c
+  src/deprecated/ex_get_n_conn.c
+  src/deprecated/ex_get_n_coord.c
+  src/deprecated/ex_get_n_elem_attr.c
+  src/deprecated/ex_get_n_elem_conn.c
+  src/deprecated/ex_get_n_elem_num_map.c
+  src/deprecated/ex_get_n_elem_var.c
+  src/deprecated/ex_get_n_nodal_var.c
+  src/deprecated/ex_get_n_node_num_map.c
+  src/deprecated/ex_get_n_node_set.c
+  src/deprecated/ex_get_n_node_set_df.c
+  src/deprecated/ex_get_n_one_attr.c
+  src/deprecated/ex_get_n_side_set.c
+  src/deprecated/ex_get_n_side_set_df.c
+  src/deprecated/ex_get_n_var.c
+  src/deprecated/ex_get_nodal_var.c
+  src/deprecated/ex_get_nodal_var_time.c
+  src/deprecated/ex_get_node_map.c
+  src/deprecated/ex_get_node_num_map.c
+  src/deprecated/ex_get_node_set.c
+  src/deprecated/ex_get_node_set_dist_fact.c
+  src/deprecated/ex_get_node_set_ids.c
+  src/deprecated/ex_get_node_set_param.c
+  src/deprecated/ex_get_nset_var.c
+  src/deprecated/ex_get_nset_var_tab.c
+  src/deprecated/ex_get_one_elem_attr.c
+  src/deprecated/ex_get_partial_elem_attr.c
+  src/deprecated/ex_get_partial_elem_conn.c
+  src/deprecated/ex_get_partial_elem_map.c
+  src/deprecated/ex_get_partial_elem_num_map.c
+  src/deprecated/ex_get_partial_elem_var.c
+  src/deprecated/ex_get_partial_nodal_var.c
+  src/deprecated/ex_get_partial_node_num_map.c
+  src/deprecated/ex_get_partial_node_set.c
+  src/deprecated/ex_get_partial_node_set_df.c
+  src/deprecated/ex_get_partial_side_set.c
+  src/deprecated/ex_get_partial_side_set_df.c
+  src/deprecated/ex_get_side_set.c
+  src/deprecated/ex_get_side_set_dist_fact.c
+  src/deprecated/ex_get_side_set_ids.c
+  src/deprecated/ex_get_side_set_param.c
+  src/deprecated/ex_get_sset_var.c
+  src/deprecated/ex_get_sset_var_tab.c
+  src/deprecated/ex_get_var_name.c
+  src/deprecated/ex_get_var_names.c
+  src/deprecated/ex_get_var_param.c
+  src/deprecated/ex_get_var_tab.c
+  src/deprecated/ex_put_concat_node_sets.c
+  src/deprecated/ex_put_concat_side_sets.c
+  src/deprecated/ex_put_concat_var_param.c
+  src/deprecated/ex_put_elem_attr.c
+  src/deprecated/ex_put_elem_attr_names.c
+  src/deprecated/ex_put_elem_block.c
+  src/deprecated/ex_put_elem_conn.c
+  src/deprecated/ex_put_elem_map.c
+  src/deprecated/ex_put_elem_num_map.c
+  src/deprecated/ex_put_elem_var.c
+  src/deprecated/ex_put_elem_var_slab.c
+  src/deprecated/ex_put_elem_var_tab.c
+  src/deprecated/ex_put_glob_vars.c
+  src/deprecated/ex_put_n_attr.c
+  src/deprecated/ex_put_n_coord.c
+  src/deprecated/ex_put_n_elem_attr.c
+  src/deprecated/ex_put_n_elem_conn.c
+  src/deprecated/ex_put_n_elem_num_map.c
+  src/deprecated/ex_put_n_nodal_var.c
+  src/deprecated/ex_put_n_node_num_map.c
+  src/deprecated/ex_put_n_node_set.c
+  src/deprecated/ex_put_n_node_set_df.c
+  src/deprecated/ex_put_n_one_attr.c
+  src/deprecated/ex_put_n_side_set.c
+  src/deprecated/ex_put_n_side_set_df.c
+  src/deprecated/ex_put_n_var.c
+  src/deprecated/ex_put_nodal_var_slab.c
+  src/deprecated/ex_put_node_map.c
+  src/deprecated/ex_put_node_num_map.c
+  src/deprecated/ex_put_node_set.c
+  src/deprecated/ex_put_node_set_dist_fact.c
+  src/deprecated/ex_put_node_set_param.c
+  src/deprecated/ex_put_nset_var.c
+  src/deprecated/ex_put_nset_var_tab.c
+  src/deprecated/ex_put_one_elem_attr.c
+  src/deprecated/ex_put_partial_elem_attr.c
+  src/deprecated/ex_put_partial_elem_conn.c
+  src/deprecated/ex_put_partial_elem_map.c
+  src/deprecated/ex_put_partial_elem_num_map.c
+  src/deprecated/ex_put_partial_nodal_var.c
+  src/deprecated/ex_put_partial_node_num_map.c
+  src/deprecated/ex_put_partial_node_set.c
+  src/deprecated/ex_put_partial_node_set_df.c
+  src/deprecated/ex_put_partial_side_set.c
+  src/deprecated/ex_put_partial_side_set_df.c
+  src/deprecated/ex_put_side_set.c
+  src/deprecated/ex_put_side_set_dist_fact.c
+  src/deprecated/ex_put_side_set_param.c
+  src/deprecated/ex_put_sset_var.c
+  src/deprecated/ex_put_sset_var_tab.c
+  src/deprecated/ex_put_var_name.c
+  src/deprecated/ex_put_var_names.c
+  src/deprecated/ex_put_var_param.c
+  src/deprecated/ex_put_var_tab.c
 
-INCLUDE(CheckIncludeFile)
-CHECK_INCLUDE_FILE( malloc.h EX_HAVE_MALLOC_H )
+  src/ex_add_attr.c
+  src/ex_close.c
+  src/ex_conv.c
+  src/ex_copy.c
+  src/ex_create.c
+  src/ex_create_group.c
+  src/ex_create_par.c
+  src/ex_cvt_nodes_to_sides.c
+  src/ex_err.c
+  src/ex_get_all_times.c
+  src/ex_get_attr.c
+  src/ex_get_attr_names.c
+  src/ex_get_attr_param.c
+  src/ex_get_block.c
+  src/ex_get_block_param.c
+  src/ex_get_block_params.c
+  src/ex_get_cmap_params.c
+  src/ex_get_concat_sets.c
+  src/ex_get_concat_side_set_node_count.c
+  src/ex_get_conn.c
+  src/ex_get_coord.c
+  src/ex_get_coord_names.c
+  src/ex_get_coordinate_frames.c
+  src/ex_get_eb_info_global.c
+  src/ex_get_elem_cmap.c
+  src/ex_get_elem_type.c
+  src/ex_get_entity_count_per_polyhedra.c
+  src/ex_get_glob_var_time_int.c
+  src/ex_get_glob_vars_int.c
+  src/ex_get_group_id.c
+  src/ex_get_group_ids.c
+  src/ex_get_id_map.c
+  src/ex_get_ids.c
+  src/ex_get_info.c
+  src/ex_get_init.c
+  src/ex_get_init_ext.c
+  src/ex_get_init_global.c
+  src/ex_get_init_info.c
+  src/ex_get_loadbal_param.c
+  src/ex_get_map.c
+  src/ex_get_map_param.c
+  src/ex_get_name.c
+  src/ex_get_names.c
+  src/ex_get_nodal_var_int.c
+  src/ex_get_nodal_var_time_int.c
+  src/ex_get_node_cmap.c
+  src/ex_get_ns_param_global.c
+  src/ex_get_num_map.c
+  src/ex_get_object_truth_vector.c
+  src/ex_get_one_attr.c
+  src/ex_get_partial_attr.c
+  src/ex_get_partial_conn.c
+  src/ex_get_partial_coord.c
+  src/ex_get_partial_coord_component.c
+  src/ex_get_partial_id_map.c
+  src/ex_get_partial_nodal_var_int.c
+  src/ex_get_partial_num_map.c
+  src/ex_get_partial_one_attr.c
+  src/ex_get_partial_set.c
+  src/ex_get_partial_set_dist_fact.c
+  src/ex_get_partial_var.c
+  src/ex_get_processor_elem_maps.c
+  src/ex_get_processor_node_maps.c
+  src/ex_get_prop.c
+  src/ex_get_prop_array.c
+  src/ex_get_prop_names.c
+  src/ex_get_qa.c
+  src/ex_get_set.c
+  src/ex_get_set_dist_fact.c
+  src/ex_get_set_param.c
+  src/ex_get_sets.c
+  src/ex_get_side_set_node_count.c
+  src/ex_get_side_set_node_list.c
+  src/ex_get_side_set_node_list_len.c
+  src/ex_get_ss_param_global.c
+  src/ex_get_time.c
+  src/ex_get_truth_table.c
+  src/ex_get_var.c
+  src/ex_get_var_time.c
+  src/ex_get_variable_name.c
+  src/ex_get_variable_names.c
+  src/ex_get_variable_param.c
+  src/ex_inquire.c
+  src/ex_int_get_block_param.c
+  src/ex_ne_util.c
+  src/ex_open.c
+  src/ex_open_par.c
+  src/ex_opts.c
+  src/ex_put_all_var_param.c
+  src/ex_put_all_var_param_ext.c
+  src/ex_put_attr.c
+  src/ex_put_attr_names.c
+  src/ex_put_attr_param.c
+  src/ex_put_block.c
+  src/ex_put_block_param.c
+  src/ex_put_block_params.c
+  src/ex_put_cmap_params.c
+  src/ex_put_cmap_params_cc.c
+  src/ex_put_concat_all_blocks.c
+  src/ex_put_concat_elem_block.c
+  src/ex_put_concat_sets.c
+  src/ex_put_conn.c
+  src/ex_put_coord.c
+  src/ex_put_coord_names.c
+  src/ex_put_coordinate_frames.c
+  src/ex_put_eb_info_global.c
+  src/ex_put_elem_cmap.c
+  src/ex_put_entity_count_per_polyhedra.c
+  src/ex_put_id_map.c
+  src/ex_put_info.c
+  src/ex_put_init.c
+  src/ex_put_init_ext.c
+  src/ex_put_init_global.c
+  src/ex_put_init_info.c
+  src/ex_put_loadbal_param.c
+  src/ex_put_loadbal_param_cc.c
+  src/ex_put_map.c
+  src/ex_put_map_param.c
+  src/ex_put_name.c
+  src/ex_put_names.c
+  src/ex_put_nodal_var.c
+  src/ex_put_nodal_var_int.c
+  src/ex_put_node_cmap.c
+  src/ex_put_ns_param_global.c
+  src/ex_put_num_map.c
+  src/ex_put_one_attr.c
+  src/ex_put_partial_attr.c
+  src/ex_put_partial_conn.c
+  src/ex_put_partial_coord.c
+  src/ex_put_partial_coord_component.c
+  src/ex_put_partial_id_map.c
+  src/ex_put_partial_nodal_var_int.c
+  src/ex_put_partial_num_map.c
+  src/ex_put_partial_one_attr.c
+  src/ex_put_partial_set.c
+  src/ex_put_partial_set_dist_fact.c
+  src/ex_put_partial_var.c
+  src/ex_put_processor_elem_maps.c
+  src/ex_put_processor_node_maps.c
+  src/ex_put_prop.c
+  src/ex_put_prop_array.c
+  src/ex_put_prop_names.c
+  src/ex_put_qa.c
+  src/ex_put_set.c
+  src/ex_put_set_dist_fact.c
+  src/ex_put_set_param.c
+  src/ex_put_sets.c
+  src/ex_put_ss_param_global.c
+  src/ex_put_time.c
+  src/ex_put_truth_table.c
+  src/ex_put_var.c
+  src/ex_put_variable_name.c
+  src/ex_put_variable_names.c
+  src/ex_put_variable_param.c
+  src/ex_threadsafe.c
+  src/ex_update.c
+  src/ex_utils.c)
 
-SET(EXODUSII_VERSION_MAJOR "2")
-SET(EXODUSII_VERSION_MINOR "0")
-SET(EXODUSII_VERSION_PATCH "0")
-SET(EXODUSII_VERSION "${EXODUSII_VERSION_MAJOR}.${EXODUSII_VERSION_MINOR}")
-SET(EXODUSII_VERSION_FULL "${EXODUSII_VERSION}.${EXODUSII_VERSION_PATCH}")
+if (WIN32)
+  set(EXODUS_THREADSAFE 0)
+else ()
+  set(EXODUS_THREADSAFE 1)
+endif ()
+set(PARALLEL_AWARE_EXODUS 0)
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/exodus_config.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/include/exodus_config.h"
+  @ONLY)
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/exodusII_cfg.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/include/exodusII_cfg.h"
+  @ONLY)
 
-SET(EXODUSII_BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS}")
+set(headers
+  include/exodusII.h
+  include/exodusII_int.h
+  include/vtk_exodusII_mangle.h
+  "${CMAKE_CURRENT_BINARY_DIR}/include/exodusII_cfg.h"
+  "${CMAKE_CURRENT_BINARY_DIR}/include/exodus_config.h")
 
-#-----------------------------------------------------------------------------
-# Option to allow the user to disable compiler warnings
-#-----------------------------------------------------------------------------
-OPTION (EXODUSII_DISABLE_COMPILER_WARNINGS "Disable compiler warnings" ON)
-MARK_AS_ADVANCED(EXODUSII_DISABLE_COMPILER_WARNINGS)
+vtk_add_library(vtkexodusII ${sources} ${headers})
+target_link_libraries(vtkexodusII PUBLIC ${vtknetcdf_LIBRARIES})
+if (NOT VTK_INSTALL_NO_DEVELOPMENT)
+  install(FILES
+    ${headers}
+    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtkexodusII/include"
+    COMPONENT Development)
+endif()
 
-IF (EXODUSII_DISABLE_COMPILER_WARNINGS)
-  # Visual Studio generators of CMake use /W0 to suppress warnings. 
-  # MSVC complains if another warning level is given, so remove it.
-  IF (MSVC)
-    SET (EXODUSII_WARNINGS_BLOCKED 1)
-    STRING (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " "
-        CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-    SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W0")
-  ENDIF ()
-  IF(WIN32)
-    ADD_DEFINITIONS (-D_CRT_SECURE_NO_WARNINGS)
-  ENDIF()
-  # Borland uses -w- to suppress warnings.
-  IF (BORLAND)
-    SET (EXODUSII_WARNINGS_BLOCKED 1)
-    SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w-")
-  ENDIF ()
-
-  # Most compilers use -w to suppress warnings.
-  IF (NOT EXODUSII_WARNINGS_BLOCKED)
-    SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w")
-  ENDIF ()
-ENDIF ()
-
-CONFIGURE_FILE(
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/exodusII_cfg.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/include/exodusII_cfg.h
-  @ONLY IMMEDIATE)
-
-INCLUDE_DIRECTORIES(
-  "${CMAKE_CURRENT_SOURCE_DIR}/include"
-  "${CMAKE_CURRENT_BINARY_DIR}/include"
-)
-
-SET(cbind_SRCS
-  exclos.c
-  excn2s.c
-  ex_conv.c
-  excopy.c
-  excre.c
-  exerr.c
-  exgatm.c
-  exgcns.c
-  exgcon.c
-  exgcor.c
-  exgcset.c
-  exgcss.c
-  exgean.c
-  exgatn.c
-  exgeat.c
-  exgatt.c
-  exgebi.c
-  exgelb.c
-  exgblk.c
-  exgelc.c
-  exgconn.c
-  exgem.c
-  exgenm.c
-  exgev.c
-  exgvar.c
-  exgevid.c
-  exgevt.c
-  exgvart.c
-  exgfrm.c
-  exggv.c
-  exggvt.c
-  exgids.c
-  exginf.c
-  exgini.c
-  exginix.c
-  exgmap.c
-  exgmp.c
-  exgnam.c
-  exgnams.c
-  exgnm.c
-  exgnnm.c
-  exgnp.c
-  exgns.c
-  exgnsd.c
-  exgnsi.c
-  exgnstt.c
-  exgnsv.c
-  exgnsvid.c
-  exgnv.c
-  exgnvid.c
-  exgnvt.c
-  exgnvv.c
-  exgoea.c
-  exgoatt.c
-  exgotv.c
-  exgpa.c
-  exgp.c
-  exgpem.c
-  exgpn.c
-  exgqa.c
-  exgsnl.c
-  exgsetp.c
-  exgsp.c
-  exgset.c
-  exgss.c
-  exgssc.c
-  exgsetd.c
-  exgssd.c
-  exgssi.c
-  exgssn.c
-  exgsstt.c
-  exgssv.c
-  exgssvid.c
-  exgtim.c
-  exgtt.c
-  exgvan.c
-  exgvid.c
-  exgvnm.c
-  exgvp.c
-  exgvtt.c
-  exgvv.c
-  exinq.c
-  exopen.c
-  exopts.c
-  expatn.c
-  expatt.c
-  expcab.c
-  expclb.c
-  expcns.c
-  expcon.c
-  expconn.c
-  expcor.c
-  expcset.c
-  expcss.c
-  expean.c
-  expeat.c
-  expelb.c
-  expblk.c
-  expelc.c
-  expem.c
-  expenm.c
-  expev.c
-  expfrm.c
-  expgv.c
-  expinf.c
-  expini.c
-  expinix.c
-  expmap.c
-  expmp.c
-  expnam.c
-  expnams.c
-  expnm.c
-  expnmap.c
-  exgnmap.c
-  expnnm.c
-  expnp.c
-  expns.c
-  expnsd.c
-  expnstt.c
-  expnsv.c
-  expnv.c
-  expnvv.c
-  expoea.c
-  expoatt.c
-  exppa.c
-  expp.c
-  exppem.c
-  exppn.c
-  expqa.c
-  expsetp.c
-  expset.c
-  expsetd.c
-  expsp.c
-  expss.c
-  expssd.c
-  expsstt.c
-  expssv.c
-  exptim.c
-  exptt.c
-  expvan.c
-  expvar.c
-  expvnm.c
-  expvpa.c
-  expvpax.c
-  expvp.c
-  expvpc.c
-  expvtt.c
-  expvv.c
-  exupda.c
-  ex_utils.c
-  exgattp.c
-  exgidm.c
-  exgvarnam.c
-  exgvarnams.c
-  exgvarparam.c
-  exgvartab.c
-  expattp.c
-  expidm.c
-  expvarnam.c
-  expvarnams.c
-  expvarparam.c
-  expvartab.c
-  exgcssc.c 
-  exgecpp.c 
-  exgnconn.c 
-  exgncor.c 
-  exgnnv.c 
-  exgnoatt.c 
-  exgnvar.c 
-  expecpp.c 
-  expncor.c 
-  expnnv.c 
-  expnoatt.c 
-  expnvar.c 
-  exppsetd.c
-)
-
-
-IF(APPLE)
-  SET_SOURCE_FILES_PROPERTIES(
-    ex_utils.c
-    PROPERTIES
-    COMPILE_FLAGS -fno-common)
-ENDIF()
-
-
-VTK_ADD_LIBRARY(vtkexoIIc ${cbind_SRCS})
-TARGET_LINK_LIBRARIES(vtkexoIIc ${vtknetcdf_LIBRARIES})
-
-#INCLUDE (${CMAKE_ROOT}/Modules/Dart.cmake)
-
-# Turned off until ExoIICTests.cxx problem is fixed.
-#IF (BUILD_TESTING)
-#  ENABLE_TESTING()
-#  ADD_SUBDIRECTORY(test)
-#ENDIF ()
-
+target_compile_definitions(vtkexodusII
+  PRIVATE
+    exoIIc_EXPORTS)
+target_include_directories(vtkexodusII
+  PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>")

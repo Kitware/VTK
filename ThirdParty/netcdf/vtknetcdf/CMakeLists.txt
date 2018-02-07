@@ -1,337 +1,248 @@
-PROJECT(VTKNETCDF)
+set(NC_VERSION_MAJOR 4)
+set(NC_VERSION_MINOR 5)
+set(NC_VERSION_PATCH 0)
+set(NC_VERSION_NOTE "")
+set(netCDF_VERSION ${NC_VERSION_MAJOR}.${NC_VERSION_MINOR}.${NC_VERSION_PATCH}${NC_VERSION_NOTE})
+set(VERSION ${netCDF_VERSION})
+set(NC_VERSION ${netCDF_VERSION})
 
-INCLUDE_REGULAR_EXPRESSION(".*")
+set(sources
+  libdispatch/datt.c
+  libdispatch/dattget.c
+  libdispatch/dattinq.c
+  libdispatch/dattput.c
+  libdispatch/dcompound.c
+  libdispatch/dcopy.c
+  libdispatch/ddim.c
+  libdispatch/ddispatch.c
+  libdispatch/denum.c
+  libdispatch/derror.c
+  libdispatch/dfile.c
+  libdispatch/dgroup.c
+  libdispatch/dinternal.c
+  libdispatch/doffsets.c
+  libdispatch/dopaque.c
+  libdispatch/dparallel.c
+  libdispatch/drc.c
+  libdispatch/dstring.c
+  libdispatch/dtype.c
+  libdispatch/dutf8.c
+  libdispatch/dvar.c
+  libdispatch/dvarget.c
+  libdispatch/dvarinq.c
+  libdispatch/dvarput.c
+  libdispatch/dvlen.c
+  libdispatch/dwinpath.c
+  libdispatch/nc.c
+  libdispatch/ncaux.c
+  libdispatch/ncbytes.c
+  libdispatch/nchashmap.c
+  libdispatch/nclist.c
+  libdispatch/nclistmgr.c
+  libdispatch/nclog.c
+  libdispatch/nctime.c
+  libdispatch/ncuri.c
+  libdispatch/utf8proc.c
 
-SET(VERSION "4.1.2")
-SET(PACKAGE "netcdf")
+  liblib/nc_initialize.c
 
-# Include all the necessary files for macros
-INCLUDE (CheckIncludeFiles)
-INCLUDE (CheckFunctionExists)
-INCLUDE (CheckTypeSize)
-INCLUDE (CheckSymbolExists)
-INCLUDE (TestBigEndian)
+  libsrc/attr.c
+  libsrc/dim.c
+  libsrc/lookup3.c
+  libsrc/memio.c
+  libsrc/nc3dispatch.c
+  libsrc/nc3internal.c
+  libsrc/nc_hashmap.c
+  libsrc/ncio.c
+  libsrc/ncx.c
+  libsrc/posixio.c
+  libsrc/putget.c
+  libsrc/v1hpg.c
+  libsrc/var.c
 
-MACRO(MANGLE_VARIABLE_NAME str var prefix)
-  STRING(TOUPPER "${str}" mangle_variable_name_var)
-  STRING(REGEX REPLACE "[/. ]" "_" mangle_variable_name_var "${mangle_variable_name_var}")
-  SET(${var} "${prefix}${mangle_variable_name_var}")
-ENDMACRO()
+  libsrc4/error4.c
+  libsrc4/nc4attr.c
+  libsrc4/nc4dim.c
+  libsrc4/nc4dispatch.c
+  libsrc4/nc4file.c
+  libsrc4/nc4grp.c
+  libsrc4/nc4hdf.c
+  libsrc4/nc4info.c
+  libsrc4/nc4internal.c
+  libsrc4/nc4printer.c
+  libsrc4/nc4type.c
+  libsrc4/nc4var.c
+  libsrc4/ncfunc.c)
 
-# Check if header file exists and add it to the list.
-MACRO(CHECK_INCLUDE_FILE_CONCAT FILE)
-  MANGLE_VARIABLE_NAME("${FILE}" "CHECK_INCLUDE_FILE_CONCAT_VAR" "HAVE_")
-  CHECK_INCLUDE_FILES("${HEADER_INCLUDES};${FILE}" ${CHECK_INCLUDE_FILE_CONCAT_VAR})
-  IF(${CHECK_INCLUDE_FILE_CONCAT_VAR})
-    SET(HEADER_INCLUDES ${HEADER_INCLUDES} ${FILE})
-  ENDIF()
-ENDMACRO()
+set(CHUNK_CACHE_NELEMS 1009)
+set(CHUNK_CACHE_PREEMPTION 0.75)
+set(CHUNK_CACHE_SIZE 4194304)
+set(DEFAULT_CHUNKS_IN_CACHE 10)
+set(DEFAULT_CHUNK_SIZE 4194304)
+set(MAX_DEFAULT_CACHE_SIZE 67108864)
+set(NCIO_MINBLOCKSIZE 256)
 
-MACRO(CHECK_FUNCTION_EXISTS_EX FUNC)
-  MANGLE_VARIABLE_NAME("${FUNC}" "CHECK_FUNCTION_EXISTS_EX_VAR" "HAVE_")
-  CHECK_FUNCTION_EXISTS("${FUNC}" "${CHECK_FUNCTION_EXISTS_EX_VAR}")
-ENDMACRO()
+set(JNA 1)
+set(NO_NETCDF_2 1)
+set(RELAX_COORD_BOUND 0)
+set(USE_CDF4 0)
+set(USE_DAP 0)
+set(USE_DISKLESS 1)
+set(USE_FFIO 0)
+set(USE_FSYNC 0)
+set(USE_HDF4 0)
+set(USE_MMAP 0)
+set(USE_NETCDF4 1)
+set(USE_NETCDF_2 0)
+set(USE_PARALLEL 0)
+set(USE_PARALLEL4 0)
+set(USE_PARALLEL_MPIO 0)
+set(USE_PARALLEL_POSIX 0)
+set(USE_PNETCDF 0)
+set(USE_SZIP 0)
+set(USE_ZLIB 0)
 
-MACRO(CHECK_SYMBOL_EXISTS_EX SYM)
-  MANGLE_VARIABLE_NAME("${SYM}" "CHECK_SYMBOL_EXISTS_EX_VAR" "HAVE_")
-  CHECK_SYMBOL_EXISTS("${SYM}" "${HEADER_INCLUDES}" "${CHECK_SYMBOL_EXISTS_EX_VAR}")
-ENDMACRO()
+function(is_enabled feature ret_val)
+  if(${feature})
+    set("NC_${ret_val}" 1 PARENT_SCOPE)
+  else()
+    set("NC_${ret_val}" 0 PARENT_SCOPE)
+  endif()
+endfunction()
 
-MACRO(CHECK_TYPE_SIZE_EX type)
-  MANGLE_VARIABLE_NAME("${type}" "check_type_size_var" "")
-  CHECK_TYPE_SIZE("${type}" "SIZEOF_${check_type_size_var}")
-  IF(HAVE_${check_type_size_var})
-    SET("HAVE_${check_type_size_var}" 1)
-  ENDIF()
-ENDMACRO()
+is_enabled(ENABLE_V2_API HAS_NC2)
+is_enabled(ENABLE_NETCDF_4 HAS_NC4)
+is_enabled(ENABLE_HDF4 HAS_HDF4)
+is_enabled(ENABLE_NETCDF_4 HAS_HDF5)
+is_enabled(USE_SZIP HAS_SZIP)
+is_enabled(STATUS_PNETCDF HAS_PNETCDF)
+is_enabled(STATUS_PARALLEL HAS_PARALLEL)
+is_enabled(ENABLE_PARALLEL4 HAS_PARALLEL4)
+is_enabled(ENABLE_DAP HAS_DAP)
+is_enabled(ENABLE_DAP HAS_DAP2)
+is_enabled(ENABLE_DAP4 HAS_DAP4)
+is_enabled(USE_DISKLESS HAS_DISKLESS)
+is_enabled(USE_MMAP HAS_MMAP)
+is_enabled(JNA HAS_JNA)
+is_enabled(STATUS_RELAX_COORD_BOUND RELAX_COORD_BOUND)
+is_enabled(USE_CDF5 HAS_CDF5)
 
-MACRO(C_SOURCE_COMPILES SOURCE VAR)
-  IF(NOT DEFINED "${VAR}")
-    SET(MACRO_CHECK_FUNCTION_DEFINITIONS
-      "-D${VAR} ${CMAKE_REQUIRED_FLAGS}")
-    IF(CMAKE_REQUIRED_LIBRARIES)
-      SET(C_SOURCE_COMPILES_ADD_LIBRARIES
-        "-DLINK_LIBRARIES:STRING=${CMAKE_REQUIRED_LIBRARIES}")
-    ENDIF()
-    FILE(WRITE "${CMAKE_BINARY_DIR}/CMakeTmp/src.c"
-      "${SOURCE}")
+set(USE_STDIO 0)
 
-    MESSAGE(STATUS "Performing NetCDF Test ${VAR}")
-    TRY_COMPILE(${VAR}
-      ${CMAKE_BINARY_DIR}
-      ${CMAKE_BINARY_DIR}/CMakeTmp/src.c
-      CMAKE_FLAGS
-      "${C_SOURCE_COMPILES_ADD_LIBRARIES}"
-      OUTPUT_VARIABLE OUTPUT)
-    IF(${VAR})
-      SET(${VAR} 1 CACHE INTERNAL "NetCDF test ${FUNCTION}")
-      MESSAGE(STATUS "Performing NetCDF Test ${VAR} - Success")
-      FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
-        "Performing C SOURCE FILE Test ${VAR} succeded with the following output:\n"
-        "${OUTPUT}\n"
-        "Source file was:\n${SOURCE}\n")
-    ELSE()
-      MESSAGE(STATUS "Performing NetCDF Test ${VAR} - Failed")
-      SET(${VAR} "" CACHE INTERNAL "NetCDF test ${FUNCTION}")
-      FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
-        "Performing C SOURCE FILE Test ${VAR} failed with the following output:\n"
-        "${OUTPUT}\n"
-        "Source file was:\n${SOURCE}\n")
-    ENDIF()
-  ENDIF()
-ENDMACRO()
+include(CheckSymbolExists)
+check_symbol_exists("alloca" "alloca.h" HAVE_ALLOCA)
+check_symbol_exists("isfinite" "math.h" HAVE_DECL_ISFINITE)
+check_symbol_exists("isinf" "math.h" HAVE_DECL_ISINF)
+check_symbol_exists("isnan" "math.h" HAVE_DECL_ISNAN)
+check_symbol_exists("fsync" "unistd.h" HAVE_FSYNC)
+check_symbol_exists("getpagesize" "unistd.h" HAVE_GETPAGESIZE)
+check_symbol_exists("getrlimit" "sys/time.h;sys/resource.h" HAVE_GETRLIMIT)
+check_symbol_exists("memmove" "string.h" HAVE_MEMMOVE)
+check_symbol_exists("random" "stdlib.h" HAVE_RANDOM)
+check_symbol_exists("strdup" "string.h" HAVE_STRDUP)
+check_symbol_exists("strlcat" "string.h" HAVE_STRLCAT)
+check_symbol_exists("st_blocksize" "sys/stat.h" HAVE_STRUCT_STAT_ST_BLKSIZE)
+check_symbol_exists("sysconf" "unistd.h" HAVE_SYSCONF)
 
-CHECK_INCLUDE_FILES("stdlib.h;stdarg.h;string.h;float.h" STDC_HEADERS)
-FOREACH(file
-    "alloca.h"
-    "stdlib.h"
-    "sys/types.h"
-    "sys/stat.h"
-    "unistd.h"
-    "fcntl.h"
-    "stdio.h"
-    "string.h"
-    "stddef.h"
-    "stdint.h"
-    "inttypes.h"
-    "stdbool.h"
-    )
-  CHECK_INCLUDE_FILE_CONCAT("${file}")
-ENDFOREACH()
-FOREACH(func
-    alloca
-    strerror
-    )
-  CHECK_SYMBOL_EXISTS_EX("${func}")
-ENDFOREACH()
-FOREACH(type
-    "size_t"
-    "ssize_t"
-    "ptrdiff_t"
-    "off_t"
-    "double"
-    "float"
-    "int"
-    "long"
-    "short"
-    "uchar"
-    "_Bool"
-    )
-  CHECK_TYPE_SIZE_EX("${type}")
-ENDFOREACH()
+set(HAVE_HDF5_H 1)
+check_symbol_exists("H5free_memory" "vtk_hdf5.h" HDF5_HAS_H5FREE)
+check_symbol_exists("H5Pset_all_coll_metadata_ops" "vtk_hdf5.h" H5PSET_ALL_COLL_METADATA_OPS)
+check_symbol_exists("H5Pset_libver_bounds" "vtk_hdf5.h" HDF5_HAS_LIBVER_BOUNDS)
+check_symbol_exists("HDF5_PARALLEL" "vtk_hdf5.h" HDF5_PARALLEL)
 
-SET(testsrc
-"#include <sys/stat.h>
-int main() { return 0; }
-int t() {
-struct stat s; s.st_blksize;
-; return 0; }")
-IF(HAVE_SYS_TYPES_H)
-  SET(testsrc "#include <sys/types.h>\n${testsrc}")
-ENDIF()
+include(CheckIncludeFiles)
+check_include_file("alloca.h" HAVE_ALLOCA_H)
+check_include_file("fcntl.h" HAVE_FCNTL_H)
+check_include_file("inttypes.h" HAVE_INTTYPES_H)
+check_include_file("malloc.h" HAVE_MALLOC_H)
+check_include_file("stdarg.h" HAVE_STDARG_H)
+check_include_file("stdint.h" HAVE_STDINT_H)
+check_include_file("stdlib.h" HAVE_STDLIB_H)
+check_include_file("string.h" HAVE_STRING_H)
+check_include_file("sys/param.h" HAVE_SYS_PARAM_H)
+check_include_file("sys/resource.h" HAVE_SYS_RESOURCE_H)
+check_include_file("sys/stat.h" HAVE_SYS_STAT_H)
+check_include_file("sys/types.h" HAVE_SYS_TYPES_H)
+check_include_file("unistd.h" HAVE_UNISTD_H)
 
-IF(HAVE_SYS_STAT_H)
-  C_SOURCE_COMPILES("${testsrc}" HAVE_ST_BLKSIZE)
-ENDIF()
+include(CheckTypeSize)
+check_type_size("longlong" HAVE_LONGLONG)
+check_type_size("long long int" HAVE_LONG_LONG_INT)
+check_type_size("ssize_t" HAVE_SSIZE_T)
+check_type_size("uchar" HAVE_UCHAR)
+check_type_size("uint" HAVE_UINT)
+check_type_size("ushort" HAVE_USHORT)
+check_type_size("double" SIZEOF_DOUBLE)
+check_type_size("float" SIZEOF_FLOAT)
+check_type_size("int" SIZEOF_INT)
+check_type_size("long" SIZEOF_LONG)
+check_type_size("long long" SIZEOF_LONG_LONG)
+check_type_size("off_t" SIZEOF_OFF_T)
+check_type_size("short" SIZEOF_SHORT)
+check_type_size("size_t" SIZEOF_SIZE_T)
+check_type_size("unsigned char" SIZEOF_UNSIGNED_CHAR)
+check_type_size("unsigned int" SIZEOF_UNSIGNED_INT)
+check_type_size("unsigned long long" SIZEOF_UNSIGNED_LONG_LONG)
+check_type_size("unsigned short int" SIZEOF_UNSIGNED_SHORT_INT)
 
-#
-SET(testsrc
-  "main()
-{
-  char*   path = tmpnam(NULL);
-  int     exitStatus = 1;
+set(SIZEOF_UCHAR ${HAVE_UCHAR})
+set(SIZEOF_UINT ${HAVE_UINT})
+set(SIZEOF_USHORT ${HAVE_USHORT})
+set(SIZEOF_VOIDP ${CMAKE_SIZEOF_VOID_P})
 
-  if (path != NULL)
-    {
-    int   fd = open(path, O_RDWR | O_CREAT | O_TRUNC, 0666);
+include(TestBigEndian)
+test_big_endian(WORDS_BIGENDIAN)
 
-    if (fd != -1)
-      {
-      if (write(fd, \"0\", 1) == 1)
-        {
-        off_t   pos = lseek(fd, 0, SEEK_CUR);
+set(PACKAGE_VERSION "4.5.0")
 
-        if (pos != (off_t)-1)
-          {
-          if (ftruncate(fd, 512) != -1)
-            {
-            if (pos == lseek(fd, 0, SEEK_CUR))
-              {
-              if (lseek(fd, 0, SEEK_SET) == 0)
-                {
-                char  buf[512];
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/netcdf_meta.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/include/netcdf_meta.h"
+  @ONLY)
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtk_netcdf_config.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtk_netcdf_config.h"
+  @ONLY)
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/config.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/config.h"
+  @ONLY)
 
-                if (read(fd, buf, 512) == 512)
-                  exitStatus = 0;
-                }
-              }
-            }
-          }
-        }
-      close(fd);
-      unlink(path);
-      }
-    }
+set(headers
+  include/netcdf.h
+  include/vtk_netcdf_mangle.h
+  "${CMAKE_CURRENT_BINARY_DIR}/include/netcdf_meta.h"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtk_netcdf_config.h")
 
-  return exitStatus;
-}")
-IF(HAVE_SYS_TYPES_H)
-  SET(testsrc "#include <sys/types.h>\n${testsrc}")
-ENDIF()
-IF(HAVE_SYS_STAT_H)
-  SET(testsrc "#include <sys/stat.h>\n${testsrc}")
-ENDIF()
-IF(HAVE_FCNTL_H)
-  SET(testsrc "#include <fcntl.h>\n${testsrc}")
-ENDIF()
-IF(HAVE_STDIO_H)
-  SET(testsrc "#include <stdio.h>\n${testsrc}")
-ENDIF()
-IF(HAVE_UNISTD_H)
-  SET(testsrc "#include <unistd.h>\n${testsrc}")
-ENDIF()
-C_SOURCE_COMPILES("${testsrc}" HAVE_FTRUNCATE)
+vtk_add_library(vtknetcdf ${sources} ${headers})
+target_link_libraries(vtknetcdf PUBLIC ${vtkhdf5_LIBRARIES})
 
-MACRO(INVERT_VARIABLE var val)
-  SET(INVERT_VARIABLE_VAR "${val}")
-  SET(${var} "1")
-  IF(INVERT_VARIABLE_VAR)
-    SET(${var} "0")
-  ENDIF()
-ENDMACRO()
-
-INVERT_VARIABLE(NO_STDLIB_H "${HAVE_STDLIB_H}")
-INVERT_VARIABLE(NO_SYS_TYPES_H "${HAVE_SYS_TYPES_H}")
-INVERT_VARIABLE(NO_STRERROR "${HAVE_STRERROR}")
-
-IF(NOT HAVE_SIZEOF_SIZE_T)
-  SET(size_t long)
-ENDIF()
-IF(NOT HAVE_SIZEOF_OFF_T)
-  SET(off_t long)
-ENDIF()
-IF(NOT HAVE_SIZEOF_SSIZE_T)
-  SET(ssize_t int)
-ENDIF()
-IF(NOT HAVE_SIZEOF_PTRDIFF_T)
-  SET(ptrdiff_t int)
-ENDIF()
-#IF(NOT HAVE_SIZEOF_UCHAR)
-#  SET(uchar "unsigned char")
-#ENDIF()
-
-# use the same name for the variable as in VTK, so the result is reused
-TEST_BIG_ENDIAN(CMAKE_WORDS_BIGENDIAN)
-SET(WORDS_BIGENDIAN ${CMAKE_WORDS_BIGENDIAN})
-
-# NetCDF4 needs HDF5 HL support. VTK's usage of HDF5 will always require
-# the presence of HL libraries so we no longer need to explicitly check
-# for them
-set (USE_NETCDF4 ON)
-
-if (USE_NETCDF4)
-  set(HAVE_HDF5_H ON)
-  set(HAVE_LIBHDF5 ON)
-  set(HAVE_LIBHDF5_HL ON)
-
-  # message(STATUS "NETCDF4 support is enabled.")
-  set(NETCDF4_DEFAULT_CHUNK_SIZE 4194304 CACHE STRING "Specify default size of chunks in bytes.")
-  mark_as_advanced(NETCDF4_DEFAULT_CHUNK_SIZE)
-  
-  set(NETCDF4_MAX_DEFAULT_CACHE_SIZE 67108864 CACHE STRING "Specify maximum size (in bytes) for the default per-var chunk cache.")
-  mark_as_advanced(NETCDF4_MAX_DEFAULT_CACHE_SIZE)
-
-  set(NETCDF4_DEFAULT_CHUNKS_IN_CACHE 10 CACHE STRING "Specify the number of chunks to store in default per-variable cache.")
-  mark_as_advanced(NETCDF4_DEFAULT_CHUNKS_IN_CACHE)
-
-  set(NETCDF4_CHUNK_CACHE_SIZE 4194304 CACHE STRING "Specify default file cache chunk size for HDF5 files in bytes.")
-  mark_as_advanced(NETCDF4_CHUNK_CACHE_SIZE)
-
-  set(NETCDF4_CHUNK_CACHE_NELEMS 1009 CACHE STRING "Specify default maximum number of elements in the file chunk cache chunk for HDF5 files (should be prime number).")
-  mark_as_advanced(NETCDF4_CHUNK_CACHE_NELEMS)
-
-  set(NETCDF4_CHUNK_CACHE_PREEMPTION 0.75 CACHE STRING "Specify default file chunk cache preemption policy for HDF5 files (a number between 0 and 1, inclusive).")
-  mark_as_advanced(NETCDF4_CHUNK_CACHE_PREEMPTION)
+if (NOT VTK_INSTALL_NO_DEVELOPMENT)
+  install(FILES
+    ${headers}
+    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtknetcdf/include"
+    COMPONENT Development)
+endif()
+target_compile_definitions(vtknetcdf
+  PRIVATE
+    HAVE_CONFIG_H)
+if (WIN32 AND BUILD_SHARED_LIBS)
+  target_compile_definitions(vtknetcdf
+    PRIVATE
+      DLL_EXPORT
+      DLL_NETCDF)
 endif ()
-  
-CONFIGURE_FILE(vtk_netcdf_config.h.in vtk_netcdf_config.h @ONLY IMMEDIATE)
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/ncconfig.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY IMMEDIATE)
-
-#-----------------------------------------------------------------------------
-# Option to allow the user to disable compiler warnings
-#-----------------------------------------------------------------------------
-OPTION (NETCDF_DISABLE_COMPILER_WARNINGS "Disable compiler warnings" ON)
-MARK_AS_ADVANCED(NETCDF_DISABLE_COMPILER_WARNINGS)
-IF (NETCDF_DISABLE_COMPILER_WARNINGS)
-  # Visual Studio generators of CMake use /W0 to suppress warnings. 
-  # MSVC complains if another warning level is given, so remove it.
-  IF (MSVC)
-    STRING (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " "
-        CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-    SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W0")
-  # Borland uses -w- to suppress warnings.
-  ELSEIF (BORLAND)
-    SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w-")
-  ELSE ()
-  # Most compilers use -w to suppress warnings.
-    SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w")
-  ENDIF ()
-ENDIF ()
-
-
-#-----------------------------------------------------------------------------
-#configure the various requested parts of netcdf 
-#-----------------------------------------------------------------------------
-# Take care of symbol export/import on Windows
-ADD_DEFINITIONS("-DNC_DLL_EXPORT")
-
-INCLUDE_DIRECTORIES(BEFORE
-  ${CMAKE_CURRENT_BINARY_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/libdispatch
-  ${CMAKE_CURRENT_SOURCE_DIR}/libsrc
-  ${CMAKE_CURRENT_SOURCE_DIR}/libsrc4
-  )
-
-ADD_SUBDIRECTORY(liblib)
-
-ADD_SUBDIRECTORY(libdispatch)
-
-ADD_SUBDIRECTORY(libsrc)
-
-IF (USE_NETCDF4)
-  ADD_SUBDIRECTORY(libsrc4)
-ENDIF ()
-
-IF(APPLE)
-  SET_SOURCE_FILES_PROPERTIES(
-    v2i.c
-    PROPERTIES
-    COMPILE_FLAGS -fno-common)
-ENDIF()
-
-VTK_ADD_LIBRARY(vtkNetCDF 
-    ${netcdf_src_SOURCES}
-    ${netcdf_src4_SOURCES}
-    ${netcdf_dispatch_SOURCES}
-    ${netcdf_liblib_SOURCES})
-target_link_libraries(vtkNetCDF ${vtkhdf5_LIBRARIES})
+target_include_directories(vtknetcdf
+  PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/libdispatch"
+    "${CMAKE_CURRENT_SOURCE_DIR}/libsrc"
+    "${CMAKE_CURRENT_SOURCE_DIR}/libsrc4"
+    "${CMAKE_CURRENT_BINARY_DIR}/include")
 
 if (UNIX)
   # link against the math library.
-  target_link_libraries(vtkNetCDF m)
-endif()
-
-#-----------------------------------------------------------------------------
-#package the result
-#-----------------------------------------------------------------------------
-
-IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  INSTALL(FILES
-    ${VTKNETCDF_SOURCE_DIR}/include/netcdf.h
-    ${VTKNETCDF_SOURCE_DIR}/include/vtk_netcdf_mangle.h
-    ${VTKNETCDF_BINARY_DIR}/vtk_netcdf_config.h
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtknetcdf/include
-    COMPONENT Development)
-ENDIF()
+  target_link_libraries(vtknetcdf
+    PRIVATE
+      m)
+endif ()

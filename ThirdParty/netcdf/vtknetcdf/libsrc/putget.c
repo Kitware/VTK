@@ -3,15 +3,19 @@
  *	Copyright 1996, University Corporation for Atmospheric Research
  *      See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
-/* $Id: putget.m4,v 2.79 2010/05/29 22:25:01 russ Exp $ */
+/* $Id: putget.m4 2783 2014-10-26 05:19:35Z wkliao $ */
 
-#include "config.h"
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
 
 #include "netcdf.h"
-#include "nc.h"
+#include "nc3dispatch.h"
+#include "nc3internal.h"
 #include "ncx.h"
 #include "fbits.h"
 #include "onstack.h"
@@ -21,25 +25,16 @@
 #    include <stdio.h>
 #  endif
 #endif
-#include "nc3dispatch.h"
 
-#ifdef __BORLANDC__
-#  pragma warn -8004 /* "assigned a value that is never used" */
-#  pragma warn -8065 /* "Call to function 'XXX' with no prototype" */
-#endif
-
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
-#  pragma warning ( disable : 4130 ) /* logical operation on address of string constant */
-#endif /* defined(_MSC_VER) && (_MSC_VER >= 1400) */
 
 #undef MIN  /* system may define MIN somewhere and complain */
 #define MIN(mm,nn) (((mm) < (nn)) ? (mm) : (nn))
 
 static int
-readNCv(const NC* ncp, const NC_var* varp, const size_t* start,
+readNCv(const NC3_INFO* ncp, const NC_var* varp, const size_t* start,
         const size_t nelems, void* value, const nc_type memtype);
 static int
-writeNCv(NC* ncp, const NC_var* varp, const size_t* start,
+writeNCv(NC3_INFO* ncp, const NC_var* varp, const size_t* start,
          const size_t nelems, const void* value, const nc_type memtype);
 
 
@@ -54,10 +49,10 @@ void
 arrayp(const char *label, size_t count, const size_t *array)
 {
 	(void) fprintf(stderr, "%s", label);
-	(void) fputc('\t',stderr);	
+	(void) fputc('\t',stderr);
 	for(; count > 0; count--, array++)
 		(void) fprintf(stderr," %lu", (unsigned long)*array);
-	(void) fputc('\n',stderr);	
+	(void) fputc('\n',stderr);
 }
 #endif /* ODEBUG */
 
@@ -66,7 +61,7 @@ arrayp(const char *label, size_t count, const size_t *array)
 /*
  * This is tunable parameter.
  * It essentially controls the tradeoff between the number of times
- * memcpy() gets called to copy the external data to fill 
+ * memcpy() gets called to copy the external data to fill
  * a large buffer vs the number of times its called to
  * prepare the external data.
  */
@@ -102,7 +97,7 @@ NC_fill_schar(
 			*vp++ = NC_FILL_BYTE;
 		}
 	}
-	return ncx_putn_schar_schar(xpp, nelems, fillp);
+	return ncx_putn_schar_schar(xpp, nelems, fillp ,NULL);
 }
 
 static int
@@ -122,7 +117,7 @@ NC_fill_char(
 			*vp++ = NC_FILL_CHAR;
 		}
 	}
-	return ncx_putn_char_char(xpp, nelems, fillp);
+	return ncx_putn_char_char(xpp, nelems, fillp );
 }
 
 static int
@@ -142,7 +137,7 @@ NC_fill_short(
 			*vp++ = NC_FILL_SHORT;
 		}
 	}
-	return ncx_putn_short_short(xpp, nelems, fillp);
+	return ncx_putn_short_short(xpp, nelems, fillp ,NULL);
 }
 
 
@@ -164,7 +159,7 @@ NC_fill_int(
 			*vp++ = NC_FILL_INT;
 		}
 	}
-	return ncx_putn_int_int(xpp, nelems, fillp);
+	return ncx_putn_int_int(xpp, nelems, fillp ,NULL);
 }
 
 #elif SIZEOF_LONG == X_SIZEOF_INT
@@ -185,7 +180,7 @@ NC_fill_int(
 			*vp++ = NC_FILL_INT;
 		}
 	}
-	return ncx_putn_int_long(xpp, nelems, fillp);
+	return ncx_putn_int_long(xpp, nelems, fillp ,NULL);
 }
 
 #else
@@ -209,7 +204,7 @@ NC_fill_float(
 			*vp++ = NC_FILL_FLOAT;
 		}
 	}
-	return ncx_putn_float_float(xpp, nelems, fillp);
+	return ncx_putn_float_float(xpp, nelems, fillp ,NULL);
 }
 
 static int
@@ -229,14 +224,114 @@ NC_fill_double(
 			*vp++ = NC_FILL_DOUBLE;
 		}
 	}
-	return ncx_putn_double_double(xpp, nelems, fillp);
+	return ncx_putn_double_double(xpp, nelems, fillp ,NULL);
+}
+
+
+static int
+NC_fill_uchar(
+	void **xpp,
+	size_t nelems)	/* how many */
+{
+	uchar fillp[NFILL * sizeof(double)/X_SIZEOF_UBYTE];
+
+	assert(nelems <= sizeof(fillp)/sizeof(fillp[0]));
+
+	{
+		uchar *vp = fillp;	/* lower bound of area to be filled */
+		const uchar *const end = vp + nelems;
+		while(vp < end)
+		{
+			*vp++ = NC_FILL_UBYTE;
+		}
+	}
+	return ncx_putn_uchar_uchar(xpp, nelems, fillp ,NULL);
+}
+
+static int
+NC_fill_ushort(
+	void **xpp,
+	size_t nelems)	/* how many */
+{
+	ushort fillp[NFILL * sizeof(double)/X_SIZEOF_USHORT];
+
+	assert(nelems <= sizeof(fillp)/sizeof(fillp[0]));
+
+	{
+		ushort *vp = fillp;	/* lower bound of area to be filled */
+		const ushort *const end = vp + nelems;
+		while(vp < end)
+		{
+			*vp++ = NC_FILL_USHORT;
+		}
+	}
+	return ncx_putn_ushort_ushort(xpp, nelems, fillp ,NULL);
+}
+
+static int
+NC_fill_uint(
+	void **xpp,
+	size_t nelems)	/* how many */
+{
+	uint fillp[NFILL * sizeof(double)/X_SIZEOF_UINT];
+
+	assert(nelems <= sizeof(fillp)/sizeof(fillp[0]));
+
+	{
+		uint *vp = fillp;	/* lower bound of area to be filled */
+		const uint *const end = vp + nelems;
+		while(vp < end)
+		{
+			*vp++ = NC_FILL_UINT;
+		}
+	}
+	return ncx_putn_uint_uint(xpp, nelems, fillp ,NULL);
+}
+
+static int
+NC_fill_longlong(
+	void **xpp,
+	size_t nelems)	/* how many */
+{
+	longlong fillp[NFILL * sizeof(double)/X_SIZEOF_LONGLONG];
+
+	assert(nelems <= sizeof(fillp)/sizeof(fillp[0]));
+
+	{
+		longlong *vp = fillp;	/* lower bound of area to be filled */
+		const longlong *const end = vp + nelems;
+		while(vp < end)
+		{
+			*vp++ = NC_FILL_INT64;
+		}
+	}
+	return ncx_putn_longlong_longlong(xpp, nelems, fillp ,NULL);
+}
+
+static int
+NC_fill_ulonglong(
+	void **xpp,
+	size_t nelems)	/* how many */
+{
+	ulonglong fillp[NFILL * sizeof(double)/X_SIZEOF_ULONGLONG];
+
+	assert(nelems <= sizeof(fillp)/sizeof(fillp[0]));
+
+	{
+		ulonglong *vp = fillp;	/* lower bound of area to be filled */
+		const ulonglong *const end = vp + nelems;
+		while(vp < end)
+		{
+			*vp++ = NC_FILL_UINT64;
+		}
+	}
+	return ncx_putn_ulonglong_ulonglong(xpp, nelems, fillp ,NULL);
 }
 
 
 
 
-
-/* 
+/*
  * Fill the external space for variable 'varp' values at 'recno' with
  * the appropriate value. If 'varp' is not a record variable, fill the
  * whole thing.  For the special case when 'varp' is the only record
@@ -246,7 +341,7 @@ NC_fill_double(
 xdr_NC_fill()
  */
 int
-fill_NC_var(NC *ncp, const NC_var *varp, size_t varsize, size_t recno)
+fill_NC_var(NC3_INFO* ncp, const NC_var *varp, size_t varsize, size_t recno)
 {
 	char xfillp[NFILL * X_SIZEOF_DOUBLE];
 	const size_t step = varp->xsz;
@@ -287,12 +382,12 @@ fill_NC_var(NC *ncp, const NC_var *varp, size_t varsize, size_t recno)
 	else
 	{
 		/* use the default */
-		
+
 		assert(xsz % X_ALIGN == 0);
 		assert(xsz <= sizeof(xfillp));
-	
+
 		xp = xfillp;
-	
+
 		switch(varp->type){
 		case NC_BYTE :
 			status = NC_fill_schar(&xp, nelems);
@@ -309,9 +404,24 @@ fill_NC_var(NC *ncp, const NC_var *varp, size_t varsize, size_t recno)
 		case NC_FLOAT :
 			status = NC_fill_float(&xp, nelems);
 			break;
-		case NC_DOUBLE : 
+		case NC_DOUBLE :
 			status = NC_fill_double(&xp, nelems);
 			break;
+                case NC_UBYTE :
+                        status = NC_fill_uchar(&xp, nelems);
+                        break;
+                case NC_USHORT :
+                        status = NC_fill_ushort(&xp, nelems);
+                        break;
+                case NC_UINT :
+                        status = NC_fill_uint(&xp, nelems);
+                        break;
+                case NC_INT64 :
+                        status = NC_fill_longlong(&xp, nelems);
+                        break;
+                case NC_UINT64 :
+                        status = NC_fill_ulonglong(&xp, nelems);
+                        break;
 		default :
 			assert("fill_NC_var invalid type" == 0);
 			status = NC_EBADTYPE;
@@ -319,7 +429,7 @@ fill_NC_var(NC *ncp, const NC_var *varp, size_t varsize, size_t recno)
 		}
 		if(status != NC_NOERR)
 			return status;
-	
+
 		assert(xp == xfillp + xsz);
 	}
 
@@ -345,8 +455,8 @@ fill_NC_var(NC *ncp, const NC_var *varp, size_t varsize, size_t recno)
 		const size_t chunksz = MIN(remaining, ncp->chunk);
 		size_t ii;
 
-		status = ncp->nciop->get(ncp->nciop, offset, chunksz,
-				 RGN_WRITE, &xp);	
+		status = ncio_get(ncp->nciop, offset, chunksz,
+				 RGN_WRITE, &xp);
 		if(status != NC_NOERR)
 		{
 			return status;
@@ -373,7 +483,7 @@ fill_NC_var(NC *ncp, const NC_var *varp, size_t varsize, size_t recno)
 
 		}
 
-		status = ncp->nciop->rel(ncp->nciop, offset, RGN_MODIFIED);
+		status = ncio_rel(ncp->nciop, offset, RGN_MODIFIED);
 
 		if(status != NC_NOERR)
 		{
@@ -396,7 +506,7 @@ fill_NC_var(NC *ncp, const NC_var *varp, size_t varsize, size_t recno)
  * Add a record containing the fill values.
  */
 static int
-NCfillrecord(NC *ncp, const NC_var *const *varpp, size_t recno)
+NCfillrecord(NC3_INFO* ncp, const NC_var *const *varpp, size_t recno)
 {
 	size_t ii = 0;
 	for(; ii < ncp->vars.nelems; ii++, varpp++)
@@ -421,7 +531,7 @@ NCfillrecord(NC *ncp, const NC_var *const *varpp, size_t recno)
  * record to be four-byte aligned (no record padding).
  */
 static int
-NCfillspecialrecord(NC *ncp, const NC_var *varp, size_t recno)
+NCfillspecialrecord(NC3_INFO* ncp, const NC_var *varp, size_t recno)
 {
     int status;
     assert(IS_RECVAR(varp));
@@ -442,11 +552,11 @@ NCfillspecialrecord(NC *ncp, const NC_var *varp, size_t recno)
  * Grow the file to a size which can contain recno
  */
 static int
-NCtouchlast(NC *ncp, const NC_var *const *varpp, size_t recno)
+NCtouchlast(NC3_INFO* ncp, const NC_var *const *varpp, size_t recno)
 {
 	int status = NC_NOERR;
 	const NC_var *varp = NULL;
-	
+
 	{
 	size_t ii = 0;
 	for(; ii < ncp->vars.nelems; ii++, varpp++)
@@ -467,12 +577,12 @@ NCtouchlast(NC *ncp, const NC_var *const *varpp, size_t recno)
 		void *xp;
 
 
-		status = ncp->nciop->get(ncp->nciop, offset, varp->xsz,
-				 RGN_WRITE, &xp);	
+		status = ncio_get(ncp->nciop, offset, varp->xsz,
+				 RGN_WRITE, &xp);
 		if(status != NC_NOERR)
 			return status;
 		(void)memset(xp, 0, varp->xsz);
-		status = ncp->nciop->rel(ncp->nciop, offset, RGN_MODIFIED);
+		status = ncio_rel(ncp->nciop, offset, RGN_MODIFIED);
 	}
 	return status;
 }
@@ -481,10 +591,10 @@ NCtouchlast(NC *ncp, const NC_var *const *varpp, size_t recno)
 
 /*
  * Ensure that the netcdf file has 'numrecs' records,
- * add records and fill as neccessary.
+ * add records and fill as necessary.
  */
 static int
-NCvnrecs(NC *ncp, size_t numrecs)
+NCvnrecs(NC3_INFO* ncp, size_t numrecs)
 {
 	int status = NC_NOERR;
 #ifdef LOCKNUMREC
@@ -508,7 +618,7 @@ NCvnrecs(NC *ncp, size_t numrecs)
 #endif
 		/* work-around for non-unique tickets */
 		if (nowserving > myticket && nowserving < myticket + numpe ) {
-			/* get a new ticket ... you've been bypassed */ 
+			/* get a new ticket ... you've been bypassed */
 			/* and handle the unlikely wrap-around effect */
 			myticket = shmem_short_finc(
 				(shmem_t *) ncp->lock + LOCKNUMREC_LOCK,
@@ -543,9 +653,9 @@ NCvnrecs(NC *ncp, size_t numrecs)
 		}
 		else
 		{
-		    /* Treat two cases differently: 
+		    /* Treat two cases differently:
 		        - exactly one record variable (no padding)
-                        - multiple record variables (each record padded 
+                        - multiple record variables (each record padded
                           to 4-byte alignment)
 		    */
 		    NC_var **vpp = (NC_var **)ncp->vars.value;
@@ -553,7 +663,7 @@ NCvnrecs(NC *ncp, size_t numrecs)
 		    NC_var *recvarp = NULL;	/* last record var */
 		    int numrecvars = 0;
 		    size_t cur_nrecs;
-		    
+
 		    /* determine how many record variables */
 		    for( /*NADA*/; vpp < end; vpp++) {
 			if(IS_RECVAR(*vpp)) {
@@ -561,7 +671,7 @@ NCvnrecs(NC *ncp, size_t numrecs)
 			    numrecvars++;
 			}
 		    }
-		    
+
 		    if (numrecvars != 1) { /* usual case */
 			/* Fill each record out to numrecs */
 			while((cur_nrecs = NC_get_numrecs(ncp)) < numrecs)
@@ -592,7 +702,7 @@ NCvnrecs(NC *ncp, size_t numrecs)
 			}
 			if(status != NC_NOERR)
 				goto common_return;
-			
+
 		    }
 		}
 
@@ -612,11 +722,11 @@ common_return:
 }
 
 
-/* 
+/*
  * Check whether 'coord' values are valid for the variable.
  */
 static int
-NCcoordck(NC *ncp, const NC_var *varp, const size_t *coord)
+NCcoordck(NC3_INFO* ncp, const NC_var *varp, const size_t *coord)
 {
 	const size_t *ip;
 	size_t *up;
@@ -626,9 +736,13 @@ NCcoordck(NC *ncp, const NC_var *varp, const size_t *coord)
 
 	if(IS_RECVAR(varp))
 	{
-		if(*coord > X_INT_MAX)
+		if(*coord > X_UINT_MAX) /* rkr: bug fix from previous X_INT_MAX */
 			return NC_EINVALCOORDS; /* sanity check */
+#ifdef RELAX_COORD_BOUND
+		if(NC_readonly(ncp) && *coord > NC_get_numrecs(ncp))
+#else
 		if(NC_readonly(ncp) && *coord >= NC_get_numrecs(ncp))
+#endif
 		{
 			if(!NC_doNsync(ncp))
 				return NC_EINVALCOORDS;
@@ -638,7 +752,11 @@ NCcoordck(NC *ncp, const NC_var *varp, const size_t *coord)
 				const int status = read_numrecs(ncp);
 				if(status != NC_NOERR)
 					return status;
+#ifdef RELAX_COORD_BOUND
+				if(*coord > NC_get_numrecs(ncp))
+#else
 				if(*coord >= NC_get_numrecs(ncp))
+#endif
 					return NC_EINVALCOORDS;
 			}
 		}
@@ -650,7 +768,7 @@ NCcoordck(NC *ncp, const NC_var *varp, const size_t *coord)
 		ip = coord;
 		up = varp->shape;
 	}
-	
+
 #ifdef CDEBUG
 fprintf(stderr,"	NCcoordck: coord %ld, count %d, ip %ld\n",
 		coord, varp->ndims, ip );
@@ -665,7 +783,11 @@ fprintf(stderr,"	NCcoordck: ip %p, *ip %ld, up %p, *up %lu\n",
 #endif /* CDEBUG */
 
 		/* cast needed for braindead systems with signed size_t */
+#ifdef RELAX_COORD_BOUND
+		if((unsigned long) *ip > (unsigned long) *up )
+#else
 		if((unsigned long) *ip >= (unsigned long) *up )
+#endif
 			return NC_EINVALCOORDS;
 	}
 
@@ -673,12 +795,12 @@ fprintf(stderr,"	NCcoordck: ip %p, *ip %ld, up %p, *up %lu\n",
 }
 
 
-/* 
+/*
  * Check whether 'edges' are valid for the variable and 'start'
  */
 /*ARGSUSED*/
 static int
-NCedgeck(const NC *ncp, const NC_var *varp,
+NCedgeck(const NC3_INFO* ncp, const NC_var *varp,
 	 const size_t *start, const size_t *edges)
 {
 	const size_t *const end = start + varp->ndims;
@@ -689,6 +811,11 @@ NCedgeck(const NC *ncp, const NC_var *varp,
 
 	if(IS_RECVAR(varp))
 	{
+#ifdef RELAX_COORD_BOUND
+		if (NC_readonly(ncp) &&
+                    (start[0] == NC_get_numrecs(ncp) && edges[0] > 0))
+			return(NC_EINVALCOORDS);
+#endif
 		start++;
 		edges++;
 		shp++;
@@ -696,6 +823,10 @@ NCedgeck(const NC *ncp, const NC_var *varp,
 
 	for(; start < end; start++, edges++, shp++)
 	{
+#ifdef RELAX_COORD_BOUND
+		if ((unsigned long) *start == *shp && *edges > 0)
+			return(NC_EINVALCOORDS);
+#endif
 		/* cast needed for braindead systems with signed size_t */
 		if((unsigned long) *edges > *shp ||
 			(unsigned long) *start + (unsigned long) *edges > *shp)
@@ -707,11 +838,11 @@ NCedgeck(const NC *ncp, const NC_var *varp,
 }
 
 
-/* 
+/*
  * Translate the (variable, coord) pair into a seek index
  */
 static off_t
-NC_varoffset(const NC *ncp, const NC_var *varp, const size_t *coord)
+NC_varoffset(const NC3_INFO* ncp, const NC_var *varp, const size_t *coord)
 {
 	if(varp->ndims == 0) /* 'scalar' variable */
 		return varp->begin;
@@ -731,7 +862,7 @@ NC_varoffset(const NC *ncp, const NC_var *varp, const size_t *coord)
 		off_t *up = varp->dsizes +1;
 		const size_t *ip = coord;
 		const off_t *const end = varp->dsizes + varp->ndims;
-		
+
 		if(IS_RECVAR(varp))
 			up++, ip++;
 
@@ -739,10 +870,10 @@ NC_varoffset(const NC *ncp, const NC_var *varp, const size_t *coord)
 			lcoord += (off_t)(*up) * (off_t)(*ip);
 
 		lcoord *= varp->xsz;
-		
+
 		if(IS_RECVAR(varp))
 			lcoord += (off_t)(*coord) * ncp->recsize;
-		
+
 		lcoord += varp->begin;
 		return lcoord;
 	}
@@ -751,2087 +882,5473 @@ NC_varoffset(const NC *ncp, const NC_var *varp, const size_t *coord)
 
 
 static int
-putNCvx_char_char(NC *ncp, const NC_var *varp,
+putNCvx_char_char(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const char *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_char_char(&xp, nput, value);
+
+		lstatus = ncx_putn_char_char(&xp, nput, value );
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 
 static int
-putNCvx_schar_schar(NC *ncp, const NC_var *varp,
+putNCvx_schar_schar(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const schar *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_schar_schar(&xp, nput, value);
+
+		lstatus = ncx_putn_schar_schar(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_schar_uchar(NC *ncp, const NC_var *varp,
+putNCvx_schar_uchar(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const uchar *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_schar_uchar(&xp, nput, value);
+
+		lstatus = ncx_putn_schar_uchar(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_schar_short(NC *ncp, const NC_var *varp,
+putNCvx_schar_short(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const short *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_schar_short(&xp, nput, value);
+
+		lstatus = ncx_putn_schar_short(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_schar_int(NC *ncp, const NC_var *varp,
+putNCvx_schar_int(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const int *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_schar_int(&xp, nput, value);
+
+		lstatus = ncx_putn_schar_int(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_schar_float(NC *ncp, const NC_var *varp,
+putNCvx_schar_float(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const float *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_schar_float(&xp, nput, value);
+
+		lstatus = ncx_putn_schar_float(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_schar_double(NC *ncp, const NC_var *varp,
+putNCvx_schar_double(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const double *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_schar_double(&xp, nput, value);
+
+		lstatus = ncx_putn_schar_double(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_schar_longlong(NC *ncp, const NC_var *varp,
+putNCvx_schar_longlong(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const longlong *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_schar_longlong(&xp, nput, value);
+
+		lstatus = ncx_putn_schar_longlong(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_schar_ushort(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const ushort *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_schar_ushort(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_schar_uint(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const uint *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_schar_uint(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_schar_ulonglong(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const ulonglong *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_schar_ulonglong(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 
 static int
-putNCvx_short_schar(NC *ncp, const NC_var *varp,
+putNCvx_short_schar(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const schar *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_short_schar(&xp, nput, value);
+
+		lstatus = ncx_putn_short_schar(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_short_uchar(NC *ncp, const NC_var *varp,
+putNCvx_short_uchar(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const uchar *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_short_uchar(&xp, nput, value);
+
+		lstatus = ncx_putn_short_uchar(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_short_short(NC *ncp, const NC_var *varp,
+putNCvx_short_short(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const short *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_short_short(&xp, nput, value);
+
+		lstatus = ncx_putn_short_short(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_short_int(NC *ncp, const NC_var *varp,
+putNCvx_short_int(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const int *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_short_int(&xp, nput, value);
+
+		lstatus = ncx_putn_short_int(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_short_float(NC *ncp, const NC_var *varp,
+putNCvx_short_float(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const float *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_short_float(&xp, nput, value);
+
+		lstatus = ncx_putn_short_float(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_short_double(NC *ncp, const NC_var *varp,
+putNCvx_short_double(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const double *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_short_double(&xp, nput, value);
+
+		lstatus = ncx_putn_short_double(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_short_longlong(NC *ncp, const NC_var *varp,
+putNCvx_short_longlong(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const longlong *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_short_longlong(&xp, nput, value);
+
+		lstatus = ncx_putn_short_longlong(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_short_ushort(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const ushort *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_short_ushort(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_short_uint(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const uint *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_short_uint(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_short_ulonglong(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const ulonglong *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_short_ulonglong(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 
 static int
-putNCvx_int_schar(NC *ncp, const NC_var *varp,
+putNCvx_int_schar(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const schar *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_int_schar(&xp, nput, value);
+
+		lstatus = ncx_putn_int_schar(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_int_uchar(NC *ncp, const NC_var *varp,
+putNCvx_int_uchar(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const uchar *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_int_uchar(&xp, nput, value);
+
+		lstatus = ncx_putn_int_uchar(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_int_short(NC *ncp, const NC_var *varp,
+putNCvx_int_short(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const short *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_int_short(&xp, nput, value);
+
+		lstatus = ncx_putn_int_short(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_int_int(NC *ncp, const NC_var *varp,
+putNCvx_int_int(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const int *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_int_int(&xp, nput, value);
+
+		lstatus = ncx_putn_int_int(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_int_float(NC *ncp, const NC_var *varp,
+putNCvx_int_float(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const float *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_int_float(&xp, nput, value);
+
+		lstatus = ncx_putn_int_float(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_int_double(NC *ncp, const NC_var *varp,
+putNCvx_int_double(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const double *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_int_double(&xp, nput, value);
+
+		lstatus = ncx_putn_int_double(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_int_longlong(NC *ncp, const NC_var *varp,
+putNCvx_int_longlong(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const longlong *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_int_longlong(&xp, nput, value);
+
+		lstatus = ncx_putn_int_longlong(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_int_ushort(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const ushort *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_int_ushort(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_int_uint(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const uint *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_int_uint(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_int_ulonglong(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const ulonglong *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_int_ulonglong(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 
 static int
-putNCvx_float_schar(NC *ncp, const NC_var *varp,
+putNCvx_float_schar(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const schar *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_float_schar(&xp, nput, value);
+
+		lstatus = ncx_putn_float_schar(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_float_uchar(NC *ncp, const NC_var *varp,
+putNCvx_float_uchar(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const uchar *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_float_uchar(&xp, nput, value);
+
+		lstatus = ncx_putn_float_uchar(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_float_short(NC *ncp, const NC_var *varp,
+putNCvx_float_short(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const short *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_float_short(&xp, nput, value);
+
+		lstatus = ncx_putn_float_short(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_float_int(NC *ncp, const NC_var *varp,
+putNCvx_float_int(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const int *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_float_int(&xp, nput, value);
+
+		lstatus = ncx_putn_float_int(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_float_float(NC *ncp, const NC_var *varp,
+putNCvx_float_float(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const float *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_float_float(&xp, nput, value);
+
+		lstatus = ncx_putn_float_float(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_float_double(NC *ncp, const NC_var *varp,
+putNCvx_float_double(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const double *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_float_double(&xp, nput, value);
+
+		lstatus = ncx_putn_float_double(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_float_longlong(NC *ncp, const NC_var *varp,
+putNCvx_float_longlong(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const longlong *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_float_longlong(&xp, nput, value);
+
+		lstatus = ncx_putn_float_longlong(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_float_ushort(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const ushort *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_float_ushort(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_float_uint(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const uint *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_float_uint(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_float_ulonglong(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const ulonglong *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_float_ulonglong(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 
 static int
-putNCvx_double_schar(NC *ncp, const NC_var *varp,
+putNCvx_double_schar(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const schar *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_double_schar(&xp, nput, value);
+
+		lstatus = ncx_putn_double_schar(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_double_uchar(NC *ncp, const NC_var *varp,
+putNCvx_double_uchar(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const uchar *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_double_uchar(&xp, nput, value);
+
+		lstatus = ncx_putn_double_uchar(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_double_short(NC *ncp, const NC_var *varp,
+putNCvx_double_short(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const short *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_double_short(&xp, nput, value);
+
+		lstatus = ncx_putn_double_short(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_double_int(NC *ncp, const NC_var *varp,
+putNCvx_double_int(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const int *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_double_int(&xp, nput, value);
+
+		lstatus = ncx_putn_double_int(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_double_float(NC *ncp, const NC_var *varp,
+putNCvx_double_float(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const float *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_double_float(&xp, nput, value);
+
+		lstatus = ncx_putn_double_float(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_double_double(NC *ncp, const NC_var *varp,
+putNCvx_double_double(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const double *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_double_double(&xp, nput, value);
+
+		lstatus = ncx_putn_double_double(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_double_longlong(NC *ncp, const NC_var *varp,
+putNCvx_double_longlong(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const longlong *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_double_longlong(&xp, nput, value);
+
+		lstatus = ncx_putn_double_longlong(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
-
-#ifdef NOTUSED
 static int
-putNCvx_schar_uint(NC *ncp, const NC_var *varp,
+putNCvx_double_ushort(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const ushort *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_double_ushort(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_double_uint(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const uint *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_schar_uint(&xp, nput, value);
+
+		lstatus = ncx_putn_double_uint(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_schar_ulonglong(NC *ncp, const NC_var *varp,
+putNCvx_double_ulonglong(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const ulonglong *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_schar_ulonglong(&xp, nput, value);
+
+		lstatus = ncx_putn_double_ulonglong(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+
+static int
+putNCvx_uchar_schar(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const schar *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_uchar_schar(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_short_uint(NC *ncp, const NC_var *varp,
+putNCvx_uchar_uchar(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const uchar *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_uchar_uchar(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_uchar_short(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const short *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_uchar_short(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_uchar_int(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const int *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_uchar_int(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_uchar_float(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const float *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_uchar_float(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_uchar_double(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const double *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_uchar_double(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_uchar_longlong(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const longlong *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_uchar_longlong(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_uchar_ushort(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const ushort *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_uchar_ushort(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_uchar_uint(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const uint *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_short_uint(&xp, nput, value);
+
+		lstatus = ncx_putn_uchar_uint(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_short_ulonglong(NC *ncp, const NC_var *varp,
+putNCvx_uchar_ulonglong(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const ulonglong *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_short_ulonglong(&xp, nput, value);
+
+		lstatus = ncx_putn_uchar_ulonglong(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+
+static int
+putNCvx_ushort_schar(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const schar *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_ushort_schar(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_int_uint(NC *ncp, const NC_var *varp,
+putNCvx_ushort_uchar(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const uchar *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_ushort_uchar(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_ushort_short(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const short *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_ushort_short(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_ushort_int(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const int *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_ushort_int(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_ushort_float(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const float *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_ushort_float(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_ushort_double(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const double *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_ushort_double(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_ushort_longlong(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const longlong *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_ushort_longlong(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_ushort_ushort(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const ushort *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_ushort_ushort(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_ushort_uint(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const uint *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_int_uint(&xp, nput, value);
+
+		lstatus = ncx_putn_ushort_uint(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_int_ulonglong(NC *ncp, const NC_var *varp,
+putNCvx_ushort_ulonglong(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const ulonglong *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_int_ulonglong(&xp, nput, value);
+
+		lstatus = ncx_putn_ushort_ulonglong(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+
+static int
+putNCvx_uint_schar(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const schar *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_uint_schar(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_float_uint(NC *ncp, const NC_var *varp,
+putNCvx_uint_uchar(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const uchar *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_uint_uchar(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_uint_short(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const short *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_uint_short(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_uint_int(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const int *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_uint_int(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_uint_float(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const float *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_uint_float(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_uint_double(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const double *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_uint_double(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_uint_longlong(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const longlong *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_uint_longlong(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_uint_ushort(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const ushort *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_uint_ushort(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_uint_uint(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const uint *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_float_uint(&xp, nput, value);
+
+		lstatus = ncx_putn_uint_uint(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_float_ulonglong(NC *ncp, const NC_var *varp,
+putNCvx_uint_ulonglong(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const ulonglong *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_float_ulonglong(&xp, nput, value);
+
+		lstatus = ncx_putn_uint_ulonglong(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+
+static int
+putNCvx_longlong_schar(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const schar *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_longlong_schar(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_double_uint(NC *ncp, const NC_var *varp,
+putNCvx_longlong_uchar(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const uchar *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_longlong_uchar(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_longlong_short(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const short *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_longlong_short(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_longlong_int(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const int *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_longlong_int(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_longlong_float(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const float *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_longlong_float(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_longlong_double(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const double *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_longlong_double(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_longlong_longlong(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const longlong *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_longlong_longlong(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_longlong_ushort(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const ushort *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_longlong_ushort(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_longlong_uint(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const uint *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_double_uint(&xp, nput, value);
+
+		lstatus = ncx_putn_longlong_uint(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
 static int
-putNCvx_double_ulonglong(NC *ncp, const NC_var *varp,
+putNCvx_longlong_ulonglong(NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, const ulonglong *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
 	size_t remaining = varp->xsz * nelems;
 	int status = NC_NOERR;
 	void *xp;
+        void *fillp=NULL;
 
 	if(nelems == 0)
 		return NC_NOERR;
 
 	assert(value != NULL);
 
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
 	for(;;)
 	{
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nput = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
-				 RGN_WRITE, &xp);	
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
-		lstatus = ncx_putn_double_ulonglong(&xp, nput, value);
+
+		lstatus = ncx_putn_longlong_ulonglong(&xp, nput, value ,fillp);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 		{
 			/* not fatal to the loop */
 			status = lstatus;
 		}
 
-		(void) ncp->nciop->rel(ncp->nciop, offset,
-				 RGN_MODIFIED);	
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nput;
 
 	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
 
 	return status;
 }
 
-#endif /*NOTUSED*/
+
+static int
+putNCvx_ulonglong_schar(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const schar *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_ulonglong_schar(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_ulonglong_uchar(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const uchar *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_ulonglong_uchar(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_ulonglong_short(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const short *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_ulonglong_short(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_ulonglong_int(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const int *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_ulonglong_int(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_ulonglong_float(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const float *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_ulonglong_float(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_ulonglong_double(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const double *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_ulonglong_double(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_ulonglong_longlong(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const longlong *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_ulonglong_longlong(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_ulonglong_ushort(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const ushort *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_ulonglong_ushort(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_ulonglong_uint(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const uint *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_ulonglong_uint(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
+static int
+putNCvx_ulonglong_ulonglong(NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, const ulonglong *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	void *xp;
+        void *fillp=NULL;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+#ifdef ERANGE_FILL
+        fillp = malloc(varp->xsz);
+        status = NC3_inq_var_fill(varp, fillp);
+#endif
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nput = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 RGN_WRITE, &xp);
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_putn_ulonglong_ulonglong(&xp, nput, value ,fillp);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+		{
+			/* not fatal to the loop */
+			status = lstatus;
+		}
+
+		(void) ncio_rel(ncp->nciop, offset,
+				 RGN_MODIFIED);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nput;
+
+	}
+#ifdef ERANGE_FILL
+        free(fillp);
+#endif
+
+	return status;
+}
+
 
 
 static int
-getNCvx_char_char(const NC *ncp, const NC_var *varp,
+getNCvx_char_char(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, char *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -2849,21 +6366,21 @@ getNCvx_char_char(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_char_char(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -2872,7 +6389,7 @@ getNCvx_char_char(const NC *ncp, const NC_var *varp,
 
 
 static int
-getNCvx_schar_schar(const NC *ncp, const NC_var *varp,
+getNCvx_schar_schar(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, schar *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -2890,21 +6407,21 @@ getNCvx_schar_schar(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_schar_schar(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -2912,7 +6429,7 @@ getNCvx_schar_schar(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_schar_short(const NC *ncp, const NC_var *varp,
+getNCvx_schar_short(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, short *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -2930,21 +6447,21 @@ getNCvx_schar_short(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_schar_short(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -2952,7 +6469,7 @@ getNCvx_schar_short(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_schar_int(const NC *ncp, const NC_var *varp,
+getNCvx_schar_int(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, int *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -2970,21 +6487,21 @@ getNCvx_schar_int(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_schar_int(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -2992,7 +6509,7 @@ getNCvx_schar_int(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_schar_float(const NC *ncp, const NC_var *varp,
+getNCvx_schar_float(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, float *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3010,21 +6527,21 @@ getNCvx_schar_float(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_schar_float(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3032,7 +6549,7 @@ getNCvx_schar_float(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_schar_double(const NC *ncp, const NC_var *varp,
+getNCvx_schar_double(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, double *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3050,21 +6567,21 @@ getNCvx_schar_double(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_schar_double(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3072,7 +6589,7 @@ getNCvx_schar_double(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_schar_longlong(const NC *ncp, const NC_var *varp,
+getNCvx_schar_longlong(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, longlong *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3090,21 +6607,21 @@ getNCvx_schar_longlong(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_schar_longlong(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3112,7 +6629,7 @@ getNCvx_schar_longlong(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_schar_uint(const NC *ncp, const NC_var *varp,
+getNCvx_schar_uint(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, uint *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3130,21 +6647,21 @@ getNCvx_schar_uint(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_schar_uint(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3152,7 +6669,7 @@ getNCvx_schar_uint(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_schar_ulonglong(const NC *ncp, const NC_var *varp,
+getNCvx_schar_ulonglong(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, ulonglong *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3170,21 +6687,101 @@ getNCvx_schar_ulonglong(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_schar_ulonglong(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_schar_uchar(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, uchar *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_schar_uchar(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_schar_ushort(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, ushort *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_schar_ushort(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3193,7 +6790,7 @@ getNCvx_schar_ulonglong(const NC *ncp, const NC_var *varp,
 
 
 static int
-getNCvx_short_schar(const NC *ncp, const NC_var *varp,
+getNCvx_short_schar(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, schar *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3211,21 +6808,21 @@ getNCvx_short_schar(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_short_schar(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3233,7 +6830,7 @@ getNCvx_short_schar(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_short_uchar(const NC *ncp, const NC_var *varp,
+getNCvx_short_uchar(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, uchar *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3251,21 +6848,21 @@ getNCvx_short_uchar(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_short_uchar(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3273,7 +6870,7 @@ getNCvx_short_uchar(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_short_short(const NC *ncp, const NC_var *varp,
+getNCvx_short_short(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, short *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3291,21 +6888,21 @@ getNCvx_short_short(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_short_short(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3313,7 +6910,7 @@ getNCvx_short_short(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_short_int(const NC *ncp, const NC_var *varp,
+getNCvx_short_int(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, int *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3331,21 +6928,21 @@ getNCvx_short_int(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_short_int(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3353,7 +6950,7 @@ getNCvx_short_int(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_short_float(const NC *ncp, const NC_var *varp,
+getNCvx_short_float(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, float *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3371,21 +6968,21 @@ getNCvx_short_float(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_short_float(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3393,7 +6990,7 @@ getNCvx_short_float(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_short_double(const NC *ncp, const NC_var *varp,
+getNCvx_short_double(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, double *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3411,21 +7008,21 @@ getNCvx_short_double(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_short_double(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3433,7 +7030,7 @@ getNCvx_short_double(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_short_longlong(const NC *ncp, const NC_var *varp,
+getNCvx_short_longlong(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, longlong *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3451,21 +7048,21 @@ getNCvx_short_longlong(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_short_longlong(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3473,7 +7070,7 @@ getNCvx_short_longlong(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_short_uint(const NC *ncp, const NC_var *varp,
+getNCvx_short_uint(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, uint *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3491,21 +7088,21 @@ getNCvx_short_uint(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_short_uint(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3513,7 +7110,7 @@ getNCvx_short_uint(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_short_ulonglong(const NC *ncp, const NC_var *varp,
+getNCvx_short_ulonglong(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, ulonglong *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3531,21 +7128,61 @@ getNCvx_short_ulonglong(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_short_ulonglong(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_short_ushort(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, ushort *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_short_ushort(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3554,7 +7191,7 @@ getNCvx_short_ulonglong(const NC *ncp, const NC_var *varp,
 
 
 static int
-getNCvx_int_schar(const NC *ncp, const NC_var *varp,
+getNCvx_int_schar(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, schar *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3572,21 +7209,21 @@ getNCvx_int_schar(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_int_schar(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3594,7 +7231,7 @@ getNCvx_int_schar(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_int_uchar(const NC *ncp, const NC_var *varp,
+getNCvx_int_uchar(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, uchar *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3612,21 +7249,21 @@ getNCvx_int_uchar(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_int_uchar(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3634,7 +7271,7 @@ getNCvx_int_uchar(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_int_short(const NC *ncp, const NC_var *varp,
+getNCvx_int_short(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, short *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3652,21 +7289,21 @@ getNCvx_int_short(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_int_short(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3674,7 +7311,7 @@ getNCvx_int_short(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_int_int(const NC *ncp, const NC_var *varp,
+getNCvx_int_int(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, int *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3692,21 +7329,21 @@ getNCvx_int_int(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_int_int(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3714,7 +7351,7 @@ getNCvx_int_int(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_int_float(const NC *ncp, const NC_var *varp,
+getNCvx_int_float(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, float *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3732,21 +7369,21 @@ getNCvx_int_float(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_int_float(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3754,7 +7391,7 @@ getNCvx_int_float(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_int_double(const NC *ncp, const NC_var *varp,
+getNCvx_int_double(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, double *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3772,21 +7409,21 @@ getNCvx_int_double(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_int_double(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3794,7 +7431,7 @@ getNCvx_int_double(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_int_longlong(const NC *ncp, const NC_var *varp,
+getNCvx_int_longlong(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, longlong *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3812,21 +7449,21 @@ getNCvx_int_longlong(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_int_longlong(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3834,7 +7471,7 @@ getNCvx_int_longlong(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_int_uint(const NC *ncp, const NC_var *varp,
+getNCvx_int_uint(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, uint *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3852,21 +7489,21 @@ getNCvx_int_uint(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_int_uint(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3874,7 +7511,7 @@ getNCvx_int_uint(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_int_ulonglong(const NC *ncp, const NC_var *varp,
+getNCvx_int_ulonglong(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, ulonglong *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3892,21 +7529,61 @@ getNCvx_int_ulonglong(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_int_ulonglong(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_int_ushort(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, ushort *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_int_ushort(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3915,7 +7592,7 @@ getNCvx_int_ulonglong(const NC *ncp, const NC_var *varp,
 
 
 static int
-getNCvx_float_schar(const NC *ncp, const NC_var *varp,
+getNCvx_float_schar(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, schar *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3933,21 +7610,21 @@ getNCvx_float_schar(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_float_schar(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3955,7 +7632,7 @@ getNCvx_float_schar(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_float_uchar(const NC *ncp, const NC_var *varp,
+getNCvx_float_uchar(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, uchar *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -3973,21 +7650,21 @@ getNCvx_float_uchar(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_float_uchar(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -3995,7 +7672,7 @@ getNCvx_float_uchar(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_float_short(const NC *ncp, const NC_var *varp,
+getNCvx_float_short(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, short *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -4013,21 +7690,21 @@ getNCvx_float_short(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_float_short(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -4035,7 +7712,7 @@ getNCvx_float_short(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_float_int(const NC *ncp, const NC_var *varp,
+getNCvx_float_int(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, int *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -4053,21 +7730,21 @@ getNCvx_float_int(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_float_int(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -4075,7 +7752,7 @@ getNCvx_float_int(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_float_float(const NC *ncp, const NC_var *varp,
+getNCvx_float_float(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, float *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -4093,21 +7770,21 @@ getNCvx_float_float(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_float_float(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -4115,7 +7792,7 @@ getNCvx_float_float(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_float_double(const NC *ncp, const NC_var *varp,
+getNCvx_float_double(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, double *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -4133,21 +7810,21 @@ getNCvx_float_double(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_float_double(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -4155,7 +7832,7 @@ getNCvx_float_double(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_float_longlong(const NC *ncp, const NC_var *varp,
+getNCvx_float_longlong(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, longlong *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -4173,21 +7850,21 @@ getNCvx_float_longlong(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_float_longlong(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -4195,7 +7872,7 @@ getNCvx_float_longlong(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_float_uint(const NC *ncp, const NC_var *varp,
+getNCvx_float_uint(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, uint *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -4213,21 +7890,21 @@ getNCvx_float_uint(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_float_uint(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -4235,7 +7912,7 @@ getNCvx_float_uint(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_float_ulonglong(const NC *ncp, const NC_var *varp,
+getNCvx_float_ulonglong(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, ulonglong *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -4253,21 +7930,61 @@ getNCvx_float_ulonglong(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_float_ulonglong(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_float_ushort(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, ushort *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_float_ushort(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -4276,7 +7993,7 @@ getNCvx_float_ulonglong(const NC *ncp, const NC_var *varp,
 
 
 static int
-getNCvx_double_schar(const NC *ncp, const NC_var *varp,
+getNCvx_double_schar(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, schar *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -4294,21 +8011,21 @@ getNCvx_double_schar(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_double_schar(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -4316,7 +8033,7 @@ getNCvx_double_schar(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_double_uchar(const NC *ncp, const NC_var *varp,
+getNCvx_double_uchar(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, uchar *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -4334,21 +8051,21 @@ getNCvx_double_uchar(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_double_uchar(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -4356,7 +8073,7 @@ getNCvx_double_uchar(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_double_short(const NC *ncp, const NC_var *varp,
+getNCvx_double_short(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, short *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -4374,21 +8091,21 @@ getNCvx_double_short(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_double_short(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -4396,7 +8113,7 @@ getNCvx_double_short(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_double_int(const NC *ncp, const NC_var *varp,
+getNCvx_double_int(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, int *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -4414,21 +8131,21 @@ getNCvx_double_int(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_double_int(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -4436,7 +8153,7 @@ getNCvx_double_int(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_double_float(const NC *ncp, const NC_var *varp,
+getNCvx_double_float(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, float *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -4454,21 +8171,21 @@ getNCvx_double_float(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_double_float(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -4476,7 +8193,7 @@ getNCvx_double_float(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_double_double(const NC *ncp, const NC_var *varp,
+getNCvx_double_double(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, double *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -4494,21 +8211,21 @@ getNCvx_double_double(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_double_double(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -4516,7 +8233,7 @@ getNCvx_double_double(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_double_longlong(const NC *ncp, const NC_var *varp,
+getNCvx_double_longlong(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, longlong *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -4534,21 +8251,21 @@ getNCvx_double_longlong(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_double_longlong(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -4556,7 +8273,7 @@ getNCvx_double_longlong(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_double_uint(const NC *ncp, const NC_var *varp,
+getNCvx_double_uint(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, uint *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -4574,21 +8291,21 @@ getNCvx_double_uint(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_double_uint(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -4596,7 +8313,7 @@ getNCvx_double_uint(const NC *ncp, const NC_var *varp,
 }
 
 static int
-getNCvx_double_ulonglong(const NC *ncp, const NC_var *varp,
+getNCvx_double_ulonglong(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, ulonglong *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -4614,21 +8331,2066 @@ getNCvx_double_ulonglong(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_double_ulonglong(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_double_ushort(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, ushort *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_double_ushort(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+
+static int
+getNCvx_uchar_schar(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, schar *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_uchar_schar(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_uchar_uchar(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, uchar *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_uchar_uchar(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_uchar_short(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, short *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_uchar_short(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_uchar_int(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, int *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_uchar_int(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_uchar_float(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, float *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_uchar_float(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_uchar_double(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, double *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_uchar_double(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_uchar_longlong(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, longlong *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_uchar_longlong(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_uchar_uint(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, uint *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_uchar_uint(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_uchar_ulonglong(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, ulonglong *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_uchar_ulonglong(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_uchar_ushort(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, ushort *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_uchar_ushort(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+
+static int
+getNCvx_ushort_schar(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, schar *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_ushort_schar(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_ushort_uchar(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, uchar *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_ushort_uchar(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_ushort_short(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, short *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_ushort_short(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_ushort_int(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, int *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_ushort_int(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_ushort_float(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, float *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_ushort_float(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_ushort_double(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, double *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_ushort_double(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_ushort_longlong(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, longlong *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_ushort_longlong(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_ushort_uint(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, uint *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_ushort_uint(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_ushort_ulonglong(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, ulonglong *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_ushort_ulonglong(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_ushort_ushort(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, ushort *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_ushort_ushort(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+
+static int
+getNCvx_uint_schar(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, schar *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_uint_schar(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_uint_uchar(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, uchar *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_uint_uchar(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_uint_short(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, short *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_uint_short(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_uint_int(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, int *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_uint_int(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_uint_float(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, float *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_uint_float(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_uint_double(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, double *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_uint_double(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_uint_longlong(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, longlong *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_uint_longlong(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_uint_uint(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, uint *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_uint_uint(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_uint_ulonglong(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, ulonglong *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_uint_ulonglong(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_uint_ushort(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, ushort *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_uint_ushort(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+
+static int
+getNCvx_longlong_schar(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, schar *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_longlong_schar(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_longlong_uchar(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, uchar *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_longlong_uchar(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_longlong_short(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, short *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_longlong_short(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_longlong_int(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, int *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_longlong_int(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_longlong_float(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, float *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_longlong_float(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_longlong_double(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, double *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_longlong_double(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_longlong_longlong(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, longlong *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_longlong_longlong(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_longlong_uint(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, uint *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_longlong_uint(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_longlong_ulonglong(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, ulonglong *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_longlong_ulonglong(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_longlong_ushort(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, ushort *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_longlong_ushort(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+
+static int
+getNCvx_ulonglong_schar(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, schar *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_ulonglong_schar(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_ulonglong_uchar(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, uchar *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_ulonglong_uchar(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_ulonglong_short(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, short *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_ulonglong_short(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_ulonglong_int(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, int *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_ulonglong_int(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_ulonglong_float(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, float *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_ulonglong_float(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_ulonglong_double(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, double *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_ulonglong_double(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_ulonglong_longlong(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, longlong *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_ulonglong_longlong(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_ulonglong_uint(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, uint *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_ulonglong_uint(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_ulonglong_ulonglong(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, ulonglong *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_ulonglong_ulonglong(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
+		value += nget;
+	}
+
+	return status;
+}
+
+static int
+getNCvx_ulonglong_ushort(const NC3_INFO* ncp, const NC_var *varp,
+		 const size_t *start, size_t nelems, ushort *value)
+{
+	off_t offset = NC_varoffset(ncp, varp, start);
+	size_t remaining = varp->xsz * nelems;
+	int status = NC_NOERR;
+	const void *xp;
+
+	if(nelems == 0)
+		return NC_NOERR;
+
+	assert(value != NULL);
+
+	for(;;)
+	{
+		size_t extent = MIN(remaining, ncp->chunk);
+		size_t nget = ncx_howmany(varp->type, extent);
+
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
+				 0, (void **)&xp);	/* cast away const */
+		if(lstatus != NC_NOERR)
+			return lstatus;
+
+		lstatus = ncx_getn_ulonglong_ushort(&xp, nget, value);
+		if(lstatus != NC_NOERR && status == NC_NOERR)
+			status = lstatus;
+
+		(void) ncio_rel(ncp->nciop, offset, 0);
+
+		remaining -= extent;
+		if(remaining == 0)
+			break; /* normal loop exit */
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -4638,7 +10400,7 @@ getNCvx_double_ulonglong(const NC *ncp, const NC_var *varp,
 
 #ifdef NOTUSED
 static int
-getNCvx_schar_uchar(const NC *ncp, const NC_var *varp,
+getNCvx_schar_uchar(const NC3_INFO* ncp, const NC_var *varp,
 		 const size_t *start, size_t nelems, uchar *value)
 {
 	off_t offset = NC_varoffset(ncp, varp, start);
@@ -4656,21 +10418,21 @@ getNCvx_schar_uchar(const NC *ncp, const NC_var *varp,
 		size_t extent = MIN(remaining, ncp->chunk);
 		size_t nget = ncx_howmany(varp->type, extent);
 
-		int lstatus = ncp->nciop->get(ncp->nciop, offset, extent,
+		int lstatus = ncio_get(ncp->nciop, offset, extent,
 				 0, (void **)&xp);	/* cast away const */
 		if(lstatus != NC_NOERR)
 			return lstatus;
-		
+
 		lstatus = ncx_getn_schar_uchar(&xp, nget, value);
 		if(lstatus != NC_NOERR && status == NC_NOERR)
 			status = lstatus;
 
-		(void) ncp->nciop->rel(ncp->nciop, offset, 0);	
+		(void) ncio_rel(ncp->nciop, offset, 0);
 
 		remaining -= extent;
 		if(remaining == 0)
 			break; /* normal loop exit */
-		offset += extent;
+		offset += (off_t)extent;
 		value += nget;
 	}
 
@@ -4689,7 +10451,7 @@ getNCvx_schar_uchar(const NC *ncp, const NC_var *varp,
  *  overly subtle.
  */
 static int
-NCiocount(const NC *const ncp, const NC_var *const varp,
+NCiocount(const NC3_INFO* const ncp, const NC_var *const varp,
 	const size_t *const edges,
 	size_t *const iocountp)
 {
@@ -4744,7 +10506,7 @@ NCiocount(const NC *const ncp, const NC_var *const varp,
 	 * If there is only one dimension and and it is a "record dimension",
 	 *	edp is &edges[1] (out of bounds) and we will return 0;
 	 */
-	assert(shp >= varp->shape + varp->ndims -1 
+	assert(shp >= varp->shape + varp->ndims -1
 		|| *(edp +1) == *(shp +1));
 
 	/* now accumulate max count for a single io operation */
@@ -4786,7 +10548,7 @@ set_upper(size_t *upp, /* modified on return */
  * For some ii,
  * upp == &upper[ii]
  * cdp == &coord[ii]
- * 
+ *
  * Running this routine increments *cdp.
  *
  * If after the increment, *cdp is equal to *upp
@@ -4794,7 +10556,7 @@ set_upper(size_t *upp, /* modified on return */
  * *cdp is "zeroed" to the starting value and
  * we need to "carry", eg, increment one place to
  * the left.
- * 
+ *
  * TODO: Some architectures hate recursion?
  * 	Reimplement non-recursively.
  */
@@ -4807,7 +10569,7 @@ odo1(const size_t *const start, const size_t *const upper,
 	assert(coord <= cdp && cdp <= coord + NC_MAX_VAR_DIMS);
 	assert(upper <= upp && upp <= upper + NC_MAX_VAR_DIMS);
 	assert(upp - upper == cdp - coord);
-	
+
 	assert(*cdp <= *upp);
 
 	(*cdp)++;
@@ -4827,287 +10589,656 @@ odo1(const size_t *const start, const size_t *const upper,
 #define CASE(nc1,nc2) (nc1*256+nc2)
 
 static int
-readNCv(const NC* ncp, const NC_var* varp, const size_t* start,
+readNCv(const NC3_INFO* ncp, const NC_var* varp, const size_t* start,
         const size_t nelems, void* value, const nc_type memtype)
 {
     int status = NC_NOERR;
     switch (CASE(varp->type,memtype)) {
+
     case CASE(NC_CHAR,NC_CHAR):
     case CASE(NC_CHAR,NC_UBYTE):
-        status = getNCvx_char_char(ncp,varp,start,nelems,(char*)value);
-        break;
-
+    return getNCvx_schar_schar(ncp,varp,start,nelems,(signed char*)value);
+    break;
     case CASE(NC_BYTE,NC_BYTE):
+        return getNCvx_schar_schar(ncp,varp,start,nelems, (schar*)value);
+	break;
     case CASE(NC_BYTE,NC_UBYTE):
-        status = getNCvx_schar_schar(ncp,varp,start,nelems,(signed char*)value);
-        break;
+        if (fIsSet(ncp->flags,NC_64BIT_DATA))
+            return getNCvx_schar_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+        else
+            /* for CDF-1 and CDF-2, NC_BYTE is treated the same type as uchar memtype */
+            return getNCvx_uchar_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+	break;
     case CASE(NC_BYTE,NC_SHORT):
-        status = getNCvx_schar_short(ncp,varp,start,nelems,(short*)value);
-        break;
+        return getNCvx_schar_short(ncp,varp,start,nelems,(short*)value);
+	break;
     case CASE(NC_BYTE,NC_INT):
-        status = getNCvx_schar_int(ncp,varp,start,nelems,(int*)value);
-        break;
+        return getNCvx_schar_int(ncp,varp,start,nelems,(int*)value);
+	break;
     case CASE(NC_BYTE,NC_FLOAT):
-        status = getNCvx_schar_float(ncp,varp,start,nelems,(float*)value);
-        break;
+        return getNCvx_schar_float(ncp,varp,start,nelems,(float*)value);
+	break;
     case CASE(NC_BYTE,NC_DOUBLE):
-        status = getNCvx_schar_double(ncp,varp,start,nelems,(double *)value);
-        break;
+        return getNCvx_schar_double(ncp,varp,start,nelems,(double *)value);
+	break;
     case CASE(NC_BYTE,NC_INT64):
-        status = getNCvx_schar_longlong(ncp,varp,start,nelems,(long long*)value);
-        break;
+        return getNCvx_schar_longlong(ncp,varp,start,nelems,(long long*)value);
+	break;
     case CASE(NC_BYTE,NC_UINT):
-        status = getNCvx_schar_uint(ncp,varp,start,nelems,(unsigned int*)value);
-        break;
+        return getNCvx_schar_uint(ncp,varp,start,nelems,(unsigned int*)value);
+	break;
     case CASE(NC_BYTE,NC_UINT64):
-        status = getNCvx_schar_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
-        break;
-
+        return getNCvx_schar_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
+    	break;
+    case CASE(NC_BYTE,NC_USHORT):
+        return getNCvx_schar_ushort(ncp,varp,start,nelems,(unsigned short*)value);
+	break;
     case CASE(NC_SHORT,NC_BYTE):
-        status = getNCvx_short_schar(ncp,varp,start,nelems,(signed char*)value);
-        break;
+        return getNCvx_short_schar(ncp,varp,start,nelems,(schar*)value);
+	break;
     case CASE(NC_SHORT,NC_UBYTE):
-        status = getNCvx_short_uchar(ncp,varp,start,nelems,(unsigned char*)value);
-        break;
+        return getNCvx_short_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+	break;
     case CASE(NC_SHORT,NC_SHORT):
-        status = getNCvx_short_short(ncp,varp,start,nelems,(short*)value);
-        break;
+        return getNCvx_short_short(ncp,varp,start,nelems,(short*)value);
+	break;
     case CASE(NC_SHORT,NC_INT):
-        status = getNCvx_short_int(ncp,varp,start,nelems,(int*)value);
-        break;
-    case CASE(NC_SHORT,NC_FLOAT):
-        status = getNCvx_short_float(ncp,varp,start,nelems,(float*)value);
-        break;
+        return getNCvx_short_int(ncp,varp,start,nelems,(int*)value);
+	break;
+   case CASE(NC_SHORT,NC_FLOAT):
+        return getNCvx_short_float(ncp,varp,start,nelems,(float*)value);
+	break;
     case CASE(NC_SHORT,NC_DOUBLE):
-        status = getNCvx_short_double(ncp,varp,start,nelems,(double*)value);
-        break;
+        return getNCvx_short_double(ncp,varp,start,nelems,(double*)value);
+	break;
     case CASE(NC_SHORT,NC_INT64):
-        status = getNCvx_short_longlong(ncp,varp,start,nelems,(long long*)value);
-        break;
+        return getNCvx_short_longlong(ncp,varp,start,nelems,(long long*)value);
+   	break;
     case CASE(NC_SHORT,NC_UINT):
-        status = getNCvx_short_uint(ncp,varp,start,nelems,(unsigned int*)value);
-        break;
+        return getNCvx_short_uint(ncp,varp,start,nelems,(unsigned int*)value);
+    	break;
     case CASE(NC_SHORT,NC_UINT64):
-        status = getNCvx_short_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
-        break;
-
+        return getNCvx_short_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
+	break;
+    case CASE(NC_SHORT,NC_USHORT):
+        return getNCvx_short_ushort(ncp,varp,start,nelems,(unsigned short*)value);
+	break;
 
     case CASE(NC_INT,NC_BYTE):
-        status = getNCvx_int_schar(ncp,varp,start,nelems,(signed char*)value);
-        break;
+        return getNCvx_int_schar(ncp,varp,start,nelems,(schar*)value);
+	break;
     case CASE(NC_INT,NC_UBYTE):
-        status = getNCvx_int_uchar(ncp,varp,start,nelems,(unsigned char*)value);
-        break;
+        return getNCvx_int_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+	break;
     case CASE(NC_INT,NC_SHORT):
-        status = getNCvx_int_short(ncp,varp,start,nelems,(short*)value);
-        break;
+        return getNCvx_int_short(ncp,varp,start,nelems,(short*)value);
+	break;
     case CASE(NC_INT,NC_INT):
-        status = getNCvx_int_int(ncp,varp,start,nelems,(int*)value);
-        break;
+        return getNCvx_int_int(ncp,varp,start,nelems,(int*)value);
+	break;
     case CASE(NC_INT,NC_FLOAT):
-        status = getNCvx_int_float(ncp,varp,start,nelems,(float*)value);
-        break;
+        return getNCvx_int_float(ncp,varp,start,nelems,(float*)value);
+	break;
     case CASE(NC_INT,NC_DOUBLE):
-        status = getNCvx_int_double(ncp,varp,start,nelems,(double*)value);
-        break;
+        return getNCvx_int_double(ncp,varp,start,nelems,(double*)value);
+	break;
     case CASE(NC_INT,NC_INT64):
-        status = getNCvx_int_longlong(ncp,varp,start,nelems,(long long*)value);
-        break;
+        return getNCvx_int_longlong(ncp,varp,start,nelems,(long long*)value);
+	break;
     case CASE(NC_INT,NC_UINT):
-        status = getNCvx_int_uint(ncp,varp,start,nelems,(unsigned int*)value);
-        break;
+        return getNCvx_int_uint(ncp,varp,start,nelems,(unsigned int*)value);
+	break;
     case CASE(NC_INT,NC_UINT64):
-        status = getNCvx_int_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
-        break;
-
+        return getNCvx_int_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
+	break;
+    case CASE(NC_INT,NC_USHORT):
+        return getNCvx_int_ushort(ncp,varp,start,nelems,(unsigned short*)value);
+	break;
 
     case CASE(NC_FLOAT,NC_BYTE):
-        status = getNCvx_float_schar(ncp,varp,start,nelems,(signed char*)value);
-        break;
+        return getNCvx_float_schar(ncp,varp,start,nelems,(schar*)value);
+	break;
     case CASE(NC_FLOAT,NC_UBYTE):
-        status = getNCvx_float_uchar(ncp,varp,start,nelems,(unsigned char*)value);
-        break;
+        return getNCvx_float_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+	break;
     case CASE(NC_FLOAT,NC_SHORT):
-        status = getNCvx_float_short(ncp,varp,start,nelems,(short*)value);
-        break;
+        return getNCvx_float_short(ncp,varp,start,nelems,(short*)value);
+	break;
     case CASE(NC_FLOAT,NC_INT):
-        status = getNCvx_float_int(ncp,varp,start,nelems,(int*)value);
-        break;
+        return getNCvx_float_int(ncp,varp,start,nelems,(int*)value);
+	break;
     case CASE(NC_FLOAT,NC_FLOAT):
-        status = getNCvx_float_float(ncp,varp,start,nelems,(float*)value);
-        break;
+        return getNCvx_float_float(ncp,varp,start,nelems,(float*)value);
+	break;
     case CASE(NC_FLOAT,NC_DOUBLE):
-        status = getNCvx_float_double(ncp,varp,start,nelems,(double*)value);
-        break;
+        return getNCvx_float_double(ncp,varp,start,nelems,(double*)value);
+	break;
     case CASE(NC_FLOAT,NC_INT64):
-        status = getNCvx_float_longlong(ncp,varp,start,nelems,(long long*)value);
-        break;
+        return getNCvx_float_longlong(ncp,varp,start,nelems,(long long*)value);
+	break;
     case CASE(NC_FLOAT,NC_UINT):
-        status = getNCvx_float_uint(ncp,varp,start,nelems,(unsigned int*)value);
-        break;
+        return getNCvx_float_uint(ncp,varp,start,nelems,(unsigned int*)value);
+	break;
     case CASE(NC_FLOAT,NC_UINT64):
-        status = getNCvx_float_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
-        break;
-
+        return getNCvx_float_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
+	break;
+    case CASE(NC_FLOAT,NC_USHORT):
+        return getNCvx_float_ushort(ncp,varp,start,nelems,(unsigned short*)value);
+	break;
 
     case CASE(NC_DOUBLE,NC_BYTE):
-        status = getNCvx_double_schar(ncp,varp,start,nelems,(signed char*)value);
-        break;
+        return getNCvx_double_schar(ncp,varp,start,nelems,(schar*)value);
+	break;
     case CASE(NC_DOUBLE,NC_UBYTE):
-        status = getNCvx_double_uchar(ncp,varp,start,nelems,(unsigned char*)value);
-        break;
+        return getNCvx_double_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+	break;
     case CASE(NC_DOUBLE,NC_SHORT):
-        status = getNCvx_double_short(ncp,varp,start,nelems,(short*)value);
-        break;
+        return getNCvx_double_short(ncp,varp,start,nelems,(short*)value);
+	break;
     case CASE(NC_DOUBLE,NC_INT):
-        status = getNCvx_double_int(ncp,varp,start,nelems,(int*)value);
-        break;
+        return getNCvx_double_int(ncp,varp,start,nelems,(int*)value);
+	break;
     case CASE(NC_DOUBLE,NC_FLOAT):
-        status = getNCvx_double_float(ncp,varp,start,nelems,(float*)value);
-        break;
+        return getNCvx_double_float(ncp,varp,start,nelems,(float*)value);
+	break;
     case CASE(NC_DOUBLE,NC_DOUBLE):
-        status = getNCvx_double_double(ncp,varp,start,nelems,(double*)value);
-        break;
+        return getNCvx_double_double(ncp,varp,start,nelems,(double*)value);
+	break;
     case CASE(NC_DOUBLE,NC_INT64):
-        status = getNCvx_double_longlong(ncp,varp,start,nelems,(long long*)value);
-        break;
+        return getNCvx_double_longlong(ncp,varp,start,nelems,(long long*)value);
+	break;
     case CASE(NC_DOUBLE,NC_UINT):
-        status = getNCvx_double_uint(ncp,varp,start,nelems,(unsigned int*)value);
-        break;
+        return getNCvx_double_uint(ncp,varp,start,nelems,(unsigned int*)value);
+	break;
     case CASE(NC_DOUBLE,NC_UINT64):
-        status = getNCvx_double_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
-        break;
+        return getNCvx_double_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
+	break;
+    case CASE(NC_DOUBLE,NC_USHORT):
+        return getNCvx_double_ushort(ncp,varp,start,nelems,(unsigned short*)value);
+	break;
+
+    case CASE(NC_UBYTE,NC_UBYTE):
+        return getNCvx_uchar_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+	break;
+    case CASE(NC_UBYTE,NC_BYTE):
+        return getNCvx_uchar_schar(ncp,varp,start,nelems,(schar*)value);
+	break;
+    case CASE(NC_UBYTE,NC_SHORT):
+        return getNCvx_uchar_short(ncp,varp,start,nelems,(short*)value);
+	break;
+    case CASE(NC_UBYTE,NC_INT):
+        return getNCvx_uchar_int(ncp,varp,start,nelems,(int*)value);
+	break;
+    case CASE(NC_UBYTE,NC_FLOAT):
+        return getNCvx_uchar_float(ncp,varp,start,nelems,(float*)value);
+	break;
+    case CASE(NC_UBYTE,NC_DOUBLE):
+        return getNCvx_uchar_double(ncp,varp,start,nelems,(double *)value);
+	break;
+    case CASE(NC_UBYTE,NC_INT64):
+        return getNCvx_uchar_longlong(ncp,varp,start,nelems,(long long*)value);
+	break;
+    case CASE(NC_UBYTE,NC_UINT):
+        return getNCvx_uchar_uint(ncp,varp,start,nelems,(unsigned int*)value);
+	break;
+    case CASE(NC_UBYTE,NC_UINT64):
+        return getNCvx_uchar_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
+	break;
+    case CASE(NC_UBYTE,NC_USHORT):
+        return getNCvx_uchar_ushort(ncp,varp,start,nelems,(unsigned short*)value);
+	break;
+
+    case CASE(NC_USHORT,NC_BYTE):
+        return getNCvx_ushort_schar(ncp,varp,start,nelems,(schar*)value);
+	break;
+    case CASE(NC_USHORT,NC_UBYTE):
+        return getNCvx_ushort_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+	break;
+    case CASE(NC_USHORT,NC_SHORT):
+        return getNCvx_ushort_short(ncp,varp,start,nelems,(short*)value);
+	break;
+    case CASE(NC_USHORT,NC_INT):
+        return getNCvx_ushort_int(ncp,varp,start,nelems,(int*)value);
+	break;
+    case CASE(NC_USHORT,NC_FLOAT):
+        return getNCvx_ushort_float(ncp,varp,start,nelems,(float*)value);
+	break;
+    case CASE(NC_USHORT,NC_DOUBLE):
+        return getNCvx_ushort_double(ncp,varp,start,nelems,(double*)value);
+	break;
+    case CASE(NC_USHORT,NC_INT64):
+        return getNCvx_ushort_longlong(ncp,varp,start,nelems,(long long*)value);
+	break;
+    case CASE(NC_USHORT,NC_UINT):
+        return getNCvx_ushort_uint(ncp,varp,start,nelems,(unsigned int*)value);
+	break;
+    case CASE(NC_USHORT,NC_UINT64):
+        return getNCvx_ushort_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
+	break;
+    case CASE(NC_USHORT,NC_USHORT):
+        return getNCvx_ushort_ushort(ncp,varp,start,nelems,(unsigned short*)value);
+	break;
+
+    case CASE(NC_UINT,NC_BYTE):
+        return getNCvx_uint_schar(ncp,varp,start,nelems,(schar*)value);
+	break;
+    case CASE(NC_UINT,NC_UBYTE):
+        return getNCvx_uint_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+	break;
+    case CASE(NC_UINT,NC_SHORT):
+        return getNCvx_uint_short(ncp,varp,start,nelems,(short*)value);
+	break;
+    case CASE(NC_UINT,NC_INT):
+        return getNCvx_uint_int(ncp,varp,start,nelems,(int*)value);
+	break;
+    case CASE(NC_UINT,NC_FLOAT):
+        return getNCvx_uint_float(ncp,varp,start,nelems,(float*)value);
+	break;
+    case CASE(NC_UINT,NC_DOUBLE):
+        return getNCvx_uint_double(ncp,varp,start,nelems,(double*)value);
+	break;
+    case CASE(NC_UINT,NC_INT64):
+        return getNCvx_uint_longlong(ncp,varp,start,nelems,(long long*)value);
+	break;
+    case CASE(NC_UINT,NC_UINT):
+        return getNCvx_uint_uint(ncp,varp,start,nelems,(unsigned int*)value);
+	break;
+    case CASE(NC_UINT,NC_UINT64):
+        return getNCvx_uint_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
+	break;
+    case CASE(NC_UINT,NC_USHORT):
+        return getNCvx_uint_ushort(ncp,varp,start,nelems,(unsigned short*)value);
+	break;
+
+    case CASE(NC_INT64,NC_BYTE):
+        return getNCvx_longlong_schar(ncp,varp,start,nelems,(schar*)value);
+	break;
+    case CASE(NC_INT64,NC_UBYTE):
+        return getNCvx_longlong_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+	break;
+    case CASE(NC_INT64,NC_SHORT):
+        return getNCvx_longlong_short(ncp,varp,start,nelems,(short*)value);
+	break;
+    case CASE(NC_INT64,NC_INT):
+        return getNCvx_longlong_int(ncp,varp,start,nelems,(int*)value);
+	break;
+    case CASE(NC_INT64,NC_FLOAT):
+        return getNCvx_longlong_float(ncp,varp,start,nelems,(float*)value);
+	break;
+    case CASE(NC_INT64,NC_DOUBLE):
+        return getNCvx_longlong_double(ncp,varp,start,nelems,(double*)value);
+	break;
+    case CASE(NC_INT64,NC_INT64):
+        return getNCvx_longlong_longlong(ncp,varp,start,nelems,(long long*)value);
+	break;
+    case CASE(NC_INT64,NC_UINT):
+        return getNCvx_longlong_uint(ncp,varp,start,nelems,(unsigned int*)value);
+	break;
+    case CASE(NC_INT64,NC_UINT64):
+        return getNCvx_longlong_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
+	break;
+    case CASE(NC_INT64,NC_USHORT):
+        return getNCvx_longlong_ushort(ncp,varp,start,nelems,(unsigned short*)value);
+	break;
+
+    case CASE(NC_UINT64,NC_BYTE):
+        return getNCvx_ulonglong_schar(ncp,varp,start,nelems,(schar*)value);
+	break;
+    case CASE(NC_UINT64,NC_UBYTE):
+        return getNCvx_ulonglong_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+	break;
+    case CASE(NC_UINT64,NC_SHORT):
+        return getNCvx_ulonglong_short(ncp,varp,start,nelems,(short*)value);
+	break;
+    case CASE(NC_UINT64,NC_INT):
+        return getNCvx_ulonglong_int(ncp,varp,start,nelems,(int*)value);
+	break;
+    case CASE(NC_UINT64,NC_FLOAT):
+        return getNCvx_ulonglong_float(ncp,varp,start,nelems,(float*)value);
+	break;
+    case CASE(NC_UINT64,NC_DOUBLE):
+        return getNCvx_ulonglong_double(ncp,varp,start,nelems,(double*)value);
+	break;
+    case CASE(NC_UINT64,NC_INT64):
+        return getNCvx_ulonglong_longlong(ncp,varp,start,nelems,(long long*)value);
+	break;
+    case CASE(NC_UINT64,NC_UINT):
+        return getNCvx_ulonglong_uint(ncp,varp,start,nelems,(unsigned int*)value);
+	break;
+    case CASE(NC_UINT64,NC_UINT64):
+        return getNCvx_ulonglong_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
+	break;
+    case CASE(NC_UINT64,NC_USHORT):
+        return getNCvx_ulonglong_ushort(ncp,varp,start,nelems,(unsigned short*)value);
+	break;
 
     default:
 	return NC_EBADTYPE;
+	break;
     }
     return status;
 }
 
 
 static int
-writeNCv(NC* ncp, const NC_var* varp, const size_t* start,
+writeNCv(NC3_INFO* ncp, const NC_var* varp, const size_t* start,
          const size_t nelems, const void* value, const nc_type memtype)
 {
     int status = NC_NOERR;
     switch (CASE(varp->type,memtype)) {
+
     case CASE(NC_CHAR,NC_CHAR):
     case CASE(NC_CHAR,NC_UBYTE):
-        status = putNCvx_char_char(ncp,varp,start,nelems,(char*)value);
-        break;
-
+        return putNCvx_char_char(ncp,varp,start,nelems,(char*)value);
+	break;
     case CASE(NC_BYTE,NC_BYTE):
-        status = putNCvx_schar_schar(ncp,varp,start,nelems,(signed char*)value);
-        break;
+        return putNCvx_schar_schar(ncp,varp,start,nelems,(schar*)value);
+	break;
     case CASE(NC_BYTE,NC_UBYTE):
-        status = putNCvx_schar_uchar(ncp,varp,start,nelems,(unsigned char*)value);
-        break;
+        if (fIsSet(ncp->flags,NC_64BIT_DATA))
+            return putNCvx_schar_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+        else
+            /* for CDF-1 and CDF-2, NC_BYTE is treated the same type as uchar memtype */
+            return putNCvx_uchar_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+	break;
     case CASE(NC_BYTE,NC_SHORT):
-        status = putNCvx_schar_short(ncp,varp,start,nelems,(short*)value);
-        break;
+        return putNCvx_schar_short(ncp,varp,start,nelems,(short*)value);
+	break;
     case CASE(NC_BYTE,NC_INT):
-        status = putNCvx_schar_int(ncp,varp,start,nelems,(int*)value);
-        break;
+        return putNCvx_schar_int(ncp,varp,start,nelems,(int*)value);
+	break;
     case CASE(NC_BYTE,NC_FLOAT):
-        status = putNCvx_schar_float(ncp,varp,start,nelems,(float*)value);
-        break;
+        return putNCvx_schar_float(ncp,varp,start,nelems,(float*)value);
+	break;
     case CASE(NC_BYTE,NC_DOUBLE):
-        status = putNCvx_schar_double(ncp,varp,start,nelems,(double *)value);
-        break;
+        return putNCvx_schar_double(ncp,varp,start,nelems,(double *)value);
+	break;
     case CASE(NC_BYTE,NC_INT64):
-        status = putNCvx_schar_longlong(ncp,varp,start,nelems,(long long*)value);
-        break;
-
+        return putNCvx_schar_longlong(ncp,varp,start,nelems,(long long*)value);
+	break;
+    case CASE(NC_BYTE,NC_UINT):
+        return putNCvx_schar_uint(ncp,varp,start,nelems,(unsigned int*)value);
+	break;
+    case CASE(NC_BYTE,NC_UINT64):
+        return putNCvx_schar_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
+	break;
+    case CASE(NC_BYTE,NC_USHORT):
+        return putNCvx_schar_ushort(ncp,varp,start,nelems,(unsigned short*)value);
+	break;
     case CASE(NC_SHORT,NC_BYTE):
-        status = putNCvx_short_schar(ncp,varp,start,nelems,(signed char*)value);
-        break;
+        return putNCvx_short_schar(ncp,varp,start,nelems,(schar*)value);
+	break;
     case CASE(NC_SHORT,NC_UBYTE):
-        status = putNCvx_short_uchar(ncp,varp,start,nelems,(unsigned char*)value);
-        break;
+        return putNCvx_short_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+	break;
     case CASE(NC_SHORT,NC_SHORT):
-        status = putNCvx_short_short(ncp,varp,start,nelems,(short*)value);
-        break;
+        return putNCvx_short_short(ncp,varp,start,nelems,(short*)value);
+	break;
     case CASE(NC_SHORT,NC_INT):
-        status = putNCvx_short_int(ncp,varp,start,nelems,(int*)value);
-        break;
+        return putNCvx_short_int(ncp,varp,start,nelems,(int*)value);
+	break;
     case CASE(NC_SHORT,NC_FLOAT):
-        status = putNCvx_short_float(ncp,varp,start,nelems,(float*)value);
-        break;
+        return putNCvx_short_float(ncp,varp,start,nelems,(float*)value);
+	break;
     case CASE(NC_SHORT,NC_DOUBLE):
-        status = putNCvx_short_double(ncp,varp,start,nelems,(double*)value);
-        break;
+        return putNCvx_short_double(ncp,varp,start,nelems,(double*)value);
+	break;
     case CASE(NC_SHORT,NC_INT64):
-        status = putNCvx_short_longlong(ncp,varp,start,nelems,(long long*)value);
-        break;
-
+        return putNCvx_short_longlong(ncp,varp,start,nelems,(long long*)value);
+	break;
+    case CASE(NC_SHORT,NC_UINT):
+        return putNCvx_short_uint(ncp,varp,start,nelems,(unsigned int*)value);
+	break;
+    case CASE(NC_SHORT,NC_UINT64):
+        return putNCvx_short_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
+	break;
+    case CASE(NC_SHORT,NC_USHORT):
+        return putNCvx_short_ushort(ncp,varp,start,nelems,(unsigned short*)value);
+	break;
     case CASE(NC_INT,NC_BYTE):
-        status = putNCvx_int_schar(ncp,varp,start,nelems,(signed char*)value);
-        break;
+        return putNCvx_int_schar(ncp,varp,start,nelems,(schar*)value);
+	break;
     case CASE(NC_INT,NC_UBYTE):
-        status = putNCvx_int_uchar(ncp,varp,start,nelems,(unsigned char*)value);
-        break;
+        return putNCvx_int_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+	break;
     case CASE(NC_INT,NC_SHORT):
-        status = putNCvx_int_short(ncp,varp,start,nelems,(short*)value);
-        break;
+        return putNCvx_int_short(ncp,varp,start,nelems,(short*)value);
+	break;
     case CASE(NC_INT,NC_INT):
-        status = putNCvx_int_int(ncp,varp,start,nelems,(int*)value);
-        break;
+        return putNCvx_int_int(ncp,varp,start,nelems,(int*)value);
+	break;
     case CASE(NC_INT,NC_FLOAT):
-        status = putNCvx_int_float(ncp,varp,start,nelems,(float*)value);
-        break;
+        return putNCvx_int_float(ncp,varp,start,nelems,(float*)value);
+	break;
     case CASE(NC_INT,NC_DOUBLE):
-        status = putNCvx_int_double(ncp,varp,start,nelems,(double*)value);
-        break;
+        return putNCvx_int_double(ncp,varp,start,nelems,(double*)value);
+	break;
     case CASE(NC_INT,NC_INT64):
-        status = putNCvx_int_longlong(ncp,varp,start,nelems,(long long*)value);
-        break;
-
+        return putNCvx_int_longlong(ncp,varp,start,nelems,(long long*)value);
+	break;
+    case CASE(NC_INT,NC_UINT):
+        return putNCvx_int_uint(ncp,varp,start,nelems,(unsigned int*)value);
+	break;
+    case CASE(NC_INT,NC_UINT64):
+        return putNCvx_int_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
+	break;
+    case CASE(NC_INT,NC_USHORT):
+        return putNCvx_int_ushort(ncp,varp,start,nelems,(unsigned short*)value);
+	break;
     case CASE(NC_FLOAT,NC_BYTE):
-        status = putNCvx_float_schar(ncp,varp,start,nelems,(signed char*)value);
-        break;
+        return putNCvx_float_schar(ncp,varp,start,nelems,(schar*)value);
+	break;
     case CASE(NC_FLOAT,NC_UBYTE):
-        status = putNCvx_float_uchar(ncp,varp,start,nelems,(unsigned char*)value);
-        break;
+        return putNCvx_float_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+	break;
     case CASE(NC_FLOAT,NC_SHORT):
-        status = putNCvx_float_short(ncp,varp,start,nelems,(short*)value);
-        break;
+        return putNCvx_float_short(ncp,varp,start,nelems,(short*)value);
+	break;
     case CASE(NC_FLOAT,NC_INT):
-        status = putNCvx_float_int(ncp,varp,start,nelems,(int*)value);
-        break;
+        return putNCvx_float_int(ncp,varp,start,nelems,(int*)value);
+	break;
     case CASE(NC_FLOAT,NC_FLOAT):
-        status = putNCvx_float_float(ncp,varp,start,nelems,(float*)value);
-        break;
+        return putNCvx_float_float(ncp,varp,start,nelems,(float*)value);
+	break;
     case CASE(NC_FLOAT,NC_DOUBLE):
-        status = putNCvx_float_double(ncp,varp,start,nelems,(double*)value);
-        break;
+        return putNCvx_float_double(ncp,varp,start,nelems,(double*)value);
+	break;
     case CASE(NC_FLOAT,NC_INT64):
-        status = putNCvx_float_longlong(ncp,varp,start,nelems,(long long*)value);
-        break;
-
+        return putNCvx_float_longlong(ncp,varp,start,nelems,(long long*)value);
+	break;
+    case CASE(NC_FLOAT,NC_UINT):
+        return putNCvx_float_uint(ncp,varp,start,nelems,(unsigned int*)value);
+	break;
+    case CASE(NC_FLOAT,NC_UINT64):
+        return putNCvx_float_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
+	break;
+    case CASE(NC_FLOAT,NC_USHORT):
+        return putNCvx_float_ushort(ncp,varp,start,nelems,(unsigned short*)value);
+	break;
     case CASE(NC_DOUBLE,NC_BYTE):
-        status = putNCvx_double_schar(ncp,varp,start,nelems,(signed char*)value);
-        break;
+        return putNCvx_double_schar(ncp,varp,start,nelems,(schar*)value);
+	break;
     case CASE(NC_DOUBLE,NC_UBYTE):
-        status = putNCvx_double_uchar(ncp,varp,start,nelems,(unsigned char*)value);
-        break;
+        return putNCvx_double_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+	break;
     case CASE(NC_DOUBLE,NC_SHORT):
-        status = putNCvx_double_short(ncp,varp,start,nelems,(short*)value);
-        break;
+        return putNCvx_double_short(ncp,varp,start,nelems,(short*)value);
+	break;
     case CASE(NC_DOUBLE,NC_INT):
-        status = putNCvx_double_int(ncp,varp,start,nelems,(int*)value);
-        break;
+        return putNCvx_double_int(ncp,varp,start,nelems,(int*)value);
+	break;
     case CASE(NC_DOUBLE,NC_FLOAT):
-        status = putNCvx_double_float(ncp,varp,start,nelems,(float*)value);
-        break;
+        return putNCvx_double_float(ncp,varp,start,nelems,(float*)value);
+	break;
     case CASE(NC_DOUBLE,NC_DOUBLE):
-        status = putNCvx_double_double(ncp,varp,start,nelems,(double*)value);
-        break;
+        return putNCvx_double_double(ncp,varp,start,nelems,(double*)value);
+	break;
     case CASE(NC_DOUBLE,NC_INT64):
-        status = putNCvx_double_longlong(ncp,varp,start,nelems,(long long*)value);
-        break;
+        return putNCvx_double_longlong(ncp,varp,start,nelems,(long long*)value);
+	break;
+    case CASE(NC_DOUBLE,NC_UINT):
+        return putNCvx_double_uint(ncp,varp,start,nelems,(unsigned int*)value);
+	break;
+    case CASE(NC_DOUBLE,NC_UINT64):
+        return putNCvx_double_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
+	break;
+    case CASE(NC_DOUBLE,NC_USHORT):
+        return putNCvx_double_ushort(ncp,varp,start,nelems,(unsigned short*)value);
+	break;
+    case CASE(NC_UBYTE,NC_UBYTE):
+        return putNCvx_uchar_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+	break;
+    case CASE(NC_UBYTE,NC_BYTE):
+        return putNCvx_uchar_schar(ncp,varp,start,nelems,(schar*)value);
+	break;
+    case CASE(NC_UBYTE,NC_SHORT):
+        return putNCvx_uchar_short(ncp,varp,start,nelems,(short*)value);
+	break;
+    case CASE(NC_UBYTE,NC_INT):
+        return putNCvx_uchar_int(ncp,varp,start,nelems,(int*)value);
+	break;
+    case CASE(NC_UBYTE,NC_FLOAT):
+        return putNCvx_uchar_float(ncp,varp,start,nelems,(float*)value);
+	break;
+    case CASE(NC_UBYTE,NC_DOUBLE):
+        return putNCvx_uchar_double(ncp,varp,start,nelems,(double *)value);
+	break;
+    case CASE(NC_UBYTE,NC_INT64):
+        return putNCvx_uchar_longlong(ncp,varp,start,nelems,(long long*)value);
+	break;
+    case CASE(NC_UBYTE,NC_UINT):
+        return putNCvx_uchar_uint(ncp,varp,start,nelems,(unsigned int*)value);
+	break;
+    case CASE(NC_UBYTE,NC_UINT64):
+        return putNCvx_uchar_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
+	break;
+    case CASE(NC_UBYTE,NC_USHORT):
+        return putNCvx_uchar_ushort(ncp,varp,start,nelems,(unsigned short*)value);
+	break;
+    case CASE(NC_USHORT,NC_BYTE):
+        return putNCvx_ushort_schar(ncp,varp,start,nelems,(schar*)value);
+	break;
+    case CASE(NC_USHORT,NC_UBYTE):
+        return putNCvx_ushort_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+	break;
+    case CASE(NC_USHORT,NC_SHORT):
+        return putNCvx_ushort_short(ncp,varp,start,nelems,(short*)value);
+	break;
+    case CASE(NC_USHORT,NC_INT):
+        return putNCvx_ushort_int(ncp,varp,start,nelems,(int*)value);
+	break;
+    case CASE(NC_USHORT,NC_FLOAT):
+        return putNCvx_ushort_float(ncp,varp,start,nelems,(float*)value);
+	break;
+    case CASE(NC_USHORT,NC_DOUBLE):
+        return putNCvx_ushort_double(ncp,varp,start,nelems,(double*)value);
+	break;
+    case CASE(NC_USHORT,NC_INT64):
+        return putNCvx_ushort_longlong(ncp,varp,start,nelems,(long long*)value);
+	break;
+    case CASE(NC_USHORT,NC_UINT):
+        return putNCvx_ushort_uint(ncp,varp,start,nelems,(unsigned int*)value);
+	break;
+    case CASE(NC_USHORT,NC_UINT64):
+        return putNCvx_ushort_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
+	break;
+    case CASE(NC_USHORT,NC_USHORT):
+        return putNCvx_ushort_ushort(ncp,varp,start,nelems,(unsigned short*)value);
+	break;
+    case CASE(NC_UINT,NC_BYTE):
+        return putNCvx_uint_schar(ncp,varp,start,nelems,(schar*)value);
+	break;
+    case CASE(NC_UINT,NC_UBYTE):
+        return putNCvx_uint_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+	break;
+    case CASE(NC_UINT,NC_SHORT):
+        return putNCvx_uint_short(ncp,varp,start,nelems,(short*)value);
+	break;
+    case CASE(NC_UINT,NC_INT):
+        return putNCvx_uint_int(ncp,varp,start,nelems,(int*)value);
+	break;
+    case CASE(NC_UINT,NC_FLOAT):
+        return putNCvx_uint_float(ncp,varp,start,nelems,(float*)value);
+	break;
+    case CASE(NC_UINT,NC_DOUBLE):
+        return putNCvx_uint_double(ncp,varp,start,nelems,(double*)value);
+	break;
+    case CASE(NC_UINT,NC_INT64):
+        return putNCvx_uint_longlong(ncp,varp,start,nelems,(long long*)value);
+	break;
+    case CASE(NC_UINT,NC_UINT):
+        return putNCvx_uint_uint(ncp,varp,start,nelems,(unsigned int*)value);
+	break;
+    case CASE(NC_UINT,NC_UINT64):
+        return putNCvx_uint_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
+	break;
+    case CASE(NC_UINT,NC_USHORT):
+        return putNCvx_uint_ushort(ncp,varp,start,nelems,(unsigned short*)value);
+	break;
+    case CASE(NC_INT64,NC_BYTE):
+        return putNCvx_longlong_schar(ncp,varp,start,nelems,(schar*)value);
+	break;
+    case CASE(NC_INT64,NC_UBYTE):
+        return putNCvx_longlong_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+	break;
+    case CASE(NC_INT64,NC_SHORT):
+        return putNCvx_longlong_short(ncp,varp,start,nelems,(short*)value);
+	break;
+    case CASE(NC_INT64,NC_INT):
+        return putNCvx_longlong_int(ncp,varp,start,nelems,(int*)value);
+	break;
+    case CASE(NC_INT64,NC_FLOAT):
+        return putNCvx_longlong_float(ncp,varp,start,nelems,(float*)value);
+	break;
+    case CASE(NC_INT64,NC_DOUBLE):
+        return putNCvx_longlong_double(ncp,varp,start,nelems,(double*)value);
+	break;
+    case CASE(NC_INT64,NC_INT64):
+        return putNCvx_longlong_longlong(ncp,varp,start,nelems,(long long*)value);
+	break;
+    case CASE(NC_INT64,NC_UINT):
+        return putNCvx_longlong_uint(ncp,varp,start,nelems,(unsigned int*)value);
+	break;
+    case CASE(NC_INT64,NC_UINT64):
+        return putNCvx_longlong_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
+	break;
+    case CASE(NC_INT64,NC_USHORT):
+        return putNCvx_longlong_ushort(ncp,varp,start,nelems,(unsigned short*)value);
+	break;
+    case CASE(NC_UINT64,NC_BYTE):
+        return putNCvx_ulonglong_schar(ncp,varp,start,nelems,(schar*)value);
+	break;
+    case CASE(NC_UINT64,NC_UBYTE):
+        return putNCvx_ulonglong_uchar(ncp,varp,start,nelems,(unsigned char*)value);
+	break;
+    case CASE(NC_UINT64,NC_SHORT):
+        return putNCvx_ulonglong_short(ncp,varp,start,nelems,(short*)value);
+	break;
+    case CASE(NC_UINT64,NC_INT):
+        return putNCvx_ulonglong_int(ncp,varp,start,nelems,(int*)value);
+	break;
+    case CASE(NC_UINT64,NC_FLOAT):
+        return putNCvx_ulonglong_float(ncp,varp,start,nelems,(float*)value);
+	break;
+    case CASE(NC_UINT64,NC_DOUBLE):
+        return putNCvx_ulonglong_double(ncp,varp,start,nelems,(double*)value);
+	break;
+    case CASE(NC_UINT64,NC_INT64):
+        return putNCvx_ulonglong_longlong(ncp,varp,start,nelems,(long long*)value);
+	break;
+    case CASE(NC_UINT64,NC_UINT):
+        return putNCvx_ulonglong_uint(ncp,varp,start,nelems,(unsigned int*)value);
+	break;
+    case CASE(NC_UINT64,NC_UINT64):
+        return putNCvx_ulonglong_ulonglong(ncp,varp,start,nelems,(unsigned long long*)value);
+	break;
+    case CASE(NC_UINT64,NC_USHORT):
+        return putNCvx_ulonglong_ushort(ncp,varp,start,nelems,(unsigned short*)value);
+	break;
 
     default:
 	return NC_EBADTYPE;
+	break;
     }
     return status;
 }
@@ -5121,31 +11252,33 @@ NC3_get_vara(int ncid, int varid,
 	    nc_type memtype)
 {
     int status = NC_NOERR;
-    NC* ncp;
+    NC* nc;
+    NC3_INFO* nc3;
     NC_var *varp;
     int ii;
     size_t iocount;
     size_t memtypelen;
-    char* value = (char*) value0; /* legally allow ptr arithmetic */
+    signed char* value = (signed char*) value0; /* legally allow ptr arithmetic */
     const size_t* edges = edges0; /* so we can modify for special cases */
     size_t modedges[NC_MAX_VAR_DIMS];
 
-    status = NC_check_id(ncid, &ncp); 
+    status = NC_check_id(ncid, &nc);
     if(status != NC_NOERR)
         return status;
+    nc3 = NC3_DATA(nc);
 
-    if(NC_indef(ncp))
+    if(NC_indef(nc3))
         return NC_EINDEFINE;
 
-    varp = NC_lookupvar(ncp, varid);
-    if(varp == NULL)
-        return NC_ENOTVAR;
+    status = NC_lookupvar(nc3, varid, &varp);
+    if(status != NC_NOERR)
+        return status;
 
     if(memtype == NC_NAT) memtype=varp->type;
 
     if(memtype == NC_CHAR && varp->type != NC_CHAR)
         return NC_ECHAR;
-    else if(memtype != NC_CHAR && varp->type == NC_CHAR)  
+    else if(memtype != NC_CHAR && varp->type == NC_CHAR)
         return NC_ECHAR;
 
     /* If edges is NULL, then this was called from nc_get_var() */
@@ -5153,19 +11286,19 @@ NC3_get_vara(int ncid, int varid,
 	/* If this is a record variable, then we have to
            substitute the number of records into dimension 0. */
 	if(varp->shape[0] == 0) {
-	    (void*)memcpy((void*)modedges,(void*)varp->shape,
+	    (void)memcpy((void*)modedges,(void*)varp->shape,
                           sizeof(size_t)*varp->ndims);
-	    modedges[0] = NC_get_numrecs(ncp);
+	    modedges[0] = NC_get_numrecs(nc3);
 	    edges = modedges;
 	} else
 	    edges = varp->shape;
     }
 
-    status = NCcoordck(ncp, varp, start);
+    status = NCcoordck(nc3, varp, start);
     if(status != NC_NOERR)
         return status;
 
-    status = NCedgeck(ncp, varp, start, edges);
+    status = NCedgeck(nc3, varp, start, edges);
     if(status != NC_NOERR)
         return status;
 
@@ -5174,17 +11307,17 @@ NC3_get_vara(int ncid, int varid,
 
     if(varp->ndims == 0) /* scalar variable */
     {
-        return( readNCv(ncp, varp, start, 1, (void*)value, memtype) );
+        return( readNCv(nc3, varp, start, 1, (void*)value, memtype) );
     }
 
     if(IS_RECVAR(varp))
     {
-        if(*start + *edges > NC_get_numrecs(ncp))
+        if(*start + *edges > NC_get_numrecs(nc3))
             return NC_EEDGE;
-        if(varp->ndims == 1 && ncp->recsize <= varp->len)
+        if(varp->ndims == 1 && nc3->recsize <= varp->len)
         {
             /* one dimensional && the only record variable  */
-            return( readNCv(ncp, varp, start, *edges, (void*)value, memtype) );
+            return( readNCv(nc3, varp, start, *edges, (void*)value, memtype) );
         }
     }
 
@@ -5192,11 +11325,11 @@ NC3_get_vara(int ncid, int varid,
      * find max contiguous
      *   and accumulate max count for a single io operation
      */
-    ii = NCiocount(ncp, varp, edges, &iocount);
+    ii = NCiocount(nc3, varp, edges, &iocount);
 
     if(ii == -1)
     {
-        return( readNCv(ncp, varp, start, iocount, (void*)value, memtype) );
+        return( readNCv(nc3, varp, start, iocount, (void*)value, memtype) );
     }
 
     assert(ii >= 0);
@@ -5215,7 +11348,7 @@ NC3_get_vara(int ncid, int varid,
     /* ripple counter */
     while(*coord < *upper)
     {
-        const int lstatus = readNCv(ncp, varp, coord, iocount, (void*)value, memtype);
+        const int lstatus = readNCv(nc3, varp, coord, iocount, (void*)value, memtype);
 	if(lstatus != NC_NOERR)
         {
             if(lstatus != NC_ERANGE)
@@ -5246,34 +11379,37 @@ NC3_put_vara(int ncid, int varid,
 	    nc_type memtype)
 {
     int status = NC_NOERR;
-    NC *ncp;
+    NC *nc;
+    NC3_INFO* nc3;
     NC_var *varp;
     int ii;
     size_t iocount;
     size_t memtypelen;
-    char* value = (char*) value0; /* legally allow ptr arithmetic */
+    signed char* value = (signed char*) value0; /* legally allow ptr arithmetic */
     const size_t* edges = edges0; /* so we can modify for special cases */
     size_t modedges[NC_MAX_VAR_DIMS];
 
-    status = NC_check_id(ncid, &ncp); 
+    status = NC_check_id(ncid, &nc);
     if(status != NC_NOERR)
         return status;
+    nc3 = NC3_DATA(nc);
 
-    if(NC_readonly(ncp))
+    if(NC_readonly(nc3))
         return NC_EPERM;
 
-    if(NC_indef(ncp))
+    if(NC_indef(nc3))
         return NC_EINDEFINE;
 
-    varp = NC_lookupvar(ncp, varid);
-    if(varp == NULL)
-        return NC_ENOTVAR; /* TODO: lost NC_EGLOBAL */
+    status = NC_lookupvar(nc3, varid, &varp);
+    if(status != NC_NOERR)
+       return status; /*invalid varid */
+
 
     if(memtype == NC_NAT) memtype=varp->type;
 
     if(memtype == NC_CHAR && varp->type != NC_CHAR)
         return NC_ECHAR;
-    else if(memtype != NC_CHAR && varp->type == NC_CHAR)  
+    else if(memtype != NC_CHAR && varp->type == NC_CHAR)
         return NC_ECHAR;
 
     /* Get the size of the memtype */
@@ -5284,37 +11420,37 @@ NC3_put_vara(int ncid, int varid,
 	/* If this is a record variable, then we have to
            substitute the number of records into dimension 0. */
 	if(varp->shape[0] == 0) {
-	    (void*)memcpy((void*)modedges,(void*)varp->shape,
+	    (void)memcpy((void*)modedges,(void*)varp->shape,
                           sizeof(size_t)*varp->ndims);
-	    modedges[0] = NC_get_numrecs(ncp);
+	    modedges[0] = NC_get_numrecs(nc3);
 	    edges = modedges;
 	} else
 	    edges = varp->shape;
     }
 
-    status = NCcoordck(ncp, varp, start);
+    status = NCcoordck(nc3, varp, start);
     if(status != NC_NOERR)
         return status;
-    status = NCedgeck(ncp, varp, start, edges);
+    status = NCedgeck(nc3, varp, start, edges);
     if(status != NC_NOERR)
         return status;
 
     if(varp->ndims == 0) /* scalar variable */
     {
-        return( writeNCv(ncp, varp, start, 1, (void*)value, memtype) );
+        return( writeNCv(nc3, varp, start, 1, (void*)value, memtype) );
     }
 
     if(IS_RECVAR(varp))
     {
-        status = NCvnrecs(ncp, *start + *edges);
+        status = NCvnrecs(nc3, *start + *edges);
         if(status != NC_NOERR)
             return status;
 
         if(varp->ndims == 1
-            && ncp->recsize <= varp->len)
+            && nc3->recsize <= varp->len)
         {
             /* one dimensional && the only record variable  */
-            return( writeNCv(ncp, varp, start, *edges, (void*)value, memtype) );
+            return( writeNCv(nc3, varp, start, *edges, (void*)value, memtype) );
         }
     }
 
@@ -5322,11 +11458,11 @@ NC3_put_vara(int ncid, int varid,
      * find max contiguous
      *   and accumulate max count for a single io operation
      */
-    ii = NCiocount(ncp, varp, edges, &iocount);
+    ii = NCiocount(nc3, varp, edges, &iocount);
 
     if(ii == -1)
     {
-        return( writeNCv(ncp, varp, start, iocount, (void*)value, memtype) );
+        return( writeNCv(nc3, varp, start, iocount, (void*)value, memtype) );
     }
 
     assert(ii >= 0);
@@ -5345,7 +11481,7 @@ NC3_put_vara(int ncid, int varid,
     /* ripple counter */
     while(*coord < *upper)
     {
-        const int lstatus = writeNCv(ncp, varp, coord, iocount, (void*)value, memtype);
+        const int lstatus = writeNCv(nc3, varp, coord, iocount, (void*)value, memtype);
         if(lstatus != NC_NOERR)
         {
             if(lstatus != NC_ERANGE)

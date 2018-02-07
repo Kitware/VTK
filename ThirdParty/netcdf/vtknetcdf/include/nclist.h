@@ -3,63 +3,66 @@
 #ifndef NCLIST_H
 #define NCLIST_H 1
 
-#include <config.h>
-
+#include "vtk_netcdf_mangle.h"
 /* Define the type of the elements in the list*/
 
 #if defined(_CPLUSPLUS_) || defined(__CPLUSPLUS__)
-#define EXTERNC extern "C"
-#else
-#define EXTERNC extern
+extern "C" {
 #endif
 
-typedef unsigned long ncelem;
-
-EXTERNC int nclistnull(ncelem);
+extern int nclistnull(void*);
 
 typedef struct NClist {
-  unsigned int alloc;
-  unsigned int length;
-  ncelem* content;
+  unsigned long alloc;
+  unsigned long length;
+  void** content;
 } NClist;
 
-EXTERNC NClist* nclistnew(void);
-EXTERNC int nclistfree(NClist*);
-EXTERNC int nclistsetalloc(NClist*,unsigned int);
-EXTERNC int nclistsetlength(NClist*,unsigned int);
+extern NClist* nclistnew(void);
+extern int nclistfree(NClist*);
+extern int nclistfreeall(NClist*);
+extern int nclistsetalloc(NClist*,unsigned long);
+extern int nclistsetlength(NClist*,unsigned long);
 
 /* Set the ith element */
-EXTERNC int nclistset(NClist*,unsigned int,ncelem);
+extern int nclistset(NClist*,unsigned long,void*);
 /* Get value at position i */
-EXTERNC ncelem nclistget(NClist*,unsigned int);/* Return the ith element of l */
+extern void* nclistget(NClist*,unsigned long);/* Return the ith element of l */
 /* Insert at position i; will push up elements i..|seq|. */
-EXTERNC int nclistinsert(NClist*,unsigned int,ncelem);
+extern int nclistinsert(NClist*,unsigned long,void*);
 /* Remove element at position i; will move higher elements down */
-EXTERNC ncelem nclistremove(NClist* l, unsigned int i);
+extern void* nclistremove(NClist* l, unsigned long i);
 
 /* Tail operations */
-EXTERNC int nclistpush(NClist*,ncelem); /* Add at Tail */
-EXTERNC ncelem nclistpop(NClist*);
-EXTERNC ncelem nclisttop(NClist*);
+extern int nclistpush(NClist*,void*); /* Add at Tail */
+extern void* nclistpop(NClist*);
+extern void* nclisttop(NClist*);
 
 /* Duplicate and return the content (null terminate) */
-EXTERNC ncelem* nclistdup(NClist*);
+extern void** nclistdup(NClist*);
 
 /* Look for value match */
-EXTERNC int nclistcontains(NClist*, ncelem);
+extern int nclistcontains(NClist*, void*);
+
+/* Remove element by value; only removes first encountered */
+extern int nclistelemremove(NClist* l, void* elem);
 
 /* remove duplicates */
-EXTERNC int nclistunique(NClist*);
+extern int nclistunique(NClist*);
 
 /* Create a clone of a list */
-EXTERNC NClist* nclistclone(NClist*);
+extern NClist* nclistclone(NClist*);
+
+extern void* nclistextract(NClist*);
 
 /* Following are always "in-lined"*/
-#define nclistclear(l) nclistsetlength((l),0U)
+#define nclistclear(l) nclistsetlength((l),0)
 #define nclistextend(l,len) nclistsetalloc((l),(len)+(l->alloc))
-#define nclistcontents(l) ((l)->content)
-#define nclistlength(l)  ((l)?(l)->length:0U)
+#define nclistcontents(l)  ((l)==NULL?NULL:(l)->content)
+#define nclistlength(l)  ((l)==NULL?0:(l)->length)
+
+#if defined(_CPLUSPLUS_) || defined(__CPLUSPLUS__)
+}
+#endif
 
 #endif /*NCLIST_H*/
-
-

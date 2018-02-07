@@ -4,16 +4,14 @@
  *   $Header: /upc/share/CVS/netcdf-3/libsrc4/nc4dispatch.c,v 1.5 2010/05/27 02:19:37 dmh Exp $
  *********************************************************************/
 
+#include "config.h"
 #include <stdlib.h>
-#include "nc.h"
-#include "ncdispatch.h"
 #include "nc4dispatch.h"
+#include "nc.h"
 
-NC_Dispatch NC4_dispatcher = {
+static NC_Dispatch NC4_dispatcher = {
 
-NC_DISPATCH_NC4,
-
-NC4_new_nc,
+NC_FORMATX_NC4,
 
 NC4_create,
 NC4_open,
@@ -27,6 +25,7 @@ NC4_set_fill,
 NC4_inq_base_pe,
 NC4_set_base_pe,
 NC4_inq_format,
+NC4_inq_format_extended,
 
 NC4_inq,
 NC4_inq_type,
@@ -57,10 +56,11 @@ NCDEFAULT_put_varm,
 
 NC4_inq_var_all,
 
+NC4_var_par_access,
+
+#ifdef USE_NETCDF4
 NC4_show_metadata,
 NC4_inq_unlimdims,
-
-NC4_var_par_access,
 
 NC4_inq_ncid,
 NC4_inq_grps,
@@ -73,6 +73,7 @@ NC4_inq_dimids,
 NC4_inq_typeids,
 NC4_inq_type_equal,
 NC4_def_grp,
+NC4_rename_grp,
 NC4_inq_user_type,
 NC4_inq_typeid,
 
@@ -96,12 +97,21 @@ NC4_def_var_fill,
 NC4_def_var_endian,
 NC4_set_var_chunk_cache,
 NC4_get_var_chunk_cache,
+#endif
 
 };
+
+NC_Dispatch* NC4_dispatch_table = NULL; /* moved here from ddispatch.c */
 
 int
 NC4_initialize(void)
 {
     NC4_dispatch_table = &NC4_dispatcher;
+    return NC_NOERR;
+}
+
+int
+NC4_finalize(void)
+{
     return NC_NOERR;
 }

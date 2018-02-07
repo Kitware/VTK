@@ -4,27 +4,45 @@
  */
 /* $Id: var.c,v 1.144 2010/05/30 00:50:35 russ Exp $ */
 
-#include "nc.h"
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include "nc3internal.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include <limits.h>
 #include "ncx.h"
 #include "rnd.h"
-#include "utf8proc.h"
-
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
-#  pragma warning ( disable : 4130 ) /* logical operation on address of string constant */
-#endif /* defined(_MSC_VER) && (_MSC_VER >= 1400) */
+#include "ncutf8.h"
 
 #ifndef OFF_T_MAX
+#if 0
 #define OFF_T_MAX (~ (off_t) 0 - (~ (off_t) 0 << (CHAR_BIT * sizeof (off_t) - 1)))
+#endif
+
+/* The behavior above is undefined, re: bitshifting a negative value, according
+   to warnings thrown by clang/gcc.  An alternative OFF_T_MAX was written
+   based on info found at:
+   * http://stackoverflow.com/questions/4514572/c-question-off-t-and-other-signed-integer-types-minimum-and-maximum-values
+   */
+#define MAX_INT_VAL_STEP(t) \
+    ((t) 1 << (CHAR_BIT * sizeof(t) - 1 - ((t) -1 < 1)))
+
+#define MAX_INT_VAL(t) \
+    ((MAX_INT_VAL_STEP(t) - 1) + MAX_INT_VAL_STEP(t))
+
+#define MIN_INT_VAL(t) \
+    ((t) -MAX_INT_VAL(t) - 1)
+
+#define OFF_T_MAX MAX_INT_VAL(off_t)
+
 #endif
 
 /*
  * Free var
- * Formerly
-NC_free_var(var)
+ * Formerly NC_free_var(var)
  */
 void
 free_NC_var(NC_var *varp)
@@ -42,8 +60,8 @@ free_NC_var(NC_var *varp)
 }
 
 
-/* 
- * Common code for new_NC_var() 
+/*
+ * Common code for new_NC_var()
  * and ncx_get_NC_var()
  */
 NC_var *
@@ -59,7 +77,7 @@ new_x_NC_var(
 	const size_t sz =  M_RNDUP(sizeof(NC_var)) +
 		 o1 + o2 + ndims * sizeof(off_t);
 #else /*!MALLOCHACK*/
-	const size_t o3 = ndims * sizeof(off_t) *2; //TODO:mem bug release built vis studio crashes on free without *2
+	const size_t o3 = ndims * sizeof(off_t) * 2;
 	const size_t sz = sizeof(NC_var);
 #endif /*!MALLOCHACK*/
 
@@ -69,25 +87,29 @@ new_x_NC_var(
 	(void) memset(varp, 0, sz);
 	varp->name = strp;
 	varp->ndims = ndims;
- 	varp->hash = hash_fast(strp->cp, strlen(strp->cp));
 
 	if(ndims != 0)
 	{
 #ifdef MALLOCHACK
-		/*
-		 * NOTE: lint may complain about the next 3 lines:
-		 * "pointer cast may result in improper alignment".
-		 * We use the M_RNDUP() macro to get the proper alignment.
-		 */
-		varp->dimids = (int *)((char *)varp + M_RNDUP(sizeof(NC_var)));
-		varp->shape = (size_t *)((char *)varp->dimids + o1);
-		varp->dsizes = (off_t *)((char *)varp->shape + o2);
+	  /*
+	   * NOTE: lint may complain about the next 3 lines:
+	   * "pointer cast may result in improper alignment".
+	   * We use the M_RNDUP() macro to get the proper alignment.
+	   */
+	  varp->dimids = (int *)((char *)varp + M_RNDUP(sizeof(NC_var)));
+	  varp->shape = (size_t *)((char *)varp->dimids + o1);
+	  varp->dsizes = (off_t *)((char *)varp->shape + o2);
 #else /*!MALLOCHACK*/
-		varp->dimids = (int*)malloc(o1);
-		varp->shape = (size_t*)malloc(o2);
-		varp->dsizes = (off_t*)malloc(o3);
+	  varp->dimids = (int*)malloc(o1);
+	  varp->shape = (size_t*)malloc(o2);
+	  varp->dsizes = (off_t*)malloc(o3);
 #endif /*!MALLOCHACK*/
+	} else {
+	  varp->dimids = NULL;
+	  varp->shape = NULL;
+	  varp->dsizes=NULL;
 	}
+
 
 	varp->xsz = 0;
 	varp->len = 0;
@@ -105,16 +127,18 @@ static NC_var *
 new_NC_var(const char *uname, nc_type type,
 	size_t ndims, const int *dimids)
 {
-	NC_string *strp;
-	NC_var *varp;
+	NC_string *strp = NULL;
+	NC_var *varp = NULL;
+	int stat;
+	char* name;
 
-	char *name = (char *)utf8proc_NFC((const unsigned char *)uname);
-	if(name == NULL)
+        stat = nc_utf8_normalize((const unsigned char *)uname,(unsigned char **)&name);
+        if(stat != NC_NOERR)
 	    return NULL;
 	strp = new_NC_string(strlen(name), name);
 	free(name);
 	if(strp == NULL)
-		return NULL;
+	  return NULL;
 
 	varp = new_x_NC_var(strp, ndims);
 	if(varp == NULL )
@@ -122,11 +146,14 @@ new_NC_var(const char *uname, nc_type type,
 		free_NC_string(strp);
 		return NULL;
 	}
-	
+
 	varp->type = type;
 
 	if( ndims != 0 && dimids != NULL)
-		(void) memcpy(varp->dimids, dimids, ndims * sizeof(int));
+	  (void) memcpy(varp->dimids, dimids, ndims * sizeof(int));
+    else
+      varp->dimids=NULL;
+
 
 	return(varp);
 }
@@ -140,7 +167,7 @@ dup_NC_var(const NC_var *rvarp)
 	if(varp == NULL)
 		return NULL;
 
-	
+
 	if(dup_NC_attrarrayV(&varp->attrs, &rvarp->attrs) != NC_NOERR)
 	{
 		free_NC_var(varp);
@@ -198,9 +225,12 @@ void
 free_NC_vararrayV(NC_vararray *ncap)
 {
 	assert(ncap != NULL);
-	
+
 	if(ncap->nalloc == 0)
 		return;
+
+	NC_hashmapDelete(ncap->hashmap);
+	ncap->hashmap = NULL;
 
 	assert(ncap->value != NULL);
 
@@ -278,6 +308,8 @@ incr_NC_vararray(NC_vararray *ncap, NC_var *newelemp)
 			return NC_ENOMEM;
 		ncap->value = vp;
 		ncap->nalloc = NC_ARRAY_GROWBY;
+
+		ncap->hashmap = NC_hashmapCreate(0);
 	}
 	else if(ncap->nelems +1 > ncap->nalloc)
 	{
@@ -291,6 +323,7 @@ incr_NC_vararray(NC_vararray *ncap, NC_var *newelemp)
 
 	if(newelemp != NULL)
 	{
+		NC_hashmapAddVar(ncap, (long)ncap->nelems, newelemp->name->cp);
 		ncap->value[ncap->nelems] = newelemp;
 		ncap->nelems++;
 	}
@@ -325,40 +358,32 @@ NC_hvarid
 int
 NC_findvar(const NC_vararray *ncap, const char *uname, NC_var **varpp)
 {
-	NC_var **loc;
- 	uint32_t shash;
-	int varid;
+	int hash_var_id;
 	char *name;
+	int stat;
 
 	assert(ncap != NULL);
 
 	if(ncap->nelems == 0)
 		return -1;
 
-	loc = (NC_var **) ncap->value;
 
 	/* normalized version of uname */
-	name = (char *)utf8proc_NFC((const unsigned char *)uname);
-	if(name == NULL)
-	    return NC_ENOMEM;
- 	shash = hash_fast(name, strlen(name));
+        stat = nc_utf8_normalize((const unsigned char *)uname,(unsigned char **)&name);
+        if(stat != NC_NOERR)
+	    return stat;
 
-	for(varid = 0; (size_t) varid < ncap->nelems; varid++, loc++)
-	{
-		if((*loc)->hash == shash &&
-		   strncmp((*loc)->name->cp, name, strlen(name)) == 0)
-		{
-			if(varpp != NULL)
-				*varpp = *loc;
-			free(name);
-			return(varid); /* Normal return */
-		}
-	}
+	hash_var_id = (int)NC_hashmapGetVar(ncap, name);
 	free(name);
+	if (hash_var_id >= 0) {
+	  if (varpp != NULL)
+	    *varpp = ncap->value[hash_var_id];
+	  return(hash_var_id); /* Normal return */
+	}
 	return(-1); /* not found */
 }
 
-/* 
+/*
  * For a netcdf type
  *  return the size of one element in the external representation.
  * Note that arrays get rounded up to X_ALIGN boundaries.
@@ -372,6 +397,7 @@ ncx_szof(nc_type type)
 	switch(type){
 	case NC_BYTE:
 	case NC_CHAR:
+	case NC_UBYTE:
 		return(1);
 	case NC_SHORT :
 		return(2);
@@ -379,8 +405,16 @@ ncx_szof(nc_type type)
 		return X_SIZEOF_INT;
 	case NC_FLOAT:
 		return X_SIZEOF_FLOAT;
-	case NC_DOUBLE : 
+	case NC_DOUBLE :
 		return X_SIZEOF_DOUBLE;
+	case NC_USHORT :
+		return X_SIZEOF_USHORT;
+	case NC_UINT :
+		return X_SIZEOF_UINT;
+	case NC_INT64 :
+		return X_SIZEOF_INT64;
+	case NC_UINT64 :
+		return X_SIZEOF_UINT64;
 	default:
 	        assert("ncx_szof invalid type" == 0);
 	        return 0;
@@ -398,13 +432,13 @@ NC_var_shape(NC_var *varp, const NC_dimarray *dims)
 {
 	size_t *shp, *op;
 	off_t *dsp;
-	int *ip;
+	int *ip = NULL;
 	const NC_dim *dimp;
 	off_t product = 1;
-	
+
 	varp->xsz = ncx_szof(varp->type);
 
-	if(varp->ndims == 0)
+	if(varp->ndims == 0 || varp->dimids == NULL)
 	{
 		goto out;
 	}
@@ -414,18 +448,18 @@ NC_var_shape(NC_var *varp, const NC_dimarray *dims)
 	 * to determine the shape
 	 */
 	for(ip = varp->dimids, op = varp->shape
-		; ip < &varp->dimids[varp->ndims]; ip++, op++)
+          ; ip < &varp->dimids[varp->ndims]; ip++, op++)
 	{
 		if(*ip < 0 || (size_t) (*ip) >= ((dims != NULL) ? dims->nelems : 1) )
 			return NC_EBADDIM;
-		
+
 		dimp = elem_NC_dimarray(dims, (size_t)*ip);
 		*op = dimp->size;
 		if(*op == NC_UNLIMITED && ip != varp->dimids)
 			return NC_EUNLIMPOS;
 	}
 
-	/* 
+	/*
 	 * Compute the dsizes
 	 */
 				/* ndims is > 0 here */
@@ -434,17 +468,18 @@ NC_var_shape(NC_var *varp, const NC_dimarray *dims)
  			shp >= varp->shape;
 			shp--, dsp--)
 	{
-		if(!(shp == varp->shape && IS_RECVAR(varp)))
+      /*if(!(shp == varp->shape && IS_RECVAR(varp)))*/
+      if( shp != NULL && (shp != varp->shape || !IS_RECVAR(varp)))
 		{
-		    if( (off_t)(*shp) <= OFF_T_MAX / product ) 
+          if( ((off_t)(*shp)) <= OFF_T_MAX / product )
 			{
-				product *= *shp;
-			} else 
+              product *= (*shp > 0 ? *shp : 1);
+			} else
 			{
-				product = OFF_T_MAX ;
+              product = OFF_T_MAX ;
 			}
 		}
-		*dsp = product;
+      *dsp = product;
 	}
 
 
@@ -455,7 +490,9 @@ out :
 		switch(varp->type) {
 		case NC_BYTE :
 		case NC_CHAR :
+		case NC_UBYTE :
 		case NC_SHORT :
+		case NC_USHORT :
 		        if( varp->len%4 != 0 )
 			{
 			        varp->len += 4 - varp->len%4; /* round up */
@@ -492,41 +529,47 @@ NC_check_vlen(NC_var *varp, size_t vlen_max) {
 
     assert(varp != NULL);
     for(ii = IS_RECVAR(varp) ? 1 : 0; ii < varp->ndims; ii++) {
-	if (varp->shape[ii] > vlen_max / prod) {
-	    return 0;		/* size in bytes won't fit in a 32-bit int */
-	}
-	prod *= varp->shape[ii];
+      if(!varp->shape)
+        return 0; /* Shape is undefined/NULL. */
+      if (varp->shape[ii] > vlen_max / prod) {
+        return 0;		/* size in bytes won't fit in a 32-bit int */
+      }
+      prod *= varp->shape[ii];
     }
     return 1;			/* OK */
 }
 
 
-/*
- * Given valid ncp and varid, return var
- *  else NULL on error
- * Formerly
-NC_hlookupvar()
+/*! Look up a variable by varid.
+ *
+ * Given a valid ncp structure and varid, return the var.
+ *
+ * Formerly NC_hlookupvar()
+ *
+ * @param[in] ncp NC3_INFO data structure.
+ * @param[in] varid The varid key for the var we are looking up.
+ * @param[out] varp Data structure to contain the varp pointer.
+ * @return Error code, if one exists, 0 otherwise.
  */
-NC_var *
-NC_lookupvar(NC *ncp, int varid)
+
+int NC_lookupvar(NC3_INFO* ncp, int varid, NC_var **varp)
 {
-	NC_var *varp;
-
-	if(varid == NC_GLOBAL)
+  if(varid == NC_GLOBAL)
 	{
-		/* Global is error in this context */
-		return(NULL);
+      /* Global is error in this context */
+      return NC_EGLOBAL;
 	}
 
-	varp = elem_NC_vararray(&ncp->vars, (size_t)varid);
-	if(varp == NULL)
-	{
-		return NULL;
-	}
+  if(varp)
+    *varp = elem_NC_vararray(&ncp->vars, (size_t)varid);
+  else
+    return NC_ENOTVAR;
 
-	assert(varp != NULL);
+  if(*varp == NULL)
+    return NC_ENOTVAR;
 
-	return(varp);
+  return NC_NOERR;
+
 }
 
 
@@ -537,13 +580,15 @@ NC3_def_var( int ncid, const char *name, nc_type type,
 	 int ndims, const int *dimids, int *varidp)
 {
 	int status;
-	NC *ncp;
+	NC *nc;
+	NC3_INFO* ncp;
 	int varid;
-	NC_var *varp;
+	NC_var *varp = NULL;
 
-	status = NC_check_id(ncid, &ncp); 
+	status = NC_check_id(ncid, &nc);
 	if(status != NC_NOERR)
 		return status;
+	ncp = NC3_DATA(nc);
 
 	if(!NC_indef(ncp))
 	{
@@ -554,7 +599,7 @@ NC3_def_var( int ncid, const char *name, nc_type type,
 	if(status != NC_NOERR)
 		return status;
 
-	status = nc_cktype(type);
+	status = nc3_cktype(nc->mode, type);
 	if(status != NC_NOERR)
 		return status;
 
@@ -562,7 +607,7 @@ NC3_def_var( int ncid, const char *name, nc_type type,
 	if((unsigned long) ndims > X_INT_MAX) /* Backward compat */
 	{
 		return NC_EINVAL;
-	} 
+	}
 
 	if(ncp->vars.nelems >= NC_MAX_VARS)
 	{
@@ -574,7 +619,7 @@ NC3_def_var( int ncid, const char *name, nc_type type,
 	{
 		return NC_ENAMEINUSE;
 	}
-	
+
 	varp = new_NC_var(name, type, ndims, dimids);
 	if(varp == NULL)
 		return NC_ENOMEM;
@@ -603,13 +648,15 @@ int
 NC3_inq_varid(int ncid, const char *name, int *varid_ptr)
 {
 	int status;
-	NC *ncp;
+	NC *nc;
+	NC3_INFO* ncp;
 	NC_var *varp;
 	int varid;
 
-	status = NC_check_id(ncid, &ncp); 
+	status = NC_check_id(ncid, &nc);
 	if(status != NC_NOERR)
 		return status;
+	ncp = NC3_DATA(nc);
 
 	varid = NC_findvar(&ncp->vars, name, &varp);
 	if(varid == -1)
@@ -632,13 +679,15 @@ NC3_inq_var(int ncid,
 	int *nattsp)
 {
 	int status;
-	NC *ncp;
+	NC *nc;
+	NC3_INFO* ncp;
 	NC_var *varp;
 	size_t ii;
 
-	status = NC_check_id(ncid, &ncp); 
+	status = NC_check_id(ncid, &nc);
 	if(status != NC_NOERR)
 		return status;
+	ncp = NC3_DATA(nc);
 
 	varp = elem_NC_vararray(&ncp->vars, (size_t)varid);
 	if(varp == NULL)
@@ -675,15 +724,17 @@ int
 NC3_rename_var(int ncid, int varid, const char *unewname)
 {
 	int status;
-	NC *ncp;
+	NC *nc;
+	NC3_INFO* ncp;
 	NC_var *varp;
 	NC_string *old, *newStr;
 	int other;
 	char *newname;		/* normalized */
 
-	status = NC_check_id(ncid, &ncp); 
+	status = NC_check_id(ncid, &nc);
 	if(status != NC_NOERR)
 		return status;
+	ncp = NC3_DATA(nc);
 
 	if(NC_readonly(ncp))
 	{
@@ -700,36 +751,45 @@ NC3_rename_var(int ncid, int varid, const char *unewname)
 	{
 		return NC_ENAMEINUSE;
 	}
-	
-	varp = NC_lookupvar(ncp, varid);
-	if(varp == NULL)
+
+	status = NC_lookupvar(ncp, varid, &varp);
+	if(status != NC_NOERR)
 	{
 		/* invalid varid */
-		return NC_ENOTVAR; /* TODO: is this the right error code? */
+		return status;
 	}
 
+
 	old = varp->name;
-	newname = (char *)utf8proc_NFC((const unsigned char *)unewname);
-	if(newname == NULL)
-	    return NC_ENOMEM;
+        status = nc_utf8_normalize((const unsigned char *)unewname,(unsigned char **)&newname);
+        if(status != NC_NOERR)
+	    return status;
 	if(NC_indef(ncp))
 	{
+		/* Remove old name from hashmap; add new... */
+		NC_hashmapRemoveVar(&ncp->vars, old->cp);
+
 		newStr = new_NC_string(strlen(newname),newname);
 		free(newname);
 		if(newStr == NULL)
 			return(-1);
 		varp->name = newStr;
-		varp->hash = hash_fast(newStr->cp, strlen(newStr->cp));
+		NC_hashmapAddVar(&ncp->vars, varid, newStr->cp);
 		free_NC_string(old);
+
 		return NC_NOERR;
 	}
 
 	/* else, not in define mode */
+	/* Remove old name from hashmap; add new... */
+	NC_hashmapRemoveVar(&ncp->vars, old->cp);
+
 	status = set_NC_string(varp->name, newname);
-	varp->hash = hash_fast(newname, strlen(newname));
 	free(newname);
 	if(status != NC_NOERR)
 		return status;
+
+	NC_hashmapAddVar(&ncp->vars, varid, varp->name->cp);
 
 	set_NC_hdirty(ncp);
 

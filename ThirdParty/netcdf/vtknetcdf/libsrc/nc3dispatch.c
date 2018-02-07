@@ -10,7 +10,7 @@
 #include <string.h>
 
 #include "netcdf.h"
-#include "nc.h"
+#include "nc3internal.h"
 #include "nc3dispatch.h"
 
 #ifndef NC_CONTIGUOUS
@@ -37,10 +37,11 @@ static int NC3_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
                int *no_fill, void *fill_valuep, int *endiannessp, 
 	       int *options_maskp, int *pixels_per_blockp);
 
+static int NC3_var_par_access(int,int,int);
+
 #ifdef USE_NETCDF4
 static int NC3_show_metadata(int);
 static int NC3_inq_unlimdims(int,int*,int*);
-static int NC3_var_par_access(int,int,int);
 static int NC3_inq_ncid(int,const char*,int*);
 static int NC3_inq_grps(int,int*,int*);
 static int NC3_inq_grpname(int,char*);
@@ -52,6 +53,7 @@ static int NC3_inq_dimids(int,int* ndims,int*,int);
 static int NC3_inq_typeids(int,int* ntypes,int*);
 static int NC3_inq_type_equal(int,nc_type,int,nc_type,int*);
 static int NC3_def_grp(int,const char*,int*);
+static int NC3_rename_grp(int,const char*);
 static int NC3_inq_user_type(int,nc_type,char*,size_t*,nc_type*,size_t*,int*);
 static int NC3_inq_typeid(int,const char*,nc_type*);
 static int NC3_def_compound(int,size_t,const char*,nc_type*);
@@ -76,11 +78,9 @@ static int NC3_set_var_chunk_cache(int,int,size_t,size_t,float);
 static int NC3_get_var_chunk_cache(int,int,size_t*,size_t*,float*);
 #endif /*USE_NETCDF4*/
 
-NC_Dispatch NC3_dispatcher = {
+static NC_Dispatch NC3_dispatcher = {
 
-NC_DISPATCH_NC3,
-
-NC3_new_nc,
+NC_FORMATX_NC3,
 
 NC3_create,
 NC3_open,
@@ -94,6 +94,7 @@ NC3_set_fill,
 NC3_inq_base_pe,
 NC3_set_base_pe,
 NC3_inq_format,
+NC3_inq_format_extended,
 
 NC3_inq,
 NC3_inq_type,
@@ -124,10 +125,11 @@ NCDEFAULT_put_varm,
 
 NC3_inq_var_all,
 
+NC3_var_par_access,
+
 #ifdef USE_NETCDF4
 NC3_show_metadata,
 NC3_inq_unlimdims,
-NC3_var_par_access,
 NC3_inq_ncid,
 NC3_inq_grps,
 NC3_inq_grpname,
@@ -139,6 +141,7 @@ NC3_inq_dimids,
 NC3_inq_typeids,
 NC3_inq_type_equal,
 NC3_def_grp,
+NC3_rename_grp,
 NC3_inq_user_type,
 NC3_inq_typeid,
 
@@ -167,10 +170,18 @@ NC3_get_var_chunk_cache,
 
 };
 
+NC_Dispatch* NC3_dispatch_table = NULL; /*!< NC3 Dispatch table, moved here from ddispatch.c */
+
 int
 NC3_initialize(void)
 {
     NC3_dispatch_table = &NC3_dispatcher;
+    return NC_NOERR;
+}
+
+int
+NC3_finalize(void)
+{
     return NC_NOERR;
 }
 
@@ -194,6 +205,12 @@ NC3_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
     return NC_NOERR;
 }
 
+static int
+NC3_var_par_access(int ncid, int varid, int par_access)
+{
+    return NC_NOERR; /* no-op for netcdf classic */
+}
+    
 #ifdef USE_NETCDF4
 
 static int
@@ -202,7 +219,7 @@ NC3_inq_unlimdims(int ncid, int *ndimsp, int *unlimdimidsp)
     int retval;
     int unlimid;
 
-    if ((retval = nc_inq_unlimdim(ncid, &unlimid)))
+    if ((retval = NC3_inq_unlimdim(ncid, &unlimid)))
         return retval;
     if (unlimid != -1) {
         if(ndimsp) *ndimsp = 1;
@@ -220,16 +237,22 @@ NC3_def_grp(int parent_ncid, const char *name, int *new_ncid)
 }
 
 static int
+NC3_rename_grp(int grpid, const char *name)
+{
+    return NC_ENOTNC4;
+}
+
+static int
 NC3_inq_ncid(int ncid, const char *name, int *grp_ncid)
 {
-    if(grp_ncid) *grp_ncid = ncid;
+  if(grp_ncid) *grp_ncid = ncid;
     return NC_NOERR;
 }
 
 static int
 NC3_inq_grps(int ncid, int *numgrps, int *ncids)
 {
-    if (numgrps)
+  if (numgrps)
        *numgrps = 0;
     return NC_NOERR;
 }
@@ -267,9 +290,9 @@ static int
 NC3_inq_varids(int ncid, int *nvarsp, int *varids)
 {
     int retval,v,nvars;
-    /* If this is a netcdf-3 file, there is only one group, the root
+    /* This is a netcdf-3 file, there is only one group, the root
         group, and its vars have ids 0 thru nvars - 1. */
-    if ((retval = nc_inq(ncid, NULL, &nvars, NULL, NULL)))
+    if ((retval = NC3_inq(ncid, NULL, &nvars, NULL, NULL)))
         return retval;
     if(nvarsp) *nvarsp = nvars;
     if (varids)
@@ -284,7 +307,7 @@ NC3_inq_dimids(int ncid, int *ndimsp, int *dimids, int include_parents)
     int retval,d,ndims;
     /* If this is a netcdf-3 file, then the dimids are going to be 0
        thru ndims-1, so just provide them. */
-    if ((retval = nc_inq(ncid, &ndims,  NULL, NULL, NULL)))
+    if ((retval = NC3_inq(ncid, &ndims,  NULL, NULL, NULL)))
         return retval;
     if(ndimsp) *ndimsp = ndims;
     if (dimids)
@@ -318,7 +341,7 @@ NC3_inq_type_equal(int ncid1, nc_type typeid1, int ncid2, nc_type typeid2, int* 
     }
     
     /* If both are atomic types, the answer is easy. */
-    if (typeid1 <= ATOMICTYPEMAX) {
+    if (typeid1 <= ATOMICTYPEMAX3) {
         if (equalp) {
             if (typeid1 == typeid2)
                 *equalp = 1;
@@ -334,7 +357,7 @@ static int
 NC3_inq_typeid(int ncid, const char *name, nc_type *typeidp)
 {
     int i;
-    for (i = 0; i <= ATOMICTYPEMAX; i++)
+    for (i = 0; i <= ATOMICTYPEMAX3; i++)
         if (!strcmp(name, NC_atomictypename(i))) {
             if (typeidp) *typeidp = i;
                 return NC_NOERR;
@@ -488,11 +511,5 @@ NC3_def_var_endian(int ncid, int varid, int endianness)
     return NC_ENOTNC4;
 }
 
-static int
-NC3_var_par_access(int ncid, int varid, int par_access)
-{
-    return NC_ENOTNC4;
-}
-    
 #endif /*USE_NETCDF4*/
     

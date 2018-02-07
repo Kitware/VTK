@@ -2,10 +2,12 @@
  *	Copyright 1996, University Corporation for Atmospheric Research
  *      See netcdf/COPYRIGHT file for copying and redistribution conditions.
  */
-/* $Id: v1hpg.c,v 1.70 2010/05/26 21:43:34 dmh Exp $ */
 
-#include "config.h"
-#include "nc.h"
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include "nc3internal.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -16,8 +18,8 @@
 /*
  * This module defines the external representation
  * of the "header" of a netcdf version one file and
- * the version two variant that uses 64-bit file 
- * offsets instead of the 32-bit file offsets in version 
+ * the version two variant that uses 64-bit file
+ * offsets instead of the 32-bit file offsets in version
  * one files.
  * For each of the components of the NC structure,
  * There are (static) ncx_len_XXX(), v1h_put_XXX()
@@ -34,7 +36,7 @@
  */
 static const schar ncmagic[] = {'C', 'D', 'F', 0x02};
 static const schar ncmagic1[] = {'C', 'D', 'F', 0x01};
-
+static const schar ncmagic5[] = {'C', 'D', 'F', 0x05};
 
 /*
  * v1hs == "Version 1 Header Stream"
@@ -50,7 +52,7 @@ typedef struct v1hs {
 	off_t offset;	/* argument to nciop->get() */
 	size_t extent;	/* argument to nciop->get() */
 	int flags;	/* set to RGN_WRITE for write */
-        int version;    /* format variant: NC_FORMAT_CLASSIC or NC_FORMAT_64BIT */
+        int version;    /* format variant: NC_FORMAT_CLASSIC, NC_FORMAT_64BIT_OFFSET or NC_FORMAT_CDF5 */
 	void *base;	/* beginning of current buffer */
 	void *pos;	/* current position in buffer */
 	void *end;	/* end of current buffer = base + extent */
@@ -65,8 +67,8 @@ rel_v1hs(v1hs *gsp)
 {
 	int status;
 	if(gsp->offset == OFF_NONE || gsp->base == NULL)
-		return ENOERR;
-	status = gsp->nciop->rel(gsp->nciop, gsp->offset,
+        return NC_NOERR;
+	status = ncio_rel(gsp->nciop, gsp->offset,
 			 gsp->flags == RGN_WRITE ? RGN_MODIFIED : 0);
 	gsp->end = NULL;
 	gsp->pos = NULL;
@@ -92,20 +94,20 @@ fault_v1hs(v1hs *gsp, size_t extent)
 			return status;
 		gsp->offset += incr;
 	}
-	
-	if(extent > gsp->extent)
-		gsp->extent = extent;	
 
-	status = gsp->nciop->get(gsp->nciop,
+	if(extent > gsp->extent)
+		gsp->extent = extent;
+
+	status = ncio_get(gsp->nciop,
 		 	gsp->offset, gsp->extent,
 			gsp->flags, &gsp->base);
 	if(status)
 		return status;
 
 	gsp->pos = gsp->base;
-	gsp->end = (char *)gsp->base + gsp->extent;
 
-	return ENOERR;
+	gsp->end = (char *)gsp->base + gsp->extent;
+    return NC_NOERR;
 }
 
 
@@ -121,10 +123,10 @@ fprintf(stderr, "nextread %lu, remaining %lu\n",
 	(unsigned long)nextread,
 	(unsigned long)((char *)gsp->end - (char *)gsp->pos));
 #endif
+    if((char *)gsp->pos + nextread <= (char *)gsp->end)
+	return NC_NOERR;
 
-	if((char *)gsp->pos + nextread <= (char *)gsp->end)
-		return ENOERR;
-	return fault_v1hs(gsp, nextread);
+    return fault_v1hs(gsp, nextread);
 }
 
 /* End v1hs */
@@ -133,23 +135,41 @@ fprintf(stderr, "nextread %lu, remaining %lu\n",
 static int
 v1h_put_size_t(v1hs *psp, const size_t *sp)
 {
-	int status = check_v1hs(psp, X_SIZEOF_SIZE_T);
-	if(status != ENOERR)
-		return status;
-	return ncx_put_size_t(&psp->pos, sp);
+	int status;
+	if (psp->version == 5) /* all integers in CDF-5 are 64 bits */
+		status = check_v1hs(psp, X_SIZEOF_INT64);
+	else
+		status = check_v1hs(psp, X_SIZEOF_SIZE_T);
+	if(status != NC_NOERR)
+ 		return status;
+        if (psp->version == 5) {
+                unsigned long long tmp = (unsigned long long) (*sp);
+		return ncx_put_uint64(&psp->pos, tmp);
+        }
+        else
+	    return ncx_put_size_t(&psp->pos, sp);
 }
-
 
 /* Read a size_t from the header */
 static int
 v1h_get_size_t(v1hs *gsp, size_t *sp)
 {
-	int status = check_v1hs(gsp, X_SIZEOF_SIZE_T);
-	if(status != ENOERR)
+	int status;
+	if (gsp->version == 5) /* all integers in CDF-5 are 64 bits */
+		status = check_v1hs(gsp, X_SIZEOF_INT64);
+	else
+		status = check_v1hs(gsp, X_SIZEOF_SIZE_T);
+	if(status != NC_NOERR)
 		return status;
-	return ncx_get_size_t((const void **)(&gsp->pos), sp);
+        if (gsp->version == 5) {
+		unsigned long long tmp=0;
+		status = ncx_get_uint64((const void **)(&gsp->pos), &tmp);
+		*sp = (size_t)tmp;
+		return status;
+        }
+        else
+	    return ncx_get_size_t((const void **)(&gsp->pos), sp);
 }
-
 
 /* Begin nc_type */
 
@@ -159,13 +179,11 @@ v1h_get_size_t(v1hs *gsp, size_t *sp)
 static int
 v1h_put_nc_type(v1hs *psp, const nc_type *typep)
 {
-	const int itype = (int) *typep;
-	int status = check_v1hs(psp, X_SIZEOF_INT);
-	if(status != ENOERR)
-		return status;
-	status =  ncx_put_int_int(psp->pos, &itype);
-	psp->pos = (void *)((char *)psp->pos + X_SIZEOF_INT);
-	return status;
+    const unsigned int itype = (unsigned int) *typep;
+    int status = check_v1hs(psp, X_SIZEOF_INT);
+    if(status != NC_NOERR) return status;
+    status =  ncx_put_uint32(&psp->pos, itype);
+    return status;
 }
 
 
@@ -173,13 +191,11 @@ v1h_put_nc_type(v1hs *psp, const nc_type *typep)
 static int
 v1h_get_nc_type(v1hs *gsp, nc_type *typep)
 {
-	int type = 0;
-	int status = check_v1hs(gsp, X_SIZEOF_INT);
-	if(status != ENOERR)
-		return status;
-	status =  ncx_get_int_int(gsp->pos, &type);
-	gsp->pos = (void *)((char *)gsp->pos + X_SIZEOF_INT);
-	if(status != ENOERR)
+    unsigned int type = 0;
+    int status = check_v1hs(gsp, X_SIZEOF_INT);
+    if(status != NC_NOERR) return status;
+    status =  ncx_get_uint32((const void**)(&gsp->pos), &type);
+    if(status != NC_NOERR)
 		return status;
 
 	assert(type == NC_BYTE
@@ -187,12 +203,18 @@ v1h_get_nc_type(v1hs *gsp, nc_type *typep)
 		|| type == NC_SHORT
 		|| type == NC_INT
 		|| type == NC_FLOAT
-		|| type == NC_DOUBLE);
+		|| type == NC_DOUBLE
+		|| type == NC_UBYTE
+		|| type == NC_USHORT
+		|| type == NC_UINT
+		|| type == NC_INT64
+		|| type == NC_UINT64
+		|| type == NC_STRING);
 
 	/* else */
 	*typep = (nc_type) type;
 
-	return ENOERR;
+    return NC_NOERR;
 }
 
 /* End nc_type */
@@ -204,30 +226,25 @@ v1h_get_nc_type(v1hs *gsp, nc_type *typep)
 static int
 v1h_put_NCtype(v1hs *psp, NCtype type)
 {
-	const int itype = (int) type;
-	int status = check_v1hs(psp, X_SIZEOF_INT);
-	if(status != ENOERR)
-		return status;
-	status = ncx_put_int_int(psp->pos, &itype);
-	psp->pos = (void *)((char *)psp->pos + X_SIZEOF_INT);
-	return status;
+    const unsigned int itype = (unsigned int) type;
+    int status = check_v1hs(psp, X_SIZEOF_INT);
+    if(status != NC_NOERR) return status;
+    status = ncx_put_uint32(&psp->pos, itype);
+    return status;
 }
 
 /* Read a NCtype from the header */
 static int
 v1h_get_NCtype(v1hs *gsp, NCtype *typep)
 {
-	int type = 0;
-	int status = check_v1hs(gsp, X_SIZEOF_INT);
-	if(status != ENOERR)
-		return status;
-	status =  ncx_get_int_int(gsp->pos, &type);
-	gsp->pos = (void *)((char *)gsp->pos + X_SIZEOF_INT);
-	if(status != ENOERR)
-		return status;
-	/* else */
-	*typep = (NCtype) type;
-	return ENOERR;
+    unsigned int type = 0;
+    int status = check_v1hs(gsp, X_SIZEOF_INT);
+    if(status != NC_NOERR) return status;
+    status =  ncx_get_uint32((const void**)(&gsp->pos), &type);
+    if(status != NC_NOERR) return status;
+    /* else */
+    *typep = (NCtype) type;
+    return NC_NOERR;
 }
 
 /* End NCtype */
@@ -239,13 +256,13 @@ v1h_get_NCtype(v1hs *gsp, NCtype *typep)
 NC_xlen_string(cdfstr)
  */
 static size_t
-ncx_len_NC_string(const NC_string *ncstrp)
+ncx_len_NC_string(const NC_string *ncstrp, int version)
 {
-	size_t sz = X_SIZEOF_SIZE_T; /* nchars */
+	size_t sz = (version == 5) ? X_SIZEOF_INT64 : X_SIZEOF_INT; /* nchars */
 
 	assert(ncstrp != NULL);
 
-	if(ncstrp->nchars != 0) 
+	if(ncstrp->nchars != 0)
 	{
 #if 0
 		assert(ncstrp->nchars % X_ALIGN == 0);
@@ -269,16 +286,16 @@ v1h_put_NC_string(v1hs *psp, const NC_string *ncstrp)
 #endif
 
 	status = v1h_put_size_t(psp, &ncstrp->nchars);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 	status = check_v1hs(psp, _RNDUP(ncstrp->nchars, X_ALIGN));
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 	status = ncx_pad_putn_text(&psp->pos, ncstrp->nchars, ncstrp->cp);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 
-	return ENOERR;
+    return NC_NOERR;
 }
 
 
@@ -287,11 +304,11 @@ static int
 v1h_get_NC_string(v1hs *gsp, NC_string **ncstrpp)
 {
 	int status;
-	size_t nchars = 0;
+	size_t padding, nchars = 0;
 	NC_string *ncstrp;
 
 	status = v1h_get_size_t(gsp, &nchars);
-	if(status != ENOERR)
+	if(status != NC_NOERR)
 		return status;
 
 	ncstrp = new_NC_string(nchars, NULL);
@@ -300,31 +317,41 @@ v1h_get_NC_string(v1hs *gsp, NC_string **ncstrpp)
 		return NC_ENOMEM;
 	}
 
-
 #if 0
 /* assert(ncstrp->nchars == nchars || ncstrp->nchars - nchars < X_ALIGN); */
 	assert(ncstrp->nchars % X_ALIGN == 0);
 	status = check_v1hs(gsp, ncstrp->nchars);
 #else
-	
+
 	status = check_v1hs(gsp, _RNDUP(ncstrp->nchars, X_ALIGN));
 #endif
-	if(status != ENOERR)
+	if(status != NC_NOERR)
 		goto unwind_alloc;
 
 	status = ncx_pad_getn_text((const void **)(&gsp->pos),
 		 nchars, ncstrp->cp);
-	if(status != ENOERR)
+	if(status != NC_NOERR)
 		goto unwind_alloc;
+
+	padding = _RNDUP(X_SIZEOF_CHAR * ncstrp->nchars, X_ALIGN)
+		- X_SIZEOF_CHAR * ncstrp->nchars;
+	if (padding > 0) {
+		/* CDF specification: Header padding uses null (\x00) bytes. */
+		char pad[X_ALIGN-1];
+		memset(pad, 0, X_ALIGN-1);
+		if (memcmp((char*)gsp->pos-padding, pad, padding) != 0) {
+			free_NC_string(ncstrp);
+			return NC_EINVAL;
+		}
+	}
 
 	*ncstrpp = ncstrp;
 
-	return ENOERR;
+	return NC_NOERR;
 
 unwind_alloc:
 	free_NC_string(ncstrp);
 	return status;
-	
 }
 
 /* End NC_string */
@@ -336,14 +363,14 @@ unwind_alloc:
 NC_xlen_dim(dpp)
  */
 static size_t
-ncx_len_NC_dim(const NC_dim *dimp)
+ncx_len_NC_dim(const NC_dim *dimp, int version)
 {
 	size_t sz;
 
 	assert(dimp != NULL);
 
-	sz = ncx_len_NC_string(dimp->name);
-	sz += X_SIZEOF_SIZE_T;
+	sz = ncx_len_NC_string(dimp->name, version);
+	sz += (version == 5) ? X_SIZEOF_INT64 : X_SIZEOF_SIZE_T;
 
 	return(sz);
 }
@@ -356,14 +383,14 @@ v1h_put_NC_dim(v1hs *psp, const NC_dim *dimp)
 	int status;
 
 	status = v1h_put_NC_string(psp, dimp->name);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 
 	status = v1h_put_size_t(psp, &dimp->size);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 
-	return ENOERR;
+    return NC_NOERR;
 }
 
 /* Read a NC_dim from the header */
@@ -375,7 +402,7 @@ v1h_get_NC_dim(v1hs *gsp, NC_dim **dimpp)
 	NC_dim *dimp;
 
 	status = v1h_get_NC_string(gsp, &ncstrp);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 
 	dimp = new_x_NC_dim(ncstrp);
@@ -386,7 +413,7 @@ v1h_get_NC_dim(v1hs *gsp, NC_dim **dimpp)
 	}
 
 	status = v1h_get_size_t(gsp, &dimp->size);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 	{
 		free_NC_dim(dimp); /* frees name */
 		return status;
@@ -394,7 +421,7 @@ v1h_get_NC_dim(v1hs *gsp, NC_dim **dimpp)
 
 	*dimpp = dimp;
 
-	return ENOERR;
+    return NC_NOERR;
 
 unwind_name:
 	free_NC_string(ncstrp);
@@ -404,10 +431,10 @@ unwind_name:
 
 /* How much space in the header is required for this NC_dimarray? */
 static size_t
-ncx_len_NC_dimarray(const NC_dimarray *ncap)
+ncx_len_NC_dimarray(const NC_dimarray *ncap, int version)
 {
 	size_t xlen = X_SIZEOF_NCTYPE;	/* type */
-	xlen += X_SIZEOF_SIZE_T;	/* count */
+	xlen += (version == 5) ? X_SIZEOF_INT64 : X_SIZEOF_SIZE_T; /* count */
 	if(ncap == NULL)
 		return xlen;
 	/* else */
@@ -416,7 +443,7 @@ ncx_len_NC_dimarray(const NC_dimarray *ncap)
 		const NC_dim *const *const end = &dpp[ncap->nelems];
 		for(  /*NADA*/; dpp < end; dpp++)
 		{
-			xlen += ncx_len_NC_dim(*dpp);
+			xlen += ncx_len_NC_dim(*dpp,version);
 		}
 	}
 	return xlen;
@@ -448,20 +475,20 @@ v1h_put_NC_dimarray(v1hs *psp, const NC_dimarray *ncap)
 		const size_t nosz = 0;
 
 		status = v1h_put_NCtype(psp, NC_UNSPECIFIED);
-		if(status != ENOERR)
+        if(status != NC_NOERR)
 			return status;
 		status = v1h_put_size_t(psp, &nosz);
-		if(status != ENOERR)
+        if(status != NC_NOERR)
 			return status;
-		return ENOERR;
+        return NC_NOERR;
 	}
 	/* else */
 
 	status = v1h_put_NCtype(psp, NC_DIMENSION);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 	status = v1h_put_size_t(psp, &ncap->nelems);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 
 	{
@@ -474,7 +501,7 @@ v1h_put_NC_dimarray(v1hs *psp, const NC_dimarray *ncap)
 				return status;
 		}
 	}
-	return ENOERR;
+    return NC_NOERR;
 }
 
 
@@ -490,15 +517,15 @@ v1h_get_NC_dimarray(v1hs *gsp, NC_dimarray *ncap)
 	assert(ncap->value == NULL);
 
 	status = v1h_get_NCtype(gsp, &type);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 
 	status = v1h_get_size_t(gsp, &ncap->nelems);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
-	
+
 	if(ncap->nelems == 0)
-		return ENOERR;
+        return NC_NOERR;
 	/* else */
 	if(type != NC_DIMENSION)
 		return EINVAL;
@@ -507,6 +534,8 @@ v1h_get_NC_dimarray(v1hs *gsp, NC_dimarray *ncap)
 	if(ncap->value == NULL)
 		return NC_ENOMEM;
 	ncap->nalloc = ncap->nelems;
+
+	ncap->hashmap = NC_hashmapCreate(ncap->nelems);
 
 	{
 		NC_dim **dpp = ncap->value;
@@ -520,10 +549,14 @@ v1h_get_NC_dimarray(v1hs *gsp, NC_dimarray *ncap)
 				free_NC_dimarrayV(ncap);
 				return status;
 			}
+			{
+			  int dimid = (size_t)(dpp - ncap->value);
+			  NC_hashmapAddDim(ncap, dimid, (*dpp)->name->cp);
+			}
 		}
 	}
 
-	return ENOERR;
+    return NC_NOERR;
 }
 
 
@@ -537,15 +570,15 @@ v1h_get_NC_dimarray(v1hs *gsp, NC_dimarray *ncap)
 NC_xlen_attr(app)
  */
 static size_t
-ncx_len_NC_attr(const NC_attr *attrp)
+ncx_len_NC_attr(const NC_attr *attrp, int version)
 {
 	size_t sz;
 
 	assert(attrp != NULL);
 
-	sz = ncx_len_NC_string(attrp->name);
+	sz = ncx_len_NC_string(attrp->name, version);
 	sz += X_SIZEOF_NC_TYPE; /* type */
-	sz += X_SIZEOF_SIZE_T; /* nelems */
+	sz += (version == 5) ? X_SIZEOF_INT64 : X_SIZEOF_SIZE_T; /* nelems */
 	sz += attrp->xsz;
 
 	return(sz);
@@ -554,6 +587,28 @@ ncx_len_NC_attr(const NC_attr *attrp)
 
 #undef MIN
 #define MIN(mm,nn) (((mm) < (nn)) ? (mm) : (nn))
+
+/*----< ncmpix_len_nctype() >------------------------------------------------*/
+/* return the length of external data type */
+static int
+ncmpix_len_nctype(nc_type type) {
+    switch(type) {
+        case NC_BYTE:
+        case NC_CHAR:
+        case NC_UBYTE:  return X_SIZEOF_CHAR;
+        case NC_SHORT:  return X_SIZEOF_SHORT;
+        case NC_USHORT: return X_SIZEOF_USHORT;
+        case NC_INT:    return X_SIZEOF_INT;
+        case NC_UINT:   return X_SIZEOF_UINT;
+        case NC_FLOAT:  return X_SIZEOF_FLOAT;
+        case NC_DOUBLE: return X_SIZEOF_DOUBLE;
+        case NC_INT64:  return X_SIZEOF_INT64;
+        case NC_UINT64: return X_SIZEOF_UINT64;
+        default: fprintf(stderr,"ncmpix_len_nctype bad type %d\n",type);
+                 assert(0);
+    }
+    return 0;
+}
 
 /*
  * Put the values of an attribute
@@ -567,26 +622,32 @@ v1h_put_NC_attrV(v1hs *psp, const NC_attr *attrp)
 	const size_t perchunk =  psp->extent;
 	size_t remaining = attrp->xsz;
 	void *value = attrp->xvalue;
-	size_t nbytes; 
+	size_t nbytes, padding;
 
 	assert(psp->extent % X_ALIGN == 0);
-	
+
 	do {
 		nbytes = MIN(perchunk, remaining);
-	
+
 		status = check_v1hs(psp, nbytes);
-		if(status != ENOERR)
+		if(status != NC_NOERR)
 			return status;
-	
+
 		(void) memcpy(psp->pos, value, nbytes);
 
 		psp->pos = (void *)((char *)psp->pos + nbytes);
 		value = (void *)((char *)value + nbytes);
-		remaining -= nbytes;
+        	remaining -= nbytes;
 
-	} while(remaining != 0); 
+	} while(remaining != 0);
 
-	return ENOERR;
+	padding = attrp->xsz - ncmpix_len_nctype(attrp->type) * attrp->nelems;
+	if (padding > 0) {
+		/* CDF specification: Header padding uses null (\x00) bytes. */
+		memset((char*)psp->pos-padding, 0, padding);
+	}
+
+	return NC_NOERR;
 }
 
 /* Write a NC_attr to the header */
@@ -596,22 +657,22 @@ v1h_put_NC_attr(v1hs *psp, const NC_attr *attrp)
 	int status;
 
 	status = v1h_put_NC_string(psp, attrp->name);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 
 	status = v1h_put_nc_type(psp, &attrp->type);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 
 	status = v1h_put_size_t(psp, &attrp->nelems);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 
 	status = v1h_put_NC_attrV(psp, attrp);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 
-	return ENOERR;
+    return NC_NOERR;
 }
 
 
@@ -627,24 +688,34 @@ v1h_get_NC_attrV(v1hs *gsp, NC_attr *attrp)
 	const size_t perchunk =  gsp->extent;
 	size_t remaining = attrp->xsz;
 	void *value = attrp->xvalue;
-	size_t nget; 
+	size_t nget, padding;
 
 	do {
 		nget = MIN(perchunk, remaining);
-	
-		status = check_v1hs(gsp, nget);
-		if(status != ENOERR)
-			return status;
-	
-		(void) memcpy(value, gsp->pos, nget);
 
-		gsp->pos = (void *)((char *)gsp->pos + nget);
-		value = (void *)((char *)value + nget);
+		status = check_v1hs(gsp, nget);
+		if(status != NC_NOERR)
+			return status;
+
+		(void) memcpy(value, gsp->pos, nget);
+		gsp->pos = (void*)((unsigned char *)gsp->pos + nget);
+
+		value = (void *)((signed char *)value + nget);
+
 		remaining -= nget;
 
-	} while(remaining != 0); 
+	} while(remaining != 0);
 
-	return ENOERR;
+	padding = attrp->xsz - ncmpix_len_nctype(attrp->type) * attrp->nelems;
+	if (padding > 0) {
+		/* CDF specification: Header padding uses null (\x00) bytes. */
+		char pad[X_ALIGN-1];
+		memset(pad, 0, X_ALIGN-1);
+		if (memcmp((char*)gsp->pos-padding, pad, (size_t)padding) != 0)
+			return NC_EINVAL;
+	}
+
+	return NC_NOERR;
 }
 
 
@@ -659,15 +730,15 @@ v1h_get_NC_attr(v1hs *gsp, NC_attr **attrpp)
 	NC_attr *attrp;
 
 	status = v1h_get_NC_string(gsp, &strp);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 
 	status = v1h_get_nc_type(gsp, &type);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		goto unwind_name;
 
 	status = v1h_get_size_t(gsp, &nelems);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		goto unwind_name;
 
 	attrp = new_x_NC_attr(strp, type, nelems);
@@ -676,9 +747,9 @@ v1h_get_NC_attr(v1hs *gsp, NC_attr **attrpp)
 		status = NC_ENOMEM;
 		goto unwind_name;
 	}
-	
+
 	status = v1h_get_NC_attrV(gsp, attrp);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 	{
 		free_NC_attr(attrp); /* frees strp */
 		return status;
@@ -686,7 +757,7 @@ v1h_get_NC_attr(v1hs *gsp, NC_attr **attrpp)
 
 	*attrpp = attrp;
 
-	return ENOERR;
+    return NC_NOERR;
 
 unwind_name:
 	free_NC_string(strp);
@@ -696,10 +767,10 @@ unwind_name:
 
 /* How much space in the header is required for this NC_attrarray? */
 static size_t
-ncx_len_NC_attrarray(const NC_attrarray *ncap)
+ncx_len_NC_attrarray(const NC_attrarray *ncap, int version)
 {
 	size_t xlen = X_SIZEOF_NCTYPE;	/* type */
-	xlen += X_SIZEOF_SIZE_T;	/* count */
+	xlen += (version == 5) ? X_SIZEOF_INT64 : X_SIZEOF_SIZE_T; /* count */
 	if(ncap == NULL)
 		return xlen;
 	/* else */
@@ -708,7 +779,7 @@ ncx_len_NC_attrarray(const NC_attrarray *ncap)
 		const NC_attr *const *const end = &app[ncap->nelems];
 		for( /*NADA*/; app < end; app++)
 		{
-			xlen += ncx_len_NC_attr(*app);
+			xlen += ncx_len_NC_attr(*app,version);
 		}
 	}
 	return xlen;
@@ -740,20 +811,20 @@ v1h_put_NC_attrarray(v1hs *psp, const NC_attrarray *ncap)
 		const size_t nosz = 0;
 
 		status = v1h_put_NCtype(psp, NC_UNSPECIFIED);
-		if(status != ENOERR)
+        if(status != NC_NOERR)
 			return status;
 		status = v1h_put_size_t(psp, &nosz);
-		if(status != ENOERR)
+        if(status != NC_NOERR)
 			return status;
-		return ENOERR;
+        return NC_NOERR;
 	}
 	/* else */
 
 	status = v1h_put_NCtype(psp, NC_ATTRIBUTE);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 	status = v1h_put_size_t(psp, &ncap->nelems);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 
 	{
@@ -766,7 +837,7 @@ v1h_put_NC_attrarray(v1hs *psp, const NC_attrarray *ncap)
 				return status;
 		}
 	}
-	return ENOERR;
+    return NC_NOERR;
 }
 
 
@@ -782,14 +853,14 @@ v1h_get_NC_attrarray(v1hs *gsp, NC_attrarray *ncap)
 	assert(ncap->value == NULL);
 
 	status = v1h_get_NCtype(gsp, &type);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 	status = v1h_get_size_t(gsp, &ncap->nelems);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
-	
+
 	if(ncap->nelems == 0)
-		return ENOERR;
+        return NC_NOERR;
 	/* else */
 	if(type != NC_ATTRIBUTE)
 		return EINVAL;
@@ -814,7 +885,7 @@ v1h_get_NC_attrarray(v1hs *gsp, NC_attrarray *ncap)
 		}
 	}
 
-	return ENOERR;
+    return NC_NOERR;
 }
 
 /* End NC_attr */
@@ -826,19 +897,25 @@ v1h_get_NC_attrarray(v1hs *gsp, NC_attrarray *ncap)
 NC_xlen_var(vpp)
  */
 static size_t
-ncx_len_NC_var(const NC_var *varp, size_t sizeof_off_t)
+ncx_len_NC_var(const NC_var *varp, size_t sizeof_off_t, int version)
 {
 	size_t sz;
 
 	assert(varp != NULL);
 	assert(sizeof_off_t != 0);
 
-	sz = ncx_len_NC_string(varp->name);
-	sz += X_SIZEOF_SIZE_T; /* ndims */
-	sz += ncx_len_int(varp->ndims); /* dimids */
-	sz += ncx_len_NC_attrarray(&varp->attrs);
-	sz += X_SIZEOF_NC_TYPE; /* type */
-	sz += X_SIZEOF_SIZE_T; /* len */
+	sz = ncx_len_NC_string(varp->name, version);
+        if (version == 5) {
+	    sz += X_SIZEOF_INT64; /* ndims */
+	    sz += ncx_len_int64(varp->ndims); /* dimids */
+        }
+        else {
+	    sz += X_SIZEOF_SIZE_T; /* ndims */
+	    sz += ncx_len_int(varp->ndims); /* dimids */
+	}
+	sz += ncx_len_NC_attrarray(&varp->attrs, version);
+	sz += X_SIZEOF_NC_TYPE; /* nc_type */
+	sz += (version == 5) ? X_SIZEOF_INT64 : X_SIZEOF_SIZE_T; /* vsize */
 	sz += sizeof_off_t; /* begin */
 
 	return(sz);
@@ -852,41 +929,52 @@ v1h_put_NC_var(v1hs *psp, const NC_var *varp)
 	int status;
 
 	status = v1h_put_NC_string(psp, varp->name);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 
 	status = v1h_put_size_t(psp, &varp->ndims);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 
-	status = check_v1hs(psp, ncx_len_int(varp->ndims));
-	if(status != ENOERR)
+	if (psp->version == 5) {
+		status = check_v1hs(psp, ncx_len_int64(varp->ndims));
+        if(status != NC_NOERR)
+			return status;
+		status = ncx_putn_longlong_int(&psp->pos,
+				varp->ndims, varp->dimids, NULL);
+        if(status != NC_NOERR)
+			return status;
+	}
+	else {
+  	    status = check_v1hs(psp, ncx_len_int(varp->ndims));
+        if(status != NC_NOERR)
 		return status;
-	status = ncx_putn_int_int(&psp->pos,
-			varp->ndims, varp->dimids);
-	if(status != ENOERR)
+	    status = ncx_putn_int_int(&psp->pos,
+			varp->ndims, varp->dimids, NULL);
+        if(status != NC_NOERR)
 		return status;
+	}
 
 	status = v1h_put_NC_attrarray(psp, &varp->attrs);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 
 	status = v1h_put_nc_type(psp, &varp->type);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 
 	status = v1h_put_size_t(psp, &varp->len);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 
-	status = check_v1hs(psp, psp->version == 1 ? 4 : 8);
-	if(status != ENOERR)
+	status = check_v1hs(psp, psp->version == 1 ? 4 : 8); /*begin*/
+    if(status != NC_NOERR)
 		 return status;
 	status = ncx_put_off_t(&psp->pos, &varp->begin, psp->version == 1 ? 4 : 8);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 
-	return ENOERR;
+    return NC_NOERR;
 }
 
 
@@ -900,11 +988,11 @@ v1h_get_NC_var(v1hs *gsp, NC_var **varpp)
 	NC_var *varp;
 
 	status = v1h_get_NC_string(gsp, &strp);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 
 	status = v1h_get_size_t(gsp, &ndims);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		goto unwind_name;
 
 	varp = new_x_NC_var(strp, ndims);
@@ -914,36 +1002,45 @@ v1h_get_NC_var(v1hs *gsp, NC_var **varpp)
 		goto unwind_name;
 	}
 
-	status = check_v1hs(gsp, ncx_len_int(ndims));
-	if(status != ENOERR)
+	if (gsp->version == 5) {
+		status = check_v1hs(gsp, ncx_len_int64(ndims));
+        if(status != NC_NOERR)
+			goto unwind_alloc;
+		status = ncx_getn_longlong_int((const void **)(&gsp->pos),
+				ndims, varp->dimids);
+        if(status != NC_NOERR)
+			goto unwind_alloc;
+	}
+	else {
+	    status = check_v1hs(gsp, ncx_len_int(ndims));
+        if(status != NC_NOERR)
 		goto unwind_alloc;
-	status = ncx_getn_int_int((const void **)(&gsp->pos),
+	    status = ncx_getn_int_int((const void **)(&gsp->pos),
 			ndims, varp->dimids);
-	if(status != ENOERR)
+        if(status != NC_NOERR)
 		goto unwind_alloc;
-
+	}
 	status = v1h_get_NC_attrarray(gsp, &varp->attrs);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		goto unwind_alloc;
-
 	status = v1h_get_nc_type(gsp, &varp->type);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		 goto unwind_alloc;
 
 	status = v1h_get_size_t(gsp, &varp->len);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		 goto unwind_alloc;
 
 	status = check_v1hs(gsp, gsp->version == 1 ? 4 : 8);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		 goto unwind_alloc;
 	status = ncx_get_off_t((const void **)&gsp->pos,
 			       &varp->begin, gsp->version == 1 ? 4 : 8);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		 goto unwind_alloc;
-	
+
 	*varpp = varp;
-	return ENOERR;
+    return NC_NOERR;
 
 unwind_alloc:
 	free_NC_var(varp); /* frees name */
@@ -957,10 +1054,10 @@ unwind_name:
 
 /* How much space in the header is required for this NC_vararray? */
 static size_t
-ncx_len_NC_vararray(const NC_vararray *ncap, size_t sizeof_off_t)
+ncx_len_NC_vararray(const NC_vararray *ncap, size_t sizeof_off_t, int version)
 {
 	size_t xlen = X_SIZEOF_NCTYPE;	/* type */
-	xlen += X_SIZEOF_SIZE_T;	/* count */
+	xlen += (version == 5) ? X_SIZEOF_INT64 : X_SIZEOF_SIZE_T; /* count */
 	if(ncap == NULL)
 		return xlen;
 	/* else */
@@ -969,7 +1066,7 @@ ncx_len_NC_vararray(const NC_vararray *ncap, size_t sizeof_off_t)
 		const NC_var *const *const end = &vpp[ncap->nelems];
 		for( /*NADA*/; vpp < end; vpp++)
 		{
-			xlen += ncx_len_NC_var(*vpp, sizeof_off_t);
+			xlen += ncx_len_NC_var(*vpp, sizeof_off_t, version);
 		}
 	}
 	return xlen;
@@ -1001,20 +1098,20 @@ v1h_put_NC_vararray(v1hs *psp, const NC_vararray *ncap)
 		const size_t nosz = 0;
 
 		status = v1h_put_NCtype(psp, NC_UNSPECIFIED);
-		if(status != ENOERR)
+        if(status != NC_NOERR)
 			return status;
 		status = v1h_put_size_t(psp, &nosz);
-		if(status != ENOERR)
+        if(status != NC_NOERR)
 			return status;
-		return ENOERR;
+        return NC_NOERR;
 	}
 	/* else */
 
 	status = v1h_put_NCtype(psp, NC_VARIABLE);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 	status = v1h_put_size_t(psp, &ncap->nelems);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
 
 	{
@@ -1027,7 +1124,7 @@ v1h_put_NC_vararray(v1hs *psp, const NC_vararray *ncap)
 				return status;
 		}
 	}
-	return ENOERR;
+    return NC_NOERR;
 }
 
 
@@ -1043,15 +1140,15 @@ v1h_get_NC_vararray(v1hs *gsp, NC_vararray *ncap)
 	assert(ncap->value == NULL);
 
 	status = v1h_get_NCtype(gsp, &type);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
-	
+
 	status = v1h_get_size_t(gsp, &ncap->nelems);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		return status;
-	
+
 	if(ncap->nelems == 0)
-		return ENOERR;
+        return NC_NOERR;
 	/* else */
 	if(type != NC_VARIABLE)
 		return EINVAL;
@@ -1061,6 +1158,7 @@ v1h_get_NC_vararray(v1hs *gsp, NC_vararray *ncap)
 		return NC_ENOMEM;
 	ncap->nalloc = ncap->nelems;
 
+	ncap->hashmap = NC_hashmapCreate(ncap->nelems);
 	{
 		NC_var **vpp = ncap->value;
 		NC_var *const *const end = &vpp[ncap->nelems];
@@ -1073,10 +1171,14 @@ v1h_get_NC_vararray(v1hs *gsp, NC_vararray *ncap)
 				free_NC_vararrayV(ncap);
 				return status;
 			}
+			{
+			  int varid = (size_t)(vpp - ncap->value);
+			  NC_hashmapAddVar(ncap, varid, (*vpp)->name->cp);
+			}
 		}
 	}
 
-	return ENOERR;
+    return NC_NOERR;
 }
 
 
@@ -1092,7 +1194,7 @@ v1h_get_NC_vararray(v1hs *gsp, NC_vararray *ncap)
  * netcdf file.
  */
 static int
-NC_computeshapes(NC *ncp)
+NC_computeshapes(NC3_INFO* ncp)
 {
 	NC_var **vpp = (NC_var **)ncp->vars.value;
 	NC_var *const *const end = &vpp[ncp->vars.nelems];
@@ -1106,18 +1208,23 @@ NC_computeshapes(NC *ncp)
 
 	if(ncp->vars.nelems == 0)
 		return(0);
-	
+
 	for( /*NADA*/; vpp < end; vpp++)
 	{
 		status = NC_var_shape(*vpp, &ncp->dims);
-		if(status != ENOERR)
+        if(status != NC_NOERR)
 			return(status);
 
-	  	if(IS_RECVAR(*vpp))	
+	  	if(IS_RECVAR(*vpp))
 		{
-	  		if(first_rec == NULL)	
+	  		if(first_rec == NULL)
 				first_rec = *vpp;
-			ncp->recsize += (*vpp)->len;
+			if((*vpp)->len == UINT32_MAX &&
+                           (fIsSet(ncp->flags, NC_64BIT_OFFSET) ||
+                            fIsSet(ncp->flags, NC_64BIT_DATA))) /* Flag for large last record */
+                            ncp->recsize += (*vpp)->dsizes[0] * (*vpp)->xsz;
+			else
+			    ncp->recsize += (*vpp)->len;
 		}
 		else
 		{
@@ -1133,7 +1240,8 @@ NC_computeshapes(NC *ncp)
 
 	if(first_rec != NULL)
 	{
-		assert(ncp->begin_rec <= first_rec->begin);
+		if(ncp->begin_rec > first_rec->begin)
+		    return(NC_ENOTNC); /* not a netCDF file or corrupted */
 		ncp->begin_rec = first_rec->begin;
 		/*
 	 	 * for special case of exactly one record variable, pack value
@@ -1151,26 +1259,32 @@ NC_computeshapes(NC *ncp)
 		ncp->begin_var = ncp->begin_rec;
 	}
 
-	assert(ncp->begin_var > 0);
-	assert(ncp->xsz <= (size_t)ncp->begin_var);
-	assert(ncp->begin_rec > 0);
-	assert(ncp->begin_var <= ncp->begin_rec);
-	
-	return(ENOERR);
+	if(ncp->begin_var <= 0 ||
+	   ncp->xsz > (size_t)ncp->begin_var ||
+	   ncp->begin_rec <= 0 ||
+	   ncp->begin_var > ncp->begin_rec)
+	    return(NC_ENOTNC); /* not a netCDF file or corrupted */
+
+    return(NC_NOERR);
 }
 
 /* How much space in the header is required for the NC data structure? */
 size_t
-ncx_len_NC(const NC *ncp, size_t sizeof_off_t)
+ncx_len_NC(const NC3_INFO* ncp, size_t sizeof_off_t)
 {
+	int version=1;
 	size_t xlen = sizeof(ncmagic);
 
 	assert(ncp != NULL);
-	
-	xlen += X_SIZEOF_SIZE_T; /* numrecs */
-	xlen += ncx_len_NC_dimarray(&ncp->dims);
-	xlen += ncx_len_NC_attrarray(&ncp->attrs);
-	xlen += ncx_len_NC_vararray(&ncp->vars, sizeof_off_t);
+	if (fIsSet(ncp->flags, NC_64BIT_DATA)) /* CDF-5 */
+		version = 5;
+    	else if (fIsSet(ncp->flags, NC_64BIT_OFFSET)) /* CDF-2 */
+		version = 2;
+
+	xlen += (version == 5) ? X_SIZEOF_INT64 : X_SIZEOF_SIZE_T; /* numrecs */
+	xlen += ncx_len_NC_dimarray(&ncp->dims, version);
+	xlen += ncx_len_NC_attrarray(&ncp->attrs, version);
+	xlen += ncx_len_NC_vararray(&ncp->vars, sizeof_off_t, version);
 
 	return xlen;
 }
@@ -1178,9 +1292,9 @@ ncx_len_NC(const NC *ncp, size_t sizeof_off_t)
 
 /* Write the file header */
 int
-ncx_put_NC(const NC *ncp, void **xpp, off_t offset, size_t extent)
+ncx_put_NC(const NC3_INFO* ncp, void **xpp, off_t offset, size_t extent)
 {
-	int status = ENOERR;
+    int status = NC_NOERR;
 	v1hs ps; /* the get stream */
 
 	assert(ncp != NULL);
@@ -1190,9 +1304,11 @@ ncx_put_NC(const NC *ncp, void **xpp, off_t offset, size_t extent)
 	ps.nciop = ncp->nciop;
 	ps.flags = RGN_WRITE;
 
-	if (ncp->flags & NC_64BIT_OFFSET)
+	if (ncp->flags & NC_64BIT_DATA)
+	  ps.version = 5;
+	else if (ncp->flags & NC_64BIT_OFFSET)
 	  ps.version = 2;
-	else 
+	else
 	  ps.version = 1;
 
 	if(xpp == NULL)
@@ -1201,7 +1317,7 @@ ncx_put_NC(const NC *ncp, void **xpp, off_t offset, size_t extent)
 		 * Come up with a reasonable stream read size.
 		 */
 		extent = ncp->xsz;
-		if(extent <= MIN_NC_XSZ)
+		if(extent <= ((ps.version==5)?MIN_NC5_XSZ:MIN_NC3_XSZ))
 		{
 			/* first time read */
 			extent = ncp->chunk;
@@ -1211,10 +1327,8 @@ ncx_put_NC(const NC *ncp, void **xpp, off_t offset, size_t extent)
 				extent = 4096;
 		}
 		else if(extent > ncp->chunk)
-		{
-			extent = ncp->chunk;
-		}
-		
+		    extent = ncp->chunk;
+
 		ps.offset = 0;
 		ps.extent = extent;
 		ps.base = NULL;
@@ -1233,32 +1347,39 @@ ncx_put_NC(const NC *ncp, void **xpp, off_t offset, size_t extent)
 		ps.end = (char *)ps.base + ps.extent;
 	}
 
-	if (ps.version == 2)
-	  status = ncx_putn_schar_schar(&ps.pos, sizeof(ncmagic), ncmagic);
+	if (ps.version == 5)
+	  status = ncx_putn_schar_schar(&ps.pos, sizeof(ncmagic5), ncmagic5, NULL);
+	else if (ps.version == 2)
+	  status = ncx_putn_schar_schar(&ps.pos, sizeof(ncmagic), ncmagic, NULL);
 	else
-	  status = ncx_putn_schar_schar(&ps.pos, sizeof(ncmagic1), ncmagic1);
-	if(status != ENOERR)
+	  status = ncx_putn_schar_schar(&ps.pos, sizeof(ncmagic1), ncmagic1, NULL);
+	if(status != NC_NOERR)
 		goto release;
 
 	{
 	const size_t nrecs = NC_get_numrecs(ncp);
-	status = ncx_put_size_t(&ps.pos, &nrecs);
-	if(status != ENOERR)
+	if (ps.version == 5) {
+            unsigned long long tmp = (unsigned long long) nrecs;
+	    status = ncx_put_uint64(&ps.pos, tmp);
+        }
+       	else
+	    status = ncx_put_size_t(&ps.pos, &nrecs);
+	if(status != NC_NOERR)
 		goto release;
 	}
 
 	assert((char *)ps.pos < (char *)ps.end);
 
 	status = v1h_put_NC_dimarray(&ps, &ncp->dims);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		goto release;
 
 	status = v1h_put_NC_attrarray(&ps, &ncp->attrs);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		goto release;
 
 	status = v1h_put_NC_vararray(&ps, &ncp->vars);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		goto release;
 
 release:
@@ -1270,7 +1391,7 @@ release:
 
 /* Make the in-memory NC structure from reading the file header */
 int
-nc_get_NC(NC *ncp)
+nc_get_NC(NC3_INFO* ncp)
 {
 	int status;
 	v1hs gs; /* the get stream */
@@ -1292,10 +1413,9 @@ nc_get_NC(NC *ncp)
 		 * Come up with a reasonable stream read size.
 		 */
 	        off_t filesize;
-		size_t extent = MIN_NC_XSZ;
-		
-		extent = ncp->xsz;
-		if(extent <= MIN_NC_XSZ)
+		size_t extent = ncp->xsz;
+
+		if(extent <= ((fIsSet(ncp->flags, NC_64BIT_DATA))?MIN_NC5_XSZ:MIN_NC3_XSZ))
 		{
 		        status = ncio_filesize(ncp->nciop, &filesize);
 			if(status)
@@ -1312,18 +1432,16 @@ nc_get_NC(NC *ncp)
 	      		if(extent > 4096)
 				extent = 4096;
 			if(extent > filesize)
-				extent = (size_t)filesize;
+			        extent = (size_t)filesize;
 		}
 		else if(extent > ncp->chunk)
-		{
-			extent = ncp->chunk;
-		}
+		    extent = ncp->chunk;
 
 		/*
 		 * Invalidate the I/O buffers to force a read of the header
 		 * region.
 		 */
-		status = gs.nciop->sync(gs.nciop);
+		status = ncio_sync(gs.nciop);
 		if(status)
 			return status;
 
@@ -1341,9 +1459,9 @@ nc_get_NC(NC *ncp)
 
 		status = ncx_getn_schar_schar(
 			(const void **)(&gs.pos), sizeof(magic), magic);
-		if(status != ENOERR)
+        if(status != NC_NOERR)
 			goto unwind_get;
-	
+
 		if(memcmp(magic, ncmagic, sizeof(ncmagic)-1) != 0)
 		{
 			status = NC_ENOTNC;
@@ -1361,16 +1479,25 @@ nc_get_NC(NC *ncp)
 		    fprintf(stderr, "NETCDF WARNING: Version 2 file on 32-bit system.\n");
 		  }
 #endif
+		} else if (magic[sizeof(ncmagic)-1] == 0x5) {
+		  gs.version = 5;
+		  fSet(ncp->flags, NC_64BIT_DATA);
 		} else {
 			status = NC_ENOTNC;
 			goto unwind_get;
 		}
 	}
-	
+
 	{
 	size_t nrecs = 0;
-	status = ncx_get_size_t((const void **)(&gs.pos), &nrecs);
-	if(status != ENOERR)
+       	if (gs.version == 5) {
+		unsigned long long tmp = 0;
+		status = ncx_get_uint64((const void **)(&gs.pos), &tmp);
+		nrecs = (size_t)tmp;
+       	}
+       	else
+	    status = ncx_get_size_t((const void **)(&gs.pos), &nrecs);
+    if(status != NC_NOERR)
 		goto unwind_get;
 	NC_set_numrecs(ncp, nrecs);
 	}
@@ -1378,21 +1505,25 @@ nc_get_NC(NC *ncp)
 	assert((char *)gs.pos < (char *)gs.end);
 
 	status = v1h_get_NC_dimarray(&gs, &ncp->dims);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		goto unwind_get;
 
 	status = v1h_get_NC_attrarray(&gs, &ncp->attrs);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		goto unwind_get;
 
 	status = v1h_get_NC_vararray(&gs, &ncp->vars);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
 		goto unwind_get;
-		
+
 	ncp->xsz = ncx_len_NC(ncp, (gs.version == 1) ? 4 : 8);
 
 	status = NC_computeshapes(ncp);
-	if(status != ENOERR)
+    if(status != NC_NOERR)
+		goto unwind_get;
+
+	status = NC_check_vlens(ncp);
+    if(status != NC_NOERR)
 		goto unwind_get;
 
 unwind_get:

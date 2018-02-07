@@ -4,34 +4,45 @@
  */
 /* $Id: posixio.c,v 1.89 2010/05/22 21:59:08 dmh Exp $ */
 
+/* For MinGW Build */
+
+#if HAVE_CONFIG_H
 #include <config.h>
+#endif
+
+#include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <errno.h>
-#ifndef ENOERR
-#define ENOERR 0
-#endif
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <string.h>
-#ifdef _MSC_VER /* Microsoft Compilers */
-#include <io.h>
-/* Take the following warning disable out when NetCDF is updated */
-/* to support 64-bit versions of "read" and "write" used below */
-/* in "px_pgin" and "px_pgout" */
-#  ifdef _WIN64
-#    pragma warning ( disable : 4267 )
-#  endif
+
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
 #endif
-#ifdef __BORLANDC__
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+
+/* Windows platforms, including MinGW, Cygwin, Visual Studio */
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#include <winbase.h>
 #include <io.h>
 #endif
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+
+#ifndef NC_NOERR
+#define NC_NOERR 0
+#endif
+
 #ifndef HAVE_SSIZE_T
-#define ssize_t int
+typedef int ssize_t;
 #endif
 
 #ifndef SEEK_SET
@@ -67,18 +78,11 @@
 /* These are needed on mingw to get a dll to compile. They really
  * should be provided in sys/stats.h, but what the heck. Let's not be
  * too picky! */
-/* Borland bcc32 doesn't have these definitions of permission bits */
-#ifndef S_IRUSR
-#define S_IRUSR   0000400
-#endif
 #ifndef S_IRGRP
 #define S_IRGRP   0000040
 #endif
 #ifndef S_IROTH
 #define S_IROTH   0000004
-#endif
-#ifndef S_IWUSR
-#define S_IWUSR   0000200
 #endif
 #ifndef S_IWGRP
 #define S_IWGRP   0000020
@@ -86,62 +90,86 @@
 #ifndef S_IWOTH
 #define S_IWOTH   0000002
 #endif
-#ifndef S_IXUSR
-#define S_IXUSR   0000100
-#endif
-#ifndef S_IXGRP
-#define S_IXGRP   0000010
-#endif
-#ifndef S_IXOTH
-#define S_IXOTH   0000001
-#endif
-#ifndef S_IRWXU
-#define S_IRWXU   0000700
-#endif
-#ifndef S_IRWXG
-#define S_IRWXG   0000070
-#endif
-#ifndef S_IRWXO
-#define S_IRWXO   0000007
-#endif
+
+/*Forward*/
+static int ncio_px_filesize(ncio *nciop, off_t *filesizep);
+static int ncio_px_pad_length(ncio *nciop, off_t length);
+static int ncio_px_close(ncio *nciop, int doUnlink);
+static int ncio_spx_close(ncio *nciop, int doUnlink);
+
 
 /*
  * Define the following for debugging.
  */
 /* #define ALWAYS_NC_SHARE 1 */
 
-#if defined(__BORLANDC__)
-#pragma warn -8004 /* "assigned a value that is never used" */
-#pragma warn -8065 /* "Call to function 'XXX' with no prototype" */
-#endif
-
 /* Begin OS */
 
 #ifndef POSIXIO_DEFAULT_PAGESIZE
 #define POSIXIO_DEFAULT_PAGESIZE 4096
 #endif
+
+/*! Cross-platform file length.
+ *
+ * Some versions of Visual Studio are throwing errno 132
+ * when fstat is used on large files.  This function is
+ * an attempt to get around that.
+ *
+ * @par fd File Descriptor.
+ * @return -1 on error, length of file (in bytes) otherwise.
+ */
+static off_t nc_get_filelen(const int fd) {
+
+  off_t flen;
+
+#ifdef HAVE_FILE_LENGTH_I64
+  __int64 file_len = 0;
+  if ((file_len = _filelengthi64(fd)) < 0) {
+    return file_len;
+  }
+  flen = (off_t)file_len;
+
+#else
+  int res = 0;
+  struct stat sb;
+  if((res = fstat(fd,&sb)) <0)
+    return res;
+
+  flen = sb.st_size;
+#endif
+
+  return flen;
+
+}
+
+
 /*
  * What is the system pagesize?
  */
 static size_t
 pagesize(void)
 {
+  size_t pgsz;
+#if defined(_WIN32) || defined(_WIN64)
+  SYSTEM_INFO info;
+#endif
 /* Hmm, aren't standards great? */
 #if defined(_SC_PAGE_SIZE) && !defined(_SC_PAGESIZE)
 #define _SC_PAGESIZE _SC_PAGE_SIZE
 #endif
 
-#ifdef _SC_PAGESIZE
-	{
-		const long pgsz = sysconf(_SC_PAGESIZE);
-		if(pgsz > 0)
-			return (size_t) pgsz;
-		/* else, silent in the face of error */
-	}
+  /* For MinGW Builds */
+#if defined(_WIN32) || defined(_WIN64)
+  GetSystemInfo(&info);
+  pgsz = (size_t)info.dwPageSize;
+#elif defined(_SC_PAGESIZE)
+  pgsz = (size_t)sysconf(_SC_PAGESIZE);
 #elif defined(HAVE_GETPAGESIZE)
-	return (size_t) getpagesize();
+  pgsz = (size_t) getpagesize();
 #endif
-	return (size_t) POSIXIO_DEFAULT_PAGESIZE;
+  if(pgsz > 0)
+    return (size_t) pgsz;
+   return (size_t)POSIXIO_DEFAULT_PAGESIZE;
 }
 
 /*
@@ -150,7 +178,8 @@ pagesize(void)
 static size_t
 blksize(int fd)
 {
-#if defined(HAVE_ST_BLKSIZE)
+#ifdef HAVE_STRUCT_STAT_ST_BLKSIZE
+#ifdef HAVE_SYS_STAT_H
 	struct stat sb;
 	if (fstat(fd, &sb) > -1)
 	{
@@ -159,6 +188,7 @@ blksize(int fd)
 		return 8192;
 	}
 	/* else, silent in the face of error */
+#endif
 #endif
 	return (size_t) 2 * pagesize();
 }
@@ -175,7 +205,7 @@ fgrow(const int fd, const off_t len)
 	if (fstat(fd, &sb) < 0)
 		return errno;
 	if (len < sb.st_size)
-		return ENOERR;
+		return NC_NOERR;
 	{
 	    const long dumb = 0;
 	    /* we don't use ftruncate() due to problem with FAT32 file systems */
@@ -190,7 +220,7 @@ fgrow(const int fd, const off_t len)
 	    if (lseek(fd, pos, SEEK_SET) < 0)
 		return errno;
 	}
-	return ENOERR;
+	return NC_NOERR;
 }
 
 
@@ -202,13 +232,23 @@ fgrow(const int fd, const off_t len)
 static int
 fgrow2(const int fd, const off_t len)
 {
-	struct stat sb;
-	if (fstat(fd, &sb) < 0)
-		return errno;
-	if (len <= sb.st_size)
-		return ENOERR;
-	{
-	    const char dumb = 0;
+
+
+  /* There is a problem with fstat on Windows based systems
+     which manifests (so far) when Config RELEASE is built.
+     Use _filelengthi64 isntead.
+
+     See https://github.com/Unidata/netcdf-c/issues/188
+
+  */
+
+
+  off_t file_len = nc_get_filelen(fd);
+  if(file_len < 0) return errno;
+  if(len <= file_len)
+    return NC_NOERR;
+  {
+    const char dumb = 0;
 	    /* we don't use ftruncate() due to problem with FAT32 file systems */
 	    /* cache current position */
 	    const off_t pos = lseek(fd, 0, SEEK_CUR);
@@ -221,7 +261,7 @@ fgrow2(const int fd, const off_t len)
 	    if (lseek(fd, pos, SEEK_SET) < 0)
 		return errno;
 	}
-	return ENOERR;
+	return NC_NOERR;
 }
 /* End OS */
 /* Begin px */
@@ -239,7 +279,7 @@ fgrow2(const int fd, const off_t len)
    posp - pointer to current position in file, updated after write.
 */
 static int
-px_pgout(ncio *const nciop, 
+px_pgout(ncio *const nciop,
 	off_t const offset,  const size_t extent,
 	void *const vp, off_t *posp)
 {
@@ -270,24 +310,26 @@ px_pgout(ncio *const nciop,
 	while((partial = write(nciop->fd, nvp, nextent)) != -1) {
 	    if(partial == nextent)
 		break;
-	    nvp += partial;		
+	    nvp += partial;
 	    nextent -= partial;
 	}
 	if(partial == -1)
 	    return errno;
 	*posp += extent;
 
-	return ENOERR;
+	return NC_NOERR;
 }
 
-/* Read in a page of data. 
+/*! Read in a page of data.
 
-   nciop - a pointer to the ncio struct for this file.
-   offset - byte offset in file where read starts.
-   extent - the size of the page that will be read.
-   vp - a pointer to where the data will end up.
-   nreadp - returned number of bytes actually read (may be less than extent).
-   posp - pointer to current position in file, updated after read.
+  @param[in] nciop  A pointer to the ncio struct for this file.
+  @param[in] offset The byte offset in file where read starts.
+  @param[in] extent The size of the page that will be read.
+  @param[in] vp     A pointer to where the data will end up.
+
+  @param[in,out] nreadp Returned number of bytes actually read (may be less than extent).
+  @param[in,out] posp The pointer to current position in file, updated after read.
+  @return Return 0 on success, otherwise an error code.
 */
 static int
 px_pgin(ncio *const nciop,
@@ -296,13 +338,23 @@ px_pgin(ncio *const nciop,
 {
 	int status;
 	ssize_t nread;
-
+    size_t read_count = 0;
+    ssize_t bytes_xfered = 0;
+    void *p = vp;
 #ifdef X_ALIGN
 	assert(offset % X_ALIGN == 0);
 	assert(extent % X_ALIGN == 0);
 #endif
-
-	assert(*posp == OFF_NONE || *posp == lseek(nciop->fd, 0, SEEK_CUR));
+    /* *posp == OFF_NONE (-1) on first call. This
+       is problematic because lseek also returns -1
+       on error. Use errno instead. */
+    if(*posp != OFF_NONE && *posp != lseek(nciop->fd, 0, SEEK_CUR)) {
+      if(errno) {
+        status = errno;
+        printf("Error %d: %s\n",errno,strerror(errno));
+        return status;
+      }
+    }
 
 	if(*posp != offset)
 	{
@@ -315,19 +367,37 @@ px_pgin(ncio *const nciop,
 	}
 
 	errno = 0;
-	nread = read(nciop->fd, vp, extent);
-	if(nread != (ssize_t) extent)
-	{
-		status = errno;
-		if(nread == -1 || status != ENOERR)
-			return status;
-		/* else it's okay we read less than asked for */
-		(void) memset((char *)vp + nread, 0, (ssize_t)extent - nread);
-	}
-	*nreadp = nread;
+    /* Handle the case where the read is interrupted
+       by a signal (see NCF-337,
+       http://pubs.opengroup.org/onlinepubs/009695399/functions/read.html)
+
+       When this happens, nread will (should) be the bytes read, and
+       errno will be set to EINTR.  On older systems nread might be -1.
+       If this is the case, there's not a whole lot we can do about it
+       as we can't compute any offsets, so we will attempt to read again.
+       This *feels* like it could lead to an infinite loop, but it shouldn't
+       unless the read is being constantly interrupted by a signal, and is
+       on an older system which returns -1 instead of bytexs read.
+
+       The case where it's a short read is already handled by the function
+       (according to the comment below, at least). */
+    do {
+      nread = read(nciop->fd,vp,extent);
+    } while (nread == -1 && errno == EINTR);
+
+
+    if(nread != (ssize_t)extent) {
+      status = errno;
+      if( nread == -1 || (status != EINTR && status != NC_NOERR))
+        return status;
+      /* else it's okay we read less than asked for */
+      (void) memset((char *)vp + nread, 0, (ssize_t)extent - nread);
+    }
+
+    *nreadp = nread;
 	*posp += nread;
 
-	return ENOERR;
+	return NC_NOERR;
 }
 
 /* This struct is for POSIX systems, with NC_SHARE not in effect. If
@@ -349,7 +419,7 @@ typedef struct ncio_px {
 	size_t blksz;
 	off_t pos;
 	/* buffer */
-	off_t	bf_offset; 
+	off_t	bf_offset;
 	size_t	bf_extent;
 	size_t	bf_cnt;
 	void	*bf_base;
@@ -373,7 +443,7 @@ typedef struct ncio_px {
    offset - file offset for beginning of to region to be
    released.
 
-   rflags - only RGN_MODIFIED is relevent to this function, others ignored
+   rflags - only RGN_MODIFIED is relevant to this function, others ignored
 */
 static int
 px_rel(ncio_px *const pxp, off_t offset, int rflags)
@@ -389,7 +459,7 @@ px_rel(ncio_px *const pxp, off_t offset, int rflags)
 	}
 	pxp->bf_refcount--;
 
-	return ENOERR;
+	return NC_NOERR;
 }
 
 /* This function indicates the file region starting at offset may be
@@ -406,7 +476,7 @@ px_rel(ncio_px *const pxp, off_t offset, int rflags)
    nciop - pointer to ncio struct.
    offset - num bytes from beginning of buffer to region to be
    released.
-   rflags - only RGN_MODIFIED is relevent to this function, others ignored
+   rflags - only RGN_MODIFIED is relevant to this function, others ignored
 */
 static int
 ncio_px_rel(ncio *const nciop, off_t offset, int rflags)
@@ -422,7 +492,7 @@ ncio_px_rel(ncio *const nciop, off_t offset, int rflags)
 /* POSIX get. This will "make a region available." Since we're using
    buffered IO, this means that if needed, we'll fetch a new page from
    the file, otherwise, just return a pointer to what's in memory
-   already. 
+   already.
 
    nciop - pointer to ncio struct, containing file info.
    pxp - pointer to ncio_px struct, which contains special metadate
@@ -430,9 +500,9 @@ ncio_px_rel(ncio *const nciop, off_t offset, int rflags)
    offset - start byte of region to get.
    extent - how many bytes to read.
    rflags - One of the RGN_* flags defined in ncio.h.
-   vpp - pointer to pointer that will recieve data.
+   vpp - pointer to pointer that will receive data.
 
-   NOTES: 
+   NOTES:
 
    * For blkoffset round offset down to the nearest pxp->blksz. This
    provides the offset (in bytes) to the beginning of the block that
@@ -452,7 +522,7 @@ ncio_px_rel(ncio *const nciop, off_t offset, int rflags)
 
    * If this is called on a newly opened file, pxp->bf_offset will be
    OFF_NONE and we'll jump to label pgin to immediately read in a
-   page. 
+   page.
 */
 static int
 px_get(ncio *const nciop, ncio_px *const pxp,
@@ -460,12 +530,12 @@ px_get(ncio *const nciop, ncio_px *const pxp,
 		int rflags,
 		void **const vpp)
 {
-	int status = ENOERR;
+	int status = NC_NOERR;
 
 	const off_t blkoffset = _RNDDOWN(offset, (off_t)pxp->blksz);
 	off_t diff = (size_t)(offset - blkoffset);
 	off_t blkextent = _RNDUP(diff + extent, pxp->blksz);
-	
+
 	assert(extent != 0);
 	assert(extent < X_INT_MAX); /* sanity check */
 	assert(offset >= 0); /* sanity check */
@@ -491,7 +561,7 @@ px_get(ncio *const nciop, ncio_px *const pxp,
 	if(blkoffset == pxp->bf_offset)
 	{
 		/* hit */
- 		if(blkextent > pxp->bf_extent) 
+ 		if(blkextent > pxp->bf_extent)
 		{
 			/* page in upper */
 			void *const middle =
@@ -503,7 +573,7 @@ px_get(ncio *const nciop, ncio_px *const pxp,
 				 middle,
 				 &pxp->bf_cnt,
 				 &pxp->pos);
-			if(status != ENOERR)
+			if(status != NC_NOERR)
 				return status;
 			pxp->bf_extent = 2 * pxp->blksz;
 			pxp->bf_cnt += pxp->blksz;
@@ -538,12 +608,28 @@ px_get(ncio *const nciop, ncio_px *const pxp,
 					pxp->blksz,
 					pxp->bf_base,
 					&pxp->pos);
-				if(status != ENOERR)
+				if(status != NC_NOERR)
 					return status;
 			}
 			pxp->bf_cnt -= pxp->blksz;
 			/* copy upper half into lower half */
 			(void) memcpy(pxp->bf_base, middle, pxp->bf_cnt);
+		}
+		else		/* added to fix nofill bug */
+		{
+			assert(pxp->bf_extent == 2 * pxp->blksz);
+			/* still have to page out lower half, if modified */
+			if(fIsSet(pxp->bf_rflags, RGN_MODIFIED))
+			{
+				assert(pxp->bf_refcount <= 0);
+				status = px_pgout(nciop,
+					pxp->bf_offset,
+					pxp->blksz,
+					pxp->bf_base,
+					&pxp->pos);
+				if(status != NC_NOERR)
+					return status;
+			}
 		}
 		pxp->bf_offset = blkoffset;
 		/* pxp->bf_extent = pxp->blksz; */
@@ -559,7 +645,7 @@ px_get(ncio *const nciop, ncio_px *const pxp,
 				 middle,
 				 &pxp->bf_cnt,
 				 &pxp->pos);
-			if(status != ENOERR)
+			if(status != NC_NOERR)
 				return status;
 			pxp->bf_extent = 2 * pxp->blksz;
 			pxp->bf_cnt += pxp->blksz;
@@ -587,7 +673,7 @@ px_get(ncio *const nciop, ncio_px *const pxp,
 					pxp->bf_cnt - pxp->blksz,
 					middle,
 					&pxp->pos);
-				if(status != ENOERR)
+				if(status != NC_NOERR)
 					return status;
 			}
 			pxp->bf_cnt = pxp->blksz;
@@ -606,7 +692,7 @@ px_get(ncio *const nciop, ncio_px *const pxp,
 			 pxp->bf_base,
 			 &pxp->bf_cnt,
 			 &pxp->pos);
-		if(status != ENOERR)
+		if(status != NC_NOERR)
 			return status;
 		pxp->bf_offset = blkoffset;
 		if(upper_cnt != 0)
@@ -631,7 +717,7 @@ px_get(ncio *const nciop, ncio_px *const pxp,
 			pxp->bf_cnt,
 			pxp->bf_base,
 			&pxp->pos);
-		if(status != ENOERR)
+		if(status != NC_NOERR)
 			return status;
 		pxp->bf_rflags = 0;
 	}
@@ -643,7 +729,7 @@ pgin:
 		 pxp->bf_base,
 		 &pxp->bf_cnt,
 		 &pxp->pos);
-	if(status != ENOERR)
+	if(status != NC_NOERR)
 		return status;
 	 pxp->bf_offset = blkoffset;
 	 pxp->bf_extent = blkextent;
@@ -657,8 +743,8 @@ done:
 	pxp->bf_rflags |= rflags;
 	pxp->bf_refcount++;
 
-	*vpp = (char *)pxp->bf_base + diff;
-	return ENOERR;
+    *vpp = (void *)((signed char*)pxp->bf_base + diff);
+	return NC_NOERR;
 }
 
 /* Request that the region (offset, extent) be made available through
@@ -669,7 +755,7 @@ done:
    corresponding call to rel().
 
    For POSIX systems, without NC_SHARE. This function gets a page of
-   size extent? 
+   size extent?
 
    This is a wrapper for the function px_get, which does all the heavy
    lifting.
@@ -682,13 +768,13 @@ done:
    vpp - handle to point at data when it's been read.
 */
 static int
-ncio_px_get(ncio *const nciop, 
+ncio_px_get(ncio *const nciop,
 		off_t offset, size_t extent,
 		int rflags,
 		void **const vpp)
 {
 	ncio_px *const pxp = (ncio_px *)nciop->pvt;
-	
+
 	if(fIsSet(rflags, RGN_WRITE) && !fIsSet(nciop->ioflags, NC_WRITE))
 		return EPERM; /* attempt to write readonly file */
 
@@ -715,17 +801,17 @@ px_double_buffer(ncio *const nciop, off_t to, off_t from,
 			size_t nbytes, int rflags)
 {
 	ncio_px *const pxp = (ncio_px *)nciop->pvt;
-	int status = ENOERR;
+	int status = NC_NOERR;
 	void *src;
 	void *dest;
-	
+
 #if INSTRUMENT
 fprintf(stderr, "\tdouble_buffr %ld %ld %ld\n",
 		 (long)to, (long)from, (long)nbytes);
 #endif
 	status = px_get(nciop, pxp, to, nbytes, RGN_WRITE,
 			&dest);
-	if(status != ENOERR)
+	if(status != NC_NOERR)
 		return status;
 
 	if(pxp->slave == NULL)
@@ -736,7 +822,7 @@ fprintf(stderr, "\tdouble_buffr %ld %ld %ld\n",
 
 		pxp->slave->blksz = pxp->blksz;
 		/* pos done below */
-		pxp->slave->bf_offset = pxp->bf_offset; 
+		pxp->slave->bf_offset = pxp->bf_offset;
 		pxp->slave->bf_extent = pxp->bf_extent;
 		pxp->slave->bf_cnt = pxp->bf_cnt;
 		pxp->slave->bf_base = malloc(2 * pxp->blksz);
@@ -748,11 +834,11 @@ fprintf(stderr, "\tdouble_buffr %ld %ld %ld\n",
 		pxp->slave->bf_refcount = 0;
 		pxp->slave->slave = NULL;
 	}
-	
+
 	pxp->slave->pos = pxp->pos;
 	status = px_get(nciop, pxp->slave, from, nbytes, 0,
 			&src);
-	if(status != ENOERR)
+	if(status != NC_NOERR)
 		return status;
 	if(pxp->pos != pxp->slave->pos)
 	{
@@ -764,7 +850,7 @@ fprintf(stderr, "\tdouble_buffr %ld %ld %ld\n",
 
 	(void)px_rel(pxp->slave, from, 0);
 	(void)px_rel(pxp, to, RGN_MODIFIED);
-	
+
 	return status;
 }
 
@@ -787,16 +873,16 @@ ncio_px_move(ncio *const nciop, off_t to, off_t from,
 			size_t nbytes, int rflags)
 {
 	ncio_px *const pxp = (ncio_px *)nciop->pvt;
-	int status = ENOERR;
-	off_t lower;	
+	int status = NC_NOERR;
+	off_t lower;
 	off_t upper;
 	char *base;
 	size_t diff;
 	size_t extent;
 
 	if(to == from)
-		return ENOERR; /* NOOP */
-	
+		return NC_NOERR; /* NOOP */
+
 	if(fIsSet(rflags, RGN_WRITE) && !fIsSet(nciop->ioflags, NC_WRITE))
 		return EPERM; /* attempt to write readonly file */
 
@@ -805,7 +891,7 @@ ncio_px_move(ncio *const nciop, off_t to, off_t from,
 	if(to > from)
 	{
 		/* growing */
-		lower = from;	
+		lower = from;
 		upper = to;
 	}
 	else
@@ -837,7 +923,7 @@ if(to > from)
 
 			status = px_double_buffer(nciop, toh, frm,
 				 	loopextent, rflags) ;
-			if(status != ENOERR)
+			if(status != NC_NOERR)
 				return status;
 			remaining -= loopextent;
 
@@ -853,7 +939,7 @@ else
 
 			status = px_double_buffer(nciop, to, from,
 				 	loopextent, rflags) ;
-			if(status != ENOERR)
+			if(status != NC_NOERR)
 				return status;
 			remaining -= loopextent;
 
@@ -863,23 +949,23 @@ else
 			from += loopextent;
 		}
 }
-		return ENOERR;
+		return NC_NOERR;
 	}
-	
+
 #if INSTRUMENT
 fprintf(stderr, "\tncio_px_move small\n");
 #endif
 	status = px_get(nciop, pxp, lower, extent, RGN_WRITE|rflags,
 			(void **)&base);
 
-	if(status != ENOERR)
+	if(status != NC_NOERR)
 		return status;
 
 	if(to > from)
-		(void) memmove(base + diff, base, nbytes); 
+		(void) memmove(base + diff, base, nbytes);
 	else
-		(void) memmove(base, base + diff, nbytes); 
-		
+		(void) memmove(base, base + diff, nbytes);
+
 	(void) px_rel(pxp, lower, RGN_MODIFIED);
 
 	return status;
@@ -893,14 +979,14 @@ static int
 ncio_px_sync(ncio *const nciop)
 {
 	ncio_px *const pxp = (ncio_px *)nciop->pvt;
-	int status = ENOERR;
+	int status = NC_NOERR;
 	if(fIsSet(pxp->bf_rflags, RGN_MODIFIED))
 	{
 		assert(pxp->bf_refcount <= 0);
 		status = px_pgout(nciop, pxp->bf_offset,
 			pxp->bf_cnt,
 			pxp->bf_base, &pxp->pos);
-		if(status != ENOERR)
+		if(status != NC_NOERR)
 			return status;
 		pxp->bf_rflags = 0;
 	}
@@ -920,7 +1006,7 @@ ncio_px_sync(ncio *const nciop)
    free up anything hanging off pvt.
 */
 static void
-ncio_px_free(void *const pvt)
+ncio_px_freepvt(void *const pvt)
 {
 	ncio_px *const pxp = (ncio_px *)pvt;
 	if(pxp == NULL)
@@ -938,7 +1024,7 @@ ncio_px_free(void *const pvt)
 		free(pxp->slave);
 		pxp->slave = NULL;
 	}
-		
+
 	if(pxp->bf_base != NULL)
 	{
 		free(pxp->bf_base);
@@ -994,7 +1080,7 @@ ncio_px_init2(ncio *const nciop, size_t *sizehintp, int isNew)
 		pxp->bf_extent = bufsz;
 		(void) memset(pxp->bf_base, 0, pxp->bf_extent);
 	}
-	return ENOERR;
+	return NC_NOERR;
 }
 
 
@@ -1013,7 +1099,9 @@ ncio_px_init(ncio *const nciop)
 	*((ncio_getfunc **)&nciop->get) = ncio_px_get; /* cast away const */
 	*((ncio_movefunc **)&nciop->move) = ncio_px_move; /* cast away const */
 	*((ncio_syncfunc **)&nciop->sync) = ncio_px_sync; /* cast away const */
-	*((ncio_freefunc **)&nciop->free) = ncio_px_free; /* cast away const */
+	*((ncio_filesizefunc **)&nciop->filesize) = ncio_px_filesize; /* cast away const */
+	*((ncio_pad_lengthfunc **)&nciop->pad_length) = ncio_px_pad_length; /* cast away const */
+	*((ncio_closefunc **)&nciop->close) = ncio_px_close; /* cast away const */
 
 	pxp->blksz = 0;
 	pxp->pos = -1;
@@ -1034,7 +1122,7 @@ ncio_px_init(ncio *const nciop)
 typedef struct ncio_spx {
 	off_t pos;
 	/* buffer */
-	off_t	bf_offset; 
+	off_t	bf_offset;
 	size_t	bf_extent;
 	size_t	bf_cnt;
 	void	*bf_base;
@@ -1062,7 +1150,7 @@ static int
 ncio_spx_rel(ncio *const nciop, off_t offset, int rflags)
 {
 	ncio_spx *const pxp = (ncio_spx *)nciop->pvt;
-	int status = ENOERR;
+	int status = NC_NOERR;
 
 	assert(pxp->bf_offset <= offset);
 	assert(pxp->bf_cnt != 0);
@@ -1111,11 +1199,11 @@ ncio_spx_get(ncio *const nciop,
 		void **const vpp)
 {
 	ncio_spx *const pxp = (ncio_spx *)nciop->pvt;
-	int status = ENOERR;
+	int status = NC_NOERR;
 #ifdef X_ALIGN
 	size_t rem;
 #endif
-	
+
 	if(fIsSet(rflags, RGN_WRITE) && !fIsSet(nciop->ioflags, NC_WRITE))
 		return EPERM; /* attempt to write readonly file */
 
@@ -1133,9 +1221,9 @@ ncio_spx_get(ncio *const nciop,
 	}
 
 	{
-		const size_t rndup = extent % X_ALIGN;
-		if(rndup != 0)
-			extent += X_ALIGN - rndup;
+      const size_t rndup = extent % X_ALIGN;
+      if(rndup != 0)
+        extent += X_ALIGN - rndup;
 	}
 
 	assert(offset % X_ALIGN == 0);
@@ -1151,7 +1239,7 @@ ncio_spx_get(ncio *const nciop,
 			pxp->bf_extent = 0;
 		}
 		assert(pxp->bf_extent == 0);
-		pxp->bf_base = malloc(extent);
+		pxp->bf_base = malloc(extent+1);
 		if(pxp->bf_base == NULL)
 			return ENOMEM;
 		pxp->bf_extent = extent;
@@ -1161,7 +1249,7 @@ ncio_spx_get(ncio *const nciop,
 		 extent,
 		 pxp->bf_base,
 		 &pxp->bf_cnt, &pxp->pos);
-	if(status != ENOERR)
+	if(status != NC_NOERR)
 		return status;
 
 	pxp->bf_offset = offset;
@@ -1174,7 +1262,7 @@ ncio_spx_get(ncio *const nciop,
 #else
 	*vpp = pxp->bf_base;
 #endif
-	return ENOERR;
+	return NC_NOERR;
 }
 
 
@@ -1185,11 +1273,11 @@ strategy(ncio *const nciop, off_t to, off_t offset,
 			size_t extent, int rflags)
 {
 	static ncio_spx pxp[1];
-	int status = ENOERR;
+	int status = NC_NOERR;
 #ifdef X_ALIGN
 	size_t rem;
 #endif
-	
+
 	assert(extent != 0);
 	assert(extent < X_INT_MAX); /* sanity check */
 #if INSTRUMENT
@@ -1235,11 +1323,11 @@ fprintf(stderr, "strategy %ld at %ld to %ld\n",
 		 extent,
 		 pxp->bf_base,
 		 &pxp->bf_cnt, &pxp->pos);
-	if(status != ENOERR)
+	if(status != NC_NOERR)
 		return status;
 
 	pxp->bf_offset = to; /* TODO: XALIGN */
-	
+
 	if(pxp->bf_cnt < extent)
 		pxp->bf_cnt = extent;
 
@@ -1268,8 +1356,8 @@ static int
 ncio_spx_move(ncio *const nciop, off_t to, off_t from,
 			size_t nbytes, int rflags)
 {
-	int status = ENOERR;
-	off_t lower = from;	
+	int status = NC_NOERR;
+	off_t lower = from;
 	off_t upper = to;
 	char *base;
 	size_t diff;
@@ -1278,12 +1366,12 @@ ncio_spx_move(ncio *const nciop, off_t to, off_t from,
 	rflags &= RGN_NOLOCK; /* filter unwanted flags */
 
 	if(to == from)
-		return ENOERR; /* NOOP */
-	
+		return NC_NOERR; /* NOOP */
+
 	if(to > from)
 	{
 		/* growing */
-		lower = from;	
+		lower = from;
 		upper = to;
 	}
 	else
@@ -1299,14 +1387,14 @@ ncio_spx_move(ncio *const nciop, off_t to, off_t from,
 	status = ncio_spx_get(nciop, lower, extent, RGN_WRITE|rflags,
 			(void **)&base);
 
-	if(status != ENOERR)
+	if(status != NC_NOERR)
 		return status;
 
 	if(to > from)
-		(void) memmove(base + diff, base, nbytes); 
+		(void) memmove(base + diff, base, nbytes);
 	else
-		(void) memmove(base, base + diff, nbytes); 
-		
+		(void) memmove(base, base + diff, nbytes);
+
 	(void) ncio_spx_rel(nciop, lower, RGN_MODIFIED);
 
 	return status;
@@ -1320,11 +1408,11 @@ static int
 ncio_spx_sync(ncio *const nciop)
 {
 	/* NOOP */
-	return ENOERR;
+	return NC_NOERR;
 }
 
 static void
-ncio_spx_free(void *const pvt)
+ncio_spx_freepvt(void *const pvt)
 {
 	ncio_spx *const pxp = (ncio_spx *)pvt;
 	if(pxp == NULL)
@@ -1342,12 +1430,12 @@ ncio_spx_free(void *const pvt)
 
 
 /* This does the second half of the ncio_spx struct initialization for
-   POSIX systems, with NC_SHARE on. 
+   POSIX systems, with NC_SHARE on.
 
    nciop - pointer to ncio struct for this file. File has been opened.
    sizehintp - pointer to a size which will be rounded up to the
    nearest 8-byt boundary and then used as the max size "chunk" (or
-   page) to read from the file. 
+   page) to read from the file.
 */
 static int
 ncio_spx_init2(ncio *const nciop, const size_t *const sizehintp)
@@ -1368,7 +1456,7 @@ ncio_spx_init2(ncio *const nciop, const size_t *const sizehintp)
 		return ENOMEM;
 	}
 	/* else */
-	return ENOERR;
+	return NC_NOERR;
 }
 
 
@@ -1385,7 +1473,10 @@ ncio_spx_init(ncio *const nciop)
 	*((ncio_getfunc **)&nciop->get) = ncio_spx_get; /* cast away const */
 	*((ncio_movefunc **)&nciop->move) = ncio_spx_move; /* cast away const */
 	*((ncio_syncfunc **)&nciop->sync) = ncio_spx_sync; /* cast away const */
-	*((ncio_freefunc **)&nciop->free) = ncio_spx_free; /* cast away const */
+	/* shared with _px_ */
+	*((ncio_filesizefunc **)&nciop->filesize) = ncio_px_filesize; /* cast away const */
+	*((ncio_pad_lengthfunc **)&nciop->pad_length) = ncio_px_pad_length; /* cast away const */
+	*((ncio_closefunc **)&nciop->close) = ncio_spx_close; /* cast away const */
 
 	pxp->pos = -1;
 	pxp->bf_offset = OFF_NONE;
@@ -1403,14 +1494,22 @@ ncio_spx_init(ncio *const nciop)
    metadata must be freed.
 */
 static void
-ncio_free(ncio *nciop)
+ncio_px_free(ncio *nciop)
 {
 	if(nciop == NULL)
 		return;
+	if(nciop->pvt != NULL)
+		ncio_px_freepvt(nciop->pvt);
+	free(nciop);
+}
 
-	if(nciop->free != NULL)
-		nciop->free(nciop->pvt);
-	
+static void
+ncio_spx_free(ncio *nciop)
+{
+	if(nciop == NULL)
+		return;
+	if(nciop->pvt != NULL)
+		ncio_spx_freepvt(nciop->pvt);
 	free(nciop);
 }
 
@@ -1420,13 +1519,13 @@ ncio_free(ncio *nciop)
    NC_SHARE is used.)
 */
 static ncio *
-ncio_new(const char *path, int ioflags)
+ncio_px_new(const char *path, int ioflags)
 {
 	size_t sz_ncio = M_RNDUP(sizeof(ncio));
 	size_t sz_path = M_RNDUP(strlen(path) +1);
 	size_t sz_ncio_pvt;
 	ncio *nciop;
- 
+
 #if ALWAYS_NC_SHARE /* DEBUG */
 	fSet(ioflags, NC_SHARE);
 #endif
@@ -1439,7 +1538,7 @@ ncio_new(const char *path, int ioflags)
 	nciop = (ncio *) malloc(sz_ncio + sz_path + sz_ncio_pvt);
 	if(nciop == NULL)
 		return NULL;
-	
+
 	nciop->ioflags = ioflags;
 	*((int *)&nciop->fd) = -1; /* cast away const */
 
@@ -1474,15 +1573,15 @@ ncio_new(const char *path, int ioflags)
 #define NC_DEFAULT_CREAT_MODE 0666
 #endif
 
-/* Create a file, and the ncio struct to go with it. This funtion is
+/* Create a file, and the ncio struct to go with it. This function is
    only called from nc__create_mp.
 
    path - path of file to create.
    ioflags - flags from nc_create
    initialsz - From the netcdf man page: "The argument
    Iinitialsize sets the initial size of the file at creation time."
-   igeto - 
-   igetsz - 
+   igeto -
+   igetsz -
    sizehintp - this eventually goes into pxp->blksz and is the size of
    a page of data for buffered reads and writes.
    nciopp - pointer to a pointer that will get location of newly
@@ -1490,9 +1589,10 @@ ncio_new(const char *path, int ioflags)
    igetvpp - pointer to pointer which will get the location of ?
 */
 int
-ncio_create(const char *path, int ioflags,
+posixio_create(const char *path, int ioflags,
 	size_t initialsz,
 	off_t igeto, size_t igetsz, size_t *sizehintp,
+	void* parameters,
 	ncio **nciopp, void **const igetvpp)
 {
 	ncio *nciop;
@@ -1508,7 +1608,7 @@ ncio_create(const char *path, int ioflags,
 	if(path == NULL || *path == 0)
 		return EINVAL;
 
-	nciop = ncio_new(path, ioflags);
+	nciop = ncio_px_new(path, ioflags);
 	if(nciop == NULL)
 		return ENOMEM;
 
@@ -1556,13 +1656,13 @@ ncio_create(const char *path, int ioflags,
 	else
 		status = ncio_px_init2(nciop, sizehintp, 1);
 
-	if(status != ENOERR)
+	if(status != NC_NOERR)
 		goto unwind_open;
 
 	if(initialsz != 0)
 	{
 		status = fgrow(fd, (off_t)initialsz);
-		if(status != ENOERR)
+		if(status != NC_NOERR)
 			goto unwind_open;
 	}
 
@@ -1572,19 +1672,19 @@ ncio_create(const char *path, int ioflags,
 				igeto, igetsz,
                         	RGN_WRITE,
                         	igetvpp);
-		if(status != ENOERR)
+		if(status != NC_NOERR)
 			goto unwind_open;
 	}
 
 	*nciopp = nciop;
-	return ENOERR;
+	return NC_NOERR;
 
 unwind_open:
 	(void) close(fd);
 	/* ?? unlink */
 	/*FALLTHRU*/
 unwind_new:
-	ncio_free(nciop);
+	ncio_close(nciop,!fIsSet(ioflags, NC_NOCLOBBER));
 	return status;
 }
 
@@ -1595,17 +1695,17 @@ unwind_new:
    path - path of data file.
 
    ioflags - flags passed into nc_open.
-   
+
    igeto - looks like this function can do an initial page get, and
    igeto is going to be the offset for that. But it appears to be
-   unused 
+   unused
 
    igetsz - the size in bytes of initial page get (a.k.a. extent). Not
    ever used in the library.
-   
+
    sizehintp - pointer to sizehint parameter from nc__open or
-   nc__create. This is used to set pxp->blksz. 
-   
+   nc__create. This is used to set pxp->blksz.
+
    Here's what the man page has to say:
 
    "The argument referenced by chunksize controls a space versus time
@@ -1633,26 +1733,29 @@ unwind_new:
    read, if this were ever used, which it isn't.
 */
 int
-ncio_open(const char *path,
+posixio_open(const char *path,
 	int ioflags,
 	off_t igeto, size_t igetsz, size_t *sizehintp,
+        void* parameters,
 	ncio **nciopp, void **const igetvpp)
 {
 	ncio *nciop;
 	int oflags = fIsSet(ioflags, NC_WRITE) ? O_RDWR : O_RDONLY;
-	int fd;
-	int status;
+	int fd = -1;
+	int status = 0;
 
 	if(path == NULL || *path == 0)
 		return EINVAL;
 
-	nciop = ncio_new(path, ioflags);
+	nciop = ncio_px_new(path, ioflags);
 	if(nciop == NULL)
 		return ENOMEM;
 
 #ifdef O_BINARY
+	/*#if _MSC_VER*/
 	fSet(oflags, O_BINARY);
 #endif
+
 #ifdef vms
 	fd = open(path, oflags, 0, "ctx=stm");
 #else
@@ -1685,7 +1788,7 @@ ncio_open(const char *path,
 	else
 		status = ncio_px_init2(nciop, sizehintp, 0);
 
-	if(status != ENOERR)
+	if(status != NC_NOERR)
 		goto unwind_open;
 
 	if(igetsz != 0)
@@ -1694,34 +1797,49 @@ ncio_open(const char *path,
 				igeto, igetsz,
                         	0,
                         	igetvpp);
-		if(status != ENOERR)
+		if(status != NC_NOERR)
 			goto unwind_open;
 	}
 
 	*nciopp = nciop;
-	return ENOERR;
+	return NC_NOERR;
 
 unwind_open:
-	(void) close(fd);
+	(void) close(fd); /* assert fd >= 0 */
 	/*FALLTHRU*/
 unwind_new:
-	ncio_free(nciop);
+	ncio_close(nciop,0);
 	return status;
 }
 
-/* 
+/*
  * Get file size in bytes.
  */
-int
-ncio_filesize(ncio *nciop, off_t *filesizep)
+static int
+ncio_px_filesize(ncio *nciop, off_t *filesizep)
 {
-    struct stat sb;
 
+
+	/* There is a problem with fstat on Windows based systems
+		which manifests (so far) when Config RELEASE is built.
+		Use _filelengthi64 isntead. */
+#ifdef HAVE_FILE_LENGTH_I64
+
+	__int64 file_len = 0;
+	if( (file_len = _filelengthi64(nciop->fd)) < 0) {
+		return errno;
+	}
+
+	*filesizep = file_len;
+
+#else
+    struct stat sb;
     assert(nciop != NULL);
     if (fstat(nciop->fd, &sb) < 0)
 	return errno;
     *filesizep = sb.st_size;
-    return ENOERR;
+#endif
+	return NC_NOERR;
 }
 
 /*
@@ -1731,10 +1849,11 @@ ncio_filesize(ncio *nciop, off_t *filesizep)
  * calculated size, perhaps as the result of having been previously
  * written in NOFILL mode.
  */
-int
-ncio_pad_length(ncio *nciop, off_t length)
+static int
+ncio_px_pad_length(ncio *nciop, off_t length)
 {
-	int status = ENOERR;
+
+	int status = NC_NOERR;
 
 	if(nciop == NULL)
 		return EINVAL;
@@ -1743,13 +1862,13 @@ ncio_pad_length(ncio *nciop, off_t length)
 	        return EPERM; /* attempt to write readonly file */
 
 	status = nciop->sync(nciop);
-	if(status != ENOERR)
+	if(status != NC_NOERR)
 	        return status;
 
  	status = fgrow2(nciop->fd, length);
- 	if(status != ENOERR)
+ 	if(status != NC_NOERR)
 	        return status;
-	return ENOERR;
+	return NC_NOERR;
 }
 
 
@@ -1758,27 +1877,39 @@ ncio_pad_length(ncio *nciop, off_t length)
 
    Sync any changes, then close the open file associated with the ncio
    struct, and free its memory.
-   
+
    nciop - pointer to ncio to close.
 
    doUnlink - if true, unlink file
 */
-int 
-ncio_close(ncio *nciop, int doUnlink)
+static int
+ncio_px_close(ncio *nciop, int doUnlink)
 {
-	int status = ENOERR;
-
+	int status = NC_NOERR;
 	if(nciop == NULL)
 		return EINVAL;
-
-	status = nciop->sync(nciop);
-
-	(void) close(nciop->fd);
-	
+	if(nciop->fd > 0) {
+	    status = nciop->sync(nciop);
+	    (void) close(nciop->fd);
+	}
 	if(doUnlink)
 		(void) unlink(nciop->path);
+	ncio_px_free(nciop);
+	return status;
+}
 
-	ncio_free(nciop);
-
+static int
+ncio_spx_close(ncio *nciop, int doUnlink)
+{
+	int status = NC_NOERR;
+	if(nciop == NULL)
+		return EINVAL;
+	if(nciop->fd > 0) {
+	    status = nciop->sync(nciop);
+	    (void) close(nciop->fd);
+	}
+	if(doUnlink)
+		(void) unlink(nciop->path);
+	ncio_spx_free(nciop);
 	return status;
 }

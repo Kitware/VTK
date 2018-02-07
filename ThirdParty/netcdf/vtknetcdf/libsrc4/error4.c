@@ -13,7 +13,7 @@ conditions.
 $Id: error4.c,v 1.4 2010/06/01 17:48:55 ed Exp $
 */
 
-#include <config.h>
+#include "config.h"
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>

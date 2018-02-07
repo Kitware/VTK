@@ -19,7 +19,7 @@
 
 static int ncbytesdebug = 1;
 
-static long
+static int
 ncbytesfail(void)
 {
     fflush(stdout);
@@ -33,7 +33,7 @@ NCbytes*
 ncbytesnew(void)
 {
   NCbytes* bb = (NCbytes*)malloc(sizeof(NCbytes));
-  if(bb == NULL) return (NCbytes*)ncbytesfail();
+  if(bb == NULL) return (ncbytesfail(),NULL);
   bb->alloc=0;
   bb->length=0;
   bb->content=NULL;
@@ -42,7 +42,7 @@ ncbytesnew(void)
 }
 
 int
-ncbytessetalloc(NCbytes* bb, unsigned int sz)
+ncbytessetalloc(NCbytes* bb, unsigned long sz)
 {
   char* newcontent;
   if(bb == NULL) return ncbytesfail();
@@ -50,6 +50,7 @@ ncbytessetalloc(NCbytes* bb, unsigned int sz)
   if(bb->alloc >= sz) return TRUE;
   if(bb->nonextendible) return ncbytesfail();
   newcontent=(char*)calloc(sz,sizeof(char));
+  if(newcontent == NULL) return FALSE;
   if(bb->alloc > 0 && bb->length > 0 && bb->content != NULL) {
     memcpy((void*)newcontent,(void*)bb->content,sizeof(char)*bb->length);
   }
@@ -68,10 +69,12 @@ ncbytesfree(NCbytes* bb)
 }
 
 int
-ncbytessetlength(NCbytes* bb, unsigned int sz)
+ncbytessetlength(NCbytes* bb, unsigned long sz)
 {
   if(bb == NULL) return ncbytesfail();
-  if(sz > bb->alloc) {if(!ncbytessetalloc(bb,sz)) return ncbytesfail();}
+  if(bb->length < sz) {
+      if(sz > bb->alloc) {if(!ncbytessetalloc(bb,sz)) return ncbytesfail();}
+  }
   bb->length = sz;
   return TRUE;
 }
@@ -79,14 +82,14 @@ ncbytessetlength(NCbytes* bb, unsigned int sz)
 int
 ncbytesfill(NCbytes* bb, char fill)
 {
-  unsigned int i;
+  unsigned long i;
   if(bb == NULL) return ncbytesfail();
   for(i=0;i<bb->length;i++) bb->content[i] = fill;
   return TRUE;
 }
 
 int
-ncbytesget(NCbytes* bb, unsigned int index)
+ncbytesget(NCbytes* bb, unsigned long index)
 {
   if(bb == NULL) return -1;
   if(index >= bb->length) return -1;
@@ -94,7 +97,7 @@ ncbytesget(NCbytes* bb, unsigned int index)
 }
 
 int
-ncbytesset(NCbytes* bb, unsigned int index, char elem)
+ncbytesset(NCbytes* bb, unsigned long index, char elem)
 {
   if(bb == NULL) return ncbytesfail();
   if(index >= bb->length) return ncbytesfail();
@@ -106,31 +109,41 @@ int
 ncbytesappend(NCbytes* bb, char elem)
 {
   if(bb == NULL) return ncbytesfail();
-  if(bb->length >= bb->alloc) if(!ncbytessetalloc(bb,0)) return ncbytesfail();
-  bb->content[bb->length] = elem;
+  /* We need space for the char + null */
+  while(bb->length+1 >= bb->alloc) {
+	if(!ncbytessetalloc(bb,0)) return ncbytesfail();
+  }
+  bb->content[bb->length] = (char)(elem & 0xFF);
   bb->length++;
+  bb->content[bb->length] = '\0';
   return TRUE;
 }
 
 /* This assumes s is a null terminated string*/
 int
-ncbytescat(NCbytes* bb, char* s)
+ncbytescat(NCbytes* bb, const char* s)
 {
-    ncbytesappendn(bb,(void*)s,strlen(s)+1); /* include trailing null*/
-    /* back up over the trailing null*/
-    if(bb->length == 0) return ncbytesfail();
-    bb->length--;
+  if(s == NULL) {
     return 1;
+  }
+  ncbytesappendn(bb,(void*)s,strlen(s)+1); /* include trailing null*/
+  /* back up over the trailing null*/
+  if(bb->length == 0) return ncbytesfail();
+  bb->length--;
+  return 1;
 }
 
 int
-ncbytesappendn(NCbytes* bb, void* elem, unsigned int n)
+ncbytesappendn(NCbytes* bb, const void* elem, unsigned long n)
 {
   if(bb == NULL || elem == NULL) return ncbytesfail();
   if(n == 0) {n = strlen((char*)elem);}
-  while(!ncbytesavail(bb,n)) {if(!ncbytessetalloc(bb,0)) return ncbytesfail();}
+  while(!ncbytesavail(bb,n+1)) {
+    if(!ncbytessetalloc(bb,0)) return ncbytesfail();
+  }
   memcpy((void*)&bb->content[bb->length],(void*)elem,n);
   bb->length += n;
+  bb->content[bb->length] = '\0';
   return TRUE;
 }
 
@@ -141,7 +154,7 @@ ncbytesprepend(NCbytes* bb, char elem)
   if(bb == NULL) return ncbytesfail();
   if(bb->length >= bb->alloc) if(!ncbytessetalloc(bb,0)) return ncbytesfail();
   /* could we trust memcpy? instead */
-  for(i=bb->alloc;i>=1;i--) {bb->content[i]=bb->content[i-1];}
+  for(i=(int)bb->alloc;i>=1;i--) {bb->content[i]=bb->content[i-1];}
   bb->content[0] = elem;
   bb->length++;
   return TRUE;
@@ -167,7 +180,7 @@ ncbytesextract(NCbytes* bb)
 }
 
 int
-ncbytessetcontents(NCbytes* bb, char* contents, unsigned int alloc)
+ncbytessetcontents(NCbytes* bb, char* contents, unsigned long alloc)
 {
     if(bb == NULL) return ncbytesfail();
     ncbytesclear(bb);
@@ -180,7 +193,6 @@ ncbytessetcontents(NCbytes* bb, char* contents, unsigned int alloc)
 }
 
 /* Null terminate the byte string without extending its length */
-/* For debugging */
 int
 ncbytesnull(NCbytes* bb)
 {
@@ -189,3 +201,16 @@ ncbytesnull(NCbytes* bb)
     return 1;
 }
 
+/* Remove char at position i */
+int
+ncbytesremove(NCbytes* bb, unsigned long pos)
+{
+    if(bb == NULL) return ncbytesfail();
+    if(bb->length <= pos) return ncbytesfail();
+    if(pos < (bb->length - 1)) {
+	int copylen = (bb->length - pos) - 1;
+        memmove(bb->content+pos,bb->content+pos+1,copylen);
+    }
+    bb->length--;
+    return TRUE;
+}
