@@ -15,6 +15,7 @@
   * [metaio](../Utilities/MetaIO/update.sh)
   * [mpi4py](mpi4py/update.sh)
   * [png](png/update.sh)
+  * [sqlite](sqlite/update.sh)
   * [tiff](tiff/update.sh)
   * [xdmf3](xdmf3/update.sh)
   * [zfp](zfp/update.sh)

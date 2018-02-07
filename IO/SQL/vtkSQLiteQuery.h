@@ -50,7 +50,6 @@
 class vtkSQLiteDatabase;
 class vtkVariant;
 class vtkVariantArray;
-struct vtk_sqlite3_stmt;
 
 class VTKIOSQL_EXPORT vtkSQLiteQuery : public vtkSQLQuery
 {
@@ -175,7 +174,8 @@ private:
   vtkSQLiteQuery(const vtkSQLiteQuery &) = delete;
   void operator=(const vtkSQLiteQuery &) = delete;
 
-  vtk_sqlite3_stmt *Statement;
+  class Priv;
+  Priv* Private;
   bool InitialFetch;
   int InitialFetchResult;
   char *LastErrorText;
