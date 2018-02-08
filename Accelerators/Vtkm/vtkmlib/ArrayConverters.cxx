@@ -392,16 +392,11 @@ vtkDataArray* Convert(const vtkm::cont::Field& input)
 
 vtkPoints* Convert(const vtkm::cont::CoordinateSystem& input)
 {
-  // We need to do the conversion from Field to a known vtkm::cont::ArrayHandle
-  // after that we need to fill the vtkDataArray
-  vtkmOutputFilterPolicy policy;
   ArrayConverter aConverter;
-
   vtkPoints* points = nullptr;
   try
   {
-    vtkm::cont::CastAndCall(vtkm::filter::ApplyPolicy(input, policy),
-                            aConverter);
+    vtkm::cont::CastAndCall(input, aConverter);
     vtkDataArray* pdata = aConverter.Data;
     points = vtkPoints::New();
     points->SetData(pdata);
