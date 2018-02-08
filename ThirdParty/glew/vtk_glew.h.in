@@ -33,6 +33,10 @@
 #elif TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
 # include <OpenGLES/ES3/gl.h>
 #elif defined(VTK_USE_SYSTEM_GLEW)
+#cmakedefine VTK_SYSTEM_GLEW_SHARED
+#ifndef VTK_SYSTEM_GLEW_SHARED
+#define GLEW_STATIC
+#endif
 # include <GL/glew.h>
 # ifdef _WIN32
 #  include <GL/wglew.h>
