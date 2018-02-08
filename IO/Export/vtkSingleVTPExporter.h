@@ -32,6 +32,7 @@
 #include <vector> // for method args
 
 class vtkActor;
+class vtkPolyData;
 class vtkTexture;
 
 class VTKIOEXPORT_EXPORT vtkSingleVTPExporter : public vtkExporter
@@ -50,6 +51,11 @@ public:
   vtkGetStringMacro(FilePrefix);
   //@}
 
+  // computes the file prefix from a filename by removing
+  // the .vtp extension if present. Useful for APIs that
+  // are filename centric.
+  void SetFileName(const char *);
+
 protected:
   vtkSingleVTPExporter();
   ~vtkSingleVTPExporter() override;
@@ -59,14 +65,25 @@ protected:
   class actorData
   {
   public:
-    vtkActor *Actor;
-    vtkTexture *Texture;
+    vtkActor *Actor = nullptr;
+    vtkTexture *Texture = nullptr;
     int ImagePosition[2];
+    double URange[2];
+    double VRange[2];
+    bool HaveRepeatingTexture = false;
   };
   int TextureSize[2];
   void WriteTexture(std::vector<actorData> &actors);
   void WriteVTP(std::vector<actorData> &actors);
   char *FilePrefix;
+
+  // handle repeating textures by subdividing triangles
+  // so that they do not span mode than 0.0-1.5 of texture
+  // range.
+  vtkPolyData *FixTextureCoordinates(vtkPolyData *);
+
+  // recursive method that handles one triangle
+  void ProcessTriangle(vtkIdType *pts, vtkPolyData *out);
 
 private:
   vtkSingleVTPExporter(const vtkSingleVTPExporter&) = delete;
