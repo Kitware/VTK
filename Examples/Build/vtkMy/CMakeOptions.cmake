@@ -56,7 +56,7 @@ endif ()
 # Python
 #
 
-if (VTK_WRAP_PYTHON)
+if (VTK_WRAP_PYTHON AND (NOT WIN32 OR BUILD_SHARED_LIBS))
 
   option(VTKMY_WRAP_PYTHON
          "Wrap classes into the Python interpreted language."
@@ -65,12 +65,6 @@ if (VTK_WRAP_PYTHON)
   if (VTKMY_WRAP_PYTHON)
     set(VTK_WRAP_PYTHON_FIND_LIBS ON)
     include(${VTK_CMAKE_DIR}/vtkWrapPython.cmake)
-    if (WIN32)
-      if (NOT BUILD_SHARED_LIBS)
-        message(FATAL_ERROR "Python support requires BUILD_SHARED_LIBS to be ON.")
-        set (VTKMY_CAN_BUILD 0)
-      endif ()
-    endif ()
   endif ()
 
 else ()
