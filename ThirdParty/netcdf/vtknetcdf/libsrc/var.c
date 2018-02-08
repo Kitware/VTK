@@ -77,7 +77,7 @@ new_x_NC_var(
 	const size_t sz =  M_RNDUP(sizeof(NC_var)) +
 		 o1 + o2 + ndims * sizeof(off_t);
 #else /*!MALLOCHACK*/
-	const size_t o3 = ndims * sizeof(off_t) * 2;
+	const size_t o3 = ndims * sizeof(off_t);
 	const size_t sz = sizeof(NC_var);
 #endif /*!MALLOCHACK*/
 
@@ -177,7 +177,7 @@ dup_NC_var(const NC_var *rvarp)
 	(void) memcpy(varp->shape, rvarp->shape,
 			 rvarp->ndims * sizeof(size_t));
 	(void) memcpy(varp->dsizes, rvarp->dsizes,
-			 rvarp->ndims * sizeof(size_t));
+			 rvarp->ndims * sizeof(off_t));
 	varp->xsz = rvarp->xsz;
 	varp->len = rvarp->len;
 	varp->begin = rvarp->begin;
