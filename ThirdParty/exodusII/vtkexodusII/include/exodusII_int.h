@@ -78,6 +78,11 @@
 
 #include <stdio.h>
 
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#define __func__ __FUNCTION__
+#define snprintf _snprintf
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
