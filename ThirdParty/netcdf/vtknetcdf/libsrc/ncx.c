@@ -217,6 +217,9 @@ static const char nada[X_ALIGN] = {0, 0, 0, 0};
                    (((a) & 0x00FF000000000000ULL) >> 40) | \
                    (((a) & 0xFF00000000000000ULL) >> 56) )
 
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#define inline __inline
+#endif
 
 inline static void
 swapn2b(void *dst, const void *src, size_t nn)
