@@ -301,7 +301,8 @@ int vtkGradientFilter::RequestData(vtkInformation *vtkNotUsed(request),
 
   if (array == nullptr)
   {
-    vtkErrorMacro("No input array.");
+    vtkErrorMacro("No input array. If this dataset is part of a composite dataset"
+                  << " check to make sure that all non-empty blocks have this array.");
     return 0;
   }
   if (array->GetNumberOfComponents() == 0)
