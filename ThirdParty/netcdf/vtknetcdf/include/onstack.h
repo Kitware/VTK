@@ -37,7 +37,7 @@
 # define alloca __builtin_alloca
 # endif
 #else
-# if HAVE_ALLOCA_H
+# ifdef HAVE_ALLOCA_H
 #  include <alloca.h>
 # elif defined(_AIX)
 #  pragma alloca
