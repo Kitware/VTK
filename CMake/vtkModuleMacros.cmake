@@ -658,6 +658,12 @@ function(vtk_module_library name)
     unset(${vtk-module}_LIB_DEPENDS CACHE)
   endif()
   vtk_add_library(${vtk-module}${force_object} ${ARGN} ${_hdrs})
+  if (_vtk_build_as_kit AND NOT BUILD_SHARED_LIBS)
+    string(TOUPPER "${vtk-module}" _upper_module_name)
+    target_compile_definitions("${vtk-module}${target_suffix}"
+      PUBLIC
+        "${_upper_module_name}_STATIC_DEFINE")
+  endif ()
 
   if(_vtk_build_as_kit)
     # Make an interface library to link with for libraries.
