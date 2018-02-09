@@ -3324,6 +3324,10 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInputs(vtkRenderer* ren
     auto property = vol->GetProperty();
     auto input = this->Parent->GetTransformedInput(port);
 
+    // Check for property changes
+    this->VolumePropertyChanged |=
+      property->GetMTime() > this->ShaderBuildTime.GetMTime();
+
     auto it = this->Parent->AssembledInputs.find(port);
     if (this->NeedToInitializeResources ||
         it == this->Parent->AssembledInputs.cend() ||
@@ -3358,16 +3362,15 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInputs(vtkRenderer* ren
     }
     else
     {
-      // Check for property changes and update vtkVolumeTexture
-      this->VolumePropertyChanged |=
-        property->GetMTime() > this->ShaderBuildTime.GetMTime();
-
+      // Update vtkVolumeTexture
       it->second.Texture->UpdateVolume(property);
     }
   }
 
   if (orderChanged)
+  {
     this->ForceTransferInit();
+  }
 
   return success;
 }
