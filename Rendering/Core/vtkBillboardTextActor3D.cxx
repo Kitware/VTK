@@ -324,6 +324,9 @@ int vtkBillboardTextActor3D::RenderOpaqueGeometry(vtkViewport *vp)
     return 0;
   }
 
+  // Cache for updating bounds between renders (#17233):
+  this->RenderedRenderer = ren;
+
   // Alert OpenGL1 GL2PS export that this prop needs special handling:
   if (ren->GetRenderWindow() &&
       ren->GetRenderWindow()->GetCapturingGL2PSSpecialProps())
@@ -331,15 +334,7 @@ int vtkBillboardTextActor3D::RenderOpaqueGeometry(vtkViewport *vp)
     ren->CaptureGL2PSSpecialProp(this);
   }
 
-  if (this->TextureIsStale(ren))
-  {
-    this->GenerateTexture(ren);
-  }
-
-  if (this->IsValid() && this->QuadIsStale(ren))
-  {
-    this->GenerateQuad(ren);
-  }
+  this->UpdateInternals(ren);
 
   this->PreRender();
   return this->QuadActor->RenderOpaqueGeometry(vp);
@@ -364,6 +359,7 @@ int vtkBillboardTextActor3D::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 //------------------------------------------------------------------------------
 void vtkBillboardTextActor3D::ReleaseGraphicsResources(vtkWindow *win)
 {
+  this->RenderedRenderer = nullptr;
   this->Texture->ReleaseGraphicsResources(win);
   this->QuadMapper->ReleaseGraphicsResources(win);
   this->QuadActor->ReleaseGraphicsResources(win);
@@ -372,6 +368,11 @@ void vtkBillboardTextActor3D::ReleaseGraphicsResources(vtkWindow *win)
 //------------------------------------------------------------------------------
 double *vtkBillboardTextActor3D::GetBounds()
 {
+  if (this->RenderedRenderer)
+  {
+    this->UpdateInternals(this->RenderedRenderer);
+  }
+
   if (this->IsValid())
   {
     this->QuadActor->GetBounds(this->Bounds);
@@ -426,6 +427,7 @@ vtkBillboardTextActor3D::~vtkBillboardTextActor3D()
 {
   this->SetInput(nullptr);
   this->SetTextProperty(nullptr);
+  this->RenderedRenderer = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -435,6 +437,20 @@ bool vtkBillboardTextActor3D::InputIsValid()
           this->Input[0] != '\0' &&
           this->TextProperty != nullptr &&
           this->TextRenderer != nullptr);
+}
+
+//------------------------------------------------------------------------------
+void vtkBillboardTextActor3D::UpdateInternals(vtkRenderer *ren)
+{
+  if (this->TextureIsStale(ren))
+  {
+    this->GenerateTexture(ren);
+  }
+
+  if (this->IsValid() && this->QuadIsStale(ren))
+  {
+    this->GenerateQuad(ren);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -468,7 +484,8 @@ void vtkBillboardTextActor3D::GenerateTexture(vtkRenderer *ren)
 //------------------------------------------------------------------------------
 bool vtkBillboardTextActor3D::QuadIsStale(vtkRenderer *ren)
 {
-  return (this->Quad->GetMTime() < this->Image->GetMTime() ||
+  return (this->Quad->GetMTime() < this->GetMTime() ||
+          this->Quad->GetMTime() < this->Image->GetMTime() ||
           this->Quad->GetMTime() < ren->GetMTime() ||
           this->Quad->GetMTime() < ren->GetRenderWindow()->GetMTime() ||
           this->Quad->GetMTime() < ren->GetActiveCamera()->GetMTime());

@@ -30,6 +30,7 @@
 #include "vtkTextProperty.h"
 #include "vtkUnsignedCharArray.h"
 
+#include <algorithm>
 #include <sstream>
 #include <vector>
 
@@ -92,6 +93,33 @@ void setupGrid(vtkPolyData *grid)
     grid->InsertNextCell(VTK_QUAD, 4, &quads[i]);
   }
 }
+
+// Test for bug #17233: https://gitlab.kitware.com/vtk/vtk/issues/17233
+// The Bounds were not updated when the position changed. Ensure that we aren't
+// returning stale bounds after modifying the actor.
+bool RegressionTest_17233(vtkBillboardTextActor3D *actor)
+{
+  double *bounds = actor->GetBounds();
+  double origBounds[6] = { bounds[0], bounds[1],
+                           bounds[2], bounds[3],
+                           bounds[4], bounds[5] };
+
+  double pos[3];
+  actor->GetPosition(pos);
+  pos[0] += 50.;
+  pos[1] += 50.;
+  pos[2] += 50.;
+  actor->SetPosition(pos);
+
+  bounds = actor->GetBounds();
+  if (std::equal(bounds, bounds + 6, origBounds))
+  {
+    std::cerr << "Regression for bug #17233: Stale bounds used.\n";
+    return false;
+  }
+  return true;
+}
+
 } // end namespace vtkTestBillboardTextActor3D
 
 //----------------------------------------------------------------------------
@@ -100,6 +128,9 @@ int TestBillboardTextActor3D(int, char *[])
   using namespace vtkTestBillboardTextActor3D;
   vtkNew<vtkRenderer> ren;
   ren->UseDepthPeelingOn();
+
+  // use this to capture one of the text actors for later regression testing:
+  vtkBillboardTextActor3D *bbActor = nullptr;
 
   int width = 600;
   int height = 600;
@@ -155,6 +186,7 @@ int TestBillboardTextActor3D(int, char *[])
       actor->SetPosition(x[col], y[row], 0.);
       setupBillboardTextActor3D(actor, anchors);
       ren->AddActor(actor);
+      bbActor = actor;
     }
   }
 
@@ -214,6 +246,13 @@ int TestBillboardTextActor3D(int, char *[])
   win->SetMultiSamples(0);
   win->GetInteractor()->Initialize();
   win->GetInteractor()->Start();
+
+  // Now that the image has been rendered, use one of the actors to do
+  // regression testing:
+  if (!RegressionTest_17233(bbActor))
+  {
+    return EXIT_FAILURE;
+  }
 
   return EXIT_SUCCESS;
 }
