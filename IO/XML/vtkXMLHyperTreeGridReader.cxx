@@ -439,15 +439,17 @@ void vtkXMLHyperTreeGridReader::ReadTopology(vtkXMLDataElement *elem)
     hyperTree->SetGlobalIndexStart(cellsOnProcessor);
     cellsOnProcessor += counter;
 
+#if 0
     if (hyperTree->GetNumberOfLevels() > 1)
     {
-      //cerr << "Proc " << " Tree from Reader " << index
-      //       << "  levels = " << hyperTree->GetNumberOfLevels()
-      //       << "  nodes = " << hyperTree->GetNumberOfNodes()
-      //       << "  LEAVES = " << hyperTree->GetNumberOfLeaves()
-      //       << endl;
-      treeCursor->Delete();
+      cerr << "Proc " << " Tree from Reader " << index
+             << "  levels = " << hyperTree->GetNumberOfLevels()
+             << "  nodes = " << hyperTree->GetNumberOfNodes()
+             << "  LEAVES = " << hyperTree->GetNumberOfLeaves()
+             << endl;
     }
+#endif
+    treeCursor->Delete();
   }
 
   // Material mask set because convert to unstructured grid wants to look at
