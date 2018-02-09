@@ -44,6 +44,7 @@ Ph.D. thesis of Christian BOUCHENY.
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderUtilities.h"
 
 #include "vtkPixelBufferObject.h"
 #include "vtkCamera.h"
@@ -151,7 +152,12 @@ void vtkDepthImageProcessingPass::RenderDelegate(const vtkRenderState *s,
 
   // 2. Delegate render in FBO
   //glEnable(GL_DEPTH_TEST);
+  vtkOpenGLRenderUtilities::MarkDebugEvent(
+        "Start vtkDepthImageProcessingPass delegate render");
   this->DelegatePass->Render(&s2);
+  vtkOpenGLRenderUtilities::MarkDebugEvent(
+        "End vtkDepthImageProcessingPass delegate render");
+
   this->NumberOfRenderedProps+=
     this->DelegatePass->GetNumberOfRenderedProps();
 
