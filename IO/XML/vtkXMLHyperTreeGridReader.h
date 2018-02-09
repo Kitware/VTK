@@ -28,7 +28,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLDataReader.h"
 
-class vtkCharArray;
+class vtkBitArray;
 class vtkHyperTree;
 class vtkHyperTreeCursor;
 class vtkHyperTreeGrid;
@@ -67,9 +67,9 @@ protected:
 
   // Overridden here to do allocation.
   int ReadArrayForPoints(vtkXMLDataElement* da,
-                                 vtkAbstractArray* outArray) override;
+                         vtkAbstractArray* outArray) override;
   int ReadArrayForCells(vtkXMLDataElement* da,
-                                 vtkAbstractArray* outArray) override;
+                        vtkAbstractArray* outArray) override;
 
   // The most important stuff is here.
   // Read the rest of the file and create the HyperTreeGrid.
@@ -87,7 +87,7 @@ protected:
                           vtkHyperTree* tree,
                           unsigned int level,
                           int numChildren,
-                          vtkCharArray* desc,
+                          vtkBitArray* desc,
                           vtkIdTypeArray* posByLevel,
                           vtkIdType* cellsOnProcessor);
 

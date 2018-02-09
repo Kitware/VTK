@@ -19,7 +19,7 @@
 
 #include "vtkXMLHyperTreeGridWriter.h"
 
-#include "vtkCharArray.h"
+#include "vtkBitArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkErrorCode.h"
 #include "vtkHyperTreeGrid.h"
@@ -217,8 +217,8 @@ int vtkXMLHyperTreeGridWriter::WriteDescriptor(vtkIndent indent)
     inCursor->Delete();
   }
 
-  // Build the CharArray from the level descriptors
-  vtkNew<vtkCharArray> descriptor;
+  // Build the BitArray from the level descriptors
+  vtkNew<vtkBitArray> descriptor;
 
   std::string::const_iterator dit;
   for (int l = 0; l < maxLevels; l++)
@@ -228,11 +228,11 @@ int vtkXMLHyperTreeGridWriter::WriteDescriptor(vtkIndent indent)
       switch (*dit)
       {
         case 'R':    //  Refined cell
-          descriptor->InsertNextValue('R');
+          descriptor->InsertNextValue(1);
           break;
 
         case '.':    // Leaf cell
-          descriptor->InsertNextValue('.');
+          descriptor->InsertNextValue(0);
           break;
 
         default:

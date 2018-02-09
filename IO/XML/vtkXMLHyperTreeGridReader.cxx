@@ -20,7 +20,6 @@
 #include "vtkXMLHyperTreeGridReader.h"
 
 #include "vtkBitArray.h"
-#include "vtkCharArray.h"
 #include "vtkDataArray.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeCursor.h"
@@ -368,12 +367,12 @@ void vtkXMLHyperTreeGridReader::ReadTopology(vtkXMLDataElement *elem)
     return;
   }
 
-  vtkCharArray* desc = vtkArrayDownCast<vtkCharArray>(desc_d);
+  vtkBitArray* desc = vtkArrayDownCast<vtkBitArray>(desc_d);
   if (!desc)
   {
     vtkErrorMacro("Cannot convert vtkDataArray of type "
                   << desc_d->GetDataType()
-                  << " to vtkCharArray.");
+                  << " to vtkBitArray.");
     desc_d->Delete();
     return;
   }
@@ -412,7 +411,7 @@ void vtkXMLHyperTreeGridReader::ReadTopology(vtkXMLDataElement *elem)
       nCurrentLevelCount = 0;
       posByLevel->InsertNextValue(i);
     }
-    if (desc->GetValue(i) == 'R')
+    if (desc->GetValue(i) == 1)
     {
       nRefined++;
     }
@@ -475,7 +474,7 @@ void vtkXMLHyperTreeGridReader::SubdivideFromDescriptor
  vtkHyperTree* tree,
  unsigned int level,
  int numChildren,
- vtkCharArray* descriptor,
+ vtkBitArray* descriptor,
  vtkIdTypeArray* posByLevel,
  vtkIdType* cellsOnProcessor)
 {
@@ -484,7 +483,7 @@ void vtkXMLHyperTreeGridReader::SubdivideFromDescriptor
   // for if/when we get back to this level on next tree
   posByLevel->SetValue(level, curOffset + 1);
 
-  if (descriptor->GetValue(curOffset) == '.')
+  if (descriptor->GetValue(curOffset) == 0)
   {
     return;
   }
