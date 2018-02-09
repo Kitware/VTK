@@ -23,6 +23,7 @@
 #include "vtkCellData.h"
 #include "vtkCommand.h"
 #include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkDataSet.h"
 #include "vtkErrorCode.h"
 #include "vtkInformation.h"
@@ -2474,20 +2475,35 @@ void vtkXMLWriter::WriteArrayInline(
 //----------------------------------------------------------------------------
 void vtkXMLWriter::WriteFieldData(vtkIndent indent)
 {
-  vtkFieldData *fieldData = this->GetInput()->GetFieldData();
-  if (!fieldData || !fieldData->GetNumberOfArrays())
+  vtkDataObject* input = this->GetInput();
+  vtkFieldData *fieldData = input->GetFieldData();
+
+  vtkInformation* meta = input->GetInformation();
+  bool hasTime = meta->Has(vtkDataObject::DATA_TIME_STEP()) ? true : false;
+  if ((!fieldData || !fieldData->GetNumberOfArrays()) && !hasTime)
   {
     return;
   }
 
+  vtkNew<vtkFieldData> fieldDataCopy;
+  fieldDataCopy->ShallowCopy(fieldData);
+  if (hasTime)
+  {
+    vtkNew<vtkDoubleArray> time;
+    time->SetNumberOfTuples(1);
+    time->SetTypedComponent(0, 0, meta->Get(vtkDataObject::DATA_TIME_STEP()));
+    time->SetName("TimeValue");
+    fieldDataCopy->AddArray(time);
+  }
+
   if (this->DataMode == vtkXMLWriter::Appended)
   {
-    this->WriteFieldDataAppended(fieldData, indent, this->FieldDataOM);
+    this->WriteFieldDataAppended(fieldDataCopy, indent, this->FieldDataOM);
   }
   else
   {
     // Write the point data arrays.
-    this->WriteFieldDataInline(fieldData, indent);
+    this->WriteFieldDataInline(fieldDataCopy, indent);
   }
 }
 

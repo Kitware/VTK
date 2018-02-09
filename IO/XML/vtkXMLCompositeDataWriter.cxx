@@ -18,6 +18,7 @@
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataObjectTreeIterator.h"
+#include "vtkDoubleArray.h"
 #include "vtkErrorCode.h"
 #include "vtkExecutive.h"
 #include "vtkFieldData.h"
@@ -336,10 +337,25 @@ int vtkXMLCompositeDataWriter::WriteData()
   {
     this->DataMode = vtkXMLWriter::Binary;
   }
-  vtkFieldData *fieldData = this->GetInput()->GetFieldData();
-  if (fieldData && fieldData->GetNumberOfArrays())
+
+  vtkDataObject* input = this->GetInput();
+  vtkFieldData *fieldData = input->GetFieldData();
+
+  vtkInformation* meta = input->GetInformation();
+  bool hasTime = meta->Has(vtkDataObject::DATA_TIME_STEP()) ? true : false;
+  if ((fieldData && fieldData->GetNumberOfArrays()) || hasTime)
   {
-    this->WriteFieldDataInline(fieldData, indent);
+    vtkNew<vtkFieldData> fieldDataCopy;
+    fieldDataCopy->ShallowCopy(fieldData);
+    if (hasTime)
+    {
+      vtkNew<vtkDoubleArray> time;
+      time->SetNumberOfTuples(1);
+      time->SetTypedComponent(0, 0, meta->Get(vtkDataObject::DATA_TIME_STEP()));
+      time->SetName("TimeValue");
+      fieldDataCopy->AddArray(time);
+    }
+    this->WriteFieldDataInline(fieldDataCopy, indent);
   }
   this->DataMode = dataMode;
 
