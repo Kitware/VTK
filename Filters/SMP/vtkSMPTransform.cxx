@@ -112,7 +112,7 @@ inline void vtkSMPTransformNormal(T1 mat[4][4],
 // derivative, while vectors are simply multiplied by the derivative.
 // Note that the derivative of the inverse transform is simply the
 // inverse of the derivative of the forward transform.
-class TranformAllFunctor
+class TransformAllFunctor
 {
 public:
   vtkPoints* inPts;
@@ -174,7 +174,7 @@ void vtkSMPTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
   double matrix[4][4];
   this->Update();
 
-  TranformAllFunctor functor;
+  TransformAllFunctor functor;
   functor.inPts = inPts;
   functor.outPts = outPts;
   functor.inNms = inNms;

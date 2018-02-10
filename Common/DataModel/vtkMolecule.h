@@ -23,7 +23,7 @@
  * can be constructed using the AppendAtom() and AppendBond() methods in one
  * of two ways; either by fully specifying the atom/bond in a single
  * call, or by incrementally setting the various attributes using the
- * convience vtkAtom and vtkBond classes:
+ * convenience vtkAtom and vtkBond classes:
  *
  * Single call:
  * \code
