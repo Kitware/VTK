@@ -16,150 +16,37 @@
  * @class   vtkExtractArraysOverTime
  * @brief   extracts a selection over time.
  *
- * vtkExtractArraysOverTime extracts a selection over time.
- * The output is a multiblock dataset. If selection content type is
- * vtkSelection::Locations, then each output block corresponds to each probed
- * location. Otherwise, each output block corresponds to an extracted cell/point
- * depending on whether the selection field type is CELL or POINT.
- * Each block is a vtkTable with a column named Time (or TimeData if Time exists
- * in the input).
- * When extracting point data, the input point coordinates are copied
- * to a column named Point Coordinates or Points (if Point Coordinates
- * exists in the input).
- * This algorithm does not produce a TIME_STEPS or TIME_RANGE information
- * because it works across time.
- * @par Caveat:
- * This algorithm works only with source that produce TIME_STEPS().
- * Continuous time range is not yet supported.
+ * @deprecated in VTK 8.2. Replaced by vtkExtractSelectedArraysOverTime. Please
+ * use vtkExtractSelectedArraysOverTime instead.
+ *
 */
-
 #ifndef vtkExtractArraysOverTime_h
 #define vtkExtractArraysOverTime_h
 
-#include "vtkFiltersExtractionModule.h" // For export macro
-#include "vtkMultiBlockDataSetAlgorithm.h"
+#include "vtkExtractSelectedArraysOverTime.h"
 
+#ifndef VTK_LEGACY_REMOVE
 class vtkSelection;
 class vtkDataSet;
 class vtkTable;
 class vtkExtractSelection;
 class vtkDataSetAttributes;
 
-class VTKFILTERSEXTRACTION_EXPORT vtkExtractArraysOverTime : public vtkMultiBlockDataSetAlgorithm
+class VTKFILTERSEXTRACTION_EXPORT vtkExtractArraysOverTime : public vtkExtractSelectedArraysOverTime
 {
 public:
-  static vtkExtractArraysOverTime *New();
-  vtkTypeMacro(vtkExtractArraysOverTime, vtkMultiBlockDataSetAlgorithm);
+  VTK_LEGACY(static vtkExtractArraysOverTime* New());
+  vtkTypeMacro(vtkExtractArraysOverTime, vtkExtractSelectedArraysOverTime);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
-  //@{
-  /**
-   * Get the number of time steps
-   */
-  vtkGetMacro(NumberOfTimeSteps,int);
-  //@}
-
-  /**
-   * Convenience method to specify the selection connection (2nd input
-   * port)
-   */
-  void SetSelectionConnection(vtkAlgorithmOutput* algOutput)
-  {
-    this->SetInputConnection(1, algOutput);
-  }
-
-  //@{
-  /**
-   * Set/get the vtkExtractSelection instance used to obtain
-   * array values at each time step.
-   * An instance of vtkExtractSelection is created on
-   * demand when the filter is first executed.
-
-   * This is used by ParaView to override the default
-   * extractor with one that supports Python-based QUERY
-   * selection.
-   */
-  virtual void SetSelectionExtractor(vtkExtractSelection*);
-  vtkGetObjectMacro(SelectionExtractor,vtkExtractSelection);
-  //@}
-
-  //@{
-  /**
-   * Instead of breaking a selection into a separate time-history
-   * table for each (block,ID)-tuple, you may call
-   * ReportStatisticsOnlyOn(). Then a single table per
-   * block of the input dataset will report the minimum, maximum,
-   * quartiles, and (for numerical arrays) the average and standard
-   * deviation of the selection over time.
-
-   * The default is off to preserve backwards-compatibility.
-   */
-  vtkSetMacro(ReportStatisticsOnly,vtkTypeBool);
-  vtkGetMacro(ReportStatisticsOnly,vtkTypeBool);
-  vtkBooleanMacro(ReportStatisticsOnly,vtkTypeBool);
-  //@}
 
 protected:
   vtkExtractArraysOverTime();
   ~vtkExtractArraysOverTime() override;
 
-  int RequestInformation(vtkInformation* request,
-                                 vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector) override;
-  int RequestUpdateExtent(vtkInformation* request,
-                                  vtkInformationVector** inputVector,
-                                  vtkInformationVector* outputVector) override;
-  int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) override;
-
-  virtual void PostExecute(vtkInformation* request,
-                           vtkInformationVector** inputVector,
-                           vtkInformationVector* outputVector);
-
-  // Add virtual method to be overwritten in the subclass. takes the
-  virtual vtkSelection* GetSelection(vtkInformation* info);
-
-  /**
-   * Determines the FieldType and ContentType for the selection. If the
-   * selection is a vtkSelection::SELECTIONS selection, then this method ensures
-   * that all child nodes have the same field type and content type otherwise,
-   * it returns 0.
-   */
-  int DetermineSelectionType(vtkSelection*);
-
-  int FillInputPortInformation(int port, vtkInformation* info) override;
-
-  void ExecuteAtTimeStep(vtkInformationVector** inputV,
-    vtkInformation* outInfo);
-
-  int CurrentTimeIndex;
-  int NumberOfTimeSteps;
-
-  int FieldType;
-  int ContentType;
-
-  bool IsExecuting;
-
-  vtkTypeBool ReportStatisticsOnly;
-
-  int Error;
-
-  enum Errors
-  {
-    NoError,
-    MoreThan1Indices
-  };
-
-  vtkExtractSelection* SelectionExtractor;
-
 private:
   vtkExtractArraysOverTime(const vtkExtractArraysOverTime&) = delete;
   void operator=(const vtkExtractArraysOverTime&) = delete;
-
-  class vtkInternal;
-  vtkInternal *Internal;
-
 };
 
+#endif // VTK_LEGACY_REMOVE
 #endif

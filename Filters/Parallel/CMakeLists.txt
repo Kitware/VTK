@@ -10,10 +10,15 @@ set(Module_SRCS
   vtkExtractPolyDataPiece.cxx
   vtkExtractUnstructuredGridPiece.cxx
   vtkExtractUserDefinedPiece.cxx
+  vtkPassThroughFilter.cxx
   vtkPCellDataToPointData.cxx
   vtkPConnectivityFilter.cxx
-  vtkPExtractArraysOverTime.cxx
   vtkPeriodicFilter.cxx
+  vtkPExtractDataArraysOverTime.cxx
+  vtkPExtractSelectedArraysOverTime.cxx
+  vtkPieceRequestFilter.cxx
+  vtkPieceScalars.cxx
+  vtkPipelineSize.cxx
   vtkPKdTree.cxx
   vtkPLinearExtrusionFilter.cxx
   vtkPMaskPoints.cxx
@@ -25,18 +30,14 @@ set(Module_SRCS
   vtkPProjectSphereFilter.cxx
   vtkPReflectionFilter.cxx
   vtkPResampleFilter.cxx
+  vtkProcessIdScalars.cxx
   vtkPSphereSource.cxx
   vtkPYoungsMaterialInterface.cxx
-  vtkPassThroughFilter.cxx
-  vtkPieceRequestFilter.cxx
-  vtkPieceScalars.cxx
-  vtkPipelineSize.cxx
-  vtkProcessIdScalars.cxx
   vtkRectilinearGridOutlineFilter.cxx
   vtkRemoveGhosts.cxx
   vtkTransmitPolyDataPiece.cxx
-  vtkTransmitStructuredDataPiece.cxx
   vtkTransmitRectilinearGridPiece.cxx
+  vtkTransmitStructuredDataPiece.cxx
   vtkTransmitStructuredGridPiece.cxx
   vtkTransmitUnstructuredGridPiece.cxx
   )
@@ -44,5 +45,10 @@ set_source_files_properties(
   vtkBlockDistribution.h
   HEADER_FILE_ONLY
   )
+
+if (NOT VTK_LEGACY_REMOVE)
+  list(APPEND Module_SRCS
+    vtkPExtractArraysOverTime.cxx)
+endif()
 
 vtk_module_library(vtkFiltersParallel ${Module_SRCS})
