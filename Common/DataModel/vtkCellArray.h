@@ -410,7 +410,7 @@ inline vtkIdType *vtkCellArray::WritePointer(const vtkIdType ncells,
                                              const vtkIdType size)
 {
   this->NumberOfCells = ncells;
-  this->InsertLocation = 0;
+  this->InsertLocation = size;
   this->TraversalLocation = 0;
   return this->Ia->WritePointer(0,size);
 }
