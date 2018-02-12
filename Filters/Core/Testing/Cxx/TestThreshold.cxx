@@ -41,7 +41,7 @@ int TestThreshold(int, char *[])
   filter->Update();
   int n2 = filter->GetOutput()->GetNumberOfCells();
 
-  //we we are using a large query range,
+  //we are using a large query range,
   //whether to use continuous range or not should not matter
   if(n1!=n2)
   {
