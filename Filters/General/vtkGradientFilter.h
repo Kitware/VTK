@@ -75,7 +75,7 @@ public:
   /**
    * These are basically a convenience method that calls SetInputArrayToProcess
    * to set the array used as the input scalars.  The fieldAssociation comes
-   * from the vtkDataObject::FieldAssocations enum.  The fieldAttributeType
+   * from the vtkDataObject::FieldAssociations enum.  The fieldAttributeType
    * comes from the vtkDataSetAttributes::AttributeTypes enum.
    */
   virtual void SetInputScalars(int fieldAssociation, const char *name);

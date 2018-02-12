@@ -364,7 +364,7 @@ int vtkIntersectionPolyDataFilter::Impl
 
               //Check to see if duplicate line. Line can only be a duplicate
               //line if both points are not unique and they don't
-              //equal eachother
+              //equal each other
               if (!unique[0] && !unique[1] && ptId0 != ptId1)
               {
                 vtkSmartPointer<vtkPolyData> lineTest =

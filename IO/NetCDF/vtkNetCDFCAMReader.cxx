@@ -557,7 +557,7 @@ int vtkNetCDFCAMReader::RequestData(
   // boundaryPoint is duplicate of.
   std::vector<vtkIdType> boundaryPoints;
 
-  // To avoid creating multiple duplicates, we we a
+  // To avoid creating multiple duplicates, we create a
   // vtkIncrementalOctreePointLocator.
   vtkSmartPointer<vtkIncrementalOctreePointLocator> locator =
     vtkSmartPointer<vtkIncrementalOctreePointLocator>::New();

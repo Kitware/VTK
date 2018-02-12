@@ -604,7 +604,7 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
       }
     }
   }
-  else  // fieldAssocation == vtkDataObject::FIELD_ASSOCIATION_CELLS
+  else  // fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_CELLS
   {
     // We need to convert cell Array to points Array.
     vtkSmartPointer<vtkDataSet> dummy;
