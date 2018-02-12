@@ -185,7 +185,7 @@ void vtkXMLHyperTreeGridReader::ReadXMLData()
       this->GetCurrentOutput());
   output->SetDimension(dimension);
   output->SetBranchFactor(branchFactor);
-  output->SetTransposedRootIndexing(transposedRootIndexing);
+  output->SetTransposedRootIndexing((transposedRootIndexing!=0));
   output->SetGridSize((unsigned int) gridSize[0],
                       (unsigned int) gridSize[1],
                       (unsigned int) gridSize[2]);
@@ -392,7 +392,7 @@ void vtkXMLHyperTreeGridReader::ReadTopology(vtkXMLDataElement *elem)
     //to fill. Figure out how many there are here, and fill them out
     //sequentially below.
     unsigned int *dims = output->GetGridSize();
-    for (int i = 0; i < output->GetDimension(); i++)
+    for (unsigned int i = 0; i < output->GetDimension(); i++)
     {
       numberOfIds *= dims[i];
     }

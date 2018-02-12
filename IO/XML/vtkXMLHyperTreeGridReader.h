@@ -81,6 +81,7 @@ protected:
   // Recover the structure of the HyperTreeGrid, used by ReadXMLData.
   void ReadTopology(vtkXMLDataElement *elem);
 
+protected:
   // Used by ReadTopology to recusively build the tree
   void SubdivideFromDescriptor(
                           vtkHyperTreeCursor* treeCursor,
@@ -90,6 +91,7 @@ protected:
                           vtkBitArray* desc,
                           vtkIdTypeArray* posByLevel,
                           vtkIdType* cellsOnProcessor);
+
 
 private:
   vtkXMLHyperTreeGridReader(const vtkXMLHyperTreeGridReader&) = delete;

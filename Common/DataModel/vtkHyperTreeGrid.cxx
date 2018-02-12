@@ -1661,7 +1661,7 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
   this->SetInterfaceInterceptsName(htg->InterfaceInterceptsName);
 
   // Delete existing trees
-  DeleteTrees();
+  this->DeleteTrees();
 
   // Shallow copy and register new trees
   this->HyperTrees = htg->HyperTrees;

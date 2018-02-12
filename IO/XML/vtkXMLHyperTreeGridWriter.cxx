@@ -202,7 +202,7 @@ int vtkXMLHyperTreeGridWriter::WriteDescriptor(vtkIndent indent)
   }
 
   // Collect description by processing depth first and writing breadth first
-  std::string descByLevel[maxLevels];
+  std::string *descByLevel = new std::string[maxLevels];
   vtkIdType inIndex;
   vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
   input->InitializeTreeIterator( it );
@@ -251,6 +251,7 @@ int vtkXMLHyperTreeGridWriter::WriteDescriptor(vtkIndent indent)
   os << indent << "</" << "Topology" << ">\n";
   os.flush();
 
+  delete[] descByLevel;
   return 1;
 }
 
