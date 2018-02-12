@@ -33,6 +33,7 @@
 #cmakedefine VTK_OPENGL_HAS_OSMESA
 #cmakedefine VTK_OPENGL_HAS_EGL
 #cmakedefine VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN
+#cmakedefine VTK_OPENGL_ENABLE_STREAM_ANNOTATIONS
 
 // for legacy codes (don't use these in new codes)
 #ifdef VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN
