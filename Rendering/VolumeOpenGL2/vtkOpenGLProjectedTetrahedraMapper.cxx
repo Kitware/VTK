@@ -40,6 +40,7 @@
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLIndexBufferObject.h"
+#include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLVertexArrayObject.h"
@@ -62,21 +63,11 @@
 #include "vtkglProjectedTetrahedraVS.h"
 #include "vtkglProjectedTetrahedraFS.h"
 
-// Define to print debug statements to the OpenGL CS stream (useful for e.g.
-// apitrace debugging):
-// #define ANNOTATE_STREAM
 namespace
 {
 void annotate(const std::string& message)
 {
-#ifdef ANNOTATE_STREAM
-  vtkOpenGLStaticCheckErrorMacro("Error before glDebug.")
-    glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_OTHER,
-      GL_DEBUG_SEVERITY_NOTIFICATION, 0, message.size(), message.c_str());
-  vtkOpenGLClearErrorMacro();
-#else  // ANNOTATE_STREAM
-  (void)message;
-#endif // ANNOTATE_STREAM
+  vtkOpenGLRenderUtilities::MarkDebugEvent(message);
 }
 
 class scoped_annotate

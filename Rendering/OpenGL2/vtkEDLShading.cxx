@@ -64,18 +64,11 @@ Ph.D. thesis of Christian BOUCHENY.
 
 //#define VTK_EDL_SHADING_DEBUG
 
-// Define to print debug statements to the OpenGL CS stream (useful for e.g.
-// apitrace debugging):
-// #define ANNOTATE_STREAM
 namespace
 {
 void annotate(const std::string &str)
 {
-#ifdef ANNOTATE_STREAM
   vtkOpenGLRenderUtilities::MarkDebugEvent(str);
-#else // ANNOTATE_STREAM
-  (void)str;
-#endif // ANNOTATE_STREAM
 }
 }
 

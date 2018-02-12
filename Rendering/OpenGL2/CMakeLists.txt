@@ -285,6 +285,14 @@ configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkOpenGLError.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h)
 
+# Add OpenGL command stream annotations via
+# vtkOpenGLRenderUtilities::MarkDebugEvent when enabled:
+option(VTK_OPENGL_ENABLE_STREAM_ANNOTATIONS
+  "Enable debugging annotations in the OpenGL command stream."
+  OFF
+)
+mark_as_advanced(VTK_OPENGL_ENABLE_STREAM_ANNOTATIONS)
+
 # Configure the module specific settings into a module configured header.
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkRenderingOpenGLConfigure.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h)
