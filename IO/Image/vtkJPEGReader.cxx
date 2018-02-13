@@ -280,22 +280,35 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
   // prepare to read the bulk data
   jpeg_start_decompress(&cinfo);
 
-
-  int rowbytes = cinfo.output_components * cinfo.output_width;
-  unsigned char *tempImage = new unsigned char [rowbytes*cinfo.output_height];
-  JSAMPROW *row_pointers = new JSAMPROW [cinfo.output_height];
-  for (unsigned int ui = 0; ui < cinfo.output_height; ++ui)
+  unsigned int maxChunk = cinfo.output_height;
+  if (maxChunk > 4096)
+  {
+    maxChunk = 4096;
+  }
+  vtkIdType rowbytes = cinfo.output_components * cinfo.output_width;
+  unsigned char *tempImage = new unsigned char [rowbytes*maxChunk];
+  JSAMPROW *row_pointers = new JSAMPROW [maxChunk];
+  for (unsigned int ui = 0; ui < maxChunk; ++ui)
   {
     row_pointers[ui] = tempImage + rowbytes*ui;
   }
 
   // read the bulk data
-  unsigned int remainingRows;
+  long outSize = cinfo.output_components*(outExt[1] - outExt[0] + 1);
   while (cinfo.output_scanline < cinfo.output_height)
   {
-    remainingRows = cinfo.output_height - cinfo.output_scanline;
-    jpeg_read_scanlines(&cinfo, &row_pointers[cinfo.output_scanline],
-                        remainingRows);
+    JDIMENSION linesRead = jpeg_read_scanlines(&cinfo, row_pointers, maxChunk);
+
+    // copy the data into the outPtr
+    OT *outPtr2 = outPtr + (cinfo.output_height - cinfo.output_scanline)*outInc[1];
+    for (unsigned int i = 0; i < linesRead; ++i)
+    {
+      memcpy(outPtr2,
+             row_pointers[linesRead - i - 1]
+             + outExt[0]*cinfo.output_components,
+             outSize);
+      outPtr2 += outInc[1];
+    }
   }
 
   // finish the decompression step
@@ -304,17 +317,6 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
   // destroy the decompression object
   jpeg_destroy_decompress(&cinfo);
 
-  // copy the data into the outPtr
-  OT *outPtr2 = outPtr;
-  long outSize = cinfo.output_components*(outExt[1] - outExt[0] + 1);
-  for (int i = outExt[2]; i <= outExt[3]; ++i)
-  {
-    memcpy(outPtr2,
-           row_pointers[cinfo.output_height - i - 1]
-           + outExt[0]*cinfo.output_components,
-           outSize);
-    outPtr2 += outInc[1];
-  }
   delete [] tempImage;
   delete [] row_pointers;
 
