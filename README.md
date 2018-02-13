@@ -34,12 +34,12 @@ Learning Resources
 * Doxygen-generated nightly reference documentation is
   available [online][Doxygen].
 
-[VTK Homepage]: http://www.vtk.org
-[Doxygen]: http://www.vtk.org/doc/nightly/html
-[VTK Mailing Lists]: http://www.vtk.org/VTK/help/mailing.html
-[Kitware]: http://www.kitware.com/
-[Kitware Support]: http://www.kitware.com/products/support.html
-[Kitware Training]: http://www.kitware.com/products/protraining.php
+[VTK Homepage]: https://www.vtk.org
+[Doxygen]: https://www.vtk.org/doc/nightly/html
+[VTK Mailing Lists]: https://www.vtk.org/mailing-lists/
+[Kitware]: https://www.kitware.com/
+[Kitware Support]: https://www.kitware.com/what-we-offer/#support
+[Kitware Training]: https://www.kitware.com/what-we-offer/#training
 
 Reporting Bugs
 ==============
