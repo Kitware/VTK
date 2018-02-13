@@ -440,7 +440,7 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs,
                                                       int bpp)
 {
   unsigned char *tptr, *p, *p1, *p2, *p3, *p4;
-  int jOffset, iIdx, jIdx;
+  vtkIdType jOffset, iIdx, jIdx;
   double pcoords[3], rm, sm, w0, w1, w2, w3;
   int yInIncr = xs;
   int xInIncr = 1;
