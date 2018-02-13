@@ -149,5 +149,5 @@ target_include_directories(vtkogg
     PUBLIC
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
-        "$<INSTALL_INTERFACE:${_vtk_build_HEADERS_DESTINATION}/vtkogg/include>")
+        "$<INSTALL_INTERFACE:${VTK_INSTALL_INCLUDE_DIR}/vtkogg/include>")
 endif ()
