@@ -21,6 +21,7 @@
 #include "vtkOpenGLTexture.h"
 #include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLError.h"
 
 vtkStandardNewMacro(vtkOpenGLContextBufferId);
@@ -137,35 +138,24 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
     else
     {
       this->Context->MakeCurrent();
+      vtkOpenGLState *ostate = this->Context->GetState();
+
       // Render texture to current write buffer. Texel x,y is rendered at
       // pixel x,y (instead of pixel 0,0 to work around pixel ownership test).
       GLint savedDrawBuffer;
       glGetIntegerv(GL_DRAW_BUFFER,&savedDrawBuffer);
-      bool savedDepthTest=glIsEnabled(GL_DEPTH_TEST)==GL_TRUE;
-      bool savedAlphaTest=glIsEnabled(GL_ALPHA_TEST)==GL_TRUE;
-      bool savedStencilTest=glIsEnabled(GL_STENCIL_TEST)==GL_TRUE;
-      bool savedBlend=glIsEnabled(GL_BLEND)==GL_TRUE;
+
+      vtkOpenGLState::ScopedglEnableDisable dsaver(ostate,GL_DEPTH_TEST);
+      vtkOpenGLState::ScopedglEnableDisable ssaver(ostate,GL_STENCIL_TEST);
+      vtkOpenGLState::ScopedglEnableDisable bsaver(ostate,GL_BLEND);
 
       if(savedDrawBuffer!=GL_BACK_LEFT)
       {
         glDrawBuffer(GL_BACK_LEFT);
       }
-      if(savedDepthTest)
-      {
-        glDisable(GL_DEPTH_TEST);
-      }
-      if(savedAlphaTest)
-      {
-        glDisable(GL_ALPHA_TEST);
-      }
-      if(savedStencilTest)
-      {
-        glDisable(GL_STENCIL_TEST);
-      }
-      if(savedBlend)
-      {
-        glDisable(GL_BLEND);
-      }
+      ostate->glDisable(GL_DEPTH_TEST);
+      ostate->glDisable(GL_STENCIL_TEST);
+      ostate->glDisable(GL_BLEND);
 
       this->Texture->CopyToFrameBuffer(x,y,x,y,x,y,
         this->Context->GetSize()[0],
@@ -192,22 +182,6 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
       if(savedDrawBuffer!=GL_BACK_LEFT)
       {
         glDrawBuffer(static_cast<GLenum>(savedDrawBuffer));
-      }
-      if(savedDepthTest)
-      {
-        glEnable(GL_DEPTH_TEST);
-      }
-      if(savedAlphaTest)
-      {
-        glEnable(GL_ALPHA_TEST);
-      }
-      if(savedStencilTest)
-      {
-        glEnable(GL_STENCIL_TEST);
-      }
-      if(savedBlend)
-      {
-        glEnable(GL_BLEND);
       }
 
       int value=(static_cast<int>(rgb[0])<<16)|(static_cast<int>(rgb[1])<<8)

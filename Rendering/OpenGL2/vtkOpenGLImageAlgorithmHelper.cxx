@@ -22,6 +22,7 @@
 #include "vtkNew.h"
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtk_glew.h"
 #include "vtkPixelTransfer.h"
 #include "vtkPointData.h"
@@ -130,6 +131,7 @@ void vtkOpenGLImageAlgorithmHelper::Execute(
 
   vtkNew<vtkOpenGLFramebufferObject> fbo;
   fbo->SetContext(this->RenderWindow);
+  vtkOpenGLState *ostate = this->RenderWindow->GetState();
 
   outputTex->Create2D(outDims[0], outDims[1], 4, VTK_FLOAT, false);
   fbo->AddColorAttachment(fbo->GetDrawMode(), 0, outputTex);
@@ -140,9 +142,9 @@ void vtkOpenGLImageAlgorithmHelper::Execute(
   fbo->ActivateDrawBuffer(0);
 
   fbo->StartNonOrtho(outDims[0], outDims[1]);
-  glViewport(0, 0, outDims[0], outDims[1]);
-  glScissor(0, 0, outDims[0], outDims[1]);
-  glDisable(GL_DEPTH_TEST);
+  ostate->glViewport(0, 0, outDims[0], outDims[1]);
+  ostate->glScissor(0, 0, outDims[0], outDims[1]);
+  ostate->glDisable(GL_DEPTH_TEST);
 
   vtkShaderProgram *prog =
     this->RenderWindow->GetShaderCache()->ReadyShaderProgram(

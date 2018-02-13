@@ -158,7 +158,7 @@ protected:
   bool BuildStencilQuads();
   virtual bool ApplyStencil(vtkRenderer *ren, vtkActor *act);
   bool RenderPolyData(vtkRenderer *ren, vtkActor *act);
-  virtual bool RemoveStencil();
+  virtual bool RemoveStencil(vtkRenderer *ren);
   bool RenderLabels(vtkRenderer *ren, vtkActor *act);
 
   bool AllocateTextActors(vtkIdType num);

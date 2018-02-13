@@ -30,6 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLFXAAFilter.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLState.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
@@ -427,16 +428,17 @@ void vtkOpenGLRenderer::Clear(void)
   vtkOpenGLClearErrorMacro();
 
   GLbitfield  clear_mask = 0;
+  vtkOpenGLState *ostate = this->GetState();
 
   if (! this->Transparent())
   {
     if (this->IsPicking)
     {
-      glClearColor(0.0,0.0,0.0,0.0);
+      ostate->glClearColor(0.0,0.0,0.0,0.0);
     }
     else
     {
-      glClearColor(static_cast<GLclampf>(this->Background[0]),
+      ostate->glClearColor(static_cast<GLclampf>(this->Background[0]),
         static_cast<GLclampf>(this->Background[1]), static_cast<GLclampf>(this->Background[2]),
         static_cast<GLclampf>(this->BackgroundAlpha));
     }
@@ -445,18 +447,14 @@ void vtkOpenGLRenderer::Clear(void)
 
   if (!this->GetPreserveDepthBuffer())
   {
-#if GL_ES_VERSION_3_0 == 1
-    glClearDepthf(static_cast<GLclampf>(1.0));
-#else
-    glClearDepth(static_cast<GLclampf>(1.0));
-#endif
+    ostate->glClearDepth(static_cast<GLclampf>(1.0));
     clear_mask |= GL_DEPTH_BUFFER_BIT;
-    glDepthMask(GL_TRUE);
+    ostate->glDepthMask(GL_TRUE);
   }
 
   vtkDebugMacro(<< "glClear\n");
-  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-  glClear(clear_mask);
+  ostate->glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  ostate->glClear(clear_mask);
 
   // If gradient background is turned on, draw it now.
   if (!this->IsPicking && !this->Transparent() &&
@@ -538,11 +536,11 @@ void vtkOpenGLRenderer::Clear(void)
       polydata->GetPointData()->SetScalars(colors);
     }
 
-    glDisable(GL_DEPTH_TEST);
+    ostate->glDisable(GL_DEPTH_TEST);
     actor->RenderOverlay(this);
   }
 
-  glEnable(GL_DEPTH_TEST);
+  ostate->glEnable(GL_DEPTH_TEST);
 
   vtkOpenGLCheckErrorMacro("failed after Clear");
 }
@@ -645,11 +643,12 @@ void vtkOpenGLRenderer::DevicePickRender()
   this->RenderWindow->MakeCurrent();
   vtkOpenGLClearErrorMacro();
 
+  vtkOpenGLState *ostate = this->GetState();
 #if GL_ES_VERSION_3_0 != 1
   bool msaaWasEnabled = false;
-  if (this->RenderWindow->GetMultiSamples() > 0 && glIsEnabled(GL_MULTISAMPLE))
+  if (this->RenderWindow->GetMultiSamples() > 0 && ostate->GetEnumState(GL_MULTISAMPLE))
   {
-    glDisable(GL_MULTISAMPLE);
+    ostate->glDisable(GL_MULTISAMPLE);
     msaaWasEnabled = true;
   }
 #endif
@@ -665,7 +664,7 @@ void vtkOpenGLRenderer::DevicePickRender()
 #if GL_ES_VERSION_3_0 != 1
   if (msaaWasEnabled)
   {
-    glEnable(GL_MULTISAMPLE);
+    ostate->glEnable(GL_MULTISAMPLE);
   }
 #endif
 
@@ -996,4 +995,9 @@ int vtkOpenGLRenderer::GetPickedIds(unsigned int atMost,
     optr++;
   }
   return k;
+}
+
+vtkOpenGLState *vtkOpenGLRenderer::GetState()
+{
+  return this->VTKWindow ? static_cast<vtkOpenGLRenderWindow *>(this->VTKWindow)->GetState() : nullptr;
 }

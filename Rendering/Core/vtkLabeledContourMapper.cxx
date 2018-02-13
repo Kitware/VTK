@@ -307,11 +307,11 @@ void vtkLabeledContourMapper::Render(vtkRenderer *ren, vtkActor *act)
 
   if (!this->RenderPolyData(ren, act))
   {
-    this->RemoveStencil();
+    this->RemoveStencil(ren);
     return;
   }
 
-  if (!this->RemoveStencil())
+  if (!this->RemoveStencil(ren))
   {
     return;
   }
@@ -869,7 +869,7 @@ bool vtkLabeledContourMapper::RenderPolyData(vtkRenderer *ren, vtkActor *act)
 }
 
 //------------------------------------------------------------------------------
-bool vtkLabeledContourMapper::RemoveStencil()
+bool vtkLabeledContourMapper::RemoveStencil(vtkRenderer *)
 {
   // Handled in backend override.
   return true;

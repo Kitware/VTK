@@ -27,6 +27,7 @@
 #include "vtkShaderProgram.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
 
 #include "vtkOpenGLHelper.h"
@@ -179,7 +180,7 @@ void vtkPointFillPass::Render(const vtkRenderState *s)
     return;
   }
 
-  glDisable(GL_BLEND);
+  renWin->GetState()->glDisable(GL_BLEND);
 //  glDisable(GL_DEPTH_TEST);
 
   this->Pass1->Activate();

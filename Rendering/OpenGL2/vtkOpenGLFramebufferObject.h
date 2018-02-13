@@ -266,11 +266,8 @@ public:
 
   /**
    * Set up ortho viewport with scissor, lighting, blend, and depth
-   * disabled. The method affects the current bound FBO. The method is
-   * static so that it may be used on the default FBO without an instance.
-   * Low level api.
+   * disabled. The method affects the current bound FBO.
    */
-  static
   void InitializeViewport(int width, int height);
 
   //@{

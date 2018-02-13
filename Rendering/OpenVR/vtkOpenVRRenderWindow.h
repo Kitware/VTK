@@ -289,6 +289,10 @@ public:
   vtkGetObjectMacro(HelperWindow, vtkOpenGLRenderWindow);
   void SetHelperWindow(vtkOpenGLRenderWindow *val);
 
+  // Get the state object used to keep track of
+  // OpenGL state
+  vtkOpenGLState *GetState() override;
+
 protected:
   vtkOpenVRRenderWindow();
   ~vtkOpenVRRenderWindow();

@@ -44,6 +44,7 @@ class vtkTexture;
 class vtkTextureObject;
 class vtkTextureUnitManager;
 class vtkGenericOpenGLResourceFreeCallback;
+class vtkOpenGLState;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderWindow : public vtkRenderWindow
 {
@@ -419,12 +420,19 @@ public:
    */
   virtual bool SetSwapControl(int ) { return false; }
 
+  // Get the state object used to keep track of
+  // OpenGL state
+  virtual vtkOpenGLState *GetState() {
+    return this->State; }
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow() override;
 
   vtkOpenGLShaderCache *ShaderCache;
   vtkOpenGLVertexBufferObjectCache *VBOCache;
+
+  vtkOpenGLState *State;
 
   // used in testing for opengl support
   // in the SupportsOpenGL() method

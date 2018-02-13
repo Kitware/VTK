@@ -79,9 +79,8 @@ protected:
 
   void SavePixelBuffer(int passNo) override;
 
-  // for internal state
-  class vtkInternals;
-  vtkInternals* Internals;
+  bool OriginalMultisample;
+  bool OriginalBlending;
 
 private:
   vtkOpenGLHardwareSelector(const vtkOpenGLHardwareSelector&) = delete;

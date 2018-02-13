@@ -40,6 +40,7 @@
 #include "vtkOpenGLRenderTimer.h"
 #include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
@@ -2464,7 +2465,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
   if (selector &&
       selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
-    glDepthMask(GL_FALSE);
+    static_cast<vtkOpenGLRenderer *>(ren)->GetState()->glDepthMask(GL_FALSE);
   }
   if (selector && this->PopulateSelectionSettings)
   {
@@ -2570,14 +2571,14 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren,
-  vtkActor *actor)
+  vtkActor *)
 {
   vtkHardwareSelector* selector = ren->GetSelector();
   // render points for point picking in a special way
   if (selector &&
       selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
-    glDepthMask(GL_TRUE);
+    static_cast<vtkOpenGLRenderer *>(ren)->GetState()->glDepthMask(GL_TRUE);
   }
   if (selector && this->PopulateSelectionSettings)
   {
@@ -2587,15 +2588,6 @@ void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren,
   if (this->LastBoundBO)
   {
     this->LastBoundBO->VAO->Release();
-  }
-
-  vtkProperty *prop = actor->GetProperty();
-  bool surface_offset =
-    (this->GetResolveCoincidentTopology() || prop->GetEdgeVisibility())
-    && prop->GetRepresentation() == VTK_SURFACE;
-  if (surface_offset)
-  {
-    glDisable(GL_POLYGON_OFFSET_FILL);
   }
 
   if (this->ColorTextureMap)

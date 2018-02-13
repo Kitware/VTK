@@ -22,6 +22,7 @@
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLError.h"
 #include "vtkShaderProgram.h"
 #include "vtkOpenGLShaderCache.h"
@@ -117,6 +118,7 @@ void vtkSimpleMotionBlurPass::Render(const vtkRenderState *s)
 
   vtkRenderer *r=s->GetRenderer();
   vtkOpenGLRenderWindow *renWin = static_cast<vtkOpenGLRenderWindow *>(r->GetRenderWindow());
+  vtkOpenGLState *ostate = renWin->GetState();
 
   if(this->DelegatePass == nullptr)
   {
@@ -229,12 +231,17 @@ void vtkSimpleMotionBlurPass::Render(const vtkRenderState *s)
     this->FrameBufferObject->GetBothMode(), 0,
     this->AccumulationTexture[this->ActiveAccumulationTexture]);
 
+  ostate->glViewport(0, 0,
+    this->ViewportWidth, this->ViewportHeight);
+  ostate->glScissor(0, 0,
+    this->ViewportWidth, this->ViewportHeight);
+
   // clear the accumulator on 0
   if (this->CurrentSubFrame == 0)
   {
-    glClearColor(0.0,0.0,0.0,0.0);
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    glClear(GL_COLOR_BUFFER_BIT);
+    ostate->glClearColor(0.0,0.0,0.0,0.0);
+    ostate->glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    ostate->glClear(GL_COLOR_BUFFER_BIT);
   }
 
   this->ColorTexture->Activate();
@@ -243,32 +250,20 @@ void vtkSimpleMotionBlurPass::Render(const vtkRenderState *s)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   this->BlendProgram->Program->SetUniformi("source",sourceId);
   this->BlendProgram->Program->SetUniformf("blendScale",1.0/this->SubFrames);
-  glDisable(GL_DEPTH_TEST);
+  ostate->glDisable(GL_DEPTH_TEST);
 
   // save off current state of src / dst blend functions
-  GLint blendSrcA = GL_SRC_ALPHA;
-  GLint blendDstA = GL_ONE;
-  GLint blendSrcC = GL_SRC_ALPHA;
-  GLint blendDstC = GL_ONE;
-  glGetIntegerv(GL_BLEND_SRC_ALPHA, &blendSrcA);
-  glGetIntegerv(GL_BLEND_DST_ALPHA, &blendDstA);
-  glGetIntegerv(GL_BLEND_SRC_RGB, &blendSrcC);
-  glGetIntegerv(GL_BLEND_DST_RGB, &blendDstC);
-  glBlendFunc( GL_ONE, GL_ONE);
-
-  glViewport(0, 0,
-    this->ViewportWidth, this->ViewportHeight);
-  glScissor(0, 0,
-    this->ViewportWidth, this->ViewportHeight);
-
-  this->FrameBufferObject->RenderQuad(
-    0, this->ViewportWidth - 1,
-    0, this->ViewportHeight - 1,
-    this->BlendProgram->Program, this->BlendProgram->VAO);
-  this->ColorTexture->Deactivate();
-
-  // restore blend func
-  glBlendFuncSeparate(blendSrcC, blendDstC, blendSrcA, blendDstA);
+  // local scope for bfsaver
+  {
+    vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
+    ostate->glBlendFunc( GL_ONE, GL_ONE);
+    this->FrameBufferObject->RenderQuad(
+      0, this->ViewportWidth - 1,
+      0, this->ViewportHeight - 1,
+      this->BlendProgram->Program, this->BlendProgram->VAO);
+    this->ColorTexture->Deactivate();
+    // restore blend func on scope exit
+  }
 
   // blit either the last or the current FO
   this->CurrentSubFrame++;
@@ -294,9 +289,9 @@ void vtkSimpleMotionBlurPass::Render(const vtkRenderState *s)
   this->FrameBufferObject->Bind(
     this->FrameBufferObject->GetReadMode());
 
-  glViewport(this->ViewportX, this->ViewportY,
+  ostate->glViewport(this->ViewportX, this->ViewportY,
     this->ViewportWidth, this->ViewportHeight);
-  glScissor(this->ViewportX, this->ViewportY,
+  ostate->glScissor(this->ViewportX, this->ViewportY,
     this->ViewportWidth, this->ViewportHeight);
 
   glBlitFramebuffer(

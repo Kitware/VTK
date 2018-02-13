@@ -24,6 +24,7 @@
 #include "vtkOpenGLError.h"
 #include "vtkShaderProgram.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLVertexArrayObject.h"
 
@@ -104,6 +105,7 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
 
   vtkRenderer *r=s->GetRenderer();
   vtkOpenGLRenderWindow *renWin = static_cast<vtkOpenGLRenderWindow *>(r->GetRenderWindow());
+  vtkOpenGLState *ostate = renWin->GetState();
 
   if(this->DelegatePass == nullptr)
   {
@@ -112,8 +114,8 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
   }
 
   // backup GL state
-  GLboolean savedBlend = glIsEnabled(GL_BLEND);
-  GLboolean savedDepthTest = glIsEnabled(GL_DEPTH_TEST);
+  vtkOpenGLState::ScopedglEnableDisable dsaver(ostate, GL_DEPTH_TEST);
+  vtkOpenGLState::ScopedglEnableDisable bsaver(ostate, GL_BLEND);
 
   // 1. Create a new render state with an FBO.
   int width;
@@ -158,10 +160,10 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
   this->FrameBufferObject->AddDepthAttachment(
     this->FrameBufferObject->GetBothMode());
   this->FrameBufferObject->StartNonOrtho(w,h);
-  glViewport(0, 0, w, h);
-  glScissor(0, 0, w, h);
+  ostate->glViewport(0, 0, w, h);
+  ostate->glScissor(0, 0, w, h);
 
-  glEnable(GL_DEPTH_TEST);
+  ostate->glEnable(GL_DEPTH_TEST);
   this->DelegatePass->Render(&s2);
   this->NumberOfRenderedProps +=
     this->DelegatePass->GetNumberOfRenderedProps();
@@ -238,8 +240,8 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
   this->SSAAProgram->Program->SetUniformf("texelWidthOffset", 0.375/width);
   this->SSAAProgram->Program->SetUniformf("texelHeightOffset", 0.0);
 
-  glDisable(GL_BLEND);
-  glDisable(GL_DEPTH_TEST);
+  ostate->glDisable(GL_BLEND);
+  ostate->glDisable(GL_DEPTH_TEST);
 
   this->FrameBufferObject->RenderQuad(0,width-1,0,h-1,
     this->SSAAProgram->Program, this->SSAAProgram->VAO);
@@ -270,17 +272,6 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
                                 this->SSAAProgram->VAO);
 
   this->Pass2->Deactivate();
-  glEnable(GL_DEPTH_TEST);
-
-  // restore GL state
-  if (savedBlend)
-  {
-    glEnable(GL_BLEND);
-  }
-  if (savedDepthTest)
-  {
-    glEnable(GL_DEPTH_TEST);
-  }
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }

@@ -20,6 +20,7 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLState.h"
 
 // to be able to dump intermediate result into png files for debugging.
 // only for vtkCompositeZPass developers.
@@ -42,7 +43,6 @@
 //#include <unistd.h>
 # include <sys/syscall.h>
 # include <sys/types.h> // Linux specific gettid()
-# include "vtkOpenGLState.h"
 #endif
 
 #include "vtkOpenGLShaderCache.h"
@@ -140,10 +140,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
   vtkOpenGLRenderer *r=static_cast<vtkOpenGLRenderer *>(s->GetRenderer());
   vtkOpenGLRenderWindow *context=static_cast<vtkOpenGLRenderWindow *>(
     r->GetRenderWindow());
-
-#ifdef VTK_COMPOSITE_ZPASS_DEBUG
-  vtkOpenGLState *state=new vtkOpenGLState(context);
-#endif
+  vtkOpenGLState *ostate = context->GetState();
 
   int w=0;
   int h=0;
@@ -304,10 +301,6 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 #endif // #ifdef VTK_COMPOSITE_ZPASS_DEBUG
 
 
-
-
-
-
     int proc=1;
     while(proc<numProcs)
     {
@@ -406,10 +399,10 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 #endif
 
       // Apply TO on quad with special zcomposite fragment shader.
-      glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
-      glEnable(GL_DEPTH_TEST);
-      glDepthMask(GL_TRUE);
-      glDepthFunc(GL_LEQUAL);
+      ostate->glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
+      ostate->glEnable(GL_DEPTH_TEST);
+      ostate->glDepthMask(GL_TRUE);
+      ostate->glDepthFunc(GL_LEQUAL);
 
       context->GetShaderCache()->ReadyShaderProgram(this->Program->Program);
       this->ZTexture->Activate();
@@ -663,10 +656,10 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
                                 this->PBO);
 
     // TO to FB: apply TO on quad with special zcomposite fragment shader.
-    glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
-    glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_TRUE);
-    glDepthFunc(GL_ALWAYS);
+    ostate->glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
+    ostate->glEnable(GL_DEPTH_TEST);
+    ostate->glDepthMask(GL_TRUE);
+    ostate->glDepthFunc(GL_ALWAYS);
 
     if(this->Program==nullptr)
     {

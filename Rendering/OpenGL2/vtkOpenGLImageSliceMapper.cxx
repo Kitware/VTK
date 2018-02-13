@@ -29,6 +29,7 @@
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLState.h"
 #include "vtkTimerLog.h"
 #include "vtkGarbageCollector.h"
 #include "vtkTemplateAliasMacro.h"
@@ -718,11 +719,13 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
   // Add all the clipping planes  TODO: really in the mapper
   //int numClipPlanes = this->GetNumberOfClippingPlanes();
 
+  vtkOpenGLState *ostate = renWin->GetState();
+
   // Whether to write to the depth buffer and color buffer
-  glDepthMask(this->DepthEnable ? GL_TRUE : GL_FALSE); // supported in all
+  ostate->glDepthMask(this->DepthEnable ? GL_TRUE : GL_FALSE); // supported in all
   if (!this->ColorEnable && !this->MatteEnable)
   {
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // supported in all
+    ostate->glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // supported in all
   }
 
   // color and lighting related items
@@ -769,10 +772,10 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
   }
 
   // Set the masks back again
-  glDepthMask(GL_TRUE);
+  ostate->glDepthMask(GL_TRUE);
   if (!this->ColorEnable && !this->MatteEnable)
   {
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    ostate->glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   }
 
   this->Timer->StopTimer();

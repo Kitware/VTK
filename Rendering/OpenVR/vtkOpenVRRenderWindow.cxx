@@ -28,6 +28,7 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
@@ -275,7 +276,8 @@ vtkOpenVRModel *vtkOpenVRRenderWindow::FindOrLoadRenderModel(
 
 void vtkOpenVRRenderWindow::RenderModels()
 {
-  glEnable(GL_DEPTH_TEST);
+  vtkOpenGLState *ostate = this->GetState();
+  ostate->glEnable(GL_DEPTH_TEST);
 
   bool bIsInputCapturedByAnotherProcess =
     this->HMD->IsInputFocusCapturedByAnotherProcess();
@@ -331,6 +333,15 @@ void vtkOpenVRRenderWindow::MakeCurrent()
   {
     this->HelperWindow->MakeCurrent();
   }
+}
+
+vtkOpenGLState *vtkOpenVRRenderWindow::GetState()
+{
+  if (this->HelperWindow)
+  {
+    return this->HelperWindow->GetState();
+  }
+  return this->State;
 }
 
 // ----------------------------------------------------------------------------
@@ -477,7 +488,7 @@ void vtkOpenVRRenderWindow::StereoMidpoint()
   // render the left eye models
   this->RenderModels();
 
-  glDisable( GL_MULTISAMPLE );
+  this->GetState()->glDisable( GL_MULTISAMPLE );
 
   if ( this->HMD && this->SwapBuffers ) // picking does not swap and we don't show it
   {
@@ -509,7 +520,7 @@ void  vtkOpenVRRenderWindow::StereoRenderComplete()
     cam->ApplyEyePose(this, false, -1.0);
   }
 
-  glDisable( GL_MULTISAMPLE );
+  this->GetState()->glDisable( GL_MULTISAMPLE );
 
   // for now as fast as possible
   if ( this->HMD && this->SwapBuffers) // picking does not swap and we don't show it

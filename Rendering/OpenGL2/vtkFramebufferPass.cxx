@@ -24,6 +24,7 @@
 #include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLState.h"
 // #include "vtkShaderProgram.h"
 // #include "vtkOpenGLShaderCache.h"
 // #include "vtkOpenGLRenderWindow.h"
@@ -82,6 +83,7 @@ void vtkFramebufferPass::Render(const vtkRenderState *s)
 
   vtkRenderer *r=s->GetRenderer();
   vtkOpenGLRenderWindow *renWin = static_cast<vtkOpenGLRenderWindow *>(r->GetRenderWindow());
+  vtkOpenGLState *ostate = renWin->GetState();
 
   if(this->DelegatePass == nullptr)
   {
@@ -156,9 +158,9 @@ void vtkFramebufferPass::Render(const vtkRenderState *s)
   this->FrameBufferObject->Bind(
     this->FrameBufferObject->GetReadMode());
 
-  glViewport(this->ViewportX, this->ViewportY,
+  ostate->glViewport(this->ViewportX, this->ViewportY,
     this->ViewportWidth, this->ViewportHeight);
-  glScissor(this->ViewportX, this->ViewportY,
+  ostate->glScissor(this->ViewportX, this->ViewportY,
     this->ViewportWidth, this->ViewportHeight);
 
   glBlitFramebuffer(

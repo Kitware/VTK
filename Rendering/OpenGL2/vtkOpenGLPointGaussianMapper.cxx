@@ -25,6 +25,7 @@
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLPolyDataMapper.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
 #include "vtkOpenGLVertexBufferObjectGroup.h"
@@ -32,7 +33,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkShaderProgram.h"
 
 #include "vtkPointGaussianVS.h"
@@ -830,18 +831,13 @@ void vtkOpenGLPointGaussianMapperHelper::RenderPieceDraw(vtkRenderer* ren, vtkAc
   int numVerts = this->VBOs->GetNumberOfTuples("vertexMC");
   if (numVerts)
   {
+    vtkOpenGLState *ostate = static_cast<vtkOpenGLRenderer *>(ren)->GetState();
+
     // save off current state of src / dst blend functions
-    GLint blendSrcA = GL_SRC_ALPHA;
-    GLint blendDstA = GL_ONE;
-    GLint blendSrcC = GL_SRC_ALPHA;
-    GLint blendDstC = GL_ONE;
+    vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
     if (this->Owner->GetEmissive() != 0)
     {
-      glGetIntegerv(GL_BLEND_SRC_ALPHA, &blendSrcA);
-      glGetIntegerv(GL_BLEND_DST_ALPHA, &blendDstA);
-      glGetIntegerv(GL_BLEND_SRC_RGB, &blendSrcC);
-      glGetIntegerv(GL_BLEND_DST_RGB, &blendDstC);
-      glBlendFunc( GL_SRC_ALPHA, GL_ONE);  // additive for emissive sources
+      ostate->glBlendFunc( GL_SRC_ALPHA, GL_ONE);  // additive for emissive sources
     }
     // First we do the triangles or points, update the shader, set uniforms, etc.
     this->UpdateShaders(this->Primitives[PrimitiveTris], ren, actor);
@@ -854,11 +850,6 @@ void vtkOpenGLPointGaussianMapperHelper::RenderPieceDraw(vtkRenderer* ren, vtkAc
     {
       glDrawArrays(GL_TRIANGLES, 0,
         static_cast<GLuint>(numVerts));
-    }
-    if (this->Owner->GetEmissive() != 0)
-    {
-      // restore blend func
-      glBlendFuncSeparate(blendSrcC, blendDstC, blendSrcA, blendDstA);
     }
   }
 }

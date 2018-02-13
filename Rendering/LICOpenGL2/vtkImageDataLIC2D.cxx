@@ -28,6 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkLineIntegralConvolution2D.h"
 #include "vtkOpenGLFramebufferObject.h"
+#include "vtkOpenGLState.h"
 #include "vtkRenderbuffer.h"
 #include "vtkPixelBufferObject.h"
 #include "vtkTextureObject.h"
@@ -454,8 +455,8 @@ int vtkImageDataLIC2D::RequestData(
     drawFbo->CheckFrameBufferStatus(GL_FRAMEBUFFER);
     drawFbo->InitializeViewport(magVectorSize[0], magVectorSize[1]);
 
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    this->Context->GetState()->glClearColor(0.0, 0.0, 0.0, 0.0);
+    this->Context->GetState()->glClear(GL_COLOR_BUFFER_BIT);
 
     float tcoords[] = {
       0.0f, 0.0f,

@@ -24,6 +24,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLState.h"
 #include "vtkPointData.h"
 #include "vtkRenderWindow.h"
 #include "vtkOpenGLRenderWindow.h"
@@ -128,6 +129,9 @@ void vtkOpenGLTexture::Render(vtkRenderer *ren)
 // Implement base class method.
 void vtkOpenGLTexture::Load(vtkRenderer *ren)
 {
+  vtkOpenGLRenderWindow* renWin =
+    static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
+
   if (!this->ExternalTextureObject)
   {
     vtkImageData *input = this->GetInput();
@@ -163,8 +167,6 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     // to load when only the desired update rate changed).
     // If a better check is required, check something more specific,
     // like the graphics context.
-    vtkOpenGLRenderWindow* renWin =
-      static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
 
     // has something changed so that we need to rebuild the texture?
     if (this->GetMTime() > this->LoadTime.GetMTime() ||
@@ -366,9 +368,6 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
   }
   else
   {
-    vtkOpenGLRenderWindow* renWin =
-      static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
-
       // has something changed so that we need to rebuild the texture?
       if (this->GetMTime() > this->LoadTime.GetMTime() ||
          renWin != this->RenderWindow.GetPointer() ||
@@ -383,32 +382,31 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
   this->TextureObject->Activate();
 
   if (this->PremultipliedAlpha)
-    {
-    // save off current state of src / dst blend functions
-    glGetIntegerv(GL_BLEND_SRC_RGB, &this->PrevBlendParams[0]);
-    glGetIntegerv(GL_BLEND_DST_RGB, &this->PrevBlendParams[1]);
-    glGetIntegerv(GL_BLEND_SRC_ALPHA, &this->PrevBlendParams[2]);
-    glGetIntegerv(GL_BLEND_DST_ALPHA, &this->PrevBlendParams[3]);
+  {
+    vtkOpenGLState *ostate = renWin->GetState();
+    ostate->GetBlendFuncState(this->PrevBlendParams);
 
     // make the blend function correct for textures premultiplied by alpha.
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    }
+    ostate->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+  }
 
   vtkOpenGLCheckErrorMacro("failed after Load");
 }
 
 // ----------------------------------------------------------------------------
-void vtkOpenGLTexture::PostRender(vtkRenderer *vtkNotUsed(ren))
+void vtkOpenGLTexture::PostRender(vtkRenderer *ren)
 {
   this->TextureObject->Deactivate();
 
   if (this->GetInput() && this->PremultipliedAlpha)
-    {
+  {
+    vtkOpenGLRenderWindow* renWin =
+      static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
     // restore the blend function
-    glBlendFuncSeparate(
+    renWin->GetState()->glBlendFuncSeparate(
       this->PrevBlendParams[0], this->PrevBlendParams[1],
       this->PrevBlendParams[2], this->PrevBlendParams[3]);
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------

@@ -30,6 +30,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkRenderPassCollection.h"
+#include "vtkOpenGLState.h"
 #include "vtkRenderState.h"
 #include "vtkSequencePass.h"
 #include "vtkShaderProgram.h"
@@ -257,13 +258,13 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
   vtkOpenGLRenderer *r=static_cast<vtkOpenGLRenderer *>(s->GetRenderer());
   vtkOpenGLRenderWindow *context=static_cast<vtkOpenGLRenderWindow *>(
     r->GetRenderWindow());
+  vtkOpenGLState *ostate = context->GetState();
 
   if(this->OpaqueSequence!=nullptr)
   {
     // Disable the scissor test during the shadow map pass.
-    GLboolean saved_scissor_test;
-    glGetBooleanv(GL_SCISSOR_TEST, &saved_scissor_test);
-    glDisable(GL_SCISSOR_TEST);
+    vtkOpenGLState::ScopedglEnableDisable ssaver(ostate, GL_SCISSOR_TEST);
+    ostate->glDisable(GL_SCISSOR_TEST);
 
     // Shadow mapping requires:
     // 1. at least one spotlight, not front light
@@ -503,10 +504,10 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
             static_cast<int>(this->Resolution));
 
 //          glColorMask(GL_TRUE,GL_FALSE,GL_FALSE,GL_FALSE);
-          glDepthMask(GL_TRUE);
+          ostate->glDepthMask(GL_TRUE);
           //glClear(GL_DEPTH_BUFFER_BIT);
 
-          glEnable(GL_DEPTH_TEST);
+          ostate->glEnable(GL_DEPTH_TEST);
           this->OpaqueSequence->Render(&s2);
 
           this->NumberOfRenderedProps+=
@@ -539,19 +540,14 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
       r->SetActiveCamera(realCamera);
       realCamera->UnRegister(this);
 
-      glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
-      glEnable(GL_DEPTH_TEST);
-      glDepthFunc(GL_LEQUAL);
+      ostate->glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+      ostate->glEnable(GL_DEPTH_TEST);
+      ostate->glDepthFunc(GL_LEQUAL);
 
       r->SetAutomaticLightCreation(autoLight);
 
     } // end of the shadow map creations.
     delete[] propArray;
-
-    if (saved_scissor_test)
-    {
-      glEnable(GL_SCISSOR_TEST);
-    }
   }
   else
   {
