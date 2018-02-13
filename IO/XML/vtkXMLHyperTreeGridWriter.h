@@ -70,9 +70,6 @@ protected:
   // Tree Structure
   int WriteDescriptor(vtkIndent);
 
-  // WriteDescriptor calls this to make an array from the Tree structure
-  void BuildDescriptor(vtkHyperTreeGridCursor *, int, std::string*);
-
   // Writes PointData and CellData attribute data.
   int WriteAttributeData(vtkIndent);
 

@@ -32,11 +32,6 @@
 vtkStandardNewMacro(vtkXMLHyperTreeGridWriter);
 
 //----------------------------------------------------------------------------
-vtkXMLHyperTreeGridWriter::vtkXMLHyperTreeGridWriter()
-{
-}
-
-//----------------------------------------------------------------------------
 vtkXMLHyperTreeGridWriter::~vtkXMLHyperTreeGridWriter()
 {
 }
@@ -182,6 +177,47 @@ void vtkXMLHyperTreeGridWriter::WriteGridCoordinates(vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+vtkXMLHyperTreeGridWriter::vtkXMLHyperTreeGridWriter()
+{
+}
+
+//----------------------------------------------------------------------------
+namespace {
+  void BuildDescriptor
+  ( vtkHyperTreeGridCursor* inCursor,
+    int level,
+    std::vector<std::string> &descriptor)
+  {
+    // Retrieve input grid
+    vtkHyperTreeGrid* input = inCursor->GetGrid();
+
+    if ( ! inCursor->IsLeaf() )
+    {
+      descriptor[level] += 'R';
+
+      // If input cursor is not a leaf, recurse to all children
+      int numChildren = input->GetNumberOfChildren();
+      for ( int child = 0; child < numChildren; ++ child )
+      {
+        // Create child cursor from parent in input grid
+        vtkHyperTreeGridCursor* childCursor = inCursor->Clone();
+        childCursor->ToChild( child );
+
+        // Recurse
+        BuildDescriptor( childCursor, level+1, descriptor );
+
+        // Clean up
+        childCursor->Delete();
+      } // child
+    }
+    else
+    {
+      descriptor[level] += '.';
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
 int vtkXMLHyperTreeGridWriter::WriteDescriptor(vtkIndent indent)
 {
   vtkHyperTreeGrid* input = this->GetInput();
@@ -201,7 +237,7 @@ int vtkXMLHyperTreeGridWriter::WriteDescriptor(vtkIndent indent)
   }
 
   // Collect description by processing depth first and writing breadth first
-  std::string *descByLevel = new std::string[maxLevels];
+  std::vector<std::string> descByLevel(maxLevels);
   vtkIdType inIndex;
   vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
   input->InitializeTreeIterator( it );
@@ -211,7 +247,7 @@ int vtkXMLHyperTreeGridWriter::WriteDescriptor(vtkIndent indent)
     vtkHyperTreeGridCursor* inCursor = input->NewGridCursor( inIndex );
     // Recursively compute descriptor for this tree, appending any
     // entries for each of the levels in descByLevel.
-    this->BuildDescriptor(inCursor, 0, descByLevel );
+    BuildDescriptor(inCursor, 0, descByLevel );
     // Clean up
     inCursor->Delete();
   }
@@ -250,42 +286,7 @@ int vtkXMLHyperTreeGridWriter::WriteDescriptor(vtkIndent indent)
   os << indent << "</Topology>\n";
   os.flush();
 
-  delete[] descByLevel;
   return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkXMLHyperTreeGridWriter::BuildDescriptor
-( vtkHyperTreeGridCursor* inCursor,
-  int level,
-  std::string* descriptor)
-{
-  // Retrieve input grid
-  vtkHyperTreeGrid* input = inCursor->GetGrid();
-
-  if ( ! inCursor->IsLeaf() )
-  {
-    descriptor[level] += 'R';
-
-    // If input cursor is not a leaf, recurse to all children
-    int numChildren = input->GetNumberOfChildren();
-    for ( int child = 0; child < numChildren; ++ child )
-    {
-      // Create child cursor from parent in input grid
-      vtkHyperTreeGridCursor* childCursor = inCursor->Clone();
-      childCursor->ToChild( child );
-
-      // Recurse
-      this->BuildDescriptor( childCursor, level+1, descriptor );
-
-      // Clean up
-      childCursor->Delete();
-    } // child
-  }
-  else
-  {
-    descriptor[level] += '.';
-  }
 }
 
 //----------------------------------------------------------------------------
