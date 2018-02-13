@@ -122,7 +122,9 @@ int TestXMLHyperTreeGridIO(int argc, char* argv[])
   {
     ret = VTK_SUCCESS;
     vtksys::SystemTools::RemoveADirectory(output_dir);
-  } else {
+  }
+  else
+  {
     cerr << "Problem: Written file does not match read in file." << endl;
   }
 

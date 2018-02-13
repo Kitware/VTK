@@ -85,7 +85,7 @@ int vtkXMLHyperTreeGridWriter::WriteData()
   vtkIndent indent = vtkIndent().GetNextIndent();
 
   // Header attributes
-  if (!this->StartPrimElement(indent))
+  if (!this->StartPrimaryElement(indent))
   {
     return 0;
   }
@@ -105,7 +105,7 @@ int vtkXMLHyperTreeGridWriter::WriteData()
 
   this->WriteFieldData(indent.GetNextIndent());
 
-  if (!this->FinishPrimElement(indent))
+  if (!this->FinishPrimaryElement(indent))
   {
     return 0;
   }
@@ -118,7 +118,7 @@ int vtkXMLHyperTreeGridWriter::WriteData()
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLHyperTreeGridWriter::StartPrimElement(vtkIndent indent)
+int vtkXMLHyperTreeGridWriter::StartPrimaryElement(vtkIndent indent)
 {
   ostream& os = *(this->Stream);
 
@@ -140,7 +140,6 @@ void vtkXMLHyperTreeGridWriter::WritePrimaryElementAttributes
 
   // vtkHyperTreeGrid does not yet store origin and scale but
   // calculate as place holder
-  double gridOrigin[3], gridScale[3];
   vtkDoubleArray* xcoord =
     vtkDoubleArray::SafeDownCast(input->GetXCoordinates());
   vtkDoubleArray* ycoord =
@@ -148,16 +147,16 @@ void vtkXMLHyperTreeGridWriter::WritePrimaryElementAttributes
   vtkDoubleArray* zcoord =
     vtkDoubleArray::SafeDownCast(input->GetZCoordinates());
 
-  gridOrigin[0] = xcoord->GetValue(0);
-  gridOrigin[1] = ycoord->GetValue(0);
-  gridOrigin[2] = zcoord->GetValue(0);
+  double gridOrigin[3] = {xcoord->GetValue(0),
+                          ycoord->GetValue(0),
+                          zcoord->GetValue(0)};
 
-  gridScale[0] = xcoord->GetValue(1) - xcoord->GetValue(0);
-  gridScale[1] = ycoord->GetValue(1) - ycoord->GetValue(0);
-  gridScale[2] = zcoord->GetValue(1) - zcoord->GetValue(0);
+  double gridScale[3] = {xcoord->GetValue(1) - xcoord->GetValue(0),
+                         ycoord->GetValue(1) - ycoord->GetValue(0),
+                         zcoord->GetValue(1) - zcoord->GetValue(0)};
 
-  this->WriteVectorAttribute("GridOrigin", 3, (double*) gridOrigin);
-  this->WriteVectorAttribute("GridScale", 3, (double*) gridScale);
+  this->WriteVectorAttribute("GridOrigin", 3, gridOrigin);
+  this->WriteVectorAttribute("GridScale", 3, gridScale);
 }
 
 //----------------------------------------------------------------------------
@@ -165,7 +164,7 @@ void vtkXMLHyperTreeGridWriter::WriteGridCoordinates(vtkIndent indent)
 {
   vtkHyperTreeGrid* input = this->GetInput();
   ostream& os = *(this->Stream);
-  os << indent << "<" << "Coordinates" << ">\n";
+  os << indent << "<Coordinates>\n";
   os.flush();
 
   this->WriteArrayInline(input->GetXCoordinates(), indent.GetNextIndent(),
@@ -178,7 +177,7 @@ void vtkXMLHyperTreeGridWriter::WriteGridCoordinates(vtkIndent indent)
                          "ZCoordinates",
                          input->GetZCoordinates()->GetNumberOfValues());
 
-  os << indent << "</" << "Coordinates" << ">\n";
+  os << indent << "</Coordinates>\n";
   os.flush();
 }
 
@@ -190,7 +189,7 @@ int vtkXMLHyperTreeGridWriter::WriteDescriptor(vtkIndent indent)
   vtkIdType maxLevels = input->GetNumberOfLevels();
 
   ostream& os = *(this->Stream);
-  os << indent << "<" << "Topology" << ">\n";
+  os << indent << "<Topology>\n";
   os.flush();
 
   // All trees contained on this processor
@@ -248,7 +247,7 @@ int vtkXMLHyperTreeGridWriter::WriteDescriptor(vtkIndent indent)
   this->WriteArrayInline(descriptor, indent.GetNextIndent(), "Descriptor",
                          descriptor->GetNumberOfValues());
 
-  os << indent << "</" << "Topology" << ">\n";
+  os << indent << "</Topology>\n";
   os.flush();
 
   delete[] descByLevel;
@@ -311,7 +310,7 @@ int vtkXMLHyperTreeGridWriter::WriteAttributeData(vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLHyperTreeGridWriter::FinishPrimElement(vtkIndent indent)
+int vtkXMLHyperTreeGridWriter::FinishPrimaryElement(vtkIndent indent)
 {
   ostream& os = *(this->Stream);
 

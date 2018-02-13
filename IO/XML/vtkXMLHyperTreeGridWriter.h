@@ -59,7 +59,7 @@ protected:
   int WriteData() override;
 
   // <HyperTreeGrid ...
-  int StartPrimElement(vtkIndent);
+  int StartPrimaryElement(vtkIndent);
 
   // ... dim, size, origin>
   void WritePrimaryElementAttributes(ostream &, vtkIndent) override;
@@ -77,7 +77,7 @@ protected:
   int WriteAttributeData(vtkIndent);
 
   // </HyperTreeGrid>
-  int FinishPrimElement(vtkIndent);
+  int FinishPrimaryElement(vtkIndent);
 
 private:
   vtkXMLHyperTreeGridWriter(const vtkXMLHyperTreeGridWriter&) = delete;
