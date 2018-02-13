@@ -212,6 +212,7 @@
 #define sqlite3_value_text16be vtksqlite_sqlite3_value_text16be
 #define sqlite3_value_text16le vtksqlite_sqlite3_value_text16le
 #define sqlite3_value_type vtksqlite_sqlite3_value_type
+#define sqlite3_version vtksqlite_sqlite3_version
 #define sqlite3_vfs_find vtksqlite_sqlite3_vfs_find
 #define sqlite3_vfs_register vtksqlite_sqlite3_vfs_register
 #define sqlite3_vfs_unregister vtksqlite_sqlite3_vfs_unregister
