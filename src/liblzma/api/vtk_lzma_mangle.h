@@ -31,7 +31,9 @@
 #define lzma_code vtklzma_lzma_code
 #define lzma_cputhreads vtklzma_lzma_cputhreads
 #define lzma_crc32 vtklzma_lzma_crc32
+#define lzma_crc32_table vtklzma_lzma_crc32_table
 #define lzma_crc64 vtklzma_lzma_crc64
+#define lzma_crc64_table vtklzma_lzma_crc64_table
 #define lzma_delta_coder_init vtklzma_lzma_delta_coder_init
 #define lzma_delta_coder_memusage vtklzma_lzma_delta_coder_memusage
 #define lzma_delta_decoder_init vtklzma_lzma_delta_decoder_init
@@ -44,6 +46,7 @@
 #define lzma_easy_encoder_memusage vtklzma_lzma_easy_encoder_memusage
 #define lzma_easy_preset vtklzma_lzma_easy_preset
 #define lzma_end vtklzma_lzma_end
+#define lzma_fastpos vtklzma_lzma_fastpos
 #define lzma_filter_decoder_is_supported vtklzma_lzma_filter_decoder_is_supported
 #define lzma_filter_encoder_is_supported vtklzma_lzma_filter_encoder_is_supported
 #define lzma_filter_flags_decode vtklzma_lzma_filter_flags_decode
@@ -51,9 +54,11 @@
 #define lzma_filter_flags_size vtklzma_lzma_filter_flags_size
 #define lzma_filters_copy vtklzma_lzma_filters_copy
 #define lzma_filters_update vtklzma_lzma_filters_update
+#define lzma_footer_magic vtklzma_lzma_footer_magic
 #define lzma_free vtklzma_lzma_free
 #define lzma_get_check vtklzma_lzma_get_check
 #define lzma_get_progress vtklzma_lzma_get_progress
+#define lzma_header_magic vtklzma_lzma_header_magic
 #define lzma_index_append vtklzma_lzma_index_append
 #define lzma_index_block_count vtklzma_lzma_index_block_count
 #define lzma_index_buffer_decode vtklzma_lzma_index_buffer_decode
@@ -155,6 +160,7 @@
 #define lzma_raw_encoder vtklzma_lzma_raw_encoder
 #define lzma_raw_encoder_init vtklzma_lzma_raw_encoder_init
 #define lzma_raw_encoder_memusage vtklzma_lzma_raw_encoder_memusage
+#define lzma_rc_prices vtklzma_lzma_rc_prices
 #define lzma_sha256_finish vtklzma_lzma_sha256_finish
 #define lzma_sha256_init vtklzma_lzma_sha256_init
 #define lzma_sha256_update vtklzma_lzma_sha256_update
