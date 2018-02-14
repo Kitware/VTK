@@ -243,12 +243,12 @@ def extractRequiredFields(extractedFields, mapper, dataset, context, requestedFi
     colorArrayName = mapper.GetArrayName() if arrayAccessMode == 1 else mapper.GetArrayId()
     colorMode = mapper.GetColorMode()
     scalarMode = mapper.GetScalarMode()
-    if scalarMode == 3:
+    if scalarVisibility and scalarMode == 3:
       arrayMeta = getArrayDescription(dataset.GetPointData().GetArray(colorArrayName), context)
       if arrayMeta:
         arrayMeta['location'] = 'pointData';
         extractedFields.append(arrayMeta)
-    if scalarMode == 4:
+    if scalarVisibility and scalarMode == 4:
       arrayMeta = getArrayDescription(dataset.GetCellData().GetArray(colorArrayName), context)
       if arrayMeta:
         arrayMeta['location'] = 'cellData';
