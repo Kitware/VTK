@@ -2830,7 +2830,7 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
   vtkIdType cellVals[] = {p->Dict["NV3D"], p->Dict["NV3DT"], p->Dict["NV1D"], p->Dict["NV2D"]};
 
   // Be carefull to exclude arrays which are note part State data
-  vtkIdType firstStateArrayNdx = (p->Dict["NARBS"]>0) ? 1 : 0;  // Skip first Array if it is UserIds
+  unsigned int firstStateArrayNdx = (p->Dict["NARBS"]>0) ? 1 : 0;  // Skip first Array if it is UserIds
 
   for (int i=0; i<4; i++)
   {
@@ -2838,7 +2838,7 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
     {
       LSDynaMetaData::LSDYNA_TYPES celltype = celltypes[i];
       int startPos = 0;
-      for (int a = firstStateArrayNdx; a < p->CellArrayNames[celltype].size(); a++ )
+      for (unsigned int a = firstStateArrayNdx; a < p->CellArrayNames[celltype].size(); a++ )
       {
         int numComps = this->GetNumberOfComponentsInCellArray(celltype, a);
         //std::cout << setw(3) << numComps << " " << this->GetCellArrayName(celltype,a) << std::endl;
