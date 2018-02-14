@@ -243,6 +243,7 @@ information about the library build configuration\n";
     for(i = 0; i < 73; i++)
         HDputchar('-');
     printf("\n */\n\n");
+    printf("#include \"vtk_hdf5_mangle.h\"\n\n");
 }
 
 

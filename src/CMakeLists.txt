@@ -935,6 +935,13 @@ endif ()
 target_link_libraries(vtkhdf5_src
   PRIVATE
     ${vtkzlib_LIBRARIES})
+
+if (DEFINED VTK_CUSTOM_LIBRARY_SUFFIX)
+  set(_lib_suffix "${VTK_CUSTOM_LIBRARY_SUFFIX}")
+else ()
+  set(_lib_suffix "-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+endif ()
+set_property(TARGET vtkhdf5_src PROPERTY OUTPUT_NAME vtkhdf5${_lib_suffix})
 endif ()
 
 # XXX(kitware): Hardcode settings.

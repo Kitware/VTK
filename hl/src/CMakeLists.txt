@@ -63,6 +63,13 @@ endif ()
 target_link_libraries(vtkhdf5_hl_src
   PRIVATE
     vtkhdf5_src)
+
+if (DEFINED VTK_CUSTOM_LIBRARY_SUFFIX)
+  set(_lib_suffix "${VTK_CUSTOM_LIBRARY_SUFFIX}")
+else ()
+  set(_lib_suffix "-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+endif ()
+set_property(TARGET vtkhdf5_hl_src PROPERTY OUTPUT_NAME vtkhdf5_hl${_lib_suffix})
 endif ()
 
 # XXX(kitware): VTK handles shared/static flags.
