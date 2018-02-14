@@ -49,10 +49,7 @@ class SynchronizationContext():
 
     if binary:
       # Convert the vtkUnsignedCharArray into a bytes object, required by Autobahn websockets
-      ts = time.time()
-      bytesResult = pBuffer.tobytes()
-      print('bytes conversion', (time.time() - ts))
-      return bytesResult
+      return pBuffer.tobytes()
 
     return base64Encode(pBuffer)
 
