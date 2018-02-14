@@ -28,7 +28,7 @@ class SynchronizationContext():
   def cacheDataArray(self, pMd5, data):
     self.dataArrayCache[pMd5] = data
 
-  def getCachedDataArray(self, pMd5):
+  def getCachedDataArray(self, pMd5, binary = False):
     cacheObj = self.dataArrayCache[pMd5]
     array = cacheObj['array']
     cacheTime = cacheObj['mTime']
@@ -46,6 +46,10 @@ class SynchronizationContext():
       pBuffer = buffer(newArray)
     else:
       pBuffer = buffer(array)
+
+    if binary:
+      # Convert the vtkUnsignedCharArray into a bytes object, required by Autobahn websockets
+      return pBuffer.tobytes()
 
     return base64Encode(pBuffer)
 
@@ -236,12 +240,12 @@ def extractRequiredFields(extractedFields, mapper, dataset, context, requestedFi
     colorArrayName = mapper.GetArrayName() if arrayAccessMode == 1 else mapper.GetArrayId()
     colorMode = mapper.GetColorMode()
     scalarMode = mapper.GetScalarMode()
-    if scalarMode == 3:
+    if scalarVisibility and scalarMode == 3:
       arrayMeta = getArrayDescription(dataset.GetPointData().GetArray(colorArrayName), context)
       if arrayMeta:
         arrayMeta['location'] = 'pointData';
         extractedFields.append(arrayMeta)
-    if scalarMode == 4:
+    if scalarVisibility and scalarMode == 4:
       arrayMeta = getArrayDescription(dataset.GetCellData().GetArray(colorArrayName), context)
       if arrayMeta:
         arrayMeta['location'] = 'cellData';
