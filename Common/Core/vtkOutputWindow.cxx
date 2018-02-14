@@ -23,6 +23,27 @@
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 
+namespace
+{
+// helps in set and restore value when an instance goes in
+// and out of scope respectively.
+template <class T>
+class vtkScopedSet
+{
+  T* Ptr;
+  T OldVal;
+
+public:
+  vtkScopedSet(T* ptr, const T& newval)
+    : Ptr(ptr)
+    , OldVal(*ptr)
+  {
+    *this->Ptr = newval;
+  }
+  ~vtkScopedSet() { *this->Ptr = this->OldVal; }
+};
+}
+
 //----------------------------------------------------------------------------
 vtkOutputWindow* vtkOutputWindow::Instance = nullptr;
 static unsigned int vtkOutputWindowCleanupCounter = 0;
@@ -69,7 +90,9 @@ vtkOutputWindowCleanup::~vtkOutputWindowCleanup()
 vtkObjectFactoryNewMacro(vtkOutputWindow);
 vtkOutputWindow::vtkOutputWindow()
 {
-  this->PromptUser = 0;
+  this->PromptUser = false;
+  this->UseStdErrorForAllMessages = false;
+  this->CurrentMessageType = MESSAGE_TYPE_TEXT;
 }
 
 vtkOutputWindow::~vtkOutputWindow()
@@ -84,14 +107,25 @@ void vtkOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
      << (void*)vtkOutputWindow::Instance << endl;
   os << indent << "Prompt User: "
      << (this->PromptUser ? "On\n" : "Off\n");
+  os << indent << "UseStdErrorForAllMessages: "
+     << (this->UseStdErrorForAllMessages ? "On\n" : "Off\n");
 }
 
 
 // default implementation outputs to cerr only
 void vtkOutputWindow::DisplayText(const char* txt)
 {
-  cerr << txt;
-  if (this->PromptUser)
+  // pick correct output channel to dump text on.
+  if (this->CurrentMessageType != MESSAGE_TYPE_TEXT || this->UseStdErrorForAllMessages)
+  {
+    cerr << txt;
+  }
+  else
+  {
+    cout << txt;
+  }
+
+  if (this->PromptUser && this->CurrentMessageType != MESSAGE_TYPE_TEXT)
   {
     char c = 'n';
     cerr << "\nDo you want to suppress any further messages (y,n,q)?."
@@ -106,28 +140,42 @@ void vtkOutputWindow::DisplayText(const char* txt)
       this->PromptUser = 0;
     }
   }
-  this->InvokeEvent(vtkCommand::MessageEvent, (void*)txt);
+
+  this->InvokeEvent(vtkCommand::MessageEvent, const_cast<char*>(txt));
+  if (this->CurrentMessageType == MESSAGE_TYPE_TEXT)
+  {
+    this->InvokeEvent(vtkCommand::TextEvent, const_cast<char*>(txt));
+  }
 }
 
 void vtkOutputWindow::DisplayErrorText(const char* txt)
 {
+  vtkScopedSet<MessageTypes> setter(&this->CurrentMessageType, MESSAGE_TYPE_ERROR);
+
   this->DisplayText(txt);
-  this->InvokeEvent(vtkCommand::ErrorEvent, (void*)txt);
+  this->InvokeEvent(vtkCommand::ErrorEvent, const_cast<char*>(txt));
 }
 
 void vtkOutputWindow::DisplayWarningText(const char* txt)
 {
+  vtkScopedSet<MessageTypes> setter(&this->CurrentMessageType, MESSAGE_TYPE_WARNING);
+
   this->DisplayText(txt);
-  this->InvokeEvent(vtkCommand::WarningEvent,(void*) txt);
+  this->InvokeEvent(vtkCommand::WarningEvent, const_cast<char*>(txt));
 }
 
 void vtkOutputWindow::DisplayGenericWarningText(const char* txt)
 {
+  vtkScopedSet<MessageTypes> setter(&this->CurrentMessageType, MESSAGE_TYPE_GENERIC_WARNING);
+
   this->DisplayText(txt);
+  this->InvokeEvent(vtkCommand::WarningEvent, const_cast<char*>(txt));
 }
 
 void vtkOutputWindow::DisplayDebugText(const char* txt)
 {
+  vtkScopedSet<MessageTypes> setter(&this->CurrentMessageType, MESSAGE_TYPE_DEBUG);
+
   this->DisplayText(txt);
 }
 
@@ -174,5 +222,3 @@ void vtkOutputWindow::SetInstance(vtkOutputWindow* instance)
   // user will call ->Delete() after setting instance
   instance->Register(nullptr);
 }
-
-

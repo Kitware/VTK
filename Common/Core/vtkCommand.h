@@ -205,6 +205,14 @@
  *  - most of the objects return nullptr
  * - vtkCommand::FifthButtonReleaseEvent
  *  - most of the objects return nullptr
+ * - vtkCommand::ErrorEvent
+ *  - vtkOutputWindow fires this with `char char*` for the error message
+ * - vtkCommand::WarningEvent
+ *  - vtkOutputWindow fires this with `char char*` for the warning message
+ * - vtkCommand::MessageEvent
+ *  - vtkOutputWindow fires this with `char char*` for the message text
+ * - vtkCommand::TextEvent
+ *  - vtkOutputWindow fires this with `char char*` for the text
  *
  * @sa
  * vtkObject vtkCallbackCommand vtkOldStyleCallbackCommand
@@ -341,7 +349,8 @@
     _vtk_add_event(FifthButtonPressEvent)\
     _vtk_add_event(FifthButtonReleaseEvent)\
     _vtk_add_event(Move3DEvent)\
-    _vtk_add_event(Button3DEvent)
+    _vtk_add_event(Button3DEvent)\
+    _vtk_add_event(TextEvent)
 
 #define vtkEventDeclarationMacro(_enum_name)\
   enum _enum_name{\
