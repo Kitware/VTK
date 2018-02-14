@@ -437,7 +437,9 @@ void vtkPDFContextDevice2D::DrawPointSprites(vtkImageData *spriteIn,
       coloredBuf.reserve(numPoints * 3);
       // Using int since we're iterating to j < 0 (and vtkIdType is unsigned).
       // It's very unlikely that numPoints will be larger than INT_MAX, but
-      // we'll check anyway:
+      // we'll check anyway. This throws a warning (taut-compare) when
+      // vtkIdType is a 32-bit integer, so we disable it in that case.
+#ifdef VTK_USE_64BIT_IDS
       if (numPoints > static_cast<vtkIdType>(VTK_INT_MAX))
       {
         vtkErrorMacro("FIXME: Image data too large for indexing with int.");
@@ -445,6 +447,7 @@ void vtkPDFContextDevice2D::DrawPointSprites(vtkImageData *spriteIn,
         rgb->UnRegister(this);
         return;
       }
+#endif // VTK_USE_64BIT_IDS
       for (int j = static_cast<int>(numPoints) - 1; j >= 0; --j)
       {
         unsigned char *pointColor = bufIn + 3 * j;
