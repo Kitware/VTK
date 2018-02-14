@@ -1971,9 +1971,9 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   // history variables are written before the Ale variables, and
   // the six element strains components after these if
   // ISTRN=1.
-  vtkIdType numGroups = std::abs(static_cast<int>(p->Dict["NUMFLUID"]));
+  int numGroups = std::abs(static_cast<int>(p->Dict["NUMFLUID"]));
   bool hasMass = (p->Dict["NUMFLUID"] < 0);
-  int ALEvalues = (numGroups > 0) ? 1 + numGroups + 1 + (hasMass? numGroups : 0) : 0;
+  int numALEvalues = (numGroups > 0) ? 1 + numGroups + 1 + (hasMass? numGroups : 0) : 0;
 
   if ( p->Dict["NARBS"] )
   {
@@ -2073,19 +2073,19 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
     if (extraValues>0)
     {
       // Any element material history variables are written before the Ale variables, and the six element strains components after these if ISTRN=1
-      int materialValues = extraValues - ALEvalues;
+      int materialValues = extraValues - numALEvalues;
       if (materialValues > 0)
       {
         p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_INTEGRATIONPOINT, materialValues, 1 );
         extraValues -= materialValues;
       }
 
-      if ( (ALEvalues > 0) && (extraValues>=ALEvalues) )
+      if ( (numALEvalues > 0) && (extraValues>=numALEvalues) )
       {
         p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_DENSITY, 1, 1 );
         extraValues--;
 
-        for (vtkIdType g=0; g < numGroups; ++g)
+        for (int g=0; g < numGroups; ++g)
         {
           snprintf( ctmp, sizeof(ctmp), LS_ARRAYNAME_VOLUME_FRACTION_FMT, static_cast<int>(g+1) );
           p->AddCellArray( LSDynaMetaData::SHELL, ctmp, 1, 1 );
@@ -2095,7 +2095,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
         p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_DOMINANT_GROUP, 1, 1 );
         extraValues--;
 
-        for (vtkIdType g=0; hasMass && (g < numGroups); ++g)
+        for (int g=0; hasMass && (g < numGroups); ++g)
         {
           snprintf( ctmp, sizeof(ctmp), LS_ARRAYNAME_SPECIES_MASS_FMT, static_cast<int>(g+1) );
           p->AddCellArray( LSDynaMetaData::SHELL, ctmp, 1, 1 );
@@ -2246,19 +2246,19 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
       int strainValues = ( p->Dict["ISTRN"]==1 ) ? 6 : 0; // last six values are strain.
 
       // Any element material history variables are written before the Ale variables, and the six element strains components after these if ISTRN=1
-      int materialValues = extraValues - (ALEvalues+strainValues);
+      int materialValues = extraValues - (numALEvalues+strainValues);
       if (materialValues > 0)
       {
         p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_INTEGRATIONPOINT, materialValues, 1 );
         extraValues -= materialValues;
       }
 
-      if ( (ALEvalues > 0) && (extraValues>=ALEvalues) )
+      if ( (numALEvalues > 0) && (extraValues>=numALEvalues) )
       {
         p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_DENSITY, 1, 1 );
         extraValues--;
 
-        for (vtkIdType g=0; g < numGroups; ++g)
+        for (int g=0; g < numGroups; ++g)
         {
           snprintf( ctmp, sizeof(ctmp), LS_ARRAYNAME_VOLUME_FRACTION_FMT, static_cast<int>(g+1) );
           p->AddCellArray( LSDynaMetaData::SOLID, ctmp, 1, 1 );
@@ -2268,7 +2268,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
         p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_DOMINANT_GROUP, 1, 1 );
         extraValues--;
 
-        for (vtkIdType g=0; hasMass && (g < numGroups); ++g)
+        for (int g=0; hasMass && (g < numGroups); ++g)
         {
           snprintf( ctmp, sizeof(ctmp), LS_ARRAYNAME_SPECIES_MASS_FMT, static_cast<int>(g+1) );
           p->AddCellArray( LSDynaMetaData::SOLID, ctmp, 1, 1 );
@@ -2846,12 +2846,6 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
           this->Parts->AddProperty(celltype,this->GetCellArrayName(celltype,a), startPos, numComps);
          startPos += numComps;
       }
-      //std::cout << vtkLSDynaCellTypes[celltype]
-      //  << ": (Num Cells " << setw(6) << cells[i]
-      //  << ") * (Expected Values " << setw(6) << cellVals[i]
-      //  << " ... Calculated Values " << setw(6) << startPos << ") "
-      //  << (cellVals[i] == startPos? "" : " Error") << std::endl;
-      // assert(cellVals[i] == startPos);
       this->ReadCellProperties(celltype, cellVals[i]);
     }
   }
