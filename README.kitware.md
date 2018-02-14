@@ -7,6 +7,5 @@ symbols to avoid conflicts with other copies of the library within a single
 process.
 
   * Add attributes to pass commit checks within VTK.
-  * Mangle all exported symbols to have a `vtkzfp_` prefix.
   * Add a CMake build system to the project.
-  * Export symbols for Windows support.
+  * Mangle all exported symbols to have a `vtkzfp_` prefix.

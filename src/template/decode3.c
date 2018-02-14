@@ -1,5 +1,3 @@
-static void _t1(inv_lift, Int)(Int* p, uint s);
-
 /* private functions ------------------------------------------------------- */
 
 /* scatter 4*4*4 block to strided array */
@@ -50,7 +48,7 @@ uint
 _t2(zfp_decode_block_strided, Scalar, 3)(zfp_stream* stream, Scalar* p, int sx, int sy, int sz)
 {
   /* decode contiguous block */
-  _cache_align(Scalar fblock[64]);
+  cache_align_(Scalar fblock[64]);
   uint bits = _t2(zfp_decode_block, Scalar, 3)(stream, fblock);
   /* scatter block to strided array */
   _t2(scatter, Scalar, 3)(fblock, p, sx, sy, sz);
@@ -62,7 +60,7 @@ uint
 _t2(zfp_decode_partial_block_strided, Scalar, 3)(zfp_stream* stream, Scalar* p, uint nx, uint ny, uint nz, int sx, int sy, int sz)
 {
   /* decode contiguous block */
-  _cache_align(Scalar fblock[64]);
+  cache_align_(Scalar fblock[64]);
   uint bits = _t2(zfp_decode_block, Scalar, 3)(stream, fblock);
   /* scatter block to strided array */
   _t2(scatter_partial, Scalar, 3)(fblock, p, nx, ny, nz, sx, sy, sz);

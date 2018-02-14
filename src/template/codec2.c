@@ -1,7 +1,7 @@
 #define index(i, j) ((i) + 4 * (j))
 
 /* order coefficients (i, j) by i + j, then i^2 + j^2 */
-_cache_align(static const uchar perm_2[16]) = {
+cache_align_(static const uchar perm_2[16]) = {
   index(0, 0), /*  0 : 0 */
 
   index(1, 0), /*  1 : 1 */
@@ -30,10 +30,3 @@ _cache_align(static const uchar perm_2[16]) = {
 };
 
 #undef index
-
-/* maximum number of bit planes to encode */
-static uint
-_t2(precision, Scalar, 2)(int maxexp, uint maxprec, int minexp)
-{
-  return MIN(maxprec, MAX(0, maxexp - minexp + 6));
-}

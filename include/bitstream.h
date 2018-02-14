@@ -2,16 +2,17 @@
 #define BITSTREAM_H
 
 #include <stddef.h>
-#include "types.h"
+#include "zfp/types.h"
+#include "zfp/system.h"
 
-#include "zfp_mangle.h"
+#include "vtk_zfp_mangle.h"
 
 /* forward declaration of opaque type */
 typedef struct bitstream bitstream;
 
-extern const size_t stream_word_bits; /* bit stream granularity */
+extern_ const size_t stream_word_bits; /* bit stream granularity */
 
-#ifndef _inline
+#ifndef inline_
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -32,10 +33,10 @@ size_t stream_size(const bitstream* stream);
 size_t stream_capacity(const bitstream* stream);
 
 /* number of words per block */
-size_t stream_block(const bitstream* stream);
+size_t stream_stride_block(const bitstream* stream);
 
 /* number of blocks between consecutive blocks */
-int stream_delta(const bitstream* stream);
+ptrdiff_t stream_stride_delta(const bitstream* stream);
 
 /* read single bit (0 or 1) */
 uint stream_read_bit(bitstream* stream);
@@ -67,23 +68,23 @@ void stream_wseek(bitstream* stream, size_t offset);
 /* skip over the next n bits */
 void stream_skip(bitstream* stream, uint n);
 
-/* append n zero bits to stream */
+/* append n zero-bits to stream */
 void stream_pad(bitstream* stream, uint n);
 
 /* align stream on next word boundary */
-void stream_align(bitstream* stream);
+size_t stream_align(bitstream* stream);
 
 /* flush out any remaining buffered bits */
-void stream_flush(bitstream* stream);
+size_t stream_flush(bitstream* stream);
 
-#ifdef BITSTREAM_STRIDED
+#ifdef BIT_STREAM_STRIDED
 /* set block size in number of words and spacing in number of blocks */
-int stream_set_stride(bitstream* stream, uint block, int delta);
+int stream_set_stride(bitstream* stream, size_t block, ptrdiff_t delta);
 #endif
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* !_inline */
+#endif /* !inline_ */
 
 #endif
