@@ -39,6 +39,22 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkLagrangianParticle
 {
 public:
 
+  /**
+   * An enum to inform about a reason for termination
+   * PARTICLE_TERMINATION_NOT_TERMINATED = 0, means the particle have not yet been terminated
+   * PARTICLE_TERMINATION_SURF_TERMINATED = 1, means the particle have been terminated during
+   *   a surface interaction
+   * PARTICLE_TERMINATION_FLIGHT_TERMINATED = 2, means the particle have been terminated by
+   *   the model during a FreeFlightCheck() call
+   * PARTICLE_TERMINATION_SURF_BREAK = 3, means the particle have been terminated during a
+   *   surface interaction by a break, meaning new particles have been created from it.
+   * PARTICLE_TERMINATION_OUT_OF_DOMAIN = 4, means the particle was terminated when going
+   *   out of domain, if the surface is watertight this should not happen.
+   * PARTICLE_TERMINATION_OUT_OF_STEPS = 5, means the particle was terminated because
+   *   maximum number of steps was reached
+   * PARTICLE_TERMINATION_OUT_OF_TIME = 6, means the particle was terminated because
+   *   maximum integration time was reached
+   */
   typedef enum ParticleTermination
   {
     PARTICLE_TERMINATION_NOT_TERMINATED = 0,
@@ -46,9 +62,19 @@ public:
     PARTICLE_TERMINATION_FLIGHT_TERMINATED,
     PARTICLE_TERMINATION_SURF_BREAK,
     PARTICLE_TERMINATION_OUT_OF_DOMAIN,
-    PARTICLE_TERMINATION_OUT_OF_STEPS
+    PARTICLE_TERMINATION_OUT_OF_STEPS,
+    PARTICLE_TERMINATION_OUT_OF_TIME
   } ParticleTermination;
 
+  /**
+   * An enum to inform about a surface interaction
+   * SURFACE_INTERACTION_NO_INTERACTION = 0, no interaction have taken place
+   * SURFACE_INTERACTION_TERMINATED = 1, a particle was terminated on interaction
+   * SURFACE_INTERACTION_BREAK = 2, a particle broke on interaction, hence terminating it and creating new particles from it
+   * SURFACE_INTERACTION_BOUNCE = 3, a particle bounced on interaction
+   * SURFACE_INTERACTION_PASS = 4, a particle passed through the surface, hence having no effect on the particle but actually recording it going through
+   * SURFACE_INTERACTION_OTHER = 5, another type of undefined interaction happened.
+   */
   typedef enum SurfaceInteraction
   {
     SURFACE_INTERACTION_NO_INTERACTION = 0,
