@@ -790,6 +790,14 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator >> (std::string& value)
 }
 
 //----------------------------------------------------------------------------
+std::vector<unsigned char> vtkMultiProcessStream::GetRawData() const
+{
+  std::vector<unsigned char> data;
+  this->GetRawData(data);
+  return data;
+}
+
+//----------------------------------------------------------------------------
 void vtkMultiProcessStream::GetRawData(std::vector<unsigned char>& data) const
 {
   data.clear();
