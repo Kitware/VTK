@@ -107,6 +107,9 @@ MACRO_EXPANSION      = YES
 SEARCH_INCLUDES      = YES
 INCLUDE_PATH         =
 EXPAND_ONLY_PREDEF   = YES
+EXPAND_AS_DEFINED = vtkAllEventsMacro \
+                    vtkEventDeclarationMacro \
+                    _vtk_add_event
 PREDEFINED  = "vtkSetMacro(name,type)= \
                  virtual void Set##name (type);" \
               "vtkGetMacro(name,type)= \
