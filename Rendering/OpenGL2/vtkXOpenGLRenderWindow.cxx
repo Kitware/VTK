@@ -1460,6 +1460,7 @@ const char* vtkXOpenGLRenderWindow::ReportCapabilities()
     }
   }
 
+  XFreeExtensionList(extlist);
   delete[] this->Capabilities;
 
   size_t len = strm.str().length();
