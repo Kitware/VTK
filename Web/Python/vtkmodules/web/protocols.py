@@ -331,6 +331,9 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
 
         # Use default arg to capture value of realViewId
         def pushRender(vId = realViewId):
+            if vId not in self.trackingViews:
+                return
+
             if not self.trackingViews[vId]["enabled"]:
                 return
 

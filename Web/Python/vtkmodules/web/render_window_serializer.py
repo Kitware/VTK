@@ -28,7 +28,7 @@ class SynchronizationContext():
   def cacheDataArray(self, pMd5, data):
     self.dataArrayCache[pMd5] = data
 
-  def getCachedDataArray(self, pMd5):
+  def getCachedDataArray(self, pMd5, binary = False):
     cacheObj = self.dataArrayCache[pMd5]
     array = cacheObj['array']
     cacheTime = cacheObj['mTime']
@@ -46,6 +46,13 @@ class SynchronizationContext():
       pBuffer = buffer(newArray)
     else:
       pBuffer = buffer(array)
+
+    if binary:
+      # Convert the vtkUnsignedCharArray into a bytes object, required by Autobahn websockets
+      ts = time.time()
+      bytesResult = pBuffer.tobytes()
+      print('bytes conversion', (time.time() - ts))
+      return bytesResult
 
     return base64Encode(pBuffer)
 
