@@ -56,7 +56,7 @@ public:
 
 protected:
   vtkPExtractDataArraysOverTime();
-  ~vtkPExtractDataArraysOverTime();
+  ~vtkPExtractDataArraysOverTime() override;
 
   void PostExecute(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
