@@ -9,6 +9,7 @@ vtk_add_test_mpi(vtkFiltersParallelCxxTests-MPI tests
   TESTING_DATA
   DistributedData.cxx
   DistributedDataRenderPass.cxx
+  TestPExtractDataArraysOverTime.cxx,NO_VALID
   TransmitImageData.cxx
   TransmitImageDataRenderPass.cxx
   TransmitRectilinearGrid.cxx
