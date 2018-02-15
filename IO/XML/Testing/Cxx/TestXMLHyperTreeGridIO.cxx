@@ -34,7 +34,7 @@ int TestXMLHyperTreeGridIO(int argc, char* argv[])
     return VTK_FAILURE;
   }
 
-  std::string fname = "HyperTreeGrid.1.vhg";
+  std::string fname = "HyperTreeGrid.1.htg";
 
   std::string ifname = std::string(data_dir) + std::string("/Data/") + fname;
 

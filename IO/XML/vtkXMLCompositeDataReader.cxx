@@ -516,6 +516,6 @@ const vtkXMLCompositeDataReaderEntry
   {"vtr", "vtkXMLRectilinearGridReader"},
   {"vts", "vtkXMLStructuredGridReader"},
   {"vtt", "vtkXMLTableReader"},
-  {"vhg", "vtkXMLHyperTreeGridReader"},
+  {"htg", "vtkXMLHyperTreeGridReader"},
   {nullptr, nullptr}
 };

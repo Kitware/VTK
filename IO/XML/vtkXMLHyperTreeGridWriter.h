@@ -17,7 +17,7 @@
  * @brief   Write VTK XML HyperTreeGrid files.
  *
  * vtkXMLHyperTreeGridWriter writes the VTK XML HyperTreeGrid file
- * format. The standard extension for this writer's file format is "vhg".
+ * format. The standard extension for this writer's file format is "xhg".
 */
 
 #ifndef vtkXMLHyperTreeGridWriter_h

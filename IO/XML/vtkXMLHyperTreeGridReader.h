@@ -18,7 +18,7 @@
  *
  * vtkXMLHyperTreeGridReader reads the VTK XML HyperTreeGrid file
  * format. The standard extension for this
- * reader's file format is "vhg".
+ * reader's file format is "htg".
  *
 */
 
