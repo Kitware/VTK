@@ -217,7 +217,7 @@ function(vtk_python_module name)
         COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_CURRENT_BINARY_DIR}/${_name_we}.build-complete"
         DEPENDS ${_module}
         OUTPUT  "${CMAKE_CURRENT_BINARY_DIR}/${_name_we}.build-complete"
-        COMMENT "Copying and compiling Python module'${_name_we}'")
+        COMMENT "Copying and compiling Python module '${_name_we}'")
 
       # save the output file so we can add a target for the module with proper
       # dependency.
