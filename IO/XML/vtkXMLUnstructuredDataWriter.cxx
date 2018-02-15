@@ -38,7 +38,6 @@
 
 #include <cassert>
 
-
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
 {
@@ -181,8 +180,11 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(vtkInformation* request,
       this->CurrentTimeIndex = 0;
       if( this->DataMode == vtkXMLWriter::Appended && this->FieldDataOM->GetNumberOfElements())
       {
+        vtkNew<vtkFieldData> fieldDataCopy;
+        this->UpdateFieldData(fieldDataCopy);
+
         // Write the field data arrays.
-        this->WriteFieldDataAppendedData(this->GetInput()->GetFieldData(),
+        this->WriteFieldDataAppendedData(fieldDataCopy,
           this->CurrentTimeIndex, this->FieldDataOM);
         if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
         {

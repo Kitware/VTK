@@ -2473,19 +2473,18 @@ void vtkXMLWriter::WriteArrayInline(
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLWriter::WriteFieldData(vtkIndent indent)
+void vtkXMLWriter::UpdateFieldData(vtkFieldData* fieldDataCopy)
 {
   vtkDataObject* input = this->GetInput();
-  vtkFieldData *fieldData = input->GetFieldData();
-
+  vtkFieldData* fieldData = input->GetFieldData();
   vtkInformation* meta = input->GetInformation();
   bool hasTime = meta->Has(vtkDataObject::DATA_TIME_STEP()) ? true : false;
   if ((!fieldData || !fieldData->GetNumberOfArrays()) && !hasTime)
   {
+    fieldDataCopy->Initialize();
     return;
   }
 
-  vtkNew<vtkFieldData> fieldDataCopy;
   fieldDataCopy->ShallowCopy(fieldData);
   if (hasTime)
   {
@@ -2494,6 +2493,18 @@ void vtkXMLWriter::WriteFieldData(vtkIndent indent)
     time->SetTypedComponent(0, 0, meta->Get(vtkDataObject::DATA_TIME_STEP()));
     time->SetName("TimeValue");
     fieldDataCopy->AddArray(time);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::WriteFieldData(vtkIndent indent)
+{
+  vtkNew<vtkFieldData> fieldDataCopy;
+  this->UpdateFieldData(fieldDataCopy);
+
+  if (!fieldDataCopy->GetNumberOfArrays())
+  {
+    return;
   }
 
   if (this->DataMode == vtkXMLWriter::Appended)

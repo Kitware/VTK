@@ -15,7 +15,9 @@
 
 #include "vtkDataArray.h"
 #include "vtkErrorCode.h"
+#include "vtkFieldData.h"
 #include "vtkInformation.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -164,6 +166,9 @@ int vtkXMLTableWriter::ProcessRequest(
 
       if (this->DataMode == vtkXMLWriter::Appended && this->FieldDataOM->GetNumberOfElements())
       {
+        vtkNew<vtkFieldData> fieldDataCopy;
+        this->UpdateFieldData(fieldDataCopy);
+
         // Write the field data arrays.
         this->WriteFieldDataAppendedData(
           this->GetInput()->GetFieldData(), this->CurrentTimeIndex, this->FieldDataOM);
