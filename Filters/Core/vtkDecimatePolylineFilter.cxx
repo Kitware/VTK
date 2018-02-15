@@ -278,6 +278,7 @@ int vtkDecimatePolylineFilter::RequestData(
     }
 
     delete polyline;
+    this->PriorityQueue->Reset();
   }
 
   // Create output and clean up
