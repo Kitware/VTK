@@ -19,6 +19,7 @@
 #include "vtkBoundingBox.h"
 #include "vtkCellData.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkCommand.h"
 #include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
@@ -1337,6 +1338,30 @@ void vtkCompositePolyDataMapper2::Render(
   vtkRenderer *ren, vtkActor *actor)
 {
   this->RenderedList.clear();
+
+  // Make sure that we have been properly initialized.
+  if (ren->GetRenderWindow()->CheckAbortStatus())
+  {
+    return;
+  }
+
+  if (this->GetInputAlgorithm() == nullptr)
+  {
+    return;
+  }
+
+  if (!this->Static)
+  {
+    this->InvokeEvent(vtkCommand::StartEvent,nullptr);
+    this->GetInputAlgorithm()->Update();
+    this->InvokeEvent(vtkCommand::EndEvent,nullptr);
+  }
+
+  if (this->GetInputDataObject(0, 0) == nullptr)
+  {
+    vtkErrorMacro(<< "No input!");
+    return;
+  }
 
   // the first step is to gather up the polydata based on their
   // signatures (aka have normals, have scalars etc)
