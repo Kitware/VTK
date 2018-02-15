@@ -143,6 +143,7 @@ public:
   void GetRawData( unsigned char*& data, unsigned int &size );
   void SetRawData(const std::vector<unsigned char>& data);
   void SetRawData(const unsigned char*, unsigned int size);
+  std::vector<unsigned char> GetRawData() const;
   //@}
 
 private:
