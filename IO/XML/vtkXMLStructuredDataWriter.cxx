@@ -20,9 +20,11 @@
 #include "vtkDataCompressor.h"
 #include "vtkDataSet.h"
 #include "vtkErrorCode.h"
+#include "vtkFieldData.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationVector.h"
+#include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #define vtkXMLOffsetsManager_DoNotInclude
@@ -199,6 +201,9 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
       this->CurrentTimeIndex = 0;
       if (this->DataMode == vtkXMLWriter::Appended && this->FieldDataOM->GetNumberOfElements())
       {
+        vtkNew<vtkFieldData> fieldDataCopy;
+        this->UpdateFieldData(fieldDataCopy);
+
         // Write the field data arrays.
         this->WriteFieldDataAppendedData(this->GetInput()->GetFieldData(),
           this->CurrentTimeIndex, this->FieldDataOM);

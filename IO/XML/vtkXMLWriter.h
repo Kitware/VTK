@@ -44,6 +44,7 @@ class vtkDataArray;
 class vtkDataCompressor;
 class vtkDataSet;
 class vtkDataSetAttributes;
+class vtkFieldData;
 class vtkOutputStream;
 class vtkPointData;
 class vtkPoints;
@@ -490,6 +491,10 @@ protected:
   virtual void SetProgressPartial(float fraction);
   virtual void UpdateProgressDiscrete(float progress);
   float ProgressRange[2];
+
+  // This shallows copy input field data to the passed field data and
+  // then adds any additional field arrays. For example, TimeValue.
+  void UpdateFieldData(vtkFieldData*);
 
   ofstream* OutFile;
   std::ostringstream* OutStringStream;
