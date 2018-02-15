@@ -315,7 +315,7 @@ int vtkContourLoopExtraction::RequestData(
   vtkIdType start, rightEnd;
   LoopPointType sortedPoints;
   double range[2];
-  for ( lineId=0, lines->InitTraversal(); lines->GetNextCell(npts,pts); ++lineId)
+  for ( lineId=0, newLines->InitTraversal(); newLines->GetNextCell(npts,pts); ++lineId)
   {
     if ( ! visited[lineId] )
     {
