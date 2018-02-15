@@ -86,7 +86,10 @@ int vtkXMLHyperTreeGridWriter::WriteData()
   }
 
   // Coordinates for grid (can be replaced by origin and scale)
-  this->WriteGridCoordinates(indent.GetNextIndent());
+  if (!this->WriteGridCoordinates(indent.GetNextIndent()))
+  {
+    return 0;
+  }
 
   if (!this->WriteDescriptor(indent.GetNextIndent()))
   {
@@ -135,32 +138,28 @@ void vtkXMLHyperTreeGridWriter::WritePrimaryElementAttributes
 
   // vtkHyperTreeGrid does not yet store origin and scale but
   // calculate as place holder
-  vtkDoubleArray* xcoord =
-    vtkDoubleArray::SafeDownCast(input->GetXCoordinates());
-  vtkDoubleArray* ycoord =
-    vtkDoubleArray::SafeDownCast(input->GetYCoordinates());
-  vtkDoubleArray* zcoord =
-    vtkDoubleArray::SafeDownCast(input->GetZCoordinates());
+  vtkDataArray* xcoord = input->GetXCoordinates();
+  vtkDataArray* ycoord = input->GetYCoordinates();
+  vtkDataArray* zcoord = input->GetZCoordinates();
 
-  double gridOrigin[3] = {xcoord->GetValue(0),
-                          ycoord->GetValue(0),
-                          zcoord->GetValue(0)};
+  double gridOrigin[3] = {xcoord->GetTuple1(0),
+                          ycoord->GetTuple1(0),
+                          zcoord->GetTuple1(0)};
 
-  double gridScale[3] = {xcoord->GetValue(1) - xcoord->GetValue(0),
-                         ycoord->GetValue(1) - ycoord->GetValue(0),
-                         zcoord->GetValue(1) - zcoord->GetValue(0)};
+  double gridScale[3] = {xcoord->GetTuple1(1)-xcoord->GetTuple1(0),
+                         ycoord->GetTuple1(1)-ycoord->GetTuple1(0),
+                         zcoord->GetTuple1(1)-zcoord->GetTuple1(0)};
 
   this->WriteVectorAttribute("GridOrigin", 3, gridOrigin);
   this->WriteVectorAttribute("GridScale", 3, gridScale);
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLHyperTreeGridWriter::WriteGridCoordinates(vtkIndent indent)
+int vtkXMLHyperTreeGridWriter::WriteGridCoordinates(vtkIndent indent)
 {
   vtkHyperTreeGrid* input = this->GetInput();
   ostream& os = *(this->Stream);
   os << indent << "<Coordinates>\n";
-  os.flush();
 
   this->WriteArrayInline(input->GetXCoordinates(), indent.GetNextIndent(),
                          "XCoordinates",
@@ -174,6 +173,12 @@ void vtkXMLHyperTreeGridWriter::WriteGridCoordinates(vtkIndent indent)
 
   os << indent << "</Coordinates>\n";
   os.flush();
+  if (os.fail())
+  {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return 0;
+  }
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -226,7 +231,6 @@ int vtkXMLHyperTreeGridWriter::WriteDescriptor(vtkIndent indent)
 
   ostream& os = *(this->Stream);
   os << indent << "<Topology>\n";
-  os.flush();
 
   // All trees contained on this processor
   vtkIdTypeArray* treeIds = input->GetMaterialMaskIndex();
@@ -284,8 +288,13 @@ int vtkXMLHyperTreeGridWriter::WriteDescriptor(vtkIndent indent)
                          descriptor->GetNumberOfValues());
 
   os << indent << "</Topology>\n";
-  os.flush();
 
+  os.flush();
+  if (os.fail())
+  {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return 0;
+  }
   return 1;
 }
 
@@ -307,6 +316,13 @@ int vtkXMLHyperTreeGridWriter::WriteAttributeData(vtkIndent indent)
 
   this->WritePointDataInline(input->GetPointData(), indent);
 
+  ostream& os = *(this->Stream);
+  os.flush();
+  if (os.fail())
+  {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return 0;
+  }
   return 1;
 }
 
@@ -317,6 +333,7 @@ int vtkXMLHyperTreeGridWriter::FinishPrimaryElement(vtkIndent indent)
 
   // End the primary element.
   os << indent << "</" << this->GetDataSetName() << ">\n";
+
   os.flush();
   if (os.fail())
   {

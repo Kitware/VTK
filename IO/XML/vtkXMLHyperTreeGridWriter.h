@@ -65,7 +65,7 @@ protected:
   void WritePrimaryElementAttributes(ostream &, vtkIndent) override;
 
   // Grid coordinates (if origin and scale are not specified)
-  void WriteGridCoordinates(vtkIndent);
+  int WriteGridCoordinates(vtkIndent);
 
   // Tree Structure
   int WriteDescriptor(vtkIndent);
