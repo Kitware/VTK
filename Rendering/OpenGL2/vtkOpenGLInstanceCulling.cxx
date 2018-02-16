@@ -246,23 +246,18 @@ void vtkOpenGLInstanceCulling::BuildCullingShaders(vtkOpenGLShaderCache* cache,
 
     for (size_t i = 0; i < this->LODList.size(); i++)
     {
-      // OSX does not like stream layout
-      if (i > 0)
-      {
-        gstr << "\nlayout(stream = " << i << ") out;";
-      }
-
-      gstr << "\nout vec4 matrixR0Culled" << i << ";"
-              "\nout vec4 matrixR1Culled" << i << ";"
-              "\nout vec4 matrixR2Culled" << i << ";"
-              "\nout vec4 matrixR3Culled" << i << ";"
-              "\nout vec4 colorCulled" << i << ";";
+      // We cannot group the stream declaration, OSX does not like that
+      gstr << "\nlayout(stream = " << i << ") out vec4 matrixR0Culled" << i << ";"
+              "\nlayout(stream = " << i << ") out vec4 matrixR1Culled" << i << ";"
+              "\nlayout(stream = " << i << ") out vec4 matrixR2Culled" << i << ";"
+              "\nlayout(stream = " << i << ") out vec4 matrixR3Culled" << i << ";"
+              "\nlayout(stream = " << i << ") out vec4 colorCulled" << i << ";";
 
       if (withNormals)
       {
-        gstr << "\nout vec3 normalR0Culled" << i << ";"
-                "\nout vec3 normalR1Culled" << i << ";"
-                "\nout vec3 normalR2Culled" << i << ";";
+        gstr << "\nlayout(stream = " << i << ") out vec3 normalR0Culled" << i << ";"
+                "\nlayout(stream = " << i << ") out vec3 normalR1Culled" << i << ";"
+                "\nlayout(stream = " << i << ") out vec3 normalR2Culled" << i << ";";
       }
     }
     gstr << "\n"

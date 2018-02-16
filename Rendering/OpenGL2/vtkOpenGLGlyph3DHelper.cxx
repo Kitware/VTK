@@ -297,7 +297,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
     // if there is no triangle, culling is useless.
     // GLEW_ARB_gpu_shader5 is needed by the culling shader.
 #ifndef GL_ES_VERSION_3_0
-    if (this->CurrentInput->GetNumberOfPolys() <= 0 || !GLEW_ARB_gpu_shader5 || !GLEW_ARB_enhanced_layouts)
+    if (this->CurrentInput->GetNumberOfPolys() <= 0 || !GLEW_ARB_gpu_shader5 || !GLEW_ARB_transform_feedback3)
     {
       culling = false;
     }
