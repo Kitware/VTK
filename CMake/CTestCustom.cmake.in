@@ -382,6 +382,16 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   )
 ENDIF()
 
+# If VTK_LEGACY_REMOVE is not set, then we're expecting code to use deprecated
+# API. Hence ignore all deprecation warnings.
+IF(NOT VTK_LEGACY_REMOVE AND NOT VTK_LEGACY_SILENT)
+SET(CTEST_CUSTOM_WARNING_EXCEPTION
+  ${CTEST_CUSTOM_WARNING_EXCEPTION}
+  ".*[W|w]arning:.* deprecated"
+  "[N|n]ote: expanded from macro"
+  "[N|n]ote:.* deprecated"
+  )
+ENDIF()
 # Temporarily: to show us *all* the remaining warnings on the
 # 64-bit Windows builds on one result page...
 #
