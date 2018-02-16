@@ -6,6 +6,7 @@ vtk_add_test_cxx(vtkIOXMLCxxTests tests
   TestXML.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestXMLGhostCellsImport.cxx
   TestXMLHierarchicalBoxDataFileConverter.cxx,NO_VALID
+  TestXMLHyperTreeGridIO.cxx,NO_VALID
   TestXMLMappedUnstructuredGridIO.cxx,NO_DATA,NO_VALID
   TestXMLToString.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestXMLUnstructuredGridReader.cxx

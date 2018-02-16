@@ -25,6 +25,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkXMLHyperTreeGridWriter.h"
 #include "vtkXMLImageDataWriter.h"
 #include "vtkXMLPolyDataWriter.h"
 #include "vtkXMLRectilinearGridWriter.h"
@@ -81,6 +82,8 @@ vtkXMLWriter* vtkXMLDataObjectWriter::NewWriter(int dataset_type)
       return vtkXMLPolyDataWriter::New();
     case VTK_TABLE:
       return vtkXMLTableWriter::New();
+    case VTK_HYPER_TREE_GRID:
+      return vtkXMLHyperTreeGridWriter::New();
   }
   return nullptr;
 }

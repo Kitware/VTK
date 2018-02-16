@@ -1661,7 +1661,7 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
   this->SetInterfaceInterceptsName(htg->InterfaceInterceptsName);
 
   // Delete existing trees
-  DeleteTrees();
+  this->DeleteTrees();
 
   // Shallow copy and register new trees
   this->HyperTrees = htg->HyperTrees;
@@ -2243,11 +2243,15 @@ void vtkHyperTreeGrid::SubdivideLeaf( vtkHyperTreeCursor* leaf, vtkIdType id )
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::Initialize()
 {
+  vtkDataObject::Initialize();
   // Delete existing trees
   this->DeleteTrees();
 
   // Reset dual mesh
   this->ResetDual();
+
+  this->CellData->Initialize();
+  this->PointData->Initialize();
 }
 
 //-----------------------------------------------------------------------------

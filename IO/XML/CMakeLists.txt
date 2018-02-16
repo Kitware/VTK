@@ -11,6 +11,8 @@ set(Module_SRCS
   vtkXMLHierarchicalBoxDataReader.cxx
   vtkXMLHierarchicalBoxDataWriter.cxx
   vtkXMLHierarchicalDataReader.cxx
+  vtkXMLHyperTreeGridReader.cxx
+  vtkXMLHyperTreeGridWriter.cxx
   vtkXMLImageDataReader.cxx
   vtkXMLImageDataWriter.cxx
   vtkXMLMultiBlockDataReader.cxx

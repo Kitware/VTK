@@ -31,6 +31,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
+#include "vtkXMLHyperTreeGridReader.h"
 #include "vtkXMLImageDataReader.h"
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLRectilinearGridReader.h"
@@ -214,6 +215,10 @@ vtkXMLReader* vtkXMLCompositeDataReader::GetReaderOfType(const char* type)
   else if (strcmp(type,"vtkXMLTableReader") == 0)
   {
     reader = vtkXMLTableReader::New();
+  }
+  else if (strcmp(type,"vtkXMLHyperTreeGridReader") == 0)
+  {
+    reader = vtkXMLHyperTreeGridReader::New();
   }
   if (reader)
   {
@@ -511,5 +516,6 @@ const vtkXMLCompositeDataReaderEntry
   {"vtr", "vtkXMLRectilinearGridReader"},
   {"vts", "vtkXMLStructuredGridReader"},
   {"vtt", "vtkXMLTableReader"},
+  {"htg", "vtkXMLHyperTreeGridReader"},
   {nullptr, nullptr}
 };
