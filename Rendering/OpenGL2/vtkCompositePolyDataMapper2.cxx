@@ -777,8 +777,8 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
     - 3*prims[3]->GetNumberOfCells();
   hdata->PrimOffsets[3] = hdata->PrimOffsets[4] - triCount;
 
-  // on apple with the AMD PrimID bug we use a slow
-  // painful approach to work around it
+  // on Apple Macs with the AMD PrimID bug <rdar://20747550>
+  // we use a slow painful approach to work around it (pre 10.11).
   if (this->HaveAppleBug &&
       !pointPicking &&
       (this->HaveCellNormals || this->HaveCellScalars || this->HavePickScalars))

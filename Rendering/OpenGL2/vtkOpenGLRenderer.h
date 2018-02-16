@@ -78,8 +78,10 @@ public:
   int GetDepthPeelingHigherLayer();
 
   /**
-   * Indicate if this system is subject to the apple/amd bug
-   * of not having a working glPrimitiveId
+   * Indicate if this system is subject to the Apple/AMD bug
+   * of not having a working glPrimitiveId <rdar://20747550>.
+   * The bug is fixed on macOS 10.11 and later, and this method
+   * will return false when the OS is new enough.
    */
   bool HaveApplePrimitiveIdBug();
 

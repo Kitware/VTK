@@ -73,8 +73,8 @@ protected:
 
   // the following is all extra stuff to work around the
   // fact that gl_PrimitiveID does not work correctly on
-  // Apple devices with AMD graphics hardware. See apple
-  // bug ID 20747550
+  // Apple Macs with AMD graphics hardware (before macOS 10.11).
+  // See <rdar://20747550>.
   bool HaveAppleBug;
   std::vector<float> AppleBugPrimIDs;
   vtkOpenGLBufferObject *AppleBugPrimIDBuffer;
