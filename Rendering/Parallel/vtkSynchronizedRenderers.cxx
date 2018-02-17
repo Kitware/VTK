@@ -24,6 +24,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLRenderUtilities.h"
 #include "vtkParallelRenderManager.h"
 #include "vtkPNGWriter.h"
 #include "vtkRenderWindow.h"
@@ -711,6 +712,7 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer(vtkRenderer *ren)
   }
 
   vtkOpenGLClearErrorMacro();
+  vtkOpenGLRenderUtilities::MarkDebugEvent("vtkRawImage::PushToViewport begin");
 
   GLint blendSrcA = GL_ONE;
   GLint blendDstA = GL_ONE_MINUS_SRC_ALPHA;
@@ -726,14 +728,24 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer(vtkRenderer *ren)
     GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
 
   // always draw the entire image on the entire viewport
+  GLint oldvp[4];
+  glGetIntegerv(GL_VIEWPORT, oldvp);
+  int renSize[2];
+  ren->GetTiledSize(renSize, renSize + 1);
+  glViewport(0, 0, renSize[0], renSize[1]);
+
   vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetVTKWindow());
   renWin->DrawPixels(this->GetWidth(), this->GetHeight(),
     this->Data->GetNumberOfComponents(), VTK_UNSIGNED_CHAR,
     this->GetRawPtr()->GetVoidPointer(0));
+
+  glViewport(oldvp[0], oldvp[1], oldvp[2], oldvp[3]);
+
   // restore the blend state
   glBlendFuncSeparate(blendSrcC, blendDstC, blendSrcA, blendDstA);
 
   vtkOpenGLStaticCheckErrorMacro("failed after PushToFrameBuffer");
+  vtkOpenGLRenderUtilities::MarkDebugEvent("vtkRawImage::PushToViewport end");
   return true;
 }
 

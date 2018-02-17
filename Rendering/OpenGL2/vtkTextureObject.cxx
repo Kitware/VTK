@@ -1907,14 +1907,7 @@ void vtkTextureObject::CopyToFrameBuffer(
     1.0f, 1.0f, 0.0f,
     -1.0f, 1.0f, 0.0f};
 
-  GLint saved_viewport[4];
-  glGetIntegerv(GL_VIEWPORT, saved_viewport);
-  glViewport(0, 0, this->Width, this->Height);
-
   this->CopyToFrameBuffer(tcoords, verts, program, vao);
-
-  glViewport(saved_viewport[0], saved_viewport[1], saved_viewport[2],
-    saved_viewport[3]);
 }
 
 // ----------------------------------------------------------------------------
