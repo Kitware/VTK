@@ -195,6 +195,8 @@ vtkSPHInterpolator::vtkSPHInterpolator()
   this->DensityArrayName = "Rho";
   this->MassArrayName = "";
 
+  this->ShepardNormalization = false;
+
   this->NullPointsStrategy = vtkSPHInterpolator::NULL_VALUE;
   this->NullValue = 0.0;
 
@@ -492,6 +494,9 @@ void vtkSPHInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Density Array Name: " << this->DensityArrayName << "\n";
   os << indent << "Mass Array Name: " << this->MassArrayName << "\n";
+
+  os << indent << "Shepard Normalization: "
+     << (this->ShepardNormalization ? "On" : " Off") << "\n";
 
   os << indent << "Null Points Strategy: " << this->NullPointsStrategy << endl;
   os << indent << "Null Value: " << this->NullValue << "\n";

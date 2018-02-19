@@ -33,7 +33,7 @@
  *
  * @warning
  * This filter produces and output data array, but does not modify the input
- * dataset. If you wish to extract cells or poinrs, various threshold filters
+ * dataset. If you wish to extract cells or points, various threshold filters
  * are available (i.e., threshold the output array).
  *
  * @sa
@@ -47,7 +47,7 @@
 #include "vtkDataSetAlgorithm.h"
 
 class vtkUnsignedCharArray;
-class vtkCellLocator;
+class vtkStaticCellLocator;
 class vtkIdList;
 class vtkGenericCell;
 
@@ -130,8 +130,9 @@ public:
    * method releases memory.
    */
   void Initialize(vtkPolyData *surface);
-  int IsInsideSurface(double x, double y, double z);
   int IsInsideSurface(double x[3]);
+  int IsInsideSurface(double x, double y, double z);
+  int IsInsideSurface(double x[3], vtkIdList *cellIds, vtkGenericCell *genCell);
   void Complete();
   //@}
 
@@ -147,7 +148,7 @@ protected:
   vtkUnsignedCharArray *InsideOutsideArray;
 
   // Internal structures for accelerating the intersection test
-  vtkCellLocator *CellLocator;
+  vtkStaticCellLocator *CellLocator;
   vtkIdList      *CellIds;
   vtkGenericCell *Cell;
   vtkPolyData    *Surface;

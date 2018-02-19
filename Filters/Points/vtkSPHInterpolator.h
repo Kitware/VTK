@@ -262,7 +262,18 @@ public:
   }
   //@}
 
-  // How to handle nullptr points
+  //@{
+  /**
+   * Indicate whether to normalize all arrays with the Shepard coefficients
+   * (except the density array). If the Shepard coefficient is 0, then the
+   * data value is set to zero.
+   */
+  vtkSetMacro(ShepardNormalization, bool);
+  vtkBooleanMacro(ShepardNormalization, bool);
+  vtkGetMacro(ShepardNormalization, bool);
+  //@}
+
+  // How to handle NULL/empty points
   enum NullStrategy
   {
     MASK_POINTS=0,
@@ -394,6 +405,8 @@ protected:
 
   std::vector<vtkStdString> ExcludedArrays;
   std::vector<vtkStdString> DerivArrays;
+
+  bool ShepardNormalization;
 
   int NullPointsStrategy;
   double NullValue;
