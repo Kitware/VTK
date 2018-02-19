@@ -27,7 +27,7 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper.h"
-#include "vtkTexture.h" // used to include texture unit enum.
+//#include "vtkTexture.h" // used to include texture unit enum.
 
 class vtkPolyData;
 class vtkRenderer;
@@ -111,14 +111,23 @@ public:
    * (vtkDataObject::FIELD_ASSOCIATION_CELLS).
    * componentno indicates which component from the data array must be passed as
    * the attribute. If -1, then all components are passed.
+   * Currently only point data is supported.
    */
   virtual void MapDataArrayToVertexAttribute(
     const char* vertexAttributeName,
     const char* dataArrayName, int fieldAssociation, int componentno = -1);
 
+  // Specify a data array to use as the texture coordinate
+  // for a named texture. See vtkProperty.h for how to
+  // name textures.
   virtual void MapDataArrayToMultiTextureAttribute(
-    int unit,
+    const char *textureName,
     const char* dataArrayName, int fieldAssociation, int componentno = -1);
+
+  // deprecated in favor of the const char * signature
+  VTK_LEGACY(virtual void MapDataArrayToMultiTextureAttribute(
+    int unit,
+    const char* dataArrayName, int fieldAssociation, int componentno = -1));
 
   /**
    * Remove a vertex attribute mapping.

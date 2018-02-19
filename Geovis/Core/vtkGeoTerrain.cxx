@@ -50,6 +50,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
+#include "vtkTexture.h"
 #include "vtkTimerLog.h"
 #include "vtkTransformFilter.h"
 #include "vtkXMLPolyDataWriter.h"
@@ -341,11 +342,11 @@ void vtkGeoTerrain::AddActors(
           sameTexture = (
               !textureNode1 ||
               actor->GetProperty()->GetNumberOfTextures() < 1 ||
-              actor->GetProperty()->GetTexture(vtkProperty::VTK_TEXTURE_UNIT_0) == textureNode1->GetTexture()
+              actor->GetProperty()->GetTexture("VTK_TEXTURE_UNIT_0") == textureNode1->GetTexture()
             ) && (
               !textureNode2 ||
               actor->GetProperty()->GetNumberOfTextures() < 2 ||
-              actor->GetProperty()->GetTexture(vtkProperty::VTK_TEXTURE_UNIT_1) == textureNode2->GetTexture()
+              actor->GetProperty()->GetTexture("VTK_TEXTURE_UNIT_1") == textureNode2->GetTexture()
             );
         }
         else
@@ -387,17 +388,17 @@ void vtkGeoTerrain::AddActors(
         if (multiTexturing && textureUnits > 1)
         {
           // Multi texturing
-          mapper->MapDataArrayToMultiTextureAttribute(vtkProperty::VTK_TEXTURE_UNIT_0,
+          mapper->MapDataArrayToMultiTextureAttribute("VTK_TEXTURE_UNIT_0",
               "LatLong", vtkDataObject::FIELD_ASSOCIATION_POINTS);
           textureNode1->GetTexture()->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_REPLACE);
-          actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_0, textureNode1->GetTexture());
+          actor->GetProperty()->SetTexture("VTK_TEXTURE_UNIT_0", textureNode1->GetTexture());
 
           if (textureNode2)
           {
-            mapper->MapDataArrayToMultiTextureAttribute(vtkProperty::VTK_TEXTURE_UNIT_1,
+            mapper->MapDataArrayToMultiTextureAttribute("VTK_TEXTURE_UNIT_1",
                 "LatLong", vtkDataObject::FIELD_ASSOCIATION_POINTS);
             textureNode2->GetTexture()->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_ADD);
-            actor->GetProperty()->SetTexture(vtkProperty::VTK_TEXTURE_UNIT_1, textureNode2->GetTexture());
+            actor->GetProperty()->SetTexture("VTK_TEXTURE_UNIT_1", textureNode2->GetTexture());
           }
         }
         else
@@ -438,11 +439,11 @@ void vtkGeoTerrain::AddActors(
           sameTexture = (
               !textureNode1 ||
               actor->GetProperty()->GetNumberOfTextures() < 1 ||
-              actor->GetProperty()->GetTexture(vtkProperty::VTK_TEXTURE_UNIT_0) == textureNode1->GetTexture()
+              actor->GetProperty()->GetTexture("VTK_TEXTURE_UNIT_0") == textureNode1->GetTexture()
             ) && (
               !textureNode2 ||
               actor->GetProperty()->GetNumberOfTextures() < 2 ||
-              actor->GetProperty()->GetTexture(vtkProperty::VTK_TEXTURE_UNIT_1) == textureNode2->GetTexture()
+              actor->GetProperty()->GetTexture("VTK_TEXTURE_UNIT_1") == textureNode2->GetTexture()
             );
         }
         else

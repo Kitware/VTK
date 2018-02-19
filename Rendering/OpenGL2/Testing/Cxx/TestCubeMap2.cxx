@@ -32,6 +32,7 @@
 #include "vtkSkybox.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
+#include "vtkTexture.h"
 
 #include "vtkLight.h"
 
@@ -141,7 +142,7 @@ int TestCubeMap2(int argc, char *argv[])
     vtkShader::Fragment,
     "//VTK::Light::Impl", // replace
     true, // before the standard replacements
-    "  vec3 cubeColor = texture(texture_0, normalize(TexCoords)).xyz;\n"
+    "  vec3 cubeColor = texture(actortexture, normalize(TexCoords)).xyz;\n"
     "//VTK::Light::Impl\n"
     "  gl_FragData[0] = vec4(ambientColor + diffuse + specular + specularColor*cubeColor, opacity);\n"
     , // we still want the default

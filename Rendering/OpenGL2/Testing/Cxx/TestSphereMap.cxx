@@ -31,6 +31,7 @@
 #include "vtkSkybox.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
+#include "vtkTexture.h"
 
 #include "vtkLight.h"
 
@@ -123,7 +124,7 @@ int TestSphereMap(int argc, char *argv[])
     true, // before the standard replacements
     "//VTK::Light::Impl\n"
     "  float phix = length(vec2(TexCoords.x, TexCoords.z));\n"
-    "  vec3 skyColor = texture(texture_0, vec2(0.5*atan(TexCoords.z, TexCoords.x)/3.1415927 + 0.5, atan(TexCoords.y,phix)/3.1415927 + 0.5)).xyz;\n"
+    "  vec3 skyColor = texture(actortexture, vec2(0.5*atan(TexCoords.z, TexCoords.x)/3.1415927 + 0.5, atan(TexCoords.y,phix)/3.1415927 + 0.5)).xyz;\n"
     "  gl_FragData[0] = vec4(ambientColor + diffuse + specular + specularColor*skyColor, opacity);\n"
     , // we still want the default
     false // only do it once

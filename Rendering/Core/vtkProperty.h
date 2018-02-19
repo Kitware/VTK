@@ -33,6 +33,7 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include <map> // used for ivar
 
 // shading models
 #define VTK_FLAT    0
@@ -427,7 +428,9 @@ public:
    * Set/Get the texture object to control rendering texture maps. This will
    * be a vtkTexture object. A property does not need to have an associated
    * texture map and multiple properties can share one texture. Textures
-   * must be assigned unique names.
+   * must be assigned unique names. Note that for texture blending the
+   * textures will be rendering is alphabetical order and after any texture
+   * defined in the actor.
    */
   void SetTexture(const char* name, vtkTexture* texture);
   vtkTexture* GetTexture(const char* name);
@@ -440,14 +443,13 @@ public:
    * texture map and multiple properties can share one texture. Textures
    * must be assigned unique names.
    */
-  void SetTexture(int unit, vtkTexture* texture);
-  vtkTexture* GetTexture(int unit);
-  void RemoveTexture(int unit);
+  VTK_LEGACY(void SetTexture(int unit, vtkTexture* texture));
+  VTK_LEGACY(vtkTexture* GetTexture(int unit));
+  VTK_LEGACY(void RemoveTexture(int unit));
   //@}
 
   /**
-   * Remove a texture from the collection. Note that the
-   * indices of all the subsequent textures, if any, will change.
+   * Remove a texture from the collection.
    */
   void RemoveTexture(const char* name);
 
@@ -462,16 +464,21 @@ public:
   int GetNumberOfTextures();
 
   /**
+   * Returns all the textures in this property and their names
+   */
+  std::map<std::string, vtkTexture *> &GetAllTextures() {
+    return this->Textures; }
+
+  /**
    * Release any graphics resources that are being consumed by this
    * property. The parameter window could be used to determine which graphic
    * resources to release.
    */
   virtual void ReleaseGraphicsResources(vtkWindow *win);
 
-  /**
-   * Used to specify which texture unit a texture will use.
-   * Only relevant when multitexturing.
-   */
+
+#ifndef VTK_LEGACY_REMOVE
+  // deprecated. Textures should use names not units
   enum VTKTextureUnit
   {
     VTK_TEXTURE_UNIT_0 = 0,
@@ -483,6 +490,7 @@ public:
     VTK_TEXTURE_UNIT_6,
     VTK_TEXTURE_UNIT_7
   };
+#endif
 
   //@{
   /**
@@ -533,12 +541,8 @@ protected:
 
   char* MaterialName;
 
-  // FIXME:
-  // Don't use these methods. They will be removed. They are provided only
-  // for the time-being.
-  vtkTexture* GetTextureAtIndex(int index);
-  int GetTextureUnitAtIndex(int index);
-  int GetTextureUnit(const char* name);
+  typedef std::map<std::string, vtkTexture*> MapOfTextures;
+  MapOfTextures Textures;
 
   // Arbitrary extra information associated with this Property.
   vtkInformation* Information;

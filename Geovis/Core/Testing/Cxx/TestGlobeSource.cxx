@@ -31,6 +31,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 #include "vtkTestUtilities.h"
+#include "vtkTexture.h"
 #include "vtkTransform.h"
 
 #include <vtksys/SystemTools.hxx>

@@ -27,6 +27,7 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkSmartPointer.h>
 #include <vtkTestUtilities.h>
+#include <vtkTexture.h>
 #include <vtkTubeFilter.h>
 
 namespace

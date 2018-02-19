@@ -24,6 +24,7 @@
 #include "vtkRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkTexture.h"
 #include "vtkTestUtilities.h"
 
 #include "vtkLight.h"

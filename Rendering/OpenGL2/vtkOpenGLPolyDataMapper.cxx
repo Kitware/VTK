@@ -432,11 +432,25 @@ vtkMTimeType vtkOpenGLPolyDataMapper::GetRenderPassStageMTime(vtkActor *actor)
   return renderPassMTime;
 }
 
+std::string vtkOpenGLPolyDataMapper::GetTextureCoordinateName(const char *tname)
+{
+  for (auto it : this->ExtraAttributes)
+  {
+    if (it.second.TextureName == tname)
+    {
+      return it.first;
+    }
+  }
+  return std::string("tcoord");
+}
+
 //-----------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::HaveTextures(vtkActor *actor)
 {
   return (this->GetNumberOfTextures(actor) > 0);
 }
+
+typedef std::pair<vtkTexture *, std::string> texinfo;
 
 //-----------------------------------------------------------------------------
 unsigned int vtkOpenGLPolyDataMapper::GetNumberOfTextures(vtkActor *actor)
@@ -455,21 +469,22 @@ unsigned int vtkOpenGLPolyDataMapper::GetNumberOfTextures(vtkActor *actor)
 }
 
 //-----------------------------------------------------------------------------
-std::vector<vtkTexture *> vtkOpenGLPolyDataMapper::GetTextures(vtkActor *actor)
+std::vector<texinfo> vtkOpenGLPolyDataMapper::GetTextures(vtkActor *actor)
 {
-  std::vector<vtkTexture *> res;
+  std::vector<texinfo> res;
 
   if (this->ColorTextureMap)
   {
-    res.push_back(this->InternalColorTexture);
+    res.push_back(texinfo(this->InternalColorTexture, "colortexture"));
   }
   if (actor->GetTexture())
   {
-    res.push_back(actor->GetTexture());
+    res.push_back(texinfo(actor->GetTexture(), "actortexture"));
   }
-  for (int i = 0; i < actor->GetProperty()->GetNumberOfTextures(); i++)
+  auto textures = actor->GetProperty()->GetAllTextures();
+  for (auto ti : textures)
   {
-    res.push_back(actor->GetProperty()->GetTexture(i));
+    res.push_back(texinfo(ti.second,ti.first));
   }
   return res;
 }
@@ -625,7 +640,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
       !this->DrawingEdgesOrVertices)
   {
     colorImpl +=
-      "  vec4 texColor = texture(texture_0, tcoordVCVSOutput.st);\n"
+      "  vec4 texColor = texture(colortexture, tcoordVCVSOutput.st);\n"
       "  vec3 ambientColor = ambientIntensity * texColor.rgb;\n"
       "  vec3 diffuseColor = diffuseIntensity * texColor.rgb;\n"
       "  float opacity = opacityUniform * texColor.a;";
@@ -886,7 +901,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
     return;
   }
 
-  if (!this->HaveTextures(actor))
+  std::vector<texinfo> textures = this->GetTextures(actor);
+  if (textures.size() == 0)
   {
     return;
   }
@@ -895,29 +911,37 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
   std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
-  // define texture maps if we have them
+  // always define texture maps if we have them
   std::string tMapDecFS;
-  std::vector<vtkTexture *> textures = this->GetTextures(actor);
-  for (size_t i = 0; i < textures.size(); ++i)
+  for (auto it : textures)
   {
-    vtkTexture *texture = textures[i];
-
-    std::stringstream ss;
-    if (texture->GetCubeMap())
+    if (it.first->GetCubeMap())
     {
-      ss << "uniform samplerCube texture_" << i << ";\n";
+      tMapDecFS += "uniform samplerCube ";
     }
     else
     {
-      ss << "uniform sampler2D texture_" << i << ";\n";
+      tMapDecFS += "uniform sampler2D ";
     }
-    tMapDecFS += ss.str();
+    tMapDecFS += it.second + ";\n";
   }
   vtkShaderProgram::Substitute(FSSource, "//VTK::TMap::Dec", tMapDecFS);
 
+  // now handle each texture coordinate
+  std::set<std::string> tcoordnames;
+  for (auto it : textures)
+  {
+    // do we have special tcoords for this texture?
+    std::string tcoordname = this->GetTextureCoordinateName(it.second.c_str());
+    int tcoordComps = this->VBOs->GetNumberOfComponents(tcoordname.c_str());
+    if (tcoordComps == 1 || tcoordComps == 2)
+    {
+      tcoordnames.insert(tcoordname);
+    }
+  }
+
   // if no texture coordinates then we are done
-  int tcoordComps = this->VBOs->GetNumberOfComponents("tcoordMC");
-  if (tcoordComps != 1 && tcoordComps != 2)
+  if (tcoordnames.size() == 0)
   {
     shaders[vtkShader::Vertex]->SetSource(VSSource);
     shaders[vtkShader::Geometry]->SetSource(GSSource);
@@ -925,60 +949,99 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
     return;
   }
 
-  // handle texture transformation matrix
+  // handle texture transformation matrix and create the
+  // vertex shader texture coordinate implementation
+  // code for all texture coordinates.
   vtkInformation *info = actor->GetPropertyKeys();
+  std::string vsimpl;
   if (info && info->Has(vtkProp::GeneralTextureTransform()))
   {
     vtkShaderProgram::Substitute(VSSource, "//VTK::TCoord::Dec",
       "//VTK::TCoord::Dec\n"
       "uniform mat4 tcMatrix;",
       false);
+    for (auto it : tcoordnames)
+    {
+      int tcoordComps = this->VBOs->GetNumberOfComponents(it.c_str());
+      if (tcoordComps == 1)
+      {
+        vsimpl = vsimpl + "vec4 " + it + "Tmp = tcMatrix*vec4(" + it + ",0.0,0.0,1.0);\n"
+          + it + "VCVSOutput = " + it + "Tmp.x/" + it + "Tmp.w;\n";
+      }
+      else
+      {
+        vsimpl = vsimpl + "vec4 " + it + "Tmp = tcMatrix*vec4(" + it + ",0.0,1.0);\n"
+          + it + "VCVSOutput = " + it + "Tmp.xy/" + it + "Tmp.w;\n";
+      }
+    }
+  }
+  else
+  {
+    for (auto it : tcoordnames)
+    {
+      vsimpl = vsimpl + it + "VCVSOutput = " + it + ";\n";
+    }
+  }
+  vtkShaderProgram::Substitute(VSSource, "//VTK::TCoord::Impl", vsimpl);
+
+  // now create the rest of the vertex and geometry shader code
+  std::string vsdec;
+  std::string gsdec;
+  std::string gsimpl;
+  std::string fsdec;
+  for (auto it : tcoordnames)
+  {
+    int tcoordComps = this->VBOs->GetNumberOfComponents(it.c_str());
+    std::string tCoordType;
     if (tcoordComps == 1)
     {
-      vtkShaderProgram::Substitute(VSSource, "//VTK::TCoord::Impl",
-        "vec4 tcoordTmp = tcMatrix*vec4(tcoordMC,0.0,0.0,1.0);\n"
-        "tcoordVCVSOutput = tcoordTmp.x/tcoordTmp.w;");
+      tCoordType = "float";
     }
     else
     {
-      vtkShaderProgram::Substitute(VSSource, "//VTK::TCoord::Impl",
-        "vec4 tcoordTmp = tcMatrix*vec4(tcoordMC,0.0,1.0);\n"
-        "tcoordVCVSOutput = tcoordTmp.xy/tcoordTmp.w;");
+      tCoordType = "vec2";
     }
+    vsdec = vsdec + "attribute " + tCoordType + " " + it + ";\n";
+    vsdec = vsdec + "varying " + tCoordType + " " + it + "VCVSOutput;\n";
+    gsdec = gsdec + "in " + tCoordType + " " + it + "VCVSOutput[];\n";
+    gsdec = gsdec + "out " + tCoordType + " " + it + "VCGSOutput;\n";
+    gsimpl = gsimpl + it + "VCGSOuput = " + it + "VCVSOutput[i];\n";
+    fsdec = fsdec + "varying " + tCoordType + " " + it + "VCVSOutput;\n";
   }
-  else
-  {
-    vtkShaderProgram::Substitute(VSSource, "//VTK::TCoord::Impl",
-      "tcoordVCVSOutput = tcoordMC;");
-  }
+  vtkShaderProgram::Substitute(VSSource, "//VTK::TCoord::Dec", vsdec);
+  vtkShaderProgram::Substitute(GSSource, "//VTK::TCoord::Dec", gsdec);
+  vtkShaderProgram::Substitute(GSSource, "//VTK::TCoord::Impl", gsimpl);
+  vtkShaderProgram::Substitute(FSSource, "//VTK::TCoord::Dec", fsdec);
 
-  // handle texture maps if we have them (coords may be computed)
-  std::string tCoordType;
-  std::string tCoordImpFSPre;
-  std::string tCoordImpFSPost;
-  if (tcoordComps == 1)
-  {
-    tCoordType = "float";
-    tCoordImpFSPre = "vec2(";
-    tCoordImpFSPost = ", 0.0)";
-  }
-  else
-  {
-    tCoordType = "vec2";
-    tCoordImpFSPre = "";
-    tCoordImpFSPost = "";
-  }
-
-  std::string tCoordDecFS;
+  // OK now handle the fragment shader implementation
+  // everything else has been done.
   std::string tCoordImpFS;
   for (size_t i = 0; i < textures.size(); ++i)
   {
-    vtkTexture *texture = textures[i];
+    vtkTexture *texture = textures[i].first;
     std::stringstream ss;
 
+    // do we have special tcoords for this texture?
+    std::string tcoordname = this->GetTextureCoordinateName(textures[i].second.c_str());
+    int tcoordComps = this->VBOs->GetNumberOfComponents(tcoordname.c_str());
+
+    std::string tCoordImpFSPre;
+    std::string tCoordImpFSPost;
+    if (tcoordComps == 1)
+    {
+      tCoordImpFSPre = "vec2(";
+      tCoordImpFSPost = ", 0.0)";
+    }
+    else
+    {
+      tCoordImpFSPre = "";
+      tCoordImpFSPost = "";
+    }
+
+
     // Read texture color
-    ss << "vec4 tcolor_" << i << " = texture(texture_" << i << ", "
-       << tCoordImpFSPre << "tcoordVCVSOutput" << tCoordImpFSPost << "); // Read texture color\n";
+    ss << "vec4 tcolor_" << i << " = texture(" << textures[i].second << ", "
+       << tCoordImpFSPre << tcoordname << "VCVSOutput" << tCoordImpFSPost << "); // Read texture color\n";
 
     // Update color based on texture number of components
     int tNumComp = vtkOpenGLTexture::SafeDownCast(texture)->GetTextureObject()->GetComponents();
@@ -1037,20 +1100,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
     tCoordImpFS += ss.str();
   }
 
-  // Substitute in shader files
-  vtkShaderProgram::Substitute(VSSource, "//VTK::TCoord::Dec",
-    "attribute " + tCoordType + " tcoordMC;\n" +
-    "varying " + tCoordType + " tcoordVCVSOutput;");
-  vtkShaderProgram::Substitute(GSSource, "//VTK::TCoord::Dec",
-    "in " + tCoordType + " tcoordVCVSOutput[];\n" +
-    "out " + tCoordType + " tcoordVCGSOutput;");
-  vtkShaderProgram::Substitute(GSSource, "//VTK::TCoord::Impl",
-    "tcoordVCGSOutput = tcoordVCVSOutput[i];");
-  vtkShaderProgram::Substitute(FSSource, "//VTK::TCoord::Dec",
-    "varying " + tCoordType + " tcoordVCVSOutput;\n" + tCoordDecFS);
-
   // do texture mapping except for scalar coloring case which is
-  // handled above
+  // handled in the scalar coloring code
   if (!this->InterpolateScalarsBeforeMapping || !this->ColorCoordinates)
   {
     vtkShaderProgram::Substitute(FSSource, "//VTK::TCoord::Impl",
@@ -1717,7 +1768,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
     + ((factor != 0.0) ? 0x10 : 0)
     + ((offset != 0.0) ? 0x20 : 0)
     + (this->VBOs->GetNumberOfComponents("scalarColor") ? 0x40 : 0)
-    + ((this->VBOs->GetNumberOfComponents("tcoordMC") % 4) << 7);
+    + ((this->VBOs->GetNumberOfComponents("tcoord") % 4) << 7);
 
   if (cellBO.Program == nullptr ||
       cellBO.ShaderSourceTime < this->GetMTime() ||
@@ -1732,13 +1783,13 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
   }
 
   // if texturing then texture components/blend funcs may have changed
-  if (this->VBOs->GetNumberOfComponents("tcoordMC"))
+  if (this->VBOs->GetNumberOfComponents("tcoord"))
   {
     vtkMTimeType texMTime = 0;
-    std::vector<vtkTexture *> textures = this->GetTextures(actor);
+    std::vector<texinfo> textures = this->GetTextures(actor);
     for (size_t i = 0; i < textures.size(); ++i)
     {
-      vtkTexture *texture = textures[i];
+      vtkTexture *texture = textures[i].first;
       texMTime = (texture->GetMTime() > texMTime ? texture->GetMTime() : texMTime);
       if (cellBO.ShaderSourceTime < texMTime)
       {
@@ -1846,16 +1897,14 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
 
   if (this->HaveTextures(actor))
   {
-    std::vector<vtkTexture *> textures = this->GetTextures(actor);
+    std::vector<texinfo> textures = this->GetTextures(actor);
     for (size_t i = 0; i < textures.size(); ++i)
     {
-      vtkTexture *texture = textures[i];
-      std::stringstream ss; ss << "texture_" << i;
-      std::string s = ss.str();
-      if (texture && cellBO.Program->IsUniformUsed(s.c_str()))
+      vtkTexture *texture = textures[i].first;
+      if (texture && cellBO.Program->IsUniformUsed(textures[i].second.c_str()))
       {
         int tunit = vtkOpenGLTexture::SafeDownCast(texture)->GetTextureUnit();
-        cellBO.Program->SetUniformi(s.c_str(), tunit);
+        cellBO.Program->SetUniformi(textures[i].second.c_str(), tunit);
       }
     }
 
@@ -3243,7 +3292,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
 
   this->VBOs->CacheDataArray("normalMC", n, cache, VTK_FLOAT);
   this->VBOs->CacheDataArray("scalarColor", c, cache, VTK_UNSIGNED_CHAR);
-  this->VBOs->CacheDataArray("tcoordMC", tcoords, cache, VTK_FLOAT);
+  this->VBOs->CacheDataArray("tcoord", tcoords, cache, VTK_FLOAT);
   this->VBOs->BuildAllVBOs(cache);
 
   // get it again as it may have been freed
@@ -3506,7 +3555,32 @@ void vtkOpenGLPolyDataMapper::MapDataArrayToVertexAttribute(
     int componentno
     )
 {
-  if (!vertexAttributeName)
+  this->MapDataArray(vertexAttributeName,
+    dataArrayName, "", fieldAssociation, componentno);
+}
+
+void vtkOpenGLPolyDataMapper::MapDataArrayToMultiTextureAttribute(
+    const char *tname,
+    const char* dataArrayName,
+    int fieldAssociation,
+    int componentno
+    )
+{
+  std::string coordname = tname;
+  coordname += "_coord";
+  this->MapDataArray(coordname.c_str(),
+    dataArrayName, tname, fieldAssociation, componentno);
+}
+
+void vtkOpenGLPolyDataMapper::MapDataArray(
+    const char* vertexAttributeName,
+    const char* dataArrayName,
+    const char *tname,
+    int fieldAssociation,
+    int componentno
+    )
+{
+ if (!vertexAttributeName)
   {
     return;
   }
@@ -3522,6 +3596,7 @@ void vtkOpenGLPolyDataMapper::MapDataArrayToVertexAttribute(
   aval.DataArrayName = dataArrayName;
   aval.FieldAssociation = fieldAssociation;
   aval.ComponentNumber = componentno;
+  aval.TextureName = tname;
 
   this->ExtraAttributes.insert(
     std::make_pair(vertexAttributeName, aval));

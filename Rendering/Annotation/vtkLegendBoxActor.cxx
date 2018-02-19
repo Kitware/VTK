@@ -28,6 +28,7 @@
 #include "vtkTexturedActor2D.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
+#include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkViewport.h"
