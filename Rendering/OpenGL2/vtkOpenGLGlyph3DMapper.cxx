@@ -996,14 +996,18 @@ void vtkOpenGLGlyph3DMapper::ReleaseGraphicsResources(vtkWindow *window)
 vtkIdType vtkOpenGLGlyph3DMapper::GetMaxNumberOfLOD()
 {
 #ifndef GL_ES_VERSION_3_0
-  if (!GLEW_ARB_gpu_shader5 || !GLEW_ARB_enhanced_layouts)
+  if (!GLEW_ARB_gpu_shader5 || !GLEW_ARB_transform_feedback3)
   {
     return 0;
   }
 
-  GLint streams;
+  GLint streams, maxsize;
   glGetIntegerv(GL_MAX_VERTEX_STREAMS, &streams);
-  return static_cast<vtkIdType>(streams) - 1;
+  glGetIntegerv(GL_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS, &maxsize);
+  maxsize /= 32; // each stream size can be 29 bytes (16 for transform matrix, 9 for normal, 4 for color)
+
+  vtkIdType maxstreams = static_cast<vtkIdType>(std::min(streams, maxsize));
+  return maxstreams - 1;
 #else
   return 0;
 #endif

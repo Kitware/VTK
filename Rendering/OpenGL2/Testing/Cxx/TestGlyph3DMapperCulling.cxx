@@ -76,7 +76,7 @@ int TestGlyph3DMapperCulling(int argc, char* argv[])
   vtkIdType maxLOD = glypher->GetMaxNumberOfLOD();
   if (maxLOD < 2)
   {
-    cout << "This feature cannot be tested, this GPU only supports " << maxLOD << " vertex streams.\n";
+    cout << "This feature cannot be tested, this GPU only supports " << maxLOD << " LODs.\n";
     return EXIT_SUCCESS;
   }
 
