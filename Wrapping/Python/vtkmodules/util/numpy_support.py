@@ -135,7 +135,7 @@ def numpy_to_vtk(num_array, deep=0, array_type=None):
     assert z.flags.contiguous, 'Only contiguous arrays are supported.'
     assert len(shape) < 3, \
            "Only arrays of dimensionality 2 or lower are allowed!"
-    assert not numpy.issubdtype(z.dtype, complex), \
+    assert not numpy.issubdtype(z.dtype, numpy.complexfloating), \
            "Complex numpy arrays cannot be converted to vtk arrays."\
            "Use real() or imag() to get a component of the array before"\
            " passing it to vtk."
