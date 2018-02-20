@@ -20,7 +20,7 @@
  * polyline. The algorithm functions by evaluating an error metric for each
  * vertex (i.e., the distance of the vertex to a line defined from the two
  * vertices on either side of the vertex). Then, these vertices are placed
- * into a priority queue, and those with larger errors are deleted first.
+ * into a priority queue, and those with smaller errors are deleted first.
  * The decimation continues until the target reduction is reached. While the
  * filter will not delete end points, it will decimate closed loops down to a
  * single line, thereby changing topology.

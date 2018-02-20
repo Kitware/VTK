@@ -184,6 +184,7 @@ int vtkDecimatePolylineFilter::RequestData(
   vtkIdType firstVertexIndex = 0;
   vtkIdType polylineSize = 0;
 
+  std::map<vtkIdType,vtkIdType> pointIdMap;
   // Decimate each polyline (represented as a single cell) in series
   for ( vtkIdType lineId=0; lineId < numLines;
         lineId++, firstVertexIndex += polylineSize)
@@ -254,13 +255,12 @@ int vtkDecimatePolylineFilter::RequestData(
     vtkIdType newId = newLines->InsertNextCell(currentNumPts);
     outCD->CopyData(inCD,firstVertexIndex,newId);
 
-    std::map<vtkIdType,vtkIdType> pointIdMap;
     std::map<vtkIdType,vtkIdType>::iterator it;
 
     Polyline::Vertex* vertex = &(polyline->Vertices[0]);
     while (vertex != nullptr)
     {
-      // points that are repeated within a single polyline are represented by
+      // points that are repeated within polylines are represented by
       // only one point instance
       it = pointIdMap.find(vertex->id);
       if (it == pointIdMap.end())
@@ -268,6 +268,7 @@ int vtkDecimatePolylineFilter::RequestData(
         newId = newPts->InsertNextPoint( inputPoints->GetPoint( vertex->id ) );
         newLines->InsertCellPoint( newId );
         outPD->CopyData( inPD, vertex->id, newId );
+        pointIdMap[vertex->id] = newId;
       }
       else
       {
