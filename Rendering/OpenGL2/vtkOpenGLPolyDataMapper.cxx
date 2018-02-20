@@ -1005,7 +1005,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
     vsdec = vsdec + "varying " + tCoordType + " " + it + "VCVSOutput;\n";
     gsdec = gsdec + "in " + tCoordType + " " + it + "VCVSOutput[];\n";
     gsdec = gsdec + "out " + tCoordType + " " + it + "VCGSOutput;\n";
-    gsimpl = gsimpl + it + "VCGSOuput = " + it + "VCVSOutput[i];\n";
+    gsimpl = gsimpl + it + "VCGSOutput = " + it + "VCVSOutput[i];\n";
     fsdec = fsdec + "varying " + tCoordType + " " + it + "VCVSOutput;\n";
   }
   vtkShaderProgram::Substitute(VSSource, "//VTK::TCoord::Dec", vsdec);
