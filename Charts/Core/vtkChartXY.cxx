@@ -104,6 +104,7 @@ public:
   vtkSmartPointer<vtkColorSeries> Colors;        // Colors in the chart
   vtkSmartPointer<vtkContextClip> Clip;          // Colors in the chart
   int Borders[4];
+  vtkTimeStamp TransformCalculatedTime;
 };
 
 //-----------------------------------------------------------------------------
@@ -376,10 +377,10 @@ bool vtkChartXY::Paint(vtkContext2D* painter)
   this->UpdateLayout(painter);
 
   // Axes may have changed during updateLayout
-  if (this->MTime < this->ChartPrivate->axes[0]->GetMTime() ||
-      this->MTime < this->ChartPrivate->axes[1]->GetMTime() ||
-      this->MTime < this->ChartPrivate->axes[2]->GetMTime() ||
-      this->MTime < this->ChartPrivate->axes[3]->GetMTime())
+  if (this->ChartPrivate->TransformCalculatedTime < this->ChartPrivate->axes[0]->GetMTime() ||
+      this->ChartPrivate->TransformCalculatedTime < this->ChartPrivate->axes[1]->GetMTime() ||
+      this->ChartPrivate->TransformCalculatedTime < this->ChartPrivate->axes[2]->GetMTime() ||
+      this->ChartPrivate->TransformCalculatedTime < this->ChartPrivate->axes[3]->GetMTime())
   {
     // Cause the plot transform to be recalculated if necessary
     recalculateTransform = true;
@@ -587,6 +588,7 @@ void vtkChartXY::RecalculatePlotTransforms()
     }
   }
   this->PlotTransformValid = true;
+  this->ChartPrivate->TransformCalculatedTime.Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -1494,10 +1496,8 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent& mouse)
                             : std::max(delta[0], xAxis->GetMinimumLimit() - xAxis->GetMinimum());
     delta[1] = delta[1] > 0 ? std::min(delta[1], yAxis->GetMaximumLimit() - yAxis->GetMaximum())
                             : std::max(delta[1], yAxis->GetMinimumLimit() - yAxis->GetMinimum());
-    xAxis->SetMinimum(xAxis->GetMinimum() + delta[0]);
-    xAxis->SetMaximum(xAxis->GetMaximum() + delta[0]);
-    yAxis->SetMinimum(yAxis->GetMinimum() + delta[1]);
-    yAxis->SetMaximum(yAxis->GetMaximum() + delta[1]);
+    xAxis->SetRange(xAxis->GetMinimum() + delta[0], xAxis->GetMaximum() + delta[0]);
+    yAxis->SetRange(yAxis->GetMinimum() + delta[1], yAxis->GetMaximum() + delta[1]);
 
     if (this->ChartPrivate->PlotCorners.size() == 2)
     {
@@ -1518,8 +1518,7 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent& mouse)
       // Now move the axes and recalculate the transform
       delta[1] = delta[1] > 0 ? std::min(delta[1], yAxis->GetMaximumLimit() - yAxis->GetMaximum())
                               : std::max(delta[1], yAxis->GetMinimumLimit() - yAxis->GetMinimum());
-      yAxis->SetMinimum(yAxis->GetMinimum() + delta[1]);
-      yAxis->SetMaximum(yAxis->GetMaximum() + delta[1]);
+      yAxis->SetRange(yAxis->GetMinimum() + delta[1], yAxis->GetMaximum() + delta[1]);
     }
     else if (this->ChartPrivate->PlotCorners.size() > 2)
     {
@@ -1543,10 +1542,8 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent& mouse)
                               : std::max(delta[0], xAxis->GetMinimumLimit() - xAxis->GetMinimum());
       delta[1] = delta[1] > 0 ? std::min(delta[1], yAxis->GetMaximumLimit() - yAxis->GetMaximum())
                               : std::max(delta[1], yAxis->GetMinimumLimit() - yAxis->GetMinimum());
-      xAxis->SetMinimum(xAxis->GetMinimum() + delta[0]);
-      xAxis->SetMaximum(xAxis->GetMaximum() + delta[0]);
-      yAxis->SetMinimum(yAxis->GetMinimum() + delta[1]);
-      yAxis->SetMaximum(yAxis->GetMaximum() + delta[1]);
+      xAxis->SetRange(xAxis->GetMinimum() + delta[0], xAxis->GetMaximum() + delta[0]);
+      yAxis->SetRange(yAxis->GetMinimum() + delta[1], yAxis->GetMaximum() + delta[1]);
     }
 
     this->RecalculatePlotTransforms();
@@ -1606,8 +1603,7 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent& mouse)
         min -= delta * frac;
         max += delta * frac;
       }
-      axis->SetMinimum(min);
-      axis->SetMaximum(max);
+      axis->SetRange(min, max);
       axis->RecalculateTickSpacing();
     }
 
@@ -1615,6 +1611,8 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 
     // Mark the scene as dirty
     this->Scene->SetDirty(true);
+
+    this->InvokeEvent(vtkCommand::InteractionEvent);
   }
   else if (mouse.GetButton() == this->Actions.SelectPolygon())
   {
@@ -2178,23 +2176,23 @@ void vtkChartXY::ZoomInAxes(vtkAxis* x, vtkAxis* y, float* originf, float* maxf)
   // Ensure we preserve the directionality of the axes
   if (x->GetMaximum() > x->GetMinimum())
   {
-    x->SetMaximum(torigin[0] > tmax[0] ? torigin[0] : tmax[0]);
-    x->SetMinimum(torigin[0] < tmax[0] ? torigin[0] : tmax[0]);
+    x->SetRange(torigin[0] < tmax[0] ? torigin[0] : tmax[0],
+      torigin[0] > tmax[0] ? torigin[0] : tmax[0]);
   }
   else
   {
-    x->SetMaximum(torigin[0] < tmax[0] ? torigin[0] : tmax[0]);
-    x->SetMinimum(torigin[0] > tmax[0] ? torigin[0] : tmax[0]);
+    x->SetRange(torigin[0] > tmax[0] ? torigin[0] : tmax[0],
+      torigin[0] < tmax[0] ? torigin[0] : tmax[0]);
   }
   if (y->GetMaximum() > y->GetMinimum())
   {
-    y->SetMaximum(torigin[1] > tmax[1] ? torigin[1] : tmax[1]);
-    y->SetMinimum(torigin[1] < tmax[1] ? torigin[1] : tmax[1]);
+    y->SetRange(torigin[1] < tmax[1] ? torigin[1] : tmax[1],
+      torigin[1] > tmax[1] ? torigin[1] : tmax[1]);
   }
   else
   {
-    y->SetMaximum(torigin[1] < tmax[1] ? torigin[1] : tmax[1]);
-    y->SetMinimum(torigin[1] > tmax[1] ? torigin[1] : tmax[1]);
+    y->SetRange(torigin[1] > tmax[1] ? torigin[1] : tmax[1],
+      torigin[1] < tmax[1] ? torigin[1] : tmax[1]);
   }
   x->RecalculateTickSpacing();
   y->RecalculateTickSpacing();
@@ -2229,8 +2227,7 @@ bool vtkChartXY::MouseWheelEvent(const vtkContextMouseEvent&, int delta)
       min -= delta * frac;
       max += delta * frac;
     }
-    axis->SetMinimum(min);
-    axis->SetMaximum(max);
+    axis->SetRange(min, max);
     axis->RecalculateTickSpacing();
   }
 
