@@ -19,6 +19,7 @@ vtk_module(vtkFiltersPoints
   DEPENDS
     vtkCommonCore
     vtkCommonExecutionModel
+    vtkFiltersModeling
   PRIVATE_DEPENDS
     vtkCommonDataModel
   )

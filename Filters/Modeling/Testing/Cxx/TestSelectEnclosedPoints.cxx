@@ -75,7 +75,19 @@ int TestSelectEnclosedPoints(int argc, char* argv[])
   vtkSelectEnclosedPoints *select = vtkSelectEnclosedPoints::New();
   select->SetInputData(profile);
   select->SetSurfaceConnection(ss->GetOutputPort());
-//  select->InsideOutOn();
+  //  select->InsideOutOn();
+
+  // Count the number selected
+  select->Update();
+  vtkIdType count, pId=0;
+  for ( count=0, pId=0; pId < 500; ++pId )
+  {
+    if ( select->IsInside(pId) )
+    {
+      count++;
+    }
+  }
+  cout << count << " points selected\n";
 
   vtkThresholdPoints *thresh = vtkThresholdPoints::New();
   thresh->SetInputConnection(select->GetOutputPort());

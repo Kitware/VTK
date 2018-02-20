@@ -45,6 +45,11 @@ namespace {
 struct InOutCheck
 {
   vtkDataSet *DataSet;
+  vtkPolyData *Surface;
+  double Bounds[6];
+  double Length;
+  double Tolerance;
+  vtkStaticCellLocator *Locator;
   unsigned char *Hits;
   vtkSelectEnclosedPoints *Selector;
   vtkTypeBool InsideOut;
@@ -54,9 +59,19 @@ struct InOutCheck
   vtkSMPThreadLocalObject<vtkIdList> CellIds;
   vtkSMPThreadLocalObject<vtkGenericCell> Cell;
 
-  InOutCheck(vtkDataSet *ds, unsigned char *hits, vtkSelectEnclosedPoints *sel,
-             vtkTypeBool io) : DataSet(ds), Hits(hits), Selector(sel), InsideOut(io)
+  InOutCheck(vtkDataSet *ds, vtkPolyData *surface, double bds[6], double tol,
+             vtkStaticCellLocator *loc, unsigned char *hits, vtkSelectEnclosedPoints *sel,
+             vtkTypeBool io) : DataSet(ds), Surface(surface), Tolerance(tol), Locator(loc),
+                               Hits(hits), Selector(sel), InsideOut(io)
   {
+    this->Bounds[0] = bds[0];
+    this->Bounds[1] = bds[1];
+    this->Bounds[2] = bds[2];
+    this->Bounds[3] = bds[3];
+    this->Bounds[4] = bds[4];
+    this->Bounds[5] = bds[5];
+    this->Length = sqrt( (bds[1]-bds[0])*(bds[1]-bds[0]) + (bds[3]-bds[2])*(bds[3]-bds[2]) +
+                         (bds[5]-bds[4])*(bds[5]-bds[4]) );
   }
 
   void Initialize()
@@ -76,7 +91,8 @@ struct InOutCheck
     {
       this->DataSet->GetPoint(ptId, x);
 
-      if ( this->Selector->IsInsideSurface(x, cellIds, cell) )
+      if ( this->Selector->IsInsideSurface(x, this->Surface, this->Bounds, this->Length,
+                                           this->Tolerance, this->Locator, cellIds, cell) )
       {
         *hits++ = (this->InsideOut ? 0 : 1);
       }
@@ -91,10 +107,11 @@ struct InOutCheck
   {
   }
 
-  static void Execute(vtkIdType numPts, vtkDataSet *ds, unsigned char *hits,
-                      vtkSelectEnclosedPoints *sel)
+  static void Execute(vtkIdType numPts, vtkDataSet *ds, vtkPolyData *surface,
+                      double bds[6], double tol, vtkStaticCellLocator *loc,
+                      unsigned char *hits, vtkSelectEnclosedPoints *sel)
   {
-    InOutCheck inOut(ds, hits, sel, sel->GetInsideOut());
+    InOutCheck inOut(ds, surface, bds, tol, loc, hits, sel, sel->GetInsideOut());
     vtkSMPTools::For(0, numPts, inOut);
   }
 }; //InOutCheck
@@ -183,7 +200,8 @@ int vtkSelectEnclosedPoints::RequestData(
   unsigned char *hitsPtr = static_cast<unsigned char *>(hits->GetVoidPointer(0));
 
   // Process the points in parallel
-  InOutCheck::Execute(numPts, input, hitsPtr, this);
+  InOutCheck::Execute(numPts, input, surface, this->Bounds, this->Tolerance,
+                      this->CellLocator, hitsPtr, this);
 
   // Copy all the input geometry and data to the output.
   output->CopyStructure(input);
@@ -201,7 +219,8 @@ int vtkSelectEnclosedPoints::RequestData(
 }
 
 //----------------------------------------------------------------------------
-int vtkSelectEnclosedPoints::IsSurfaceClosed(vtkPolyData *surface)
+int vtkSelectEnclosedPoints::
+IsSurfaceClosed(vtkPolyData *surface)
 {
   vtkPolyData *checker = vtkPolyData::New();
   checker->CopyStructure(surface);
@@ -274,7 +293,9 @@ int vtkSelectEnclosedPoints::IsInsideSurface(double x, double y, double z)
 // safe due to the use of the data member CellIds and Cell.
 int vtkSelectEnclosedPoints::IsInsideSurface(double x[3])
 {
-  return this->IsInsideSurface(x, this->CellIds, this->Cell);
+  return this->IsInsideSurface(x, this->Surface, this->Bounds, this->Length,
+                               this->Tolerance, this->CellLocator, this->CellIds,
+                               this->Cell);
 }
 
 #define VTK_MAX_ITER 10    //Maximum iterations for ray-firing
@@ -283,13 +304,19 @@ int vtkSelectEnclosedPoints::IsInsideSurface(double x[3])
 // General method uses ray casting to determine in/out. Since this is a
 // numerically delicate operation, we use a crude "statistical" method (based
 // on voting) to provide a better answer.
+//
+// This is a static method so it can be used by other filters; hence the
+// many parameters used.
 int vtkSelectEnclosedPoints::
-IsInsideSurface(double x[3], vtkIdList *cellIds, vtkGenericCell *genCell)
+IsInsideSurface(double x[3], vtkPolyData *surface, double bds[6],
+                double length,  double tolerance,
+                vtkAbstractCellLocator *locator, vtkIdList *cellIds,
+                vtkGenericCell *genCell)
 {
-  // do a quick bounds check
-  if ( x[0] < this->Bounds[0] || x[0] > this->Bounds[1] ||
-       x[1] < this->Bounds[2] || x[1] > this->Bounds[3] ||
-       x[2] < this->Bounds[4] || x[2] > this->Bounds[5])
+  // do a quick bounds check against the surface bounds
+  if ( x[0] < bds[0] || x[0] > bds[1] ||
+       x[1] < bds[2] || x[1] > bds[3] ||
+       x[2] < bds[4] || x[2] > bds[5])
   {
     return 0;
   }
@@ -310,7 +337,7 @@ IsInsideSurface(double x[3], vtkIdList *cellIds, vtkGenericCell *genCell)
   double rayMag, ray[3], xray[3], t, pcoords[3], xint[3];
   int i, numInts, iterNumber, deltaVotes, subId;
   vtkIdType idx, numCells;
-  double tol = this->Tolerance*this->Length;
+  double tol = tolerance * length;
 
   for (deltaVotes = 0, iterNumber = 1;
        (iterNumber < VTK_MAX_ITER) && (abs(deltaVotes) < VTK_VOTE_THRESHOLD);
@@ -331,18 +358,18 @@ IsInsideSurface(double x[3], vtkIdList *cellIds, vtkGenericCell *genCell)
     // all the way through the bounding box.)
     for (i=0; i<3; i++)
     {
-      xray[i] = x[i] + (this->Length/rayMag)*ray[i];
+      xray[i] = x[i] + (length/rayMag)*ray[i];
     }
 
     // Retrieve the candidate cells from the locator
-    this->CellLocator->FindCellsAlongLine(x,xray,tol,cellIds);
+    locator->FindCellsAlongLine(x,xray,tol,cellIds);
 
     // Intersect the line with each of the candidate cells
     numInts = 0;
     numCells = cellIds->GetNumberOfIds();
     for ( idx=0; idx < numCells; idx++ )
     {
-      this->Surface->GetCell(cellIds->GetId(idx), genCell);
+      surface->GetCell(cellIds->GetId(idx), genCell);
       if ( genCell->IntersectWithLine(x, xray, tol, t, xint, pcoords, subId) )
       {
         numInts++;
@@ -370,21 +397,22 @@ IsInsideSurface(double x[3], vtkIdList *cellIds, vtkGenericCell *genCell)
 
 
 //----------------------------------------------------------------------------
-// Specify a source object at a specified table location.
-void vtkSelectEnclosedPoints::SetSurfaceConnection(vtkAlgorithmOutput* algOutput)
+// Specify the second enclosing surface input via a connection
+void vtkSelectEnclosedPoints::
+SetSurfaceConnection(vtkAlgorithmOutput* algOutput)
 {
   this->SetInputConnection(1, algOutput);
 }
 
 //----------------------------------------------------------------------------
-// Specify a source object at a specified table location.
+// Specify the second enclosing surface input data
 void vtkSelectEnclosedPoints::SetSurfaceData(vtkPolyData *pd)
 {
   this->SetInputData(1, pd);
 }
 
 //----------------------------------------------------------------------------
-// Get a pointer to a source object at a specified table location.
+// Return the enclosing surface
 vtkPolyData *vtkSelectEnclosedPoints::GetSurface()
 {
   return vtkPolyData::SafeDownCast(

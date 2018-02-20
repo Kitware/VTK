@@ -639,7 +639,8 @@ FindCellsAlongLine(double a0[3], double a1[3], double vtkNotUsed(tol), vtkIdList
 
             if (hitCellBounds)
             {
-              cells->InsertUniqueId(cId);
+              // Note because of cellHasBeenVisited[], we know this cId is unique
+              cells->InsertNextId(cId);
             } // if (hitCellBounds)
           } // if (!cellHasBeenVisited[cId])
         }// over all cells in bin

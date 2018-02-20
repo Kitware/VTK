@@ -42,15 +42,15 @@
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  *
  * @warning
- * The vtkSelectEnclosedPoints filter can be used to extract points inside of
+ * The vtkExtractEnclosedPoints filter can be used to extract points inside of
  * a volume defined by a manifold, closed polygonal surface. This filter
  * however is much slower than methods based on implicit functions (like this
  * filter).
  *
  * @sa
- * vtkSelectEnclosedPoints vtkPointCloudFilter vtkRadiusOutlierRemoval
- * vtkStatisticalOutlierRemoval vtkThresholdPoints vtkImplicitFunction
- * vtkExtractGeometry vtkFitImplicitFunction
+ * vtkExtractEnclosedPoints vtkSelectEnclosedPoints vtkPointCloudFilter
+ * vtkRadiusOutlierRemoval vtkStatisticalOutlierRemoval vtkThresholdPoints
+ * vtkImplicitFunction vtkExtractGeometry vtkFitImplicitFunction
 */
 
 #ifndef vtkExtractPoints_h
