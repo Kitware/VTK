@@ -344,7 +344,7 @@ public:
    * 3D parametric coordinates are returned no matter what the topological
    * dimension of the cell.
    */
-  virtual double *GetParametricCoords();
+  virtual double *GetParametricCoords() VTK_SIZEHINT(3*GetNumberOfPoints());
 
   /**
    * Compute the interpolation functions/derivatives
