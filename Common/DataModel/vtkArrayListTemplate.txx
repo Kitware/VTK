@@ -55,7 +55,7 @@ ExcludeArray(vtkDataArray *da)
 
 //----------------------------------------------------------------------------
 // Has the specified array been excluded?
-inline bool ArrayList::
+inline vtkTypeBool ArrayList::
 IsExcluded(vtkDataArray *da)
 {
   return (std::find(ExcludedArrays.begin(), ExcludedArrays.end(), da) != ExcludedArrays.end());
@@ -66,7 +66,7 @@ IsExcluded(vtkDataArray *da)
 // numTuples is the number of output tuples allocated.
 inline vtkDataArray* ArrayList::
 AddArrayPair(vtkIdType numTuples, vtkDataArray *inArray,
-             vtkStdString &outArrayName, double nullValue, bool promote)
+             vtkStdString &outArrayName, double nullValue, vtkTypeBool promote)
 {
   if (this->IsExcluded(inArray))
   {
@@ -117,7 +117,7 @@ AddArrayPair(vtkIdType numTuples, vtkDataArray *inArray,
 // names match.
 inline void ArrayList::
 AddArrays(vtkIdType numOutPts, vtkDataSetAttributes *inPD, vtkDataSetAttributes *outPD,
-          double nullValue, bool promote)
+          double nullValue, vtkTypeBool promote)
 {
   // Build the vector of interpolation pairs. Note that InterpolateAllocate should have
   // been called at this point (output arrays created and allocated).

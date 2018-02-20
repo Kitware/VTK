@@ -18,8 +18,9 @@
  *
  * vtkTemporalFractal is a collection of uniform grids.  All have the same
  * dimensions. Each block has a different origin and spacing.  It uses
- * mandelbrot to create cell data. I scale the fractal array to look like a
- * volme fraction.
+ * mandelbrot to create cell data. The fractal array is scaled to look like a
+ * volume fraction.
+ *
  * I may also add block id and level as extra cell arrays.
  * This source produces a vtkHierarchicalBoxDataSet when
  * GenerateRectilinearGrids is off, otherwise produces a vtkMultiBlockDataSet.
@@ -43,15 +44,19 @@ class TemporalFractalOutputUtil;
 class VTKFILTERSHYBRID_EXPORT vtkTemporalFractal: public vtkAlgorithm
 {
 public:
+  //@{
+  /**
+   * Standard methods for instantiation, type information, and printing.
+   */
   static vtkTemporalFractal *New();
   vtkTypeMacro(vtkTemporalFractal,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
   //@{
   /**
-   * Essentially the iso surface value.
-   * The fractal array is scaled to map this value to 0.5 for use as a volume
-   * fraction.
+   * Essentially the iso surface value.  The fractal array is scaled to map
+   * this value to 0.5 for use as a volume fraction.
    */
   vtkSetMacro(FractalValue, float);
   vtkGetMacro(FractalValue, float);
