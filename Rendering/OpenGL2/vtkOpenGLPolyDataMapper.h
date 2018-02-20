@@ -266,6 +266,11 @@ public:
     const char *tname,
     const char* dataArrayName, int fieldAssociation, int componentno = -1) override;
 
+  // deprecated in favor of the const char * signature
+  VTK_LEGACY(void MapDataArrayToMultiTextureAttribute(
+    int unit,
+    const char* dataArrayName, int fieldAssociation, int componentno = -1) override);
+
   /**
    * Remove a vertex attribute mapping.
    */

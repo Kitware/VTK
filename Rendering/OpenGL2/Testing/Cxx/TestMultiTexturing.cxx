@@ -54,19 +54,23 @@ int TestMultiTexturing(int argc, char* argv[])
   renderer->AddActor(actor);
   actor->SetMapper(mapper);
 
-  std::string file1 = vtkTestUtilities::ExpandDataFileName(argc, argv,
+  const char* file1 = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                  "Data/GIS/raster.tif");
   vtkNew<vtkTIFFReader> reader1;
-  reader1->SetFileName(file1.c_str());
+  reader1->SetFileName(file1);
+  delete [] file1;
+
   vtkNew<vtkTexture> tex1;
   tex1->InterpolateOn();
   tex1->SetInputConnection(reader1->GetOutputPort());
   actor->GetProperty()->SetTexture("earth_color", tex1);
 
-  std::string file2 = vtkTestUtilities::ExpandDataFileName(argc, argv,
+  const char* file2 = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                  "Data/clouds.jpeg");
   vtkNew<vtkJPEGReader> reader2;
-  reader2->SetFileName(file2.c_str());
+  reader2->SetFileName(file2);
+  delete [] file2;
+
   vtkNew<vtkTexture> tex2;
   tex2->InterpolateOn();
   tex2->SetBlendingMode(vtkTexture::VTK_TEXTURE_BLENDING_MODE_MODULATE);
