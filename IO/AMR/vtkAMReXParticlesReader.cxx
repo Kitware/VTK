@@ -31,6 +31,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtksys/SystemTools.hxx"
 
+#include <algorithm>
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
@@ -180,8 +181,14 @@ class vtkAMReXParticlesReader::AMReXParticleHeader
 
       assert(this->num_real_base == this->dim);
       vtkNew<vtkAOSDataArrayTemplate<RealType> > coords;
-      coords->SetNumberOfComponents(this->num_real_base);
+      coords->SetName("Points");
+      coords->SetNumberOfComponents(3);
       coords->SetNumberOfTuples(count);
+      if (this->num_real_base < 3)
+      {
+        // fill with 0, since this->dim may be less than 3.
+        std::fill_n(coords->GetPointer(0), 3*count, 0.0);
+      }
 
       vtkNew<vtkPoints> pts;
       pts->SetData(coords);
