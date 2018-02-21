@@ -201,6 +201,7 @@ struct NormalizeArray
   {
     int i, numComp=this->NumComp;
     T *array = this->Array + ptId*numComp;
+    T val;
     const float *ssa = this->ShepardSumArray + ptId;
 
     // If Shepard coefficient ==0.0 then set values to zero
@@ -217,8 +218,9 @@ struct NormalizeArray
       {
         for ( i=0; i < numComp; ++i)
         {
-          *array++ = static_cast<T>(static_cast<double>(*array) /
-                                    static_cast<double>(*ssa));
+          val = static_cast<T>(static_cast<double>(*array) /
+                               static_cast<double>(*ssa));
+          *array++ = val;
         }
       }
     }//for points in this range
