@@ -118,8 +118,14 @@ class vtkWebMouseHandler(vtkWebProtocol):
         retVal = self.getApplication().HandleInteractionEvent(view, pvevent)
         del pvevent
 
+        if event["action"] == 'down':
+            self.getApplication().InvokeEvent('StartInteractionEvent')
+
+        if event["action"] == 'up':
+            self.getApplication().InvokeEvent('EndInteractionEvent')
+
         if retVal:
-            self.getApplication().InvokeEvent('PushRender')
+            self.getApplication().InvokeEvent('UpdateEvent')
 
         return retVal
 
@@ -146,7 +152,7 @@ class vtkWebViewPort(vtkWebProtocol):
             pass
 
         self.getApplication().InvalidateCache(view)
-        self.getApplication().InvokeEvent('PushRender')
+        self.getApplication().InvokeEvent('UpdateEvent')
 
         return str(self.getGlobalId(view))
 
@@ -159,7 +165,7 @@ class vtkWebViewPort(vtkWebProtocol):
         # FIXME seb: view.OrientationAxesVisibility = (showAxis if 1 else 0);
 
         self.getApplication().InvalidateCache(view)
-        self.getApplication().InvokeEvent('PushRender')
+        self.getApplication().InvokeEvent('UpdateEvent')
 
         return str(self.getGlobalId(view))
 
@@ -172,7 +178,7 @@ class vtkWebViewPort(vtkWebProtocol):
         # FIXME seb: view.CenterAxesVisibility = (showAxis if 1 else 0);
 
         self.getApplication().InvalidateCache(view)
-        self.getApplication().InvokeEvent('PushRender')
+        self.getApplication().InvokeEvent('UpdateEvent')
 
         return str(self.getGlobalId(view))
 
@@ -186,7 +192,7 @@ class vtkWebViewPort(vtkWebProtocol):
         camera.SetCameraPosition(position)
         self.getApplication().InvalidateCache(view)
 
-        self.getApplication().InvokeEvent('PushRender')
+        self.getApplication().InvokeEvent('UpdateEvent')
 
 # =============================================================================
 #
@@ -254,12 +260,126 @@ class vtkWebViewPortImageDelivery(vtkWebProtocol):
 class vtkWebPublishImageDelivery(vtkWebProtocol):
     def __init__(self, decode=True):
         super(vtkWebPublishImageDelivery, self).__init__()
-        # self.context = SynchronizationContext()
         self.trackingViews = {}
         self.lastStaleTime = 0
         self.staleHandlerCount = 0
         self.deltaStaleTimeBeforeRender = 0.5 # 0.5s
         self.decode = decode
+        self.viewsInAnimations = []
+        self.targetFrameRate = 30.0
+        self.minFrameRate = 12.0
+        self.maxFrameRate = 30.0
+
+
+    def pushRender(self, vId, ignoreAnimation = False):
+        if vId not in self.trackingViews:
+            return
+
+        if not self.trackingViews[vId]["enabled"]:
+            return
+
+        if not ignoreAnimation and len(self.viewsInAnimations) > 0:
+            return
+
+        if "originalSize" not in self.trackingViews[vId]:
+            view = self.getView(realViewId)
+            self.trackingViews[vId]["originalSize"] = list(view.GetSize());
+
+        if "ratio" not in self.trackingViews[vId]:
+            self.trackingViews[vId]["ratio"] = 1
+
+        ratio = self.trackingViews[vId]["ratio"]
+        mtime = self.trackingViews[vId]["mtime"]
+        quality = self.trackingViews[vId]["quality"]
+        size = [int(s * ratio) for s in self.trackingViews[vId]["originalSize"]]
+
+        reply = self.stillRender({ "view": realViewId, "mtime": mtime, "quality": quality, "size": size })
+        stale = reply["stale"]
+        if reply["image"]:
+            # depending on whether the app has encoding enabled:
+            if self.decode:
+                reply["image"] = base64.standard_b64decode(reply["image"]);
+
+            reply["image"] = self.addAttachment(reply["image"]);
+            reply["format"] = "jpeg"
+            # save mtime for next call.
+            self.trackingViews[vId]["mtime"] = reply["mtime"]
+            # echo back real ID, instead of -1 for 'active'
+            reply["id"] = vId
+            self.publish('viewport.image.push.subscription', reply)
+        if stale:
+            self.lastStaleTime = time.time()
+            if self.staleHandlerCount == 0:
+                self.staleHandlerCount += 1
+                reactor.callLater(self.deltaStaleTimeBeforeRender, lambda: self.renderStaleImage(vId))
+        else:
+            self.lastStaleTime = 0
+
+
+    def renderStaleImage(self, vId):
+        self.staleHandlerCount -= 1
+
+        if self.lastStaleTime != 0:
+            delta = (time.time() - self.lastStaleTime)
+            if delta >= self.deltaStaleTimeBeforeRender:
+                self.pushRender(vId)
+            else:
+                self.staleHandlerCount += 1
+                reactor.callLater(self.deltaStaleTimeBeforeRender - delta + 0.001, lambda: self.renderStaleImage(vId))
+
+
+    def animate(self):
+        if len(self.viewsInAnimations) == 0:
+            return
+
+        nextAnimateTime = time.time() + 1.0 /  self.targetFrameRate
+        for vId in self.viewsInAnimations:
+            self.pushRender(vId, True)
+
+        nextAnimateTime -= time.time()
+
+        if self.targetFrameRate > self.maxFrameRate:
+            self.targetFrameRate = self.maxFrameRate
+
+        if nextAnimateTime < 0:
+            if self.targetFrameRate > self.minFrameRate:
+                self.targetFrameRate -= 1.0
+            reactor.callLater(0.001, lambda: self.animate())
+        else:
+            if self.targetFrameRate < self.maxFrameRate and nextAnimateTime > 0.005:
+                self.targetFrameRate += 1.0
+            reactor.callLater(nextAnimateTime, lambda: self.animate())
+
+
+    @exportRpc("viewport.image.animation.fps.max")
+    def setMaxFrameRate(self, fps = 30):
+        self.maxFrameRate = fps
+
+
+    @exportRpc("viewport.image.animation.fps.get")
+    def getCurrentFrameRate(self):
+        return self.targetFrameRate
+
+
+    @exportRpc("viewport.image.animation.start")
+    def startViewAnimation(self, viewId = '-1'):
+        sView = self.getView(viewId)
+        realViewId = str(self.getGlobalId(sView))
+
+        if realViewId not in self.viewsInAnimations:
+            self.viewsInAnimations.append(realViewId)
+            if len(self.viewsInAnimations) == 1:
+                self.animate()
+
+
+    @exportRpc("viewport.image.animation.stop")
+    def stopViewAnimation(self, viewId = '-1'):
+        sView = self.getView(viewId)
+        realViewId = str(self.getGlobalId(sView))
+
+        if realViewId in self.viewsInAnimations:
+            self.viewsInAnimations.remove(realViewId)
+
 
     @exportRpc("viewport.image.push")
     def stillRender(self, options):
@@ -303,9 +423,13 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
             reply_image = stillRender(view, t, quality)
             tries -= 1
 
+        if not resize and options and ("clearCache" in options) and options["clearCache"]:
+            app.InvalidateCache(view)
+            reply_image = stillRender(view, t, quality)
+
         reply["stale"] = app.GetHasImagesBeingProcessed(view)
         reply["mtime"] = app.GetLastStillRenderToMTime()
-        reply["size"] = [view.GetSize()[0], view.GetSize()[1]]
+        reply["size"] = view.GetSize()[0:2]
         reply["memsize"] = reply_image.GetDataSize() if reply_image else 0
         reply["format"] = "jpeg;base64" if self.decode else "jpeg"
         reply["global_id"] = str(self.getGlobalId(view))
@@ -327,69 +451,13 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
         if not sView:
             return { 'error': 'Unable to get view with id %s' % viewId }
 
-        realViewId = sView.GetGlobalIDAsString()
-
-        # Use default arg to capture value of realViewId
-        def pushRender(vId = realViewId):
-            if vId not in self.trackingViews:
-                return
-
-            if not self.trackingViews[vId]["enabled"]:
-                return
-
-            if "originalSize" not in self.trackingViews[vId]:
-                view = self.getView(realViewId)
-                if 'GetSize' in view:
-                    self.trackingViews[vId]["originalSize"] = list(view.GetSize());
-                else:
-                    self.trackingViews[vId]["originalSize"] = list(view.ViewSize);
-
-            if "ratio" not in self.trackingViews[vId]:
-                self.trackingViews[vId]["ratio"] = 1
-
-            ratio = self.trackingViews[vId]["ratio"]
-            mtime = self.trackingViews[vId]["mtime"]
-            quality = self.trackingViews[vId]["quality"]
-            size = [int(s * ratio) for s in self.trackingViews[vId]["originalSize"]]
-
-            reply = self.stillRender({ "view": realViewId, "mtime": mtime, "quality": quality, "size": size })
-            stale = reply["stale"]
-            if reply["image"]:
-                # depending on whether the app has encoding enabled:
-                if self.decode:
-                    reply["image"] = base64.standard_b64decode(reply["image"]);
-
-                reply["image"] = self.addAttachment(reply["image"]);
-                reply["format"] = "jpeg"
-                # save mtime for next call.
-                self.trackingViews[vId]["mtime"] = reply["mtime"]
-                # echo back real ID, instead of -1 for 'active'
-                reply["id"] = vId
-                self.publish('viewport.image.push.subscription', reply)
-            if stale:
-                self.lastStaleTime = time.time()
-                if self.staleHandlerCount == 0:
-                    self.staleHandlerCount += 1
-                    reactor.callLater(self.deltaStaleTimeBeforeRender, lambda: renderStaleImage())
-            else:
-                self.lastStaleTime = 0
-
-        def renderStaleImage():
-            self.staleHandlerCount -= 1
-
-            if self.lastStaleTime != 0:
-                delta = (time.time() - self.lastStaleTime)
-                if delta >= self.deltaStaleTimeBeforeRender:
-                    pushRender()
-                else:
-                    self.staleHandlerCount += 1
-                    reactor.callLater(self.deltaStaleTimeBeforeRender - delta + 0.001, lambda: renderStaleImage())
+        realViewId = str(self.getGlobalId(sView))
 
         if not realViewId in self.trackingViews:
             observerCallback = lambda *args, **kwargs: pushRender()
-            tag = self.getApplication().AddObserver('PushRender', observerCallback)
+            tag = self.getApplication().AddObserver('UpdateEvent', observerCallback)
             # TODO do we need self.getApplication().AddObserver('ResetActiveView', resetActiveView())
-            self.trackingViews[realViewId] = { 'tag': tag, 'observerCount': 1, 'mtime': 0, 'enabled': True, 'quality': 100 }
+            self.trackingViews[realViewId] = { 'tags': [tag], 'observerCount': 1, 'mtime': 0, 'enabled': True, 'quality': 100 }
         else:
             # There is an observer on this view already
             self.trackingViews[realViewId]['observerCount'] += 1
@@ -403,7 +471,7 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
         if not sView:
             return { 'error': 'Unable to get view with id %s' % viewId }
 
-        realViewId = sView.GetGlobalIDAsString()
+        realViewId = str(self.getGlobalId(sView))
 
         observerInfo = None
         if realViewId in self.trackingViews:
@@ -415,7 +483,8 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
         observerInfo['observerCount'] -= 1
 
         if observerInfo['observerCount'] <= 0:
-            self.getApplication().RemoveObserver(observerInfo['tag'])
+            for tag in observerInfo['tags']:
+                self.getApplication().RemoveObserver(tag)
             del self.trackingViews[realViewId]
 
         return { 'result': 'success' }
@@ -426,7 +495,7 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
         if not sView:
             return { 'error': 'Unable to get view with id %s' % viewId }
 
-        realViewId = sView.GetGlobalIDAsString()
+        realViewId = str(self.getGlobalId(sView))
         observerInfo = None
         if realViewId in self.trackingViews:
             observerInfo = self.trackingViews[realViewId]
@@ -453,7 +522,7 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
         if not sView:
             return { 'error': 'Unable to get view with id %s' % viewId }
 
-        realViewId = sView.GetGlobalIDAsString()
+        realViewId = str(self.getGlobalId(sView))
         observerInfo = None
         if realViewId in self.trackingViews:
             observerInfo = self.trackingViews[realViewId]
@@ -471,7 +540,7 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
         if not sView:
             return { 'error': 'Unable to get view with id %s' % viewId }
 
-        realViewId = sView.GetGlobalIDAsString()
+        realViewId = str(self.getGlobalId(sView))
         observerInfo = None
         if realViewId in self.trackingViews:
             observerInfo = self.trackingViews[realViewId]
@@ -488,11 +557,9 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
         sView = self.getView(viewId)
         if not sView:
             return { 'error': 'Unable to get view with id %s' % viewId }
-        if hasattr(sView,'SMProxy'):
-            sView = sView.SMProxy
 
         self.getApplication().InvalidateCache(sView)
-        self.getApplication().InvokeEvent('PushRender')
+        self.getApplication().InvokeEvent('UpdateEvent')
         return { 'result': 'success' }
 
 # =============================================================================
