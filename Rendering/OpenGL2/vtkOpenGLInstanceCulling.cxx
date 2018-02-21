@@ -134,8 +134,11 @@ void vtkOpenGLInstanceCulling::AddLOD(float distance, float reduction)
   else
   {
     std::array<float, 4> point;
+    std::array<float, 3> normal;
     point[0] = 0.f; point[1] = 0.f; point[2] = 0.f; point[3] = 1.f;
+    normal[0] = 0.f; normal[1] = 0.f; normal[2] = 1.f;
     lod.PositionVBO->Upload(point, vtkOpenGLBufferObject::ArrayBuffer);
+    lod.NormalVBO->Upload(normal, vtkOpenGLBufferObject::ArrayBuffer);
   }
 
   this->LODList.push_back(lod);
