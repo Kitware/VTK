@@ -2263,6 +2263,11 @@ namespace vtkvolume
                                           vtkVolume* vtkNotUsed(vol))
   {
     return std::string("\
+      \n /// We support only 8 clipping planes for now\
+      \n /// The first value is the size of the data array for clipping\
+      \n /// planes (origin, normal)\
+      \n uniform float in_clippingPlanes[49];\
+      \n\
       \n int clippingPlanesSize;\
       \n vec3 objRayDir;\
       \n mat4 textureToObjMat;");
