@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="15G1510" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="k1K-U8-c72">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="e5K-88-RHN">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
-        <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -17,60 +17,71 @@
                         <viewControllerLayoutGuide type="top" id="cgm-0q-x7R"/>
                         <viewControllerLayoutGuide type="bottom" id="JOC-In-Jga"/>
                     </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="sEU-y6-Vwp" userLabel="VTK View" customClass="VTKView">
+                    <view key="view" contentMode="scaleToFill" id="sEU-y6-Vwp" userLabel="superView">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <glkView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" enableSetNeedsDisplay="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UxD-LD-F6G" userLabel="vtkView" customClass="VTKView">
+                                <rect key="frame" x="0.0" y="20" width="375" height="647"/>
+                            </glkView>
+                            <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hYY-q6-aWr" userLabel="headerContainer">
+                                <rect key="frame" x="0.0" y="20" width="375" height="56"/>
+                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="sVM-UH-qob" userLabel="headerView">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="56"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Dmj-de-nYr" userLabel="addDataButton">
+                                            <rect key="frame" x="12" y="12" width="32" height="32"/>
+                                            <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="32" id="iae-fe-LwM"/>
+                                                <constraint firstAttribute="width" secondItem="Dmj-de-nYr" secondAttribute="height" multiplier="1:1" id="ugE-yt-7Bn"/>
+                                            </constraints>
+                                            <fontDescription key="fontDescription" type="system" pointSize="32"/>
+                                            <inset key="contentEdgeInsets" minX="0.0" minY="0.0" maxX="0.0" maxY="4"/>
+                                            <state key="normal" title="+">
+                                                <color key="titleColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            </state>
+                                            <userDefinedRuntimeAttributes>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                    <integer key="value" value="16"/>
+                                                </userDefinedRuntimeAttribute>
+                                            </userDefinedRuntimeAttributes>
+                                            <connections>
+                                                <action selector="onAddDataButtonPressed:" destination="e5K-88-RHN" eventType="touchUpInside" id="NFM-MW-OY3"/>
+                                            </connections>
+                                        </button>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="Dmj-de-nYr" firstAttribute="leading" secondItem="sVM-UH-qob" secondAttribute="leading" constant="12" id="EVD-Ka-AFy"/>
+                                        <constraint firstItem="Dmj-de-nYr" firstAttribute="centerY" secondItem="sVM-UH-qob" secondAttribute="centerY" id="qo5-Pc-470"/>
+                                    </constraints>
+                                </view>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="56" id="gwc-f8-uFA"/>
+                                </constraints>
+                                <blurEffect style="dark"/>
+                            </visualEffectView>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="UxD-LD-F6G" secondAttribute="trailing" id="E4h-wP-NI7"/>
+                            <constraint firstItem="hYY-q6-aWr" firstAttribute="top" secondItem="cgm-0q-x7R" secondAttribute="bottom" id="HuY-8h-FVi"/>
+                            <constraint firstItem="hYY-q6-aWr" firstAttribute="leading" secondItem="sEU-y6-Vwp" secondAttribute="leading" id="TIU-XK-AlL"/>
+                            <constraint firstItem="JOC-In-Jga" firstAttribute="top" secondItem="UxD-LD-F6G" secondAttribute="bottom" id="Vy4-nb-smD"/>
+                            <constraint firstAttribute="trailing" secondItem="hYY-q6-aWr" secondAttribute="trailing" id="WHO-KL-EnY"/>
+                            <constraint firstItem="UxD-LD-F6G" firstAttribute="leading" secondItem="sEU-y6-Vwp" secondAttribute="leading" id="Xbi-v6-6pB"/>
+                            <constraint firstItem="UxD-LD-F6G" firstAttribute="top" secondItem="cgm-0q-x7R" secondAttribute="bottom" id="fez-Xb-ZTO"/>
+                        </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="3D Scene" image="Landscape" id="0Ah-m3-NW4"/>
                     <connections>
-                        <outlet property="vtkView" destination="sEU-y6-Vwp" id="sVQ-Hz-Yoc"/>
+                        <outlet property="headerContainer" destination="hYY-q6-aWr" id="BXW-u1-tvN"/>
+                        <outlet property="vtkView" destination="UxD-LD-F6G" id="ulc-yY-XEZ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="OMY-8p-Fdf" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-567" y="591"/>
-        </scene>
-        <!--Documents-->
-        <scene sceneID="vLs-9Z-8gy">
-            <objects>
-                <viewController id="QBP-F0-lhT" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="D2K-CH-2Jw"/>
-                        <viewControllerLayoutGuide type="bottom" id="9ZG-vg-0PS"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="80D-MW-kFZ">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                    </view>
-                    <tabBarItem key="tabBarItem" title="Documents" image="Cabinet" selectedImage="Cabinet" id="gNA-RG-J7S"/>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="92Q-jj-BAY" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-567" y="-62"/>
-        </scene>
-        <!--Tab Bar Controller-->
-        <scene sceneID="Vx6-FX-SJZ">
-            <objects>
-                <tabBarController id="k1K-U8-c72" sceneMemberID="viewController">
-                    <tabBar key="tabBar" contentMode="scaleToFill" id="17V-aN-3bc">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="49"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                    </tabBar>
-                    <connections>
-                        <segue destination="QBP-F0-lhT" kind="relationship" relationship="viewControllers" id="wNM-mr-LCS"/>
-                        <segue destination="e5K-88-RHN" kind="relationship" relationship="viewControllers" id="qih-1A-7ai"/>
-                    </connections>
-                </tabBarController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="Pqw-df-pGp" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-1553" y="256"/>
+            <point key="canvasLocation" x="-567.20000000000005" y="590.55472263868069"/>
         </scene>
     </scenes>
-    <resources>
-        <image name="Cabinet" width="20" height="26"/>
-        <image name="Landscape" width="24" height="18"/>
-    </resources>
 </document>

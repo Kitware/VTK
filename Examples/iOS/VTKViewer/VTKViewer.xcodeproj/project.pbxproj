@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		1226BE901EF961BB00F51F9E /* VTKGestureHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1226BE8F1EF961BB00F51F9E /* VTKGestureHandler.mm */; };
-		12BFB1021EF834F100EE3EE1 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 12BFB1011EF834F100EE3EE1 /* main.m */; };
-		12BFB1051EF834F100EE3EE1 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 12BFB1041EF834F100EE3EE1 /* AppDelegate.m */; };
 		12BFB1081EF834F100EE3EE1 /* VTKViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 12BFB1071EF834F100EE3EE1 /* VTKViewController.mm */; };
 		12BFB10B1EF834F100EE3EE1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 12BFB1091EF834F100EE3EE1 /* Main.storyboard */; };
 		12BFB10D1EF834F100EE3EE1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 12BFB10C1EF834F100EE3EE1 /* Assets.xcassets */; };
@@ -19,6 +17,10 @@
 		12BFB1351EF8363E00EE3EE1 /* vtk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 12BFB1341EF8363E00EE3EE1 /* vtk.framework */; };
 		12BFB13A1EF83D2000EE3EE1 /* VTKView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 12BFB1391EF83D2000EE3EE1 /* VTKView.mm */; };
 		12BFB13C1EF83DDB00EE3EE1 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 12BFB13B1EF83DDB00EE3EE1 /* GLKit.framework */; };
+		1A1AB77D1FBE4F300096A0DB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1AB77C1FBE4F300096A0DB /* AppDelegate.swift */; };
+		1A30DA401FBF7B9A00B5ACF2 /* VTKLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A30DA3F1FBF7B9A00B5ACF2 /* VTKLoader.mm */; };
+		4304BED41FC81FE000326FC2 /* VTKViewerDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4304BED31FC81FE000326FC2 /* VTKViewerDocument.swift */; };
+		438EE6B11FD14BA4008682A3 /* ExampleDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 438EE6B01FD14BA4008682A3 /* ExampleDataManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -42,9 +44,6 @@
 		1226BE8E1EF961BB00F51F9E /* VTKGestureHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VTKGestureHandler.h; sourceTree = "<group>"; };
 		1226BE8F1EF961BB00F51F9E /* VTKGestureHandler.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VTKGestureHandler.mm; sourceTree = "<group>"; };
 		12BFB0FD1EF834F100EE3EE1 /* VTKViewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VTKViewer.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		12BFB1011EF834F100EE3EE1 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		12BFB1031EF834F100EE3EE1 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		12BFB1041EF834F100EE3EE1 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		12BFB1061EF834F100EE3EE1 /* VTKViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VTKViewController.h; sourceTree = "<group>"; };
 		12BFB1071EF834F100EE3EE1 /* VTKViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = VTKViewController.mm; sourceTree = "<group>"; };
 		12BFB10A1EF834F100EE3EE1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -57,10 +56,16 @@
 		12BFB1211EF834F100EE3EE1 /* VTKViewerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VTKViewerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		12BFB1251EF834F100EE3EE1 /* VTKViewerUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VTKViewerUITests.m; sourceTree = "<group>"; };
 		12BFB1271EF834F100EE3EE1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		12BFB1341EF8363E00EE3EE1 /* vtk.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vtk.framework; path = ../../../../../usr/local/Frameworks/vtk.framework; sourceTree = "<group>"; };
+		12BFB1341EF8363E00EE3EE1 /* vtk.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vtk.framework; path = /usr/local/Frameworks/vtk.framework; sourceTree = "<absolute>"; };
 		12BFB1381EF83D2000EE3EE1 /* VTKView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VTKView.h; sourceTree = "<group>"; };
 		12BFB1391EF83D2000EE3EE1 /* VTKView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VTKView.mm; sourceTree = "<group>"; };
 		12BFB13B1EF83DDB00EE3EE1 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		1A1AB7751FBDF8F00096A0DB /* VTKViewer-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VTKViewer-Bridging-Header.h"; sourceTree = "<group>"; };
+		1A1AB77C1FBE4F300096A0DB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		1A30DA3E1FBF7B9A00B5ACF2 /* VTKLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VTKLoader.h; sourceTree = "<group>"; };
+		1A30DA3F1FBF7B9A00B5ACF2 /* VTKLoader.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = VTKLoader.mm; sourceTree = "<group>"; };
+		4304BED31FC81FE000326FC2 /* VTKViewerDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VTKViewerDocument.swift; sourceTree = "<group>"; };
+		438EE6B01FD14BA4008682A3 /* ExampleDataManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExampleDataManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,18 +120,21 @@
 			isa = PBXGroup;
 			children = (
 				12BFB10C1EF834F100EE3EE1 /* Assets.xcassets */,
-				12BFB1031EF834F100EE3EE1 /* AppDelegate.h */,
-				12BFB1041EF834F100EE3EE1 /* AppDelegate.m */,
+				1A1AB77C1FBE4F300096A0DB /* AppDelegate.swift */,
 				12BFB1111EF834F100EE3EE1 /* Info.plist */,
 				12BFB10E1EF834F100EE3EE1 /* LaunchScreen.storyboard */,
-				12BFB1011EF834F100EE3EE1 /* main.m */,
 				12BFB1091EF834F100EE3EE1 /* Main.storyboard */,
 				1226BE8E1EF961BB00F51F9E /* VTKGestureHandler.h */,
 				1226BE8F1EF961BB00F51F9E /* VTKGestureHandler.mm */,
+				1A30DA3E1FBF7B9A00B5ACF2 /* VTKLoader.h */,
+				1A30DA3F1FBF7B9A00B5ACF2 /* VTKLoader.mm */,
 				12BFB1381EF83D2000EE3EE1 /* VTKView.h */,
 				12BFB1391EF83D2000EE3EE1 /* VTKView.mm */,
 				12BFB1061EF834F100EE3EE1 /* VTKViewController.h */,
 				12BFB1071EF834F100EE3EE1 /* VTKViewController.mm */,
+				1A1AB7751FBDF8F00096A0DB /* VTKViewer-Bridging-Header.h */,
+				4304BED31FC81FE000326FC2 /* VTKViewerDocument.swift */,
+				438EE6B01FD14BA4008682A3 /* ExampleDataManager.swift */,
 			);
 			path = VTKViewer;
 			sourceTree = "<group>";
@@ -226,6 +234,7 @@
 					12BFB0FC1EF834F100EE3EE1 = {
 						CreatedOnToolsVersion = 8.2.1;
 						DevelopmentTeam = W38PE5Y733;
+						LastSwiftMigration = 0910;
 						ProvisioningStyle = Automatic;
 					};
 					12BFB1151EF834F100EE3EE1 = {
@@ -294,11 +303,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4304BED41FC81FE000326FC2 /* VTKViewerDocument.swift in Sources */,
+				1A1AB77D1FBE4F300096A0DB /* AppDelegate.swift in Sources */,
+				438EE6B11FD14BA4008682A3 /* ExampleDataManager.swift in Sources */,
+				1A30DA401FBF7B9A00B5ACF2 /* VTKLoader.mm in Sources */,
 				12BFB1081EF834F100EE3EE1 /* VTKViewController.mm in Sources */,
-				12BFB1051EF834F100EE3EE1 /* AppDelegate.m in Sources */,
 				12BFB13A1EF83D2000EE3EE1 /* VTKView.mm in Sources */,
 				1226BE901EF961BB00F51F9E /* VTKGestureHandler.mm in Sources */,
-				12BFB1021EF834F100EE3EE1 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -459,6 +470,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = W38PE5Y733;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -468,6 +481,10 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.kitware.VTKViewer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "VTKViewer/VTKViewer-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
+				SWIFT_VERSION = 4.0;
 				USER_HEADER_SEARCH_PATHS = /usr/local/frameworks/vtk.framework/Headers;
 			};
 			name = Debug;
@@ -476,6 +493,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = W38PE5Y733;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -485,6 +504,9 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.kitware.VTKViewer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "VTKViewer/VTKViewer-Bridging-Header.h";
+				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
+				SWIFT_VERSION = 4.0;
 				USER_HEADER_SEARCH_PATHS = /usr/local/frameworks/vtk.framework/Headers;
 			};
 			name = Release;
@@ -492,6 +514,7 @@
 		12BFB12E1EF834F100EE3EE1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = W38PE5Y733;
 				INFOPLIST_FILE = VTKViewerTests/Info.plist;
@@ -505,6 +528,7 @@
 		12BFB12F1EF834F100EE3EE1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = W38PE5Y733;
 				INFOPLIST_FILE = VTKViewerTests/Info.plist;
@@ -518,6 +542,7 @@
 		12BFB1311EF834F100EE3EE1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				DEVELOPMENT_TEAM = W38PE5Y733;
 				INFOPLIST_FILE = VTKViewerUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -530,6 +555,7 @@
 		12BFB1321EF834F100EE3EE1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				DEVELOPMENT_TEAM = W38PE5Y733;
 				INFOPLIST_FILE = VTKViewerUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";

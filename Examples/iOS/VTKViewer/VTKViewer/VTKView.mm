@@ -63,11 +63,15 @@
     self.drawableDepthFormat = GLKViewDrawableDepthFormat24;
     [EAGLContext setCurrentContext:self.context];
 
+    // Enable the use of `setNeedsDisplay` to render
+    self.enableSetNeedsDisplay = YES;
+
     // Create Render window and interactor
     _renderWindow = vtkIOSRenderWindow::New();
     auto interactor = self.renderWindow->MakeRenderWindowInteractor();
     auto camera = vtkSmartPointer<vtkInteractorStyleMultiTouchCamera>::New();
     interactor->SetInteractorStyle(camera);
+    interactor->EnableRenderOff();
     self.renderWindow->SetInteractor(interactor);
 
     // Needed to ensure that rotations look smooth
