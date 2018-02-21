@@ -5389,6 +5389,7 @@ void vtkExodusIIReader::SetXMLFileName( const char* fname )
   if ( modified )
   {
     this->XMLFileNameMTime.Modified();
+    this->Modified();
   }
 }
 
