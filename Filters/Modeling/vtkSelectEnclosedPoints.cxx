@@ -78,7 +78,7 @@ struct InOutCheck
 
     // Precompute a sufficiently large enough random sequence
     this->Sequence = vtkRandomPool::New();
-    this->Sequence->SetPoolSize((numPts > 1000 ? numPts : 1000));
+    this->Sequence->SetSize((numPts > 1000 ? numPts : 1000));
     this->Sequence->GeneratePool();
   }
 

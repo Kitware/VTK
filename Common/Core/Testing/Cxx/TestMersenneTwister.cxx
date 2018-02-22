@@ -243,10 +243,10 @@ int SequenceCheck()
   // Serial execution. Remember that the twister returns random values
   // between [0,1] so anything outside of this is a problem.
   vtkNew<vtkRandomPool> pool;
-  pool->SetPoolSize(VTK_SEQUENCE_TEST_SIZE);
+  pool->SetSize(VTK_SEQUENCE_TEST_SIZE);
   pool->SetNumberOfComponents(1);
   pool->SetChunkSize(VTK_SEQUENCE_TEST_SIZE+1);
-  const double *sequence = pool->GetPool();
+  const double *sequence = pool->GeneratePool();
   vtkIdType i;
 
   for (i=0; i < VTK_SEQUENCE_TEST_SIZE; ++i)
@@ -259,7 +259,7 @@ int SequenceCheck()
   }
 
   // Threaded execution.
-  pool->SetPoolSize(VTK_SEQUENCE_TEST_SIZE);
+  pool->SetSize(VTK_SEQUENCE_TEST_SIZE);
   pool->SetNumberOfComponents(1);
   pool->SetChunkSize(VTK_SEQUENCE_TEST_SIZE/7);
   sequence = pool->GetPool();

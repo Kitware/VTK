@@ -76,7 +76,7 @@ struct InOutCheck
                          (bds[5]-bds[4])*(bds[5]-bds[4]) );
 
     this->Sequence = vtkRandomPool::New();
-    this->Sequence->SetPoolSize(numPts);
+    this->Sequence->SetSize(numPts);
     this->Sequence->GeneratePool();
   }
 

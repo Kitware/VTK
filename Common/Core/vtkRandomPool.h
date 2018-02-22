@@ -14,15 +14,15 @@
 =========================================================================*/
 /**
  * @class   vtkRandomPool
- * @brief   convenience class to quickly generate an array of random numbers
+ * @brief   convenience class to quickly generate a pool of random numbers
  *
- * vtkRandomPool generates random numbers, and can do using multithreading.
- * It supports parallel applications where generating random numbers on the
- * fly is difficult. Also, it can be used to populate vtkDataArrays in an
- * efficient manner. By default it uses an instance of vtkMersenneTwister to
- * generate random sequences, but any subclass of vtkRandomSequence may be
- * used. It also supports simple methods to generate, access, and pass random
- * memory pools between objects.
+ * vtkRandomPool generates random numbers, and can do so using
+ * multithreading.  It supports parallel applications where generating random
+ * numbers on the fly is difficult (i.e., non-deterministic). Also, it can be
+ * used to populate vtkDataArrays in an efficient manner. By default it uses
+ * an instance of vtkMersenneTwister to generate random sequences, but any
+ * subclass of vtkRandomSequence may be used. It also supports simple methods
+ * to generate, access, and pass random memory pools between objects.
  *
  * In threaded applications, these class may be conveniently used to
  * pre-generate a sequence of random numbers, followed by the use of
@@ -70,17 +70,17 @@ public:
   /**
    * Methods to set and get the size of the pool. The size must be specified
    * before invoking GeneratePool(). Note the number of components will
-   * affect the total size (allocated memory is PoolSize*NumberOfComponents).
+   * affect the total size (allocated memory is Size*NumberOfComponents).
    */
-  vtkSetClampMacro(PoolSize,vtkIdType,1000,VTK_ID_MAX);
-  vtkGetMacro(PoolSize,vtkIdType);
+  vtkSetClampMacro(Size,vtkIdType,1000,VTK_ID_MAX);
+  vtkGetMacro(Size,vtkIdType);
   //@}
 
   //@{
   /**
    * Methods to set and get the number of components in the pool. This is a
-   * convenience capability used to interface with vtkDataArrays. By default
-   * the number of components is =1.
+   * convenience capability and can be used to interface with
+   * vtkDataArrays. By default the number of components is =1.
    */
   vtkSetClampMacro(NumberOfComponents,vtkIdType,1,VTK_INT_MAX);
   vtkGetMacro(NumberOfComponents,vtkIdType);
@@ -90,38 +90,45 @@ public:
    * This convenience method returns the total size of the memory pool, i.e.,
    * Size*NumberOfComponents.
    */
-  vtkIdType GetTotalSize() {return this->TotalSize;}
+  vtkIdType GetTotalSize() {return (this->Size*this->NumberOfComponents);}
 
   //@{
   /**
    * These methods provide access to the raw random pool as a double
    * array. The size of the array is Size*NumberOfComponents. Each x value
-   * ranges (0<=x<=1). The class will generate the pool if necessary. Also a
-   * method is available for getting the value at the ith postion and compNum
+   * ranges between (0<=x<=1). The class will generate the pool as necessary
+   * (a modified time for generation is maintained). Also a method is
+   * available for getting the value at the ith pool postion and compNum
    * component. Finally, note that the GetValue() method uses modulo
    * reduction to ensure that the request remains inside of the pool. Two
    * forms are provided, the first assumes NumberOfComponents=1; the second
    * allows access to a particular component. The GetPool() and GetValue()
    * methods should only be called after GeneratePool() has been invoked;
    */
-  void GeneratePool();
+  const double* GeneratePool();
   const double* GetPool() {return this->Pool;}
-  const double GetValue(vtkIdType i) {return this->Pool[(i%this->TotalSize)];}
-  const double GetValue(vtkIdType i, int compNum)
+  double GetValue(vtkIdType i) {return this->Pool[(i%this->TotalSize)];}
+  double GetValue(vtkIdType i, int compNum)
   {return this->Pool[(compNum + this->NumberOfComponents*i) % this->TotalSize];}
   //@}
 
+  //@{
   /**
-   * A method to populate data arrays of various types within specified
-   * range. Note the specified compNumber specifies the range for a particular
-   * component. Thus it is possible to make multiple calls to generate random
-   * numbers for each component with different ranges. Internally the type of
-   * the data array passed in is used to cast to the appropriate type. Also
-   * the size and number of components of the vtkRandomPool is used to
-   * configure the data array.
+   * Methods to populate data arrays of various types with values within a
+   * specified (min,max) range. Note that compNumber is used to specify the
+   * range for a particular component; otherwise all generated components are
+   * within the (min,max) range specified. (Thus it is possible to make
+   * multiple calls to generate random numbers for each component with
+   * different ranges.) Internally the type of the data array passed in is
+   * used to cast to the appropriate type. Also the size and number of
+   * components of the vtkDataArray controls the total number of random
+   * numbers generated; so the input data array should be pre-allocated with
+   * (SetNumberOfComponents, SetNumberOfTuples).
    */
+  void PopulateDataArray(vtkDataArray *da, double minRange, double maxRange);
   void PopulateDataArray(vtkDataArray *da, int compNumber,
                          double minRange, double maxRange);
+  //@}
 
   //@{
   /**
@@ -133,7 +140,6 @@ public:
   vtkGetMacro(ChunkSize, vtkIdType);
   //@}
 
-
 protected:
   vtkRandomPool();
   ~vtkRandomPool() override;
@@ -143,7 +149,7 @@ protected:
 
   // Data members to support public API
   vtkRandomSequence *Sequence;
-  vtkIdType PoolSize;
+  vtkIdType Size;
   int NumberOfComponents;
   vtkIdType ChunkSize;
 
