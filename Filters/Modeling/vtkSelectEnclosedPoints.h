@@ -44,7 +44,7 @@
  *
  * @sa
  * vtkMaskPoints vtkExtractEnclosedPoints
-*/
+ */
 
 #ifndef vtkSelectEnclosedPoints_h
 #define vtkSelectEnclosedPoints_h
@@ -57,6 +57,7 @@ class vtkAbstractCellLocator;
 class vtkStaticCellLocator;
 class vtkIdList;
 class vtkGenericCell;
+class vtkRandomPool;
 
 
 class VTKFILTERSMODELING_EXPORT vtkSelectEnclosedPoints : public vtkDataSetAlgorithm
@@ -143,15 +144,19 @@ public:
   //@}
 
   /**
-   * A static method for determining whether a point is inside a surface. This is the
-   * heart of the algorithm and is thread safe. The user must provide an input point x,
-   * the enclosing surface, the bounds of the enclosing surface, the diagonal length of
-   * the enclosing surface, an intersection tolerance, a cell locator for the surface,
-   * and two working objects (cellIds, genCell) to support computation.
+   * A static method for determining whether a point is inside a
+   * surface. This is the heart of the algorithm and is thread safe. The user
+   * must provide an input point x, the enclosing surface, the bounds of the
+   * enclosing surface, the diagonal length of the enclosing surface, an
+   * intersection tolerance, a cell locator for the surface, and two working
+   * objects (cellIds, genCell) to support computation. Finally, in threaded
+   * execution, generating random numbers is hard, so a precomputed random
+   * sequence can be provided with an index into the sequence.
    */
   static int IsInsideSurface(double x[3], vtkPolyData *surface, double bds[6],
                              double length,  double tol, vtkAbstractCellLocator *locator,
-                             vtkIdList *cellIds, vtkGenericCell *genCell);
+                             vtkIdList *cellIds, vtkGenericCell *genCell,
+                             vtkRandomPool* poole=nullptr, vtkIdType seqIdx=0);
 
   /**
    * A static method for determining whether a surface is closed. Provide as input

@@ -33,6 +33,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkSMPTools.h"
 #include "vtkSMPThreadLocalObject.h"
+#include "vtkRandomPool.h"
 
 vtkStandardNewMacro(vtkExtractEnclosedPoints);
 
@@ -46,6 +47,7 @@ namespace {
 template <typename T>
 struct InOutCheck
 {
+  vtkIdType NumPts;
   T *Points;
   vtkPolyData *Surface;
   double Bounds[6];
@@ -53,15 +55,16 @@ struct InOutCheck
   double Tolerance;
   vtkStaticCellLocator *Locator;
   vtkIdType *PointMap;
+  vtkRandomPool *Sequence;
 
   // Don't want to allocate working arrays on every thread invocation. Thread local
   // storage eliminates lots of new/delete.
   vtkSMPThreadLocalObject<vtkIdList> CellIds;
   vtkSMPThreadLocalObject<vtkGenericCell> Cell;
 
-  InOutCheck(T *pts, vtkPolyData *surface, double bds[6], double tol,
-             vtkStaticCellLocator *loc, vtkIdType *map) :
-    Points(pts), Surface(surface), Tolerance(tol), Locator(loc), PointMap(map)
+  InOutCheck(vtkIdType numPts, T *pts, vtkPolyData *surface, double bds[6],
+             double tol, vtkStaticCellLocator *loc, vtkIdType *map) :
+    NumPts(numPts), Points(pts), Surface(surface), Tolerance(tol), Locator(loc), PointMap(map)
   {
     this->Bounds[0] = bds[0];
     this->Bounds[1] = bds[1];
@@ -71,6 +74,15 @@ struct InOutCheck
     this->Bounds[5] = bds[5];
     this->Length = sqrt( (bds[1]-bds[0])*(bds[1]-bds[0]) + (bds[3]-bds[2])*(bds[3]-bds[2]) +
                          (bds[5]-bds[4])*(bds[5]-bds[4]) );
+
+    this->Sequence = vtkRandomPool::New();
+    this->Sequence->SetPoolSize(numPts);
+    this->Sequence->GeneratePool();
+  }
+
+  ~InOutCheck()
+  {
+    this->Sequence->Delete();
   }
 
   void Initialize()
@@ -96,7 +108,8 @@ struct InOutCheck
 
       hit = vtkSelectEnclosedPoints::
         IsInsideSurface(x, this->Surface, this->Bounds, this->Length,
-                        this->Tolerance, this->Locator, cellIds, cell);
+                        this->Tolerance, this->Locator, cellIds, cell,
+                        this->Sequence, ptId);
       *map++ = (hit ? 1 : -1);
     }
   }
@@ -109,7 +122,7 @@ struct InOutCheck
                       double bds[6], double tol, vtkStaticCellLocator *loc,
                       vtkIdType *hits)
   {
-    InOutCheck inOut(pts, surface, bds, tol, loc, hits);
+    InOutCheck inOut(numPts, pts, surface, bds, tol, loc, hits);
     vtkSMPTools::For(0, numPts, inOut);
   }
 }; //InOutCheck

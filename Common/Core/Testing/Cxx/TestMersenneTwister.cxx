@@ -21,12 +21,14 @@
 
 #include <vtkMath.h>
 #include "vtkMersenneTwister.h"
+#include "vtkRandomPool.h"
 #include "vtkNew.h"
 #include "vtkDebugLeaks.h"
 
 #define VTK_SUCCESS 0
 #define VTK_FAILURE 1
 
+//----------------------------------------------------------------------------
 // Test the first four moments to ensure our random number generator conforms
 // to a flat random distribution between 0 and 1.
 int MomentCheck(double min, double max, std::size_t nValues)
@@ -107,6 +109,7 @@ int MomentCheck(double min, double max, std::size_t nValues)
   return VTK_SUCCESS;
 }
 
+//----------------------------------------------------------------------------
 // Construct two instances of vtkMersenneTwister, each with <nThreads>
 // independent sequence generators. Extract <nValues> values from each of the
 // the sequences, using a different order for each of the two instances. Compare
@@ -140,8 +143,8 @@ int ThreadCheck(std::size_t nThreads, std::size_t nValues)
   {
     for(std::size_t j = 0; j < nValues; ++j)
     {
-      seq1->Next(ids1[i]);
       values1[i][j] = seq1->GetValue(ids1[i]);
+      seq1->Next(ids1[i]);
     }
   }
 
@@ -149,8 +152,8 @@ int ThreadCheck(std::size_t nThreads, std::size_t nValues)
   {
     for(std::size_t i = 0; i < nThreads; ++i)
     {
-      seq2->Next(ids2[i]);
       values2[i][j] = seq2->GetValue(ids2[i]);
+      seq2->Next(ids2[i]);
     }
   }
 
@@ -180,6 +183,7 @@ int ThreadCheck(std::size_t nThreads, std::size_t nValues)
   return retVal;
 }
 
+//----------------------------------------------------------------------------
 // Construct an instance of vtkMersenneTwister and initialize two sequences,
 // both seeded with the value 0, and an instance that initializes one sequence
 // seeded with the value 1. Ensure that the sequence with sequence id = 0 and
@@ -204,9 +208,6 @@ int ConsistencyCheck()
 
   for (int i=0; i<10; i++)
   {
-    seq->Next(id0);
-    seq->Next(id1);
-    seq2->Next(id0);
     if (fabs(seq->GetValue(id0) - expectedValues[i]) > VTK_DBL_EPSILON)
     {
       std::cerr<<"Sequence seeded with seed 0 has changed."<<std::endl;
@@ -224,11 +225,58 @@ int ConsistencyCheck()
                <<"sequence 0 seeded with seed 1."<<std::endl;
       return VTK_FAILURE;
     }
+
+    seq->Next(id0);
+    seq->Next(id1);
+    seq2->Next(id0);
   }
 
   return VTK_SUCCESS;
 }
 
+//----------------------------------------------------------------------------
+// Simply generate a sequence and make sure every value is set, and that
+// serial and parallel execution both work.
+#define VTK_SEQUENCE_TEST_SIZE 10000
+int SequenceCheck()
+{
+  // Serial execution. Remember that the twister returns random values
+  // between [0,1] so anything outside of this is a problem.
+  vtkNew<vtkRandomPool> pool;
+  pool->SetPoolSize(VTK_SEQUENCE_TEST_SIZE);
+  pool->SetNumberOfComponents(1);
+  pool->SetChunkSize(VTK_SEQUENCE_TEST_SIZE+1);
+  const double *sequence = pool->GetPool();
+  vtkIdType i;
+
+  for (i=0; i < VTK_SEQUENCE_TEST_SIZE; ++i)
+  {
+    if ( sequence[i] < 0.0 || sequence[i] > 1.0 )
+    {
+      std::cerr << "Bad serial sequence generation" << std::endl;
+      return VTK_FAILURE;
+    }
+  }
+
+  // Threaded execution.
+  pool->SetPoolSize(VTK_SEQUENCE_TEST_SIZE);
+  pool->SetNumberOfComponents(1);
+  pool->SetChunkSize(VTK_SEQUENCE_TEST_SIZE/7);
+  sequence = pool->GetPool();
+
+  for (i=0; i < VTK_SEQUENCE_TEST_SIZE; ++i)
+  {
+    if ( sequence[i] < 0.0 || sequence[i] > 1.0 )
+    {
+      std::cerr << "Bad threaded sequence generation" << std::endl;
+      return VTK_FAILURE;
+    }
+  }
+
+  return VTK_SUCCESS;
+}
+
+//----------------------------------------------------------------------------
 int TestMersenneTwister(int,char *[])
 {
   if (MomentCheck(0.,1.,1.e6) != VTK_SUCCESS)
@@ -242,6 +290,11 @@ int TestMersenneTwister(int,char *[])
   }
 
   if (ConsistencyCheck() != VTK_SUCCESS)
+  {
+    return VTK_FAILURE;
+  }
+
+  if (SequenceCheck() != VTK_SUCCESS)
   {
     return VTK_FAILURE;
   }

@@ -165,6 +165,7 @@ SET(Module_SRCS
   vtkPoints.cxx
   vtkPoints2D.cxx
   vtkPriorityQueue.cxx
+  vtkRandomPool.cxx
   vtkRandomSequence.cxx
   vtkReferenceCount.cxx
   vtkSOADataArrayTemplate.txx

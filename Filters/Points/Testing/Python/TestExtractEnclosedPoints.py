@@ -3,6 +3,9 @@ import vtk
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
+# Control test size
+numPts = 500
+
 # Create the RenderWindow, Renderer and both Actors
 #
 ren = vtk.vtkRenderer()
@@ -30,7 +33,7 @@ math = vtk.vtkMath()
 math.RandomSeed(1177)
 
 points = vtk.vtkPoints()
-for i in range(0,500):
+for i in range(0,numPts):
   x = math.Random(2.25,7.0)
   y = math.Random(1,10)
   z = math.Random(0.5,10.5)

@@ -32,10 +32,21 @@
 class VTKCOMMONCORE_EXPORT vtkBoxMuellerRandomSequence: public vtkGaussianRandomSequence
 {
 public:
+  //@{
+  /**
+   * Standard methods for instantiation, type information, and printing.
+   */
+  static vtkBoxMuellerRandomSequence* New();
   vtkTypeMacro(vtkBoxMuellerRandomSequence,vtkGaussianRandomSequence);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
-  static vtkBoxMuellerRandomSequence* New();
+  /**
+   * Satisfy general API of vtkRandomSequence superclass. Initialize the
+   * sequence with a seed.
+   */
+  void Initialize(vtkTypeUInt32 vtkNotUsed(seed)) override
+  {}
 
   /**
    * Current value.

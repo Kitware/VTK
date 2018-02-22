@@ -48,7 +48,7 @@
  *
  * @sa
  * vtkSelectEnclosedPoints vtkExtractPoints
-*/
+ */
 
 #ifndef vtkExtractEnclosedPoints_h
 #define vtkExtractEnclosedPoints_h

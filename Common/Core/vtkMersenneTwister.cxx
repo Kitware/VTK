@@ -25,6 +25,8 @@
 /* Springer, 2000, pp 56--69.                             */
 
 #include "vtkMersenneTwister_Private.cxx"
+#include "vtkMultiThreader.h"
+#include "vtkNew.h"
 
 #include <map>
 
@@ -49,21 +51,21 @@ public:
 
   void InitializeSequence(uint32_t key, uint32_t seed, int periodExp=521)
   {
-   mt_parameter_it it = this->Parameters.find(key);
-   if (it != this->Parameters.end())
-   {
-     // If a sequence already exists with this id, free its contents...
-     free_mt_struct(it->second);
-   }
-   else
-   {
-     //...otherwise, add a key/value pair for this sequence id
-     mt_parameter parameter(key, static_cast<mt_struct*>(nullptr));
-     it = this->Parameters.insert(parameter).first;
-   }
-   // Instantiate the sequence.
-   it->second = get_mt_parameter_id_st(32, periodExp, key, seed);
-   sgenrand_mt(seed, it->second);
+    mt_parameter_it it = this->Parameters.find(key);
+    if (it != this->Parameters.end())
+    {
+      // If a sequence already exists with this id, free its contents...
+      free_mt_struct(it->second);
+    }
+    else
+    {
+      //...otherwise, add a key/value pair for this sequence id
+      mt_parameter parameter(key, static_cast<mt_struct*>(nullptr));
+      it = this->Parameters.insert(parameter).first;
+    }
+    // Instantiate the sequence.
+    it->second = get_mt_parameter_id_st(32, periodExp, key, seed);
+    sgenrand_mt(seed, it->second);
   }
 
  uint32_t InitializeNewSequence(uint32_t seed, int periodExp=521)
@@ -75,16 +77,17 @@ public:
      ++key;
    }
 
-    //...and use it to instantiate a sequence.
-    mt_parameter parameter(key, get_mt_parameter_id_st(32,periodExp,key,seed));
-    sgenrand_mt(seed, parameter.second);
-    // Here and throughout, we use insert() with a hint to mitigate the cost of
-    // using a map to associate keys with MT states (the upshot is we get to use
-    // whatever ids we want to grab MT states).
-    this->Parameters.insert(
-      (this->Parameters.begin() == this->Parameters.end() ?
-       this->Parameters.begin() : --this->Parameters.end()), parameter);
-    return key;
+   //...and use it to instantiate a sequence.
+   mt_parameter parameter(key, get_mt_parameter_id_st(32,periodExp,key,seed));
+   sgenrand_mt(seed, parameter.second);
+   // Here and throughout, we use insert() with a hint to mitigate the cost of
+   // using a map to associate keys with MT states (the upshot is we get to use
+   // whatever ids we want to grab MT states).
+   this->Parameters.insert(
+         (this->Parameters.begin() == this->Parameters.end() ?
+             this->Parameters.begin() : --this->Parameters.end()), parameter);
+
+   return key;
  }
 
   uint32_t Random32(uint32_t sequenceId)
@@ -165,6 +168,9 @@ void vtkMersenneTwister::InitializeSequence(vtkMersenneTwister::SequenceId id,
                     << "initialized. This may break sequence encapsulation.");
   }
   this->Internal->InitializeSequence(id, seed, periodExp);
+
+  // Start the sequence since the initial value =0.0.
+  this->Next(id);
 }
 
 // ----------------------------------------------------------------------------
@@ -182,6 +188,10 @@ vtkMersenneTwister::InitializeNewSequence(vtkTypeUInt32 seed, int periodExp)
     (this->Internal->Values.begin() == this->Internal->Values.end() ?
      this->Internal->Values.begin() : --this->Internal->Values.end()),
     vtkMersenneTwisterInternals::Value(id, 0.));
+
+  // Start the sequence since the initial value =0.0.
+  this->Next(id);
+
   return id;
 }
 
@@ -217,6 +227,7 @@ void vtkMersenneTwister::Next(vtkMersenneTwister::SequenceId id)
   }
   it->second = this->Internal->Random64(id)*norm;
 }
+
 
 // ----------------------------------------------------------------------------
 void vtkMersenneTwister::PrintSelf(ostream& os, vtkIndent indent)

@@ -32,6 +32,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkSMPTools.h"
 #include "vtkSMPThreadLocalObject.h"
+#include "vtkRandomPool.h"
 
 vtkStandardNewMacro(vtkSelectEnclosedPoints);
 
@@ -44,6 +45,7 @@ namespace {
 // The threaded core of the algorithm. Thread on point type.
 struct InOutCheck
 {
+  vtkIdType NumPts;
   vtkDataSet *DataSet;
   vtkPolyData *Surface;
   double Bounds[6];
@@ -53,16 +55,17 @@ struct InOutCheck
   unsigned char *Hits;
   vtkSelectEnclosedPoints *Selector;
   vtkTypeBool InsideOut;
+  vtkRandomPool *Sequence;
 
   // Don't want to allocate working arrays on every thread invocation. Thread local
   // storage eliminates lots of new/delete.
   vtkSMPThreadLocalObject<vtkIdList> CellIds;
   vtkSMPThreadLocalObject<vtkGenericCell> Cell;
 
-  InOutCheck(vtkDataSet *ds, vtkPolyData *surface, double bds[6], double tol,
+  InOutCheck(vtkIdType numPts, vtkDataSet *ds, vtkPolyData *surface, double bds[6], double tol,
              vtkStaticCellLocator *loc, unsigned char *hits, vtkSelectEnclosedPoints *sel,
-             vtkTypeBool io) : DataSet(ds), Surface(surface), Tolerance(tol), Locator(loc),
-                               Hits(hits), Selector(sel), InsideOut(io)
+             vtkTypeBool io) : NumPts(numPts), DataSet(ds), Surface(surface), Tolerance(tol),
+                               Locator(loc), Hits(hits), Selector(sel), InsideOut(io)
   {
     this->Bounds[0] = bds[0];
     this->Bounds[1] = bds[1];
@@ -72,6 +75,16 @@ struct InOutCheck
     this->Bounds[5] = bds[5];
     this->Length = sqrt( (bds[1]-bds[0])*(bds[1]-bds[0]) + (bds[3]-bds[2])*(bds[3]-bds[2]) +
                          (bds[5]-bds[4])*(bds[5]-bds[4]) );
+
+    // Precompute a sufficiently large enough random sequence
+    this->Sequence = vtkRandomPool::New();
+    this->Sequence->SetPoolSize((numPts > 1000 ? numPts : 1000));
+    this->Sequence->GeneratePool();
+  }
+
+  ~InOutCheck()
+  {
+    this->Sequence->Delete();
   }
 
   void Initialize()
@@ -92,7 +105,8 @@ struct InOutCheck
       this->DataSet->GetPoint(ptId, x);
 
       if ( this->Selector->IsInsideSurface(x, this->Surface, this->Bounds, this->Length,
-                                           this->Tolerance, this->Locator, cellIds, cell) )
+                                           this->Tolerance, this->Locator, cellIds, cell,
+                                           this->Sequence, ptId) )
       {
         *hits++ = (this->InsideOut ? 0 : 1);
       }
@@ -111,7 +125,7 @@ struct InOutCheck
                       double bds[6], double tol, vtkStaticCellLocator *loc,
                       unsigned char *hits, vtkSelectEnclosedPoints *sel)
   {
-    InOutCheck inOut(ds, surface, bds, tol, loc, hits, sel, sel->GetInsideOut());
+    InOutCheck inOut(numPts, ds, surface, bds, tol, loc, hits, sel, sel->GetInsideOut());
     vtkSMPTools::For(0, numPts, inOut);
   }
 }; //InOutCheck
@@ -127,7 +141,7 @@ vtkSelectEnclosedPoints::vtkSelectEnclosedPoints()
 
   this->CheckSurface = 0;
   this->InsideOut = 0;
-  this->Tolerance = 0.001;
+  this->Tolerance = 0.0001;
 
   this->InsideOutsideArray = nullptr;
 
@@ -307,11 +321,14 @@ int vtkSelectEnclosedPoints::IsInsideSurface(double x[3])
 //
 // This is a static method so it can be used by other filters; hence the
 // many parameters used.
+//
+// Provision for reproducible threaded random number generation is made by
+// supporting the precomputation of a random sequence.
 int vtkSelectEnclosedPoints::
 IsInsideSurface(double x[3], vtkPolyData *surface, double bds[6],
                 double length,  double tolerance,
                 vtkAbstractCellLocator *locator, vtkIdList *cellIds,
-                vtkGenericCell *genCell)
+                vtkGenericCell *genCell, vtkRandomPool* seq, vtkIdType seqIdx)
 {
   // do a quick bounds check against the surface bounds
   if ( x[0] < bds[0] || x[0] > bds[1] ||
@@ -345,11 +362,19 @@ IsInsideSurface(double x[3], vtkPolyData *surface, double bds[6],
   {
     //  Define a random ray to fire.
     rayMag = 0.0;
-    while (rayMag == 0.0 )
+    while ( rayMag == 0.0 )
     {
-      for (i=0; i<3; i++)
+      if ( seq == nullptr ) //in serial mode
       {
-        ray[i] = vtkMath::Random(-1.0,1.0);
+        ray[0] = vtkMath::Random(-1.0,1.0);
+        ray[1] = vtkMath::Random(-1.0,1.0);
+        ray[2] = vtkMath::Random(-1.0,1.0);
+      }
+      else //threading, have to scale sequence -1<=x<=1
+      {
+        ray[0] = 2.0 *(0.5 - seq->GetValue(seqIdx++));
+        ray[1] = 2.0 *(0.5 - seq->GetValue(seqIdx++));
+        ray[2] = 2.0 *(0.5 - seq->GetValue(seqIdx++));
       }
       rayMag = vtkMath::Norm(ray);
     }
