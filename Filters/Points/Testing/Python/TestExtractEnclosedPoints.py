@@ -40,11 +40,12 @@ pool.PopulateDataArray(da, 2, 0.5, 10.5);
 
 scalars = vtk.vtkFloatArray()
 scalars.SetNumberOfTuples(numPts)
+scalars.SetName("Random Scalars");
 pool.PopulateDataArray(scalars, 100,200)
 
 profile = vtk.vtkPolyData()
 profile.SetPoints(points)
-#profile.GetPointData().SetScalars(scalars);
+profile.GetPointData().SetScalars(scalars);
 
 extract = vtk.vtkExtractEnclosedPoints()
 extract.SetInputData(profile)
@@ -56,6 +57,7 @@ glypher = vtk.vtkGlyph3D()
 glypher.SetInputConnection(extract.GetOutputPort())
 #glypher.SetInputConnection(extract.GetOutputPort(1))
 glypher.SetSourceConnection(glyph.GetOutputPort())
+glypher.SetScaleModeToDataScalingOff()
 glypher.SetScaleFactor(0.25)
 
 pointsMapper = vtk.vtkPolyDataMapper()
