@@ -615,6 +615,7 @@ int vtkPExodusIIReader::RequestData(
     // For now, this *must* come last before the UpdateInformation() call because its MTime is compared to the metadata's MTime,
     // which is modified by the calls above.
     this->ReaderList[reader_idx]->SetFileName( this->MultiFileName );
+    this->ReaderList[reader_idx]->SetXMLFileName( this->XMLFileName );
     //this->ReaderList[reader_idx]->PackExodusModelOntoOutputOff();
 
     // BUG #15632: Pass time information from first file to all others.
