@@ -123,7 +123,7 @@ protected:
   vtkMinimalStandardRandomSequence();
   ~vtkMinimalStandardRandomSequence() override;
 
-  vtkTypeUInt32 Seed;
+  int Seed;
 
 private:
   vtkMinimalStandardRandomSequence(const vtkMinimalStandardRandomSequence&) = delete;
