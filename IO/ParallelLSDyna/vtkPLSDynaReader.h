@@ -135,7 +135,7 @@ public:
   static vtkPLSDynaReader *New();
 
   /**
-   * Determine if the file can be readed with this reader.
+   * Determine if the file can be read with this reader.
    */
   int CanReadFile( const char* fname ) override;
 

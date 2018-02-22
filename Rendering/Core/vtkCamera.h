@@ -444,7 +444,7 @@ public:
   /**
    * Set/Get model transformation matrix.
    * This matrix could be used for model related transformations
-   * such as scale, shear, roations and translations.
+   * such as scale, shear, rotations and translations.
    */
   void SetModelTransformMatrix(vtkMatrix4x4 *matrix);
   vtkGetObjectMacro(ModelTransformMatrix, vtkMatrix4x4);
@@ -453,7 +453,7 @@ public:
   /**
    * Set model transformation matrix.
    * This matrix could be used for model related transformations
-   * such as scale, shear, roations and translations.
+   * such as scale, shear, rotations and translations.
    */
   void SetModelTransformMatrix(const double elements[16]);
 

@@ -181,7 +181,7 @@ public:
   void DebugDump();
 
   /**
-   * Determine if the file can be readed with this reader.
+   * Determine if the file can be read with this reader.
    */
   virtual int CanReadFile( const char* fname );
 

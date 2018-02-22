@@ -551,11 +551,11 @@ public:
   //@}
   //@{
   /**
-   * For the first GatherV variant, \c recvLenghts and \c offsets known on
+   * For the first GatherV variant, \c recvLengths and \c offsets known on
    * \c destProcessId and are passed in as parameters
-   * For the second GatherV variant, \c recvLenghts and \c offsets are not known
-   * on \c destProcessId.  The \c recvLenghts is set using a gather operation
-   * and \c offsets is computed from \c recvLenghts. recvLengths has
+   * For the second GatherV variant, \c recvLengths and \c offsets are not known
+   * on \c destProcessId.  The \c recvLengths is set using a gather operation
+   * and \c offsets is computed from \c recvLengths. recvLengths has
    * \c NumberOfProcesses elements and \offsets has NumberOfProcesses + 1 elements.
    * The third variant is the same as the second variant but it does not expose
    * \c recvLength and \c offsets

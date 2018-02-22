@@ -69,12 +69,12 @@
 
     // Load initial data
     if (self.initialUrls) {
-        // If URL given when lauching app,
+        // If URL given when launching app,
         // load that file
         [self loadFiles:self.initialUrls];
         self.initialUrls = nil;
     } else {
-        // If not data is explicitely requested,
+        // If no data is explicitly requested,
         // add dummy cube
         auto cubeSource = vtkSmartPointer<vtkCubeSource>::New();
         auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
