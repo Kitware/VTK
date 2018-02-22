@@ -72,7 +72,7 @@ public:
    * before invoking GeneratePool(). Note the number of components will
    * affect the total size (allocated memory is Size*NumberOfComponents).
    */
-  vtkSetClampMacro(Size,vtkIdType,1000,VTK_ID_MAX);
+  vtkSetClampMacro(Size,vtkIdType,1,VTK_ID_MAX);
   vtkGetMacro(Size,vtkIdType);
   //@}
 

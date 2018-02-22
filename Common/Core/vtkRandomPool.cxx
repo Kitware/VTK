@@ -158,7 +158,7 @@ PopulateDataArray(vtkDataArray *da, double minRange, double maxRange)
 
   this->SetSize(size);
   this->SetNumberOfComponents(numComp);
-  const double *pool = this->GetPool();
+  const double *pool = this->GeneratePool();
   if ( pool == nullptr )
   {
     return;
@@ -191,7 +191,7 @@ PopulateDataArray(vtkDataArray *da, int compNum,
 
   this->SetSize(size);
   this->SetNumberOfComponents(numComp);
-  const double *pool = this->GetPool();
+  const double *pool = this->GeneratePool();
   if ( pool == nullptr )
   {
     return;
@@ -248,10 +248,9 @@ static VTK_THREAD_RETURN_TYPE vtkRandomPool_ThreadedMethod( void *arg )
 {
   // Grab input
   vtkRandomPoolInfo *info;
-  int threadCount, threadId;
+  int threadId;
 
   threadId = ((vtkMultiThreader::ThreadInfo *)(arg))->ThreadID;
-  threadCount = ((vtkMultiThreader::ThreadInfo *)(arg))->NumberOfThreads;
   info = (vtkRandomPoolInfo *)
     (((vtkMultiThreader::ThreadInfo *)(arg))->UserData);
 

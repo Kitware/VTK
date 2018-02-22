@@ -28,20 +28,23 @@ actor = vtk.vtkActor()
 actor.SetMapper(mapper)
 actor.GetProperty().SetRepresentationToWireframe()
 
-# Generate some random points
-math = vtk.vtkMath()
-math.RandomSeed(1177)
-
+# Generate some random points and scalars
 points = vtk.vtkPoints()
-for i in range(0,numPts):
-  x = math.Random(2.25,7.0)
-  y = math.Random(1,10)
-  z = math.Random(0.5,10.5)
-  points.InsertPoint(i,x,y,z)
+points.SetNumberOfPoints(numPts);
+da = points.GetData();
 
-points.SetPoint(0,4.5,5.5,5.0)
+pool = vtk.vtkRandomPool()
+pool.PopulateDataArray(da, 0, 2.25, 7);
+pool.PopulateDataArray(da, 1, 1, 10);
+pool.PopulateDataArray(da, 2, 0.5, 10.5);
+
+scalars = vtk.vtkFloatArray()
+scalars.SetNumberOfTuples(numPts)
+pool.PopulateDataArray(scalars, 100,200)
+
 profile = vtk.vtkPolyData()
 profile.SetPoints(points)
+#profile.GetPointData().SetScalars(scalars);
 
 extract = vtk.vtkExtractEnclosedPoints()
 extract.SetInputData(profile)
@@ -57,10 +60,10 @@ glypher.SetScaleFactor(0.25)
 
 pointsMapper = vtk.vtkPolyDataMapper()
 pointsMapper.SetInputConnection(glypher.GetOutputPort())
+pointsMapper.SetScalarRange(100,200)
 
 pointsActor = vtk.vtkActor()
 pointsActor.SetMapper(pointsMapper)
-pointsActor.GetProperty().SetColor(1,0,0)
 
 # Add actors
 ren.AddActor(actor)

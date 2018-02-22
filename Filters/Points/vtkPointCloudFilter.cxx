@@ -53,31 +53,31 @@ struct MapPoints
 
   void operator() (vtkIdType ptId, vtkIdType endPtId)
   {
-      T *inP, *outP;
-      const vtkIdType *map=this->PointMap;
-      vtkIdType outPtId;
+    T *inP, *outP;
+    const vtkIdType *map=this->PointMap;
+    vtkIdType outPtId;
 
-      for ( ; ptId < endPtId; ++ptId)
+    for ( ; ptId < endPtId; ++ptId)
+    {
+      outPtId = map[ptId];
+      if ( outPtId != -1 )
       {
-        outPtId = map[ptId];
-        if ( outPtId != -1 )
-        {
-          inP = this->InPoints + 3*ptId;
-          outP = this->OutPoints + 3*outPtId;
-          *outP++ = *inP++;
-          *outP++ = *inP++;
-          *outP = *inP;
-          this->Arrays.Copy(ptId,outPtId);
-        }
+        inP = this->InPoints + 3*ptId;
+        outP = this->OutPoints + 3*outPtId;
+        *outP++ = *inP++;
+        *outP++ = *inP++;
+        *outP = *inP;
+        this->Arrays.Copy(ptId,outPtId);
       }
+    }
   }
 
   static void Execute(vtkIdType numInPts, T *inPts,
                       vtkIdType numOutPts, T *outPts, vtkIdType *map,
                       vtkPointData *inPD, vtkPointData *outPD)
   {
-      MapPoints copy(numInPts, inPts, numOutPts, outPts, map, inPD, outPD);
-      vtkSMPTools::For(0, numInPts, copy);
+    MapPoints copy(numInPts, inPts, numOutPts, outPts, map, inPD, outPD);
+    vtkSMPTools::For(0, numInPts, copy);
   }
 
 }; //MapPoints
@@ -102,32 +102,32 @@ struct MapOutliers
 
   void operator() (vtkIdType ptId, vtkIdType endPtId)
   {
-      T *inP, *outP;
-      const vtkIdType *map=this->PointMap;
-      vtkIdType outPtId;
+    T *inP, *outP;
+    const vtkIdType *map=this->PointMap;
+    vtkIdType outPtId;
 
-      for ( ; ptId < endPtId; ++ptId)
+    for ( ; ptId < endPtId; ++ptId)
+    {
+      outPtId = map[ptId];
+      if ( outPtId < 0 )
       {
-        outPtId = map[ptId];
-        if ( outPtId < 0 )
-        {
-          outPtId = (-outPtId) - 1;
-          inP = this->InPoints + 3*ptId;
-          outP = this->OutPoints + 3*outPtId;
-          *outP++ = *inP++;
-          *outP++ = *inP++;
-          *outP = *inP;
-          this->Arrays.Copy(ptId,outPtId);
-        }
+        outPtId = (-outPtId) - 1;
+        inP = this->InPoints + 3*ptId;
+        outP = this->OutPoints + 3*outPtId;
+        *outP++ = *inP++;
+        *outP++ = *inP++;
+        *outP = *inP;
+        this->Arrays.Copy(ptId,outPtId);
       }
+    }
   }
 
   static void Execute(vtkIdType numInPts, T *inPts,
                       vtkIdType numOutPts, T *outPts, vtkIdType *map,
                       vtkPointData *inPD, vtkPointData *outPD2)
   {
-      MapOutliers copy(numInPts, inPts, numOutPts, outPts, map, inPD, outPD2);
-      vtkSMPTools::For(0, numInPts, copy);
+    MapOutliers copy(numInPts, inPts, numOutPts, outPts, map, inPD, outPD2);
+    vtkSMPTools::For(0, numInPts, copy);
   }
 
 }; //MapOutliers

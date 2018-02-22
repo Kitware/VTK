@@ -37,8 +37,6 @@
 class VTKCOMMONCORE_EXPORT vtkRandomSequence : public vtkObject
 {
 public:
-  typedef vtkTypeUInt32 SequenceId;
-
   //@{
   /**
    * Standard methods for type information and printing.

@@ -179,7 +179,7 @@ int TestBinCellDataFilter(int, char*[])
 
   if (binnedData->GetNumberOfTuples() != 17)
   {
-    cerr << "Number of cells has deviated from expected value " << 17 << endl;
+    cerr << "Number of cells (" << binnedData->GetNumberOfTuples() << ") has deviated from expected value " << 17 << endl;
     return 1;
   }
 
