@@ -114,7 +114,7 @@ protected:
   void BuildBufferObjects(vtkRenderer *ren, vtkActor *act) override;
   virtual void AppendOneBufferObject(vtkRenderer *ren,
     vtkActor *act, vtkCompositeMapperHelperData *hdata,
-    unsigned int &flat_index,
+    vtkIdType &flat_index,
     std::vector<unsigned char> &colors,
     std::vector<float> &norms);
 
@@ -139,6 +139,8 @@ protected:
   double CurrentDiffuseIntensity;
 
   std::vector<vtkPolyData*> RenderedList;
+
+  std::map<vtkAbstractArray*, vtkDataArray*> ColorArrayMap;
 
 private:
   vtkCompositeMapperHelper2(const vtkCompositeMapperHelper2&) = delete;

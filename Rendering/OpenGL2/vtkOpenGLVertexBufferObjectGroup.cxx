@@ -189,6 +189,40 @@ void vtkOpenGLVertexBufferObjectGroup::CacheDataArray(
   this->UsedVBOs[attribute] = vbo;
 }
 
+bool vtkOpenGLVertexBufferObjectGroup::ArrayExists(
+  const char *attribute,
+  vtkDataArray *da,
+  vtkIdType& offset,
+  vtkIdType& totalOffset)
+{
+  totalOffset = offset = 0;
+  if (!da)
+  {
+    return true;
+  }
+
+  std::vector<vtkDataArray *> &arrays = this->UsedDataArrays[attribute];
+  bool found = false;
+  for (vtkDataArray* arr : arrays)
+  {
+    vtkIdType nbTuples = arr->GetNumberOfTuples();
+    totalOffset += nbTuples;
+    if (!found)
+    {
+      if (da != arr)
+      {
+        offset += nbTuples;
+      }
+      else
+      {
+        found = true;
+      }
+    }
+  }
+
+  return found;
+}
+
 void vtkOpenGLVertexBufferObjectGroup::AppendDataArray(
   const char *attribute,
   vtkDataArray *da,
@@ -200,19 +234,16 @@ void vtkOpenGLVertexBufferObjectGroup::AppendDataArray(
   }
 
   std::vector<vtkDataArray *> &arrays = this->UsedDataArrays[attribute];
-  if (std::find(arrays.begin(), arrays.end(), da) == arrays.end())
-  {
-    da->Register(this);
-    arrays.push_back(da);
+  da->Register(this);
+  arrays.push_back(da);
 
-    // make sure we have a VBO for this array
-    // we do not use the cache when appending
-    if (this->UsedVBOs.find(attribute) == this->UsedVBOs.end())
-    {
-      vtkOpenGLVertexBufferObject* vbo = vtkOpenGLVertexBufferObject::New();
-      vbo->SetDataType(destType);
-      this->UsedVBOs[attribute] = vbo;
-    }
+  // make sure we have a VBO for this array
+  // we do not use the cache when appending
+  if (this->UsedVBOs.find(attribute) == this->UsedVBOs.end())
+  {
+    vtkOpenGLVertexBufferObject* vbo = vtkOpenGLVertexBufferObject::New();
+    vbo->SetDataType(destType);
+    this->UsedVBOs[attribute] = vbo;
   }
 }
 
