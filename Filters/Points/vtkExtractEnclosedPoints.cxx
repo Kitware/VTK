@@ -45,7 +45,7 @@ namespace {
 //----------------------------------------------------------------------------
 // The threaded core of the algorithm. Thread on point type.
 template <typename T>
-struct InOutCheck
+struct ExtractInOutCheck
 {
   vtkIdType NumPts;
   T *Points;
@@ -62,8 +62,8 @@ struct InOutCheck
   vtkSMPThreadLocalObject<vtkIdList> CellIds;
   vtkSMPThreadLocalObject<vtkGenericCell> Cell;
 
-  InOutCheck(vtkIdType numPts, T *pts, vtkPolyData *surface, double bds[6],
-             double tol, vtkStaticCellLocator *loc, vtkIdType *map) :
+  ExtractInOutCheck(vtkIdType numPts, T *pts, vtkPolyData *surface, double bds[6],
+                    double tol, vtkStaticCellLocator *loc, vtkIdType *map) :
     NumPts(numPts), Points(pts), Surface(surface), Tolerance(tol), Locator(loc), PointMap(map)
   {
     this->Bounds[0] = bds[0];
@@ -80,7 +80,7 @@ struct InOutCheck
     this->Sequence->GeneratePool();
   }
 
-  ~InOutCheck()
+  ~ExtractInOutCheck()
   {
     this->Sequence->Delete();
   }
@@ -122,10 +122,10 @@ struct InOutCheck
                       double bds[6], double tol, vtkStaticCellLocator *loc,
                       vtkIdType *hits)
   {
-    InOutCheck inOut(numPts, pts, surface, bds, tol, loc, hits);
+    ExtractInOutCheck inOut(numPts, pts, surface, bds, tol, loc, hits);
     vtkSMPTools::For(0, numPts, inOut);
   }
-}; //InOutCheck
+}; //ExtractInOutCheck
 
 } //anonymous namespace
 
@@ -136,8 +136,8 @@ vtkExtractEnclosedPoints::vtkExtractEnclosedPoints()
 {
   this->SetNumberOfInputPorts(2);
 
-  this->CheckSurface = 0;
-  this->Tolerance = 0.001;
+  this->CheckSurface = false;
+  this->Tolerance = 0.0001;
 }
 
 //----------------------------------------------------------------------------
@@ -199,7 +199,7 @@ int vtkExtractEnclosedPoints::FilterPoints(vtkPointSet *input)
   void *inPtr = input->GetPoints()->GetVoidPointer(0);
   switch (input->GetPoints()->GetDataType())
   {
-    vtkTemplateMacro(InOutCheck<VTK_TT>::
+    vtkTemplateMacro(ExtractInOutCheck<VTK_TT>::
                      Execute(numPts, (VTK_TT *)inPtr, surface, bds,
                              this->Tolerance, locator, this->PointMap));
   }

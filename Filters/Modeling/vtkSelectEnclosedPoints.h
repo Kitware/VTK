@@ -123,8 +123,8 @@ public:
 
   //@{
   /**
-   * Specify the tolerance on the intersection. The tolerance is expressed
-   * as a fraction of the bounding box of the enclosing surface.
+   * Specify the tolerance on the intersection. The tolerance is expressed as
+   * a fraction of the diagonal of the bounding box of the enclosing surface.
    */
   vtkSetClampMacro(Tolerance,double,0.0,VTK_FLOAT_MAX);
   vtkGetMacro(Tolerance,double);
