@@ -493,8 +493,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
 //----------------------------------------------------------------------------
 void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReleaseData()
 {
-  delete this->GDALData;
-  this->GDALData = 0;
+  GDALClose(this->GDALData);
 }
 
 //-----------------------------------------------------------------------------
@@ -764,6 +763,16 @@ vtkGDALRasterReader::~vtkGDALRasterReader()
   {
     this->SetFileName(0);
   }
+}
+
+
+//-----------------------------------------------------------------------------
+int vtkGDALRasterReader::CanReadFile(const char* fname)
+{
+  GDALDataset* dataset = static_cast<GDALDataset*>(GDALOpen(fname, GA_ReadOnly));
+  bool canRead = (dataset != nullptr);
+  GDALClose(dataset);
+  return canRead;
 }
 
 //-----------------------------------------------------------------------------
