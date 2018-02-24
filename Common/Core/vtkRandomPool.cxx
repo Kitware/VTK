@@ -48,8 +48,8 @@ struct PopulateDA
 
   void operator() (vtkIdType dataId, vtkIdType endDataId)
   {
-    const double *p = this->Pool;
-    T *array = this->Array;
+    const double *p = this->Pool + dataId;
+    T *array = this->Array + dataId;
     double range = static_cast<double>(this->Max - this->Min);
 
     for ( ; dataId < endDataId; ++dataId, ++array, ++p )
@@ -113,8 +113,8 @@ struct PopulateDAComponent
   static void Execute(const double *pool, T *array, double min, double max,
                       vtkIdType size, int numComp, int compNum)
   {
-    PopulateDAComponent popDA(pool,array,min,max,numComp,compNum);
-    vtkSMPTools::For(0, size, popDA);
+    PopulateDAComponent popDAC(pool,array,min,max,numComp,compNum);
+    vtkSMPTools::For(0, size, popDAC);
   }
 };
 
@@ -172,6 +172,9 @@ PopulateDataArray(vtkDataArray *da, double minRange, double maxRange)
                      Execute(pool, (VTK_TT *)ptr, minRange, maxRange,
                              this->GetTotalSize()));
   }
+
+  // Make sure that the data array is marked modified
+  da->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -205,6 +208,9 @@ PopulateDataArray(vtkDataArray *da, int compNum,
                      Execute(pool, (VTK_TT *)ptr, minRange, maxRange,
                              size, numComp, compNum));
   }
+
+  // Make sure that the data array is marked modified
+  da->Modified();
 }
 
 //----------------------------------------------------------------------------

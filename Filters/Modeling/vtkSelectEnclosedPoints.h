@@ -51,6 +51,7 @@
 
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkIntersectionCounter.h" // to count intersections along ray
 
 class vtkUnsignedCharArray;
 class vtkAbstractCellLocator;
@@ -156,6 +157,7 @@ public:
   static int IsInsideSurface(double x[3], vtkPolyData *surface, double bds[6],
                              double length,  double tol, vtkAbstractCellLocator *locator,
                              vtkIdList *cellIds, vtkGenericCell *genCell,
+                             vtkIntersectionCounter &counter,
                              vtkRandomPool* poole=nullptr, vtkIdType seqIdx=0);
 
   /**

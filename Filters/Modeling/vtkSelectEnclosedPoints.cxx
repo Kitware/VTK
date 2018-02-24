@@ -31,10 +31,9 @@
 #include "vtkMath.h"
 #include "vtkGarbageCollector.h"
 #include "vtkSMPTools.h"
+#include "vtkSMPThreadLocal.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkRandomPool.h"
-
-#include <vector>
 
 vtkStandardNewMacro(vtkSelectEnclosedPoints);
 
@@ -58,6 +57,7 @@ struct SelectInOutCheck
   vtkSelectEnclosedPoints *Selector;
   vtkTypeBool InsideOut;
   vtkRandomPool *Sequence;
+  vtkSMPThreadLocal<vtkIntersectionCounter> Counter;
 
   // Don't want to allocate working arrays on every thread invocation. Thread local
   // storage eliminates lots of new/delete.
@@ -80,7 +80,7 @@ struct SelectInOutCheck
 
     // Precompute a sufficiently large enough random sequence
     this->Sequence = vtkRandomPool::New();
-    this->Sequence->SetSize((numPts > 1000 ? numPts : 1000));
+    this->Sequence->SetSize((numPts > 1500 ? numPts : 1500));
     this->Sequence->GeneratePool();
   }
 
@@ -93,6 +93,8 @@ struct SelectInOutCheck
   {
     vtkIdList*& cellIds = this->CellIds.Local();
     cellIds->Allocate(512);
+    vtkIntersectionCounter& counter = this->Counter.Local();
+    counter.SetTolerance(this->Tolerance);
   }
 
   void operator() (vtkIdType ptId, vtkIdType endPtId)
@@ -101,6 +103,7 @@ struct SelectInOutCheck
     unsigned char *hits = this->Hits + ptId;
     vtkGenericCell*& cell = this->Cell.Local();
     vtkIdList*& cellIds = this->CellIds.Local();
+    vtkIntersectionCounter& counter = this->Counter.Local();
 
     for ( ; ptId < endPtId; ++ptId )
     {
@@ -108,7 +111,7 @@ struct SelectInOutCheck
 
       if ( this->Selector->IsInsideSurface(x, this->Surface, this->Bounds, this->Length,
                                            this->Tolerance, this->Locator, cellIds, cell,
-                                           this->Sequence, ptId) )
+                                           counter, this->Sequence, ptId) )
       {
         *hits++ = (this->InsideOut ? 0 : 1);
       }
@@ -132,62 +135,6 @@ struct SelectInOutCheck
     vtkSMPTools::For(0, numPts, inOut);
   }
 }; //SelectInOutCheck
-
-// This class makes the finite ray intersection process more robust. It
-// merges intersections that are very close to one another (within a
-// tolerance). Such situations are common when intersection rays pass through
-// the edge or vertex of a mesh.
-struct IntersectionCounter
-{
-  double Tolerance;
-  std::vector<double> IntsArray;
-
-  // This tolerance must be converted to parametric space. Here tol is the
-  // tolerance in world coordinates; length is the ray length.
-  IntersectionCounter(double tol, double length)
-  {
-    this->Tolerance = ( length > 0.0 ? (tol/length) : 0.0 );
-  }
-
-  void AddIntersection(double t) {IntsArray.push_back(t);}
-  void Reset() {IntsArray.clear();}
-
-  // Returns number of intersections (even number of intersections, outside
-  // or odd number of intersections, inside). This is done by considering
-  // close intersections (within Tolerance) as being the same point.
-  int CountIntersections()
-  {
-    int size = static_cast<int>(IntsArray.size());
-
-    // Fast check for trivial cases
-    if ( size <= 1 )
-    {
-      return size; //0 or 1
-    }
-
-    // Need to work harder: sort and then count the intersections
-    std::sort(IntsArray.begin(),IntsArray.end());
-
-    // If here, there is at least one intersection, and two inserted
-    // intersection points
-    int numInts = 1;
-    std::vector<double>::iterator i0 = IntsArray.begin();
-    std::vector<double>::iterator i1 = i0 + 1;
-
-    // Now march through sorted array counting "separated" intersections
-    while ( i1 != IntsArray.end() )
-    {
-      if ( (*i1 - *i0) > this->Tolerance )
-      {
-        numInts++;
-        i0 = i1;
-      }
-      i1++;
-    }
-
-    return numInts;
-  }
-}; //IntersectionCounter
 
 } //anonymous namespace
 
@@ -367,9 +314,11 @@ int vtkSelectEnclosedPoints::IsInsideSurface(double x, double y, double z)
 // safe due to the use of the data member CellIds and Cell.
 int vtkSelectEnclosedPoints::IsInsideSurface(double x[3])
 {
+  vtkIntersectionCounter counter(this->Tolerance, this->Length);
+
   return this->IsInsideSurface(x, this->Surface, this->Bounds, this->Length,
                                this->Tolerance, this->CellLocator, this->CellIds,
-                               this->Cell);
+                               this->Cell, counter);
 }
 
 //----------------------------------------------------------------------------
@@ -391,7 +340,8 @@ int vtkSelectEnclosedPoints::
 IsInsideSurface(double x[3], vtkPolyData *surface, double bds[6],
                 double length,  double tolerance,
                 vtkAbstractCellLocator *locator, vtkIdList *cellIds,
-                vtkGenericCell *genCell, vtkRandomPool* seq, vtkIdType seqIdx)
+                vtkGenericCell *genCell, vtkIntersectionCounter &counter,
+                vtkRandomPool* seq, vtkIdType seqIdx)
 {
   // do a quick inside bounds check against the surface bounds
   if ( x[0] < bds[0] || x[0] > bds[1] ||
@@ -418,7 +368,7 @@ IsInsideSurface(double x[3], vtkPolyData *surface, double bds[6],
   int i, numInts, iterNumber, deltaVotes, subId;
   vtkIdType idx, numCells;
   double tol = tolerance * length;
-  IntersectionCounter counter(tol, length);
+  //  IntersectionCounter counter(tol, length);
 
   for (deltaVotes = 0, iterNumber = 1;
        (iterNumber < VTK_MAX_ITER) && (abs(deltaVotes) < VTK_VOTE_THRESHOLD);
@@ -455,10 +405,9 @@ IsInsideSurface(double x[3], vtkPolyData *surface, double bds[6],
     // Retrieve the candidate cells from the locator to limit the
     // intersections to be attempted.
     locator->FindCellsAlongLine(x,xray,tol,cellIds);
-
-    // Intersect the line with each of the candidate cells.
-    counter.Reset();
     numCells = cellIds->GetNumberOfIds();
+
+    counter.Reset();
     for ( idx=0; idx < numCells; idx++ )
     {
       surface->GetCell(cellIds->GetId(idx), genCell);

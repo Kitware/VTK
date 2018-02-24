@@ -31,12 +31,12 @@ actor.GetProperty().SetRepresentationToWireframe()
 # Generate some random points and scalars
 points = vtk.vtkPoints()
 points.SetNumberOfPoints(numPts);
-da = points.GetData();
 
+da = points.GetData()
 pool = vtk.vtkRandomPool()
-pool.PopulateDataArray(da, 0, 2.25, 7);
-pool.PopulateDataArray(da, 1, 1, 10);
-pool.PopulateDataArray(da, 2, 0.5, 10.5);
+pool.PopulateDataArray(da, 0, 2.25, 7)
+pool.PopulateDataArray(da, 1, 1, 10)
+pool.PopulateDataArray(da, 2, 0.5, 10.5)
 
 scalars = vtk.vtkFloatArray()
 scalars.SetNumberOfTuples(numPts)
@@ -50,7 +50,14 @@ profile.GetPointData().SetScalars(scalars);
 extract = vtk.vtkExtractEnclosedPoints()
 extract.SetInputData(profile)
 extract.SetSurfaceConnection(ss.GetOutputPort())
-extract.GenerateOutliersOn()
+
+# Time execution
+timer = vtk.vtkTimerLog()
+timer.StartTimer()
+extract.Update()
+timer.StopTimer()
+time = timer.GetElapsedTime()
+print("Time to extract points: {0}".format(time))
 
 glyph = vtk.vtkSphereSource()
 glypher = vtk.vtkGlyph3D()

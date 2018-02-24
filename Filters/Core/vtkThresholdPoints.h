@@ -20,8 +20,9 @@
  * satisfy a threshold criterion. The criterion can take three forms:
  * 1) greater than a particular value; 2) less than a particular value; or
  * 3) between a particular value. The output of the filter is polygonal data.
+ *
  * @sa
- * vtkThreshold
+ * vtkThreshold vtkSelectEnclosedPoints vtkExtractEnclosedPoints
 */
 
 #ifndef vtkThresholdPoints_h

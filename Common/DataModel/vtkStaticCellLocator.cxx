@@ -564,7 +564,8 @@ FindCellsWithinBounds(double *bbox, vtkIdList *cells)
 // cells in intersected bins are placed into the output cellId vtkIdList. See
 // the IntersectWithLine method for more information on voxel traversal.
 template <typename T> void CellProcessor<T>::
-FindCellsAlongLine(double a0[3], double a1[3], double vtkNotUsed(tol), vtkIdList *cells)
+FindCellsAlongLine(double a0[3], double a1[3], double vtkNotUsed(tol),
+                   vtkIdList *cells)
 {
   // Initialize the list of cells
   cells->Reset();

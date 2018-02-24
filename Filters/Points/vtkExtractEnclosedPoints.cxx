@@ -32,8 +32,10 @@
 #include "vtkMath.h"
 #include "vtkGarbageCollector.h"
 #include "vtkSMPTools.h"
+#include "vtkSMPThreadLocal.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkRandomPool.h"
+#include "vtkIntersectionCounter.h"
 
 vtkStandardNewMacro(vtkExtractEnclosedPoints);
 
@@ -56,6 +58,7 @@ struct ExtractInOutCheck
   vtkStaticCellLocator *Locator;
   vtkIdType *PointMap;
   vtkRandomPool *Sequence;
+  vtkSMPThreadLocal<vtkIntersectionCounter> Counter;
 
   // Don't want to allocate working arrays on every thread invocation. Thread local
   // storage eliminates lots of new/delete.
@@ -75,8 +78,9 @@ struct ExtractInOutCheck
     this->Length = sqrt( (bds[1]-bds[0])*(bds[1]-bds[0]) + (bds[3]-bds[2])*(bds[3]-bds[2]) +
                          (bds[5]-bds[4])*(bds[5]-bds[4]) );
 
+    // Precompute a sufficiently large enough random sequence
     this->Sequence = vtkRandomPool::New();
-    this->Sequence->SetSize(numPts);
+    this->Sequence->SetSize((numPts > 1500 ? numPts : 1500));
     this->Sequence->GeneratePool();
   }
 
@@ -89,6 +93,8 @@ struct ExtractInOutCheck
   {
     vtkIdList*& cellIds = this->CellIds.Local();
     cellIds->Allocate(512);
+    vtkIntersectionCounter& counter = this->Counter.Local();
+    counter.SetTolerance(this->Tolerance);
   }
 
   void operator() (vtkIdType ptId, vtkIdType endPtId)
@@ -99,6 +105,7 @@ struct ExtractInOutCheck
     vtkGenericCell*& cell = this->Cell.Local();
     vtkIdList*& cellIds = this->CellIds.Local();
     vtkIdType hit;
+    vtkIntersectionCounter& counter = this->Counter.Local();
 
     for ( ; ptId < endPtId; ++ptId, pts+=3 )
     {
@@ -109,7 +116,7 @@ struct ExtractInOutCheck
       hit = vtkSelectEnclosedPoints::
         IsInsideSurface(x, this->Surface, this->Bounds, this->Length,
                         this->Tolerance, this->Locator, cellIds, cell,
-                        this->Sequence, ptId);
+                        counter, this->Sequence, ptId);
       *map++ = (hit ? 1 : -1);
     }
   }
