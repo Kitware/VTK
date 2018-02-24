@@ -132,6 +132,9 @@ int TestSelectEnclosedPoints(int argc, char* argv[])
   mapper->Delete();
   actor->Delete();
 
+  pool->Delete();
+  timer->Delete();
+
   points->Delete();
   profile->Delete();
   thresh->Delete();
