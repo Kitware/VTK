@@ -203,14 +203,15 @@ set(Module_SRCS
   vtkCellType.h
 
   # Header only classes
+  vtkColor.h
   vtkDataArrayDispatcher.h
   vtkDispatcher.h
   vtkDispatcher_Private.h
   vtkDoubleDispatcher.h
+  vtkIntersectionCounter.h
+  vtkRect.h
   vtkVector.h
   vtkVectorOperators.h
-  vtkColor.h
-  vtkRect.h
 
   # New classes for AMR
   vtkNonOverlappingAMR.cxx

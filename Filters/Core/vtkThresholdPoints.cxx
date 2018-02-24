@@ -26,6 +26,7 @@
 
 vtkStandardNewMacro(vtkThresholdPoints);
 
+//----------------------------------------------------------------------------
 // Construct with lower threshold=0, upper threshold=1, and threshold
 // function=upper.
 vtkThresholdPoints::vtkThresholdPoints()
@@ -42,6 +43,7 @@ vtkThresholdPoints::vtkThresholdPoints()
     vtkDataSetAttributes::SCALARS);
 }
 
+//----------------------------------------------------------------------------
 // Criterion is cells whose scalars are less than lower threshold.
 void vtkThresholdPoints::ThresholdByLower(double lower)
 {
@@ -65,6 +67,7 @@ void vtkThresholdPoints::ThresholdByLower(double lower)
   }
 }
 
+//----------------------------------------------------------------------------
 // Criterion is cells whose scalars are less than upper threshold.
 void vtkThresholdPoints::ThresholdByUpper(double upper)
 {
@@ -88,6 +91,7 @@ void vtkThresholdPoints::ThresholdByUpper(double upper)
   }
 }
 
+//----------------------------------------------------------------------------
 // Criterion is cells whose scalars are between lower and upper thresholds.
 void vtkThresholdPoints::ThresholdBetween(double lower, double upper)
 {
@@ -117,6 +121,7 @@ void vtkThresholdPoints::ThresholdBetween(double lower, double upper)
   }
 }
 
+//----------------------------------------------------------------------------
 int vtkThresholdPoints::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -222,12 +227,14 @@ int vtkThresholdPoints::RequestData(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkThresholdPoints::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkThresholdPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

@@ -5,6 +5,7 @@ set(Module_SRCS
   vtkEllipsoidalGaussianKernel.cxx
   vtkEuclideanClusterExtraction.cxx
   vtkExtractHierarchicalBins.cxx
+  vtkExtractEnclosedPoints.cxx
   vtkExtractPointCloudPiece.cxx
   vtkExtractPoints.cxx
   vtkExtractSurface.cxx

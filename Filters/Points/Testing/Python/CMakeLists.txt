@@ -1,18 +1,11 @@
 vtk_add_test_python(
-  TestDensifyPointCloudFilter2.py
-  TestEllipsoidalGaussianKernel.py
-  TestPointInterpolator.py
-  TestPointInterpolator2.py
-  TestPointInterpolator2D.py
-  TestPointInterpolator2D2.py
-  TestPointOccupancyFilter.py
-  TestSPHInterpolator.py
-  TestSPHInterpolator2D.py
-  TestSPHInterpolatorWithCutoff.py
   TestConnectedPointsFilter.py
   TestDensifyPointCloudFilter.py
+  TestDensifyPointCloudFilter2.py
+  TestEllipsoidalGaussianKernel.py
   TestEuclideanClusterExtraction.py
   TestEuclideanClusterExtraction2.py
+  TestExtractEnclosedPoints.py
   TestExtractPoints.py
   TestFitImplicitFunction.py
   TestHierarchicalBinningFilter.py
@@ -22,7 +15,15 @@ vtk_add_test_python(
   TestPCANormalEstimation2.py
   TestPointDensityFilter.py
   TestPointDensityGradient.py
+  TestPointInterpolator.py
+  TestPointInterpolator2.py
+  TestPointInterpolator2D.py
+  TestPointInterpolator2D2.py
+  TestPointOccupancyFilter.py
   TestRadiusOutlierRemoval.py
+  TestSPHInterpolator.py
+  TestSPHInterpolator2D.py
+  TestSPHInterpolatorWithCutoff.py
   TestSignedDistanceFilter.py
   TestStatisticalOutlierRemoval.py
   TestUnsignedDistanceFilter.py

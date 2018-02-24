@@ -224,7 +224,7 @@ struct ArrayList
   // Add the arrays to interpolate here (from attribute data)
   void AddArrays(vtkIdType numOutPts, vtkDataSetAttributes *inPD,
                  vtkDataSetAttributes *outPD, double nullValue=0.0,
-                 bool promote=true);
+                 vtkTypeBool promote=true);
 
   // Add an array that interpolates from its own attribute values
   void AddSelfInterpolatingArrays(vtkIdType numOutPts, vtkDataSetAttributes *attr,
@@ -234,12 +234,13 @@ struct ArrayList
   // if any. No array may be created if \c inArray was previously marked as
   // excluded using ExcludeArray().
   vtkDataArray* AddArrayPair(vtkIdType numTuples, vtkDataArray *inArray,
-                             vtkStdString &outArrayName, double nullValue, bool promote);
+                             vtkStdString &outArrayName, double nullValue,
+                             vtkTypeBool promote);
 
   // Any array excluded here is not added by AddArrays() or AddArrayPair, hence not
   // processed. Also check whether an array is excluded.
   void ExcludeArray(vtkDataArray *da);
-  bool IsExcluded(vtkDataArray *da);
+  vtkTypeBool IsExcluded(vtkDataArray *da);
 
   // Loop over the array pairs and copy data from one to another
   void Copy(vtkIdType inId, vtkIdType outId)

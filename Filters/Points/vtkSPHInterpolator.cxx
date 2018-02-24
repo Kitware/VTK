@@ -55,11 +55,11 @@ struct ProbePoints
   vtkPointData *OutPD;
   ArrayList Arrays;
   ArrayList DerivArrays;
-  bool ComputeDerivArrays;
+  vtkTypeBool ComputeDerivArrays;
   char *Valid;
   int Strategy;
   float *Shepard;
-  bool Promote;
+  vtkTypeBool Promote;
 
   // Don't want to allocate these working arrays on every thread invocation,
   // so make them thread local.
@@ -178,6 +178,65 @@ struct ProbePoints
   }
 
 }; //ProbePoints
+
+
+// Used when normalizing arrays by the Shepard coefficient
+template <typename T>
+struct NormalizeArray
+{
+  T *Array;
+  int NumComp;
+  float *ShepardSumArray;
+
+  NormalizeArray(T *array, int numComp, float *ssa) :
+    Array(array), NumComp(numComp), ShepardSumArray(ssa)
+  {
+  }
+
+  void Initialize()
+  {
+  }
+
+  void operator() (vtkIdType ptId, vtkIdType endPtId)
+  {
+    int i, numComp=this->NumComp;
+    T *array = this->Array + ptId*numComp;
+    T val;
+    const float *ssa = this->ShepardSumArray + ptId;
+
+    // If Shepard coefficient ==0.0 then set values to zero
+    for ( ; ptId < endPtId; ++ssa )
+    {
+      if ( *ssa == 0.0 )
+      {
+        for ( i=0; i < numComp; ++i)
+        {
+          *array++ = static_cast<T>(0.0);
+        }
+      }
+      else
+      {
+        for ( i=0; i < numComp; ++i)
+        {
+          val = static_cast<T>(static_cast<double>(*array) /
+                               static_cast<double>(*ssa));
+          *array++ = val;
+        }
+      }
+    }//for points in this range
+  }
+
+  void Reduce()
+  {
+  }
+
+  static void Execute(vtkIdType numPts, T *ptr, int numComp, float *ssa)
+  {
+    NormalizeArray normalize(ptr, numComp, ssa);
+    vtkSMPTools::For(0, numPts, normalize);
+  }
+}; //NormalizeArray
+
 } //anonymous namespace
 
 //================= Begin class proper =======================================
@@ -209,6 +268,8 @@ vtkSPHInterpolator::vtkSPHInterpolator()
   this->PassPointArrays = true;
   this->PassCellArrays = true;
   this->PassFieldArrays = true;
+
+  this->ShepardNormalization = false;
 }
 
 //----------------------------------------------------------------------------
@@ -279,8 +340,10 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
   }
 
   // Shepard summation if requested
+  vtkTypeBool computeShepardSum =
+    this->ComputeShepardSum || this->ShepardNormalization;
   float *shepardArray=nullptr;
-  if ( this->ComputeShepardSum )
+  if ( computeShepardSum )
   {
     this->ShepardSumArray = vtkFloatArray::New();
     this->ShepardSumArray->SetNumberOfTuples(numPts);
@@ -299,6 +362,27 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
   // Now loop over input points, finding closest points and invoking kernel.
   ProbePoints probe(this, input, sourcePD, outPD, mask, shepardArray);
   vtkSMPTools::For(0, numPts, probe);
+
+  // If Shepard normalization requested, normalize all arrays except density
+  // array.
+  if ( this->ShepardNormalization )
+  {
+    vtkDataArray *da;
+    for ( int i=0; i < outPD->GetNumberOfArrays(); ++i)
+    {
+      da = outPD->GetArray(i);
+      if ( da != nullptr && da != this->Kernel->GetDensityArray() )
+      {
+        void *ptr = da->GetVoidPointer(0);
+        switch (da->GetDataType())
+        {
+          vtkTemplateMacro(NormalizeArray<VTK_TT>::
+                           Execute(numPts, (VTK_TT *)ptr,
+                                   da->GetNumberOfComponents(), shepardArray));
+        }
+      }//not denisty array
+    }//for all arrays
+  }//if Shepard normalization
 
   // Clean up
   if ( this->ShepardSumArray )
@@ -512,4 +596,7 @@ void vtkSPHInterpolator::PrintSelf(ostream& os, vtkIndent indent)
      << (this->PassCellArrays? "On" : " Off") << "\n";
   os << indent << "Pass Field Arrays: "
      << (this->PassFieldArrays? "On" : " Off") << "\n";
+
+  os << indent << "Shepard Normalization: "
+     << (this->ShepardNormalization ? "On" : " Off") << "\n";
 }

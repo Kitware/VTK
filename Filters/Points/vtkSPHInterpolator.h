@@ -262,7 +262,7 @@ public:
   }
   //@}
 
-  // How to handle nullptr points
+  // How to handle NULL/empty points
   enum NullStrategy
   {
     MASK_POINTS=0,
@@ -312,14 +312,14 @@ public:
   /**
    * Indicate whether to compute the summation of weighting coefficients (the
    * so-called Shepard sum). In the interior of a SPH point cloud, the
-   * Shephard summation value should be ~1.0.  Towards the boundary, the
+   * Shepard summation value should be ~1.0.  Towards the boundary, the
    * Shepard summation generally falls off <1.0. If ComputeShepardSum is specified, then the
    * output will contain an array of summed Shepard weights for each output
    * point. On by default.
    */
-  vtkSetMacro(ComputeShepardSum, bool);
-  vtkBooleanMacro(ComputeShepardSum, bool);
-  vtkGetMacro(ComputeShepardSum, bool);
+  vtkSetMacro(ComputeShepardSum, vtkTypeBool);
+  vtkBooleanMacro(ComputeShepardSum, vtkTypeBool);
+  vtkGetMacro(ComputeShepardSum, vtkTypeBool);
   //@}
 
   //@{
@@ -340,9 +340,9 @@ public:
    * interpolation process may not be well behaved when integral types are
    * combined using interpolation weights.
    */
-  vtkSetMacro(PromoteOutputArrays, bool);
-  vtkBooleanMacro(PromoteOutputArrays, bool);
-  vtkGetMacro(PromoteOutputArrays, bool);
+  vtkSetMacro(PromoteOutputArrays, vtkTypeBool);
+  vtkBooleanMacro(PromoteOutputArrays, vtkTypeBool);
+  vtkGetMacro(PromoteOutputArrays, vtkTypeBool);
   //@}
 
   //@{
@@ -350,9 +350,9 @@ public:
    * Indicate whether to shallow copy the input point data arrays to the
    * output. On by default.
    */
-  vtkSetMacro(PassPointArrays, bool);
-  vtkBooleanMacro(PassPointArrays, bool);
-  vtkGetMacro(PassPointArrays, bool);
+  vtkSetMacro(PassPointArrays, vtkTypeBool);
+  vtkBooleanMacro(PassPointArrays, vtkTypeBool);
+  vtkGetMacro(PassPointArrays, vtkTypeBool);
   //@}
 
   //@{
@@ -360,9 +360,9 @@ public:
    * Indicate whether to shallow copy the input cell data arrays to the
    * output. On by default.
    */
-  vtkSetMacro(PassCellArrays, bool);
-  vtkBooleanMacro(PassCellArrays, bool);
-  vtkGetMacro(PassCellArrays, bool);
+  vtkSetMacro(PassCellArrays, vtkTypeBool);
+  vtkBooleanMacro(PassCellArrays, vtkTypeBool);
+  vtkGetMacro(PassCellArrays, vtkTypeBool);
   //@}
 
   //@{
@@ -370,9 +370,21 @@ public:
    * Indicate whether to pass the field-data arrays from the input to the
    * output. On by default.
    */
-  vtkSetMacro(PassFieldArrays, bool);
-  vtkBooleanMacro(PassFieldArrays, bool);
-  vtkGetMacro(PassFieldArrays, bool);
+  vtkSetMacro(PassFieldArrays, vtkTypeBool);
+  vtkBooleanMacro(PassFieldArrays, vtkTypeBool);
+  vtkGetMacro(PassFieldArrays, vtkTypeBool);
+  //@}
+
+  //@{
+  /**
+   * Indicate whether to normalize all arrays with the Shepard coefficients
+   * (except the density array and the Shepard sum array). If the Shepard
+   * coefficient is 0, then the data value is set to zero. Note that enabling
+   * ShepardNormalization forces the computation of the ShepardSum array.
+   */
+  vtkSetMacro(ShepardNormalization, vtkTypeBool);
+  vtkBooleanMacro(ShepardNormalization, vtkTypeBool);
+  vtkGetMacro(ShepardNormalization, vtkTypeBool);
   //@}
 
   /**
@@ -395,20 +407,22 @@ protected:
   std::vector<vtkStdString> ExcludedArrays;
   std::vector<vtkStdString> DerivArrays;
 
+  vtkTypeBool ShepardNormalization;
+
   int NullPointsStrategy;
   double NullValue;
   vtkStdString ValidPointsMaskArrayName;
   vtkCharArray *ValidPointsMask;
 
-  bool ComputeShepardSum;
+  vtkTypeBool ComputeShepardSum;
   vtkStdString ShepardSumArrayName;
   vtkFloatArray *ShepardSumArray;
 
-  bool PromoteOutputArrays;
+  vtkTypeBool PromoteOutputArrays;
 
-  bool PassCellArrays;
-  bool PassPointArrays;
-  bool PassFieldArrays;
+  vtkTypeBool PassCellArrays;
+  vtkTypeBool PassPointArrays;
+  vtkTypeBool PassFieldArrays;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *) override;

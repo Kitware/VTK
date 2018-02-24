@@ -1619,14 +1619,6 @@ void vtkTemporalFractal::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaximumLevel: " << this->MaximumLevel << endl;
   os << indent << "GhostLevels: " << this->GhostLevels << endl;
   os << indent << "Asymetric: " << this->Asymetric << endl;
-  os << indent << "GenerateRectilinearGrids: ";
-  if(this->GenerateRectilinearGrids)
-  {
-    os << "True";
-  }
-  else
-  {
-    os << "False";
-  }
-  os<< endl;
+  os << indent << "GenerateRectilinearGrids: "
+     << (this->GenerateRectilinearGrids ? "True" : "False") << endl;
 }

@@ -21,12 +21,11 @@
 
 #include <vtkMath.h>
 #include "vtkMersenneTwister.h"
+#include "vtkRandomPool.h"
 #include "vtkNew.h"
 #include "vtkDebugLeaks.h"
 
-#define VTK_SUCCESS 0
-#define VTK_FAILURE 1
-
+//----------------------------------------------------------------------------
 // Test the first four moments to ensure our random number generator conforms
 // to a flat random distribution between 0 and 1.
 int MomentCheck(double min, double max, std::size_t nValues)
@@ -81,32 +80,33 @@ int MomentCheck(double min, double max, std::size_t nValues)
   if (fabs(empiricalMean - analyticMean) > EPSILON)
   {
     std::cerr<<"Mean deviates from uniform distribution."<<std::endl;
-    return VTK_FAILURE;
+    return EXIT_FAILURE;
   }
 
   if (fabs(empiricalVariance - analyticVariance) > EPSILON)
   {
     std::cerr<<"Variance deviates from uniform distribution."<<std::endl;
-    return VTK_FAILURE;
+    return EXIT_FAILURE;
   }
 
   if (fabs(empiricalSkewness - analyticSkewness) > EPSILON)
   {
     std::cerr<<"Skewness deviates from uniform distribution."<<std::endl;
-    return VTK_FAILURE;
+    return EXIT_FAILURE;
   }
 
   if (fabs(empiricalKurtosis - analyticKurtosis) > EPSILON)
   {
     std::cerr<<"Kurtosis deviates from uniform distribution."<<std::endl;
-    return VTK_FAILURE;
+    return EXIT_FAILURE;
   }
 
 #undef EPSILON
 
-  return VTK_SUCCESS;
+  return EXIT_SUCCESS;
 }
 
+//----------------------------------------------------------------------------
 // Construct two instances of vtkMersenneTwister, each with <nThreads>
 // independent sequence generators. Extract <nValues> values from each of the
 // the sequences, using a different order for each of the two instances. Compare
@@ -114,7 +114,7 @@ int MomentCheck(double min, double max, std::size_t nValues)
 // values independent of the order in which sequences values were queried.
 int ThreadCheck(std::size_t nThreads, std::size_t nValues)
 {
-  int retVal = VTK_SUCCESS;
+  int retVal = EXIT_SUCCESS;
 
   double** values1 = new double*[nThreads];
   double** values2 = new double*[nThreads];
@@ -140,8 +140,8 @@ int ThreadCheck(std::size_t nThreads, std::size_t nValues)
   {
     for(std::size_t j = 0; j < nValues; ++j)
     {
-      seq1->Next(ids1[i]);
       values1[i][j] = seq1->GetValue(ids1[i]);
+      seq1->Next(ids1[i]);
     }
   }
 
@@ -149,8 +149,8 @@ int ThreadCheck(std::size_t nThreads, std::size_t nValues)
   {
     for(std::size_t i = 0; i < nThreads; ++i)
     {
-      seq2->Next(ids2[i]);
       values2[i][j] = seq2->GetValue(ids2[i]);
+      seq2->Next(ids2[i]);
     }
   }
 
@@ -161,7 +161,7 @@ int ThreadCheck(std::size_t nThreads, std::size_t nValues)
       if (fabs(values1[i][j] - values2[i][j]) > VTK_DBL_EPSILON)
       {
         std::cerr<<"Values are not independent across sequence ids."<<std::endl;
-        retVal = VTK_FAILURE;
+        retVal = EXIT_FAILURE;
       }
     }
   }
@@ -180,6 +180,7 @@ int ThreadCheck(std::size_t nThreads, std::size_t nValues)
   return retVal;
 }
 
+//----------------------------------------------------------------------------
 // Construct an instance of vtkMersenneTwister and initialize two sequences,
 // both seeded with the value 0, and an instance that initializes one sequence
 // seeded with the value 1. Ensure that the sequence with sequence id = 0 and
@@ -204,47 +205,96 @@ int ConsistencyCheck()
 
   for (int i=0; i<10; i++)
   {
-    seq->Next(id0);
-    seq->Next(id1);
-    seq2->Next(id0);
     if (fabs(seq->GetValue(id0) - expectedValues[i]) > VTK_DBL_EPSILON)
     {
       std::cerr<<"Sequence seeded with seed 0 has changed."<<std::endl;
-      return VTK_FAILURE;
+      return EXIT_FAILURE;
     }
     if (fabs(seq->GetValue(id0) - seq->GetValue(id1)) < VTK_DBL_EPSILON)
     {
       std::cerr<<"Sequence 0 seeded with seed 0 has produced the same value as "
                <<"sequence 1 seeded with seed 0."<<std::endl;
-      return VTK_FAILURE;
+      return EXIT_FAILURE;
     }
     if (fabs(seq->GetValue(id0) - seq2->GetValue(id0)) < VTK_DBL_EPSILON)
     {
       std::cerr<<"Sequence 0 seeded with seed 0 has produced the same value as "
                <<"sequence 0 seeded with seed 1."<<std::endl;
-      return VTK_FAILURE;
+      return EXIT_FAILURE;
+    }
+
+    seq->Next(id0);
+    seq->Next(id1);
+    seq2->Next(id0);
+  }
+
+  return EXIT_SUCCESS;
+}
+
+//----------------------------------------------------------------------------
+// Simply generate a sequence and make sure every value is set, and that
+// serial and parallel execution both work.
+#define VTK_SEQUENCE_TEST_SIZE 10000
+int SequenceCheck()
+{
+  // Serial execution. Remember that the twister returns random values
+  // between [0,1] so anything outside of this is a problem.
+  vtkNew<vtkRandomPool> pool;
+  pool->SetSize(VTK_SEQUENCE_TEST_SIZE);
+  pool->SetNumberOfComponents(1);
+  pool->SetChunkSize(VTK_SEQUENCE_TEST_SIZE+1);
+  const double *sequence = pool->GeneratePool();
+  vtkIdType i;
+
+  for (i=0; i < VTK_SEQUENCE_TEST_SIZE; ++i)
+  {
+    if ( sequence[i] < 0.0 || sequence[i] > 1.0 )
+    {
+      std::cerr << "Bad serial sequence generation" << std::endl;
+      return EXIT_FAILURE;
     }
   }
 
-  return VTK_SUCCESS;
+  // Threaded execution.
+  pool->SetSize(VTK_SEQUENCE_TEST_SIZE);
+  pool->SetNumberOfComponents(1);
+  pool->SetChunkSize(VTK_SEQUENCE_TEST_SIZE/7);
+  sequence = pool->GetPool();
+
+  for (i=0; i < VTK_SEQUENCE_TEST_SIZE; ++i)
+  {
+    if ( sequence[i] < 0.0 || sequence[i] > 1.0 )
+    {
+      std::cerr << "Bad threaded sequence generation" << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
+  return EXIT_SUCCESS;
 }
 
+//----------------------------------------------------------------------------
 int TestMersenneTwister(int,char *[])
 {
-  if (MomentCheck(0.,1.,1.e6) != VTK_SUCCESS)
+  if (MomentCheck(0.,1.,1.e6) != EXIT_SUCCESS)
   {
-    return VTK_FAILURE;
+    return EXIT_FAILURE;
   }
 
-  if (ThreadCheck(5,5) != VTK_SUCCESS)
+  if (ThreadCheck(5,5) != EXIT_SUCCESS)
   {
-    return VTK_FAILURE;
+    return EXIT_FAILURE;
   }
 
-  if (ConsistencyCheck() != VTK_SUCCESS)
+  if (ConsistencyCheck() != EXIT_SUCCESS)
   {
-    return VTK_FAILURE;
+    return EXIT_FAILURE;
   }
 
-  return VTK_SUCCESS;
+  if (SequenceCheck() != EXIT_SUCCESS)
+  {
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
 }

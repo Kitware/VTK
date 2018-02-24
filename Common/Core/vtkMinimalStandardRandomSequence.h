@@ -42,10 +42,21 @@ class VTKCOMMONCORE_EXPORT vtkMinimalStandardRandomSequence
   : public vtkRandomSequence
 {
 public:
+  //@{
+  /**
+   * Standard methods for instantiation, type information, and printing.
+   */
+  static vtkMinimalStandardRandomSequence* New();
   vtkTypeMacro(vtkMinimalStandardRandomSequence,vtkRandomSequence);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
-  static vtkMinimalStandardRandomSequence* New();
+  /**
+   * Satisfy general API of vtkRandomSequence superclass. Initialize the
+   * sequence with a seed.
+   */
+  void Initialize(vtkTypeUInt32 seed) override
+  {this->SetSeed(seed);}
 
   /**
    * Set the seed of the random sequence.
@@ -111,7 +122,9 @@ public:
 protected:
   vtkMinimalStandardRandomSequence();
   ~vtkMinimalStandardRandomSequence() override;
+
   int Seed;
+
 private:
   vtkMinimalStandardRandomSequence(const vtkMinimalStandardRandomSequence&) = delete;
   void operator=(const vtkMinimalStandardRandomSequence&) = delete;

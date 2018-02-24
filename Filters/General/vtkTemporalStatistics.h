@@ -63,9 +63,14 @@ class vtkGraph;
 class VTKFILTERSGENERAL_EXPORT vtkTemporalStatistics : public vtkPassInputTypeAlgorithm
 {
 public:
+  //@{
+  /**
+   * Standard methods for instantiation, type information, and printing.
+   */
   vtkTypeMacro(vtkTemporalStatistics, vtkPassInputTypeAlgorithm);
   static vtkTemporalStatistics *New();
   void PrintSelf(ostream &os, vtkIndent indent) override;
+  //@}
 
   //@{
   /**

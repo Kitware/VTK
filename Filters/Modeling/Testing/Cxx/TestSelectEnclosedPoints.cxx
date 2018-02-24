@@ -36,6 +36,9 @@
 #include "vtkGlyph3D.h"
 #include "vtkPolyData.h"
 #include "vtkThresholdPoints.h"
+#include "vtkDataArray.h"
+#include "vtkRandomPool.h"
+#include "vtkTimerLog.h"
 
 int TestSelectEnclosedPoints(int argc, char* argv[])
 {
@@ -59,24 +62,32 @@ int TestSelectEnclosedPoints(int argc, char* argv[])
   actor->GetProperty()->SetRepresentationToWireframe();
 
   // Generate some random points
-  vtkMath::RandomSeed(1177);
   vtkPoints *points = vtkPoints::New();
-  for (int i=0; i < 500; i++)
-  {
-    double x=vtkMath::Random(2.25,7.0);
-    double y=vtkMath::Random(1,10);
-    double z=vtkMath::Random(0.5,10.5);
-    points->InsertPoint(i,x,y,z);
-  }
-  points->SetPoint(0,4.5,5.5,5.0);
+  points->SetNumberOfPoints(500);
+
+  vtkDataArray *da = points->GetData();
+  vtkRandomPool *pool = vtkRandomPool::New();
+  pool->PopulateDataArray(da, 0, 2.25, 7);
+  pool->PopulateDataArray(da, 1, 1, 10);
+  pool->PopulateDataArray(da, 2, 0.5, 10.5);
+
   vtkPolyData *profile = vtkPolyData::New();
   profile->SetPoints(points);
 
   vtkSelectEnclosedPoints *select = vtkSelectEnclosedPoints::New();
   select->SetInputData(profile);
   select->SetSurfaceConnection(ss->GetOutputPort());
-//  select->InsideOutOn();
+  //  select->InsideOutOn();
 
+  // Time execution
+  vtkTimerLog *timer = vtkTimerLog::New();
+  timer->StartTimer();
+  select->Update();
+  timer->StopTimer();
+  double time = timer->GetElapsedTime();
+  cout << "Time to extract points: " << time << "\n";
+
+  // Now extract points
   vtkThresholdPoints *thresh = vtkThresholdPoints::New();
   thresh->SetInputConnection(select->GetOutputPort());
   thresh->SetInputArrayToProcess(0,0,0,
@@ -88,6 +99,7 @@ int TestSelectEnclosedPoints(int argc, char* argv[])
   vtkGlyph3D *glypher = vtkGlyph3D::New();
   glypher->SetInputConnection(thresh->GetOutputPort());
   glypher->SetSourceConnection(glyph->GetOutputPort());
+  glypher->SetScaleModeToDataScalingOff();
   glypher->SetScaleFactor(0.25);
 
   vtkPolyDataMapper *pointsMapper = vtkPolyDataMapper::New();
@@ -119,6 +131,9 @@ int TestSelectEnclosedPoints(int argc, char* argv[])
   ss->Delete();
   mapper->Delete();
   actor->Delete();
+
+  pool->Delete();
+  timer->Delete();
 
   points->Delete();
   profile->Delete();
