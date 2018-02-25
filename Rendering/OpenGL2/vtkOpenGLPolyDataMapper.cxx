@@ -3572,18 +3572,6 @@ void vtkOpenGLPolyDataMapper::MapDataArrayToMultiTextureAttribute(
     dataArrayName, tname, fieldAssociation, componentno);
 }
 
-#ifndef VTK_LEGACY_REMOVE
-void vtkOpenGLPolyDataMapper::MapDataArrayToMultiTextureAttribute(
-    int vtkNotUsed(unit),
-    const char* vtkNotUsed(dataArrayName),
-    int vtkNotUsed(fieldAssociation),
-    int vtkNotUsed(componentno)
-    )
-{
-  VTK_LEGACY_BODY(vtkPolyDataMapper::MapDataArrayToMultiTextureAttribute, "VTK 8.2");
-}
-#endif
-
 void vtkOpenGLPolyDataMapper::MapDataArray(
     const char* vertexAttributeName,
     const char* dataArrayName,
