@@ -183,18 +183,6 @@ void vtkPolyDataMapper::MapDataArrayToVertexAttribute(
   vtkErrorMacro("Not implemented at this level...");
 }
 
-#ifndef VTK_LEGACY_REMOVE
-void vtkPolyDataMapper::MapDataArrayToMultiTextureAttribute(
-    int vtkNotUsed(unit),
-    const char* vtkNotUsed(dataArrayName),
-    int vtkNotUsed(fieldAssociation),
-    int vtkNotUsed(componentno)
-    )
-{
-  VTK_LEGACY_BODY(vtkPolyDataMapper::MapDataArrayToMultiTextureAttribute, "VTK 8.2");
-}
-#endif
-
 //----------------------------------------------------------------------------
 void vtkPolyDataMapper::MapDataArrayToMultiTextureAttribute(
     const char* vtkNotUsed(tname),
