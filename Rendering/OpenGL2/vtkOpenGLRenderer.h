@@ -29,6 +29,7 @@
 
 class vtkOpenGLFXAAFilter;
 class vtkRenderPass;
+class vtkOpenGLState;
 class vtkOpenGLTexture;
 class vtkTextureObject;
 class vtkDepthPeelingPass;
@@ -92,6 +93,10 @@ public:
    * of vtkDepthPeelingPass.
    */
   bool IsDualDepthPeelingSupported();
+
+  // Get the state object used to keep track of
+  // OpenGL state
+  vtkOpenGLState *GetState();
 
 protected:
   vtkOpenGLRenderer();

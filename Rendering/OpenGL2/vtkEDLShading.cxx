@@ -46,6 +46,7 @@ Ph.D. thesis of Christian BOUCHENY.
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkPropCollection.h"
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
@@ -595,6 +596,8 @@ bool vtkEDLShading::EDLCompose(const vtkRenderState *,
   // ACTIVATE SHADER
   //
   renWin->GetShaderCache()->ReadyShaderProgram(this->EDLComposeProgram.Program);
+  vtkOpenGLState *ostate = renWin->GetState();
+
   // DEPTH TEXTURE PARAMETERS
   vtkShaderProgram *prog = this->EDLComposeProgram.Program;
 
@@ -623,18 +626,14 @@ bool vtkEDLShading::EDLCompose(const vtkRenderState *,
   //  DRAW CONTEXT - prepare blitting
   //
   // Prepare blitting
-  glClearColor(1., 1., 1., 1.);
-#if GL_ES_VERSION_3_0 == 1
-  glClearDepthf(static_cast<GLclampf>(1.0));
-#else
-  glClearDepth(static_cast<GLclampf>(1.0));
-#endif
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  ostate->glClearColor(1., 1., 1., 1.);
+  ostate->glClearDepth(1.0);
+  ostate->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   // IMPORTANT since we enable depth writing hereafter
-  glDisable(GL_BLEND);
-  glEnable(GL_DEPTH_TEST);
+  ostate->glDisable(GL_BLEND);
+  ostate->glEnable(GL_DEPTH_TEST);
   // IMPORTANT : so that depth information is propagated
-  glDisable(GL_SCISSOR_TEST);
+  ostate->glDisable(GL_SCISSOR_TEST);
 
   int blitSize[2] = { this->W - 1 - 2 * this->ExtraPixels,
                       this->H - 1 - 2 * this->ExtraPixels };

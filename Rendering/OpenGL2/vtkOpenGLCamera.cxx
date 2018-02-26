@@ -20,6 +20,7 @@
 #include "vtkOutputWindow.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLState.h"
 
 #include <cmath>
 
@@ -52,6 +53,7 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   int usize, vsize;
 
   vtkOpenGLRenderWindow *win = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenGLState *ostate = win->GetState();
 
   // find out if we should stereo render
   this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
@@ -129,17 +131,17 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
     }
   }
 
-  glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
-  glEnable(GL_SCISSOR_TEST);
+  ostate->glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
+  ostate->glEnable(GL_SCISSOR_TEST);
   if (this->UseScissor)
   {
-    glScissor(this->ScissorRect.GetX(),this->ScissorRect.GetY(),
+    ostate->glScissor(this->ScissorRect.GetX(),this->ScissorRect.GetY(),
               this->ScissorRect.GetWidth(), this->ScissorRect.GetHeight());
     this->UseScissor = false;
   }
   else
   {
-    glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
+    ostate->glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
   }
 
   if ((ren->GetRenderWindow())->GetErase() && ren->GetErase()
@@ -155,22 +157,24 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
 void vtkOpenGLCamera::UpdateViewport(vtkRenderer *ren)
 {
   vtkOpenGLClearErrorMacro();
+  vtkOpenGLRenderWindow *win = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenGLState *ostate = win->GetState();
 
   int lowerLeft[2];
   int usize, vsize;
   ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft+1);
 
-  glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
-  glEnable(GL_SCISSOR_TEST);
+  ostate->glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
+  ostate->glEnable(GL_SCISSOR_TEST);
   if (this->UseScissor)
   {
-    glScissor(this->ScissorRect.GetX(),this->ScissorRect.GetY(),
+    ostate->glScissor(this->ScissorRect.GetX(),this->ScissorRect.GetY(),
               this->ScissorRect.GetWidth(), this->ScissorRect.GetHeight());
     this->UseScissor = false;
   }
   else
   {
-    glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
+    ostate->glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
   }
 
   vtkOpenGLCheckErrorMacro("failed after UpdateViewport");

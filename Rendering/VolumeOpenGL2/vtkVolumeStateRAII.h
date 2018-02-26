@@ -15,6 +15,7 @@
 #ifndef vtkVolumeStateRAII_h
 #define vtkVolumeStateRAII_h
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLState.h"
 
 // Only these states can be queries via glIsEnabled:
 // http://www.khronos.org/opengles/sdk/docs/man/
@@ -22,57 +23,44 @@
 class vtkVolumeStateRAII
 {
   public:
-    vtkVolumeStateRAII(bool noOp = false)
+    vtkVolumeStateRAII(vtkOpenGLState *ostate, bool noOp = false)
       : NoOp(noOp)
     {
+      this->State = ostate;
+
       if (this->NoOp)
       {
         return;
       }
 
-      this->DepthTestEnabled = (glIsEnabled(GL_DEPTH_TEST) != GL_FALSE);
+      this->DepthTestEnabled = ostate->GetEnumState(GL_DEPTH_TEST);
 
-      this->BlendEnabled = (glIsEnabled(GL_BLEND) != GL_FALSE);
+      this->BlendEnabled = ostate->GetEnumState(GL_BLEND);
 
-      this->CullFaceEnabled = (glIsEnabled(GL_CULL_FACE) != GL_FALSE);
-      glGetIntegerv(GL_CULL_FACE_MODE, &this->CullFaceMode);
+      this->CullFaceEnabled = ostate->GetEnumState(GL_CULL_FACE);
+      this->CullFaceMode = ostate->GetCullFace();
 
       GLboolean depthMaskWrite = GL_TRUE;
       glGetBooleanv(GL_DEPTH_WRITEMASK, &depthMaskWrite);
       this->DepthMaskEnabled = (depthMaskWrite == GL_TRUE);
 
       // Enable depth_sampler test
-      if (!this->DepthTestEnabled)
-      {
-        glEnable(GL_DEPTH_TEST);
-      }
+      ostate->glEnable(GL_DEPTH_TEST);
 
       // Set the over blending function
       // NOTE: It is important to choose GL_ONE vs GL_SRC_ALPHA as our colors
       // will be premultiplied by the alpha value (doing front to back blending)
-      glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+      ostate->glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
 
-      if (!this->BlendEnabled)
-      {
-        glEnable(GL_BLEND);
-      }
+      ostate->glEnable(GL_BLEND);
 
       // Enable cull face and set cull face mode
-      if (this->CullFaceMode != GL_BACK)
-      {
-        glCullFace(GL_BACK);
-      }
+      ostate->glCullFace(GL_BACK);
 
-      if (!this->CullFaceEnabled)
-      {
-        glEnable(GL_CULL_FACE);
-      }
+      ostate->glEnable(GL_CULL_FACE);
 
       // Disable depth mask writing
-      if (this->DepthMaskEnabled)
-      {
-        glDepthMask(GL_FALSE);
-      }
+      ostate->glDepthMask(GL_FALSE);
     }
 
     ~vtkVolumeStateRAII()
@@ -91,27 +79,23 @@ class vtkVolumeStateRAII
         return;
       }
 
-      glCullFace(this->CullFaceMode);
-      if (!this->CullFaceEnabled)
+      this->State->glCullFace(this->CullFaceMode);
+      this->State->SetEnumState(GL_CULL_FACE, this->CullFaceEnabled);
+      this->State->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+      // this does not actuallyrestore the state always
+      // but a test failsif I change it so either the original
+      // test was wrong or it is itended
+      if (this->BlendEnabled)
       {
-        glDisable(GL_CULL_FACE);
+        this->State->glDisable(GL_BLEND);
       }
 
-      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-      if (!this->BlendEnabled)
-      {
-        glDisable(GL_BLEND);
-      }
-
-      if (!this->DepthTestEnabled)
-      {
-        glDisable(GL_DEPTH_TEST);
-      }
+      this->State->SetEnumState(GL_DEPTH_TEST, this->DepthTestEnabled);
 
       if (this->DepthMaskEnabled)
       {
-        glDepthMask(GL_TRUE);
+        this->State->glDepthMask(GL_TRUE);
       }
     }
 
@@ -122,6 +106,7 @@ private:
   bool CullFaceEnabled;
   GLint CullFaceMode;
   bool DepthMaskEnabled;
+  vtkOpenGLState *State;
 };
 
 #endif // vtkVolumeStateRAII_h

@@ -43,6 +43,7 @@
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
 #include "vtkPointData.h"
@@ -667,19 +668,14 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
     return;
   }
 
-  glDepthMask(GL_FALSE);
+  vtkOpenGLState *ostate =
+    static_cast<vtkOpenGLRenderWindow *>(renderer->GetRenderWindow())->GetState();
+  ostate->glDepthMask(GL_FALSE);
 
-  glDisable(GL_CULL_FACE);
+  ostate->glDisable(GL_CULL_FACE);
+  vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
 
-  GLint blendSrcA = GL_ONE;
-  GLint blendDstA = GL_ONE_MINUS_SRC_ALPHA;
-  GLint blendSrcC = GL_SRC_ALPHA;
-  GLint blendDstC = GL_ONE_MINUS_SRC_ALPHA;
-  glGetIntegerv(GL_BLEND_SRC_ALPHA, &blendSrcA);
-  glGetIntegerv(GL_BLEND_DST_ALPHA, &blendDstA);
-  glGetIntegerv(GL_BLEND_SRC_RGB, &blendSrcC);
-  glGetIntegerv(GL_BLEND_DST_RGB, &blendDstC);
-  glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+  ostate->glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
     GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
   float unit_distance = volume->GetProperty()->GetScalarOpacityUnitDistance();
@@ -1106,8 +1102,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
   // Restore the blend function.
   vtkOpenGLCheckErrorMacro("failed at glPopAttrib");
 
-  glDepthMask(GL_TRUE);
-  glBlendFuncSeparate(blendSrcC, blendDstC, blendSrcA, blendDstA);
+  ostate->glDepthMask(GL_TRUE);
 
   vtkOpenGLCheckErrorMacro("failed after ProjectTetrahedra");
   this->GLSafeUpdateProgress(1.0, window);

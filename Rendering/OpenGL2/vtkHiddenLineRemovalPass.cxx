@@ -22,6 +22,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLRenderUtilities.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLState.h"
 #include "vtkProp.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
@@ -77,6 +79,7 @@ void vtkHiddenLineRemovalPass::Render(const vtkRenderState *s)
   }
 
   vtkViewport *vp = s->GetRenderer();
+  vtkOpenGLState *ostate = static_cast<vtkOpenGLRenderer *>(vp)->GetState();
 
   // Render the non-wireframe geometry as normal:
   annotate("Rendering non-wireframe props.");
@@ -95,14 +98,14 @@ void vtkHiddenLineRemovalPass::Render(const vtkRenderState *s)
   // Draw the wireframe props as surfaces into the depth buffer only:
   annotate("Rendering wireframe prop surfaces.");
   this->SetRepresentation(wireframeProps, VTK_SURFACE);
-  glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+  ostate->glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
   this->RenderProps(wireframeProps, vp);
   vtkOpenGLStaticCheckErrorMacro("Error after wireframe surface rendering.");
 
   // Now draw the wireframes as normal:
   annotate("Rendering wireframes.");
   this->SetRepresentation(wireframeProps, VTK_WIREFRAME);
-  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  ostate->glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   this->NumberOfRenderedProps = this->RenderProps(wireframeProps, vp);
   vtkOpenGLStaticCheckErrorMacro("Error after wireframe rendering.");
 

@@ -19,6 +19,7 @@
 #include "vtkOpenGLError.h"
 #include "vtkOpenGL.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLState.h"
 #include "vtkOutputWindow.h"
 #include "vtkPerspectiveTransform.h"
 #include "vtkRenderer.h"
@@ -44,6 +45,7 @@ void vtkExternalOpenGLCamera::Render(vtkRenderer *ren)
   int usize, vsize;
 
   vtkOpenGLRenderWindow *win = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenGLState *ostate = win->GetState();
 
   // find out if we should stereo render
   this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
@@ -120,9 +122,9 @@ void vtkExternalOpenGLCamera::Render(vtkRenderer *ren)
     }
   }
 
-  glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
-  glEnable(GL_SCISSOR_TEST);
-  glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
+  ostate->glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
+  ostate->glEnable(GL_SCISSOR_TEST);
+  ostate->glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
 
   if ((ren->GetRenderWindow())->GetErase() && ren->GetErase()
       && !ren->GetIsPicking())

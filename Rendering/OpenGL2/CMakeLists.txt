@@ -58,6 +58,7 @@ set(Module_SRCS
   vtkOpenGLShaderCache.cxx
   vtkOpenGLSkybox.cxx
   vtkOpenGLSphereMapper.cxx
+  vtkOpenGLState.cxx
   vtkOpenGLStickMapper.cxx
   vtkOpenGLTextActor.cxx
   vtkOpenGLTextActor3D.cxx

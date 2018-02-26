@@ -26,6 +26,7 @@
 #include "vtkOpenGLError.h"
 #include "vtkShaderProgram.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLVertexArrayObject.h"
 
@@ -182,8 +183,8 @@ void vtkDepthOfFieldPass::Render(const vtkRenderState *s)
     return;
   }
 
-  glDisable(GL_BLEND);
-  glDisable(GL_DEPTH_TEST);
+  renWin->GetState()->glDisable(GL_BLEND);
+  renWin->GetState()->glDisable(GL_DEPTH_TEST);
 
   this->Pass1->Activate();
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

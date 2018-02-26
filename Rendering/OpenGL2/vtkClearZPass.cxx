@@ -16,9 +16,9 @@
 #include "vtkClearZPass.h"
 #include "vtkObjectFactory.h"
 #include <cassert>
+#include "vtkOpenGLState.h"
 #include "vtkRenderState.h"
-#include "vtkRenderer.h"
-#include "vtk_glew.h"
+#include "vtkOpenGLRenderer.h"
 
 vtkStandardNewMacro(vtkClearZPass);
 
@@ -51,11 +51,9 @@ void vtkClearZPass::Render(const vtkRenderState *s)
   (void)s;
   this->NumberOfRenderedProps=0;
 
-  glDepthMask(GL_TRUE);
-#if GL_ES_VERSION_3_0 != 1
-  glClearDepth(this->Depth);
-#else
-  glClearDepthf(static_cast<GLclampf>(this->Depth));
-#endif
-  glClear(GL_DEPTH_BUFFER_BIT);
+  vtkOpenGLState *ostate =
+    static_cast<vtkOpenGLRenderer *>(s->GetRenderer())->GetState();
+  ostate->glDepthMask(GL_TRUE);
+  ostate->glClearDepth(this->Depth);
+  ostate->glClear(GL_DEPTH_BUFFER_BIT);
 }

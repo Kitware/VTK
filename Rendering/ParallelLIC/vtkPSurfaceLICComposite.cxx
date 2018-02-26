@@ -32,6 +32,7 @@
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLHelper.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObjectVS.h"
 #include "vtkPSurfaceLICComposite_CompFS.h"
@@ -1378,10 +1379,12 @@ int vtkPSurfaceLICComposite::Gather(
   // the LIC'er requires all fragments in the vector
   // texture to be initialized to 0
   this->FBO->InitializeViewport(winExtSize[0], winExtSize[1]);
-  glEnable(GL_DEPTH_TEST);
-  glDisable(GL_SCISSOR_TEST);
-  glClearColor(0.0, 0.0, 0.0, 0.0);
-  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+  vtkOpenGLState *ostate = this->Context->GetState();
+  ostate->glEnable(GL_DEPTH_TEST);
+  ostate->glDisable(GL_SCISSOR_TEST);
+  ostate->glClearColor(0.0, 0.0, 0.0, 0.0);
+  ostate->glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
   this->Context->GetShaderCache()->ReadyShaderProgram(
     this->CompositeShader->Program);

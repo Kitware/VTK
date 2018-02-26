@@ -24,6 +24,7 @@
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLResourceFreeCallback.h"
+#include "vtkOpenGLState.h"
 #include "vtkRenderbuffer.h"
 
 #include <cassert>
@@ -398,15 +399,16 @@ vtkOpenGLRenderWindow *vtkOpenGLFramebufferObject::GetContext()
 //----------------------------------------------------------------------------
 void vtkOpenGLFramebufferObject::InitializeViewport(int width, int height)
 {
-  glDisable(GL_BLEND);
-  glDisable(GL_DEPTH_TEST);
-  glDisable(GL_SCISSOR_TEST);
+  vtkOpenGLState *ostate = this->Context->GetState();
+  ostate->glDisable(GL_BLEND);
+  ostate->glDisable(GL_DEPTH_TEST);
+  ostate->glDisable(GL_SCISSOR_TEST);
 
   // Viewport transformation for 1:1 'pixel=texel=data' mapping.
   // Note this is not enough for 1:1 mapping, because depending on the
   // primitive displayed (point,line,polygon), the rasterization rules
   // are different.
-  glViewport(0, 0, width, height);
+  ostate->glViewport(0, 0, width, height);
 
   vtkOpenGLStaticCheckErrorMacro("failed after InitializeViewport");
 }

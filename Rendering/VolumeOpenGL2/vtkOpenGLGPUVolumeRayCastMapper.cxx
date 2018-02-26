@@ -59,6 +59,7 @@
 #include <vtkOpenGLRenderWindow.h>
 #include "vtkOpenGLResourceFreeCallback.h"
 #include <vtkOpenGLShaderCache.h>
+#include "vtkOpenGLState.h"
 #include <vtkOpenGLVertexArrayObject.h>
 #include <vtkMultiVolume.h>
 #include <vtkPerlinNoise.h>
@@ -1794,8 +1795,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BeginImageSample(
     this->ImageSampleFBO->ActivateDrawBuffers(
       static_cast<unsigned int>(this->NumImageSampleDrawBuffers));
 
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    this->ImageSampleFBO->GetContext()->GetState()
+      ->glClearColor(0.0, 0.0, 0.0, 0.0);
+    this->ImageSampleFBO->GetContext()->GetState()
+      ->glClear(GL_COLOR_BUFFER_BIT);
   }
 }
 
@@ -1811,15 +1814,15 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::InitializeImageSampleFBO(
   this->WindowLowerLeft[0] = 0;
   this->WindowLowerLeft[1] = 0;
 
+  vtkOpenGLRenderWindow* win =
+    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+
   // Set FBO viewport
-  glViewport(this->WindowLowerLeft[0], this->WindowLowerLeft[1],
+  win->GetState()->glViewport(this->WindowLowerLeft[0], this->WindowLowerLeft[1],
     this->WindowSize[0], this->WindowSize[1]);
 
   if (!this->ImageSampleFBO)
   {
-    vtkOpenGLRenderWindow* win =
-      vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
-
     this->ImageSampleTexture.reserve(this->NumImageSampleDrawBuffers);
     this->ImageSampleTexNames.reserve(this->NumImageSampleDrawBuffers);
     for (size_t i = 0; i < this->NumImageSampleDrawBuffers; i++)
@@ -1944,20 +1947,22 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::EndImageSample(
         this->ImageSampleVBO, this->ImageSampleVAO, this->ImageSampleProg);
     }
 
+    vtkOpenGLState *ostate = win->GetState();
+
     // Adjust the GL viewport to VTK's defined viewport
     ren->GetTiledSizeAndOrigin(this->WindowSize,
       this->WindowSize + 1,
       this->WindowLowerLeft,
       this->WindowLowerLeft + 1);
-    glViewport(this->WindowLowerLeft[0],
+    ostate->glViewport(this->WindowLowerLeft[0],
       this->WindowLowerLeft[1],
       this->WindowSize[0],
       this->WindowSize[1]);
 
     // Bind objects and draw
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    glDisable(GL_DEPTH_TEST);
+    ostate->glEnable(GL_BLEND);
+    ostate->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    ostate->glDisable(GL_DEPTH_TEST);
 
     for (size_t i = 0; i < this->NumImageSampleDrawBuffers; i++)
     {
@@ -2106,8 +2111,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupRenderToTexture(
 
     this->FBO->CheckFrameBufferStatus(GL_FRAMEBUFFER);
 
-    glClearColor(1.0, 1.0, 1.0, 0.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    this->FBO->GetContext()->GetState()->glClearColor(1.0, 1.0, 1.0, 0.0);
+    this->FBO->GetContext()->GetState()->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   }
 }
 
@@ -2200,19 +2205,20 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupDepthPass(
   // Setup the contour polydata mapper to render to DPFBO
   this->ContourMapper->SetInputConnection(this->ContourFilter->GetOutputPort());
 
-  glClearColor(0.0, 0.0, 0.0, 0.0);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glEnable(GL_DEPTH_TEST);
+  vtkOpenGLState *ostate = this->DPFBO->GetContext()->GetState();
+  ostate->glClearColor(0.0, 0.0, 0.0, 0.0);
+  ostate->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  ostate->glEnable(GL_DEPTH_TEST);
 }
 
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderContourPass(vtkRenderer* ren)
 {
-      this->SetupDepthPass(ren);
-      this->ContourActor->Render(ren, this->ContourMapper.GetPointer());
-      this->ExitDepthPass(ren);
-      this->DepthPassTime.Modified();
-      this->Parent->CurrentPass = this->Parent->RenderPass;
+  this->SetupDepthPass(ren);
+  this->ContourActor->Render(ren, this->ContourMapper.GetPointer());
+  this->ExitDepthPass(ren);
+  this->DepthPassTime.Modified();
+  this->Parent->CurrentPass = this->Parent->RenderPass;
 }
 
 //----------------------------------------------------------------------------
@@ -2224,7 +2230,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ExitDepthPass(
 
   this->DPDepthBufferTextureObject->Deactivate();
   this->DPColorTextureObject->Deactivate();
-  glDisable(GL_DEPTH_TEST);
+  this->DPFBO->GetContext()->GetState()->glDisable(GL_DEPTH_TEST);
 }
 
 //----------------------------------------------------------------------------
@@ -3487,7 +3493,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     {
       this->Impl->BeginPicking(ren);
     }
-    vtkVolumeStateRAII glState(this->Impl->PreserveGLState);
+    vtkVolumeStateRAII glState(renWin->GetState(), this->Impl->PreserveGLState);
 
     if (this->Impl->ShaderRebuildNeeded(cam, renderPassTime))
     {
@@ -3578,7 +3584,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderWithDepthPass(
     }
 
     // Set OpenGL states
-    vtkVolumeStateRAII glState(this->PreserveGLState);
+    vtkOpenGLRenderWindow* renWin =
+      vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+    vtkVolumeStateRAII glState(renWin->GetState(), this->PreserveGLState);
 
     if (this->Parent->RenderToImage)
     {
@@ -3592,14 +3600,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderWithDepthPass(
       // FBOs (RenderToTexure, etc.).  The viewport should (ideally) not be set
       // within the mapper, because it could cause issues when vtkOpenGLRenderPass
       // instances modify it too (this is a workaround for that).
-      glViewport(this->WindowLowerLeft[0],
+      renWin->GetState()->glViewport(this->WindowLowerLeft[0],
                  this->WindowLowerLeft[1],
                  this->WindowSize[0],
                  this->WindowSize[1]);
     }
 
-    vtkOpenGLRenderWindow* renWin =
-      vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
     renWin->GetShaderCache()->ReadyShaderProgram(this->ShaderProgram);
 
     this->DPDepthBufferTextureObject->Activate();

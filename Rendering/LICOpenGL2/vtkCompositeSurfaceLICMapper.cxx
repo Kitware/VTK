@@ -14,27 +14,6 @@
 =========================================================================*/
 #include "vtkCompositeSurfaceLICMapper.h"
 
-// #include "vtkBoundingBox.h"
-// #include "vtkCommand.h"
-// #include "vtkCompositeDataIterator.h"
-// #include "vtkCompositeDataPipeline.h"
-//#include "vtkCompositeDataSet.h"
-// #include "vtkCompositeDataDisplayAttributes.h"
-// #include "vtkGarbageCollector.h"
-//#include "vtkHardwareSelector.h"
-// #include "vtkInformation.h"
-// #include "vtkMath.h"
-//#include "vtkObjectFactory.h"
-// #include "vtkPolyData.h"
-// #include "vtkProperty.h"
-// #include "vtkRenderer.h"
-// #include "vtkRenderWindow.h"
-// #include "vtkScalarsToColors.h"
-// #include "vtkShaderProgram.h"
-// #include "vtkUnsignedCharArray.h"
-// #include "vtkMultiBlockDataSet.h"
-// #include "vtkMultiPieceDataSet.h"
-
 #include "vtk_glew.h"
 
 #include "vtkCellData.h"
@@ -56,6 +35,7 @@
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
@@ -315,7 +295,9 @@ void vtkCompositeSurfaceLICMapper::Render(
 
   // Before start rendering LIC, capture some essential state so we can restore
   // it.
-  bool blendEnabled = (glIsEnabled(GL_BLEND) == GL_TRUE);
+  vtkOpenGLRenderWindow *rw = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenGLState *ostate = rw->GetState();
+  vtkOpenGLState::ScopedglEnableDisable bsaver(ostate, GL_BLEND);
 
   vtkNew<vtkOpenGLFramebufferObject> fbo;
   fbo->SetContext(vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
@@ -345,13 +327,4 @@ void vtkCompositeSurfaceLICMapper::Render(
   this->LICInterface->CopyToScreen();
 
   fbo->RestorePreviousBindingsAndBuffers();
-
-  if (blendEnabled)
-  {
-    glEnable(GL_BLEND);
-  }
-  else
-  {
-    glDisable(GL_BLEND);
-  }
 }

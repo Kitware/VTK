@@ -26,6 +26,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
 #include "vtkPen.h"
@@ -37,36 +38,10 @@ class vtkOpenGLContextDevice3D::Private
 public:
   Private()
   {
-    this->SavedDepthTest = GL_TRUE;
   }
 
   ~Private()
   {
-  }
-
-  void SaveGLState()
-  {
-    this->SavedDepthTest = glIsEnabled(GL_DEPTH_TEST);
-    this->SavedBlending = glIsEnabled(GL_BLEND);
-  }
-
-  void RestoreGLState()
-  {
-    this->SetGLCapability(GL_DEPTH_TEST, this->SavedDepthTest);
-    this->SetGLCapability(GL_BLEND, this->SavedBlending);
-  }
-
-  void SetGLCapability(GLenum capability, GLboolean state)
-  {
-    if (state)
-    {
-      glEnable(capability);
-    }
-    else
-    {
-      glDisable(capability);
-    }
-    vtkOpenGLStaticCheckErrorMacro("failed after SetGLCapability");
   }
 
   void Transpose(double *in, double *transposed)
@@ -100,11 +75,6 @@ public:
   }
   vtkGenericWarningMacro(<< "Line Stipples are no longer supported");
   }
-
-  // Store the previous GL state so that we can restore it when complete
-  GLboolean SavedLighting;
-  GLboolean SavedDepthTest;
-  GLboolean SavedBlending;
 
   vtkVector2i Dim;
   vtkVector2i Offset;
@@ -153,8 +123,8 @@ void vtkOpenGLContextDevice3D::Begin(vtkViewport* vtkNotUsed(viewport))
 
 void vtkOpenGLContextDevice3D::SetMatrices(vtkShaderProgram *prog)
 {
-
-    glDisable(GL_SCISSOR_TEST);
+  vtkOpenGLState *ostate = this->RenderWindow->GetState();
+  ostate->glDisable(GL_SCISSOR_TEST);
   prog->SetUniformMatrix("WCDCMatrix",
     this->Device2D->GetProjectionMatrix());
 
@@ -649,19 +619,14 @@ void vtkOpenGLContextDevice3D::SetClipping(const vtkRecti &rect)
     vp[3] = rect.GetHeight();
   }
 
-  glScissor(vp[0], vp[1], vp[2], vp[3]);
+  vtkOpenGLState *ostate = this->RenderWindow->GetState();
+  ostate->glScissor(vp[0], vp[1], vp[2], vp[3]);
 }
 
 void vtkOpenGLContextDevice3D::EnableClipping(bool enable)
 {
-  if (enable)
-  {
-    glEnable(GL_SCISSOR_TEST);
-  }
-  else
-  {
-    glDisable(GL_SCISSOR_TEST);
-  }
+  vtkOpenGLState *ostate = this->RenderWindow->GetState();
+  ostate->SetEnumState(GL_SCISSOR_TEST, enable);
 }
 
 void vtkOpenGLContextDevice3D::EnableClippingPlane(int i, double *planeEquation)
@@ -690,12 +655,14 @@ void vtkOpenGLContextDevice3D::DisableClippingPlane(int i)
 
 void vtkOpenGLContextDevice3D::EnableDepthBuffer()
 {
-  glEnable(GL_DEPTH_TEST);
+  vtkOpenGLState *ostate = this->RenderWindow->GetState();
+  ostate->glEnable(GL_DEPTH_TEST);
 }
 
 void vtkOpenGLContextDevice3D::DisableDepthBuffer()
 {
-  glDisable(GL_DEPTH_TEST);
+  vtkOpenGLState *ostate = this->RenderWindow->GetState();
+  ostate->glDisable(GL_DEPTH_TEST);
 }
 
 void vtkOpenGLContextDevice3D::PrintSelf(ostream &os, vtkIndent indent)

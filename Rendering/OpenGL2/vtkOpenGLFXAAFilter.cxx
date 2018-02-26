@@ -26,6 +26,7 @@
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
@@ -211,11 +212,12 @@ void vtkOpenGLFXAAFilter::Prepare()
     this->CreateGLObjects();
   }
 
-  this->BlendState = glIsEnabled(GL_BLEND) == GL_TRUE;
-  this->DepthTestState = glIsEnabled(GL_DEPTH_TEST) == GL_TRUE;
+  vtkOpenGLState *ostate = this->Renderer->GetState();
+  this->BlendState = ostate->GetEnumState(GL_BLEND);
+  this->DepthTestState = ostate->GetEnumState(GL_DEPTH_TEST);
 
-  glDisable(GL_BLEND);
-  glDisable(GL_DEPTH_TEST);
+  ostate->glDisable(GL_BLEND);
+  ostate->glDisable(GL_DEPTH_TEST);
 
   vtkOpenGLCheckErrorMacro("Error after saving GL state.");
 }
@@ -381,13 +383,14 @@ void vtkOpenGLFXAAFilter::SubstituteFragmentShader(std::string &fragShader)
 //------------------------------------------------------------------------------
 void vtkOpenGLFXAAFilter::Finalize()
 {
+  vtkOpenGLState *ostate = this->Renderer->GetState();
   if (this->BlendState)
   {
-    glEnable(GL_BLEND);
+    ostate->glEnable(GL_BLEND);
   }
   if (this->DepthTestState)
   {
-    glEnable(GL_DEPTH_TEST);
+    ostate->glEnable(GL_DEPTH_TEST);
   }
 
   vtkOpenGLCheckErrorMacro("Error after restoring GL state.");

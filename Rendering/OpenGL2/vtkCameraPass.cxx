@@ -24,6 +24,7 @@
 #include "vtkCamera.h"
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLState.h"
 
 vtkStandardNewMacro(vtkCameraPass);
 vtkCxxSetObjectMacro(vtkCameraPass,DelegatePass,vtkRenderPass);
@@ -109,6 +110,7 @@ void vtkCameraPass::Render(const vtkRenderState *s)
 
   vtkOpenGLRenderWindow *win=vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
   win->MakeCurrent();
+  vtkOpenGLState *ostate = win->GetState();
 
   if(fbo==nullptr)
   {
@@ -202,16 +204,13 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   }
 
   // Save the current viewport and camera matrices.
-  GLint saved_viewport[4];
-  glGetIntegerv(GL_VIEWPORT, saved_viewport);
-  GLboolean saved_scissor_test;
-  glGetBooleanv(GL_SCISSOR_TEST, &saved_scissor_test);
-  GLint saved_scissor_box[4];
-  glGetIntegerv(GL_SCISSOR_BOX, saved_scissor_box);
+  vtkOpenGLState::ScopedglViewport vsaver(ostate);
+  vtkOpenGLState::ScopedglScissor ssaver(ostate);
+  vtkOpenGLState::ScopedglEnableDisable stsaver(ostate, GL_SCISSOR_TEST);
 
-  glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
-  glEnable( GL_SCISSOR_TEST );
-  glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
+  ostate->glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
+  ostate->glEnable( GL_SCISSOR_TEST );
+  ostate->glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
 
   if ((ren->GetRenderWindow())->GetErase() && ren->GetErase()
       && !ren->GetIsPicking())
@@ -235,22 +234,6 @@ void vtkCameraPass::Render(const vtkRenderState *s)
     vtkWarningMacro(<<" no delegate.");
   }
   vtkOpenGLCheckErrorMacro("failed after delegate pass");
-
-  // Restore changed context.
-  glViewport(saved_viewport[0], saved_viewport[1], saved_viewport[2],
-    saved_viewport[3]);
-  glScissor(saved_scissor_box[0], saved_scissor_box[1], saved_scissor_box[2],
-    saved_scissor_box[3]);
-  if (saved_scissor_test)
-  {
-    glEnable(GL_SCISSOR_TEST);
-  }
-  else
-  {
-    glDisable(GL_SCISSOR_TEST);
-  }
-
-  vtkOpenGLCheckErrorMacro("failed after restore context");
 }
 
 // ----------------------------------------------------------------------------

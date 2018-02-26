@@ -32,6 +32,7 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObjectCache.h"
 #include "vtkOutputWindow.h"
@@ -197,6 +198,8 @@ const char *vtkOpenGLRenderWindow::GetRenderingBackend()
 // ----------------------------------------------------------------------------
 vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 {
+  this->State = new vtkOpenGLState;
+
   this->Initialized = false;
   this->GlewInitValid = false;
 
@@ -264,6 +267,7 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
   this->Capabilities = nullptr;
 
   this->VBOCache->UnRegister(this);
+  delete this->State;
 }
 
 const char* vtkOpenGLRenderWindow::ReportCapabilities()
@@ -350,6 +354,10 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
   }
 
   this->RenderTimer->ReleaseGraphicsResources();
+
+  delete this->State;
+  this->State = new vtkOpenGLState();
+
   this->Initialized = false;
 }
 
@@ -471,8 +479,7 @@ void vtkOpenGLRenderWindow::OpenGLInit()
 
 void vtkOpenGLRenderWindow::OpenGLInitState()
 {
-  glDepthFunc( GL_LEQUAL );
-  glEnable( GL_DEPTH_TEST );
+  this->State->Initialize();
 
 #ifdef GL_FRAMEBUFFER_SRGB
   if (this->UseSRGBColorSpace && this->GetUsingSRGBColorSpace())
@@ -480,37 +487,6 @@ void vtkOpenGLRenderWindow::OpenGLInitState()
     glEnable(GL_FRAMEBUFFER_SRGB);
   }
 #endif
-
-  // initialize blending for transparency
-  glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
-                      GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
-  glEnable(GL_BLEND);
-
-if (this->LineSmoothing)
-  {
-#ifdef GL_LINE_SMOOTH
-    glEnable(GL_LINE_SMOOTH);
-#endif
-  }
-  else
-  {
-#ifdef GL_LINE_SMOOTH
-    glDisable(GL_LINE_SMOOTH);
-#endif
-  }
-
-  if (this->PolygonSmoothing)
-  {
-#ifdef GL_POLYGON_SMOOTH
-    glEnable(GL_POLYGON_SMOOTH);
-#endif
-  }
-  else
-  {
-#ifdef GL_POLYGON_SMOOTH
-    glDisable(GL_POLYGON_SMOOTH);
-#endif
-  }
 
   // Default OpenGL is 4 bytes but it is only safe with RGBA format.
   // If format is RGB, row alignment is 4 bytes only if the width is divisible
@@ -1129,7 +1105,7 @@ int vtkOpenGLRenderWindow::ReadPixels(
     resolveMSAA = (samples > 0);
   }
 
-  glDisable( GL_SCISSOR_TEST );
+  this->State->glDisable( GL_SCISSOR_TEST );
 
   // Calling pack alignment ensures that we can grab the any size window
   glPixelStorei( GL_PACK_ALIGNMENT, 1 );
@@ -1235,8 +1211,8 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 void vtkOpenGLRenderWindow::DrawPixels(
   int srcWidth, int srcHeight, int numComponents, int dataType, void *data)
 {
-  glDisable( GL_SCISSOR_TEST );
-  glDisable(GL_DEPTH_TEST);
+  this->State->glDisable( GL_SCISSOR_TEST );
+  this->State->glDisable(GL_DEPTH_TEST);
   if (!this->DrawPixelsTextureObject)
   {
     this->DrawPixelsTextureObject = vtkTextureObject::New();
@@ -1257,8 +1233,8 @@ void vtkOpenGLRenderWindow::DrawPixels(
   int srcXmin, int srcYmin, int srcXmax, int srcYmax,
   int srcWidth, int srcHeight, int numComponents, int dataType, void *data)
 {
-  glDisable( GL_SCISSOR_TEST );
-  glDisable(GL_DEPTH_TEST);
+  this->State->glDisable( GL_SCISSOR_TEST );
+  this->State->glDisable(GL_DEPTH_TEST);
   if (!this->DrawPixelsTextureObject)
   {
     this->DrawPixelsTextureObject = vtkTextureObject::New();
@@ -1494,9 +1470,9 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   FrameBufferHelper helper(FrameBufferHelper::DRAW, this, front, right);
   if (!blend)
   {
-    glDisable(GL_BLEND);
+    this->GetState()->glDisable(GL_BLEND);
     this->DrawPixels(x1, y1, x2, y2, 4, VTK_FLOAT, data); // TODO replace dprecated function
-    glEnable(GL_BLEND);
+    this->GetState()->glEnable(GL_BLEND);
   }
   else
   {
@@ -1668,14 +1644,14 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
   FrameBufferHelper helper(FrameBufferHelper::DRAW, this, front, right);
 
   // Disable writing on the z-buffer.
-  glDepthMask(GL_FALSE);
-  glDisable(GL_DEPTH_TEST);
+  this->GetState()->glDepthMask(GL_FALSE);
+  this->GetState()->glDisable(GL_DEPTH_TEST);
 
   if (!blend)
   {
-    glDisable(GL_BLEND);
+    this->GetState()->glDisable(GL_BLEND);
     this->DrawPixels(x1,y1,x2,y2,4, VTK_UNSIGNED_CHAR, data);
-    glEnable(GL_BLEND);
+    this->GetState()->glEnable(GL_BLEND);
   }
   else
   {
@@ -1683,8 +1659,8 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
   }
 
   // Renenable writing on the z-buffer.
-  glDepthMask(GL_TRUE);
-  glEnable(GL_DEPTH_TEST);
+  this->GetState()->glDepthMask(GL_TRUE);
+  this->GetState()->glEnable(GL_DEPTH_TEST);
 
   if (glGetError() != GL_NO_ERROR)
   {
@@ -1739,7 +1715,7 @@ int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
 
   // Turn of texturing in case it is on - some drivers have a problem
   // getting / setting pixels with texturing enabled.
-  glDisable( GL_SCISSOR_TEST );
+  this->GetState()->glDisable( GL_SCISSOR_TEST );
   glPixelStorei( GL_PACK_ALIGNMENT, 1 );
 
   glReadPixels( x_low, y_low,
@@ -1807,10 +1783,11 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1,
                                            float *buffer )
 {
 //  glDrawBuffer(this->GetBackBuffer());
-  glDisable( GL_SCISSOR_TEST );
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_ALWAYS);
-  glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+  vtkOpenGLState *ostate = this->GetState();
+  ostate->glDisable( GL_SCISSOR_TEST );
+  ostate->glEnable(GL_DEPTH_TEST);
+  ostate->glDepthFunc(GL_ALWAYS);
+  ostate->glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
   if (!this->DrawPixelsTextureObject)
   {
     this->DrawPixelsTextureObject = vtkTextureObject::New();
@@ -1852,8 +1829,9 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1,
     program, VAO);
   this->DrawPixelsTextureObject->Deactivate();
   VAO->Delete();
-  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-  glDepthFunc(GL_LEQUAL);
+
+  ostate->glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  ostate->glDepthFunc(GL_LEQUAL);
 
   return VTK_OK;
 }

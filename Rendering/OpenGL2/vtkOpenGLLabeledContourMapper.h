@@ -53,7 +53,7 @@ protected:
   bool CreateLabels(vtkActor *actor) override;
 
   bool ApplyStencil(vtkRenderer *ren, vtkActor *act) override;
-  bool RemoveStencil() override;
+  bool RemoveStencil(vtkRenderer *ren) override;
 
   vtkOpenGLHelper *StencilBO;
   vtkMatrix4x4 *TempMatrix4;

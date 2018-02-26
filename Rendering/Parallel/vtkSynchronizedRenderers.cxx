@@ -30,6 +30,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLError.h"
 
 #include "vtkOpenGLFXAAFilter.h"
@@ -687,13 +688,15 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
   ren->GetViewport(viewport);
   const int* window_size = ren->GetVTKWindow()->GetActualSize();
 
-  glEnable(GL_SCISSOR_TEST);
-  glViewport(
+  vtkOpenGLState *ostate =
+    static_cast<vtkOpenGLRenderWindow *>(ren->GetVTKWindow())->GetState();
+  ostate->glEnable(GL_SCISSOR_TEST);
+  ostate->glViewport(
     static_cast<GLint>(viewport[0]*window_size[0]),
     static_cast<GLint>(viewport[1]*window_size[1]),
     static_cast<GLsizei>((viewport[2]-viewport[0])*window_size[0]),
     static_cast<GLsizei>((viewport[3]-viewport[1])*window_size[1]));
-  glScissor(
+  ostate->glScissor(
     static_cast<GLint>(viewport[0]*window_size[0]),
     static_cast<GLint>(viewport[1]*window_size[1]),
     static_cast<GLsizei>((viewport[2]-viewport[0])*window_size[0]),
@@ -713,36 +716,24 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer(vtkRenderer *ren)
 
   vtkOpenGLClearErrorMacro();
   vtkOpenGLRenderUtilities::MarkDebugEvent("vtkRawImage::PushToViewport begin");
+  vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetVTKWindow());
+  vtkOpenGLState *ostate = renWin->GetState();
+  vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
 
-  GLint blendSrcA = GL_ONE;
-  GLint blendDstA = GL_ONE_MINUS_SRC_ALPHA;
-  GLint blendSrcC = GL_SRC_ALPHA;
-  GLint blendDstC = GL_ONE_MINUS_SRC_ALPHA;
-  glGetIntegerv(GL_BLEND_SRC_ALPHA, &blendSrcA);
-  glGetIntegerv(GL_BLEND_DST_ALPHA, &blendDstA);
-  glGetIntegerv(GL_BLEND_SRC_RGB, &blendSrcC);
-  glGetIntegerv(GL_BLEND_DST_RGB, &blendDstC);
   // framebuffers have their color premultiplied by alpha.
-  glEnable(GL_BLEND);
-  glBlendFuncSeparate(GL_ONE,GL_ONE_MINUS_SRC_ALPHA,
+  ostate->glEnable(GL_BLEND);
+  ostate->glBlendFuncSeparate(GL_ONE,GL_ONE_MINUS_SRC_ALPHA,
     GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
 
   // always draw the entire image on the entire viewport
-  GLint oldvp[4];
-  glGetIntegerv(GL_VIEWPORT, oldvp);
+  vtkOpenGLState::ScopedglViewport vsaver(ostate);
   int renSize[2];
   ren->GetTiledSize(renSize, renSize + 1);
-  glViewport(0, 0, renSize[0], renSize[1]);
+  ostate->glViewport(0, 0, renSize[0], renSize[1]);
 
-  vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetVTKWindow());
   renWin->DrawPixels(this->GetWidth(), this->GetHeight(),
     this->Data->GetNumberOfComponents(), VTK_UNSIGNED_CHAR,
     this->GetRawPtr()->GetVoidPointer(0));
-
-  glViewport(oldvp[0], oldvp[1], oldvp[2], oldvp[3]);
-
-  // restore the blend state
-  glBlendFuncSeparate(blendSrcC, blendDstC, blendSrcA, blendDstA);
 
   vtkOpenGLStaticCheckErrorMacro("failed after PushToFrameBuffer");
   vtkOpenGLRenderUtilities::MarkDebugEvent("vtkRawImage::PushToViewport end");

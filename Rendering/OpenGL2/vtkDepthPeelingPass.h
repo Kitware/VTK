@@ -57,6 +57,7 @@
 class vtkOpenGLFramebufferObject;
 class vtkTextureObject;
 class vtkOpenGLRenderWindow;
+class vtkOpenGLState;
 class vtkOpenGLHelper;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkDepthPeelingPass
@@ -201,6 +202,9 @@ public:
 
   void BlendIntermediatePeels(vtkOpenGLRenderWindow *renWin, bool);
   void BlendFinalPeel(vtkOpenGLRenderWindow *renWin);
+
+  // useful to store
+  vtkOpenGLState *State;
 
  private:
   vtkDepthPeelingPass(const vtkDepthPeelingPass&) = delete;

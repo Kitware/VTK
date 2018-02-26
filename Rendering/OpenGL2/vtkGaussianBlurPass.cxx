@@ -24,6 +24,7 @@
 #include "vtkOpenGLError.h"
 #include "vtkShaderProgram.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLVertexArrayObject.h"
 
@@ -91,14 +92,10 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
 
   vtkRenderer *r=s->GetRenderer();
   vtkOpenGLRenderWindow *renWin = static_cast<vtkOpenGLRenderWindow *>(r->GetRenderWindow());
+  vtkOpenGLState *ostate = renWin->GetState();
 
   if(this->DelegatePass!=nullptr)
   {
-
-    // backup GL state
-    GLboolean savedBlend = glIsEnabled(GL_BLEND);
-    GLboolean savedDepthTest = glIsEnabled(GL_DEPTH_TEST);
-
     // 1. Create a new render state with an FBO.
 
     int width;
@@ -127,6 +124,10 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
       this->FrameBufferObject=vtkOpenGLFramebufferObject::New();
       this->FrameBufferObject->SetContext(renWin);
     }
+
+    // backup GL state
+    vtkOpenGLState::ScopedglEnableDisable bsaver(ostate, GL_BLEND);
+    vtkOpenGLState::ScopedglEnableDisable dsaver(ostate, GL_DEPTH_TEST);
 
     this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
     this->RenderDelegate(s,width,height,w,h,this->FrameBufferObject,
@@ -277,8 +278,8 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
     glFinish();
 #endif
 
-    glDisable(GL_BLEND);
-    glDisable(GL_DEPTH_TEST);
+    ostate->glDisable(GL_BLEND);
+    ostate->glDisable(GL_DEPTH_TEST);
 
     this->FrameBufferObject->RenderQuad(0,w-1,0,h-1,
       this->BlurProgram->Program, this->BlurProgram->VAO);
@@ -352,16 +353,6 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
                                   this->BlurProgram->VAO);
 
     this->Pass2->Deactivate();
-
-    // restore GL state
-    if(savedBlend)
-    {
-      glEnable(GL_BLEND);
-    }
-    if(savedDepthTest)
-    {
-      glEnable(GL_DEPTH_TEST);
-    }
 
 #ifdef VTK_GAUSSIAN_BLUR_PASS_DEBUG
     cout << "gauss finish4" << endl;

@@ -276,7 +276,6 @@ public:
         vtkContextDevice2D::Stretch;
     this->SpriteTexture = nullptr;
     this->SavedDepthTest = GL_TRUE;
-    this->SavedAlphaTest = GL_TRUE;
     this->SavedStencilTest = GL_TRUE;
     this->SavedBlend = GL_TRUE;
     this->SavedDrawBuffer = 0;
@@ -303,60 +302,37 @@ public:
     }
   }
 
-  void SaveGLState(bool colorBuffer = false)
+  void SaveGLState(vtkOpenGLState *ostate, bool colorBuffer = false)
   {
-    this->SavedDepthTest = glIsEnabled(GL_DEPTH_TEST);
+    this->SavedDepthTest = ostate->GetEnumState(GL_DEPTH_TEST);
 
     if (colorBuffer)
     {
-      this->SavedAlphaTest = glIsEnabled(GL_ALPHA_TEST);
-      this->SavedStencilTest = glIsEnabled(GL_STENCIL_TEST);
-      this->SavedBlend = glIsEnabled(GL_BLEND);
-      glGetFloatv(GL_COLOR_CLEAR_VALUE, this->SavedClearColor);
+      this->SavedStencilTest = ostate->GetEnumState(GL_STENCIL_TEST);
+      this->SavedBlend = ostate->GetEnumState(GL_BLEND);
+      ostate->GetClearColor(this->SavedClearColor);
       glGetIntegerv(GL_DRAW_BUFFER, &this->SavedDrawBuffer);
     }
   }
 
-  void RestoreGLState(bool colorBuffer = false)
+  void RestoreGLState(vtkOpenGLState *ostate, bool colorBuffer = false)
   {
-    this->SetGLCapability(GL_DEPTH_TEST, this->SavedDepthTest);
+    ostate->SetEnumState(GL_DEPTH_TEST, this->SavedDepthTest);
 
     if (colorBuffer)
     {
-      this->SetGLCapability(GL_ALPHA_TEST, this->SavedAlphaTest);
-      this->SetGLCapability(GL_STENCIL_TEST, this->SavedStencilTest);
-      this->SetGLCapability(GL_BLEND, this->SavedBlend);
+      ostate->SetEnumState(GL_STENCIL_TEST, this->SavedStencilTest);
+      ostate->SetEnumState(GL_BLEND, this->SavedBlend);
 
       if(this->SavedDrawBuffer != GL_BACK_LEFT)
       {
         glDrawBuffer(this->SavedDrawBuffer);
       }
 
-      int i = 0;
-      bool colorDiffer = false;
-      while(!colorDiffer && i < 4)
-      {
-        colorDiffer=this->SavedClearColor[i++] != 0.0;
-      }
-      if(colorDiffer)
-      {
-        glClearColor(this->SavedClearColor[0],
+      ostate->glClearColor(this->SavedClearColor[0],
                      this->SavedClearColor[1],
                      this->SavedClearColor[2],
                      this->SavedClearColor[3]);
-      }
-    }
-  }
-
-  void SetGLCapability(GLenum capability, GLboolean state)
-  {
-    if (state)
-    {
-      glEnable(capability);
-    }
-    else
-    {
-      glDisable(capability);
     }
   }
 
@@ -516,10 +492,9 @@ public:
   unsigned int TextureProperties;
   vtkTexture *SpriteTexture;
   // Store the previous GL state so that we can restore it when complete
-  GLboolean SavedDepthTest;
-  GLboolean SavedAlphaTest;
-  GLboolean SavedStencilTest;
-  GLboolean SavedBlend;
+  bool SavedDepthTest;
+  bool SavedStencilTest;
+  bool SavedBlend;
   GLint SavedDrawBuffer;
   GLfloat SavedClearColor[4];
 

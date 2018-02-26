@@ -34,6 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkCamera.h"
 #include "vtkPickingManager.h"
 #include "vtkAssemblyPath.h"
+#include "vtkOpenGLState.h"
 
 #include "vtkSmartPointer.h"
 
@@ -221,13 +222,17 @@ int vtkOpenVRMenuRepresentation::RenderOverlay(vtkViewport *v)
     return 0;
   }
 
+  vtkOpenVRRenderWindow *renWin =
+    static_cast<vtkOpenVRRenderWindow *>(this->Renderer->GetRenderWindow());
+  vtkOpenGLState *ostate = renWin->GetState();
+
   // always draw over the rest
-  glDepthFunc(GL_ALWAYS);
+  ostate->glDepthFunc(GL_ALWAYS);
   for (auto &menu : this->Menus)
   {
     menu->TextActor->RenderOpaqueGeometry(v);
   }
-  glDepthFunc(GL_LEQUAL);
+  ostate->glDepthFunc(GL_LEQUAL);
 
   return static_cast<int>(this->Menus.size());
 }

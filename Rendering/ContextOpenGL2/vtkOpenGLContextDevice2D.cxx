@@ -31,6 +31,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
@@ -324,13 +325,14 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
   this->ProjectionMatrix->SetMatrix(*matrix);
 
   // Store the previous state before changing it
-  this->Storage->SaveGLState();
-  glDisable(GL_DEPTH_TEST);
-  glEnable(GL_BLEND);
-
   this->Renderer = vtkRenderer::SafeDownCast(viewport);
-
   this->RenderWindow = vtkOpenGLRenderWindow::SafeDownCast(this->Renderer->GetRenderWindow());
+  vtkOpenGLState *ostate = this->RenderWindow->GetState();
+
+  this->Storage->SaveGLState(ostate);
+  ostate->glDisable(GL_DEPTH_TEST);
+  ostate->glEnable(GL_BLEND);
+
   this->RenderWindow->GetShaderCache()->ReleaseCurrentShader();
 
   // Enable simple line smoothing if multisampling is on.
@@ -357,7 +359,8 @@ void vtkOpenGLContextDevice2D::End()
   vtkOpenGLClearErrorMacro();
 
   // Restore the GL state that we changed
-  this->Storage->RestoreGLState();
+  vtkOpenGLState *ostate = this->RenderWindow->GetState();
+  this->Storage->RestoreGLState(ostate);
 
   // Disable simple line smoothing if multisampling is on.
   if (this->Renderer->GetRenderWindow()->GetMultiSamples())
@@ -383,7 +386,8 @@ void vtkOpenGLContextDevice2D::BufferIdModeBegin(
   this->BufferId=bufferId;
 
   // Save OpenGL state.
-  this->Storage->SaveGLState(true);
+  vtkOpenGLState *ostate = this->RenderWindow->GetState();
+  this->Storage->SaveGLState(ostate, true);
 
   int lowerLeft[2];
   int usize, vsize;
@@ -416,12 +420,11 @@ void vtkOpenGLContextDevice2D::BufferIdModeBegin(
   this->ProjectionMatrix->SetMatrix(*matrix);
 
   glDrawBuffer(GL_BACK_LEFT);
-  glClearColor(0.0,0.0,0.0,0.0); // id=0 means no hit, just background
-  glClear(GL_COLOR_BUFFER_BIT);
-  glDisable(GL_ALPHA_TEST);
-  glDisable(GL_STENCIL_TEST);
-  glDisable(GL_DEPTH_TEST);
-  glDisable(GL_BLEND);
+  ostate->glClearColor(0.0,0.0,0.0,0.0); // id=0 means no hit, just background
+  ostate->glClear(GL_COLOR_BUFFER_BIT);
+  ostate->glDisable(GL_STENCIL_TEST);
+  ostate->glDisable(GL_DEPTH_TEST);
+  ostate->glDisable(GL_BLEND);
 
   vtkOpenGLCheckErrorMacro("failed after BufferIdModeBegin");
 
@@ -444,7 +447,7 @@ void vtkOpenGLContextDevice2D::BufferIdModeEnd()
   this->ProjectionMatrix->Pop();
   this->PopMatrix();
 
-  this->Storage->RestoreGLState(true);
+  this->Storage->RestoreGLState(this->RenderWindow->GetState(), true);
 
   this->BufferId=nullptr;
 
@@ -2151,20 +2154,13 @@ void vtkOpenGLContextDevice2D::SetClipping(int *dim)
     vp[3] = dim[3];
   }
 
-  glScissor(vp[0], vp[1], vp[2], vp[3]);
+  this->RenderWindow->GetState()->glScissor(vp[0], vp[1], vp[2], vp[3]);
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::EnableClipping(bool enable)
 {
-  if (enable)
-  {
-    glEnable(GL_SCISSOR_TEST);
-  }
-  else
-  {
-    glDisable(GL_SCISSOR_TEST);
-  }
+  this->RenderWindow->GetState()->SetEnumState(GL_SCISSOR_TEST, enable);
 }
 
 //-----------------------------------------------------------------------------

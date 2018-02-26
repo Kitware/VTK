@@ -28,6 +28,7 @@
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkPainterCommunicator.h"
 #include "vtkPixelBufferObject.h"
@@ -271,6 +272,8 @@ public:
         const deque<vtkPixelExtent> &extents,
         int clearEETex = 0)
   {
+    vtkOpenGLState *ostate = fbo->GetContext()->GetState();
+
     //attach
     fbo->AddColorAttachment(GL_DRAW_FRAMEBUFFER, 0U, this->LICTexture0);
     fbo->AddColorAttachment(GL_DRAW_FRAMEBUFFER, 1U, this->SeedTexture0);
@@ -287,11 +290,8 @@ public:
 
     // clear the parts of the screen which we will modify
     // initially mask all fragments
-    glClearColor(0.0, 1.0, 0.0, 0.0);
-    #if 0
-    glClear(GL_COLOR_BUFFER_BIT);
-    #else
-    glEnable(GL_SCISSOR_TEST);
+    ostate->glClearColor(0.0, 1.0, 0.0, 0.0);
+    ostate->glEnable(GL_SCISSOR_TEST);
     size_t nBlocks = extents.size();
     for (size_t e=0; e<nBlocks; ++e)
     {
@@ -307,11 +307,10 @@ public:
       unsigned int extSize[2];
       ext.Size(extSize);
 
-      glScissor(ext[0], ext[2], extSize[0], extSize[1]);
-      glClear(GL_COLOR_BUFFER_BIT);
+      ostate->glScissor(ext[0], ext[2], extSize[0], extSize[1]);
+      ostate->glClear(GL_COLOR_BUFFER_BIT);
     }
-    glDisable(GL_SCISSOR_TEST);
-    #endif
+    ostate->glDisable(GL_SCISSOR_TEST);
     // detach
     // detach
     fbo->RemoveTexColorAttachments(GL_DRAW_FRAMEBUFFER, num);
@@ -326,6 +325,8 @@ public:
         const vtkPixelExtent &viewExt,
         const deque<vtkPixelExtent> &extents)
   {
+    vtkOpenGLState *ostate = fbo->GetContext()->GetState();
+
     //attach
     fbo->AddColorAttachment(GL_DRAW_FRAMEBUFFER, 0U, tex);
     fbo->ActivateDrawBuffers(1);
@@ -333,11 +334,8 @@ public:
 
     // clear the parts of the screen which we will modify
     // initially mask all fragments
-    glClearColor(0.0, 1.0, 0.0, 0.0);
-    #if 0
-    glClear(GL_COLOR_BUFFER_BIT);
-    #else
-    glEnable(GL_SCISSOR_TEST);
+    ostate->glClearColor(0.0, 1.0, 0.0, 0.0);
+    ostate->glEnable(GL_SCISSOR_TEST);
     size_t nBlocks = extents.size();
     for (size_t e=0; e<nBlocks; ++e)
     {
@@ -353,11 +351,10 @@ public:
       unsigned int extSize[2];
       ext.Size(extSize);
 
-      glScissor(ext[0], ext[2], extSize[0], extSize[1]);
-      glClear(GL_COLOR_BUFFER_BIT);
+      ostate->glScissor(ext[0], ext[2], extSize[0], extSize[1]);
+      ostate->glClear(GL_COLOR_BUFFER_BIT);
     }
-    glDisable(GL_SCISSOR_TEST);
-    #endif
+    ostate->glDisable(GL_SCISSOR_TEST);
     // detach
     fbo->RemoveTexColorAttachments(GL_DRAW_FRAMEBUFFER, 1);
     fbo->DeactivateDrawBuffers();
@@ -1411,6 +1408,8 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     vtkErrorMacro("invalid this->Context");
     return nullptr;
   }
+  vtkOpenGLState *ostate = this->Context->GetState();
+
   if (this->NumberOfSteps < 0)
   {
     vtkErrorMacro("Number of integration steps should be positive.");
@@ -1549,9 +1548,9 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     this->VTShader->Program->SetUniformi("texVectors", bufs.GetVectorTextureUnit());
     vtkOpenGLCheckErrorMacro("failed");
     // essential to initialize the entire buffer
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    ostate->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     vtkOpenGLCheckErrorMacro("failed");
-    glClear(GL_COLOR_BUFFER_BIT);
+    ostate->glClear(GL_COLOR_BUFFER_BIT);
     vtkOpenGLCheckErrorMacro("failed");
     size_t nVectorExtents = vectorExtents.size();
     for (size_t q=0; q<nVectorExtents; ++q)

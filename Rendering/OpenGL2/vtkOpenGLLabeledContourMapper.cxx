@@ -23,6 +23,7 @@
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
@@ -92,6 +93,7 @@ bool vtkOpenGLLabeledContourMapper::ApplyStencil(vtkRenderer *ren,
   // compile and bind it if needed
   vtkOpenGLRenderWindow *renWin =
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetVTKWindow());
+  vtkOpenGLState *ostate = renWin->GetState();
 
   if (!this->StencilBO->Program)
   {
@@ -120,52 +122,48 @@ bool vtkOpenGLLabeledContourMapper::ApplyStencil(vtkRenderer *ren,
   }
 
   // Save some state:
-  GLboolean colorMask[4];
-  glGetBooleanv(GL_COLOR_WRITEMASK, colorMask);
-  GLboolean depthMask;
-  glGetBooleanv(GL_DEPTH_WRITEMASK, &depthMask);
-
-  // Enable rendering into the stencil buffer:
-  glEnable(GL_STENCIL_TEST);
-  glStencilMask(0xFF);
-  glClearStencil(0);
-  glClear(GL_STENCIL_BUFFER_BIT);
-  glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-  glDepthMask(GL_FALSE);
-  glStencilFunc(GL_ALWAYS, 1, 0xFF);
-  glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
-
-  vtkOpenGLCamera *cam = (vtkOpenGLCamera *)(ren->GetActiveCamera());
-  vtkMatrix4x4 *wcdc;
-  vtkMatrix4x4 *wcvc;
-  vtkMatrix3x3 *norms;
-  vtkMatrix4x4 *vcdc;
-  cam->GetKeyMatrices(ren,wcvc,norms,vcdc,wcdc);
-  if (!act->GetIsIdentity())
   {
-    vtkMatrix4x4 *mcwc;
-    vtkMatrix3x3 *anorms;
-    ((vtkOpenGLActor *)act)->GetKeyMatrices(mcwc,anorms);
-    vtkMatrix4x4::Multiply4x4(mcwc, wcdc, this->TempMatrix4);
-    this->StencilBO->Program->SetUniformMatrix("MCDCMatrix", this->TempMatrix4);
-  }
-  else
-  {
-    this->StencilBO->Program->SetUniformMatrix("MCDCMatrix", wcdc);
-  }
+    vtkOpenGLState::ScopedglColorMask cmsaver(ostate);
+    vtkOpenGLState::ScopedglDepthMask dmsaver(ostate);
 
-  vtkOpenGLRenderUtilities::RenderTriangles(
-    this->StencilQuads,
-    this->StencilQuadsSize/3,
-    this->StencilQuadIndices,
-    this->StencilQuadIndicesSize,
-    nullptr,
-    this->StencilBO->Program,
-    this->StencilBO->VAO);
+    // Enable rendering into the stencil buffer:
+    ostate->glEnable(GL_STENCIL_TEST);
+    glStencilMask(0xFF);
+    glClearStencil(0);
+    ostate->glClear(GL_STENCIL_BUFFER_BIT);
+    ostate->glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    ostate->glDepthMask(GL_FALSE);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
 
-  // Restore state:
-  glColorMask(colorMask[0], colorMask[1], colorMask[2], colorMask[3]);
-  glDepthMask(depthMask);
+    vtkOpenGLCamera *cam = (vtkOpenGLCamera *)(ren->GetActiveCamera());
+    vtkMatrix4x4 *wcdc;
+    vtkMatrix4x4 *wcvc;
+    vtkMatrix3x3 *norms;
+    vtkMatrix4x4 *vcdc;
+    cam->GetKeyMatrices(ren,wcvc,norms,vcdc,wcdc);
+    if (!act->GetIsIdentity())
+    {
+      vtkMatrix4x4 *mcwc;
+      vtkMatrix3x3 *anorms;
+      ((vtkOpenGLActor *)act)->GetKeyMatrices(mcwc,anorms);
+      vtkMatrix4x4::Multiply4x4(mcwc, wcdc, this->TempMatrix4);
+      this->StencilBO->Program->SetUniformMatrix("MCDCMatrix", this->TempMatrix4);
+    }
+    else
+    {
+      this->StencilBO->Program->SetUniformMatrix("MCDCMatrix", wcdc);
+    }
+
+    vtkOpenGLRenderUtilities::RenderTriangles(
+      this->StencilQuads,
+      this->StencilQuadsSize/3,
+      this->StencilQuadIndices,
+      this->StencilQuadIndicesSize,
+      nullptr,
+      this->StencilBO->Program,
+      this->StencilBO->VAO);
+  }
 
   // Setup GL to only draw in unstenciled regions:
   glStencilMask(0x00);
@@ -178,9 +176,10 @@ bool vtkOpenGLLabeledContourMapper::ApplyStencil(vtkRenderer *ren,
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenGLLabeledContourMapper::RemoveStencil()
+bool vtkOpenGLLabeledContourMapper::RemoveStencil(vtkRenderer *ren)
 {
-  glDisable(GL_STENCIL_TEST);
+  static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow())
+    ->GetState()->glDisable(GL_STENCIL_TEST);
   vtkOpenGLCheckErrorMacro("failed after RemoveStencil()");
-  return this->Superclass::RemoveStencil();
+  return this->Superclass::RemoveStencil(ren);
 }

@@ -22,6 +22,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLState.h"
 
 #include "vtkOpenGLError.h"
 
@@ -44,110 +45,6 @@ void annotate(const std::string &str)
 }
 }
 
-// Description:
-// Internal state and helper methods.
-class vtkOpenGLHardwareSelector::vtkInternals
-{
-public:
-  vtkOpenGLRenderWindow *Context;
-  bool MultisampleSupport;
-  bool OriginalMultisample;
-  bool OriginalBlending;
-
-  vtkInternals() :
-    Context(nullptr),
-    MultisampleSupport(false),
-    OriginalMultisample(false),
-    OriginalBlending(false)
-    {}
-
-  // Description:
-  // Set the rendering context and load the required
-  // extensions.
-  void SetContext(vtkRenderWindow *context)
-  {
-    if (this->Context == context)
-    {
-      return;
-    }
-
-    if (context)
-    {
-      this->MultisampleSupport = (context->GetMultiSamples() > 0);
-    }
-    else
-    {
-      this->MultisampleSupport = false;
-    }
-    this->Context = static_cast<vtkOpenGLRenderWindow *>(context);
-  }
-
-  // Description:
-  // Enable/disable multisampling.
-  void EnableMultisampling(bool mode)
-  {
-    if (this->MultisampleSupport)
-    {
-#if GL_ES_VERSION_3_0 != 1
-      if (mode)
-      {
-        glEnable(GL_MULTISAMPLE);
-      }
-      else
-      {
-        glDisable(GL_MULTISAMPLE);
-      }
-#endif
-    }
-  }
-
-  // Description:
-  // Check if multisample is enabled.
-  bool QueryMultisampling()
-  {
-#if GL_ES_VERSION_3_0 != 1
-    if (this->MultisampleSupport && glIsEnabled(GL_MULTISAMPLE))
-    {
-      return true;
-    }
-    else
-    {
-      return false;
-    }
-#else
-    return false;
-#endif
-  }
-
-  // Description:
-  // Enable/Disable blending
-  void EnableBlending(bool mode)
-  {
-    if (mode)
-    {
-      glEnable(GL_BLEND);
-    }
-    else
-    {
-      glDisable(GL_BLEND);
-    }
-  }
-
-  // Description:
-  // Check if blending is enabled.
-  bool QueryBlending()
-  {
-    if (glIsEnabled(GL_BLEND))
-    {
-      return true;
-    }
-    else
-    {
-      return false;
-    }
-  }
-};
-
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLHardwareSelector);
 
@@ -157,7 +54,6 @@ vtkOpenGLHardwareSelector::vtkOpenGLHardwareSelector()
   #ifdef vtkOpenGLHardwareSelectorDEBUG
   cerr << "=====vtkOpenGLHardwareSelector::vtkOpenGLHardwareSelector" << endl;
   #endif
-  this->Internals = new vtkInternals;
 }
 
 //----------------------------------------------------------------------------
@@ -166,7 +62,6 @@ vtkOpenGLHardwareSelector::~vtkOpenGLHardwareSelector()
   #ifdef vtkOpenGLHardwareSelectorDEBUG
   cerr << "=====vtkOpenGLHardwareSelector::~vtkOpenGLHardwareSelector" << endl;
   #endif
-  delete this->Internals;
 }
 
 //----------------------------------------------------------------------------
@@ -176,21 +71,27 @@ void vtkOpenGLHardwareSelector::PreCapturePass(int pass)
            this->PassTypeToString(static_cast<PassTypes>(pass)));
 
   // Disable multisample, and blending
-  vtkRenderWindow *rwin = this->Renderer->GetRenderWindow();
-  this->Internals->SetContext(rwin);
-  this->Internals->OriginalMultisample = this->Internals->QueryMultisampling();
-  this->Internals->EnableMultisampling(false);
+  vtkOpenGLRenderWindow *rwin =
+    static_cast<vtkOpenGLRenderWindow *>(this->Renderer->GetRenderWindow());
+  vtkOpenGLState *ostate = rwin->GetState();
 
-  this->Internals->OriginalBlending = this->Internals->QueryBlending();
-  this->Internals->EnableBlending(false);
+  this->OriginalMultisample = ostate->GetEnumState(GL_MULTISAMPLE);
+  ostate->glDisable(GL_MULTISAMPLE);
+
+  this->OriginalBlending = ostate->GetEnumState(GL_BLEND);
+  ostate->glDisable(GL_BLEND);
 }
 
 //----------------------------------------------------------------------------
 void vtkOpenGLHardwareSelector::PostCapturePass(int pass)
 {
   // Restore multisample, and blending.
-  this->Internals->EnableMultisampling(this->Internals->OriginalMultisample);
-  this->Internals->EnableBlending(this->Internals->OriginalBlending);
+  vtkOpenGLRenderWindow *rwin =
+    static_cast<vtkOpenGLRenderWindow *>(this->Renderer->GetRenderWindow());
+  vtkOpenGLState *ostate = rwin->GetState();
+
+  ostate->SetEnumState(GL_MULTISAMPLE, this->OriginalMultisample);
+  ostate->SetEnumState(GL_BLEND, this->OriginalBlending);
   annotate(std::string("Pass complete: ") +
            this->PassTypeToString(static_cast<PassTypes>(pass)));
 }
@@ -201,22 +102,19 @@ void vtkOpenGLHardwareSelector::BeginSelection()
   // render normally to set the zbuffer
   if (this->FieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
-    vtkRenderWindow *rwin = this->Renderer->GetRenderWindow();
-    this->Internals->SetContext(rwin);
+    vtkOpenGLRenderWindow *rwin =
+      static_cast<vtkOpenGLRenderWindow *>(this->Renderer->GetRenderWindow());
+    vtkOpenGLState *ostate = rwin->GetState();
 
     // Disable multisample, and blending before writing the zbuffer
-    this->Internals->OriginalMultisample = this->Internals->QueryMultisampling();
-    this->Internals->EnableMultisampling(false);
+    vtkOpenGLState::ScopedglEnableDisable msaver(ostate, GL_MULTISAMPLE);
+    ostate->glDisable(GL_MULTISAMPLE);
 
-    this->Internals->OriginalBlending = this->Internals->QueryBlending();
-    this->Internals->EnableBlending(false);
+    vtkOpenGLState::ScopedglEnableDisable bsaver(ostate, GL_BLEND);
+    ostate->glDisable(GL_BLEND);
 
     rwin->Render();
     this->Renderer->PreserveDepthBufferOn();
-
-    // Restore multisample, and blending.
-    this->Internals->EnableMultisampling(this->Internals->OriginalMultisample);
-    this->Internals->EnableBlending(this->Internals->OriginalBlending);
   }
 
   return this->Superclass::BeginSelection();
@@ -412,8 +310,4 @@ void vtkOpenGLHardwareSelector::RenderProcessId(unsigned int processid)
 void vtkOpenGLHardwareSelector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os
-   << indent << "MultisampleSupport: "
-   << this->Internals->MultisampleSupport
-   << endl;
 }

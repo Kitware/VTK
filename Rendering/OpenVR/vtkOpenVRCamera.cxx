@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkOpenVRRenderWindow.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLError.h"
 #include "vtkPerspectiveTransform.h"
 
@@ -146,6 +147,8 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
 
   vtkOpenVRRenderWindow *win =
     vtkOpenVRRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenGLState *ostate = win->GetState();
+
   int renSize[2];
   win->GetRenderBufferSize(renSize[0],renSize[1]);
 
@@ -163,7 +166,7 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
     // Left Eye
     if (win->GetMultiSamples() && !ren->GetSelector())
     {
-      glEnable( GL_MULTISAMPLE );
+      ostate->glEnable( GL_MULTISAMPLE );
     }
     glBindFramebuffer( GL_FRAMEBUFFER, win->GetLeftRenderBufferId());
 
@@ -178,7 +181,7 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
     // right eye
     if (win->GetMultiSamples() && !ren->GetSelector())
     {
-      glEnable( GL_MULTISAMPLE );
+      ostate->glEnable( GL_MULTISAMPLE );
     }
     glBindFramebuffer( GL_FRAMEBUFFER, win->GetRightRenderBufferId());
 
@@ -191,8 +194,8 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
     }
   }
 
-  glViewport(0, 0, renSize[0], renSize[1] );
-  glScissor(0, 0, renSize[0], renSize[1] );
+  ostate->glViewport(0, 0, renSize[0], renSize[1] );
+  ostate->glScissor(0, 0, renSize[0], renSize[1] );
     ren->Clear();
   if ((ren->GetRenderWindow())->GetErase() && ren->GetErase()
       && !ren->GetIsPicking())

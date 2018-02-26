@@ -18,6 +18,7 @@
 #include <cassert>
 #include "vtkRenderState.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLState.h"
 #include "vtkFrameBufferObjectBase.h"
 #include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
@@ -45,7 +46,6 @@
 //#include <unistd.h>
 # include <sys/syscall.h>
 # include <sys/types.h> // Linux specific gettid()
-# include "vtkOpenGLState.h"
 #endif
 
 #include "vtk_glew.h"
@@ -159,6 +159,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 
   vtkOpenGLRenderWindow *context
     = static_cast<vtkOpenGLRenderWindow *>(r->GetRenderWindow());
+  vtkOpenGLState *ostate = context->GetState();
 
   if (!this->IsSupported(context))
   {
@@ -167,10 +168,6 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
       << "Cannot perform rgba-compositing.");
     return;
   }
-
-#ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
-  vtkOpenGLState *state=new vtkOpenGLState(context);
-#endif
 
   int w=0;
   int h=0;
@@ -341,82 +338,78 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
   // framebuffers have their color premultiplied by alpha.
 
     // save off current state of src / dst blend functions
-    GLint blendSrcA;
-    GLint blendDstA;
-    GLint blendSrcC;
-    GLint blendDstC;
-    glGetIntegerv(GL_BLEND_SRC_ALPHA, &blendSrcA);
-    glGetIntegerv(GL_BLEND_DST_ALPHA, &blendDstA);
-    glGetIntegerv(GL_BLEND_SRC_RGB, &blendSrcC);
-    glGetIntegerv(GL_BLEND_DST_RGB, &blendDstC);
-
-    glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
-
-    // per-fragment operations
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_BLEND);
-    glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA,
-                        GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-
-    glPixelStorei(GL_UNPACK_ALIGNMENT,1);// client to server
-
-    // 2. if root is not farest, save it in a TO
-    bool rootIsFarest=frontToBackList->GetValue(numProcs-1)==0;
-    if(!rootIsFarest)
     {
-      if(this->RootTexture==nullptr)
+      vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
+
+      ostate->glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+
+      // per-fragment operations
+      ostate->glDisable(GL_DEPTH_TEST);
+      ostate->glDisable(GL_BLEND);
+      ostate->glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA,
+                          GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+      glPixelStorei(GL_UNPACK_ALIGNMENT,1);// client to server
+
+      // 2. if root is not farest, save it in a TO
+      bool rootIsFarest=frontToBackList->GetValue(numProcs-1)==0;
+      if(!rootIsFarest)
       {
-        this->RootTexture=vtkTextureObject::New();
-        this->RootTexture->SetContext(context);
+        if(this->RootTexture==nullptr)
+        {
+          this->RootTexture=vtkTextureObject::New();
+          this->RootTexture->SetContext(context);
+        }
+        this->RootTexture->Allocate2D(dims[0],dims[1],4,VTK_UNSIGNED_CHAR);
+        this->RootTexture->CopyFromFrameBuffer(0,0,0,0,w,h);
       }
-      this->RootTexture->Allocate2D(dims[0],dims[1],4,VTK_UNSIGNED_CHAR);
-      this->RootTexture->CopyFromFrameBuffer(0,0,0,0,w,h);
+
+      // 3. in back to front order:
+      // 3a. if this is step for root, render root TO (if not farest)
+      // 3b. if satellite, get image, load it into TO, render quad
+
+      int procIndex=numProcs-1;
+      bool blendingEnabled=false;
+      if(rootIsFarest)
+      {
+        // nothing to do.
+        --procIndex;
+      }
+      while(procIndex>=0)
+      {
+        vtkTextureObject *to;
+        int proc=frontToBackList->GetValue(procIndex);
+        if(proc==0)
+        {
+            to=this->RootTexture;
+        }
+        else
+        {
+          // receive the rgba from satellite process.
+          this->Controller->Receive(this->RawRGBABuffer,
+                                    static_cast<vtkIdType>(this->RawRGBABufferSize),
+                                    proc,VTK_COMPOSITE_RGBA_PASS_MESSAGE_GATHER);
+
+          // send it to a PBO
+          this->PBO->Upload2D(VTK_FLOAT,this->RawRGBABuffer,dims,4,continuousInc);
+          // Send PBO to TO
+          this->RGBATexture->Create2D(dims[0],dims[1],4,this->PBO,false);
+          to=this->RGBATexture;
+        }
+        if(!blendingEnabled && procIndex<(numProcs-1))
+        {
+          ostate->glEnable(GL_BLEND);
+          blendingEnabled=true;
+        }
+        to->Activate();
+        to->CopyToFrameBuffer(0, 0, w - 1, h - 1, 0, 0, w, h, nullptr, nullptr);
+        to->Deactivate();
+        --procIndex;
+      }
+      // restore blend func by going out of scope
     }
 
-    // 3. in back to front order:
-    // 3a. if this is step for root, render root TO (if not farest)
-    // 3b. if satellite, get image, load it into TO, render quad
 
-    int procIndex=numProcs-1;
-    bool blendingEnabled=false;
-    if(rootIsFarest)
-    {
-      // nothing to do.
-      --procIndex;
-    }
-    while(procIndex>=0)
-    {
-      vtkTextureObject *to;
-      int proc=frontToBackList->GetValue(procIndex);
-      if(proc==0)
-      {
-          to=this->RootTexture;
-      }
-      else
-      {
-        // receive the rgba from satellite process.
-        this->Controller->Receive(this->RawRGBABuffer,
-                                  static_cast<vtkIdType>(this->RawRGBABufferSize),
-                                  proc,VTK_COMPOSITE_RGBA_PASS_MESSAGE_GATHER);
-
-        // send it to a PBO
-        this->PBO->Upload2D(VTK_FLOAT,this->RawRGBABuffer,dims,4,continuousInc);
-        // Send PBO to TO
-        this->RGBATexture->Create2D(dims[0],dims[1],4,this->PBO,false);
-        to=this->RGBATexture;
-      }
-      if(!blendingEnabled && procIndex<(numProcs-1))
-      {
-        glEnable(GL_BLEND);
-        blendingEnabled=true;
-      }
-      to->Activate();
-      to->CopyToFrameBuffer(0, 0, w - 1, h - 1, 0, 0, w, h, nullptr, nullptr);
-      to->Deactivate();
-      --procIndex;
-    }
-    // restore blend func
-    glBlendFuncSeparate(blendSrcC, blendDstC, blendSrcA, blendDstA);
     frontToBackList->Delete();
 
 #ifdef VTK_COMPOSITE_RGBAPASS_DEBUG

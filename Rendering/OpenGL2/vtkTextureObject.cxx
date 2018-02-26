@@ -26,6 +26,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkPixelBufferObject.h"
@@ -1956,9 +1957,9 @@ void vtkTextureObject::CopyToFrameBuffer(
   float maxYTexCoord=static_cast<float>(
     static_cast<double>(srcYmax+0.5)/this->Height);
 
-  GLint saved_viewport[4];
-  glGetIntegerv(GL_VIEWPORT, saved_viewport);
-  glViewport(dstXmin, dstYmin, dstXmax - dstXmin + 1, dstYmax - dstYmin + 1);
+  vtkOpenGLState::ScopedglViewport vsaver(this->Context->GetState());
+  this->Context->GetState()->glViewport(
+    dstXmin, dstYmin, dstXmax - dstXmin + 1, dstYmax - dstYmin + 1);
 
   float tcoords[] = {
     minXTexCoord, minYTexCoord,
@@ -1972,10 +1973,9 @@ void vtkTextureObject::CopyToFrameBuffer(
     1.0f, 1.0f, 0.0f,
     -1.f, 1.0f, 0.0f};
 
-    this->CopyToFrameBuffer(tcoords, verts, program, vao);
+  this->CopyToFrameBuffer(tcoords, verts, program, vao);
 
-    glViewport(saved_viewport[0], saved_viewport[1], saved_viewport[2],
-      saved_viewport[3]);
+  vtkOpenGLCheckErrorMacro("failed after CopyToFrameBuffer")
 }
 
 void vtkTextureObject::CopyToFrameBuffer(float *tcoords, float *verts,
