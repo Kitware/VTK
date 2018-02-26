@@ -35,6 +35,7 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 #include "vtkOpenVRCamera.h"
 #include "vtkOpenVRDefaultOverlay.h"
 #include "vtkOpenVRModel.h"
+#include "vtkOpenVRRenderer.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -705,6 +706,18 @@ void vtkOpenVRRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ContextId: " << this->HelperWindow->GetGenericContext() << "\n";
   os << indent << "Window Id: " << this->HelperWindow->GetGenericWindowId() << "\n";
+}
+
+// Add a renderer to the list of renderers.
+void vtkOpenVRRenderWindow::AddRenderer(vtkRenderer *ren)
+{
+  if (ren && !vtkOpenVRRenderer::SafeDownCast(ren))
+  {
+    vtkErrorMacro("vtkOpenVRRenderWindow::AddRenderer: Failed to add renderer of type " << ren->GetClassName()
+       << ": A vtkOpenVRRenderer is expected");
+    return;
+  }
+  this->Superclass::AddRenderer(ren);
 }
 
 // Begin the rendering process.
