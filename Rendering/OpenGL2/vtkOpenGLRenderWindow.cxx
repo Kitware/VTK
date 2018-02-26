@@ -760,20 +760,15 @@ void vtkOpenGLRenderWindow::OpenGLInitContext()
 
     if (!GLEW_VERSION_3_2 && !GLEW_VERSION_3_1)
     {
-      if (!GLEW_EXT_gpu_shader4)
-      {
-        vtkErrorMacro("GL version 2.1 with the gpu_shader4 extension is not "
-        "supported by your graphics driver but is required for the new "
-        "OpenGL rendering backend. Please update your OpenGL driver. "
-        "If you are using Mesa please make sure you have version 10.6.5 or "
-        "later and make sure your driver in Mesa supports OpenGL 3.2.");
+      vtkErrorMacro("Unable to find a valid OpenGL 3.2 or later implementation. "
+        "Please update your video card driver to the latest version. "
+        "If you are using Mesa please make sure you have version 11.2 or "
+        "later and make sure your driver in Mesa supports OpenGL 3.2 such "
+        "as llvmpipe or openswr. If you are on windows and using Microsoft "
+        "remote desktop note that it only supports OpenGL 3.2 with nvidia "
+        "quadro cards. You can use other remoting software such as nomachine "
+        "to avoid this issue.");
         return;
-      }
-      vtkWarningMacro(
-        "VTK is designed to work with OpenGL version 3.2 but it appears "
-        "it has been given a context that does not support 3.2. VTK will "
-        "run in a compatibility mode designed to work with earlier versions "
-        "of OpenGL but some features may not work.");
     }
     else
     {
@@ -2353,11 +2348,11 @@ int vtkOpenGLRenderWindow::SupportsOpenGL()
 
 #ifdef GLEW_OK
 
-  else if (GLEW_VERSION_3_2 || GLEW_VERSION_3_1 || GLEW_EXT_gpu_shader4)
+  else if (GLEW_VERSION_3_2 || GLEW_VERSION_3_1)
   {
     this->OpenGLSupportResult = 1;
     this->OpenGLSupportMessage =
-      "The system appears to support OpenGL 3.2/3.1 or has 2.1 with the required extension";
+      "The system appears to support OpenGL 3.2/3.1";
   }
 
 #endif

@@ -597,6 +597,8 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
   // old failsafe
   if (this->Internal->ContextId == nullptr)
   {
+    // I suspect this will always return an unusable context
+    // but leaving it in to be safe
     this->Internal->ContextId =
       glXCreateContext(this->DisplayId, v, nullptr, GL_TRUE);
   }
