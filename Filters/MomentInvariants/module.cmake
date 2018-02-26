@@ -6,4 +6,5 @@ vtk_module(vtkFiltersMomentInvariants
     vtkImagingCore
   PRIVATE_DEPENDS
     vtkeigen
+    vtkkissfft
   )
