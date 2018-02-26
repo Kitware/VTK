@@ -205,7 +205,7 @@ struct NormalizeArray
     const float *ssa = this->ShepardSumArray + ptId;
 
     // If Shepard coefficient ==0.0 then set values to zero
-    for ( ; ptId < endPtId; ++ssa )
+    for ( ; ptId < endPtId; ++ptId, ++ssa )
     {
       if ( *ssa == 0.0 )
       {
