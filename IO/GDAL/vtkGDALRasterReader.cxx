@@ -79,7 +79,7 @@ public:
 
   template <typename VTK_TYPE, typename RAW_TYPE>
   void Convert(std::vector<RAW_TYPE>& rawUniformGridData,
-               int targetWidth, int targetHeight);
+               int targetWidth, int targetHeight, bool flipX, bool flipY);
 
   bool GetGeoCornerPoint(GDALDataset* dataset,
                          double x, double y, double* out) const;
@@ -478,9 +478,10 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
 
   // Set meta data on the image
   this->UniformGridData->SetExtent(0, (destWidth - 1), 0, (destHeight - 1), 0, 0);
-  this->UniformGridData->SetSpacing(geoSpacing[0], geoSpacing[1], geoSpacing[2]);
+  this->UniformGridData->SetSpacing(abs(geoSpacing[0]), abs(geoSpacing[1]), geoSpacing[2]);
   this->UniformGridData->SetOrigin(d[0], d[1], 0);
-  this->Convert<VTK_TYPE, RAW_TYPE>(rawUniformGridData, destWidth, destHeight);
+  this->Convert<VTK_TYPE, RAW_TYPE>(rawUniformGridData, destWidth, destHeight,
+                                    geoSpacing[0] < 0, geoSpacing[1] < 0);
 
   if (paletteBand)
   {
@@ -500,7 +501,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReleaseData()
 template <typename VTK_TYPE, typename RAW_TYPE>
 void vtkGDALRasterReader::vtkGDALRasterReaderInternal::Convert(
   std::vector<RAW_TYPE>& rawUniformGridData, int targetWidth,
-  int targetHeight)
+  int targetHeight, bool flipX, bool flipY)
 {
   if (!this->UniformGridData)
   {
@@ -524,14 +525,16 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::Convert(
 
   for (int j = 0; j < targetHeight; ++j)
   {
+    int jIndex = flipY ? (targetHeight - 1 - j) : j;
     for (int i = 0; i < targetWidth; ++i)
     {
+      int iIndex = flipX ? (targetWidth - 1 - i) : i;
       // Each band GDALData is stored in width * height size array.
       for (int bandIndex = 0; bandIndex < this->NumberOfBands; ++bandIndex)
       {
-        targetIndex = i * NumberOfBands +
-                      j * targetWidth * NumberOfBands + bandIndex;
-        sourceIndex = i + j * targetWidth +
+        targetIndex = i * this->NumberOfBands +
+                      j * targetWidth * this->NumberOfBands + bandIndex;
+        sourceIndex = iIndex + jIndex * targetWidth +
                       bandIndex * targetWidth * targetHeight;
 
         RAW_TYPE tmp = rawUniformGridData[sourceIndex];
