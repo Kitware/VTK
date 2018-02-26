@@ -94,7 +94,7 @@ public:
 
 protected:
   vtkAMReXParticlesReader();
-  ~vtkAMReXParticlesReader();
+  ~vtkAMReXParticlesReader() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
