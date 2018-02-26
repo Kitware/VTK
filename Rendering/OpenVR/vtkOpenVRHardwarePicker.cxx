@@ -105,7 +105,11 @@ int vtkOpenVRHardwarePicker::PickProp(
   if (sel->CaptureBuffers())
   {
     unsigned int outPos[2];
-    unsigned int inPos[2] = {size[0]/2, size[1]/2};
+    unsigned int inPos[2] =
+    {
+      static_cast<unsigned int>(size[0]/2),
+      static_cast<unsigned int>(size[1]/2)
+    };
     // find the data closest to the center
     vtkHardwareSelector::PixelInformation pinfo =
       sel->GetPixelInformation(inPos, 5, outPos);
