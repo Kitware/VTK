@@ -43,17 +43,6 @@ IF (TCL_FOUND AND TK_FOUND)
 
     IF(VTK_TCL_SUPPORT_LIBRARY_PATH AND VTK_TK_SUPPORT_LIBRARY_PATH)
 
-      # required for the vtk.exe interpreter to work
-      IF(VTK_WRAP_TCL) 
-        IF(NOT DEFINED TclTk_LIB_DIR)
-          SET(TclTk_LIB_DIR "${PROJECT_BINARY_DIR}/lib")
-        ENDIF()
-        VTK_COPY_TCL_TK_SUPPORT_FILES_TO_DIR (
-          ${VTK_TCL_SUPPORT_LIBRARY_PATH}
-          ${VTK_TK_SUPPORT_LIBRARY_PATH}
-          "${TclTk_LIB_DIR}")
-      ENDIF()
-
       IF(NOT VTK_INSTALL_NO_RUNTIME)
         VTK_COPY_TCL_TK_SUPPORT_FILES(
           "${VTK_TCL_SUPPORT_LIBRARY_PATH}"
