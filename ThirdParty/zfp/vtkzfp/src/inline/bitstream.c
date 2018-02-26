@@ -26,18 +26,18 @@ The following assumptions and restrictions apply:
      void stream_rewind(stream);
      void stream_rseek(stream, offset);
      void stream_skip(stream, uint n);
-     void stream_align(stream);
+     size_t stream_align(stream);
      uint stream_read_bit(stream);
      uint64 stream_read_bits(stream, n);
 
-   Each of these read calls has a corresponding write call:
+   Each of the above read calls has a corresponding write call:
 
      size_t stream_size(stream);
      size_t stream_wtell(stream);
      void stream_rewind(stream);
      void stream_wseek(stream, offset);
      void stream_pad(stream, n);
-     void stream_flush(stream);
+     size_t stream_flush(stream);
      uint stream_write_bit(stream, bit);
      uint64 stream_write_bits(stream, value, n);
 
@@ -45,7 +45,7 @@ The following assumptions and restrictions apply:
    by the BIT_STREAM_WORD_TYPE macro.  Bits are read and written in units of
    this integer word type.  Supported types are 8, 16, 32, or 64 bits wide.
    The bit width of the buffer is denoted by 'wsize' and can be accessed via
-   the global variable stream_word_bits.  A small wsize allows for fine
+   the global constant stream_word_bits.  A small wsize allows for fine
    granularity reads and writes, and may be preferable when working with many
    small blocks of data that require non-sequential access.  The default
    maximum size of 64 bits ensures maximum speed.  Note that even when
@@ -83,7 +83,7 @@ The following assumptions and restrictions apply:
          value += (uint64)stream_read_bit() << i;
 
    Note that it is possible to write fewer bits than the argument 'value'
-   holds (possibly even zero bits), in which case any unwritten bits are
+   holds (possibly even no bits), in which case any unwritten bits are
    returned.
 
 6. Although the stream_wseek(stream, offset) call allows positioning the
@@ -103,8 +103,8 @@ The following assumptions and restrictions apply:
 #include <limits.h>
 #include <stdlib.h>
 
-#ifndef _inline
-  #define _inline
+#ifndef inline_
+  #define inline_
 #endif
 
 /* bit stream word/buffer type; granularity of stream I/O operations */
@@ -127,8 +127,8 @@ struct bitstream {
   word* begin; /* beginning of stream */
   word* end;   /* end of stream (currently unused) */
 #ifdef BIT_STREAM_STRIDED
-  uint mask;   /* one less the block size in number of words  */
-  int delta;   /* number of words between consecutive blocks */
+  size_t mask;     /* one less the block size in number of words */
+  ptrdiff_t delta; /* number of words between consecutive blocks */
 #endif
 };
 
@@ -160,29 +160,40 @@ stream_write_word(bitstream* s, word value)
 /* public functions -------------------------------------------------------- */
 
 /* pointer to beginning of stream */
-_inline void*
+inline_ void*
 stream_data(const bitstream* s)
 {
   return s->begin;
 }
 
 /* current byte size of stream (if flushed) */
-_inline size_t
+inline_ size_t
 stream_size(const bitstream* s)
 {
   return sizeof(word) * (s->ptr - s->begin);
 }
 
 /* byte capacity of stream */
-_inline size_t
+inline_ size_t
 stream_capacity(const bitstream* s)
 {
   return sizeof(word) * (s->end - s->begin);
 }
 
+/* number of words per block */
+inline_ size_t
+stream_stride_block(const bitstream* s)
+{
+#ifdef BIT_STREAM_STRIDED
+  return s->mask + 1;
+#else
+  return 1;
+#endif
+}
+
 /* number of blocks between consecutive stream blocks */
-_inline int
-stream_delta(const bitstream* s)
+inline_ ptrdiff_t
+stream_stride_delta(const bitstream* s)
 {
 #ifdef BIT_STREAM_STRIDED
   return s->delta / (s->mask + 1);
@@ -192,7 +203,7 @@ stream_delta(const bitstream* s)
 }
 
 /* read single bit (0 or 1) */
-_inline uint
+inline_ uint
 stream_read_bit(bitstream* s)
 {
   uint bit;
@@ -207,7 +218,7 @@ stream_read_bit(bitstream* s)
 }
 
 /* write single bit (must be 0 or 1) */
-_inline uint
+inline_ uint
 stream_write_bit(bitstream* s, uint bit)
 {
   s->buffer += (word)bit << s->bits;
@@ -220,7 +231,7 @@ stream_write_bit(bitstream* s, uint bit)
 }
 
 /* read 0 <= n <= 64 bits */
-_inline uint64
+inline_ uint64
 stream_read_bits(bitstream* s, uint n)
 {
   uint64 value = s->buffer;
@@ -255,11 +266,11 @@ stream_read_bits(bitstream* s, uint n)
 }
 
 /* write 0 <= n <= 64 low bits of value and return remaining bits */
-_inline uint64
+inline_ uint64
 stream_write_bits(bitstream* s, uint64 value, uint n)
 {
   /* append bit string to buffer */
-  s->buffer += value << s->bits;
+  s->buffer += (word)(value << s->bits);
   s->bits += n;
   /* is buffer full? */
   if (s->bits >= wsize) {
@@ -273,7 +284,7 @@ stream_write_bits(bitstream* s, uint64 value, uint n)
       /* assert: 0 <= s->bits <= n */
       stream_write_word(s, s->buffer);
       /* assert: 0 <= n - s->bits < 64 */
-      s->buffer = value >> (n - s->bits);
+      s->buffer = (word)(value >> (n - s->bits));
     } while (sizeof(s->buffer) < sizeof(value) && s->bits >= wsize);
   }
   /* assert: 0 <= s->bits < wsize */
@@ -283,21 +294,21 @@ stream_write_bits(bitstream* s, uint64 value, uint n)
 }
 
 /* return bit offset to next bit to be read */
-_inline size_t
+inline_ size_t
 stream_rtell(const bitstream* s)
 {
   return wsize * (s->ptr - s->begin) - s->bits;
 }
 
 /* return bit offset to next bit to be written */
-_inline size_t
+inline_ size_t
 stream_wtell(const bitstream* s)
 {
   return wsize * (s->ptr - s->begin) + s->bits;
 }
 
 /* position stream for reading or writing at beginning */
-_inline void
+inline_ void
 stream_rewind(bitstream* s)
 {
   s->ptr = s->begin;
@@ -306,7 +317,7 @@ stream_rewind(bitstream* s)
 }
 
 /* position stream for reading at given bit offset */
-_inline void
+inline_ void
 stream_rseek(bitstream* s, size_t offset)
 {
   uint n = offset % wsize;
@@ -322,7 +333,7 @@ stream_rseek(bitstream* s, size_t offset)
 }
 
 /* position stream for writing at given bit offset */
-_inline void
+inline_ void
 stream_wseek(bitstream* s, size_t offset)
 {
   uint n = offset % wsize;
@@ -340,14 +351,14 @@ stream_wseek(bitstream* s, size_t offset)
 }
 
 /* skip over the next n bits (n >= 0) */
-_inline void
+inline_ void
 stream_skip(bitstream* s, uint n)
 {
   stream_rseek(s, stream_rtell(s) + n);
 }
 
-/* append n zero bits to stream (n >= 0) */
-_inline void
+/* append n zero-bits to stream (n >= 0) */
+inline_ void
 stream_pad(bitstream* s, uint n)
 {
   for (s->bits += n; s->bits >= wsize; s->bits -= wsize) {
@@ -357,25 +368,29 @@ stream_pad(bitstream* s, uint n)
 }
 
 /* align stream on next word boundary */
-_inline void
+inline_ size_t
 stream_align(bitstream* s)
 {
-  if (s->bits)
-    stream_skip(s, s->bits);
+  uint bits = s->bits;
+  if (bits)
+    stream_skip(s, bits);
+  return bits;
 }
 
 /* write any remaining buffered bits and align stream on next word boundary */
-_inline void
+inline_ size_t
 stream_flush(bitstream* s)
 {
-  if (s->bits)
-    stream_pad(s, wsize - s->bits);
+  uint bits = (wsize - s->bits) % wsize;
+  if (bits)
+    stream_pad(s, bits);
+  return bits;
 }
 
 #ifdef BIT_STREAM_STRIDED
 /* set block size in number of words and spacing in number of blocks */
-_inline int
-stream_set_stride(bitstream* s, uint block, int delta)
+inline_ int
+stream_set_stride(bitstream* s, size_t block, ptrdiff_t delta)
 {
   /* ensure block size is a power of two */
   if (block & (block - 1))
@@ -387,7 +402,7 @@ stream_set_stride(bitstream* s, uint block, int delta)
 #endif
 
 /* allocate and initialize bit stream to user-allocated buffer */
-_inline bitstream*
+inline_ bitstream*
 stream_open(void* buffer, size_t bytes)
 {
   bitstream* s = malloc(sizeof(bitstream));
@@ -403,7 +418,7 @@ stream_open(void* buffer, size_t bytes)
 }
 
 /* close and deallocate bit stream */
-_inline void
+inline_ void
 stream_close(bitstream* s)
 {
   free(s);

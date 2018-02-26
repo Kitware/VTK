@@ -1,11 +1,11 @@
 #ifndef INLINE_H
 #define INLINE_H
 
-#ifndef _inline
+#ifndef inline_
   #if __STDC_VERSION__ >= 199901L
-    #define _inline static inline
+    #define inline_ static inline
   #else
-    #define _inline static
+    #define inline_ static
   #endif
 #endif
 

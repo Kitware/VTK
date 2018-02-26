@@ -1,6 +1,3 @@
-static void _t1(pad_block, Scalar)(Scalar* p, uint n, uint s);
-static void _t1(fwd_lift, Int)(Int* p, uint s);
-
 /* private functions ------------------------------------------------------- */
 
 /* gather 4*4*4 block from strided array */
@@ -59,7 +56,7 @@ uint
 _t2(zfp_encode_block_strided, Scalar, 3)(zfp_stream* stream, const Scalar* p, int sx, int sy, int sz)
 {
   /* gather block from strided array */
-  _cache_align(Scalar fblock[64]);
+  cache_align_(Scalar fblock[64]);
   _t2(gather, Scalar, 3)(fblock, p, sx, sy, sz);
   /* encode floating-point block */
   return _t2(zfp_encode_block, Scalar, 3)(stream, fblock);
@@ -70,7 +67,7 @@ uint
 _t2(zfp_encode_partial_block_strided, Scalar, 3)(zfp_stream* stream, const Scalar* p, uint nx, uint ny, uint nz, int sx, int sy, int sz)
 {
   /* gather block from strided array */
-  _cache_align(Scalar fblock[64]);
+  cache_align_(Scalar fblock[64]);
   _t2(gather_partial, Scalar, 3)(fblock, p, nx, ny, nz, sx, sy, sz);
   /* encode floating-point block */
   return _t2(zfp_encode_block, Scalar, 3)(stream, fblock);

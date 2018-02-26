@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2014-2015, Lawrence Livermore National Security, LLC.
+** Copyright (c) 2014-2017, Lawrence Livermore National Security, LLC.
 ** Produced at the Lawrence Livermore National Laboratory.
 ** Written by Peter Lindstrom.
 ** LLNL-CODE-663824.
@@ -61,20 +61,38 @@
 #ifndef ZFP_H
 #define ZFP_H
 
-#include "zfp_mangle.h"
-#include "vtkzfp_export.h"
+#include "vtk_zfp_mangle.h"
 
-#include "types.h"
-#include "system.h"
+#include "zfp/types.h"
+#include "zfp/system.h"
 #include "bitstream.h"
 
 /* macros ------------------------------------------------------------------ */
 
+/* stringification */
+#define _zfp_str_(x) # x
+#define _zfp_str(x) _zfp_str_(x)
+
 /* library version information */
-#define ZFP_VERSION 0x0050    /* library version number: 0.5.0 */
-#define ZFP_VERSION_MAJOR 0   /* library major version number */
-#define ZFP_VERSION_MINOR 5   /* library minor version number */
-#define ZFP_VERSION_RELEASE 0 /* library release version number */
+#define ZFP_VERSION_MAJOR 0 /* library major version number */
+#define ZFP_VERSION_MINOR 5 /* library minor version number */
+#define ZFP_VERSION_PATCH 2 /* library patch version number */
+#define ZFP_VERSION_RELEASE ZFP_VERSION_PATCH
+
+/* codec version number (see also zfp_codec_version) */
+#define ZFP_CODEC 5
+
+/* library version number (see also zfp_library_version) */
+#define ZFP_VERSION \
+  ((ZFP_VERSION_MAJOR << 8) + \
+   (ZFP_VERSION_MINOR << 4) + \
+   (ZFP_VERSION_PATCH << 0))
+
+/* library version string (see also zfp_version_string) */
+#define ZFP_VERSION_STRING \
+  _zfp_str(ZFP_VERSION_MAJOR) "." \
+  _zfp_str(ZFP_VERSION_MINOR) "." \
+  _zfp_str(ZFP_VERSION_PATCH)
 
 /* default compression parameters */
 #define ZFP_MIN_BITS     0 /* minimum number of bits per block */
@@ -83,9 +101,9 @@
 #define ZFP_MIN_EXP  -1074 /* minimum floating-point base-2 exponent */
 
 /* header masks (enable via bitwise or; reader must use same mask) */
-#define ZFP_HEADER_MAGIC  0x1u /* embed 32-bit magic */
-#define ZFP_HEADER_FIELD  0x2u /* embed 52-bit field type and dimensions */
-#define ZFP_HEADER_PARAMS 0x4u /* embed 12- or 64-bit compression parameters */
+#define ZFP_HEADER_MAGIC  0x1u /* embed 64-bit magic */
+#define ZFP_HEADER_META   0x2u /* embed 52-bit field metadata */
+#define ZFP_HEADER_MODE   0x4u /* embed 12- or 64-bit compression mode */
 #define ZFP_HEADER_FULL   0x7u /* embed all of the above */
 
 /* number of bits per header entry */
@@ -93,7 +111,7 @@
 #define ZFP_META_BITS        52 /* number of field metadata bits */
 #define ZFP_MODE_SHORT_BITS  12 /* number of mode bits in short format */
 #define ZFP_MODE_LONG_BITS   64 /* number of mode bits in long format */
-#define ZFP_HEADER_BITS     148 /* max number of header bits */
+#define ZFP_HEADER_MAX_BITS 148 /* max number of header bits */
 #define ZFP_MODE_SHORT_MAX  ((1u << ZFP_MODE_SHORT_BITS) - 2)
 
 /* types ------------------------------------------------------------------- */
@@ -128,17 +146,28 @@ typedef struct {
 extern "C" {
 #endif
 
+/* public data ------------------------------------------------------------- */
+
+extern_ const uint zfp_codec_version;         /* codec version ZFP_CODEC */
+extern_ const uint zfp_library_version;       /* library version ZFP_VERSION */
+extern_ const char* const zfp_version_string; /* verbose version string */
+
+/* high-level API: utility functions --------------------------------------- */
+
+size_t          /* byte size of scalar type */
+zfp_type_size(
+  zfp_type type /* scalar type */
+);
+
 /* high-level API: compressed stream construction/destruction -------------- */
 
 /* open compressed stream and associate with bit stream */
-VTKZFP_EXPORT
 zfp_stream*         /* allocated compressed stream */
 zfp_stream_open(
   bitstream* stream /* bit stream to read from and write to (may be NULL) */
 );
 
 /* close and deallocate compressed stream (does not affect bit stream) */
-VTKZFP_EXPORT
 void
 zfp_stream_close(
   zfp_stream* stream /* compressed stream */
@@ -147,21 +176,18 @@ zfp_stream_close(
 /* high-level API: compressed stream inspectors ---------------------------- */
 
 /* bit stream associated with compressed stream */
-VTKZFP_EXPORT
 bitstream*                 /* bit stream associated with compressed stream */
 zfp_stream_bit_stream(
   const zfp_stream* stream /* compressed stream */
 );
 
 /* get all compression parameters in a compact representation */
-VTKZFP_EXPORT
 uint64                     /* 12- or 64-bit encoding of parameters */
 zfp_stream_mode(
   const zfp_stream* zfp    /* compressed stream */
 );
 
 /* get all compression parameters (pointers may be NULL) */
-VTKZFP_EXPORT
 void
 zfp_stream_params(
   const zfp_stream* stream, /* compressed stream */
@@ -172,14 +198,12 @@ zfp_stream_params(
 );
 
 /* byte size of sequentially compressed stream (call after compression) */
-VTKZFP_EXPORT
 size_t                     /* actual number of bytes of compressed storage */
 zfp_stream_compressed_size(
   const zfp_stream* stream /* compressed stream */
 );
 
 /* conservative estimate of compressed size in bytes */
-VTKZFP_EXPORT
 size_t                      /* maximum number of bytes of compressed storage */
 zfp_stream_maximum_size(
   const zfp_stream* stream, /* compressed stream */
@@ -189,7 +213,6 @@ zfp_stream_maximum_size(
 /* high-level API: initialization of compressed stream parameters ---------- */
 
 /* associate bit stream with compressed stream */
-VTKZFP_EXPORT
 void
 zfp_stream_set_bit_stream(
   zfp_stream* stream, /* compressed stream */
@@ -197,7 +220,6 @@ zfp_stream_set_bit_stream(
 );
 
 /* set size in compressed bits/scalar (fixed-rate mode) */
-VTKZFP_EXPORT
 double                /* actual rate in compressed bits/scalar */
 zfp_stream_set_rate(
   zfp_stream* stream, /* compressed stream */
@@ -208,25 +230,20 @@ zfp_stream_set_rate(
 );
 
 /* set precision in uncompressed bits/scalar (fixed-precision mode) */
-VTKZFP_EXPORT
 uint                  /* actual precision */
 zfp_stream_set_precision(
   zfp_stream* stream, /* compressed stream */
-  uint precision,     /* desired precision in uncompressed bits/scalar */
-  zfp_type type       /* scalar type to compress */
+  uint precision      /* desired precision in uncompressed bits/scalar */
 );
 
 /* set accuracy as absolute error tolerance (fixed-accuracy mode) */
-VTKZFP_EXPORT
 double                /* actual error tolerance */
 zfp_stream_set_accuracy(
   zfp_stream* stream, /* compressed stream */
-  double tolerance,   /* desired error tolerance */
-  zfp_type type       /* scalar type to compress */
+  double tolerance    /* desired error tolerance */
 );
 
 /* set all compression parameters from compact representation (expert mode) */
-VTKZFP_EXPORT
 int                   /* nonzero upon success */
 zfp_stream_set_mode(
   zfp_stream* stream, /* compressed stream */
@@ -234,7 +251,6 @@ zfp_stream_set_mode(
 );
 
 /* set all compression parameters (expert mode) */
-VTKZFP_EXPORT
 int                   /* nonzero upon success */
 zfp_stream_set_params(
   zfp_stream* stream, /* compressed stream */
@@ -247,12 +263,10 @@ zfp_stream_set_params(
 /* high-level API: uncompressed array construction/destruction ------------- */
 
 /* allocate field struct */
-VTKZFP_EXPORT
 zfp_field* /* pointer to default initialized field */
 zfp_field_alloc();
 
 /* allocate metadata for 1D field f[nx] */
-VTKZFP_EXPORT
 zfp_field*       /* allocated field metadata */
 zfp_field_1d(
   void* pointer, /* pointer to uncompressed scalars (may be NULL) */
@@ -261,7 +275,6 @@ zfp_field_1d(
 );
 
 /* allocate metadata for 2D field f[ny][nx] */
-VTKZFP_EXPORT
 zfp_field*       /* allocated field metadata */
 zfp_field_2d(
   void* pointer, /* pointer to uncompressed scalars (may be NULL) */
@@ -271,7 +284,6 @@ zfp_field_2d(
 );
 
 /* allocate metadata for 3D field f[nz][ny][nx] */
-VTKZFP_EXPORT
 zfp_field*       /* allocated field metadata */
 zfp_field_3d(
   void* pointer, /* pointer to uncompressed scalars (may be NULL) */
@@ -282,7 +294,6 @@ zfp_field_3d(
 );
 
 /* deallocate field metadata */
-VTKZFP_EXPORT
 void
 zfp_field_free(
   zfp_field* field /* field metadata */
@@ -290,52 +301,45 @@ zfp_field_free(
 
 /* high-level API: uncompressed array inspectors --------------------------- */
 
-/* pointer to first element of field */
-VTKZFP_EXPORT
+/* pointer to first scalar in field */
 void*                    /* array pointer */
 zfp_field_pointer(
   const zfp_field* field /* field metadata */
 );
 
 /* field scalar type */
-VTKZFP_EXPORT
 zfp_type                 /* scalar type */
 zfp_field_type(
   const zfp_field* field /* field metadata */
 );
 
 /* precision of field scalar type */
-VTKZFP_EXPORT
 uint                     /* scalar type precision in number of bits */
 zfp_field_precision(
   const zfp_field* field /* field metadata */
 );
 
 /* field dimensionality (1, 2, or 3) */
-VTKZFP_EXPORT
 uint                     /* number of dimensions */
 zfp_field_dimensionality(
   const zfp_field* field /* field metadata */
 );
 
-/* field size in number of array elements */
-VTKZFP_EXPORT
+/* field size in number of scalars */
 size_t                    /* total number of scalars */
 zfp_field_size(
   const zfp_field* field, /* field metadata */
-  uint* size              /* number of elements per dimension (may be NULL) */
+  uint* size              /* number of scalars per dimension (may be NULL) */
 );
 
 /* field strides per dimension */
-VTKZFP_EXPORT
 int                       /* zero if array is contiguous */
 zfp_field_stride(
   const zfp_field* field, /* field metadata */
-  int* stride             /* stride in elements per dimension (may be NULL) */
+  int* stride             /* stride in scalars per dimension (may be NULL) */
 );
 
 /* field scalar type and dimensions */
-VTKZFP_EXPORT
 uint64                   /* compact 52-bit encoding of metadata */
 zfp_field_metadata(
   const zfp_field* field /* field metadata */
@@ -344,7 +348,6 @@ zfp_field_metadata(
 /* high-level API: uncompressed array specification ------------------------ */
 
 /* set pointer to first scalar in field */
-VTKZFP_EXPORT
 void
 zfp_field_set_pointer(
   zfp_field* field, /* field metadata */
@@ -352,7 +355,6 @@ zfp_field_set_pointer(
 );
 
 /* set field scalar type */
-VTKZFP_EXPORT
 zfp_type            /* actual scalar type */
 zfp_field_set_type(
   zfp_field* field, /* field metadata */
@@ -360,7 +362,6 @@ zfp_field_set_type(
 );
 
 /* set 1D field size */
-VTKZFP_EXPORT
 void
 zfp_field_set_size_1d(
   zfp_field* field, /* field metadata */
@@ -368,7 +369,6 @@ zfp_field_set_size_1d(
 );
 
 /* set 2D field size */
-VTKZFP_EXPORT
 void
 zfp_field_set_size_2d(
   zfp_field* field, /* field metadata */
@@ -377,7 +377,6 @@ zfp_field_set_size_2d(
 );
 
 /* set 3D field size */
-VTKZFP_EXPORT
 void
 zfp_field_set_size_3d(
   zfp_field* field, /* field metadata */
@@ -387,7 +386,6 @@ zfp_field_set_size_3d(
 );
 
 /* set 1D field stride in number of scalars */
-VTKZFP_EXPORT
 void
 zfp_field_set_stride_1d(
   zfp_field* field, /* field metadata */
@@ -395,7 +393,6 @@ zfp_field_set_stride_1d(
 );
 
 /* set 2D field strides in number of scalars */
-VTKZFP_EXPORT
 void
 zfp_field_set_stride_2d(
   zfp_field* field, /* field metadata */
@@ -404,7 +401,6 @@ zfp_field_set_stride_2d(
 );
 
 /* set 3D field strides in number of scalars */
-VTKZFP_EXPORT
 void
 zfp_field_set_stride_3d(
   zfp_field* field, /* field metadata */
@@ -414,7 +410,6 @@ zfp_field_set_stride_3d(
 );
 
 /* set field scalar type and dimensions */
-VTKZFP_EXPORT
 int                 /* nonzero upon success */
 zfp_field_set_metadata(
   zfp_field* field, /* field metadata */
@@ -424,7 +419,6 @@ zfp_field_set_metadata(
 /* high-level API: compression and decompression --------------------------- */
 
 /* compress entire field (nonzero return value upon success) */
-VTKZFP_EXPORT
 size_t                   /* actual number of bytes of compressed storage */
 zfp_compress(
   zfp_stream* stream,    /* compressed stream */
@@ -432,7 +426,6 @@ zfp_compress(
 );
 
 /* decompress entire field (nonzero return value upon success) */
-VTKZFP_EXPORT
 int                   /* nonzero upon success */
 zfp_decompress(
   zfp_stream* stream, /* compressed stream */
@@ -440,7 +433,6 @@ zfp_decompress(
 );
 
 /* write compression parameters and field metadata (optional) */
-VTKZFP_EXPORT
 size_t                    /* number of bits written or zero upon failure */
 zfp_write_header(
   zfp_stream* stream,     /* compressed stream */
@@ -449,7 +441,6 @@ zfp_write_header(
 );
 
 /* read compression parameters and field metadata when previously written */
-VTKZFP_EXPORT
 size_t                /* number of bits read or zero upon failure */
 zfp_read_header(
   zfp_stream* stream, /* compressed stream */
@@ -460,21 +451,18 @@ zfp_read_header(
 /* low-level API: stream manipulation -------------------------------------- */
 
 /* flush bit stream--must be called after last encode call or between seeks */
-VTKZFP_EXPORT
-void
+size_t
 zfp_stream_flush(
   zfp_stream* stream /* compressed bit stream */
 );
 
 /* align bit stream on next word boundary (decoding analogy to flush) */
-VTKZFP_EXPORT
-void
+size_t
 zfp_stream_align(
   zfp_stream* stream /* compressed bit stream */
 );
 
 /* rewind bit stream to beginning for compression or decompression */
-VTKZFP_EXPORT
 void
 zfp_stream_rewind(
   zfp_stream* stream /* compressed bit stream */
@@ -493,40 +481,52 @@ needed for the compressed block.
 */
 
 /* encode 1D contiguous block of 4 values */
-VTKZFP_EXPORT uint zfp_encode_block_int32_1(zfp_stream* stream, const int32* block);
-VTKZFP_EXPORT uint zfp_encode_block_int64_1(zfp_stream* stream, const int64* block);
-VTKZFP_EXPORT uint zfp_encode_block_float_1(zfp_stream* stream, const float* block);
-VTKZFP_EXPORT uint zfp_encode_block_double_1(zfp_stream* stream, const double* block);
+uint zfp_encode_block_int32_1(zfp_stream* stream, const int32* block);
+uint zfp_encode_block_int64_1(zfp_stream* stream, const int64* block);
+uint zfp_encode_block_float_1(zfp_stream* stream, const float* block);
+uint zfp_encode_block_double_1(zfp_stream* stream, const double* block);
 
 /* encode 1D complete or partial block from strided array */
-VTKZFP_EXPORT uint zfp_encode_block_strided_float_1(zfp_stream* stream, const float* p, int sx);
-VTKZFP_EXPORT uint zfp_encode_block_strided_double_1(zfp_stream* stream, const double* p, int sx);
-VTKZFP_EXPORT uint zfp_encode_partial_block_strided_float_1(zfp_stream* stream, const float* p, uint nx, int sx);
-VTKZFP_EXPORT uint zfp_encode_partial_block_strided_double_1(zfp_stream* stream, const double* p, uint nx, int sx);
+uint zfp_encode_block_strided_int32_1(zfp_stream* stream, const int32* p, int sx);
+uint zfp_encode_block_strided_int64_1(zfp_stream* stream, const int64* p, int sx);
+uint zfp_encode_block_strided_float_1(zfp_stream* stream, const float* p, int sx);
+uint zfp_encode_block_strided_double_1(zfp_stream* stream, const double* p, int sx);
+uint zfp_encode_partial_block_strided_int32_1(zfp_stream* stream, const int32* p, uint nx, int sx);
+uint zfp_encode_partial_block_strided_int64_1(zfp_stream* stream, const int64* p, uint nx, int sx);
+uint zfp_encode_partial_block_strided_float_1(zfp_stream* stream, const float* p, uint nx, int sx);
+uint zfp_encode_partial_block_strided_double_1(zfp_stream* stream, const double* p, uint nx, int sx);
 
 /* encode 2D contiguous block of 4x4 values */
-VTKZFP_EXPORT uint zfp_encode_block_int32_2(zfp_stream* stream, const int32* block);
-VTKZFP_EXPORT uint zfp_encode_block_int64_2(zfp_stream* stream, const int64* block);
-VTKZFP_EXPORT uint zfp_encode_block_float_2(zfp_stream* stream, const float* block);
-VTKZFP_EXPORT uint zfp_encode_block_double_2(zfp_stream* stream, const double* block);
+uint zfp_encode_block_int32_2(zfp_stream* stream, const int32* block);
+uint zfp_encode_block_int64_2(zfp_stream* stream, const int64* block);
+uint zfp_encode_block_float_2(zfp_stream* stream, const float* block);
+uint zfp_encode_block_double_2(zfp_stream* stream, const double* block);
 
 /* encode 2D complete or partial block from strided array */
-VTKZFP_EXPORT uint zfp_encode_partial_block_strided_float_2(zfp_stream* stream, const float* p, uint nx, uint ny, int sx, int sy);
-VTKZFP_EXPORT uint zfp_encode_partial_block_strided_double_2(zfp_stream* stream, const double* p, uint nx, uint ny, int sx, int sy);
-VTKZFP_EXPORT uint zfp_encode_block_strided_float_2(zfp_stream* stream, const float* p, int sx, int sy);
-VTKZFP_EXPORT uint zfp_encode_block_strided_double_2(zfp_stream* stream, const double* p, int sx, int sy);
+uint zfp_encode_partial_block_strided_int32_2(zfp_stream* stream, const int32* p, uint nx, uint ny, int sx, int sy);
+uint zfp_encode_partial_block_strided_int64_2(zfp_stream* stream, const int64* p, uint nx, uint ny, int sx, int sy);
+uint zfp_encode_partial_block_strided_float_2(zfp_stream* stream, const float* p, uint nx, uint ny, int sx, int sy);
+uint zfp_encode_partial_block_strided_double_2(zfp_stream* stream, const double* p, uint nx, uint ny, int sx, int sy);
+uint zfp_encode_block_strided_int32_2(zfp_stream* stream, const int32* p, int sx, int sy);
+uint zfp_encode_block_strided_int64_2(zfp_stream* stream, const int64* p, int sx, int sy);
+uint zfp_encode_block_strided_float_2(zfp_stream* stream, const float* p, int sx, int sy);
+uint zfp_encode_block_strided_double_2(zfp_stream* stream, const double* p, int sx, int sy);
 
 /* encode 3D contiguous block of 4x4x4 values */
-VTKZFP_EXPORT uint zfp_encode_block_int32_3(zfp_stream* stream, const int32* block);
-VTKZFP_EXPORT uint zfp_encode_block_int64_3(zfp_stream* stream, const int64* block);
-VTKZFP_EXPORT uint zfp_encode_block_float_3(zfp_stream* stream, const float* block);
-VTKZFP_EXPORT uint zfp_encode_block_double_3(zfp_stream* stream, const double* block);
+uint zfp_encode_block_int32_3(zfp_stream* stream, const int32* block);
+uint zfp_encode_block_int64_3(zfp_stream* stream, const int64* block);
+uint zfp_encode_block_float_3(zfp_stream* stream, const float* block);
+uint zfp_encode_block_double_3(zfp_stream* stream, const double* block);
 
 /* encode 3D complete or partial block from strided array */
-VTKZFP_EXPORT uint zfp_encode_block_strided_float_3(zfp_stream* stream, const float* p, int sx, int sy, int sz);
-VTKZFP_EXPORT uint zfp_encode_block_strided_double_3(zfp_stream* stream, const double* p, int sx, int sy, int sz);
-VTKZFP_EXPORT uint zfp_encode_partial_block_strided_float_3(zfp_stream* stream, const float* p, uint nx, uint ny, uint nz, int sx, int sy, int sz);
-VTKZFP_EXPORT uint zfp_encode_partial_block_strided_double_3(zfp_stream* stream, const double* p, uint nx, uint ny, uint nz, int sx, int sy, int sz);
+uint zfp_encode_block_strided_int32_3(zfp_stream* stream, const int32* p, int sx, int sy, int sz);
+uint zfp_encode_block_strided_int64_3(zfp_stream* stream, const int64* p, int sx, int sy, int sz);
+uint zfp_encode_block_strided_float_3(zfp_stream* stream, const float* p, int sx, int sy, int sz);
+uint zfp_encode_block_strided_double_3(zfp_stream* stream, const double* p, int sx, int sy, int sz);
+uint zfp_encode_partial_block_strided_int32_3(zfp_stream* stream, const int32* p, uint nx, uint ny, uint nz, int sx, int sy, int sz);
+uint zfp_encode_partial_block_strided_int64_3(zfp_stream* stream, const int64* p, uint nx, uint ny, uint nz, int sx, int sy, int sz);
+uint zfp_encode_partial_block_strided_float_3(zfp_stream* stream, const float* p, uint nx, uint ny, uint nz, int sx, int sy, int sz);
+uint zfp_encode_partial_block_strided_double_3(zfp_stream* stream, const double* p, uint nx, uint ny, uint nz, int sx, int sy, int sz);
 
 /* low-level API: decoder -------------------------------------------------- */
 
@@ -537,54 +537,66 @@ further details.
 */
 
 /* decode 1D contiguous block of 4 values */
-VTKZFP_EXPORT uint zfp_decode_block_int32_1(zfp_stream* stream, int32* block);
-VTKZFP_EXPORT uint zfp_decode_block_int64_1(zfp_stream* stream, int64* block);
-VTKZFP_EXPORT uint zfp_decode_block_float_1(zfp_stream* stream, float* block);
-VTKZFP_EXPORT uint zfp_decode_block_double_1(zfp_stream* stream, double* block);
+uint zfp_decode_block_int32_1(zfp_stream* stream, int32* block);
+uint zfp_decode_block_int64_1(zfp_stream* stream, int64* block);
+uint zfp_decode_block_float_1(zfp_stream* stream, float* block);
+uint zfp_decode_block_double_1(zfp_stream* stream, double* block);
 
 /* decode 1D complete or partial block from strided array */
-VTKZFP_EXPORT uint zfp_decode_block_strided_float_1(zfp_stream* stream, float* p, int sx);
-VTKZFP_EXPORT uint zfp_decode_block_strided_double_1(zfp_stream* stream, double* p, int sx);
-VTKZFP_EXPORT uint zfp_decode_partial_block_strided_float_1(zfp_stream* stream, float* p, uint nx, int sx);
-VTKZFP_EXPORT uint zfp_decode_partial_block_strided_double_1(zfp_stream* stream, double* p, uint nx, int sx);
+uint zfp_decode_block_strided_int32_1(zfp_stream* stream, int32* p, int sx);
+uint zfp_decode_block_strided_int64_1(zfp_stream* stream, int64* p, int sx);
+uint zfp_decode_block_strided_float_1(zfp_stream* stream, float* p, int sx);
+uint zfp_decode_block_strided_double_1(zfp_stream* stream, double* p, int sx);
+uint zfp_decode_partial_block_strided_int32_1(zfp_stream* stream, int32* p, uint nx, int sx);
+uint zfp_decode_partial_block_strided_int64_1(zfp_stream* stream, int64* p, uint nx, int sx);
+uint zfp_decode_partial_block_strided_float_1(zfp_stream* stream, float* p, uint nx, int sx);
+uint zfp_decode_partial_block_strided_double_1(zfp_stream* stream, double* p, uint nx, int sx);
 
 /* decode 2D contiguous block of 4x4 values */
-VTKZFP_EXPORT uint zfp_decode_block_int32_2(zfp_stream* stream, int32* block);
-VTKZFP_EXPORT uint zfp_decode_block_int64_2(zfp_stream* stream, int64* block);
-VTKZFP_EXPORT uint zfp_decode_block_float_2(zfp_stream* stream, float* block);
-VTKZFP_EXPORT uint zfp_decode_block_double_2(zfp_stream* stream, double* block);
+uint zfp_decode_block_int32_2(zfp_stream* stream, int32* block);
+uint zfp_decode_block_int64_2(zfp_stream* stream, int64* block);
+uint zfp_decode_block_float_2(zfp_stream* stream, float* block);
+uint zfp_decode_block_double_2(zfp_stream* stream, double* block);
 
 /* decode 2D complete or partial block from strided array */
-VTKZFP_EXPORT uint zfp_decode_block_strided_float_2(zfp_stream* stream, float* p, int sx, int sy);
-VTKZFP_EXPORT uint zfp_decode_block_strided_double_2(zfp_stream* stream, double* p, int sx, int sy);
-VTKZFP_EXPORT uint zfp_decode_partial_block_strided_float_2(zfp_stream* stream, float* p, uint nx, uint ny, int sx, int sy);
-VTKZFP_EXPORT uint zfp_decode_partial_block_strided_double_2(zfp_stream* stream, double* p, uint nx, uint ny, int sx, int sy);
+uint zfp_decode_block_strided_int32_2(zfp_stream* stream, int32* p, int sx, int sy);
+uint zfp_decode_block_strided_int64_2(zfp_stream* stream, int64* p, int sx, int sy);
+uint zfp_decode_block_strided_float_2(zfp_stream* stream, float* p, int sx, int sy);
+uint zfp_decode_block_strided_double_2(zfp_stream* stream, double* p, int sx, int sy);
+uint zfp_decode_partial_block_strided_int32_2(zfp_stream* stream, int32* p, uint nx, uint ny, int sx, int sy);
+uint zfp_decode_partial_block_strided_int64_2(zfp_stream* stream, int64* p, uint nx, uint ny, int sx, int sy);
+uint zfp_decode_partial_block_strided_float_2(zfp_stream* stream, float* p, uint nx, uint ny, int sx, int sy);
+uint zfp_decode_partial_block_strided_double_2(zfp_stream* stream, double* p, uint nx, uint ny, int sx, int sy);
 
 /* decode 3D contiguous block of 4x4x4 values */
-VTKZFP_EXPORT uint zfp_decode_block_int32_3(zfp_stream* stream, int32* block);
-VTKZFP_EXPORT uint zfp_decode_block_int64_3(zfp_stream* stream, int64* block);
-VTKZFP_EXPORT uint zfp_decode_block_float_3(zfp_stream* stream, float* block);
-VTKZFP_EXPORT uint zfp_decode_block_double_3(zfp_stream* stream, double* block);
+uint zfp_decode_block_int32_3(zfp_stream* stream, int32* block);
+uint zfp_decode_block_int64_3(zfp_stream* stream, int64* block);
+uint zfp_decode_block_float_3(zfp_stream* stream, float* block);
+uint zfp_decode_block_double_3(zfp_stream* stream, double* block);
 
 /* decode 3D complete or partial block from strided array */
-VTKZFP_EXPORT uint zfp_decode_block_strided_float_3(zfp_stream* stream, float* p, int sx, int sy, int sz);
-VTKZFP_EXPORT uint zfp_decode_block_strided_double_3(zfp_stream* stream, double* p, int sx, int sy, int sz);
-VTKZFP_EXPORT uint zfp_decode_partial_block_strided_float_3(zfp_stream* stream, float* p, uint nx, uint ny, uint nz, int sx, int sy, int sz);
-VTKZFP_EXPORT uint zfp_decode_partial_block_strided_double_3(zfp_stream* stream, double* p, uint nx, uint ny, uint nz, int sx, int sy, int sz);
+uint zfp_decode_block_strided_int32_3(zfp_stream* stream, int32* p, int sx, int sy, int sz);
+uint zfp_decode_block_strided_int64_3(zfp_stream* stream, int64* p, int sx, int sy, int sz);
+uint zfp_decode_block_strided_float_3(zfp_stream* stream, float* p, int sx, int sy, int sz);
+uint zfp_decode_block_strided_double_3(zfp_stream* stream, double* p, int sx, int sy, int sz);
+uint zfp_decode_partial_block_strided_int32_3(zfp_stream* stream, int32* p, uint nx, uint ny, uint nz, int sx, int sy, int sz);
+uint zfp_decode_partial_block_strided_int64_3(zfp_stream* stream, int64* p, uint nx, uint ny, uint nz, int sx, int sy, int sz);
+uint zfp_decode_partial_block_strided_float_3(zfp_stream* stream, float* p, uint nx, uint ny, uint nz, int sx, int sy, int sz);
+uint zfp_decode_partial_block_strided_double_3(zfp_stream* stream, double* p, uint nx, uint ny, uint nz, int sx, int sy, int sz);
 
 /* low-level API: utility functions ---------------------------------------- */
 
 /* convert dims-dimensional contiguous block to 32-bit integer type */
-VTKZFP_EXPORT void zfp_promote_int8_to_int32(int32* oblock, const int8* iblock, uint dims);
-VTKZFP_EXPORT void zfp_promote_uint8_to_int32(int32* oblock, const uint8* iblock, uint dims);
-VTKZFP_EXPORT void zfp_promote_int16_to_int32(int32* oblock, const int16* iblock, uint dims);
-VTKZFP_EXPORT void zfp_promote_uint16_to_int32(int32* oblock, const uint16* iblock, uint dims);
+void zfp_promote_int8_to_int32(int32* oblock, const int8* iblock, uint dims);
+void zfp_promote_uint8_to_int32(int32* oblock, const uint8* iblock, uint dims);
+void zfp_promote_int16_to_int32(int32* oblock, const int16* iblock, uint dims);
+void zfp_promote_uint16_to_int32(int32* oblock, const uint16* iblock, uint dims);
 
 /* convert dims-dimensional contiguous block from 32-bit integer type */
-VTKZFP_EXPORT void zfp_demote_int32_to_int8(int8* oblock, const int32* iblock, uint dims);
-VTKZFP_EXPORT void zfp_demote_int32_to_uint8(uint8* oblock, const int32* iblock, uint dims);
-VTKZFP_EXPORT void zfp_demote_int32_to_int16(int16* oblock, const int32* iblock, uint dims);
-VTKZFP_EXPORT void zfp_demote_int32_to_uint16(uint16* oblock, const int32* iblock, uint dims);
+void zfp_demote_int32_to_int8(int8* oblock, const int32* iblock, uint dims);
+void zfp_demote_int32_to_uint8(uint8* oblock, const int32* iblock, uint dims);
+void zfp_demote_int32_to_int16(int16* oblock, const int32* iblock, uint dims);
+void zfp_demote_int32_to_uint16(uint16* oblock, const int32* iblock, uint dims);
 
 #ifdef __cplusplus
 }
