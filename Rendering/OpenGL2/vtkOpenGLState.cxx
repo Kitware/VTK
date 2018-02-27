@@ -115,7 +115,7 @@ void vtkOpenGLState::glClearColor(
   }
 }
 
-void vtkOpenGLState::glClearDepth(GLclampd val)
+void vtkOpenGLState::glClearDepth(double val)
 {
 #ifndef NO_CACHE
   if (this->CurrentState.ClearDepth != val)
@@ -345,22 +345,16 @@ bool vtkOpenGLState::GetEnumState(GLenum cap)
   {
     case GL_BLEND:
       return this->CurrentState.Blend;
-      break;
     case GL_DEPTH_TEST:
       return this->CurrentState.DepthTest;
-      break;
     case GL_CULL_FACE:
       return this->CurrentState.CullFace;
-      break;
     case GL_MULTISAMPLE:
       return this->CurrentState.MultiSample;
-      break;
     case GL_SCISSOR_TEST:
       return this->CurrentState.ScissorTest;
-      break;
     case GL_STENCIL_TEST:
       return this->CurrentState.StencilTest;
-      break;
     default:
       vtkGenericWarningMacro("Bad request for enum status");
   }
@@ -372,7 +366,7 @@ void vtkOpenGLState::glDisable(GLenum cap)
   this->SetEnumState(cap, false);
 }
 
-void vtkOpenGLState::Initialize()
+void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow *)
 {
   ::glEnable(GL_BLEND);
   this->CurrentState.Blend = true;
@@ -388,6 +382,8 @@ void vtkOpenGLState::Initialize()
 
   ::glDisable(GL_CULL_FACE);
   this->CurrentState.CullFace = false;
+
+  this->CurrentState.MultiSample = glIsEnabled(GL_MULTISAMPLE) == GL_TRUE;
 
   // initialize blending for transparency
   ::glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
