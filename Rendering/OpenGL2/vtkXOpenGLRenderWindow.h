@@ -230,6 +230,11 @@ public:
    */
   bool InitializeFromCurrentContext() override;
 
+  /**
+   * Does this platform support render window data sharing.
+   */
+  bool GetPlatformSupportsRenderWindowSharing() override { return true; };
+
   //@{
   /**
    * Move the window to a new position on the display.

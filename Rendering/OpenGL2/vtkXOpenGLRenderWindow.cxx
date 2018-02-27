@@ -51,6 +51,7 @@ typedef ptrdiff_t GLsizeiptr;
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLVertexBufferObjectCache.h"
 #include "vtkRendererCollection.h"
 #include "vtkRenderTimerLog.h"
 #include "vtkRenderWindowInteractor.h"
@@ -570,25 +571,59 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
 
     if (glXCreateContextAttribsARB)
     {
+      // do we have a shared render window?
+      GLXContext sharedContext = nullptr;
+      vtkXOpenGLRenderWindow *renWin = nullptr;
+      if (this->SharedRenderWindow)
+      {
+        renWin =
+          vtkXOpenGLRenderWindow::SafeDownCast(this->SharedRenderWindow);
+        if (renWin && renWin->Internal->ContextId)
+        {
+          sharedContext = renWin->Internal->ContextId;
+        }
+      }
+
       XErrorHandler previousHandler = XSetErrorHandler(vtkXOGLContextCreationErrorHandler);
       this->Internal->ContextId = nullptr;
+
       // we believe that these later versions are all compatible with
       // OpenGL 3.2 so get a more recent context if we can.
       int attemptedVersions[] = {4,5, 4,4, 4,3, 4,2, 4,1, 4,0, 3,3, 3,2};
-      for (int i = 0; i < 8 && !this->Internal->ContextId; i++)
+
+      // try shared context first, the fallback to not shared
+      bool done = false;
+      while (!done)
       {
-        context_attribs[1] = attemptedVersions[i*2];
-        context_attribs[3] = attemptedVersions[i*2+1];
-        this->Internal->ContextId =
-          glXCreateContextAttribsARB( this->DisplayId,
-            this->Internal->FBConfig, nullptr,
-            GL_TRUE, context_attribs );
-        // Sync to ensure any errors generated are processed.
-        XSync( this->DisplayId, False );
+        for (int i = 0; i < 8 && !this->Internal->ContextId; i++)
+        {
+          context_attribs[1] = attemptedVersions[i*2];
+          context_attribs[3] = attemptedVersions[i*2+1];
+          this->Internal->ContextId =
+            glXCreateContextAttribsARB( this->DisplayId,
+              this->Internal->FBConfig, sharedContext,
+              GL_TRUE, context_attribs );
+          // Sync to ensure any errors generated are processed.
+          XSync( this->DisplayId, False );
+        }
+        if ( !this->Internal->ContextId  && sharedContext)
+        {
+          sharedContext = nullptr;
+        }
+        else
+        {
+          done = true;
+        }
       }
       XSetErrorHandler(previousHandler);
       if ( this->Internal->ContextId )
       {
+        if (sharedContext)
+        {
+          this->VBOCache->Delete();
+          this->VBOCache = renWin->VBOCache;
+          this->VBOCache->Register(this);
+        }
         this->SetContextSupportsOpenGL32(true);
       }
     }
@@ -951,7 +986,6 @@ void vtkXOpenGLRenderWindow::Start(void)
   // set the current window
   this->MakeCurrent();
 }
-
 
 // Specify the size of the rendering window.
 void vtkXOpenGLRenderWindow::SetSize(int width,int height)

@@ -81,12 +81,14 @@ vtkRenderWindow::vtkRenderWindow()
   this->OffScreenRendering = 1;
 #endif
   this->DeviceIndex = 0;
+  this->SharedRenderWindow = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkRenderWindow::~vtkRenderWindow()
 {
   this->SetInteractor(nullptr);
+  this->SetSharedRenderWindow(nullptr);
 
   delete [] this->AccumulationBuffer;
   this->AccumulationBuffer = nullptr;
@@ -119,6 +121,26 @@ vtkRenderWindowInteractor *vtkRenderWindow::MakeRenderWindowInteractor()
   this->Interactor = vtkRenderWindowInteractor::New();
   this->Interactor->SetRenderWindow(this);
   return this->Interactor;
+}
+
+void vtkRenderWindow::SetSharedRenderWindow(vtkRenderWindow *val)
+{
+  if (this->SharedRenderWindow == val)
+  {
+    return;
+  }
+
+  if (this->SharedRenderWindow)
+  {
+    // this->ReleaseGraphicsResources();
+    this->SharedRenderWindow->UnRegister(this);
+  }
+  this->SharedRenderWindow = val;
+  if (val)
+  {
+    val->Register(this);
+  }
+  return;
 }
 
 //----------------------------------------------------------------------------

@@ -22,6 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLVertexBufferObjectCache.h"
 #include "vtkRendererCollection.h"
 #include "vtkStringOutputWindow.h"
 #include "vtkWin32RenderWindowInteractor.h"
@@ -1079,6 +1080,22 @@ void vtkWin32OpenGLRenderWindow::Initialize (void)
       int width = ((this->Size[0] > 0) ? this->Size[0] : 300);
       int height = ((this->Size[1] > 0) ? this->Size[1] : 300);
       this->CreateOffScreenWindow(width,height);
+    }
+  }
+
+  if (this->SharedRenderWindow)
+  {
+    vtkWin32OpenGLRenderWindow *renWin =
+      vtkWin32OpenGLRenderWindow::SafeDownCast(this->SharedRenderWindow);
+    if (renWin && renWin->Initialized)
+    {
+      bool result = wglShareLists( renWin->ContextId, this->ContextId) == TRUE;
+      if (result)
+      {
+        this->VBOCache->Delete();
+        this->VBOCache = renWin->VBOCache;
+        this->VBOCache->Register(this);
+      }
     }
   }
 }
