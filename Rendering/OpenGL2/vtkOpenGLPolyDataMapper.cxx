@@ -118,6 +118,10 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
 
   this->ResourceCallback = new vtkOpenGLResourceFreeCallback<vtkOpenGLPolyDataMapper>(this,
     &vtkOpenGLPolyDataMapper::ReleaseGraphicsResources);
+
+  // initialize to 1 as 0 indicates we have initiated a request
+  this->TimerQueryCounter = 1;
+  this->TimeToDraw = 0.0001;
 }
 
 //-----------------------------------------------------------------------------
@@ -2449,9 +2453,22 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
   glPointSize(actor->GetProperty()->GetPointSize()); // not on ES2
 #endif
 
-  this->TimeToDraw = 0.0;
-
-  this->TimerQuery->ReusableStart();
+  // timer calls take time, for lots of "small" actors
+  // the timer can be a big hit. So we only update
+  // once per million cells or every 100 renders
+  // whichever happens first
+  vtkIdType numCells = this->CurrentInput->GetNumberOfCells();
+  if (numCells != 0)
+  {
+    this->TimerQueryCounter++;
+    if (this->TimerQueryCounter > 100 ||
+    static_cast<double>(this->TimerQueryCounter)
+      > 1000000.0 / numCells)
+    {
+      this->TimerQuery->ReusableStart();
+      this->TimerQueryCounter = 0;
+    }
+  }
 
   vtkHardwareSelector* selector = ren->GetSelector();
   int picking = getPickState(ren);
@@ -2595,15 +2612,19 @@ void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren,
     this->InternalColorTexture->PostRender(ren);
   }
 
-  this->TimerQuery->ReusableStop();
-
-  this->TimeToDraw = this->TimerQuery->GetReusableElapsedSeconds();
-
-  // If the timer is not accurate enough, set it to a small
-  // time so that it is not zero
-  if (this->TimeToDraw == 0.0)
+  // timer calls take time, for lots of "small" actors
+  // the timer can be a big hit. So we assume zero time
+  // for anything less than 100K cells
+  if (this->TimerQueryCounter == 0)
   {
-    this->TimeToDraw = 0.0001;
+    this->TimerQuery->ReusableStop();
+    this->TimeToDraw = this->TimerQuery->GetReusableElapsedSeconds();
+    // If the timer is not accurate enough, set it to a small
+    // time so that it is not zero
+    if (this->TimeToDraw == 0.0)
+    {
+      this->TimeToDraw = 0.0001;
+    }
   }
 
   if (this->HaveCellScalars || this->HavePickScalars)
@@ -2653,7 +2674,6 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
 
   this->RenderPieceStart(ren, actor);
   this->RenderPieceDraw(ren, actor);
-//  this->RenderEdges(ren,actor);
   this->RenderPieceFinish(ren, actor);
 }
 
