@@ -47,6 +47,11 @@ public:
   ~vtkGDALRasterReader() override;
 
   /**
+   * Is this file supported
+   */
+  int CanReadFile(const char* fname) override;
+
+  /**
    * Return proj4 spatial reference
    */
   const char*  GetProjectionString() const;
