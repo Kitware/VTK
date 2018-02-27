@@ -28,6 +28,7 @@
 class vtkAbstractArray;
 class vtkDataSet;
 class vtkVolume;
+class vtkOSPRayVolumeCache;
 
 namespace osp
 {
@@ -76,6 +77,8 @@ protected:
   osp::TransferFunction* TransferFunction;
   std::vector<float> TFVals;
   std::vector<float> TFOVals;
+
+  vtkOSPRayVolumeCache *Cache;
 
 private:
   vtkOSPRayVolumeMapperNode(const vtkOSPRayVolumeMapperNode&) = delete;

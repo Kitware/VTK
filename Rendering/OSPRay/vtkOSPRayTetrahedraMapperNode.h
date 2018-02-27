@@ -27,6 +27,8 @@
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkVolumeMapperNode.h"
 
+class vtkOSPRayVolumeCache;
+
 namespace osp
 {
   struct TransferFunction;
@@ -67,6 +69,7 @@ protected:
   std::vector<osp::vec3f> Vertices;
   std::vector<float> Field;
 
+  vtkOSPRayVolumeCache *Cache;
 private:
   vtkOSPRayTetrahedraMapperNode(const vtkOSPRayTetrahedraMapperNode&) = delete;
   void operator=(const vtkOSPRayTetrahedraMapperNode &) = delete;

@@ -20,8 +20,10 @@
 #include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkOSPRayRendererNode.h"
+#include "vtkOSPRayVolumeCache.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
+#include "vtkRenderer.h"
 #include "vtkUnstructuredGridVolumeMapper.h"
 #include "vtkVolume.h"
 #include "vtkVolumeNode.h"
@@ -43,12 +45,17 @@ vtkOSPRayTetrahedraMapperNode::vtkOSPRayTetrahedraMapperNode()
   this->NumColors = 128;
   this->OSPRayVolume = nullptr;
   this->TransferFunction = nullptr;
+  this->Cache = new vtkOSPRayVolumeCache;
 }
 
 vtkOSPRayTetrahedraMapperNode::~vtkOSPRayTetrahedraMapperNode()
 {
-  delete this->OSPRayVolume;
   ospRelease(this->TransferFunction);
+  if (this->OSPRayVolume && this->Cache->GetSize() == 0)
+  {
+    delete this->OSPRayVolume;
+  }
+  delete this->Cache;
 }
 
 void vtkOSPRayTetrahedraMapperNode::PrintSelf(ostream &os, vtkIndent indent)
@@ -93,6 +100,8 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
 
     vtkOSPRayRendererNode *orn = static_cast<vtkOSPRayRendererNode *>(
       this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
+    vtkRenderer *ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
+    this->Cache->SetSize(vtkOSPRayRendererNode::GetTimeCacheSize(ren));
 
     osp::Model* OSPRayModel = orn->GetOModel();
     if (!OSPRayModel)
@@ -121,53 +130,6 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
     int numberOfCells = dataSet->GetNumberOfCells();
     int numberOfPoints = dataSet->GetNumberOfPoints();
 
-    double point[3];
-    for (int i=0; i<numberOfPoints; i++)
-    {
-      dataSet->GetPoint(i,point);
-      osp::vec3f v;
-      v.x = point[0];
-      v.y = point[1];
-      v.z = point[2];
-      this->Vertices.push_back(v);
-    }
-
-    for (int i=0; i<numberOfCells; i++)
-    {
-      vtkCell *cell = dataSet->GetCell(i);
-      if (cell->GetCellType() == VTK_TETRA)
-      {
-#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
-        for (int j=0; j<4; j++)
-        {
-          this->Cells.push_back(-1);
-        }
-#endif
-        for (int j=0; j<4; j++)
-        {
-          this->Cells.push_back(cell->GetPointId(j));
-        }
-      }
-#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
-      else if (cell->GetCellType() == VTK_HEXAHEDRON)
-      {
-        for (int j=0; j<8; j++)
-        {
-          this->Cells.push_back(cell->GetPointId(j));
-        }
-      }
-#endif
-    }
-
-    // Now the point data to volume render
-    for(int j=0; j<numberOfPoints; j++)
-    {
-      //TODO: when OSP TET volume gets other types, use them
-      //TODO: try pass ref to entire array instead of this val by val copy
-      float val = static_cast<float>(array->GetTuple1(j));
-      this->Field.push_back(val);
-    }
-
     if (!this->TransferFunction)
     {
       this->TransferFunction = ospNewTransferFunction("piecewise_linear");
@@ -176,44 +138,98 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
     // when input data is modified
     if (mapper->GetDataSetInput()->GetMTime() > this->BuildTime)
     {
-      if (this->OSPRayVolume)
+      double tstep = vtkOSPRayRendererNode::GetViewTime(ren);
+      auto cached_Volume = this->Cache->GetFromCache(tstep);
+      if (cached_Volume)
       {
-        delete this->OSPRayVolume;
-        this->Vertices.clear();
-        this->Cells.clear();
-        this->Field.clear();
+        this->OSPRayVolume = cached_Volume;
       }
-
+      else
+      {
+        if (this->OSPRayVolume && this->Cache->GetSize() == 0)
+        {
+          delete this->OSPRayVolume;
+        }
 #if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
-      this->OSPRayVolume = ospNewVolume("unstructured_volume");
+        this->OSPRayVolume = ospNewVolume("unstructured_volume");
 #else
-      this->OSPRayVolume = ospNewVolume("tetrahedral_volume");
+        this->OSPRayVolume = ospNewVolume("tetrahedral_volume");
 #endif
-      assert(this->OSPRayVolume);
+        this->Cache->AddToCache(tstep, this->OSPRayVolume);
 
-      OSPData verticesData = ospNewData(this->Vertices.size(),OSP_FLOAT3,
-        this->Vertices.data(),0);
-      assert(verticesData);
-      ospSetData(this->OSPRayVolume, "vertices", verticesData);
+        this->Vertices.clear();
+        double point[3];
+        for (int i=0; i<numberOfPoints; i++)
+        {
+          dataSet->GetPoint(i,point);
+          osp::vec3f v;
+          v.x = point[0];
+          v.y = point[1];
+          v.z = point[2];
+          this->Vertices.push_back(v);
+        }
 
-      OSPData fieldData = ospNewData(this->Field.size(),OSP_FLOAT,this->Field.data(),0);
-      assert(fieldData);
-      ospSetData(this->OSPRayVolume, "field", fieldData);
-
-      OSPData indicesData = ospNewData(this->Cells.size()/4,OSP_INT4,this->Cells.data(),0);
-      assert(indicesData);
+        this->Cells.clear();
+        for (int i=0; i<numberOfCells; i++)
+        {
+          vtkCell *cell = dataSet->GetCell(i);
+          if (cell->GetCellType() == VTK_TETRA)
+          {
 #if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
-      ospSetData(this->OSPRayVolume, "indices", indicesData);
+            for (int j=0; j<4; j++)
+            {
+              this->Cells.push_back(-1);
+            }
+#endif
+            for (int j=0; j<4; j++)
+            {
+              this->Cells.push_back(cell->GetPointId(j));
+            }
+          }
+#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
+          else if (cell->GetCellType() == VTK_HEXAHEDRON)
+          {
+            for (int j=0; j<8; j++)
+            {
+              this->Cells.push_back(cell->GetPointId(j));
+            }
+          }
+#endif
+        }
+
+        // Now the point data to volume render
+        this->Field.clear();
+        for(int j=0; j<numberOfPoints; j++)
+        {
+          //TODO: when OSP TET volume gets other types, use them
+          //TODO: try pass ref to entire array instead of this val by val copy
+          float val = static_cast<float>(array->GetTuple1(j));
+          this->Field.push_back(val);
+        }
+
+        OSPData verticesData = ospNewData(this->Vertices.size(),OSP_FLOAT3,
+                                          this->Vertices.data(),0);
+        assert(verticesData);
+        ospSetData(this->OSPRayVolume, "vertices", verticesData);
+
+        OSPData fieldData = ospNewData(this->Field.size(),OSP_FLOAT,this->Field.data(),0);
+        assert(fieldData);
+        ospSetData(this->OSPRayVolume, "field", fieldData);
+
+        OSPData indicesData = ospNewData(this->Cells.size()/4,OSP_INT4,this->Cells.data(),0);
+#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
+        ospSetData(this->OSPRayVolume, "indices", indicesData);
 #else
-      ospSetData(this->OSPRayVolume, "tetrahedra", indicesData);
+        ospSetData(this->OSPRayVolume, "tetrahedra", indicesData);
 #endif
 
-      ospSet1i(this->OSPRayVolume, "nVertices", static_cast<int>(this->Vertices.size()));
+        ospSet1i(this->OSPRayVolume, "nVertices", static_cast<int>(this->Vertices.size()));
 #if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
-      ospSet1i(this->OSPRayVolume, "nCells", static_cast<int>(this->Cells.size())/8);
+        ospSet1i(this->OSPRayVolume, "nCells", static_cast<int>(this->Cells.size())/8);
 #else
-      ospSet1i(this->OSPRayVolume, "nTetrahedra", static_cast<int>(this->Cells.size())/4);
+        ospSet1i(this->OSPRayVolume, "nTetrahedra", static_cast<int>(this->Cells.size())/4);
 #endif
+      }
     }
 
     double* dim = mapper->GetBounds();
@@ -225,7 +241,7 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
     if (vol->GetProperty()->GetMTime() > this->PropertyTime
         || mapper->GetDataSetInput()->GetMTime() > this->BuildTime)
     {
-      // Get transfer function. ++++++++++++++++++++++++++++++++++++++++++++++++++
+      // Get transfer function.
       vtkColorTransferFunction* colorTF = volProperty->GetRGBTransferFunction(0);
       vtkPiecewiseFunction *scalarTF = volProperty->GetScalarOpacity(0);
 
@@ -274,10 +290,10 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
       this->PropertyTime.Modified();
     }
 
-    ospSet1f(OSPRayVolume, "samplingStep", samplingStep);
-    ospSet1f(OSPRayVolume, "adaptiveMaxSamplingRate", 2.0f);
-    ospSet1f(OSPRayVolume, "adaptiveBacktrack", 0.01f);
-    ospSet1i(OSPRayVolume, "adaptiveSampling", 1);
+    ospSet1f(this->OSPRayVolume, "samplingStep", samplingStep);
+    ospSet1f(this->OSPRayVolume, "adaptiveMaxSamplingRate", 2.0f);
+    ospSet1f(this->OSPRayVolume, "adaptiveBacktrack", 0.01f);
+    ospSet1i(this->OSPRayVolume, "adaptiveSampling", 1);
     if (this->SamplingRate == 0.0f)  // 0 means automatic sampling rate
     {
       //automatically determine sampling rate

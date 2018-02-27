@@ -21,7 +21,9 @@
 #include "vtkSmartPointer.h"
 #include "vtkObjectFactory.h"
 #include "vtkOSPRayRendererNode.h"
+#include "vtkOSPRayVolumeCache.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkRenderer.h"
 #include "vtkUniformGridAMRDataIterator.h"
 #include "vtkVolume.h"
 #include "vtkVolumeMapper.h"
@@ -119,6 +121,8 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
     vtkOSPRayRendererNode *orn =
                     static_cast<vtkOSPRayRendererNode *>(
                     this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
+    vtkRenderer *ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
+    this->Cache->SetSize(vtkOSPRayRendererNode::GetTimeCacheSize(ren));
 
     osp::Model* OSPRayModel = orn->GetOModel();
     if (!OSPRayModel)
@@ -140,117 +144,131 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
     bool volDirty = false;
     if (!this->OSPRayVolume || amr->GetMTime() > this->BuildTime)
     {
-      this->OSPRayVolume = ospNewVolume("amr_volume");
-      volDirty=true;
-
-      unsigned int lastLevel=0;
-      std::vector<OSPData>   brickDataArray;
-      std::vector<BrickInfo> brickInfoArray;
-      size_t totalDataSize = 0;
-
-      vtkAMRInformation* amrInfo = amr->GetAMRInfo();
-      vtkSmartPointer<vtkUniformGridAMRDataIterator> iter;
-      iter.TakeReference(vtkUniformGridAMRDataIterator::SafeDownCast(
-                                 amr->NewIterator()));
-      for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
-           iter->GoToNextItem())
+      double tstep = vtkOSPRayRendererNode::GetViewTime(ren);
+      auto cached_Volume = this->Cache->GetFromCache(tstep);
+      if (cached_Volume)
       {
-        unsigned int level = iter->GetCurrentLevel();
-        assert(level >= lastLevel);  //ospray requires level info be ordered lowest to highest
-        lastLevel = level;
-        unsigned int index = iter->GetCurrentIndex();
-
-        // note: this iteration "naturally" goes from datasets at lower levels to
-        // those at higher levels.
-        vtkImageData* data = vtkImageData::SafeDownCast(iter->GetCurrentDataObject());
-        if (!data)
-        {
-          return;
-        }
-        float* dataPtr;
-        int dim[3];
-
-        const vtkAMRBox& box = amrInfo->GetAMRBox(level, index);
-        const int* lo=box.GetLoCorner();
-        const int* hi=box.GetHiCorner();
-        ospcommon::vec3i lo_v= {lo[0],lo[1],lo[2]};
-        ospcommon::vec3i hi_v={hi[0],hi[1],hi[2]};
-        dim[0] = hi[0]-lo[0]+1;
-        dim[1] = hi[1]-lo[1]+1;
-        dim[2] = hi[2]-lo[2]+1;
-
-        int fieldAssociation;
-        mapper->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA);
-        vtkDataArray* cellArray = vtkDataArray::SafeDownCast
-          (this->GetArrayToProcess(data, fieldAssociation));
-        if (!cellArray)
-        {
-          std::cerr << "could not get data!\n";
-          return;
-        }
-
-        if (cellArray->GetDataType() != VTK_FLOAT)
-        {
-          if (cellArray->GetDataType() == VTK_DOUBLE)
-          {
-            float* fdata=new float[dim[0]*dim[1]*size_t(dim[2])];
-            double* dptr;
-            dptr = (double*)cellArray->WriteVoidPointer(0, cellArray->GetSize());
-            for(size_t i=0;i<dim[0]*dim[1]*size_t(dim[2]);i++)
-            {
-              fdata[i]=dptr[i];
-            }
-            dataPtr=fdata;
-          }
-          else
-          {
-            std::cerr << "Only doubles and floats are supported in OSPRay AMR volume mapper currently";
-            return;
-          }
-        }
-        else
-        {
-          dataPtr=(float*)cellArray->WriteVoidPointer(0, cellArray->GetSize());
-        }
-
-        totalDataSize += sizeof(float)*size_t(dim[0]*dim[1])*dim[2];
-        OSPData odata = ospNewData(dim[0]*dim[1]*dim[2],OSP_FLOAT,dataPtr, OSP_DATA_SHARED_BUFFER);
-        brickDataArray.push_back(odata);
-
-        BrickInfo bi;
-        ospcommon::box3i obox = {lo_v,hi_v};
-        bi.box = obox;
-        double spacing[3];
-        amrInfo->GetSpacing(level,spacing);
-        bi.cellWidth = spacing[0];
-        //cell bounds:  origin + box.LoCorner*spacing,
-        bi.level = level;
-        totalDataSize += sizeof(BrickInfo);
-
-        brickInfoArray.push_back(bi);
+        this->OSPRayVolume = cached_Volume;
       }
+      else
+      {
+        if (this->OSPRayVolume && this->Cache->GetSize() == 0)
+        {
+          delete this->OSPRayVolume;
+        }
+        this->OSPRayVolume = ospNewVolume("amr_volume");
+        this->Cache->AddToCache(tstep, this->OSPRayVolume);
+        volDirty=true;
 
-      assert(brickDataArray.size() == brickInfoArray.size());
-      ospSet1f(this->OSPRayVolume, "samplingRate", this->SamplingRate);  //TODO: gui option
+        unsigned int lastLevel=0;
+        std::vector<OSPData>   brickDataArray;
+        std::vector<BrickInfo> brickInfoArray;
+        size_t totalDataSize = 0;
 
-      double origin[3];
-      vol->GetOrigin(origin);
-      double *bds = mapper->GetBounds();
-      origin[0] = bds[0];
-      origin[1] = bds[2];
-      origin[2] = bds[4];
+        vtkAMRInformation* amrInfo = amr->GetAMRInfo();
+        vtkSmartPointer<vtkUniformGridAMRDataIterator> iter;
+        iter.TakeReference(vtkUniformGridAMRDataIterator::SafeDownCast
+                           (amr->NewIterator()));
+        for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+             iter->GoToNextItem())
+          {
+          unsigned int level = iter->GetCurrentLevel();
+          assert(level >= lastLevel);  //ospray requires level info be ordered lowest to highest
+          lastLevel = level;
+          unsigned int index = iter->GetCurrentIndex();
 
-      double spacing[3];
-      amr->GetAMRInfo()->GetSpacing(0,spacing);
-      ospSet3f(this->OSPRayVolume, "gridOrigin", origin[0], origin[1], origin[2]);
+          // note: this iteration "naturally" goes from datasets at lower levels to
+          // those at higher levels.
+          vtkImageData* data = vtkImageData::SafeDownCast(iter->GetCurrentDataObject());
+          if (!data)
+            {
+            return;
+            }
+          float* dataPtr;
+          int dim[3];
 
-      OSPData brickDataData = ospNewData(brickDataArray.size(),OSP_OBJECT,&brickDataArray[0],0);
-      ospSetData(this->OSPRayVolume,"brickData",brickDataData);
-      OSPData brickInfoData = ospNewData(brickInfoArray.size()*sizeof(brickInfoArray[0]),OSP_RAW,&brickInfoArray[0],0);
-      ospSetData(this->OSPRayVolume,"brickInfo",brickInfoData);
-      ospSetObject(this->OSPRayVolume, "transferFunction",
-                   this->TransferFunction);
-      this->BuildTime.Modified();
+          const vtkAMRBox& box = amrInfo->GetAMRBox(level, index);
+          const int* lo=box.GetLoCorner();
+          const int* hi=box.GetHiCorner();
+          ospcommon::vec3i lo_v= {lo[0],lo[1],lo[2]};
+          ospcommon::vec3i hi_v={hi[0],hi[1],hi[2]};
+          dim[0] = hi[0]-lo[0]+1;
+          dim[1] = hi[1]-lo[1]+1;
+          dim[2] = hi[2]-lo[2]+1;
+
+          int fieldAssociation;
+          mapper->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA);
+          vtkDataArray* cellArray = vtkDataArray::SafeDownCast
+            (this->GetArrayToProcess(data, fieldAssociation));
+          if (!cellArray)
+            {
+            std::cerr << "could not get data!\n";
+            return;
+            }
+
+          if (cellArray->GetDataType() != VTK_FLOAT)
+            {
+            if (cellArray->GetDataType() == VTK_DOUBLE)
+              {
+              float* fdata=new float[dim[0]*dim[1]*size_t(dim[2])];
+              double* dptr;
+              dptr = (double*)cellArray->WriteVoidPointer(0, cellArray->GetSize());
+              for(size_t i=0;i<dim[0]*dim[1]*size_t(dim[2]);i++)
+                {
+                fdata[i]=dptr[i];
+                }
+              dataPtr=fdata;
+              }
+            else
+              {
+              std::cerr << "Only doubles and floats are supported in OSPRay AMR volume mapper currently";
+              return;
+              }
+            }
+          else
+            {
+            dataPtr=(float*)cellArray->WriteVoidPointer(0, cellArray->GetSize());
+            }
+
+          totalDataSize += sizeof(float)*size_t(dim[0]*dim[1])*dim[2];
+          OSPData odata = ospNewData(dim[0]*dim[1]*dim[2],OSP_FLOAT,dataPtr, OSP_DATA_SHARED_BUFFER);
+          brickDataArray.push_back(odata);
+
+          BrickInfo bi;
+          ospcommon::box3i obox = {lo_v,hi_v};
+          bi.box = obox;
+          double spacing[3];
+          amrInfo->GetSpacing(level,spacing);
+          bi.cellWidth = spacing[0];
+          //cell bounds:  origin + box.LoCorner*spacing,
+          bi.level = level;
+          totalDataSize += sizeof(BrickInfo);
+
+          brickInfoArray.push_back(bi);
+          }
+
+        assert(brickDataArray.size() == brickInfoArray.size());
+        ospSet1f(this->OSPRayVolume, "samplingRate", this->SamplingRate);  //TODO: gui option
+
+        double origin[3];
+        vol->GetOrigin(origin);
+        double *bds = mapper->GetBounds();
+        origin[0] = bds[0];
+        origin[1] = bds[2];
+        origin[2] = bds[4];
+
+        double spacing[3];
+        amr->GetAMRInfo()->GetSpacing(0,spacing);
+        ospSet3f(this->OSPRayVolume, "gridOrigin", origin[0], origin[1], origin[2]);
+
+        OSPData brickDataData = ospNewData(brickDataArray.size(),OSP_OBJECT,&brickDataArray[0],0);
+        ospSetData(this->OSPRayVolume,"brickData",brickDataData);
+        OSPData brickInfoData = ospNewData(brickInfoArray.size()*sizeof(brickInfoArray[0]),OSP_RAW,&brickInfoArray[0],0);
+        ospSetData(this->OSPRayVolume,"brickInfo",brickInfoData);
+        ospSetObject(this->OSPRayVolume, "transferFunction",
+                     this->TransferFunction);
+        this->BuildTime.Modified();
+      }
     }
     if ((vol->GetProperty()->GetMTime() > this->PropertyTime) || volDirty )
     {

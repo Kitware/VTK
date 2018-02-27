@@ -14,7 +14,6 @@
  =========================================================================*/
 #include "vtkOSPRayVolumeMapperNode.h"
 
-//#include "vtkAbstractArray.h"
 #include "vtkAbstractVolumeMapper.h"
 #include "vtkCellData.h"
 #include "vtkColorTransferFunction.h"
@@ -22,12 +21,14 @@
 #include "vtkInformation.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkOSPRayVolumeCache.h"
 #include "vtkOSPRayRendererNode.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkVolume.h"
 #include "vtkVolumeNode.h"
 #include "vtkVolumeProperty.h"
+#include "vtkRenderer.h"
 
 #include <algorithm>
 
@@ -43,13 +44,18 @@ vtkOSPRayVolumeMapperNode::vtkOSPRayVolumeMapperNode()
   this->NumColors = 128;
   this->OSPRayVolume = nullptr;
   this->TransferFunction = nullptr;
+  this->Cache = new vtkOSPRayVolumeCache;
 }
 
 //----------------------------------------------------------------------------
 vtkOSPRayVolumeMapperNode::~vtkOSPRayVolumeMapperNode()
 {
-  delete this->OSPRayVolume;
   ospRelease(this->TransferFunction);
+  if (this->OSPRayVolume && this->Cache->GetSize() == 0)
+  {
+    delete this->OSPRayVolume;
+  }
+  delete this->Cache;
 }
 
 //----------------------------------------------------------------------------
@@ -79,6 +85,8 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     vtkOSPRayRendererNode *orn =
       static_cast<vtkOSPRayRendererNode *>(
         this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
+    vtkRenderer *ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
+    this->Cache->SetSize(vtkOSPRayRendererNode::GetTimeCacheSize(ren));
 
     osp::Model* OSPRayModel = orn->GetOModel();
 
@@ -173,39 +181,51 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     // when input data is modified
     if (mapper->GetDataSetInput()->GetMTime() > this->BuildTime)
     {
-      delete this->OSPRayVolume;
-      this->OSPRayVolume = ospNewVolume("block_bricked_volume");
+      double tstep = vtkOSPRayRendererNode::GetViewTime(ren);
+      auto cached_Volume = this->Cache->GetFromCache(tstep);
+      if (cached_Volume)
+      {
+        this->OSPRayVolume = cached_Volume;
+      }
+      else
+      {
+        if (this->OSPRayVolume && this->Cache->GetSize() == 0)
+        {
+          delete this->OSPRayVolume;
+        }
+        this->OSPRayVolume = ospNewVolume("block_bricked_volume");
+        this->Cache->AddToCache(tstep, this->OSPRayVolume);
+        //
+        // Send Volumetric data to OSPRay
+        //
+        ospSet3i(this->OSPRayVolume, "dimensions", dim[0], dim[1], dim[2]);
+        double origin[3];
+        double scale[3];
+        data->GetOrigin(origin);
+        vol->GetScale(scale);
+        const double *bds = vol->GetBounds();
+        origin[0] = bds[0];
+        origin[1] = bds[2];
+        origin[2] = bds[4];
 
-      //
-      // Send Volumetric data to OSPRay
-      //
-      ospSet3i(this->OSPRayVolume, "dimensions", dim[0], dim[1], dim[2]);
-      double origin[3];
-      double scale[3];
-      data->GetOrigin(origin);
-      vol->GetScale(scale);
-      const double *bds = vol->GetBounds();
-      origin[0] = bds[0];
-      origin[1] = bds[2];
-      origin[2] = bds[4];
+        double spacing[3];
+        data->GetSpacing(spacing);
+        scale[0] = (bds[1]-bds[0])/double(dim[0]-1);
+        scale[1] = (bds[3]-bds[2])/double(dim[1]-1);
+        scale[2] = (bds[5]-bds[4])/double(dim[2]-1);
 
-      double spacing[3];
-      data->GetSpacing(spacing);
-      scale[0] = (bds[1]-bds[0])/double(dim[0]-1);
-      scale[1] = (bds[3]-bds[2])/double(dim[1]-1);
-      scale[2] = (bds[5]-bds[4])/double(dim[2]-1);
+        ospSet3f(this->OSPRayVolume, "gridOrigin", origin[0], origin[1], origin[2]);
+        ospSet3f(this->OSPRayVolume, "gridSpacing", scale[0], scale[1], scale[2]);
+        ospSetString(this->OSPRayVolume, "voxelType", voxelType.c_str());
 
-      ospSet3f(this->OSPRayVolume, "gridOrigin", origin[0], origin[1], origin[2]);
-      ospSet3f(this->OSPRayVolume, "gridSpacing", scale[0], scale[1], scale[2]);
-      ospSetString(this->OSPRayVolume, "voxelType", voxelType.c_str());
+        osp::vec3i ll, uu;
+        ll.x = 0, ll.y = 0, ll.z = 0;
+        uu.x = dim[0], uu.y = dim[1], uu.z = dim[2];
+        ospSetRegion(this->OSPRayVolume, ScalarDataPointer, ll, uu);
 
-      osp::vec3i ll, uu;
-      ll.x = 0, ll.y = 0, ll.z = 0;
-      uu.x = dim[0], uu.y = dim[1], uu.z = dim[2];
-      ospSetRegion(this->OSPRayVolume, ScalarDataPointer, ll, uu);
-
-      ospSet2f(this->TransferFunction, "valueRange",
-               sa->GetRange()[0], sa->GetRange()[1]);
+        ospSet2f(this->TransferFunction, "valueRange",
+                 sa->GetRange()[0], sa->GetRange()[1]);
+      }
     }
 
     // test for modifications to volume properties
