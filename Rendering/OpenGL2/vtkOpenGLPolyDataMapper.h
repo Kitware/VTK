@@ -556,6 +556,9 @@ protected:
   // a map from drawn triangles back to containing cell id
   std::vector<unsigned int> CellCellMap;
 
+  // used to occassionally invoke timers
+  unsigned int TimerQueryCounter;
+
 private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&) = delete;
   void operator=(const vtkOpenGLPolyDataMapper&) = delete;
