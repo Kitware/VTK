@@ -63,6 +63,8 @@
 #include <array>      // for ivar
 #include "vtk_glew.h" // for gl types
 
+class vtkOpenGLRenderWindow;
+
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLState
 {
 public:
@@ -73,7 +75,7 @@ public:
   // the burden on the driver.
   //
   void glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
-  void glClearDepth(GLclampd depth);
+  void glClearDepth(double depth);
   void glDepthFunc(GLenum val);
   void glDepthMask(GLboolean flag);
   void glColorMask(GLboolean r, GLboolean g, GLboolean b, GLboolean a);
@@ -165,7 +167,7 @@ public:
 
   // intialize both OpenGL and thes state ivars to known
   // and consistent values
-  void Initialize();
+  void Initialize(vtkOpenGLRenderWindow *);
 
 protected:
   void BlendFuncSeparate(std::array<GLenum, 4> val);
@@ -177,7 +179,7 @@ protected:
   class VTKRENDERINGOPENGL2_EXPORT GLState
   {
     public:
-      GLclampd ClearDepth;
+      double ClearDepth;
       GLboolean DepthMask;
       GLenum DepthFunc;
       GLenum BlendEquation;
