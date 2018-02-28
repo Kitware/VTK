@@ -52,6 +52,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkStripper.h"
+#include "vtkTexture.h"
 #include "vtkTextureMapToSphere.h"
 #include "vtkTransformTextureCoords.h"
 #include "vtkUnsignedCharArray.h"
