@@ -19,6 +19,10 @@ set(headers
   tools/kiss_fftnd.h
   tools/kiss_fftndr.h
   tools/kiss_fftr.h
+  tools/vtk_kiss_fftnd.h
+  tools/vtk_kiss_fftndr.h
+  tools/vtk_kiss_fftr.h
+  vtk_kiss_fft.h
   vtk_kiss_fft_mangle.h
   )
 vtk_add_library(vtkkissfft ${sources} ${headers})
