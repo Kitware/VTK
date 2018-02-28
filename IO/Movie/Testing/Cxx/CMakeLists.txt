@@ -4,7 +4,8 @@ if(WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
   list(APPEND TEST_SRC TestAVIWriter.cxx)
 endif()
 
-if(vtkIOMovie_vtkoggtheora)
+string(TOLOWER "${CMAKE_BUILD_TYPE}" cmake_build_type_tolower)
+if(vtkIOMovie_vtkoggtheora AND NOT (WIN32 AND cmake_build_type_tolower STREQUAL "debug"))
   list(APPEND TEST_SRC TestOggTheoraWriter.cxx)
 endif()
 
