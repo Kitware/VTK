@@ -38,6 +38,7 @@
 #define jpeg_add_quant_table vtkjpeg_jpeg_add_quant_table
 #define jpeg_alloc_huff_table vtkjpeg_jpeg_alloc_huff_table
 #define jpeg_alloc_quant_table vtkjpeg_jpeg_alloc_quant_table
+#define jpeg_aritab vtkjpeg_jpeg_aritab
 #define jpeg_calc_jpeg_dimensions vtkjpeg_jpeg_calc_jpeg_dimensions
 #define jpeg_calc_output_dimensions vtkjpeg_jpeg_calc_output_dimensions
 #define jpeg_consume_input vtkjpeg_jpeg_consume_input
@@ -91,6 +92,7 @@
 #define jpeg_mem_init vtkjpeg_jpeg_mem_init
 #define jpeg_mem_src vtkjpeg_jpeg_mem_src
 #define jpeg_mem_term vtkjpeg_jpeg_mem_term
+#define jpeg_natural_order vtkjpeg_jpeg_natural_order
 #define jpeg_new_colormap vtkjpeg_jpeg_new_colormap
 #define jpeg_open_backing_store vtkjpeg_jpeg_open_backing_store
 #define jpeg_quality_scaling vtkjpeg_jpeg_quality_scaling
@@ -113,6 +115,7 @@
 #define jpeg_std_error vtkjpeg_jpeg_std_error
 #define jpeg_stdio_dest vtkjpeg_jpeg_stdio_dest
 #define jpeg_stdio_src vtkjpeg_jpeg_stdio_src
+#define jpeg_std_message_table vtkjpeg_jpeg_std_message_table
 #define jpeg_suppress_tables vtkjpeg_jpeg_suppress_tables
 #define jpeg_write_coefficients vtkjpeg_jpeg_write_coefficients
 #define jpeg_write_marker vtkjpeg_jpeg_write_marker

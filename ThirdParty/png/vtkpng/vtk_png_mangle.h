@@ -343,6 +343,9 @@
 #define png_set_write_status_fn vtkpng_png_set_write_status_fn
 #define png_set_write_user_transform_fn vtkpng_png_set_write_user_transform_fn
 #define png_sig_cmp vtkpng_png_sig_cmp
+#define png_sRGB_base vtkpng_png_sRGB_base
+#define png_sRGB_delta vtkpng_png_sRGB_delta
+#define png_sRGB_table vtkpng_png_sRGB_table
 #define png_start_read_image vtkpng_png_start_read_image
 #define png_user_version_check vtkpng_png_user_version_check
 #define png_warning vtkpng_png_warning

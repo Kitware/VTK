@@ -11,6 +11,7 @@
 #define LogLuv32fromXYZ vtktiff_LogLuv32fromXYZ
 #define LogLuv32toXYZ vtktiff_LogLuv32toXYZ
 #define TIFFAccessTagMethods vtktiff_TIFFAccessTagMethods
+#define _TIFFBuiltinCODECS vtktiff__TIFFBuiltinCODECS
 #define _TIFFcalloc vtktiff__TIFFcalloc
 #define _TIFFCheckFieldIsValidForCodec vtktiff__TIFFCheckFieldIsValidForCodec
 #define _TIFFCheckMalloc vtktiff__TIFFCheckMalloc
@@ -43,9 +44,13 @@
 #define _TIFFDefaultTileSize vtktiff__TIFFDefaultTileSize
 #define TIFFError vtktiff_TIFFError
 #define TIFFErrorExt vtktiff_TIFFErrorExt
+#define _TIFFerrorHandler vtktiff__TIFFerrorHandler
 #define _TIFFFax3fillruns vtktiff__TIFFFax3fillruns
 #define TIFFFaxBlackCodes vtktiff_TIFFFaxBlackCodes
+#define TIFFFaxBlackTable vtktiff_TIFFFaxBlackTable
+#define TIFFFaxMainTable vtktiff_TIFFFaxMainTable
 #define TIFFFaxWhiteCodes vtktiff_TIFFFaxWhiteCodes
+#define TIFFFaxWhiteTable vtktiff_TIFFFaxWhiteTable
 #define TIFFFdOpen vtktiff_TIFFFdOpen
 #define TIFFFieldDataType vtktiff_TIFFFieldDataType
 #define TIFFFieldName vtktiff_TIFFFieldName
@@ -92,6 +97,7 @@
 #define TIFFInitCCITTRLE vtktiff_TIFFInitCCITTRLE
 #define TIFFInitCCITTRLEW vtktiff_TIFFInitCCITTRLEW
 #define TIFFInitDumpMode vtktiff_TIFFInitDumpMode
+#define TIFFInitJPEG vtktiff_TIFFInitJPEG
 #define TIFFInitLZW vtktiff_TIFFInitLZW
 #define TIFFInitNeXT vtktiff_TIFFInitNeXT
 #define TIFFInitPackBits vtktiff_TIFFInitPackBits
@@ -105,6 +111,7 @@
 #define TIFFIsMSB2LSB vtktiff_TIFFIsMSB2LSB
 #define TIFFIsTiled vtktiff_TIFFIsTiled
 #define TIFFIsUpSampled vtktiff_TIFFIsUpSampled
+#define TIFFJPEGIsFullStripRequired vtktiff_TIFFJPEGIsFullStripRequired
 #define TIFFLastDirectory vtktiff_TIFFLastDirectory
 #define _TIFFmalloc vtktiff__TIFFmalloc
 #define _TIFFmemcmp vtktiff__TIFFmemcmp
@@ -227,6 +234,7 @@
 #define TIFFVTileSize64 vtktiff_TIFFVTileSize64
 #define TIFFWarning vtktiff_TIFFWarning
 #define TIFFWarningExt vtktiff_TIFFWarningExt
+#define _TIFFwarningHandler vtktiff__TIFFwarningHandler
 #define TIFFWriteBufferSetup vtktiff_TIFFWriteBufferSetup
 #define TIFFWriteCheck vtktiff_TIFFWriteCheck
 #define TIFFWriteCustomDirectory vtktiff_TIFFWriteCustomDirectory

@@ -8,26 +8,32 @@ readonly name="zfp"
 readonly ownership="Zfp Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/zfp.git"
-readonly tag="for/vtk"
+readonly tag="for/vtk-old"
 readonly paths="
 .gitattributes
-CMakeLists.txt
+CMakeLists.vtk.txt
 
-inc/
+include/
+array/
 src/inline/
 src/template/
 src/*.c
 src/*.h
 
-API
 LICENSE
-README
+README.md
 README.kitware.md
-VERSIONS
 "
 
 extract_source () {
     git_archive
+    pushd "$extractdir/$name-reduced"
+    mv -v CMakeLists.vtk.txt CMakeLists.txt
+    mv -v array/zfp/* include/zfp/
+    rmdir -v array/zfp/
+    mv -v array/* include/
+    rmdir -v array/
+    popd
 }
 
 . "${BASH_SOURCE%/*}/../update-common.sh"
