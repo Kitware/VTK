@@ -153,7 +153,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     }
     else if (ScalarDataType == VTK_SHORT)
     {
-      voxelType = "ushort";
+      voxelType = "short";
     }
     else if (ScalarDataType == VTK_DOUBLE)
     {

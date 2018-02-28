@@ -16,8 +16,9 @@
 
 #include "vtkCell.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkDataArray.h"
 #include "vtkDataSet.h"
-#include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
 #include "vtkOSPRayRendererNode.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
@@ -27,6 +28,8 @@
 #include "vtkVolumeProperty.h"
 
 #include "ospray/ospray.h"
+
+#include <cassert>
 
 vtkStandardNewMacro(vtkOSPRayTetrahedraMapperNode);
 
@@ -100,9 +103,9 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
       return;
     }
     int fieldAssociation;
-    vtkDataArray *sa = vtkDataArray::SafeDownCast(
+    vtkDataArray *array = vtkDataArray::SafeDownCast(
       this->GetArrayToProcess(dataSet, fieldAssociation));
-    if (!sa)
+    if (!array)
     {
       //ok can happen in paraview client server mode for example
       return;
@@ -110,12 +113,6 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
     if (fieldAssociation != 0)
     {
       vtkWarningMacro("Only point aligned data supported currently.");
-    }
-    vtkSmartPointer<vtkFloatArray> array = vtkFloatArray::SafeDownCast(sa);
-    if (!array)
-    {
-      vtkWarningMacro("Only float supported currently.");
-      return;
     }
 
     int numberOfCells = dataSet->GetNumberOfCells();
@@ -147,7 +144,9 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
     // Now the point data to volume render
     for(int j=0; j<numberOfPoints; j++)
     {
-      float val = array->GetValue(j);
+      //TODO: when OSP TET volume gets other types, use them
+      //TODO: try pass ref to entire array instead of this val by val copy
+      float val = static_cast<float>(array->GetTuple1(j));
       this->Field.push_back(val);
     }
 
@@ -201,12 +200,12 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
 
       this->TFVals.resize(this->NumColors*3);
       this->TFOVals.resize(this->NumColors);
-      scalarTF->GetTable(sa->GetRange()[0],
-        sa->GetRange()[1],
+      scalarTF->GetTable(array->GetRange()[0],
+        array->GetRange()[1],
         this->NumColors,
         &TFOVals[0]);
-      colorTF->GetTable(sa->GetRange()[0],
-        sa->GetRange()[1],
+      colorTF->GetTable(array->GetRange()[0],
+        array->GetRange()[1],
         this->NumColors,
         &this->TFVals[0]);
 
@@ -228,8 +227,8 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
       OSPData tfAlphaData = ospNewData(NumColors, OSP_FLOAT, &TFOVals[0]);
       ospSetData(this->TransferFunction, "opacities", tfAlphaData);
 
-      ospSet2f(this->TransferFunction, "valueRange", sa->GetRange()[0],
-        sa->GetRange()[1]);
+      ospSet2f(this->TransferFunction, "valueRange", array->GetRange()[0],
+        array->GetRange()[1]);
 
       ospSet1i(this->OSPRayVolume, "gradientShadingEnabled",
         volProperty->GetShade());
