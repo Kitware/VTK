@@ -74,7 +74,7 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(
 
   vtkShaderProgram::Substitute(FSSource,
     "//VTK::PositionVC::Dec",
-    "varying vec4 vertexVCVSOutput;");
+    "in vec4 vertexVCVSOutput;");
 
   // we create vertexVC below, so turn off the default
   // implementation
@@ -85,10 +85,10 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(
   // for lights kit and positional the VCDC matrix is already defined
   // so don't redefine it
   std::string replacement =
-    "varying float radiusVCVSOutput;\n"
-    "varying vec3 orientVCVSOutput;\n"
-    "varying float lengthVCVSOutput;\n"
-    "varying vec3 centerVCVSOutput;\n"
+    "in float radiusVCVSOutput;\n"
+    "in vec3 orientVCVSOutput;\n"
+    "in float lengthVCVSOutput;\n"
+    "in vec3 centerVCVSOutput;\n"
     "uniform mat4 VCDCMatrix;\n";
   vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Dec",replacement);
 
@@ -177,14 +177,14 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(
     {
       vtkShaderProgram::Substitute(VSSource,
         "//VTK::Picking::Dec",
-        "attribute vec4 selectionId;\n"
-        "varying vec4 selectionIdVSOutput;");
+        "in vec4 selectionId;\n"
+        "out vec4 selectionIdVSOutput;");
       vtkShaderProgram::Substitute(VSSource,
         "//VTK::Picking::Impl",
         "selectionIdVSOutput = selectionId;");
       vtkShaderProgram::Substitute(FSSource,
         "//VTK::Picking::Dec",
-        "varying vec4 selectionIdVSOutput;");
+        "in vec4 selectionIdVSOutput;");
       vtkShaderProgram::Substitute(FSSource,
         "//VTK::Picking::Impl",
         "    gl_FragData[0] = vec4(selectionIdVSOutput.rgb, 1.0);\n"

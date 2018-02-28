@@ -30,6 +30,7 @@
 class vtkTransformFeedback;
 class vtkShaderProgram;
 class vtkWindow;
+class vtkOpenGLRenderWindow;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLShaderCache : public vtkObject
 {
@@ -96,6 +97,9 @@ protected:
   class Private;
   Private *Internal;
   vtkShaderProgram *LastShaderBound;
+
+  int OpenGLMajorVersion;
+  int OpenGLMinorVersion;
 
 private:
   vtkOpenGLShaderCache(const vtkOpenGLShaderCache&) = delete;

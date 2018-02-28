@@ -17,7 +17,7 @@
 
 // Fragment shader used by the second pass of the Sobel filter render pass.
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 
 uniform sampler2D gx1;
 uniform sampler2D gy1;

@@ -115,9 +115,9 @@ std::string vtkOpenGLRenderUtilities::GetFullScreenQuadVertexShader()
 {
   // Pass through:
   return "//VTK::System::Dec\n"
-         "attribute vec4 ndCoordIn;\n"
-         "attribute vec2 texCoordIn;\n"
-         "varying vec2 texCoord;\n"
+         "in vec4 ndCoordIn;\n"
+         "in vec2 texCoordIn;\n"
+         "out vec2 texCoord;\n"
          "void main()\n"
          "{\n"
          "  gl_Position = ndCoordIn;\n"

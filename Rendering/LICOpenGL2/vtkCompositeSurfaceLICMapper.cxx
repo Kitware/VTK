@@ -120,8 +120,8 @@ void vtkCompositeLICHelper::ReplaceShaderValues(
   // add some code to handle the LIC vectors and mask
   vtkShaderProgram::Substitute(VSSource,
     "//VTK::TCoord::Dec",
-    "attribute vec3 vecsMC;\n"
-    "varying vec3 tcoordVCVSOutput;\n"
+    "in vec3 vecsMC;\n"
+    "out vec3 tcoordVCVSOutput;\n"
     );
 
   vtkShaderProgram::Substitute(VSSource, "//VTK::TCoord::Impl",
@@ -133,7 +133,7 @@ void vtkCompositeLICHelper::ReplaceShaderValues(
     // 0/1, when 1 V is projected to surface for |V| computation.
     "uniform int uMaskOnSurface;\n"
     "uniform mat3 normalMatrix;\n"
-    "varying vec3 tcoordVCVSOutput;"
+    "in vec3 tcoordVCVSOutput;"
     );
 
   vtkShaderProgram::Substitute(FSSource,

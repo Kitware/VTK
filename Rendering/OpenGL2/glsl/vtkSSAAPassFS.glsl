@@ -25,7 +25,7 @@ uniform sampler2D source;
 uniform float texelWidthOffset;
 uniform float texelHeightOffset;
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 
 // Note that the texel offsets should be 3/8 of a pixel in the
 // resulting image not the source image. Also note that this

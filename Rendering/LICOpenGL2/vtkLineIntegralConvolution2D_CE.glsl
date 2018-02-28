@@ -26,7 +26,7 @@ uniform sampler2D texLIC;  // most recent lic pass
 uniform float uMin;        // min gray scale color value
 uniform float uMaxMinDiff; // max-min
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 
 void main( void )
 {

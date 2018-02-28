@@ -26,7 +26,7 @@ uniform sampler2D texLIC; // most recent lic pass
 uniform float     uDx;    // fragment size
 uniform float     uDy;    // fragment size
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 
 // kernel for simple laplace edge enhancement.
 // p=Laplace(p)+p

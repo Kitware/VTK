@@ -1800,7 +1800,7 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1,
     this->GetShaderCache()->ReadyShaderProgram(
       vtkTextureObjectVS,
       "//VTK::System::Dec\n"
-      "varying vec2 tcoordVC;\n"
+      "in vec2 tcoordVC;\n"
       "uniform sampler2D source;\n"
       "//VTK::Output::Dec\n"
       "void main(void) {\n"
@@ -2365,7 +2365,7 @@ int vtkOpenGLRenderWindow::SupportsOpenGL()
       rw->GetShaderCache()->ReadyShaderProgram(
         // simple vert shader
         "//VTK::System::Dec\n"
-        "attribute vec4 vertexMC;\n"
+        "in vec4 vertexMC;\n"
         "void main() { gl_Position = vertexMC; }\n",
         // frag shader that used gl_PrimitiveId
         "//VTK::System::Dec\n"

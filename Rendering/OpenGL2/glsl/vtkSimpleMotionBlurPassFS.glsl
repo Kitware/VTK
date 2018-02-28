@@ -17,7 +17,7 @@
 
 // Fragment shader used by the gaussian blur filter render pass.
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 uniform sampler2D source;
 uniform float blendScale;
 

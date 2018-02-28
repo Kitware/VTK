@@ -477,7 +477,7 @@ int vtkImageDataLIC2D::RequestData(
       this->Context->GetShaderCache()->ReadyShaderProgram(
         vtkTextureObjectVS,
         "//VTK::System::Dec\n"
-        "varying vec2 tcoordVC;\n"
+        "in vec2 tcoordVC;\n"
         "uniform sampler2D source;\n"
         "//VTK::Output::Dec\n"
         "void main(void) {\n"

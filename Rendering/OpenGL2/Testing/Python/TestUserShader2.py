@@ -64,7 +64,7 @@ actor.GetProperty().SetOpacity(1.0)
 
 mapper.SetVertexShaderCode(
     "//VTK::System::Dec\n"
-    "attribute vec4 vertexMC;\n"
+    "in vec4 vertexMC;\n"
     "//VTK::Normal::Dec\n"
     "uniform mat4 MCDCMatrix;\n"
     "void main () {\n"
@@ -76,7 +76,7 @@ mapper.SetVertexShaderCode(
 mapper.SetFragmentShaderCode(
     "//VTK::System::Dec\n"
     "//VTK::Output::Dec\n"
-    "varying vec3 normalVCVSOutput;\n"
+    "in vec3 normalVCVSOutput;\n"
     "uniform vec3 diffuseColorUniform;\n"
     "void main () {\n"
     "  float df = max(0.0, normalVCVSOutput.z);\n"

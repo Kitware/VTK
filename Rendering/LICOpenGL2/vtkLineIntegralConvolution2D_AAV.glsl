@@ -24,7 +24,7 @@
 uniform sampler2D texLIC; // input texture
 uniform float     uDy;    // fragment size
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 
 // neighbor offsets
 vec2 fragDy[3] = vec2[3](vec2(0.0,-uDy), vec2(0.0,0.0), vec2(0.0,uDy));

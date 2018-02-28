@@ -75,20 +75,20 @@ namespace
   }
 
   const char *myVertShader =
-    "attribute vec2 vertexMC;\n"
+    "in vec2 vertexMC;\n"
     "uniform mat4 WCDCMatrix;\n"
     "uniform mat4 MCWCMatrix;\n"
     "#ifdef haveColors\n"
-    "attribute vec4 vertexScalar;\n"
-    "varying vec4 vertexColor;\n"
+    "in vec4 vertexScalar;\n"
+    "out vec4 vertexColor;\n"
     "#endif\n"
     "#ifdef haveTCoords\n"
-    "attribute vec2 tcoordMC;\n"
-    "varying vec2 tcoord;\n"
+    "in vec2 tcoordMC;\n"
+    "out vec2 tcoord;\n"
     "#endif\n"
     "#ifdef haveLines\n"
-    "attribute vec2 tcoordMC;\n"
-    "varying float ldistance;\n"
+    "in vec2 tcoordMC;\n"
+    "out float ldistance;\n"
     "#endif\n"
     "void main() {\n"
     "#ifdef haveColors\n"
@@ -106,16 +106,16 @@ namespace
   const char *myFragShader =
     "//VTK::Output::Dec\n"
     "#ifdef haveColors\n"
-    "varying vec4 vertexColor;\n"
+    "in vec4 vertexColor;\n"
     "#else\n"
     "uniform vec4 vertexColor;\n"
     "#endif\n"
     "#ifdef haveTCoords\n"
-    "varying vec2 tcoord;\n"
+    "in vec2 tcoord;\n"
     "uniform sampler2D texture1;\n"
     "#endif\n"
     "#ifdef haveLines\n"
-    "varying float ldistance;\n"
+    "in float ldistance;\n"
     "uniform int stipple;\n"
     "#endif\n"
     "void main() {\n"
@@ -712,7 +712,7 @@ void vtkOpenGLContextDevice2D::ReadySBOProgram()
       this->RenderWindow->GetShaderCache()->ReadyShaderProgram(
       // vertex shader
       "//VTK::System::Dec\n"
-      "attribute vec2 vertexMC;\n"
+      "in vec2 vertexMC;\n"
       "uniform mat4 WCDCMatrix;\n"
       "uniform mat4 MCWCMatrix;\n"
       "void main() {\n"
@@ -741,11 +741,11 @@ void vtkOpenGLContextDevice2D::ReadySCBOProgram()
         this->RenderWindow->GetShaderCache()->ReadyShaderProgram(
         // vertex shader
         "//VTK::System::Dec\n"
-        "attribute vec2 vertexMC;\n"
-        "attribute vec4 vertexScalar;\n"
+        "in vec2 vertexMC;\n"
+        "in vec4 vertexScalar;\n"
         "uniform mat4 WCDCMatrix;\n"
         "uniform mat4 MCWCMatrix;\n"
-        "varying vec4 vertexColor;\n"
+        "out vec4 vertexColor;\n"
         "void main() {\n"
         "vec4 vertex = vec4(vertexMC.xy, 0.0, 1.0);\n"
         "vertexColor = vertexScalar;\n"
@@ -753,7 +753,7 @@ void vtkOpenGLContextDevice2D::ReadySCBOProgram()
         // fragment shader
         "//VTK::System::Dec\n"
         "//VTK::Output::Dec\n"
-        "varying vec4 vertexColor;\n"
+        "in vec4 vertexColor;\n"
         "uniform sampler2D texture1;\n"
         "void main() { gl_FragData[0] = vertexColor*texture2D(texture1, gl_PointCoord); }",
         // geometry shader

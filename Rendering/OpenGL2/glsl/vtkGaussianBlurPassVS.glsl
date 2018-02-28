@@ -15,10 +15,10 @@
 
 =========================================================================*/
 
-attribute vec4 vertexMC;
+in vec4 vertexMC;
 
-attribute vec2 tcoordMC;
-varying vec2 tcoordVC;
+in vec2 tcoordMC;
+out vec2 tcoordVC;
 
 void main()
 {

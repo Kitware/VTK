@@ -98,7 +98,7 @@ int TestSphereMap(int argc, char *argv[])
     "//VTK::PositionVC::Dec", // replace
     true, // before the standard replacements
     "//VTK::PositionVC::Dec\n" // we still want the default
-    "varying vec3 TexCoords;\n",
+    "out vec3 TexCoords;\n",
     false // only do it once
     );
   mapper->AddShaderReplacement(
@@ -115,7 +115,7 @@ int TestSphereMap(int argc, char *argv[])
     "//VTK::Light::Dec", // replace
     true, // before the standard replacements
     "//VTK::Light::Dec\n" // we still want the default
-    "varying vec3 TexCoords;\n",
+    "in vec3 TexCoords;\n",
     false // only do it once
     );
   mapper->AddShaderReplacement(

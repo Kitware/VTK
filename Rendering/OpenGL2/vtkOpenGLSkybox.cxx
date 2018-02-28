@@ -59,7 +59,7 @@ vtkOpenGLSkybox::vtkOpenGLSkybox()
     "//VTK::PositionVC::Dec", // replace
     true, // before the standard replacements
     "//VTK::PositionVC::Dec\n" // we still want the default
-    "varying vec3 TexCoords;\n",
+    "out vec3 TexCoords;\n",
     false // only do it once
     );
   this->CubeMapper->AddShaderReplacement(
@@ -97,7 +97,7 @@ void vtkOpenGLSkybox::Render(vtkRenderer *ren, vtkMapper *mapper)
       this->CubeMapper->SetFragmentShaderCode(
         "//VTK::System::Dec\n"  // always start with this line
         "//VTK::Output::Dec\n"  // always have this line in your FS
-        "varying vec3 TexCoords;\n"
+        "in vec3 TexCoords;\n"
         "uniform samplerCube texture_0;\n" // texture_0 is the first texture
         "void main () {\n"
         "  gl_FragData[0] = texture(texture_0, TexCoords);\n"
@@ -110,7 +110,7 @@ void vtkOpenGLSkybox::Render(vtkRenderer *ren, vtkMapper *mapper)
       this->CubeMapper->SetFragmentShaderCode(
         "//VTK::System::Dec\n"  // always start with this line
         "//VTK::Output::Dec\n"  // always have this line in your FS
-        "varying vec3 TexCoords;\n"
+        "in vec3 TexCoords;\n"
         "uniform sampler2D texture_0;\n" // texture_0 is the first texture
         "void main () {\n"
         "  float phix = length(vec2(TexCoords.x, TexCoords.z));\n"

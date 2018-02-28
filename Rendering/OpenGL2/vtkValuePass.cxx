@@ -989,8 +989,8 @@ void vtkValuePass::InitializeBuffers(vtkRenderer* ren)
 bool vtkValuePass::UpdateShaders(std::string & VSSource, std::string & FSSource)
 {
   vtkShaderProgram::Substitute(VSSource, "//VTK::ValuePass::Dec",
-    "attribute float dataAttribute;\n"
-    "varying float dataValue;\n"
+    "in float dataAttribute;\n"
+    "out float dataValue;\n"
     "uniform samplerBuffer textureF;\n"
     );
 
@@ -999,7 +999,7 @@ bool vtkValuePass::UpdateShaders(std::string & VSSource, std::string & FSSource)
     "  dataValue = dataAttribute;\n");
 
   vtkShaderProgram::Substitute(FSSource, "//VTK::ValuePass::Dec",
-    "varying float dataValue;\n"
+    "in float dataValue;\n"
     "uniform samplerBuffer textureF;\n");
 
   std::string fragImpl;

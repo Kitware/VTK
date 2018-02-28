@@ -26,7 +26,7 @@
 uniform sampler2D texVectors; // input texture
 uniform vec2      uTexSize;   // size of texture
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 
 void main(void)
 {

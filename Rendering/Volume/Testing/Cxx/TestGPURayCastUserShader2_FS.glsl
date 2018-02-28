@@ -22,8 +22,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 /// 3D texture coordinates form vertex shader
-varying vec3 ip_textureCoords;
-varying vec3 ip_vertexPos;
+in vec3 ip_textureCoords;
+in vec3 ip_vertexPos;
 
 //////////////////////////////////////////////////////////////////////////////
 ///
@@ -75,7 +75,7 @@ uniform mat4 in_modelViewMatrix;
 uniform mat4 in_inverseModelViewMatrix;
 uniform mat4 in_textureDatasetMatrix[1];
 uniform mat4 in_inverseTextureDatasetMatrix[1];
-varying mat4 ip_inverseTextureDataAdjusted;
+in mat4 ip_inverseTextureDataAdjusted;
 uniform vec3 in_texMin;
 uniform vec3 in_texMax;
 uniform mat4 in_textureToEye[1];

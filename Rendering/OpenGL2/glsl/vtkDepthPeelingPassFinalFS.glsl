@@ -15,7 +15,7 @@
 
 =========================================================================*/
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 
 uniform sampler2D translucentRGBATexture;
 uniform sampler2D opaqueRGBATexture;

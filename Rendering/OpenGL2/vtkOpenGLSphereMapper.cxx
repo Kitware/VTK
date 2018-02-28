@@ -72,7 +72,7 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(
 
   vtkShaderProgram::Substitute(FSSource,
     "//VTK::PositionVC::Dec",
-    "varying vec4 vertexVCVSOutput;");
+    "in vec4 vertexVCVSOutput;");
 
   // we create vertexVC below, so turn off the default
   // implementation
@@ -84,8 +84,8 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(
   // so don't redefine it
   std::string replacement =
     "uniform float invertedDepth;\n"
-    "varying float radiusVCVSOutput;\n"
-    "varying vec3 centerVCVSOutput;\n"
+    "in float radiusVCVSOutput;\n"
+    "in vec3 centerVCVSOutput;\n"
     "uniform mat4 VCDCMatrix;\n";
   vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Dec",replacement);
 
