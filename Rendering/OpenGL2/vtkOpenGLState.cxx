@@ -273,6 +273,7 @@ void vtkOpenGLState::SetEnumState(GLenum cap, bool val)
         changed = true;
       }
       break;
+#ifdef GL_MULTISAMPLE
     case GL_MULTISAMPLE:
       if (this->CurrentState.MultiSample != val)
       {
@@ -280,6 +281,7 @@ void vtkOpenGLState::SetEnumState(GLenum cap, bool val)
         changed = true;
       }
       break;
+#endif
     case GL_SCISSOR_TEST:
       if (this->CurrentState.ScissorTest != val)
       {
@@ -349,8 +351,10 @@ bool vtkOpenGLState::GetEnumState(GLenum cap)
       return this->CurrentState.DepthTest;
     case GL_CULL_FACE:
       return this->CurrentState.CullFace;
+#ifdef GL_MULTISAMPLE
     case GL_MULTISAMPLE:
       return this->CurrentState.MultiSample;
+#endif
     case GL_SCISSOR_TEST:
       return this->CurrentState.ScissorTest;
     case GL_STENCIL_TEST:
@@ -383,7 +387,11 @@ void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow *)
   ::glDisable(GL_CULL_FACE);
   this->CurrentState.CullFace = false;
 
+#ifdef GL_MULTISAMPLE
   this->CurrentState.MultiSample = glIsEnabled(GL_MULTISAMPLE) == GL_TRUE;
+#else
+  this->CurrentState.MultiSample = false;
+#endif
 
   // initialize blending for transparency
   ::glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,

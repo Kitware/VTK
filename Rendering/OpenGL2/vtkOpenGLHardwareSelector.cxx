@@ -75,8 +75,10 @@ void vtkOpenGLHardwareSelector::PreCapturePass(int pass)
     static_cast<vtkOpenGLRenderWindow *>(this->Renderer->GetRenderWindow());
   vtkOpenGLState *ostate = rwin->GetState();
 
+#ifdef GL_MULTISAMPLE
   this->OriginalMultisample = ostate->GetEnumState(GL_MULTISAMPLE);
   ostate->glDisable(GL_MULTISAMPLE);
+#endif
 
   this->OriginalBlending = ostate->GetEnumState(GL_BLEND);
   ostate->glDisable(GL_BLEND);
@@ -90,7 +92,9 @@ void vtkOpenGLHardwareSelector::PostCapturePass(int pass)
     static_cast<vtkOpenGLRenderWindow *>(this->Renderer->GetRenderWindow());
   vtkOpenGLState *ostate = rwin->GetState();
 
+#ifdef GL_MULTISAMPLE
   ostate->SetEnumState(GL_MULTISAMPLE, this->OriginalMultisample);
+#endif
   ostate->SetEnumState(GL_BLEND, this->OriginalBlending);
   annotate(std::string("Pass complete: ") +
            this->PassTypeToString(static_cast<PassTypes>(pass)));
@@ -107,8 +111,10 @@ void vtkOpenGLHardwareSelector::BeginSelection()
     vtkOpenGLState *ostate = rwin->GetState();
 
     // Disable multisample, and blending before writing the zbuffer
+#ifdef GL_MULTISAMPLE
     vtkOpenGLState::ScopedglEnableDisable msaver(ostate, GL_MULTISAMPLE);
     ostate->glDisable(GL_MULTISAMPLE);
+#endif
 
     vtkOpenGLState::ScopedglEnableDisable bsaver(ostate, GL_BLEND);
     ostate->glDisable(GL_BLEND);
