@@ -92,7 +92,10 @@ void vtkPointSet::ComputeBounds()
 {
   if ( this->Points )
   {
-    if ( this->GetMTime() >= this->ComputeTime )
+    // only depends on tyhis->Points so only check this->Points mtime
+    // The generic mtime check includes Field/Cell/PointData also
+    // which has no impact on the bounds
+    if ( this->Points->GetMTime() >= this->ComputeTime )
     {
       const double *bounds = this->Points->GetBounds();
       for (int i=0; i<6; i++)

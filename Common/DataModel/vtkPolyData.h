@@ -530,6 +530,11 @@ public:
    */
   virtual vtkMTimeType GetMeshMTime();
 
+  /**
+   * Get MTime which also considers its cell array MTime.
+   */
+  vtkMTimeType GetMTime() override;
+
 protected:
   vtkPolyData();
   ~vtkPolyData() override;
