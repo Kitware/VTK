@@ -160,7 +160,7 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderPositionVC(
 
     vtkShaderProgram::Substitute(FSSource,
       "//VTK::PositionVC::Dec",
-      "varying vec2 offsetVCVSOutput;");
+      "in vec2 offsetVCVSOutput;");
 
     vtkShaderProgram::Substitute(VSSource,
       "//VTK::Camera::Dec",

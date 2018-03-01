@@ -31,7 +31,7 @@ uniform int   uPassNo;         // in pass 1 hpf of pass 0 is convolved.
 uniform float uMaskThreshold;  // if |V| < uMaskThreshold render transparent
 uniform vec2  uNoiseBoundsPt1; // tc of upper right pt of noise texture
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 
 // convert from vector coordinate space to noise coordinate space.
 // the noise texture is tiled across the *whole* domain

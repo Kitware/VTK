@@ -123,7 +123,7 @@ namespace vtkvolume
       "\n"
       "//This variable could be 'invariant varying' but it is declared\n"
       "//as 'varying' to avoid compiler compatibility issues.\n"
-      "varying mat4 ip_inverseTextureDataAdjusted;\n";
+      "out mat4 ip_inverseTextureDataAdjusted;\n";
 
     return ss.str();
   }
@@ -179,7 +179,7 @@ namespace vtkvolume
       "uniform mat4 in_inverseProjectionMatrix;\n"
       "uniform mat4 in_modelViewMatrix;\n"
       "uniform mat4 in_inverseModelViewMatrix;\n"
-      "varying mat4 ip_inverseTextureDataAdjusted;\n"
+      "in mat4 ip_inverseTextureDataAdjusted;\n"
       "\n"
       "// Ray step size\n"
       "uniform vec3 in_cellStep[" << numInputs << "];\n";

@@ -29,7 +29,7 @@ uniform float     uMapBias;         // map shader: adjust the brightness of the 
 uniform float     uMaskIntensity;   // blending factor for mask color
 uniform vec3      uMaskColor;       // color for the masked out fragments
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 
 /**
 Convert from RGB color space into HSL colorspace.

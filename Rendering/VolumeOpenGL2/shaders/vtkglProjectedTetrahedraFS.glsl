@@ -17,9 +17,9 @@
 
 //VTK::Output::Dec
 
-varying vec3 fcolor;
-varying float fdepth;
-varying float fattenuation;
+in vec3 fcolor;
+in float fdepth;
+in float fattenuation;
 
 void main()
 {

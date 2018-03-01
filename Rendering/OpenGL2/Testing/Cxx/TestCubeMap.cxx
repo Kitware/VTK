@@ -92,7 +92,7 @@ int TestCubeMap(int argc, char *argv[])
     "//VTK::PositionVC::Dec", // replace the normal block
     true, // before the standard replacements
     "//VTK::PositionVC::Dec\n" // we still want the default
-    "varying vec3 TexCoords;\n",
+    "out vec3 TexCoords;\n",
     false // only do it once
     );
   mapper->AddShaderReplacement(
@@ -109,7 +109,7 @@ int TestCubeMap(int argc, char *argv[])
   mapper->SetFragmentShaderCode(
     "//VTK::System::Dec\n"  // always start with this line
     "//VTK::Output::Dec\n"  // always have this line in your FS
-    "varying vec3 TexCoords;\n"
+    "in vec3 TexCoords;\n"
     "uniform samplerCube texture_0;\n"
     "void main () {\n"
     "  gl_FragData[0] = texture(texture_0, TexCoords);\n"

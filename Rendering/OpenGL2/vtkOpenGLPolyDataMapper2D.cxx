@@ -189,8 +189,8 @@ void vtkOpenGLPolyDataMapper2D::BuildShaders(
     {
       vtkShaderProgram::Substitute(VSSource,
          "//VTK::Color::Dec",
-         "attribute vec4 diffuseColor;\n"
-         "varying vec4 fcolorVSOutput;");
+         "in vec4 diffuseColor;\n"
+         "out vec4 fcolorVSOutput;");
       vtkShaderProgram::Substitute(VSSource,
           "//VTK::Color::Impl",
           "fcolorVSOutput = diffuseColor;");
@@ -203,7 +203,7 @@ void vtkOpenGLPolyDataMapper2D::BuildShaders(
         "fcolorGSOutput = fcolorVSOutput[i];");
       vtkShaderProgram::Substitute(FSSource,
           "//VTK::Color::Dec",
-          "varying vec4 fcolorVSOutput;");
+          "in vec4 fcolorVSOutput;");
       vtkShaderProgram::Substitute(FSSource,
           "//VTK::Color::Impl",
           "gl_FragData[0] = fcolorVSOutput;");
@@ -226,7 +226,7 @@ void vtkOpenGLPolyDataMapper2D::BuildShaders(
     {
       vtkShaderProgram::Substitute(VSSource,
         "//VTK::TCoord::Dec",
-        "attribute float tcoordMC; varying float tcoordVCVSOutput;");
+        "in float tcoordMC; out float tcoordVCVSOutput;");
       vtkShaderProgram::Substitute(VSSource,
         "//VTK::TCoord::Impl",
         "tcoordVCVSOutput = tcoordMC;");
@@ -239,7 +239,7 @@ void vtkOpenGLPolyDataMapper2D::BuildShaders(
         "tcoordVCGSOutput = tcoordVCVSOutput[i];");
       vtkShaderProgram::Substitute(FSSource,
         "//VTK::TCoord::Dec",
-        "varying float tcoordVCVSOutput; uniform sampler2D texture1;");
+        "in float tcoordVCVSOutput; uniform sampler2D texture1;");
       vtkShaderProgram::Substitute(FSSource,
         "//VTK::TCoord::Impl",
         "gl_FragData[0] = gl_FragData[0]*texture2D(texture1, vec2(tcoordVCVSOutput,0));");
@@ -248,7 +248,7 @@ void vtkOpenGLPolyDataMapper2D::BuildShaders(
     {
       vtkShaderProgram::Substitute(VSSource,
         "//VTK::TCoord::Dec",
-        "attribute vec2 tcoordMC; varying vec2 tcoordVCVSOutput;");
+        "in vec2 tcoordMC; out vec2 tcoordVCVSOutput;");
       vtkShaderProgram::Substitute(VSSource,
         "//VTK::TCoord::Impl",
         "tcoordVCVSOutput = tcoordMC;");
@@ -261,7 +261,7 @@ void vtkOpenGLPolyDataMapper2D::BuildShaders(
         "tcoordVCGSOutput = tcoordVCVSOutput[i];");
       vtkShaderProgram::Substitute(FSSource,
         "//VTK::TCoord::Dec",
-        "varying vec2 tcoordVCVSOutput; uniform sampler2D texture1;");
+        "in vec2 tcoordVCVSOutput; uniform sampler2D texture1;");
       vtkShaderProgram::Substitute(FSSource,
         "//VTK::TCoord::Impl",
         "gl_FragData[0] = gl_FragData[0]*texture2D(texture1, tcoordVCVSOutput.st);");
@@ -272,8 +272,8 @@ void vtkOpenGLPolyDataMapper2D::BuildShaders(
   if (!this->AppleBugPrimIDs.empty())
   {
     vtkShaderProgram::Substitute(VSSource,"//VTK::PrimID::Dec",
-      "attribute vec4 appleBugPrimID;\n"
-      "varying vec4 applePrimIDVSOutput;");
+      "in vec4 appleBugPrimID;\n"
+      "out vec4 applePrimIDVSOutput;");
     vtkShaderProgram::Substitute(VSSource,"//VTK::PrimID::Impl",
       "applePrimIDVSOutput = appleBugPrimID;");
     vtkShaderProgram::Substitute(GSSource,
@@ -284,7 +284,7 @@ void vtkOpenGLPolyDataMapper2D::BuildShaders(
       "//VTK::PrimID::Impl",
       "applePrimIDGSOutput = applePrimIDVSOutput[i];");
     vtkShaderProgram::Substitute(FSSource,"//VTK::PrimID::Dec",
-      "varying vec4 applePrimIDVSOutput;");
+      "in vec4 applePrimIDVSOutput;");
      vtkShaderProgram::Substitute(FSSource,"//VTK::PrimID::Impl",
        "int vtkPrimID = int(applePrimIDVSOutput[0]*255.1) + int(applePrimIDVSOutput[1]*255.1)*256 + int(applePrimIDVSOutput[2]*255.1)*65536;");
     vtkShaderProgram::Substitute(FSSource,"gl_PrimitiveID","vtkPrimID");

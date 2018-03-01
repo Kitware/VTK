@@ -16,8 +16,8 @@
 =========================================================================*/
 // this shader implements imposters in OpenGL for Spheres
 
-attribute vec4 vertexMC;
-attribute vec2 offsetMC;
+in vec4 vertexMC;
+in vec2 offsetMC;
 
 // optional normal declaration
 //VTK::Normal::Dec
@@ -36,9 +36,9 @@ uniform mat3 normalMatrix; // transform model coordinate directions to view coor
 // camera and actor matrix values
 //VTK::Camera::Dec
 
-varying vec4 vertexVCVSOutput;
-varying float radiusVCVSOutput;
-varying vec3 centerVCVSOutput;
+out vec4 vertexVCVSOutput;
+out float radiusVCVSOutput;
+out vec3 centerVCVSOutput;
 
 uniform int cameraParallel;
 

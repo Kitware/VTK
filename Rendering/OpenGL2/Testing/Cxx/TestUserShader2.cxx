@@ -138,7 +138,7 @@ int TestUserShader2(int argc, char *argv[])
   // use them :-)
   mapper->SetVertexShaderCode(
     "//VTK::System::Dec\n"  // always start with this line
-    "attribute vec4 vertexMC;\n"
+    "in vec4 vertexMC;\n"
     // use the default normal decl as the mapper
     // will then provide the normalMatrix uniform
     // which we use later on
@@ -156,7 +156,7 @@ int TestUserShader2(int argc, char *argv[])
   mapper->SetFragmentShaderCode(
     "//VTK::System::Dec\n"  // always start with this line
     "//VTK::Output::Dec\n"  // always have this line in your FS
-    "varying vec3 normalVCVSOutput;\n"
+    "in vec3 normalVCVSOutput;\n"
     "uniform vec3 diffuseColorUniform;\n"
     "void main () {\n"
     "  float df = max(0.0, normalVCVSOutput.z);\n"

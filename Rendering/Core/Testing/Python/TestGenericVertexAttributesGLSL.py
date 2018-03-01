@@ -13,8 +13,8 @@ xmlMaterial = '''<?xml version="1.0" encoding="UTF-8"?>
     location="Inline"
     language="GLSL"
     entry="main">
-    attribute vec3 genAttrVector;
-    varying vec4 color;
+    in vec3 genAttrVector;
+    out vec4 color;
 
     void main(void)
     {
@@ -25,7 +25,7 @@ xmlMaterial = '''<?xml version="1.0" encoding="UTF-8"?>
 
   <Shader scope="Fragment" name="FragmentShader" location="Inline"
     language="GLSL" entry="main">
-    varying vec4 color;
+    in vec4 color;
     void main(void)
     {
       gl_FragColor = color;

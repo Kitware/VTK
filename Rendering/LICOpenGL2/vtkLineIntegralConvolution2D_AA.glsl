@@ -24,7 +24,7 @@ uniform sampler2D texLIC;         // inout texture
 uniform vec2      uLICTexSize;    // input texture size
 uniform vec4      uComputeBounds; // valid region of texture
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 
 // fragment size
 float tcDx = 1.0 / uLICTexSize.x;

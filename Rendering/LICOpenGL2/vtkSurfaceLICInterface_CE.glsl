@@ -29,7 +29,7 @@ uniform sampler2D texHSLColors;  // hsla colors
 uniform float     uLMin;         // min lightness over all fragments
 uniform float     uLMaxMinDiff;  // max - min lightness over all fragments
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 
 vec3 HSLToRGB(vec3 HSL)
 {

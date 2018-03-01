@@ -22,14 +22,14 @@
 // WC - WC world coordinates
 // VC - View Coordinates
 // DC - Display Coordinates
-attribute vec4 vertexDC;
-attribute vec3 scalarColor;
-attribute float depthArray;
-attribute float attenuationArray;
+in vec4 vertexDC;
+in vec3 scalarColor;
+in float depthArray;
+in float attenuationArray;
 
-varying float fdepth;
-varying float fattenuation;
-varying vec3 fcolor;
+out float fdepth;
+out float fattenuation;
+out vec3 fcolor;
 
 void main()
 {

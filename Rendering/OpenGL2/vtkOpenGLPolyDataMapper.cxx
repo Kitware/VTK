@@ -621,8 +621,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
       !this->DrawingEdgesOrVertices)
   {
     vtkShaderProgram::Substitute(VSSource,"//VTK::Color::Dec",
-                        "attribute vec4 scalarColor;\n"
-                        "varying vec4 vertexColorVSOutput;");
+                        "in vec4 scalarColor;\n"
+                        "out vec4 vertexColorVSOutput;");
     vtkShaderProgram::Substitute(VSSource,"//VTK::Color::Impl",
                         "vertexColorVSOutput = scalarColor;");
     vtkShaderProgram::Substitute(GSSource,
@@ -633,7 +633,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
       "//VTK::Color::Impl",
       "vertexColorGSOutput = vertexColorVSOutput[i];");
 
-    colorDec += "varying vec4 vertexColorVSOutput;\n";
+    colorDec += "in vec4 vertexColorVSOutput;\n";
     colorImpl +=
       "  vec3 ambientColor = ambientIntensity * vertexColorVSOutput.rgb;\n"
       "  vec3 diffuseColor = diffuseIntensity * vertexColorVSOutput.rgb;\n"
@@ -1006,12 +1006,12 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
     {
       tCoordType = "vec2";
     }
-    vsdec = vsdec + "attribute " + tCoordType + " " + it + ";\n";
-    vsdec = vsdec + "varying " + tCoordType + " " + it + "VCVSOutput;\n";
+    vsdec = vsdec + "in " + tCoordType + " " + it + ";\n";
+    vsdec = vsdec + "out " + tCoordType + " " + it + "VCVSOutput;\n";
     gsdec = gsdec + "in " + tCoordType + " " + it + "VCVSOutput[];\n";
     gsdec = gsdec + "out " + tCoordType + " " + it + "VCGSOutput;\n";
     gsimpl = gsimpl + it + "VCGSOutput = " + it + "VCVSOutput[i];\n";
-    fsdec = fsdec + "varying " + tCoordType + " " + it + "VCVSOutput;\n";
+    fsdec = fsdec + "in " + tCoordType + " " + it + "VCVSOutput;\n";
   }
   vtkShaderProgram::Substitute(VSSource, "//VTK::TCoord::Dec", vsdec);
   vtkShaderProgram::Substitute(GSSource, "//VTK::TCoord::Dec", gsdec);
@@ -1186,7 +1186,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderClip(
     if (GSSource.length())
     {
       vtkShaderProgram::Substitute(VSSource, "//VTK::Clip::Dec",
-        "varying vec4 clipVertexMC;");
+        "out vec4 clipVertexMC;");
       vtkShaderProgram::Substitute(VSSource, "//VTK::Clip::Impl",
         "  clipVertexMC =  vertexMC;\n");
       vtkShaderProgram::Substitute(GSSource,
@@ -1207,7 +1207,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderClip(
       vtkShaderProgram::Substitute(VSSource, "//VTK::Clip::Dec",
         "uniform int numClipPlanes;\n"
         "uniform vec4 clipPlanes[6];\n"
-        "varying float clipDistancesVSOutput[6];");
+        "out float clipDistancesVSOutput[6];");
       vtkShaderProgram::Substitute(VSSource, "//VTK::Clip::Impl",
         "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
         "    {\n"
@@ -1217,7 +1217,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderClip(
 
     vtkShaderProgram::Substitute(FSSource, "//VTK::Clip::Dec",
       "uniform int numClipPlanes;\n"
-      "varying float clipDistancesVSOutput[6];");
+      "in float clipDistancesVSOutput[6];");
     vtkShaderProgram::Substitute(FSSource, "//VTK::Clip::Impl",
       "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
       "    {\n"
@@ -1288,8 +1288,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
 
     vtkShaderProgram::Substitute(FSSource,
       "//VTK::Normal::Dec",
-      "varying vec3 tubeBasis1;\n"
-      "varying vec3 tubeBasis2;\n"
+      "in vec3 tubeBasis1;\n"
+      "in vec3 tubeBasis2;\n"
       "uniform float ZCalcS;\n"
       "uniform float ZCalcR;\n"
       );
@@ -1339,9 +1339,9 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
     {
       vtkShaderProgram::Substitute(VSSource,
         "//VTK::Normal::Dec",
-        "attribute vec3 normalMC;\n"
+        "in vec3 normalMC;\n"
         "uniform mat3 normalMatrix;\n"
-        "varying vec3 normalVCVSOutput;");
+        "out vec3 normalVCVSOutput;");
       vtkShaderProgram::Substitute(VSSource,
         "//VTK::Normal::Impl",
         "normalVCVSOutput = normalMatrix * normalMC;");
@@ -1354,7 +1354,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
         "normalVCGSOutput = normalVCVSOutput[i];");
       vtkShaderProgram::Substitute(FSSource,
         "//VTK::Normal::Dec",
-        "varying vec3 normalVCVSOutput;");
+        "in vec3 normalVCVSOutput;");
       vtkShaderProgram::Substitute(FSSource,
         "//VTK::Normal::Impl",
         "vec3 normalVCVSOutput = normalize(normalVCVSOutput);\n"
@@ -1478,7 +1478,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPositionVC(
   {
     vtkShaderProgram::Substitute(VSSource,
       "//VTK::PositionVC::Dec",
-      "varying vec4 vertexVCVSOutput;");
+      "out vec4 vertexVCVSOutput;");
     vtkShaderProgram::Substitute(VSSource,
       "//VTK::PositionVC::Impl",
       "vertexVCVSOutput = MCVCMatrix * vertexMC;\n"
@@ -1496,7 +1496,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPositionVC(
       "vertexVCGSOutput = vertexVCVSOutput[i];");
     vtkShaderProgram::Substitute(FSSource,
       "//VTK::PositionVC::Dec",
-      "varying vec4 vertexVCVSOutput;");
+      "in vec4 vertexVCVSOutput;");
     vtkShaderProgram::Substitute(FSSource,
       "//VTK::PositionVC::Impl",
       "vec4 vertexVC = vertexVCVSOutput;");
@@ -1527,8 +1527,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPrimID(
   if (!this->AppleBugPrimIDs.empty())
   {
     vtkShaderProgram::Substitute(VSSource,"//VTK::PrimID::Dec",
-      "attribute vec4 appleBugPrimID;\n"
-      "varying vec4 applePrimIDVSOutput;");
+      "in vec4 appleBugPrimID;\n"
+      "out vec4 applePrimIDVSOutput;");
     vtkShaderProgram::Substitute(VSSource,"//VTK::PrimID::Impl",
       "applePrimIDVSOutput = appleBugPrimID;");
     vtkShaderProgram::Substitute(GSSource,
@@ -1539,7 +1539,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPrimID(
       "//VTK::PrimID::Impl",
       "applePrimIDGSOutput = applePrimIDVSOutput[i];");
     vtkShaderProgram::Substitute(FSSource,"//VTK::PrimID::Dec",
-      "varying vec4 applePrimIDVSOutput;");
+      "in vec4 applePrimIDVSOutput;");
      vtkShaderProgram::Substitute(FSSource,"//VTK::PrimID::Impl",
        "int vtkPrimID = int(applePrimIDVSOutput[0]*255.1) + int(applePrimIDVSOutput[1]*255.1)*256 + int(applePrimIDVSOutput[2]*255.1)*65536;");
     vtkShaderProgram::Substitute(FSSource,"gl_PrimitiveID","vtkPrimID");

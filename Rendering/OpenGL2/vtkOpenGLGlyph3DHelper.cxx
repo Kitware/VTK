@@ -119,8 +119,8 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderColor(
   {
     vtkShaderProgram::Substitute(VSSource,
       "//VTK::Color::Dec",
-      "attribute vec4 glyphColor;\n"
-      "varying vec4 vertexColorVSOutput;");
+      "in vec4 glyphColor;\n"
+      "out vec4 vertexColorVSOutput;");
     vtkShaderProgram::Substitute(GSSource,
       "//VTK::Color::Dec",
       "in vec4 vertexColorVSOutput[];\n"
@@ -131,7 +131,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderColor(
     vtkShaderProgram::Substitute(VSSource,"//VTK::Color::Impl",
       "vertexColorVSOutput =  glyphColor;");
     vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Dec",
-      "varying vec4 vertexColorVSOutput;\n"
+      "in vec4 vertexColorVSOutput;\n"
       "//VTK::Color::Dec", false);
   }
   else
@@ -161,7 +161,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderColor(
   {
     vtkShaderProgram::Substitute(VSSource,
        "//VTK::Glyph::Dec",
-       "attribute mat4 GCMCMatrix;");
+       "in mat4 GCMCMatrix;");
   }
   else
   {
@@ -195,18 +195,18 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderNormal(
       vtkShaderProgram::Substitute(VSSource,
          "//VTK::Normal::Dec",
          "uniform mat3 normalMatrix;\n"
-         "attribute vec3 normalMC;\n"
-         "attribute mat3 glyphNormalMatrix;\n"
-         "varying vec3 normalVCVSOutput;");
+         "in vec3 normalMC;\n"
+         "in mat3 glyphNormalMatrix;\n"
+         "out vec3 normalVCVSOutput;");
     }
     else
     {
       vtkShaderProgram::Substitute(VSSource,
          "//VTK::Normal::Dec",
          "uniform mat3 normalMatrix;\n"
-         "attribute vec3 normalMC;\n"
+         "in vec3 normalMC;\n"
          "uniform mat3 glyphNormalMatrix;\n"
-         "varying vec3 normalVCVSOutput;");
+         "out vec3 normalVCVSOutput;");
     }
     vtkShaderProgram::Substitute(VSSource, "//VTK::Normal::Impl",
       "normalVCVSOutput = normalMatrix * glyphNormalMatrix * normalMC;");

@@ -79,7 +79,7 @@ int TestUserShader(int argc, char *argv[])
     "//VTK::Normal::Dec", // replace the normal block
     true, // before the standard replacements
     "//VTK::Normal::Dec\n" // we still want the default
-    "  varying vec3 myNormalMCVSOutput;\n", //but we add this
+    "  out vec3 myNormalMCVSOutput;\n", //but we add this
     false // only do it once
     );
   mapper->AddShaderReplacement(
@@ -109,7 +109,7 @@ int TestUserShader(int argc, char *argv[])
     "//VTK::Normal::Dec", // replace the normal block
     true, // before the standard replacements
     "//VTK::Normal::Dec\n" // we still want the default
-    "  varying vec3 myNormalMCVSOutput;\n", //but we add this
+    "  in vec3 myNormalMCVSOutput;\n", //but we add this
     false // only do it once
     );
   mapper->AddShaderReplacement(

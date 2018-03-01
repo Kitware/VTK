@@ -101,7 +101,7 @@ bool vtkOpenGLLabeledContourMapper::ApplyStencil(vtkRenderer *ren,
         renWin->GetShaderCache()->ReadyShaderProgram(
         // vertex shader
         "//VTK::System::Dec\n"
-        "attribute vec4 vertexMC;\n"
+        "in vec4 vertexMC;\n"
         "uniform mat4 MCDCMatrix;\n"
         "void main() { gl_Position = MCDCMatrix*vertexMC; }\n",
         // fragment shader

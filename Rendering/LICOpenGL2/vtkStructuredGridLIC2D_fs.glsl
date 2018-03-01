@@ -21,7 +21,7 @@
 // the output of this shader
 //VTK::Output::Dec
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 
 /*
 For an input structure grid, this computes the inverse jacobian for each point.

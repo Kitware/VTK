@@ -28,7 +28,7 @@ uniform float uStepSize;        // step size in parametric space
 
 uniform vec2  uNoiseBoundsPt1;  // tc of upper right pt of noise texture
 
-varying vec2 tcoordVC;
+in vec2 tcoordVC;
 
 //VTK::LICVectorLookup::Impl
 
