@@ -416,7 +416,11 @@ void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow *)
   ::glDepthFunc( GL_LEQUAL );
   this->CurrentState.DepthFunc = GL_LEQUAL;
 
+#if GL_ES_VERSION_3_0 == 1
+  ::glClearDepthf(1.0f);
+#else
   ::glClearDepth(1.0);
+#endif
   this->CurrentState.ClearDepth = 1.0;
 
   ::glDepthMask(GL_TRUE);
