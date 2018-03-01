@@ -240,6 +240,13 @@ target_include_directories(vtknetcdf
     "${CMAKE_CURRENT_SOURCE_DIR}/libsrc4"
     "${CMAKE_CURRENT_BINARY_DIR}/include")
 
+if (DEFINED VTK_CUSTOM_LIBRARY_SUFFIX)
+  set(_lib_suffix "${VTK_CUSTOM_LIBRARY_SUFFIX}")
+else ()
+  set(_lib_suffix "-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+endif ()
+set_property(TARGET vtknetcdf PROPERTY OUTPUT_NAME vtkNetCDF${_lib_suffix})
+
 if (UNIX)
   # link against the math library.
   target_link_libraries(vtknetcdf
