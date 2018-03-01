@@ -505,7 +505,7 @@ void vtkPlaneWidget::PositionHandles()
     this->PlaneOutline->GetPoints()->SetPoint(1,pt1);
     this->PlaneOutline->GetPoints()->SetPoint(2,x);
     this->PlaneOutline->GetPoints()->SetPoint(3,pt2);
-    this->PlaneOutline->Modified();
+    this->PlaneOutline->GetPoints()->Modified();
   }
   this->SelectRepresentation();
 

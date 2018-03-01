@@ -566,7 +566,7 @@ void vtkPolyData::GetCellBounds(vtkIdType cellId, double bounds[6])
 //----------------------------------------------------------------------------
 void vtkPolyData::ComputeBounds()
 {
-  if (this->GetMTime() > this->ComputeTime)
+  if (this->GetMeshMTime() > this->ComputeTime)
   {
     // If there are no cells, but there are points, back to the
     // bounds of the points set.
@@ -2378,6 +2378,29 @@ int vtkPolyData::GetScalarFieldCriticalIndex (vtkIdType pointId, int fieldId)
 vtkMTimeType vtkPolyData::GetMeshMTime()
 {
   vtkMTimeType time = this->Points ? this->Points->GetMTime() : 0;
+  if (this->Verts)
+  {
+    time = vtkMath::Max(this->Verts->GetMTime(), time);
+  }
+  if (this->Lines)
+  {
+    time = vtkMath::Max(this->Lines->GetMTime(), time);
+  }
+  if (this->Polys)
+  {
+    time = vtkMath::Max(this->Polys->GetMTime(), time);
+  }
+  if (this->Strips)
+  {
+    time = vtkMath::Max(this->Strips->GetMTime(), time);
+  }
+  return time;
+}
+
+//----------------------------------------------------------------------------
+vtkMTimeType vtkPolyData::GetMTime()
+{
+  vtkMTimeType time = this->Superclass::GetMTime();
   if (this->Verts)
   {
     time = vtkMath::Max(this->Verts->GetMTime(), time);
