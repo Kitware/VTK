@@ -479,7 +479,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
   // Set meta data on the image
   this->UniformGridData->SetExtent(0, (destWidth - 1), 0, (destHeight - 1), 0, 0);
   this->UniformGridData->SetSpacing(abs(geoSpacing[0]), abs(geoSpacing[1]), geoSpacing[2]);
-  this->UniformGridData->SetOrigin(d[0], d[1], 0);
+  this->UniformGridData->SetOrigin(std::min(d[0], d[2]), std::min(d[1], d[3]), 0);
   this->Convert<VTK_TYPE, RAW_TYPE>(rawUniformGridData, destWidth, destHeight,
                                     geoSpacing[0] < 0, geoSpacing[1] < 0);
 
