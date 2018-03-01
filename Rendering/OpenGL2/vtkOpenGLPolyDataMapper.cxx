@@ -391,6 +391,13 @@ vtkMTimeType vtkOpenGLPolyDataMapper::GetRenderPassStageMTime(vtkActor *actor)
     lastRenderPasses =
         this->LastRenderPassInfo->Length(vtkOpenGLRenderPass::RenderPasses());
   }
+  else // have no last pass
+  {
+    if (!info) // have no current pass
+    {
+      return 0; // short circuit
+    }
+  }
 
   // Determine the last time a render pass changed stages:
   if (curRenderPasses != lastRenderPasses)
@@ -715,7 +722,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
 
 void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
   std::map<vtkShader::Type, vtkShader *> shaders,
-  vtkRenderer *, vtkActor *actor)
+  vtkRenderer *ren, vtkActor *actor)
 {
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
@@ -742,6 +749,10 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       );
   }
 
+  // get Standard Lighting Decls
+  vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Dec",
+    static_cast<vtkOpenGLRenderer *>(ren)->GetLightingUniforms());
+
   int lastLightComplexity = this->LastLightComplexity[this->LastBoundBO];
   int lastLightCount = this->LastLightCount[this->LastBoundBO];
 
@@ -757,8 +768,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       break;
 
     case 1:  // headlight
-      vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Dec",
-        "uniform vec3 lightColor0;\n");
       toString <<
         "  float df = max(0.0,normalVCVSOutput.z);\n"
         "  float sf = pow(df, specularPower);\n"
@@ -771,15 +780,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       break;
 
     case 2: // light kit
-      toString.clear();
-      toString.str("");
-      for (int i = 0; i < lastLightCount; ++i)
-      {
-        toString <<
-        "uniform vec3 lightColor" << i << ";\n"
-        "  uniform vec3 lightDirectionVC" << i << "; // normalized\n";
-      }
-      vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Dec", toString.str());
       toString.clear();
       toString.str("");
       toString <<
@@ -808,20 +808,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       break;
 
     case 3: // positional
-      toString.clear();
-      toString.str("");
-      for (int i = 0; i < lastLightCount; ++i)
-      {
-        toString <<
-        "uniform vec3 lightColor" << i << ";\n"
-        "uniform vec3 lightDirectionVC" << i << "; // normalized\n"
-        "uniform vec3 lightPositionVC" << i << ";\n"
-        "uniform vec3 lightAttenuation" << i << ";\n"
-        "uniform float lightConeAngle" << i << ";\n"
-        "uniform float lightExponent" << i << ";\n"
-        "uniform int lightPositional" << i << ";";
-      }
-      vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Dec", toString.str());
       toString.clear();
       toString.str("");
       toString <<
@@ -1708,38 +1694,9 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
   // do we need lighting?
   if (actor->GetProperty()->GetLighting() && needLighting)
   {
-    // consider the lighting complexity to determine which case applies
-    // simple headlight, Light Kit, the whole feature set of VTK
-    lightComplexity = 0;
-    vtkLightCollection *lc = ren->GetLights();
-    vtkLight *light;
-
-    vtkCollectionSimpleIterator sit;
-    for(lc->InitTraversal(sit);
-        (light = lc->GetNextLight(sit)); )
-    {
-      float status = light->GetSwitch();
-      if (status > 0.0)
-      {
-        numberOfLights++;
-        if (lightComplexity == 0)
-        {
-          lightComplexity = 1;
-        }
-      }
-
-      if (lightComplexity == 1
-          && (numberOfLights > 1
-            || light->GetLightType() != VTK_LIGHT_TYPE_HEADLIGHT))
-      {
-        lightComplexity = 2;
-      }
-      if (lightComplexity < 3
-          && (light->GetPositional()))
-      {
-        lightComplexity = 3;
-      }
-    }
+    vtkOpenGLRenderer *oren = static_cast<vtkOpenGLRenderer *>(ren);
+    lightComplexity = oren->GetLightingComplexity();
+    numberOfLights = oren->GetLightingCount();
   }
 
   if (this->LastLightComplexity[&cellBO] != lightComplexity ||
@@ -2058,7 +2015,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
 void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
   vtkOpenGLHelper &cellBO,
   vtkRenderer* ren,
-  vtkActor *actor)
+  vtkActor *)
 {
   // for unlit there are no lighting parameters
   if (this->LastLightComplexity[&cellBO] < 1)
@@ -2066,105 +2023,9 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
     return;
   }
 
-  // Note:
-  // May want to do some of this in OpenGLRenderer if it becomes
-  // a performance issue with many actors.  A lot of this could
-  // be cached there along with the light complexity calc.
-
   vtkShaderProgram *program = cellBO.Program;
-
-  // for lightkit case there are some parameters to set
-  vtkCamera *cam = ren->GetActiveCamera();
-  vtkTransform* viewTF = cam->GetModelViewTransformObject();
-
-  // bind some light settings
-  int numberOfLights = 0;
-  vtkLightCollection *lc = ren->GetLights();
-  vtkLight *light;
-
-  vtkInformation *info = actor->GetPropertyKeys();
-  bool renderLuminance = info &&
-    info->Has(vtkLightingMapPass::RENDER_LUMINANCE());
-
-  vtkCollectionSimpleIterator sit;
-  float lightColor[3];
-  float lightDirection[3];
-  std::string lcolor("lightColor");
-  std::string ldir("lightDirectionVC");
-  std::string latten("lightAttenuation");
-  std::string lpositional("lightPositional");
-  std::string lpos("lightPositionVC");
-  std::string lexp("lightExponent");
-  std::string lcone("lightConeAngle");
-
-  std::ostringstream toString;
-  for (lc->InitTraversal(sit); (light = lc->GetNextLight(sit)); )
-  {
-    float status = light->GetSwitch();
-    if (status > 0.0)
-    {
-      toString.str("");
-      toString << numberOfLights;
-      std::string count = toString.str();
-
-      double *dColor = light->GetDiffuseColor();
-      double intensity = light->GetIntensity();
-      if (renderLuminance)
-      {
-        lightColor[0] = intensity;
-        lightColor[1] = intensity;
-        lightColor[2] = intensity;
-      }
-      else
-      {
-        lightColor[0] = dColor[0] * intensity;
-        lightColor[1] = dColor[1] * intensity;
-        lightColor[2] = dColor[2] * intensity;
-      }
-      program->SetUniform3f((lcolor + count).c_str(), lightColor);
-
-      // we are done unless we have non headlights
-      if (this->LastLightComplexity[&cellBO] >= 2)
-      {
-        // get required info from light
-        double *lfp = light->GetTransformedFocalPoint();
-        double *lp = light->GetTransformedPosition();
-        double lightDir[3];
-        vtkMath::Subtract(lfp,lp,lightDir);
-        vtkMath::Normalize(lightDir);
-        double *tDir = viewTF->TransformNormal(lightDir);
-        lightDirection[0] = tDir[0];
-        lightDirection[1] = tDir[1];
-        lightDirection[2] = tDir[2];
-
-        program->SetUniform3f((ldir + count).c_str(), lightDirection);
-
-        // we are done unless we have positional lights
-        if (this->LastLightComplexity[&cellBO] >= 3)
-        {
-          // if positional lights pass down more parameters
-          float lightAttenuation[3];
-          float lightPosition[3];
-          double *attn = light->GetAttenuationValues();
-          lightAttenuation[0] = attn[0];
-          lightAttenuation[1] = attn[1];
-          lightAttenuation[2] = attn[2];
-          double *tlp = viewTF->TransformPoint(lp);
-          lightPosition[0] = tlp[0];
-          lightPosition[1] = tlp[1];
-          lightPosition[2] = tlp[2];
-
-          program->SetUniform3f((latten + count).c_str(), lightAttenuation);
-          program->SetUniformi((lpositional + count).c_str(), light->GetPositional());
-          program->SetUniform3f((lpos + count).c_str(), lightPosition);
-          program->SetUniformf((lexp + count).c_str(), light->GetExponent());
-          program->SetUniformf((lcone + count).c_str(), light->GetConeAngle());
-        }
-      }
-      numberOfLights++;
-    }
-  }
-
+  vtkOpenGLRenderer *oren = static_cast<vtkOpenGLRenderer *>(ren);
+  oren->UpdateLightingUniforms(program);
 }
 
 //-----------------------------------------------------------------------------

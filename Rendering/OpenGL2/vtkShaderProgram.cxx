@@ -324,6 +324,22 @@ void vtkShaderProgram::ClearMaps()
     free(const_cast<char *>(i->first));
   }
   this->AttributeLocs.clear();
+  this->UniformGroupMTimes.clear();
+}
+
+void vtkShaderProgram::SetUniformGroupUpdateTime(int gid, vtkMTimeType tm)
+{
+  this->UniformGroupMTimes[gid] = tm;
+}
+
+vtkMTimeType vtkShaderProgram::GetUniformGroupUpdateTime(int gid)
+{
+  auto it = this->UniformGroupMTimes.find(gid);
+  if (it == this->UniformGroupMTimes.end())
+  {
+    return 0;
+  }
+  return it->second;
 }
 
 bool vtkShaderProgram::Link()

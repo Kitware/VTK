@@ -221,7 +221,7 @@ void vtkRTTestSequence::ReportSummaryResults(ostream &ost)
     }
   ost << this->Test->GetName() << ":" << bestTestResult->SequenceNumber
     << ": " << result << " " << this->Test->GetSummaryResultName()
-    << " and " << static_cast<vtkIdType>(bestTestResult->Results[this->Test->GetSecondSummaryResultName()])
+    << " and " << (static_cast<vtkIdType>(10.0*bestTestResult->Results[this->Test->GetSecondSummaryResultName()])/10.0)
     << " " << this->Test->GetSecondSummaryResultName() << endl;
 }
 
