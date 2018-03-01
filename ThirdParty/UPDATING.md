@@ -48,10 +48,11 @@ Now you can review the change and make a merge request from the branch as normal
 # Porting a Project
 
 When converting a project, if there are any local patches, a project should be
-created [on GitLab](https://gitlab.kitware.com/third-party) to track it. If
-the upstream project does not use Git, it should be imported into Git (there
-may be existing conversions available on Github already). The project's
-description should indicate where the source repository lives.
+created [on GitLab](https://gitlab.kitware.com/third-party) to track it
+(requests may be filed on the [repo-requests][] repository). If the upstream
+project does not use Git, it should be imported into Git (there may be existing
+conversions available on Github already). The project's description should
+indicate where the source repository lives.
 
 Once a mirror of the project is created, a branch named `for/foo` should be
 created where patches for the `foo` project will be applied (i.e., `for/vtk`
@@ -59,6 +60,11 @@ for VTK's patches to the project). Usually, changes to the build system, the
 source code for mangling, the addition of `.gitattributes` files, and other
 changes belong here. Functional changes should be submitted upstream (but may
 still be tracked so that they may be used).
+
+For mangling documentation, [some guidelines][] are available.
+
+[repo-requests]: https://gitlab.kitware.com/third-party/repo-requests
+[some guidelines]: https://gitlab.kitware.com/third-party/repo-requests/wikis/mangling
 
 The basic steps to import a project `twisted` based on the tag
 `twisted-17.1.0` looks like this:
