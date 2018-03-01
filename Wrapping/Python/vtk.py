@@ -1,7 +1,7 @@
 """This is the vtk module."""
 import sys
 
-if sys.version_info < (3,4):
+if sys.version_info < (3,5):
     # imp is deprecated in 3.4
     import imp, importlib
 
