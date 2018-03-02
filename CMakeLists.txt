@@ -13,6 +13,11 @@ if (APPLE)
   include(vtkApple)
 endif ()
 
+# must be before the following iOS / Android
+include(vtkVersion)
+set(VTK_VERSION
+    "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
+
 option(VTK_IOS_BUILD "Build vtk.framework for iOS" OFF)
 mark_as_advanced(VTK_IOS_BUILD)
 if (VTK_IOS_BUILD)
@@ -31,9 +36,6 @@ include(vtkCompilerChecks)
 include(vtkCompilerPlatformFlags)
 include(vtkCompilerExtraFlags)
 include(vtkInitializeBuildType)
-include(vtkVersion)
-set(VTK_VERSION
-    "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
 include(vtkSupportMacros)
 include(vtkDownload)
 include(vtkTesting)
