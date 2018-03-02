@@ -238,6 +238,7 @@ void vtkOpenGLPolyDataMapper::AddShaderReplacement(
   values.ReplaceAll = replaceAll;
 
   this->UserShaderReplacements[spec] = values;
+  this->Modified();
 }
 
 void vtkOpenGLPolyDataMapper::ClearShaderReplacement(
@@ -256,6 +257,7 @@ void vtkOpenGLPolyDataMapper::ClearShaderReplacement(
   if (found == this->UserShaderReplacements.end())
   {
     this->UserShaderReplacements.erase(found);
+    this->Modified();
   }
 }
 
