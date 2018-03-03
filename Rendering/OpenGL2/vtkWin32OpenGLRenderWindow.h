@@ -162,6 +162,11 @@ public:
    */
   bool InitializeFromCurrentContext() override;
 
+  /**
+   * Does this platform support render window data sharing.
+   */
+  bool GetPlatformSupportsRenderWindowSharing() override { return true; };
+
   //@{
   /**
    * Set the window's parent id to a pre-existing window.

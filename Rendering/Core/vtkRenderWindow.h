@@ -566,6 +566,19 @@ public:
    */
   virtual bool InitializeFromCurrentContext() { return false; };
 
+  //@{
+  /**
+   * Set/Get an already existing window that this window should
+   * share data with if possible. This must be set
+   * after the shared render window has been created and initialized
+   * but before this window has been initialized. Not all platforms
+   * support data sharing.
+   */
+  virtual void SetSharedRenderWindow(vtkRenderWindow *);
+  vtkGetObjectMacro(SharedRenderWindow, vtkRenderWindow);
+  virtual bool GetPlatformSupportsRenderWindowSharing() { return false; };
+  //@}
+
   /**
    * Attempt to make this window the current graphics context for the calling
    * thread.
@@ -722,6 +735,8 @@ protected:
    * The universal time since the last abort check occurred.
    */
   double AbortCheckTime;
+
+  vtkRenderWindow *SharedRenderWindow;
 
 private:
   vtkRenderWindow(const vtkRenderWindow&) = delete;

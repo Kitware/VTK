@@ -179,6 +179,11 @@ public:
   bool InitializeFromCurrentContext() override;
 
   /**
+   * Does this platform support render window data sharing.
+   */
+  bool GetPlatformSupportsRenderWindowSharing() override { return true; };
+
+  /**
    * Prescribe that the window be created in a stereo-capable mode. This
    * method must be called before the window is realized. This method
    * overrrides the superclass method since this class can actually check
