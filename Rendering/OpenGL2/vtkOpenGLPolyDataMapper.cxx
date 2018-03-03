@@ -244,6 +244,7 @@ void vtkOpenGLPolyDataMapper::AddShaderReplacement(
   values.ReplaceAll = replaceAll;
 
   this->UserShaderReplacements[spec] = values;
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -263,6 +264,7 @@ void vtkOpenGLPolyDataMapper::ClearShaderReplacement(
   if (found != this->UserShaderReplacements.end())
   {
     this->UserShaderReplacements.erase(found);
+    this->Modified();
   }
 }
 
@@ -293,6 +295,7 @@ void vtkOpenGLPolyDataMapper::ClearAllShaderReplacements(
     if (rIter->first.ShaderType == shaderType)
     {
       this->UserShaderReplacements.erase(rIter++);
+      this->Modified();
     }
     else
     {
@@ -308,6 +311,7 @@ void vtkOpenGLPolyDataMapper::ClearAllShaderReplacements()
   this->SetFragmentShaderCode(nullptr);
   this->SetGeometryShaderCode(nullptr);
   this->UserShaderReplacements.clear();
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
