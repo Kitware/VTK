@@ -42,11 +42,13 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkDataSetAttributes.h" // needed for vtkDataSetAttributes::FieldList
 
-class vtkIdTypeArray;
+class vtkAbstractCellLocator;
 class vtkCell;
 class vtkCharArray;
+class vtkIdTypeArray;
 class vtkImageData;
 class vtkPointData;
+class vtkStaticCellLocator;
 
 class VTKFILTERSCORE_EXPORT vtkProbeFilter : public vtkDataSetAlgorithm
 {
@@ -170,20 +172,18 @@ public:
   vtkGetMacro(ComputeTolerance, bool);
   //@}
 
+  //@{
+  /**
+   * Set/Get the prototype cell locator to use for probing the source dataset.
+   * By default, vtkStaticCellLocator will be used.
+   */
+   virtual void SetCellLocatorPrototype(vtkAbstractCellLocator*);
+   vtkGetObjectMacro(CellLocatorPrototype, vtkAbstractCellLocator);
+  //@}
+
 protected:
   vtkProbeFilter();
   ~vtkProbeFilter() override;
-
-  vtkTypeBool CategoricalData;
-
-  vtkTypeBool PassCellArrays;
-  vtkTypeBool PassPointArrays;
-  vtkTypeBool PassFieldArrays;
-
-  vtkTypeBool SpatialMatch;
-
-  double Tolerance;
-  bool ComputeTolerance;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *) override;
@@ -223,10 +223,22 @@ protected:
   void DoProbing(vtkDataSet *input, int srcIdx, vtkDataSet *source,
                  vtkDataSet *output);
 
+  vtkTypeBool CategoricalData;
+
+  vtkTypeBool PassCellArrays;
+  vtkTypeBool PassPointArrays;
+  vtkTypeBool PassFieldArrays;
+
+  vtkTypeBool SpatialMatch;
+
+  double Tolerance;
+  bool ComputeTolerance;
+
   char* ValidPointMaskArrayName;
   vtkIdTypeArray *ValidPoints;
   vtkCharArray* MaskPoints;
 
+  vtkAbstractCellLocator* CellLocatorPrototype;
 
   vtkDataSetAttributes::FieldList* CellList;
   vtkDataSetAttributes::FieldList* PointList;

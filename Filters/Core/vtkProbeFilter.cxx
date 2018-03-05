@@ -26,14 +26,17 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSmartPointer.h"
 #include "vtkSMPTools.h"
 #include "vtkSMPThreadLocal.h"
+#include "vtkStaticCellLocator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <algorithm>
 #include <vector>
 
 vtkStandardNewMacro(vtkProbeFilter);
+vtkCxxSetObjectMacro(vtkProbeFilter, CellLocatorPrototype, vtkAbstractCellLocator);
 
 #define CELL_TOLERANCE_FACTOR_SQR  1e-6
 
@@ -53,6 +56,7 @@ vtkProbeFilter::vtkProbeFilter()
   this->ValidPointMaskArrayName = nullptr;
   this->SetValidPointMaskArrayName("vtkValidPointMask");
   this->CellArrays = new vtkVectorOfArrays();
+  this->CellLocatorPrototype = nullptr;
 
   this->PointList = nullptr;
   this->CellList = nullptr;
@@ -70,13 +74,13 @@ vtkProbeFilter::~vtkProbeFilter()
   if (this->MaskPoints)
   {
     this->MaskPoints->Delete();
-    this->MaskPoints = nullptr;
   }
   this->ValidPoints->Delete();
-  this->ValidPoints = nullptr;
-  this->SetValidPointMaskArrayName(nullptr);
-  delete this->CellArrays;
 
+  this->vtkProbeFilter::SetValidPointMaskArrayName(nullptr);
+  this->vtkProbeFilter::SetCellLocatorPrototype(nullptr);
+
+  delete this->CellArrays;
   delete this->PointList;
   delete this->CellList;
 }
@@ -364,7 +368,6 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
 {
   vtkIdType ptId, numPts;
   double x[3], tol2;
-  vtkCell *cell;
   vtkPointData *pd, *outPD;
   vtkCellData* cd;
   int subId;
@@ -395,8 +398,16 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
   tol2 = this->ComputeTolerance ? VTK_DOUBLE_MAX :
          (this->Tolerance * this->Tolerance);
 
+  vtkSmartPointer<vtkAbstractCellLocator> cellLocator;
+  cellLocator.TakeReference(this->CellLocatorPrototype ?
+                            this->CellLocatorPrototype->NewInstance() :
+                            vtkStaticCellLocator::New());
+  cellLocator->SetDataSet(source);
+  cellLocator->Update();
+
   // Loop over all input points, interpolating source data
   //
+  vtkNew<vtkGenericCell> gcell;
   int abort=0;
   vtkIdType progressInterval=numPts/20 + 1;
   for (ptId=0; ptId < numPts && !abort; ptId++)
@@ -418,7 +429,10 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
     input->GetPoint(ptId, x);
 
     // Find the cell that contains xyz and get it
-    vtkIdType cellId = source->FindCell(x,nullptr,-1,tol2,subId,pcoords,weights);
+    vtkIdType cellId =
+      cellLocator->FindCell(x, tol2, gcell.GetPointer(), pcoords, weights);
+
+    vtkCell* cell = nullptr;
     if (cellId >= 0)
     {
       cell = source->GetCell(cellId);
@@ -431,13 +445,9 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
         cell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights);
         if (dist2 > (cell->GetLength2() * CELL_TOLERANCE_FACTOR_SQR))
         {
-          cell = nullptr;
+          continue;
         }
       }
-    }
-    else
-    {
-      cell = nullptr;
     }
 
     if (cell)
@@ -885,4 +895,7 @@ void vtkProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
     this->ValidPointMaskArrayName : "vtkValidPointMask") << "\n";
   os << indent << "PassFieldArrays: "
      << (this->PassFieldArrays? "On" : " Off") << "\n";
+  os << indent << "CellLocatorPrototype: "
+     << (this->CellLocatorPrototype ? this->CellLocatorPrototype->GetClassName() : "NULL")
+     << "\n";
 }
