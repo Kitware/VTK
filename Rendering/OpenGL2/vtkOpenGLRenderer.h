@@ -115,7 +115,7 @@ public:
   enum LightingComplexityEnum {
     NoLighting = 0,
     Headlight = 1,
-    Direcitonal = 2,
+    Directional = 2,
     Positional = 3
   };
   vtkGetMacro(LightingComplexity, int);
