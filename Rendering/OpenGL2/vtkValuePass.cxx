@@ -707,20 +707,7 @@ bool vtkValuePass::IsFloatingPointModeSupported()
 #if GL_ES_VERSION_3_0 == 1
   return true;
 #else
-  if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
-  {
-    return true;
-  }
-  vtkWarningMacro(<< "Context does not support OpenGL core profile 3.2. "
-    << " Will check extension support.");
-
-  bool texFloatSupport = glewIsSupported("GL_ARB_texture_float") != 0;
-  if (!texFloatSupport)
-  {
-    vtkWarningMacro(<< "ARB_texture_float not supported.");
-  }
-
-  return texFloatSupport;
+  return true;
 #endif
 }
 

@@ -149,24 +149,7 @@ bool vtkOpenGLProjectedTetrahedraMapper::IsSupported(vtkRenderWindow *rwin)
   this->CanDoFloatingPointFrameBuffer = false;
   if (this->UseFloatingPointFrameBuffer)
   {
-#if GL_ES_VERSION_3_0 != 1
-    if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
-    {
-      this->CanDoFloatingPointFrameBuffer = true;
-      return true;
-    }
-    this->CanDoFloatingPointFrameBuffer
-      = (glewIsSupported("GL_ARB_texture_float") != 0);
-#else
-    this->CanDoFloatingPointFrameBuffer
-      = true;
-#endif
-
-    if (!this->CanDoFloatingPointFrameBuffer)
-    {
-      vtkWarningMacro(
-        "Missing FBO support. The algorithm may produce visual artifacts.");
-    }
+    this->CanDoFloatingPointFrameBuffer = true;
   }
 
   return true;

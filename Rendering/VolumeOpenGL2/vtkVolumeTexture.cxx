@@ -496,17 +496,7 @@ void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
                                            int const scalarType,
                                            int const noOfComponents)
 {
-  bool supportsFloat = false;
-#if GL_ES_VERSION_2_0 != 1
-  if (glewIsSupported("GL_ARB_texture_float") ||
-      vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
-  {
-    supportsFloat = true;
-  }
-#elif GL_ES_VERSION_3_0 == 1
-  supportsFloat = true;
-#endif
-
+  bool supportsFloat = true;
   this->HandleLargeDataTypes = false;
 
   switch(scalarType)

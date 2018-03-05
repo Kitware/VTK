@@ -331,8 +331,7 @@ void vtkOpenGLContextDevice3D::ReadyVCBOProgram()
 
 bool vtkOpenGLContextDevice3D::HaveWideLines()
 {
-  if (this->Pen->GetWidth() > 1.0
-      && vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+  if (this->Pen->GetWidth() > 1.0)
   {
     // we have wide lines, but the OpenGL implementation may
     // actually support them, check the range to see if we

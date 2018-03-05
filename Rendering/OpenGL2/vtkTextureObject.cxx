@@ -253,76 +253,6 @@ vtkTextureObject::~vtkTextureObject()
 }
 
 //----------------------------------------------------------------------------
-bool vtkTextureObject::IsSupported(vtkOpenGLRenderWindow* vtkNotUsed(win),
-      bool requireTexFloat,
-      bool requireDepthFloat,
-      bool requireTexInt)
-{
-#if GL_ES_VERSION_3_0 == 1
-  return true;
-#else
-  if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
-  {
-    return true;
-  }
-  bool texFloat = true;
-  if (requireTexFloat)
-  {
-    texFloat = (glewIsSupported("GL_ARB_texture_float") != 0
-     && glewIsSupported("GL_ARB_texture_rg") != 0);
-  }
-
-  bool depthFloat = true;
-  if (requireDepthFloat)
-  {
-    depthFloat = (glewIsSupported("GL_ARB_depth_buffer_float") != 0);
-  }
-
-  bool texInt = true;
-  if (requireTexInt)
-  {
-    texInt = (glewIsSupported("GL_EXT_texture_integer") != 0);
-  }
-
-  return texFloat && depthFloat && texInt;
-#endif
-}
-
-//----------------------------------------------------------------------------
-bool vtkTextureObject::LoadRequiredExtensions(vtkOpenGLRenderWindow *renWin)
-{
-#if GL_ES_VERSION_3_0 == 1
-  this->SupportsTextureInteger = true;
-  this->SupportsTextureFloat = true;
-  this->SupportsDepthBufferFloat = true;
-#else
-  if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
-  {
-    this->SupportsTextureInteger = true;
-    this->SupportsTextureFloat = true;
-    this->SupportsDepthBufferFloat = true;
-  }
-  else
-  {
-    this->SupportsTextureInteger =
-      (glewIsSupported("GL_EXT_texture_integer") != 0);
-
-    this->SupportsTextureFloat =
-      (glewIsSupported("GL_ARB_texture_float") != 0 &&
-       glewIsSupported("GL_ARB_texture_rg") != 0);
-
-    this->SupportsDepthBufferFloat =
-      (glewIsSupported("GL_ARB_depth_buffer_float") != 0);
-  }
-#endif
-
-  return this->IsSupported(renWin,
-    this->RequireTextureFloat,
-    this->RequireDepthBufferFloat,
-    this->RequireTextureInteger);
-}
-
-//----------------------------------------------------------------------------
 void vtkTextureObject::SetContext(vtkOpenGLRenderWindow* renWin)
 {
   this->ResourceCallback->RegisterGraphicsResources(renWin);
@@ -343,11 +273,6 @@ void vtkTextureObject::SetContext(vtkOpenGLRenderWindow* renWin)
     return;
   }
 
-  if (!this->LoadRequiredExtensions(renWin) )
-  {
-    vtkErrorMacro("Required OpenGL extensions not supported by the context.");
-    return;
-  }
   // initialize
   this->Context = renWin;
   this->Context->MakeCurrent();

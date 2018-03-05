@@ -975,8 +975,7 @@ bool vtkOpenGLRenderer::IsDualDepthPeelingSupported()
   // ES3 is not supported, see TestFramebufferPass.cxx for how to do it
   bool dualDepthPeelingSupported = false;
 #else
-  bool dualDepthPeelingSupported = context->GetContextSupportsOpenGL32() ||
-      (GLEW_ARB_texture_float && GLEW_ARB_texture_rg);
+  bool dualDepthPeelingSupported = true;
 #endif
 
   // There's a bug on current mesa master that prevents dual depth peeling
