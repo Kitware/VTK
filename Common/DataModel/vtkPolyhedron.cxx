@@ -15,12 +15,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPolyhedron.h"
 #include "vtkCellArray.h"
 #include "vtkIdTypeArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkMath.h"
-#include "vtkObjectFactory.h"
 #include "vtkOrderedTriangulator.h"
 #include "vtkPointData.h"
-#include "vtkPoints.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 #include "vtkQuad.h"
@@ -32,12 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkGenericCell.h"
 #include "vtkPointLocator.h"
 #include "vtkMeanValueCoordinatesInterpolator.h"
-#include "vtkSmartPointer.h"
-#include "vtkMergePoints.h"
 #include "vtkCellData.h"
-#include "vtkDataArray.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkType.h"
 #include "vtkVector.h"
 
 #include <map>
@@ -45,12 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <set>
-#include <list>
-#include <limits>
 #include <functional>
-#include <algorithm>
-#include <iterator>
 
 using namespace std;
 
@@ -112,7 +98,7 @@ typedef vector<Edge> EdgeVector;
 typedef vector< EdgeVector > FaceEdgesVector;
 typedef unordered_map<Edge, set<vtkIdType>, hash_fn, equal_fn> EdgeFaceSetMap;
 
-typedef unordered_map<vtkIdType, Edge> PointIndexEdgeMap;
+typedef unordered_multimap<vtkIdType, Edge> PointIndexEdgeMultiMap;
 typedef unordered_map<Edge, vtkIdType, hash_fn, equal_fn> EdgePointIndexMap;
 
 typedef unordered_set<Edge, hash_fn, equal_fn> EdgeSet;
@@ -1336,12 +1322,13 @@ bool CheckWatertightNonManifoldPolyhedron(vtkPolyhedron* cell, EdgeSet& original
   }
 
   bool ok = true;
-  for (auto it = directMap.begin(); it != directMap.end(); ++it)
+
+  for (const auto& entry : directMap)
   {
-    const set<vtkIdType>& facesOfEdge = it->second;
+    const set<vtkIdType>& facesOfEdge = entry.second;
     if (facesOfEdge.size() != 2)
     {
-      vtkGenericWarningMacro(<< "The polyhedron is not watertight or non-manifold because the number of faces of edge " << it->first.first << "-" << it->first.second << " is not 2 but " << facesOfEdge.size());
+      vtkGenericWarningMacro(<< "The polyhedron is not watertight or non-manifold because the number of faces of edge " << entry.first.first << "-" << entry.first.second << " is not 2 but " << facesOfEdge.size());
       ok = false;
     }
   }
@@ -1595,9 +1582,9 @@ void TriangulateFace(vtkCell* face, FaceVector& faces, vtkIdList* triIds, vtkPoi
 
 bool CheckNonManifoldTriangulation(EdgeFaceSetMap& edgeFaceMap)
 {
-  for (auto it = edgeFaceMap.begin(); it != edgeFaceMap.end(); ++it)
+  for(const auto& entry : edgeFaceMap)
   {
-    if (it->second.size() != 2)
+    if (entry.second.size() != 2)
     {
       return false;
     }
@@ -1611,7 +1598,7 @@ bool GetContourPoints(double value, vtkPolyhedron* cell,
   EdgeFaceSetMap& edgeFaceMap,
   EdgeSet& originalEdges,
   vector<vector<vtkIdType>>& oririginalFaceTriFaceMap,
-  PointIndexEdgeMap& contourPointEdgeMap,
+  PointIndexEdgeMultiMap& contourPointEdgeMultiMap,
   EdgePointIndexMap& edgeContourPointMap,
   vtkIncrementalPointLocator* locator,
   vtkDataArray* pointScalars,
@@ -1695,10 +1682,13 @@ bool GetContourPoints(double value, vtkPolyhedron* cell,
 
   vtkPoints* cellPoints = cell->GetPoints();
 
+  const double eps = 1e-6;
+
   double p0[3], p1[3], cp[3]; // left, right and contour point
-  for (auto it = edgeFaceMap.begin(); it != edgeFaceMap.end(); ++it)
+
+  for(const auto& entry : edgeFaceMap)
   {
-    const Edge& edge = it->first;
+    const Edge& edge = entry.first;
 
     // here we need to convert the global ids of the edge to
     // local ids to find the points and the point scalars.
@@ -1727,11 +1717,9 @@ bool GetContourPoints(double value, vtkPolyhedron* cell,
     //       which often is larger than two.
 
     // FOR ALL ISSUES ABOVE, FOR NOW:
-    //          clamp the fraction to be in <eps, 1-eps> with eps = 1e-6 to
+    //          clamp the fraction to be in <eps, 1-eps> to
     //          resolve any difficulties that arise from a contour lying within
-    //          machine tolerance on an existing mesh point.
-
-    const double eps = 1e-6; // this is a small number w.r.t. the [0..1] fraction range used below
+    //          machine tolerance on an existing mesh point, edge or face.
 
     if ((v0 <= value && v1 > value) || (v1 <= value && v0 > value))
     {
@@ -1754,18 +1742,23 @@ bool GetContourPoints(double value, vtkPolyhedron* cell,
 
       vtkIdType ptId(-1);
       locator->InsertUniquePoint(cp, ptId);
+
       // after point addition, also add the interpolated point value
       outPd->InterpolateEdge(inPd, ptId, edge.first, edge.second, f);
 
       // store result in the point->edge lookup structure
-      contourPointEdgeMap.insert(make_pair(ptId, edge));
+      contourPointEdgeMultiMap.insert(make_pair(ptId, edge));
     }
   }
 
   //build the reverse lookup structure edge->point
-  for (auto it = contourPointEdgeMap.begin(); it != contourPointEdgeMap.end(); ++it)
+  for (const auto& entry : contourPointEdgeMultiMap)
   {
-    edgeContourPointMap.insert(make_pair(it->second, it->first));
+    auto range = contourPointEdgeMultiMap.equal_range(entry.first);
+    for (auto jt = range.first; jt != range.second; ++jt)
+    {
+      edgeContourPointMap.insert(make_pair(jt->second, entry.first));
+    }
   }
 
   return true;
@@ -1773,90 +1766,72 @@ bool GetContourPoints(double value, vtkPolyhedron* cell,
 
 int CreateContours(EdgeFaceSetMap& edgeFaceMap,
   FaceEdgesVector& faceEdgesVector,
-  PointIndexEdgeMap& contourPointEdgeMap,
   EdgePointIndexMap& edgeContourPointMap,
   EdgeSet& originalEdges,
   function<void(vtkIdList*)>contourCallback)
 {
-  set<vtkIdType> availableContourPoints;
-  for (auto it = contourPointEdgeMap.begin(); it != contourPointEdgeMap.end(); ++it)
+  EdgeSet availableContourEdges;
+  for (const auto& entry : edgeContourPointMap)
   {
-    availableContourPoints.insert(it->first);
+    availableContourEdges.insert(entry.first);
   }
 
   vtkNew<vtkIdList> poly;
-  vtkNew<vtkIdList> visited;
-  while (availableContourPoints.size() > 0)
+  EdgeSet visited;
+  while (availableContourEdges.size() > 0)
   {
-    vtkIdType start(*availableContourPoints.begin());
-    vtkIdType cp(start);
+    Edge start = *availableContourEdges.begin();
+    Edge at(start);
     vtkIdType lastFace(-1);
 
-    // this next part is the contourpoint->edge->face->otherEdge->otherContourPoint walk
-    // to identify 1 polygon.
     do
     {
-      // get the edge on which the contour point is created
-      const Edge& e = contourPointEdgeMap[cp];
-      // insert it into the polygon if we're on an original edge
-      if (originalEdges.find(e) != originalEdges.end())
+      vtkIdType cp = edgeContourPointMap.find(at)->second;
+      if (originalEdges.find(at) != originalEdges.end())
       {
         poly->InsertNextId(cp);
       }
 
-      // mark *all* contour points as visited though
-      visited->InsertNextId(cp);
+      visited.insert(at);
 
-      // get the faces list of the edge and navigate to the face
-      // that was not used in the last iteration (i.e. don't turn back)
-      const set<vtkIdType>& facesOfEdge = edgeFaceMap[e];
+      const set<vtkIdType>& facesOfEdge = edgeFaceMap[at];
 
-      // use lastFace to decide which of the two faces to use when navigating
-      // off an edge.
       vtkIdType face(lastFace);
-      for (auto faceIt = facesOfEdge.begin(); faceIt != facesOfEdge.end(); ++faceIt)
+      for (const vtkIdType& faceOfEdge : facesOfEdge)
       {
-        if (lastFace != *faceIt)
+        if (lastFace != faceOfEdge)
         {
-          face = *faceIt;
+          face = faceOfEdge;
           break;
         }
       }
+
       if (face == lastFace)
       {
         vtkGenericWarningMacro(<< "Face navigation failed in polyhedral contouring");
         return EXIT_FAILURE;
       }
-      // set the last face to the current face for the next iteration
+
       lastFace = face;
 
-      // then, find the edges of the face we are now at
       const EdgeVector& edgesOfFace = faceEdgesVector[face];
-      for (auto edgeIt = edgesOfFace.begin(); edgeIt != edgesOfFace.end(); ++edgeIt)
+
+      for (const auto& otherEdge : edgesOfFace)
       {
-        // don't look at the edge we're coming from
-        if (equal_fn()(*edgeIt, e))
+        if (equal_fn()(otherEdge, at))
         {
           continue;
         }
 
-        // if there is a contour point on the other edge
-        // go there and keep searching.
-        const Edge& otherEdge = *edgeIt;
-        auto at = edgeContourPointMap.find(otherEdge);
-        if (at != edgeContourPointMap.end())
+        auto found = edgeContourPointMap.find(otherEdge);
+        if (found != edgeContourPointMap.end())
         {
-          // cp is the next contour point.
-          cp = at->second;
+          at = otherEdge;
+          break;
         }
       }
-      // if the next contour point is the start contour point, we're done with the polygon contour
-    } while (cp != start);
+    } while (!equal_fn()(at, start));
 
-    // NOTE: in the extraordinary case where only points with two outgoing edges
-    //       have a (+) value, the resulting poly will have
-    //       two entries, because all other contour points lie on tri-face edges
-    //       in that case, ignore the invalid polys
     if (poly->GetNumberOfIds() > 2)
     {
       // do something with the poly
@@ -1865,17 +1840,14 @@ int CreateContours(EdgeFaceSetMap& edgeFaceMap,
       contourCallback(poly);
     }
 
-    // erase the points contoured from the list of available contour points.
-    // because of the strict clipping to [eps, 1-eps] during contouring, there
-    // are no shared points between polygons.
-    for (vtkIdType i = 0; i < visited->GetNumberOfIds(); ++i)
+    for (const Edge& it : visited)
     {
-      availableContourPoints.erase(visited->GetId(i));
+      availableContourEdges.erase(it);
     }
-
     poly->Reset();
-    visited->Reset();
+    visited.clear();
   }
+
   return EXIT_SUCCESS;
 }
 
@@ -1893,7 +1865,7 @@ void vtkPolyhedron::Contour(double value,
 {
   EdgeFaceSetMap edgeFaceMap;
   FaceEdgesVector faceEdgesVector;
-  PointIndexEdgeMap contourPointEdgeMap;
+  PointIndexEdgeMultiMap contourPointEdgeMultiMap;
   EdgePointIndexMap edgeContourPointMap;
   EdgeSet originalEdges;
   vector<vector<vtkIdType>>  oririginalFaceTriFaceMap;
@@ -1901,7 +1873,7 @@ void vtkPolyhedron::Contour(double value,
   if (!GetContourPoints(value, this, this->PointIdMap,
     faceEdgesVector, edgeFaceMap, originalEdges,
     oririginalFaceTriFaceMap,
-    contourPointEdgeMap, edgeContourPointMap,
+    contourPointEdgeMultiMap, edgeContourPointMap,
     locator, pointScalars, inPd, outPd))
   {
     return;
@@ -1917,7 +1889,7 @@ void vtkPolyhedron::Contour(double value,
     offset += lines->GetNumberOfCells();
   }
 
-  if (contourPointEdgeMap.size() == 0)
+  if (contourPointEdgeMultiMap.size() == 0)
   {
     return; // no contours made
   }
@@ -1931,7 +1903,7 @@ void vtkPolyhedron::Contour(double value,
     outCd->CopyData(inCd, cellId, newCellId);
   };
 
-  CreateContours(edgeFaceMap, faceEdgesVector, contourPointEdgeMap, edgeContourPointMap, originalEdges, cb);
+  CreateContours(edgeFaceMap, faceEdgesVector, edgeContourPointMap, originalEdges, cb);
 }
 
 // start new clipping code
@@ -2044,7 +2016,7 @@ void EdgesToPolygons(vector<vector<Edge>>& edgePolygons, vector<vector<vtkIdType
   }
 }
 
-void PruneContourPoints(vector<vector<vtkIdType>>& merged, EdgeSet& originalEdges, PointIndexEdgeMap& contourPointEdgeMap)
+void PruneContourPoints(vector<vector<vtkIdType>>& merged, EdgeSet& originalEdges, PointIndexEdgeMultiMap& contourPointEdgeMultiMap)
 {
   for (auto it = merged.begin(); it != merged.end(); ++it)
   {
@@ -2054,12 +2026,22 @@ void PruneContourPoints(vector<vector<vtkIdType>>& merged, EdgeSet& originalEdge
     int i = (int)polygon.size() - 1;
     for (; i >= 0; --i)
     {
-      auto at = contourPointEdgeMap.find(polygon[i]);
-      if (at != contourPointEdgeMap.end())
+      auto at = contourPointEdgeMultiMap.find(polygon[i]);
+      if (at != contourPointEdgeMultiMap.end())
       {
-        // the polygon point is a contour point
-        Edge& edgeOfContourPoint = at->second;
-        if (originalEdges.find(edgeOfContourPoint) == originalEdges.end())
+        bool doErase(true);
+        auto eq = contourPointEdgeMultiMap.equal_range(polygon[i]);
+        for (auto jt = eq.first; jt != eq.second; ++jt)
+        {
+          const Edge& edgeOfContourPoint = jt->second;
+          if (originalEdges.find(edgeOfContourPoint) != originalEdges.end())
+          {
+            doErase = false;
+            break;
+          }
+        }
+
+        if (doErase)
         {
           // the contour point is on a non-original edge: remove it from the polygon.
           polygon.erase(polygon.begin() + i);
@@ -2069,7 +2051,7 @@ void PruneContourPoints(vector<vector<vtkIdType>>& merged, EdgeSet& originalEdge
   }
 }
 
-void MergeTriFacePolygons(vector<vector<vtkIdType>>& toMerge, vector<vector<vtkIdType>>& merged, EdgeSet& originalEdges, PointIndexEdgeMap& contourPointEdgeMap)
+void MergeTriFacePolygons(vector<vector<vtkIdType>>& toMerge, vector<vector<vtkIdType>>& merged, EdgeSet& originalEdges, PointIndexEdgeMultiMap& contourPointEdgeMultiMap)
 {
   // this is a five-step procedure:
 
@@ -2125,13 +2107,13 @@ void MergeTriFacePolygons(vector<vector<vtkIdType>>& toMerge, vector<vector<vtkI
   EdgesToPolygons(result, merged);
 
   // step 5: prune contour points that are not on original edges.
-  PruneContourPoints(merged, originalEdges, contourPointEdgeMap);
+  PruneContourPoints(merged, originalEdges, contourPointEdgeMultiMap);
 }
 
 void MergeTriFacePolygons(vtkPolyhedron* cell,
   unordered_map<vtkIdType, vector<vtkIdType>>& triFacePolygonMap,
   vector<vector<vtkIdType>>& oririginalFaceTriFaceMap,
-  PointIndexEdgeMap& contourPointEdgeMap,
+  PointIndexEdgeMultiMap& contourPointEdgeMultiMap,
   EdgeSet& originalEdges,
   vector<vector<vtkIdType>>& polygons)
 {
@@ -2154,7 +2136,7 @@ void MergeTriFacePolygons(vtkPolyhedron* cell,
     if (facePolygons.size() > 0)
     {
       vector<vector<vtkIdType>> mergedPolygons;
-      MergeTriFacePolygons(facePolygons, mergedPolygons, originalEdges, contourPointEdgeMap);
+      MergeTriFacePolygons(facePolygons, mergedPolygons, originalEdges, contourPointEdgeMultiMap);
       for (auto it = mergedPolygons.begin(); it != mergedPolygons.end(); ++it)
       {
         polygons.push_back(*it);
@@ -2219,7 +2201,7 @@ void vtkPolyhedron::Clip(double value,
 
   EdgeFaceSetMap edgeFaceMap;
   FaceEdgesVector faceEdgesVector;
-  PointIndexEdgeMap contourPointEdgeMap;
+  PointIndexEdgeMultiMap contourPointEdgeMultiMap;
   EdgePointIndexMap edgeContourPointMap;
   EdgeSet originalEdges;
   vector<vector<vtkIdType>>  oririginalFaceTriFaceMap;
@@ -2227,13 +2209,13 @@ void vtkPolyhedron::Clip(double value,
   if (!GetContourPoints(value, this, this->PointIdMap,
     faceEdgesVector, edgeFaceMap, originalEdges,
     oririginalFaceTriFaceMap,
-    contourPointEdgeMap, edgeContourPointMap, locator,
+    contourPointEdgeMultiMap, edgeContourPointMap, locator,
     pointScalars, inPd, outPd))
   {
     return;
   }
 
-  if (contourPointEdgeMap.size() == 0)
+  if (contourPointEdgeMultiMap.size() == 0)
   {
     return;
   }
@@ -2289,7 +2271,7 @@ void vtkPolyhedron::Clip(double value,
   }
 
   vector<vector<vtkIdType> > polygons;
-  MergeTriFacePolygons(this, triFacePolygonMap, oririginalFaceTriFaceMap, contourPointEdgeMap, originalEdges, polygons);
+  MergeTriFacePolygons(this, triFacePolygonMap, oririginalFaceTriFaceMap, contourPointEdgeMultiMap, originalEdges, polygons);
 
   // next, get the contour polygons.
 
@@ -2308,7 +2290,7 @@ void vtkPolyhedron::Clip(double value,
       pPolygons->push_back(polygon);
   };
 
-  CreateContours(edgeFaceMap, faceEdgesVector, contourPointEdgeMap, edgeContourPointMap, originalEdges, cb);
+  CreateContours(edgeFaceMap, faceEdgesVector, edgeContourPointMap, originalEdges, cb);
 
   // this next bit finds closed polyhedra by looking at disjoint sets of point ids
   // that hold the polyhedra. Note that if two closed polyhedra share one point

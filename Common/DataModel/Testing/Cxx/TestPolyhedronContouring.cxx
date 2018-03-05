@@ -13,41 +13,18 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 
-#include "vtkCell.h"
-#include "vtkCellData.h"
 #include "vtkClipDataSet.h"
 #include "vtkContourFilter.h"
-#include "vtkCutter.h"
 #include "vtkDoubleArray.h"
-#include "vtkEdgeListIterator.h"
-#include "vtkGraphWriter.h"
-#include "vtkPointLocator.h"
-#include "vtkMergePoints.h"
-#include "vtkMutableUndirectedGraph.h"
 #include "vtkNew.h"
-#include "vtkOrderedTriangulator.h"
-#include "vtkPlane.h"
-#include "vtkPlaneSource.h"
 #include "vtkPointData.h"
-#include "vtkPolyData.h"
-#include "vtkPolyhedron.h"
-#include "vtkTestUtilities.h"
-#include "vtkTrivialProducer.h"
 #include "vtkXMLUnstructuredGridReader.h"
-#include "vtkXMLUnstructuredGridWriter.h"
-#include "vtkXMLPolyDataWriter.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <utility>
-#include <unordered_map>
-#include <functional>
-#include <set>
-#include <unordered_set>
-#include <vector>
 
 using namespace std;
 
-int TestPolyhedron6(int argc, char *argv[])
+int TestPolyhedronContouring(int argc, char *argv[])
 {
   vtkObject::GlobalWarningDisplayOff();
   vtkNew<vtkXMLUnstructuredGridReader> r;
