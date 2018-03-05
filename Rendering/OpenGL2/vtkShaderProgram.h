@@ -291,6 +291,22 @@ public:
   vtkGetStringMacro(FileNamePrefixForDebugging);
   //@}
 
+  //@{
+  /**
+   * Set/Get times that can be used to track when a set of
+   * uniforms was last updated. This can be used to reduce
+   * redundent SetUniformCalls
+   */
+  enum UniformGroups {
+    CameraGroup,
+    LightingGroup,
+    UserGroup, // always will be last
+  };
+  void SetUniformGroupUpdateTime(int, vtkMTimeType tm);
+  vtkMTimeType GetUniformGroupUpdateTime(int);
+  //@}
+
+
 protected:
   vtkShaderProgram();
   ~vtkShaderProgram() override;
@@ -374,6 +390,8 @@ protected:
   void ClearMaps();
   std::map<const char *, int, cmp_str> AttributeLocs;
   std::map<const char *, int, cmp_str> UniformLocs;
+
+  std::map<int, vtkMTimeType> UniformGroupMTimes;
 
   friend class VertexArrayObject;
 
