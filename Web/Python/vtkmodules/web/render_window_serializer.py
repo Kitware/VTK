@@ -148,6 +148,10 @@ def initializeSerializers():
   # Cameras
   registerInstanceSerializer('vtkOpenGLCamera', cameraSerializer)
 
+  # Lights
+  registerInstanceSerializer('vtkPVLight', lightSerializer)
+  registerInstanceSerializer('vtkOpenGLLight', lightSerializer)
+
 # -----------------------------------------------------------------------------
 # Helper functions
 # -----------------------------------------------------------------------------
@@ -574,6 +578,7 @@ def colorTransferFunctionSerializer(parent, instance, objId, context, depth):
 def rendererSerializer(parent, instance, objId, context, depth):
   dependencies = []
   viewPropIds = []
+  lightsIds = []
   calls = []
 
   # Camera
@@ -596,7 +601,20 @@ def rendererSerializer(parent, instance, objId, context, depth):
       dependencies.append(viewPropInstance)
       viewPropIds.append(viewPropId)
 
-  calls += context.buildDependencyCallList(objId, viewPropIds, 'addViewProp', 'removeViewProp')
+  calls += context.buildDependencyCallList('%s-props' % objId, viewPropIds, 'addViewProp', 'removeViewProp')
+
+  # Lights
+  lightCollection = instance.GetLights()
+  for lightIdx in range(lightCollection.GetNumberOfItems()):
+    light = lightCollection.GetItemAsObject(lightIdx)
+    lightId = getReferenceId(light)
+
+    lightInstance = serializeInstance(instance, light, lightId, context, depth + 1)
+    if lightInstance:
+      dependencies.append(lightInstance)
+      lightsIds.append(lightId)
+
+  calls += context.buildDependencyCallList('%s-lights' % objId, lightsIds, 'addLight', 'removeLight')
 
   if len(dependencies) > 1:
     return {
@@ -641,6 +659,30 @@ def cameraSerializer(parent, instance, objId, context, depth):
       'focalPoint': instance.GetFocalPoint(),
       'position': instance.GetPosition(),
       'viewUp': instance.GetViewUp(),
+    }
+  }
+
+# -----------------------------------------------------------------------------
+
+def lightSerializer(parent, instance, objId, context, depth):
+  return {
+    'parent': getReferenceId(parent),
+    'id': objId,
+    'type': instance.GetClassName(),
+    'properties': {
+      # 'specularColor': instance.GetSpecularColor(),
+      # 'ambientColor': instance.GetAmbientColor(),
+      'switch': instance.GetSwitch(),
+      'intensity': instance.GetIntensity(),
+      'color': instance.GetDiffuseColor(),
+      'position': instance.GetPosition(),
+      'focalPoint': instance.GetFocalPoint(),
+      'positional': instance.GetPositional(),
+      'exponent': instance.GetExponent(),
+      'coneAngle': instance.GetConeAngle(),
+      'attenuationValues': instance.GetAttenuationValues(),
+      'lightType': instance.GetLightType(),
+      'shadowAttenuation': instance.GetShadowAttenuation()
     }
   }
 
