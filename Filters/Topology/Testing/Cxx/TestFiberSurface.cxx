@@ -143,12 +143,12 @@ int TestFiberSurface(int argc, char* argv[])
 
       vtkPolyData* polyData = fs->GetOutput();
 
-      /**** Duplicate Ponts ****/
+      /**** Duplicate Points ****/
       int numOfPoints = polyData->GetNumberOfPoints();
       int index = 0;
       double* coords;
 
-      /**** NON Duplicate Ponts ****/
+      /**** NON Duplicate Points ****/
       vtkSmartPointer<vtkCleanPolyData> clean = vtkSmartPointer<vtkCleanPolyData>::New();
       clean->SetInputData(polyData);
       clean->Update();

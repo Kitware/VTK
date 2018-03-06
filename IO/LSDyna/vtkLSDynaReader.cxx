@@ -2829,7 +2829,7 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
   vtkIdType cells[]    = {p->Dict["NEL8"], p->Dict["NELT"], p->Dict["NEL2"], p->Dict["NEL4"]};
   vtkIdType cellVals[] = {p->Dict["NV3D"], p->Dict["NV3DT"], p->Dict["NV1D"], p->Dict["NV2D"]};
 
-  // Be carefull to exclude arrays which are note part State data
+  // Be careful to exclude arrays which are not part State data
   unsigned int firstStateArrayNdx = (p->Dict["NARBS"]>0) ? 1 : 0;  // Skip first Array if it is UserIds
 
   for (int i=0; i<4; i++)

@@ -289,7 +289,7 @@ protected:
     int fieldAssociation,
     int componentno);
 
-  // what coordinate shoudl be used for this texture
+  // what coordinate should be used for this texture
   std::string GetTextureCoordinateName(const char *tname);
 
   // the following is all extra stuff to work around the
