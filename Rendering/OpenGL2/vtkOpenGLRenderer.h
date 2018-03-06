@@ -26,6 +26,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderer.h"
 #include <vector>  // STL Header
+#include <string> // Ivars
 
 class vtkOpenGLFXAAFilter;
 class vtkRenderPass;
