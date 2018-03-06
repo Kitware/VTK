@@ -26,6 +26,8 @@
 #include "vtkVolumeNode.h"
 #include "vtkVolumeProperty.h"
 
+#include <algorithm>
+
 #include "ospray/ospray.h"
 
 vtkStandardNewMacro(vtkOSPRayTetrahedraMapperNode);
