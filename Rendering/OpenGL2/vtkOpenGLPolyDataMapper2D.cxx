@@ -727,8 +727,7 @@ bool vtkOpenGLPolyDataMapper2D::HaveWideLines(
   vtkActor2D *actor)
 {
   if (this->LastBoundBO == &this->Lines
-      && actor->GetProperty()->GetLineWidth() > 1.0
-      && vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+      && actor->GetProperty()->GetLineWidth() > 1.0)
   {
     // we have wide lines, but the OpenGL implementation may
     // actually support them, check the range to see if we

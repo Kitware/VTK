@@ -599,91 +599,63 @@ void vtkOpenGLRenderWindow::InitializeTextureInternalFormats()
   this->TextureInternalFormats[VTK_SHORT][0][4] = GL_RGBA16_SNORM;
 #endif
 
-#if GL_ES_VERSION_3_0 == 1
-  bool haveFloatTextures = true;
-  bool haveIntTextures = true;
-#else
-  bool haveFloatTextures = false;
-  bool haveIntTextures = false;
-  if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
-  {
-    haveFloatTextures = true;
-    haveIntTextures = true;
-  }
-  else
-  {
-    haveFloatTextures= (glewIsSupported("GL_ARB_texture_float") != 0
-     && glewIsSupported("GL_ARB_texture_rg") != 0);
-    haveIntTextures= (glewIsSupported("GL_EXT_texture_integer") != 0);
-  }
-#endif
-
-  if (haveIntTextures)
-  {
 #ifdef GL_R8I
-    this->TextureInternalFormats[VTK_SIGNED_CHAR][2][1] = GL_R8I;
-    this->TextureInternalFormats[VTK_SIGNED_CHAR][2][2] = GL_RG8I;
-    this->TextureInternalFormats[VTK_SIGNED_CHAR][2][3] = GL_RGB8I;
-    this->TextureInternalFormats[VTK_SIGNED_CHAR][2][4] = GL_RGBA8I;
-    this->TextureInternalFormats[VTK_UNSIGNED_CHAR][2][1] = GL_R8UI;
-    this->TextureInternalFormats[VTK_UNSIGNED_CHAR][2][2] = GL_RG8UI;
-    this->TextureInternalFormats[VTK_UNSIGNED_CHAR][2][3] = GL_RGB8UI;
-    this->TextureInternalFormats[VTK_UNSIGNED_CHAR][2][4] = GL_RGBA8UI;
+  this->TextureInternalFormats[VTK_SIGNED_CHAR][2][1] = GL_R8I;
+  this->TextureInternalFormats[VTK_SIGNED_CHAR][2][2] = GL_RG8I;
+  this->TextureInternalFormats[VTK_SIGNED_CHAR][2][3] = GL_RGB8I;
+  this->TextureInternalFormats[VTK_SIGNED_CHAR][2][4] = GL_RGBA8I;
+  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][2][1] = GL_R8UI;
+  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][2][2] = GL_RG8UI;
+  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][2][3] = GL_RGB8UI;
+  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][2][4] = GL_RGBA8UI;
 
-    this->TextureInternalFormats[VTK_SHORT][2][1] = GL_R16I;
-    this->TextureInternalFormats[VTK_SHORT][2][2] = GL_RG16I;
-    this->TextureInternalFormats[VTK_SHORT][2][3] = GL_RGB16I;
-    this->TextureInternalFormats[VTK_SHORT][2][4] = GL_RGBA16I;
-    this->TextureInternalFormats[VTK_UNSIGNED_SHORT][2][1] = GL_R16UI;
-    this->TextureInternalFormats[VTK_UNSIGNED_SHORT][2][2] = GL_RG16UI;
-    this->TextureInternalFormats[VTK_UNSIGNED_SHORT][2][3] = GL_RGB16UI;
-    this->TextureInternalFormats[VTK_UNSIGNED_SHORT][2][4] = GL_RGBA16UI;
+  this->TextureInternalFormats[VTK_SHORT][2][1] = GL_R16I;
+  this->TextureInternalFormats[VTK_SHORT][2][2] = GL_RG16I;
+  this->TextureInternalFormats[VTK_SHORT][2][3] = GL_RGB16I;
+  this->TextureInternalFormats[VTK_SHORT][2][4] = GL_RGBA16I;
+  this->TextureInternalFormats[VTK_UNSIGNED_SHORT][2][1] = GL_R16UI;
+  this->TextureInternalFormats[VTK_UNSIGNED_SHORT][2][2] = GL_RG16UI;
+  this->TextureInternalFormats[VTK_UNSIGNED_SHORT][2][3] = GL_RGB16UI;
+  this->TextureInternalFormats[VTK_UNSIGNED_SHORT][2][4] = GL_RGBA16UI;
 
-    this->TextureInternalFormats[VTK_INT][2][1] = GL_R32I;
-    this->TextureInternalFormats[VTK_INT][2][2] = GL_RG32I;
-    this->TextureInternalFormats[VTK_INT][2][3] = GL_RGB32I;
-    this->TextureInternalFormats[VTK_INT][2][4] = GL_RGBA32I;
-    this->TextureInternalFormats[VTK_UNSIGNED_INT][2][1] = GL_R32UI;
-    this->TextureInternalFormats[VTK_UNSIGNED_INT][2][2] = GL_RG32UI;
-    this->TextureInternalFormats[VTK_UNSIGNED_INT][2][3] = GL_RGB32UI;
-    this->TextureInternalFormats[VTK_UNSIGNED_INT][2][4] = GL_RGBA32UI;
+  this->TextureInternalFormats[VTK_INT][2][1] = GL_R32I;
+  this->TextureInternalFormats[VTK_INT][2][2] = GL_RG32I;
+  this->TextureInternalFormats[VTK_INT][2][3] = GL_RGB32I;
+  this->TextureInternalFormats[VTK_INT][2][4] = GL_RGBA32I;
+  this->TextureInternalFormats[VTK_UNSIGNED_INT][2][1] = GL_R32UI;
+  this->TextureInternalFormats[VTK_UNSIGNED_INT][2][2] = GL_RG32UI;
+  this->TextureInternalFormats[VTK_UNSIGNED_INT][2][3] = GL_RGB32UI;
+  this->TextureInternalFormats[VTK_UNSIGNED_INT][2][4] = GL_RGBA32UI;
 #endif
-  }
 
   // on mesa we may not have float textures even though we think we do
-  // this is due to Mesa being iompacted by a patent issue with SGI
+  // this is due to Mesa being impacted by a patent issue with SGI
+  // that is due to expire in the US in summer 2018
 #if GL_ES_VERSION_3_0 != 1
-  if (haveFloatTextures)
+  const char *glVersion =
+    reinterpret_cast<const char *>(glGetString(GL_VERSION));
+  if (glVersion && strstr(glVersion,"Mesa") != nullptr &&
+      !GLEW_ARB_texture_float)
   {
-    const char *glVersion =
-      reinterpret_cast<const char *>(glGetString(GL_VERSION));
-    if (glVersion && strstr(glVersion,"Mesa") != nullptr &&
-        !GLEW_ARB_texture_float)
-    {
-      haveFloatTextures = false;
-      // mesa without float support cannot even use
-      // uchar textures with underlying float data
-      // so pretty much anything with float data
-      // is out of luck so return
-      return;
-    }
+    // mesa without float support cannot even use
+    // uchar textures with underlying float data
+    // so pretty much anything with float data
+    // is out of luck so return
+    return;
   }
 #endif
 
-  if (haveFloatTextures)
-  {
 #ifdef GL_R32F
-    this->TextureInternalFormats[VTK_FLOAT][1][1] = GL_R32F;
-    this->TextureInternalFormats[VTK_FLOAT][1][2] = GL_RG32F;
-    this->TextureInternalFormats[VTK_FLOAT][1][3] = GL_RGB32F;
-    this->TextureInternalFormats[VTK_FLOAT][1][4] = GL_RGBA32F;
+  this->TextureInternalFormats[VTK_FLOAT][1][1] = GL_R32F;
+  this->TextureInternalFormats[VTK_FLOAT][1][2] = GL_RG32F;
+  this->TextureInternalFormats[VTK_FLOAT][1][3] = GL_RGB32F;
+  this->TextureInternalFormats[VTK_FLOAT][1][4] = GL_RGBA32F;
 
-    this->TextureInternalFormats[VTK_SHORT][1][1] = GL_R32F;
-    this->TextureInternalFormats[VTK_SHORT][1][2] = GL_RG32F;
-    this->TextureInternalFormats[VTK_SHORT][1][3] = GL_RGB32F;
-    this->TextureInternalFormats[VTK_SHORT][1][4] = GL_RGBA32F;
+  this->TextureInternalFormats[VTK_SHORT][1][1] = GL_R32F;
+  this->TextureInternalFormats[VTK_SHORT][1][2] = GL_RG32F;
+  this->TextureInternalFormats[VTK_SHORT][1][3] = GL_RGB32F;
+  this->TextureInternalFormats[VTK_SHORT][1][4] = GL_RGBA32F;
 #endif
-  }
 }
 
 void vtkOpenGLRenderWindow::GetOpenGLVersion(int &major, int &minor)
@@ -820,27 +792,20 @@ int vtkOpenGLRenderWindow::GetDepthBufferSize()
   {
     this->MakeCurrent();
     size = 0;
-    if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
-    {
-      GLint fboBind = 0;
-      glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &fboBind);
+    GLint fboBind = 0;
+    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &fboBind);
 
-      if (fboBind == 0)
-      {
-        glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
-          GL_DEPTH,
-          GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &size);
-      }
-      else
-      {
-        glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
-          GL_DEPTH_ATTACHMENT,
-          GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &size);
-      }
+    if (fboBind == 0)
+    {
+      glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
+        GL_DEPTH,
+        GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &size);
     }
     else
     {
-      glGetIntegerv( GL_DEPTH_BITS, &size );
+      glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
+        GL_DEPTH_ATTACHMENT,
+        GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &size);
     }
     return static_cast<int>(size);
   }
@@ -913,62 +878,48 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
   if ( this->Mapped)
   {
     this->MakeCurrent();
-    if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
-    {
-      GLint attachment = GL_BACK_LEFT;
+    GLint attachment = GL_BACK_LEFT;
 #ifdef GL_DRAW_BUFFER
-      glGetIntegerv(GL_DRAW_BUFFER, &attachment);
+    glGetIntegerv(GL_DRAW_BUFFER, &attachment);
 #endif
-      // GL seems odd with its handling of left/right.
-      // if it says we are using GL_FRONT or GL_BACK
-      // then convert those to GL_FRONT_LEFT and
-      // GL_BACK_LEFT.
-      if (attachment == GL_FRONT)
-      {
-        attachment = GL_FRONT_LEFT;
-      }
-      if (attachment == GL_BACK)
-      {
-        attachment = GL_BACK_LEFT;
-      }
-      glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
-        attachment,
-        GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, &size);
-      if (glGetError() == GL_NO_ERROR)
-      {
-        rgba[0] = static_cast<int>(size);
-      }
-      glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
-        attachment,
-        GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, &size);
-      if (glGetError() == GL_NO_ERROR)
-      {
-        rgba[1] = static_cast<int>(size);
-      }
-      glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
-        attachment,
-        GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, &size);
-      if (glGetError() == GL_NO_ERROR)
-      {
-        rgba[2] = static_cast<int>(size);
-      }
-      glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
-        attachment,
-        GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &size);
-      if (glGetError() == GL_NO_ERROR)
-      {
-        rgba[3] = static_cast<int>(size);
-      }
-    }
-    else
+    // GL seems odd with its handling of left/right.
+    // if it says we are using GL_FRONT or GL_BACK
+    // then convert those to GL_FRONT_LEFT and
+    // GL_BACK_LEFT.
+    if (attachment == GL_FRONT)
     {
-      glGetIntegerv( GL_RED_BITS, &size );
+      attachment = GL_FRONT_LEFT;
+    }
+    if (attachment == GL_BACK)
+    {
+      attachment = GL_BACK_LEFT;
+    }
+    glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
+      attachment,
+      GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, &size);
+    if (glGetError() == GL_NO_ERROR)
+    {
       rgba[0] = static_cast<int>(size);
-      glGetIntegerv( GL_GREEN_BITS, &size  );
+    }
+    glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
+      attachment,
+      GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, &size);
+    if (glGetError() == GL_NO_ERROR)
+    {
       rgba[1] = static_cast<int>(size);
-      glGetIntegerv( GL_BLUE_BITS, &size );
+    }
+    glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
+      attachment,
+      GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, &size);
+    if (glGetError() == GL_NO_ERROR)
+    {
       rgba[2] = static_cast<int>(size);
-      glGetIntegerv( GL_ALPHA_BITS, &size );
+    }
+    glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
+      attachment,
+      GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &size);
+    if (glGetError() == GL_NO_ERROR)
+    {
       rgba[3] = static_cast<int>(size);
     }
     return rgba[0]+rgba[1]+rgba[2]+rgba[3];
@@ -2338,12 +2289,6 @@ int vtkOpenGLRenderWindow::SupportsOpenGL()
     vtkOutputWindow::SetInstance(oldOW);
     oldOW->Delete();
     return 0;
-  }
-  if (rw->GetContextSupportsOpenGL32())
-  {
-    this->OpenGLSupportResult = 1;
-    this->OpenGLSupportMessage =
-      "The system appears to support OpenGL 3.2";
   }
 
 #ifdef GLEW_OK

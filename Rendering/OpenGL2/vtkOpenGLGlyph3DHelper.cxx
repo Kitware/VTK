@@ -280,13 +280,6 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
   this->ResourceCallback->RegisterGraphicsResources(
     static_cast<vtkOpenGLRenderWindow *>(ren->GetRenderWindow()));
 
-  // we always tell our triangle VAO to emulate unless we
-  // have opengl 3.2 to be safe
-  // this is because it seems that GLEW_ARB_vertex_array_object
-  // does not always handle the attributes for GLEW_ARB_instanced_arrays
-  this->Primitives[PrimitiveTris].VAO->SetForceEmulation(
-    !vtkOpenGLRenderWindow::GetContextSupportsOpenGL32());
-
   this->UsingInstancing = false;
 
   vtkHardwareSelector* selector = ren->GetSelector();

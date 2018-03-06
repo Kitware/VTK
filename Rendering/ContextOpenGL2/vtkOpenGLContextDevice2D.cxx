@@ -1166,8 +1166,7 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
     }
 
     // We can actually use point sprites here
-    if (!vtkOpenGLRenderWindow::GetContextSupportsOpenGL32() ||
-        this->RenderWindow->IsPointSpriteBugPresent())
+    if (this->RenderWindow->IsPointSpriteBugPresent())
     {
       glEnable(GL_POINT_SPRITE);
       glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
@@ -1178,8 +1177,7 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
 
     // free everything
     cbo->ReleaseGraphicsResources(this->RenderWindow);
-    if (!vtkOpenGLRenderWindow::GetContextSupportsOpenGL32() ||
-        this->RenderWindow->IsPointSpriteBugPresent())
+    if (this->RenderWindow->IsPointSpriteBugPresent())
     {
       glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_FALSE);
       glDisable(GL_POINT_SPRITE);
