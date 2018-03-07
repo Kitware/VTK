@@ -26,21 +26,22 @@ set(ANDROID_NATIVE_API_LEVEL "21" CACHE STRING "Android Native API Level")
 set(ANDROID_ARCH_ABI "armeabi" CACHE STRING "Target Android architecture/abi")
 
 # find android
-find_program(ANDROID_EXECUTABLE
-  NAMES android
-  DOC   "The android command-line tool")
-if(NOT ANDROID_EXECUTABLE)
-  message(FATAL_ERROR "Can not find android command line tool: android")
-endif()
+if (BUILD_EXAMPLES)
+  find_program(ANDROID_EXECUTABLE
+    NAMES android
+    DOC   "The android command-line tool")
+  if(NOT ANDROID_EXECUTABLE)
+    message(FATAL_ERROR "Can not find android command line tool: android")
+  endif()
 
-#find ant
-find_program(ANT_EXECUTABLE
-  NAMES ant
-  DOC   "The ant build tool")
-if(NOT ANT_EXECUTABLE)
-  message(FATAL_ERROR "Can not find ant build tool: ant")
+  #find ant
+  find_program(ANT_EXECUTABLE
+    NAMES ant
+    DOC   "The ant build tool")
+  if(NOT ANT_EXECUTABLE)
+    message(FATAL_ERROR "Can not find ant build tool: ant")
+  endif()
 endif()
-
 
 # Fail if the install path is invalid
 if (NOT EXISTS ${CMAKE_INSTALL_PREFIX})
