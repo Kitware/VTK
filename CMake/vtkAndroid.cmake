@@ -16,11 +16,16 @@ set(BUILD_DIR ${CMAKE_BINARY_DIR}/CMakeExternals/Build)
 set(INSTALL_DIR ${CMAKE_BINARY_DIR}/CMakeExternals/Install)
 
 # Android options
-# Android options
+set (_ANDROID_NDK_DEFAULT "/opt/android-ndk")
 if (DEFINED ENV{ANDROID_NDK})
-  set(ANDROID_NDK "$ENV{ANDROID_NDK}" CACHE PATH "Path to the Android NDK")
-else()
-  set(ANDROID_NDK "/opt/android-ndk" CACHE PATH "Path to the Android NDK")
+  set (_ANDROID_NDK_DEFAULT "$ENV{ANDROID_NDK}")
+endif()
+set(ANDROID_NDK ${_ANDROID_NDK_DEFAULT} CACHE PATH
+  "Set to the absolute path of the Android NDK root directory.\
+ A \$\{ANDROID_NDK\}/platforms directory must exist."
+  )
+if (NOT EXISTS "${ANDROID_NDK}/platforms")
+  message(FATAL_ERROR "Please set a valid ANDROID_NDK path")
 endif()
 set(ANDROID_NATIVE_API_LEVEL "21" CACHE STRING "Android Native API Level")
 set(ANDROID_ARCH_ABI "armeabi" CACHE STRING "Target Android architecture/abi")
