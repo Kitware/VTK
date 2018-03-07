@@ -48,6 +48,10 @@ if (NOT EXISTS ${CMAKE_INSTALL_PREFIX})
     "Install path ${CMAKE_INSTALL_PREFIX} does not exist.")
 endif()
 
+# make sure we have a CTestCustom.cmake file
+configure_file("${VTK_CMAKE_DIR}/CTestCustom.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake" @ONLY)
+
 # Compile a minimal VTK for its compile tools
 macro(compile_vtk_tools)
   ExternalProject_Add(
