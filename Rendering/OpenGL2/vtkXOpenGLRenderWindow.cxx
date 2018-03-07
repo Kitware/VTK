@@ -404,10 +404,12 @@ extern "C"
   }
 }
 
+static bool ctxErrorOccurred = false;
 extern "C"
 {
   int vtkXOGLContextCreationErrorHandler(Display*, XErrorEvent*)
   {
+    ctxErrorOccurred = true;
     return 1;
   }
 }
@@ -605,6 +607,11 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
               GL_TRUE, context_attribs );
           // Sync to ensure any errors generated are processed.
           XSync( this->DisplayId, False );
+          if(ctxErrorOccurred)
+          {
+            this->Internal->ContextId = nullptr;
+            ctxErrorOccurred = false;
+          }
         }
         if ( !this->Internal->ContextId  && sharedContext)
         {
