@@ -49,7 +49,7 @@
  * } // prior state will be restored here as it goes out of scope
  *
  *
- * You must use this class to make stat chaning OpenGL class otherwise the
+ * You must use this class to make stat changing OpenGL class otherwise the
  * results will be undefined.
  *
  * For convenience some OpenGL calls that do not impact state are also
@@ -108,7 +108,7 @@ public:
   bool GetDepthMask();
   //@}
 
-  // convience method to set a enum (glEnable/glDisable)
+  // convenience method to set a enum (glEnable/glDisable)
   void SetEnumState(GLenum name, bool value);
 
   // superclass for Scoped subclasses
@@ -165,7 +165,7 @@ public:
       bool Value;
   };
 
-  // intialize both OpenGL and thes state ivars to known
+  // initialize both OpenGL and these state ivars to known
   // and consistent values
   void Initialize(vtkOpenGLRenderWindow *);
 

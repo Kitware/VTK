@@ -156,7 +156,7 @@ public:
   int Pick3DPoint(double selectionPt[3], vtkRenderer *ren) override;
 
   /**
-   * Perform pick operation with selection point and orientaion provided.
+   * Perform pick operation with selection point and orientation provided.
    * The selectionPt is in world coordinates.
    * Return non-zero if something was successfully picked.
    */

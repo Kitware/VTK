@@ -730,7 +730,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   stripCellIds.reserve( numCells );
 
   // Loop over all cells now that visibility is known
-  // (Have to compute visibility first for 3D cell boundarys)
+  // (Have to compute visibility first for 3D cell boundaries)
   int progressInterval = numCells/20 + 1;
   for (cellId=0, connectivity->InitTraversal();
        connectivity->GetNextCell(npts,pts);

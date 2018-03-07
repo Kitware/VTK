@@ -475,7 +475,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
         continue;
       }
 
-      // Find the data on the out edge and add the data fron in edge
+      // Find the data on the out edge and add the data from in edge
       // and set it on the out edge.
       for(size_t i=0; i < inEdgeDataArraysOI.size(); ++i)
       {

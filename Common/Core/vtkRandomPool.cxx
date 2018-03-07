@@ -281,7 +281,7 @@ static VTK_THREAD_RETURN_TYPE vtkRandomPool_ThreadedMethod( void *arg )
 const double * vtkRandomPool::
 GeneratePool()
 {
-  // Return if generation has already occured
+  // Return if generation has already occurred
   if ( this->GenerateTime > this->MTime )
   {
     return this->Pool;

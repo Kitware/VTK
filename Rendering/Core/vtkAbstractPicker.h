@@ -119,7 +119,7 @@ public:
     { vtkErrorMacro("Pick3DPoint called without implementation"); return 0;};
 
   /**
-   * Perform pick operation with selection point and orientaion provided.
+   * Perform pick operation with selection point and orientation provided.
    * The selectionPt is in world coordinates.
    * Return non-zero if something was successfully picked.
    */

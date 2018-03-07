@@ -527,7 +527,7 @@ void vtkConstrained2DLayoutStrategy::ResolveCoincidentVertices()
       float jumpDistance = 5.0*(bounds[1]-bounds[0])/xDim; // 2.5 grid spaces max
       int collisionOps = 0;
 
-      // You get 10 trys and then we have to punt
+      // You get 10 tries and then we have to punt
       while (collision && (collisionOps < 10))
       {
         collisionOps++;

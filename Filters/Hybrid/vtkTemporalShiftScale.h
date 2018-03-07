@@ -81,7 +81,7 @@ public:
    * shifted and scaled time frame of reference.
    * Note: Since the input time may not start at zero, the wrapping of time
    * from the end of one period to the start of the next, will subtract the
-   * initial time - a source with T{5..6} repeated periodicaly will have output
+   * initial time - a source with T{5..6} repeated periodically will have output
    * time {5..6..7..8} etc.
    */
   vtkSetMacro(Periodic, vtkTypeBool);

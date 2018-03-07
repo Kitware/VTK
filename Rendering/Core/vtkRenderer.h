@@ -599,7 +599,7 @@ public:
   //@}
 
   /**
-   * This this flag is on and the GPU supports it, depth-peel volumes along with
+   * This flag is on and the GPU supports it, depth-peel volumes along with
    * the translucent geometry. Only supported on OpenGL2 with dual-depth
    * peeling. Default is false.
    */
@@ -915,7 +915,7 @@ protected:
   vtkTypeBool UseDepthPeeling;
 
   /**
-   * This this flag is on and the GPU supports it, depth-peel volumes along with
+   * This flag is on and the GPU supports it, depth-peel volumes along with
    * the translucent geometry. Default is false;
    */
   bool UseDepthPeelingForVolumes;

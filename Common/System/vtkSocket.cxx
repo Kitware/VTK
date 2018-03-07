@@ -589,7 +589,7 @@ int vtkSocket::Receive(void* data, int length, int readFully/*=1*/)
   }
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
-  int trys = 0;
+  int tries = 0;
 #endif
 
   char* buffer = reinterpret_cast<char*>(data);
@@ -613,7 +613,7 @@ int vtkSocket::Receive(void* data, int length, int readFully/*=1*/)
     {
       // On long messages, Windows recv sometimes fails with WSAENOBUFS, but
       // will work if you try again.
-      if ((trys++ < 1000))
+      if ((tries++ < 1000))
       {
         Sleep(1);
         continue;

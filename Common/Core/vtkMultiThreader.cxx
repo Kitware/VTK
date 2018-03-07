@@ -471,7 +471,7 @@ int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *userdata )
     this->SpawnedThreadActiveFlagLock[id]->Lock();
     if (this->SpawnedThreadActiveFlag[id] == 0)
     {
-      // We've got a useable thread id, so grab it
+      // We've got a usable thread id, so grab it
       this->SpawnedThreadActiveFlag[id] = 1;
       this->SpawnedThreadActiveFlagLock[id]->Unlock();
       break;

@@ -23,7 +23,7 @@
  * unstructured grid.
  *
  * To use this filter you must specify an implicit function. You must also
- * specify whethter to extract cells laying inside or outside of the implicit
+ * specify whether to extract cells laying inside or outside of the implicit
  * function. (The inside of an implicit function is the negative values
  * region.) An option exists to extract cells that are neither inside or
  * outside (i.e., boundary).
