@@ -719,8 +719,30 @@ void vtkAxis::SetUnscaledMaximumLimit(double highest)
 //-----------------------------------------------------------------------------
 void vtkAxis::SetRange(double minimum, double maximum)
 {
-  this->SetMinimum(minimum);
-  this->SetMaximum(maximum);
+  bool rangeModified = false;
+  minimum = std::max(minimum, this->MinimumLimit);
+  if (this->Minimum != minimum)
+  {
+    this->Minimum = minimum;
+    this->UnscaledMinimum = this->LogScaleActive ? pow(10., this->Minimum) : this->Minimum;
+    rangeModified = true;
+  }
+
+  maximum = std::min(maximum, this->MaximumLimit);
+  if (this->Maximum != maximum)
+  {
+    this->Maximum = maximum;
+    this->UnscaledMaximum = this->LogScaleActive ? pow(10., this->Maximum) : this->Maximum;
+    rangeModified = true;
+  }
+
+  if (rangeModified)
+  {
+    this->UsingNiceMinMax = false;
+    this->TickMarksDirty = true;
+    this->Modified();
+    this->InvokeEvent(vtkChart::UpdateRange);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -728,16 +750,38 @@ void vtkAxis::SetRange(double *range)
 {
   if (range)
   {
-    this->SetMinimum(range[0]);
-    this->SetMaximum(range[1]);
+    this->SetRange(range[0], range[1]);
   }
 }
 
 //-----------------------------------------------------------------------------
 void vtkAxis::SetUnscaledRange(double minimum, double maximum)
 {
-  this->SetUnscaledMinimum(minimum);
-  this->SetUnscaledMaximum(maximum);
+  bool rangeModified = false;
+
+  minimum = std::max(minimum, this->UnscaledMinimumLimit);
+  if (this->UnscaledMinimum != minimum)
+  {
+    this->UnscaledMinimum = minimum;
+    this->UpdateLogScaleActive(true);
+    rangeModified = true;
+  }
+
+  maximum = std::min(maximum, this->UnscaledMaximumLimit);
+  if (this->UnscaledMaximum != maximum)
+  {
+    this->UnscaledMaximum = maximum;
+    this->UpdateLogScaleActive(true);
+    rangeModified = true;
+  }
+
+  if (rangeModified)
+  {
+    this->UsingNiceMinMax = false;
+    this->TickMarksDirty = true;
+    this->Modified();
+    this->InvokeEvent(vtkChart::UpdateRange);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -745,8 +789,7 @@ void vtkAxis::SetUnscaledRange(double *range)
 {
   if (range)
   {
-    this->SetUnscaledMinimum(range[0]);
-    this->SetUnscaledMaximum(range[1]);
+    this->SetUnscaledRange(range[0], range[1]);
   }
 }
 
@@ -1086,6 +1129,19 @@ void vtkAxis::UpdateLogScaleActive(bool alwaysUpdateMinMaxFromUnscaled)
           // The limit is on the other side of 0 relative to the data...
           // move it to the same side as the data.
           // Specifically, allow scrolling equal to the width of the plot.
+
+          // Note: There may be something wrong with this logic,
+          // as calling UpdateLogScaleActive(true) first will set
+          // this->NonLogUnscaledMinLimit = this->UnscaledMinimumLimit
+          // but when it is called again, it will set
+          // this->NonLogUnscaledMinLimit = 0.
+          // If this->NonLogUnscaledMinLimit should be set to 0 then
+          // it should be set immediately (on the first call).
+          // If the original this->UnscaledMinimumLimit needs to be preserved
+          // then the current behavior is broken, as the value is not preserved
+          // after calling this method multiple times (the method is usually
+          // called twice: first for the minimum, then for the maximum value).
+
           this->MinimumLimit = -vtkMath::Inf();
           this->NonLogUnscaledMinLimit = this->UnscaledMinimumLimit;
           this->UnscaledMinimumLimit = 0.;
