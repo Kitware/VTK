@@ -945,7 +945,6 @@ bool vtkMomentsHelper::isEdge(int dimension, int ptId, vtkImageData* field)
 //----------------------------------------------------------------------------------
 vtkIdType vtkMomentsHelper::getArrayIndex(std::vector<int> coord, std::vector<int> dimensions)
 {
-  // std::cout << "Coord: " << coord[0] << ", " << coord[1] << ", " << coord[2] << std::endl;
   return coord[0] + coord[1] * dimensions[0] + coord[2] * dimensions[0] * dimensions[1];
 }
 
@@ -969,41 +968,25 @@ std::vector<int> vtkMomentsHelper::getCoord(vtkIdType index, std::vector<int> di
 }
 
 //--------------------------------------------------------------------
-vtkImageData* vtkMomentsHelper::translateToOrigin(vtkImageData* data)
+vtkSmartPointer<vtkImageData> vtkMomentsHelper::translateToOrigin(vtkImageData* data)
 {
-  // std::cout << "Extent: [" << data->GetExtent()[0] << ", " << data->GetExtent()[1] << ", " <<
-  // data->GetExtent()[2] << ", " << data->GetExtent()[3] << ", " << data->GetExtent()[4] << ", " <<
-  // data->GetExtent()[5] << "]" << std::endl;
-
   // Translate to the origin
-  vtkImageTranslateExtent* trans = vtkImageTranslateExtent::New();
+  vtkNew<vtkImageTranslateExtent> trans;
   trans->SetTranslation(-data->GetExtent()[0], -data->GetExtent()[2], -data->GetExtent()[4]);
   trans->SetInputData(data);
   trans->Update();
-
-  // std::cout << "Translated extent: [" << trans->GetOutput()->GetExtent()[0] << ", " <<
-  // trans->GetOutput()->GetExtent()[1] << ", " << trans->GetOutput()->GetExtent()[2] << ", " <<
-  // trans->GetOutput()->GetExtent()[3] << ", " << trans->GetOutput()->GetExtent()[4] << ", " <<
-  // trans->GetOutput()->GetExtent()[5] << "]" << std::endl;  trans->GetOutput()->Print(std::cout);
-
   return trans->GetOutput();
 }
 
 //------------------------------------------------------------------------------------------
-vtkImageData* vtkMomentsHelper::padField(vtkImageData* field,
+vtkSmartPointer<vtkImageData> vtkMomentsHelper::padField(vtkImageData* field,
   vtkImageData* kernel,
   int dimension,
   std::string nameOfPointData)
 {
   // Translate to the origin
-  vtkImageData* transR = translateToOrigin(field);
-  vtkImageData* transK = translateToOrigin(kernel);
-
-  // std::cout << "Finished translating..." << std::endl;
-  // std::cout << transR->GetExtent()[1] << std::endl;
-  // std::cout << transR->GetExtent()[3] << std::endl;
-  // std::cout << transK->GetExtent()[1] << std::endl;
-  // std::cout << transK->GetExtent()[3] << std::endl;
+  auto transR = translateToOrigin(field);
+  auto transK = translateToOrigin(kernel);
 
   int dataMinExtent =
     std::min(std::min(transR->GetExtent()[0], transR->GetExtent()[2]), transR->GetExtent()[4]);
@@ -1022,136 +1005,92 @@ vtkImageData* vtkMomentsHelper::padField(vtkImageData* field,
     dataExtentPad[2 * i] = minExtent;
     dataExtentPad[2 * i + 1] = maxExtent;
   }
-  // std::cout << "Data extent padded: [" << dataExtentPad[0] << ", " << dataExtentPad[1] << ", " <<
-  // dataExtentPad[2] << ", " << dataExtentPad[3] << ", " << dataExtentPad[4] << ", " <<
-  // dataExtentPad[5] << "]" << std::endl;
-  // transR->Print(std::cout);
 
-  vtkImageData* output = vtkImageData::New();
+  vtkNew<vtkImageData> output;
   output->SetOrigin(0, 0, 0);
   output->SetSpacing(transR->GetSpacing());
   output->SetExtent(dataExtentPad);
 
   vtkDataArray* origArray = transR->GetPointData()->GetArray(nameOfPointData.c_str());
 
-  vtkDoubleArray* paddedArray = vtkDoubleArray::New();
+  vtkNew<vtkDoubleArray> paddedArray;
   paddedArray->SetName(nameOfPointData.c_str());
   paddedArray->SetNumberOfComponents(origArray->GetNumberOfComponents());
   paddedArray->SetNumberOfTuples(output->GetNumberOfPoints());
   paddedArray->Fill(0.0);
 
-  int* tmp = transR->GetDimensions();
+  const int* tmp = transR->GetDimensions();
   std::vector<int> origSize = std::vector<int>(tmp, tmp + 3);
-  // std::cout << "origSize: [" << origSize[0] << ", " << origSize[1] << ", " << origSize[2] << "]"
-  // << std::endl;
 
   tmp = output->GetDimensions();
   std::vector<int> paddedSize = std::vector<int>(tmp, tmp + 3);
-  // std::cout << "paddedSize: [" << paddedSize[0] << ", " << paddedSize[1] << ", " << paddedSize[2]
-  // << "]" << std::endl;
 
+  /* KissFFT Implementation for padding field */
   for (vtkIdType i = 0; i < transR->GetNumberOfPoints(); i++)
   {
     std::vector<int> coord = getCoord(i, origSize);
+    for (size_t j = 0; j < coord.size(); j++)
+    {
+      coord[j] += transK->GetDimensions()[j] / 2;
+    }
+
     vtkIdType index = getArrayIndex(coord, paddedSize);
     paddedArray->SetTuple(index, origArray->GetTuple(i));
   }
 
   output->GetPointData()->AddArray(paddedArray);
 
+  /* Using Constant Pad Filter for padding 0's */
   // vtkImageConstantPad* paddedField = vtkImageConstantPad::New();
   // paddedField->SetOutputWholeExtent(dataExtentPad);
   // paddedField->SetInputData(transR);
   // paddedField->SetConstant(0.0);
   // paddedField->Update();
-  // vtkImageData* output = paddedField->GetOutput();
+  // vtkImageData* paddedOutput = paddedField->GetOutput();
 
-  // return translateToOrigin(output);
-
+  /* Writing to Image .vti file */
   // vtkXMLImageDataWriter* writer = vtkXMLImageDataWriter::New();
-  // writer->SetInputData(output);
+  // writer->SetInputData(paddedOutput);
   // writer->SetFileName("/Users/ktsai/Documents/VTK_MomentInvariants/momentPatternDetetctionTest/output/paddedField.vti");
   // writer->Write();
 
-  return output;
+  return output.GetPointer();
 }
 
 //--------------------------------------------------------------------------------------------
-vtkImageData* vtkMomentsHelper::padKernel(vtkImageData* kernel, vtkImageData* paddedField)
+vtkSmartPointer<vtkImageData> vtkMomentsHelper::padKernel(vtkImageData* kernel,
+  vtkImageData* paddedField)
 {
   // Translate to the origin
-  vtkImageData* trans = translateToOrigin(kernel);
+  auto trans = translateToOrigin(kernel);
 
-  // int extent[6] = {0, 0, 0, 0, 0, 0};
-  // for (size_t i = 0; i < this->Dimension; i++)
-  // {
-  //     extent[2*i] = paddedField->GetExtent()[2*i];
-  //     extent[2*i+1] = paddedField->GetExtent()[2*i+1];
-  // }
-  // std::cout << "Kernel extent padded: [" << extent[0] << ", " << extent[1] << ", " << extent[2]
-  // << ", " << extent[3] << ", " << extent[4] << ", " << extent[5] << "]" << std::endl;
-
-  vtkImageData* output = vtkImageData::New();
+  vtkNew<vtkImageData> output;
   output->SetOrigin(0, 0, 0);
   output->SetSpacing(trans->GetSpacing());
   output->SetExtent(paddedField->GetExtent());
 
   vtkDataArray* scalars = trans->GetPointData()->GetScalars();
 
-  vtkDoubleArray* scalarsPad = vtkDoubleArray::New();
+  vtkNew<vtkDoubleArray> scalarsPad;
   scalarsPad->SetName("kernel");
   scalarsPad->SetNumberOfComponents(1);
   scalarsPad->SetNumberOfTuples(output->GetNumberOfPoints());
   scalarsPad->Fill(0.0);
 
-  int* tmp = trans->GetDimensions();
+  const int* tmp = trans->GetDimensions();
   std::vector<int> origSize = std::vector<int>(tmp, tmp + 3);
-  // std::cout << "origSize: [" << origSize[0] << ", " << origSize[1] << ", " << origSize[2] << "]"
-  // << std::endl;
 
   tmp = output->GetDimensions();
   std::vector<int> paddedSize = std::vector<int>(tmp, tmp + 3);
-  // std::cout << "paddedSize: [" << paddedSize[0] << ", " << paddedSize[1] << ", " << paddedSize[2]
-  // << "]" << std::endl;
 
-  std::vector<int> cent(3);
-
-  for (size_t i = 0; i < cent.size(); i++)
-  {
-    cent[i] = origSize[i] / 2;
-  }
-
-  // std::cout << "cent: [" << cent[0] << ", " << cent[1] << ", " << cent[2] << "]" << std::endl;
-
+  /* KissFFT Implementation for padding kernel */
   for (vtkIdType i = 0; i < scalars->GetNumberOfTuples(); i++)
   {
     std::vector<int> coord = getCoord(i, origSize);
-    // std::cout << "coord: [" << coord[0] << ", " << coord[1] << ", " << coord[2] << "]" <<
-    // std::endl;
-    std::vector<int> offset(coord.size());
-    for (size_t j = 0; j < offset.size(); j++)
-    {
-      offset[j] = cent[j] - coord[j];
-    }
-
-    std::vector<int> newCoord(coord.size());
-    for (size_t j = 0; j < newCoord.size(); j++)
-    {
-      newCoord[j] = coord[j] - cent[j];
-      if (coord[j] < cent[j])
-      {
-        newCoord[j] = paddedSize[j] - offset[j];
-        // std::cout << newCoord[j] << std::endl;
-      }
-    }
-    // std::cout << "newCoord: [" << newCoord[0] << ", " << newCoord[1] << ", " << newCoord[2] <<
-    // "]" << std::endl;
-
-    vtkIdType index = getArrayIndex(newCoord, paddedSize);
+    vtkIdType index = getArrayIndex(coord, paddedSize);
     scalarsPad->SetTuple1(index, scalars->GetTuple1(i));
   }
 
   output->GetPointData()->SetScalars(scalarsPad);
-
-  return output;
+  return output.GetPointer();
 }

@@ -72,8 +72,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include VTK_EIGEN(Dense)
 #include <vector>
 
-#define REAL 0
-#define IMAG 1
+#include "vtk_kissfft.h"
+#include VTK_KISSFFT_HEADER(kiss_fft.h)
+#include VTK_KISSFFT_HEADER(tools/kiss_fftnd.h)
 
 /**
  * standard vtk new operator
@@ -99,7 +100,7 @@ vtkComputeMoments::vtkComputeMoments()
   this->NumberOfIntegrationSteps = 5;
   this->NameOfPointData = "no name set by user";
   this->Extent = 0;
-  this->UseFFT = false;
+  this->UseFFT = true;
 }
 
 /**
@@ -408,7 +409,7 @@ void vtkComputeMoments::BuildOutput(vtkImageData* grid, vtkImageData* output)
   {
     for (size_t i = 0; i < this->NumberOfBasisFunctions; ++i)
     {
-      vtkDoubleArray* array = vtkDoubleArray::New();
+      vtkNew<vtkDoubleArray> array;
       std::string fieldName = "radius" + std::to_string(this->Radii.at(k)) + "index" +
         vtkMomentsHelper::getTensorIndicesFromFieldIndexAsString(
           i, this->Dimension, this->Order, this->FieldRank)
@@ -416,7 +417,6 @@ void vtkComputeMoments::BuildOutput(vtkImageData* grid, vtkImageData* output)
       array->SetName(fieldName.c_str());
       array->SetNumberOfTuples(grid->GetNumberOfPoints());
       output->GetPointData()->AddArray(array);
-      array->Delete();
     }
   }
 }
@@ -437,8 +437,192 @@ void vtkComputeMoments::Compute(size_t radiusIndex,
   // std::cout << "vtkComputeMoments::Compute \n";
   if (this->UseFFT)
   {
-    vtkErrorMacro("The FFT option is currently not available. The algorithm proceeds with the "
-                  "classical integration");
+    /* Setup imagedata for kernel */
+    vtkNew<vtkImageData> kernel;
+    kernel->SetOrigin(0, 0, 0);
+    kernel->SetSpacing(field->GetSpacing());
+
+    int extArray[6] = { 0, 0, 0, 0, 0, 0 };
+    for (int i = 0; i < this->Dimension; i++)
+    {
+      extArray[2 * i] = -this->Radii.at(radiusIndex) / kernel->GetSpacing()[i];
+      extArray[2 * i + 1] = this->Radii.at(radiusIndex) / kernel->GetSpacing()[i];
+    }
+    kernel->SetExtent(extArray);
+
+    vtkNew<vtkDoubleArray> kernelArray;
+    kernelArray->SetName("kernel");
+    kernelArray->SetNumberOfComponents(1);
+    kernelArray->SetNumberOfTuples(kernel->GetNumberOfPoints());
+    kernelArray->Fill(0.0);
+    kernel->GetPointData()->SetScalars(kernelArray);
+
+    /* Pad the field data */
+    vtkSmartPointer<vtkImageData> paddedField =
+      vtkMomentsHelper::padField(field, kernel, this->Dimension, this->NameOfPointData);
+
+    /* Start setting up FFT for padded field data */
+    const int* dims = paddedField->GetDimensions();
+    int numPs = paddedField->GetNumberOfPoints();
+
+    kiss_fft_cpx* fieldFFT = (kiss_fft_cpx*)malloc(sizeof(kiss_fft_cpx) * numPs);
+
+    // Create the kissfft forward and inverse plan
+    // kiss_fftnd_alloc( dims, ndims, forward/inverse, 0, 0 )
+    // dims: array of dimensions
+    // ndims: number of dimensions
+    // inverse: 0 = forward; 1 = inverse
+    kiss_fftnd_cfg forwardFFT;
+    kiss_fftnd_cfg inverseFFT;
+
+    forwardFFT = kiss_fftnd_alloc(dims, this->Dimension, 0, 0, 0);
+    inverseFFT = kiss_fftnd_alloc(dims, this->Dimension, 1, 0, 0);
+
+    /* Initialize & Execute plan on fieldFFT */
+    std::vector<kiss_fft_cpx*> dataComponents;
+    int numberOfComponents =
+      paddedField->GetPointData()->GetArray(this->NameOfPointData.c_str())->GetNumberOfComponents();
+    for (int numComp = 0; numComp < numberOfComponents; numComp++)
+    {
+      dataComponents.push_back((kiss_fft_cpx*)malloc(sizeof(kiss_fft_cpx) * numPs));
+
+      // Fill in values for fieldFFT
+      for (int j = 0; j < numPs; j++)
+      {
+        fieldFFT[j].r = paddedField->GetPointData()
+                          ->GetArray(this->NameOfPointData.c_str())
+                          ->GetTuple(j)[numComp];
+        fieldFFT[j].i = 0.0;
+      }
+      kiss_fftnd(forwardFFT, fieldFFT, dataComponents[numComp]);
+    }
+
+    /* Start setting up FFT for kernel */
+    kiss_fft_cpx* kernelFFT = (kiss_fft_cpx*)malloc(sizeof(kiss_fft_cpx) * numPs);
+    kiss_fft_cpx* k_freq = (kiss_fft_cpx*)malloc(sizeof(kiss_fft_cpx) * numPs);
+    kiss_fft_cpx* tmp_k_freq = (kiss_fft_cpx*)malloc(sizeof(kiss_fft_cpx) * numPs);
+
+    /* Start setting up IFFT for the result */
+    kiss_fft_cpx* result = (kiss_fft_cpx*)malloc(sizeof(kiss_fft_cpx) * numPs);
+
+    vtkNew<vtkImageData> fft_output;
+    this->BuildOutput(field, fft_output);
+
+    /*
+     * Initialize kernel for each basis function
+     * Initialize kernelFFT from the paddedKernel
+     * Apply FFT on the kernelFFT
+     * Initialize result from kernelFFT according to the Cross-Correlation Theorem
+     * Apply IFFT on the result
+     * Populate the output from the result with normalization
+     */
+    for (size_t i = 0; i < this->NumberOfBasisFunctions; i++)
+    {
+      double argument[3];
+      kernelArray->Fill(0.0);
+
+      std::vector<size_t> indices = vtkMomentsHelper::getTensorIndicesFromFieldIndex(
+        i, this->Dimension, this->Order, this->FieldRank); // radiusIndex *
+                                                           // this->NumberOfBasisFunctions + i); //
+                                                           // given multiple radii this does not give
+                                                           // correct answers
+      int rank = indices.size();
+
+      // Fill in values for kernel
+      for (int ptId = 0; ptId < kernel->GetNumberOfPoints(); ++ptId)
+      {
+        kernel->GetPoint(ptId, argument);
+        if (vtkMath::Norm(argument) <= this->Radii.at(radiusIndex))
+        {
+          double faktor = 1;
+          for (int k = 0; k < rank - this->FieldRank; ++k)
+          {
+            faktor *= argument[indices.at(k)];
+          }
+          kernelArray->SetTuple1(ptId, faktor);
+        }
+      }
+
+      vtkMomentsTensor dummyTensor = vtkMomentsTensor(this->Dimension, rank, this->FieldRank);
+      int compIndex = dummyTensor.getFieldIndex(dummyTensor.getIndex(indices));
+
+      // Pad the kernel
+      vtkSmartPointer<vtkImageData> paddedKernel = vtkMomentsHelper::padKernel(kernel, paddedField);
+
+      // Initialize & Execute plan on kernelFFT
+      for (int j = 0; j < numPs; j++)
+      {
+        kernelFFT[j].r = paddedKernel->GetPointData()->GetScalars()->GetTuple1(j);
+        kernelFFT[j].i = 0.0;
+      }
+      kiss_fftnd(forwardFFT, kernelFFT, k_freq);
+
+      // Multiply the 2 FFT together according to Cross-Correlation Theorem
+      for (int j = 0; j < numPs; j++)
+      {
+        // Cross-correction: complex conjugate the FFT of kernel
+        tmp_k_freq[j].r = (dataComponents[compIndex][j].r * k_freq[j].r +
+          dataComponents[compIndex][j].i * k_freq[j].i);
+        tmp_k_freq[j].i = (dataComponents[compIndex][j].r * (-k_freq[j].i) +
+          k_freq[j].r * dataComponents[compIndex][j].i);
+      }
+      kiss_fftnd(inverseFFT, tmp_k_freq, result);
+
+      // Set the output array for each corresponding moment array
+      const int* tmp = field->GetDimensions();
+      std::vector<int> origSize = std::vector<int>(tmp, tmp + 3);
+
+      tmp = paddedField->GetDimensions();
+      std::vector<int> paddedSize = std::vector<int>(tmp, tmp + 3);
+
+      // FFTW/KissFFT performs unnormalized FFT & IFFT
+      double normalize = 1.0;
+      double spacings = 1.0;
+      for (int j = 0; j < this->Dimension; j++)
+      {
+        normalize *= dims[j];
+        spacings *= field->GetSpacing()[j];
+      }
+
+      for (vtkIdType j = 0; j < field->GetNumberOfPoints(); j++)
+      {
+        std::vector<int> coord = vtkMomentsHelper::getCoord(j, origSize);
+
+        fft_output->GetPointData()
+          ->GetArray(radiusIndex * this->NumberOfBasisFunctions + i)
+          ->SetTuple1(
+            j, result[vtkMomentsHelper::getArrayIndex(coord, paddedSize)].r / normalize * spacings);
+      }
+    }
+
+    /* Resample to grid structure if grid is defined */
+    vtkNew<vtkResampleWithDataSet> resample;
+    resample->SetInputData(grid);
+    resample->SetSourceData(fft_output);
+    resample->Update();
+    vtkImageData* resampleData = vtkImageData::SafeDownCast(resample->GetOutput());
+
+    for (size_t i = 0; i < this->NumberOfBasisFunctions; i++)
+    {
+      for (vtkIdType j = 0; j < output->GetNumberOfPoints(); j++)
+      {
+        output->GetPointData()
+          ->GetArray(radiusIndex * this->NumberOfBasisFunctions + i)
+          ->SetTuple1(j,
+            resampleData->GetPointData()
+              ->GetArray(radiusIndex * this->NumberOfBasisFunctions + i)
+              ->GetTuple1(j));
+      }
+    }
+
+    /* Cleaning up the fft objects */
+    free(fieldFFT);
+    free(kernelFFT);
+    free(k_freq);
+    free(tmp_k_freq);
+    free(result);
+    free(forwardFFT);
+    free(inverseFFT);
   }
   else if (this->NumberOfIntegrationSteps == 0)
   {
@@ -483,7 +667,7 @@ void vtkComputeMoments::Compute(size_t radiusIndex,
   else
   {
     // std::cout << "sampling active for stencil, because numberOfIntegratioSteps > 0 \n";
-    vtkImageData* stencil = vtkImageData::New();
+    vtkNew<vtkImageData> stencil;
     vtkMomentsHelper::BuildStencil(stencil,
       this->Radii.at(radiusIndex),
       this->NumberOfIntegrationSteps,
@@ -558,7 +742,6 @@ void vtkComputeMoments::Compute(size_t radiusIndex,
       // cout<<ptId<<" center="<<center[0]<<" "<<center[1]<<" "<<center[2]<<"
       // "<<outPD->GetArray(0)->GetTuple(ptId)[0]<<"\n";
     }
-    stencil->Delete();
   }
   //#ifdef MYDEBUG
   //    std::ostream stream(std::cout.rdbuf());

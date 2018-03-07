@@ -74,10 +74,10 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkFiltersMomentInvariantsModule.h" // For export macro
 
-#include "vtkType.h" // for vtkIdType
-
-#include <string>    // for std::string
-#include <vector>    // for std::vector
+#include "vtkSmartPointer.h" // for vtkSmartPointer.
+#include "vtkType.h"         // for vtkIdType
+#include <string>            // for std::string
+#include <vector>            // for std::vector
 
 class vtkCell;
 class vtkDataSet;
@@ -318,15 +318,15 @@ struct VTKFILTERSMOMENTINVARIANTS_EXPORT vtkMomentsHelper
   static std::vector<int> getCoord(vtkIdType index, std::vector<int> dimensions);
 
   /**
-   * Translates the data to the origin (0, 0, 0)
+   * Translates the data to the origin (0, 0, 0).
    */
-  static vtkImageData* translateToOrigin(vtkImageData* data);
+  static vtkSmartPointer<vtkImageData> translateToOrigin(vtkImageData* data);
 
   /**
    * Pad the field to a square where the size is
    * max(field->Dimensions) + max(kernel->Dimensions)
    */
-  static vtkImageData* padField(vtkImageData* field,
+  static vtkSmartPointer<vtkImageData> padField(vtkImageData* field,
     vtkImageData* kernel,
     int dimension,
     std::string nameOfPointData);
@@ -335,7 +335,7 @@ struct VTKFILTERSMOMENTINVARIANTS_EXPORT vtkMomentsHelper
    * Pad the kernel to the same size as paddedField
    * The center of the kernel is the origin of the final output and the rest is wrapped accordingly
    */
-  static vtkImageData* padKernel(vtkImageData* kernel, vtkImageData* paddedField);
+  static vtkSmartPointer<vtkImageData> padKernel(vtkImageData* kernel, vtkImageData* paddedField);
 };
 
 #endif // __VTK_WRAP__
