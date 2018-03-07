@@ -51,7 +51,7 @@ vtkHyperTreeGrid* vtkXMLHyperTreeGridWriter::GetInput()
 //----------------------------------------------------------------------------
 const char* vtkXMLHyperTreeGridWriter::GetDefaultFileExtension()
 {
-  return "xhg";
+  return "htg";
 }
 
 //----------------------------------------------------------------------------
