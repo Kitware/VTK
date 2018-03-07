@@ -968,28 +968,25 @@ std::vector<int> vtkMomentsHelper::getCoord(vtkIdType index, std::vector<int> di
 }
 
 //--------------------------------------------------------------------
-vtkImageData* vtkMomentsHelper::translateToOrigin(vtkImageData* data)
+vtkSmartPointer<vtkImageData> vtkMomentsHelper::translateToOrigin(vtkImageData* data)
 {
   // Translate to the origin
   vtkNew<vtkImageTranslateExtent> trans;
   trans->SetTranslation(-data->GetExtent()[0], -data->GetExtent()[2], -data->GetExtent()[4]);
   trans->SetInputData(data);
   trans->Update();
-
-  vtkImageData* img = trans->GetOutput();
-  img->Register(nullptr);
-  return img;
+  return trans->GetOutput();
 }
 
 //------------------------------------------------------------------------------------------
-vtkImageData* vtkMomentsHelper::padField(vtkImageData* field,
+vtkSmartPointer<vtkImageData> vtkMomentsHelper::padField(vtkImageData* field,
   vtkImageData* kernel,
   int dimension,
   std::string nameOfPointData)
 {
   // Translate to the origin
-  vtkImageData* transR = translateToOrigin(field);
-  vtkImageData* transK = translateToOrigin(kernel);
+  auto transR = translateToOrigin(field);
+  auto transK = translateToOrigin(kernel);
 
   int dataMinExtent =
     std::min(std::min(transR->GetExtent()[0], transR->GetExtent()[2]), transR->GetExtent()[4]);
@@ -1009,20 +1006,20 @@ vtkImageData* vtkMomentsHelper::padField(vtkImageData* field,
     dataExtentPad[2 * i + 1] = maxExtent;
   }
 
-  vtkImageData* output = vtkImageData::New();
+  vtkNew<vtkImageData> output;
   output->SetOrigin(0, 0, 0);
   output->SetSpacing(transR->GetSpacing());
   output->SetExtent(dataExtentPad);
 
   vtkDataArray* origArray = transR->GetPointData()->GetArray(nameOfPointData.c_str());
 
-  vtkDoubleArray* paddedArray = vtkDoubleArray::New();
+  vtkNew<vtkDoubleArray> paddedArray;
   paddedArray->SetName(nameOfPointData.c_str());
   paddedArray->SetNumberOfComponents(origArray->GetNumberOfComponents());
   paddedArray->SetNumberOfTuples(output->GetNumberOfPoints());
   paddedArray->Fill(0.0);
 
-  int* tmp = transR->GetDimensions();
+  const int* tmp = transR->GetDimensions();
   std::vector<int> origSize = std::vector<int>(tmp, tmp + 3);
 
   tmp = output->GetDimensions();
@@ -1057,29 +1054,30 @@ vtkImageData* vtkMomentsHelper::padField(vtkImageData* field,
   // writer->SetFileName("/Users/ktsai/Documents/VTK_MomentInvariants/momentPatternDetetctionTest/output/paddedField.vti");
   // writer->Write();
 
-  return output;
+  return output.GetPointer();
 }
 
 //--------------------------------------------------------------------------------------------
-vtkImageData* vtkMomentsHelper::padKernel(vtkImageData* kernel, vtkImageData* paddedField)
+vtkSmartPointer<vtkImageData> vtkMomentsHelper::padKernel(vtkImageData* kernel,
+  vtkImageData* paddedField)
 {
   // Translate to the origin
-  vtkImageData* trans = translateToOrigin(kernel);
+  auto trans = translateToOrigin(kernel);
 
-  vtkImageData* output = vtkImageData::New();
+  vtkNew<vtkImageData> output;
   output->SetOrigin(0, 0, 0);
   output->SetSpacing(trans->GetSpacing());
   output->SetExtent(paddedField->GetExtent());
 
   vtkDataArray* scalars = trans->GetPointData()->GetScalars();
 
-  vtkDoubleArray* scalarsPad = vtkDoubleArray::New();
+  vtkNew<vtkDoubleArray> scalarsPad;
   scalarsPad->SetName("kernel");
   scalarsPad->SetNumberOfComponents(1);
   scalarsPad->SetNumberOfTuples(output->GetNumberOfPoints());
   scalarsPad->Fill(0.0);
 
-  int* tmp = trans->GetDimensions();
+  const int* tmp = trans->GetDimensions();
   std::vector<int> origSize = std::vector<int>(tmp, tmp + 3);
 
   tmp = output->GetDimensions();
@@ -1094,6 +1092,5 @@ vtkImageData* vtkMomentsHelper::padKernel(vtkImageData* kernel, vtkImageData* pa
   }
 
   output->GetPointData()->SetScalars(scalarsPad);
-
-  return output;
+  return output.GetPointer();
 }
