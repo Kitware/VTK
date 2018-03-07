@@ -15,6 +15,7 @@
 #include "vtkIOExodusModule.h" // For export macro
 class vtkExodusIIReaderParser;
 class vtkMutableDirectedGraph;
+class vtkTypeInt64Array;
 
 /** This class holds metadata for an Exodus file.
   *
@@ -357,7 +358,7 @@ public:
     // number of boundaries per entry
     // The index is the dimensionality of the entry. 0=node, 1=edge, 2=face
     int BdsPerEntry[3];
-    int AttributesPerEntry;
+    vtkIdType AttributesPerEntry;
     std::vector<vtkStdString> AttributeNames;
     std::vector<int> AttributeStatus;
     // VTK cell type (a function of TypeName and BdsPerEntry...)
@@ -604,7 +605,7 @@ protected:
   void InsertBlockPolyhedra(
     BlockInfoType* binfo,
     vtkIntArray* facesPerCell,
-    vtkIntArray* exoCellConn);
+    vtkIdTypeArray* exoCellConn);
 
   /// Insert cells from a specified block into a mesh
   void InsertBlockCells(
@@ -620,15 +621,15 @@ protected:
 
   /// Insert cells referenced by a node set.
   void InsertSetNodeCopies(
-    vtkIntArray* refs, int otyp, int obj, SetInfoType* sinfo );
+    vtkIdTypeArray* refs, int otyp, int obj, SetInfoType* sinfo );
 
   /// Insert cells referenced by an edge, face, or element set.
   void InsertSetCellCopies(
-    vtkIntArray* refs, int otyp, int obj, SetInfoType* sinfo );
+    vtkIdTypeArray* refs, int otyp, int obj, SetInfoType* sinfo );
 
   /// Insert cells referenced by a side set.
   void InsertSetSides(
-    vtkIntArray* refs, int otyp, int obj, SetInfoType* sinfo );
+    vtkIdTypeArray* refs, int otyp, int obj, SetInfoType* sinfo );
 
   /** Return an array for the specified cache key. If the array was not cached,
     * read it from the file.
