@@ -3,8 +3,8 @@
  * @brief   Fast simple class for dealing with ray intersections
  *
  * vtkIntersectionCounter is used to intersect data and merge coincident
- * points along the intersect ray. It is lite weight and many of the member
- * functions are in-lined so its very fast It is not derived from vtkObject
+ * points along the intersect ray. It is light-weight and many of the member
+ * functions are in-lined so its very fast. It is not derived from vtkObject
  * so it can be allocated on the stack.
  *
  * This class makes the finite ray intersection process more robust. It
@@ -95,6 +95,7 @@ public:
 
     return numInts;
   }
+
 protected:
   double Tolerance;
   std::vector<double> IntsArray;

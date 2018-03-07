@@ -28,6 +28,7 @@
 
 vtkStandardNewMacro(vtkCubeSource);
 
+//-----------------------------------------------------------------------------
 vtkCubeSource::vtkCubeSource(double xL, double yL, double zL)
 {
   this->XLength = fabs(xL);
@@ -43,6 +44,7 @@ vtkCubeSource::vtkCubeSource(double xL, double yL, double zL)
   this->SetNumberOfInputPorts(0);
 }
 
+//-----------------------------------------------------------------------------
 int vtkCubeSource::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
@@ -64,9 +66,9 @@ int vtkCubeSource::RequestData(
   vtkFloatArray *newTCoords; // CCS 7/27/98 Added for Texture Mapping
   vtkCellArray *newPolys;
 
-//
-// Set things up; allocate memory
-//
+  //
+  // Set things up; allocate memory
+  //
   newPoints = vtkPoints::New();
 
   // Set the desired precision for the points in the output.
@@ -91,10 +93,10 @@ int vtkCubeSource::RequestData(
 
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
-//
-// Generate points and normals
-//
 
+  //
+  // Generate points and normals
+  //
   for (x[0]=this->Center[0]-this->XLength/2.0, n[0]=(-1.0), n[1]=n[2]=0.0, i=0;
   i<2; i++, x[0]+=this->XLength, n[0]+=2.0)
   {
@@ -160,9 +162,10 @@ int vtkCubeSource::RequestData(
   newPolys->InsertNextCell(4,pts);
   pts[0] = 20; pts[1] = 21; pts[2] = 23; pts[3] = 22;
   newPolys->InsertNextCell(4,pts);
-//
-// Update ourselves and release memory
-//
+
+  //
+  // Update ourselves and release memory
+  //
   output->SetPoints(newPoints);
   newPoints->Delete();
 
@@ -179,6 +182,7 @@ int vtkCubeSource::RequestData(
   return 1;
 }
 
+//-----------------------------------------------------------------------------
 // Convenience method allows creation of cube by specifying bounding box.
 void vtkCubeSource::SetBounds(double xMin, double xMax,
                               double yMin, double yMax,
@@ -194,6 +198,7 @@ void vtkCubeSource::SetBounds(double xMin, double xMax,
   this->SetBounds (bounds);
 }
 
+//-----------------------------------------------------------------------------
 void vtkCubeSource::SetBounds(const double bounds[6])
 {
   this->SetXLength(bounds[1]-bounds[0]);
@@ -204,6 +209,18 @@ void vtkCubeSource::SetBounds(const double bounds[6])
                   (bounds[5]+bounds[4])/2.0);
 }
 
+//-----------------------------------------------------------------------------
+void vtkCubeSource::GetBounds(double bounds[6])
+{
+  bounds[0] = this->Center[0] - (this->XLength/2.0);
+  bounds[1] = this->Center[0] + (this->XLength/2.0);
+  bounds[2] = this->Center[1] - (this->YLength/2.0);
+  bounds[3] = this->Center[1] + (this->YLength/2.0);
+  bounds[4] = this->Center[2] - (this->ZLength/2.0);
+  bounds[5] = this->Center[2] + (this->ZLength/2.0);
+}
+
+//-----------------------------------------------------------------------------
 void vtkCubeSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

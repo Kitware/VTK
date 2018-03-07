@@ -138,6 +138,24 @@ public:
   int IntersectWithLine(double p1[3], double p2[3], double& t, double x[3]);
   //@}
 
+  //@{
+  /**
+   * Given two planes, one infinite and one finite, defined by the normal n
+   * and point o (infinite plane), and the second finite plane1 defined by
+   * the three points (pOrigin,px,py), compute a line of intersection (if
+   * any). The line of intersection is defined by the return values
+   * (x0,x1). If there is no intersection, then zero is returned; otherwise
+   * non-zero. There are two variants of this method. The static function
+   * operates on the supplied function parameters; the non-static operates on
+   * this instance of vtkPlane (and its associated origin and normal).
+   */
+  static int IntersectWithFinitePlane(double n[3], double o[3],
+                                      double pOrigin[3], double px[3], double py[3],
+                                      double x0[3], double x1[3]);
+  int IntersectWithFinitePlane(double pOrigin[3], double px[3], double py[3],
+                               double x0[3], double x1[3]);
+  //@}
+
 protected:
   vtkPlane();
   ~vtkPlane() override {}
