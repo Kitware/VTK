@@ -16,31 +16,37 @@ set(BUILD_DIR ${CMAKE_BINARY_DIR}/CMakeExternals/Build)
 set(INSTALL_DIR ${CMAKE_BINARY_DIR}/CMakeExternals/Install)
 
 # Android options
-# Android options
+set (_ANDROID_NDK_DEFAULT "/opt/android-ndk")
 if (DEFINED ENV{ANDROID_NDK})
-  set(ANDROID_NDK "$ENV{ANDROID_NDK}" CACHE PATH "Path to the Android NDK")
-else()
-  set(ANDROID_NDK "/opt/android-ndk" CACHE PATH "Path to the Android NDK")
+  set (_ANDROID_NDK_DEFAULT "$ENV{ANDROID_NDK}")
+endif()
+set(ANDROID_NDK ${_ANDROID_NDK_DEFAULT} CACHE PATH
+  "Set to the absolute path of the Android NDK root directory.\
+ A \$\{ANDROID_NDK\}/platforms directory must exist."
+  )
+if (NOT EXISTS "${ANDROID_NDK}/platforms")
+  message(FATAL_ERROR "Please set a valid ANDROID_NDK path")
 endif()
 set(ANDROID_NATIVE_API_LEVEL "21" CACHE STRING "Android Native API Level")
 set(ANDROID_ARCH_ABI "armeabi" CACHE STRING "Target Android architecture/abi")
 
 # find android
-find_program(ANDROID_EXECUTABLE
-  NAMES android
-  DOC   "The android command-line tool")
-if(NOT ANDROID_EXECUTABLE)
-  message(FATAL_ERROR "Can not find android command line tool: android")
-endif()
+if (BUILD_EXAMPLES)
+  find_program(ANDROID_EXECUTABLE
+    NAMES android
+    DOC   "The android command-line tool")
+  if(NOT ANDROID_EXECUTABLE)
+    message(FATAL_ERROR "Can not find android command line tool: android")
+  endif()
 
-#find ant
-find_program(ANT_EXECUTABLE
-  NAMES ant
-  DOC   "The ant build tool")
-if(NOT ANT_EXECUTABLE)
-  message(FATAL_ERROR "Can not find ant build tool: ant")
+  #find ant
+  find_program(ANT_EXECUTABLE
+    NAMES ant
+    DOC   "The ant build tool")
+  if(NOT ANT_EXECUTABLE)
+    message(FATAL_ERROR "Can not find ant build tool: ant")
+  endif()
 endif()
-
 
 # Fail if the install path is invalid
 if (NOT EXISTS ${CMAKE_INSTALL_PREFIX})
