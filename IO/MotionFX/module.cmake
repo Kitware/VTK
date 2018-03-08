@@ -1,0 +1,17 @@
+vtk_module(vtkIOMotionFX
+  GROUPS
+    StandAlone
+  DEPENDS
+    vtkCommonExecutionModel
+  PRIVATE_DEPENDS
+    vtkCommonDataModel
+    vtkCommonMisc
+    vtkIOGeometry
+    vtksys
+    vtkpegtl
+  TEST_DEPENDS
+    vtkTestingCore
+    vtkInteractionStyle
+    vtkRenderingOpenGL2
+    vtkTestingRendering
+)
