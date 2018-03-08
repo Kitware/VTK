@@ -50,6 +50,7 @@ class vtkPoints;
 class vtkPolyDataAlgorithm;
 class vtkPointHandleRepresentation3D;
 class vtkTransform;
+class vtkPlane;
 class vtkPlanes;
 class vtkBox;
 class vtkDoubleArray;
@@ -81,6 +82,11 @@ public:
    * reversed enabling the InsideOut flag.)
    */
   void GetPlanes(vtkPlanes *planes);
+
+  // Get the underlying planes used by this rep
+  // this can be used as a cropping planes in vtkMapper
+  vtkPlane *GetUnderlyingPlane(int i) {
+    return this->Planes[i]; }
 
   //@{
   /**
@@ -195,6 +201,22 @@ public:
   void StartWidgetInteraction(double e[2]) override;
   void WidgetInteraction(double e[2]) override;
   double *GetBounds() VTK_SIZEHINT(6) override;
+  void StartComplexInteraction(
+    vtkRenderWindowInteractor *iren,
+    vtkAbstractWidget *widget,
+    unsigned long event, void *calldata) override;
+  void ComplexInteraction(
+    vtkRenderWindowInteractor *iren,
+    vtkAbstractWidget *widget,
+    unsigned long event, void *calldata) override;
+  int ComputeComplexInteractionState(
+    vtkRenderWindowInteractor *iren,
+    vtkAbstractWidget *widget,
+    unsigned long event, void *calldata, int modify = 0) override;
+  void EndComplexInteraction(
+    vtkRenderWindowInteractor *iren,
+    vtkAbstractWidget *widget,
+    unsigned long event, void *calldata) override;
   //@}
 
   //@{
@@ -221,12 +243,46 @@ public:
    */
   void SetInteractionState(int state);
 
+  //@{
+  /**
+   * In two plane mode only the X planes are shown
+   * this is useful for defining thick slabs
+   */
+  vtkGetMacro(TwoPlaneMode, bool);
+  void SetTwoPlaneMode(bool);
+  //@}
+
+  //@{
+  /**
+   * For complex events should we snap orientations to
+   * be aligned with the x y z axes
+   */
+  vtkGetMacro(SnapToAxes, bool);
+  vtkSetMacro(SnapToAxes, bool);
+  //@}
+
+  //@{
+  /**
+   * For complex events should we snap orientations to
+   * be aligned with the x y z axes
+   */
+  void StepForward();
+  void StepBackward();
+  //@}
+
 protected:
   vtkBoxRepresentation();
   ~vtkBoxRepresentation() override;
 
   // Manage how the representation appears
   double LastEventPosition[3];
+  double LastEventOrientation[4];
+  double StartEventOrientation[4];
+  double SnappedEventOrientations[3][4];
+  bool SnappedOrientation[3];
+  bool SnapToAxes;
+
+  bool TwoPlaneMode;
 
   // the hexahedron (6 faces)
   vtkActor          *HexActor;
@@ -298,11 +354,15 @@ protected:
   void MoveMinusYFace(double *p1, double *p2);
   void MovePlusZFace(double *p1, double *p2);
   void MoveMinusZFace(double *p1, double *p2);
+  void UpdatePose(double *p1, double *d1, double *p2, double *d2);
 
   // Internal ivars for performance
   vtkPoints      *PlanePoints;
   vtkDoubleArray *PlaneNormals;
   vtkMatrix4x4   *Matrix;
+
+  // The actual planes which are being manipulated
+  vtkPlane *Planes[6];
 
   //"dir" is the direction in which the face can be moved i.e. the axis passing
   //through the center

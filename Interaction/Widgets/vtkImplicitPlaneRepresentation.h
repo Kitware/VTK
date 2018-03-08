@@ -404,6 +404,14 @@ public:
   vtkBooleanMacro(CropPlaneToBoundingBox,bool);
   //@}
 
+  //@{
+  /**
+   * For complex events should we snap orientations to
+   * be aligned with the x y z axes
+   */
+  vtkGetMacro(SnapToAxes, bool);
+  vtkSetMacro(SnapToAxes, bool);
+  //@}
 
 protected:
   vtkImplicitPlaneRepresentation();
@@ -420,6 +428,10 @@ protected:
   vtkTypeBool NormalToXAxis;
   vtkTypeBool NormalToYAxis;
   vtkTypeBool NormalToZAxis;
+
+  double SnappedEventOrientation[4];
+  bool SnappedOrientation;
+  bool SnapToAxes;
 
   // Locking normal to camera
   vtkTypeBool LockNormalToCamera;

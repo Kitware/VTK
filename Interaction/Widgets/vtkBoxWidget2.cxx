@@ -21,6 +21,7 @@
 #include "vtkWidgetEventTranslator.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkEvent.h"
+#include "vtkEventData.h"
 #include "vtkWidgetEvent.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
@@ -34,10 +35,10 @@ vtkBoxWidget2::vtkBoxWidget2()
   this->WidgetState = vtkBoxWidget2::Start;
   this->ManagesCursor = 1;
 
-  this->TranslationEnabled = 1;
-  this->ScalingEnabled = 1;
-  this->RotationEnabled = 1;
-  this->MoveFacesEnabled = 1;
+  this->TranslationEnabled = true;
+  this->ScalingEnabled = true;
+  this->RotationEnabled = true;
+  this->MoveFacesEnabled = true;
 
   // Define widget events
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
@@ -85,6 +86,34 @@ vtkBoxWidget2::vtkBoxWidget2()
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MouseMoveEvent,
                                           vtkWidgetEvent::Move,
                                           this, vtkBoxWidget2::MoveAction);
+
+  {
+    vtkNew<vtkEventDataButton3D> ed;
+    ed->SetDevice(vtkEventDataDevice::RightController);
+    ed->SetInput(vtkEventDataDeviceInput::Trigger);
+    ed->SetAction(vtkEventDataAction::Press);
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent,
+      ed.Get(), vtkWidgetEvent::Select3D,
+      this, vtkBoxWidget2::SelectAction3D);
+  }
+
+  {
+    vtkNew<vtkEventDataButton3D> ed;
+    ed->SetDevice(vtkEventDataDevice::RightController);
+    ed->SetInput(vtkEventDataDeviceInput::Trigger);
+    ed->SetAction(vtkEventDataAction::Release);
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent,
+      ed.Get(), vtkWidgetEvent::EndSelect3D,
+      this, vtkBoxWidget2::EndSelectAction3D);
+  }
+
+  {
+    vtkNew<vtkEventDataMove3D> ed;
+    ed->SetDevice(vtkEventDataDevice::RightController);
+    this->CallbackMapper->SetCallbackMethod(vtkCommand::Move3DEvent,
+      ed.Get(), vtkWidgetEvent::Move3D,
+      this, vtkBoxWidget2::MoveAction3D);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -163,6 +192,63 @@ void vtkBoxWidget2::SelectAction(vtkAbstractWidget *w)
   self->StartInteraction();
   self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   self->Render();
+}
+
+//-------------------------------------------------------------------------
+void vtkBoxWidget2::SelectAction3D(vtkAbstractWidget *w)
+{
+  vtkBoxWidget2 *self = reinterpret_cast<vtkBoxWidget2*>(w);
+
+  // We want to compute an orthogonal vector to the plane that has been selected
+  int interactionState = self->WidgetRep->ComputeComplexInteractionState(
+    self->Interactor, self, vtkWidgetEvent::Select3D, self->CallData);
+
+  if ( interactionState == vtkBoxRepresentation::Outside )
+  {
+    return;
+  }
+
+  // Test for states that involve face or handle picking here so
+  // selection highlighting doesn't happen if that interaction is disabled.
+  // Non-handle-grabbing transformations are tested in the "Action" methods.
+
+  // Rotation
+  if (interactionState == vtkBoxRepresentation::Rotating
+       && self->RotationEnabled == 0)
+  {
+    return;
+  }
+  // Face Movement
+  if ((interactionState == vtkBoxRepresentation::MoveF0 ||
+       interactionState == vtkBoxRepresentation::MoveF1 ||
+       interactionState == vtkBoxRepresentation::MoveF2 ||
+       interactionState == vtkBoxRepresentation::MoveF3 ||
+       interactionState == vtkBoxRepresentation::MoveF4 ||
+       interactionState == vtkBoxRepresentation::MoveF5)
+        && self->MoveFacesEnabled == 0)
+  {
+    return;
+  }
+  // Translation
+  if (interactionState == vtkBoxRepresentation::Translating
+       && self->TranslationEnabled == 0)
+  {
+    return;
+  }
+
+  // We are definitely selected
+  if ( ! self->Parent )
+  {
+    self->GrabFocus(self->EventCallbackCommand);
+  }
+
+  self->WidgetState = vtkBoxWidget2::Active;
+  self->WidgetRep->StartComplexInteraction(
+    self->Interactor, self, vtkWidgetEvent::Select3D, self->CallData);
+
+  self->EventCallbackCommand->SetAbortFlag(1);
+  self->StartInteraction();
+  self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
 }
 
 //----------------------------------------------------------------------
@@ -289,6 +375,26 @@ void vtkBoxWidget2::MoveAction(vtkAbstractWidget *w)
 }
 
 //----------------------------------------------------------------------
+void vtkBoxWidget2::MoveAction3D(vtkAbstractWidget *w)
+{
+  vtkBoxWidget2 *self = reinterpret_cast<vtkBoxWidget2*>(w);
+
+  // See whether we're active
+  if ( self->WidgetState == vtkBoxWidget2::Start )
+  {
+    return;
+  }
+
+  // Okay, adjust the representation
+  self->WidgetRep->ComplexInteraction(
+    self->Interactor, self, vtkWidgetEvent::Move3D, self->CallData);
+
+  // moving something
+  self->EventCallbackCommand->SetAbortFlag(1);
+  self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
+}
+
+//----------------------------------------------------------------------
 void vtkBoxWidget2::EndSelectAction(vtkAbstractWidget *w)
 {
   vtkBoxWidget2 *self = reinterpret_cast<vtkBoxWidget2*>(w);
@@ -307,6 +413,57 @@ void vtkBoxWidget2::EndSelectAction(vtkAbstractWidget *w)
   self->EndInteraction();
   self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   self->Render();
+}
+
+//----------------------------------------------------------------------
+void vtkBoxWidget2::EndSelectAction3D(vtkAbstractWidget *w)
+{
+  vtkBoxWidget2 *self = reinterpret_cast<vtkBoxWidget2*>(w);
+
+  if ( self->WidgetState != vtkBoxWidget2::Active  ||
+       self->WidgetRep->GetInteractionState() == vtkBoxRepresentation::Outside )
+  {
+    return;
+  }
+
+  // Return state to not selected
+  self->WidgetRep->EndComplexInteraction(
+    self->Interactor, self, vtkWidgetEvent::Select3D, self->CallData);
+
+  self->WidgetState = vtkBoxWidget2::Start;
+  if ( ! self->Parent )
+  {
+    self->ReleaseFocus();
+  }
+
+  self->EventCallbackCommand->SetAbortFlag(1);
+  self->EndInteraction();
+  self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
+}
+
+//----------------------------------------------------------------------
+void vtkBoxWidget2::StepAction3D(vtkAbstractWidget *w)
+{
+  vtkBoxWidget2 *self = reinterpret_cast<vtkBoxWidget2*>(w);
+
+  // We want to compute an orthogonal vector to the plane that has been selected
+  int interactionState = self->WidgetRep->ComputeComplexInteractionState(
+    self->Interactor, self, vtkWidgetEvent::Select3D, self->CallData);
+
+  if ( interactionState == vtkBoxRepresentation::Outside )
+  {
+    return;
+  }
+
+  //self->WidgetRep->SetInteractionState(vtkBoxRepresentation::Outside);
+
+  // Okay, adjust the representation
+  self->WidgetRep->ComplexInteraction(
+    self->Interactor, self, vtkWidgetEvent::Move3D, self->CallData);
+
+  // moving something
+  self->EventCallbackCommand->SetAbortFlag(1);
+  self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
 }
 
 //----------------------------------------------------------------------
