@@ -60,7 +60,7 @@ struct FitPoints
   {
     for (int i=0; i < 3; ++i)
     {
-      this->Dims[i] = static_cast<double>(dims[i]-1);
+      this->Dims[i] = static_cast<double>(dims[i]);
       this->Origin[i] = o[i];
       this->H[i] = h[i];
     }
@@ -88,21 +88,47 @@ struct FitPoints
       i = (xi[0] - o[0]) / h[0];
       j = (xi[1] - o[1]) / h[1];
 
-      // Clamp to image. i,j is integral index into image pixels.
-      i = ( i < 0.0 ? 0.0 : (i > d[0] ? d[0] : i));
-      j = ( j < 0.0 ? 0.0 : (j > d[1] ? d[1] : j));
+      // Clamp to image. i,j is integral index into image pixels. It has to be done carefully
+      // to manage the parametric coordinates correctly.
+      if ( i < 0.0 )
+      {
+        ix = 0.0;
+        pc[0] = 0.0;
+      }
+      else if ( i >= (d[0]-1) )
+      {
+        ix = d[0] - 2;
+        pc[0] = 1.0;
+      }
+      else
+      {
+        pc[0] = modf(i, &ix);
+      }
+
+      if ( j < 0.0 )
+      {
+        iy = 0.0;
+        pc[1] = 0.0;
+      }
+      else if ( j >= (d[1]-1) )
+      {
+        iy = d[1] - 2;
+        pc[1] = 1.0;
+      }
+      else
+      {
+        pc[1] = modf(j, &iy);
+      }
 
       // Parametric coordinates for interpolation
-      pc[0] = modf(i, &ix);
-      pc[1] = modf(j, &iy);
       vtkPixel::InterpolationFunctions(pc, w);
       ii = static_cast<int>(ix);
       jj = static_cast<int>(iy);
 
       // Interpolate height from surrounding data values
-      s0 = ii + jj*(d[0]+1);
+      s0 = ii + jj*d[0];
       s1 = s0 + 1;
-      s2 = s0 + (d[0]+1);
+      s2 = s0 + d[0];
       s3 = s2 + 1;
       z = w[0]*scalars[s0] + w[1]*scalars[s1] + w[2]*scalars[s2] + w[3]*scalars[s3];
 
@@ -149,7 +175,7 @@ struct FitCells
   {
     for (int i=0; i < 3; ++i)
     {
-      this->Dims[i] = static_cast<double>(dims[i]-1);
+      this->Dims[i] = static_cast<double>(dims[i]);
       this->Origin[i] = o[i];
       this->H[i] = h[i];
     }
@@ -215,21 +241,47 @@ struct FitCells
         i = (center[0] - o[0]) / h[0];
         j = (center[1] - o[1]) / h[1];
 
-        // Clamp to image. i,j is integral index into image (voxels).
-        i = ( i < 0.0 ? 0.0 : (i > d[0] ? d[0] : i));
-        j = ( j < 0.0 ? 0.0 : (j > d[1] ? d[1] : j));
+        // Clamp to image. i,j is integral index into image pixels. It has to be done carefully
+        // to manage the parametric coordinates correctly.
+        if ( i < 0.0 )
+        {
+          ix = 0.0;
+          pc[0] = 0.0;
+        }
+        else if ( i >= (d[0]-1) )
+        {
+          ix = d[0] - 2;
+          pc[0] = 1.0;
+        }
+        else
+        {
+          pc[0] = modf(i, &ix);
+        }
+
+        if ( j < 0.0 )
+        {
+          iy = 0.0;
+          pc[1] = 0.0;
+        }
+        else if ( j >= (d[1]-1) )
+        {
+          iy = d[1] - 2;
+          pc[1] = 1.0;
+        }
+        else
+        {
+          pc[1] = modf(j, &iy);
+        }
 
         // Parametric coordinates for interpolation
-        pc[0] = modf(i, &ix);
-        pc[1] = modf(j, &iy);
         vtkPixel::InterpolationFunctions(pc, w);
         ii = static_cast<int>(ix);
         jj = static_cast<int>(iy);
 
         // Interpolate height from surrounding data values
-        s0 = ii + jj*(d[0]+1);
+        s0 = ii + jj*d[0];
         s1 = s0 + 1;
-        s2 = s0 + (d[0]+1);
+        s2 = s0 + d[0];
         s3 = s2 + 1;
         z = w[0]*scalars[s0] + w[1]*scalars[s1] + w[2]*scalars[s2] + w[3]*scalars[s3];
 
@@ -375,10 +427,7 @@ int vtkFitToHeightMapFilter::RequestData(
 
   vtkPointData *pd = input->GetPointData();
   vtkPointData *outputPD = output->GetPointData();
-  if ( this->FittingStrategy == vtkFitToHeightMapFilter::POINT_PROJECTION )
-  {
-    outputPD->CopyNormalsOff();
-  }
+  outputPD->CopyNormalsOff(); //normals are almost certainly messed up
   outputPD->PassData(pd);
 
   vtkCellData *cd = input->GetCellData();
@@ -402,6 +451,10 @@ int vtkFitToHeightMapFilter::RequestData(
       vtkTemplate2MacroFP((FitPoints<VTK_T1,VTK_T2>::Execute(numPts,(VTK_T1*)inPtr,
                                   (VTK_T1*)outPtr,(VTK_T2*)inScalarPtr,
                                   dims,origin,h)));
+
+      default:
+        vtkErrorMacro(<<"Only (float,double) fast path supported");
+        return 0;
     }
 
     // Now final rollup and adjustment of points
@@ -409,13 +462,17 @@ int vtkFitToHeightMapFilter::RequestData(
 
   } //points strategies
 
-  else //We are processing cells
+  else // We are processing cells
   {
     double *cellHts = new double [numCells];
     switch (imgType)
     {
       vtkTemplateMacro(FitCells<VTK_TT>::Execute(this->FittingStrategy, output, cellHts,
                                                  (VTK_TT*)inScalarPtr,dims,origin,h));
+
+      default:
+        vtkErrorMacro(<<"Only (float,double) fast path supported");
+        return 0;
     }
 
     // Now final rollup and adjustment of points
@@ -441,6 +498,22 @@ AdjustPoints(vtkPolyData *output, vtkIdType numCells, vtkPoints *newPts)
   double sum, min, max, p0[3], z;
   vtkIdType numHits;
 
+  // Nothing to do except adjust offset if point projection
+  if ( this->FittingStrategy == vtkFitToHeightMapFilter::POINT_PROJECTION )
+  {
+    if ( this->UseHeightMapOffset )
+    {
+      npts = newPts->GetNumberOfPoints();
+      for (pId=0; pId < npts; ++pId)
+      {
+        newPts->GetPoint(pId,p0);
+        newPts->SetPoint(pId,p0[0],p0[1],p0[2]+this->Offset);
+      }
+    }
+    return;
+  }
+
+  // Otherwise fancier point adjustment
   for ( cellId=0; cellId < numCells; ++cellId )
   {
     output->GetCellPoints(cellId, npts, ptIds);
