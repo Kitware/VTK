@@ -21,7 +21,7 @@
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
 #include "vtkOpenGLFramebufferObject.h"
-#include "vtkTextureObject.h"
+#include "vtkOpenGLQuadHelper.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
 #include "vtkShaderProgram.h"
@@ -29,8 +29,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
-
-#include "vtkOpenGLHelper.h"
+#include "vtkTextureObject.h"
 
 #include "vtkPointFillPassFS.h"
 #include "vtkTextureObjectVS.h"
@@ -43,7 +42,7 @@ vtkPointFillPass::vtkPointFillPass()
   this->FrameBufferObject=nullptr;
   this->Pass1=nullptr;
   this->Pass1Depth=nullptr;
-  this->BlurProgram = nullptr;
+  this->QuadHelper = nullptr;
   this->MinimumCandidateAngle = 1.5*3.1415926;
   this->CandidatePointRatio = 0.99;
 }
@@ -101,36 +100,25 @@ void vtkPointFillPass::Render(const vtkRenderState *s)
   width = size[0];
   height = size[1];
 
-  const int extraPixels = 0;
-
-  int w = width + extraPixels*2;
-  int h = height + extraPixels*2;
-
   if(this->Pass1==nullptr)
   {
     this->Pass1 = vtkTextureObject::New();
     this->Pass1->SetContext(renWin);
-  }
-  if(this->Pass1->GetWidth()!=static_cast<unsigned int>(w) ||
-     this->Pass1->GetHeight()!=static_cast<unsigned int>(h))
-  {
-    this->Pass1->Create2D(static_cast<unsigned int>(w),
-                          static_cast<unsigned int>(h),4,
+    this->Pass1->Create2D(static_cast<unsigned int>(width),
+                          static_cast<unsigned int>(height),4,
                           VTK_UNSIGNED_CHAR,false);
   }
+  this->Pass1->Resize(width, height);
 
   // Depth texture
   if (this->Pass1Depth == nullptr)
   {
     this->Pass1Depth = vtkTextureObject::New();
     this->Pass1Depth->SetContext(renWin);
-  }
-  if (this->Pass1Depth->GetWidth() != static_cast<unsigned int> (w)
-      || this->Pass1Depth->GetHeight() != static_cast<unsigned int> (h))
-  {
     this->Pass1Depth->AllocateDepth(
-      w, h, vtkTextureObject::Float32);
+      width, height, vtkTextureObject::Float32);
   }
+  this->Pass1Depth->Resize(width, height);
 
   if(this->FrameBufferObject==nullptr)
   {
@@ -139,43 +127,28 @@ void vtkPointFillPass::Render(const vtkRenderState *s)
   }
 
   this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
-  this->RenderDelegate(s,width,height,w,h,this->FrameBufferObject,
+  this->RenderDelegate(s,width,height,width,height,this->FrameBufferObject,
                        this->Pass1, this->Pass1Depth);
 
   this->FrameBufferObject->UnBind();
   this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
 
   // has something changed that would require us to recreate the shader?
-  if (!this->BlurProgram)
+  if (!this->QuadHelper)
   {
-    this->BlurProgram = new vtkOpenGLHelper;
     // build the shader source code
-    std::string VSSource = vtkTextureObjectVS;
-    std::string FSSource = vtkPointFillPassFS;
-    std::string GSSource;
-
     // compile and bind it if needed
-    vtkShaderProgram *newShader =
-      renWin->GetShaderCache()->ReadyShaderProgram(
-        VSSource.c_str(),
-        FSSource.c_str(),
-        GSSource.c_str());
-
-    // if the shader changed reinitialize the VAO
-    if (newShader != this->BlurProgram->Program)
-    {
-      this->BlurProgram->Program = newShader;
-      this->BlurProgram->VAO->ShaderProgramChanged(); // reset the VAO as the shader has changed
-    }
-
-    this->BlurProgram->ShaderSourceTime.Modified();
+    this->QuadHelper = new vtkOpenGLQuadHelper(renWin,
+        nullptr,
+        vtkPointFillPassFS,
+        "");
   }
   else
   {
-    renWin->GetShaderCache()->ReadyShaderProgram(this->BlurProgram->Program);
+    renWin->GetShaderCache()->ReadyShaderProgram(this->QuadHelper->Program);
   }
 
-  if (!this->BlurProgram->Program)
+  if (!this->QuadHelper->Program)
   {
     return;
   }
@@ -186,32 +159,27 @@ void vtkPointFillPass::Render(const vtkRenderState *s)
   this->Pass1->Activate();
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  this->BlurProgram->Program->SetUniformi("source",this->Pass1->GetTextureUnit());
+  this->QuadHelper->Program->SetUniformi("source",this->Pass1->GetTextureUnit());
 
   this->Pass1Depth->Activate();
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  this->BlurProgram->Program->SetUniformi("depth",this->Pass1Depth->GetTextureUnit());
+  this->QuadHelper->Program->SetUniformi("depth",this->Pass1Depth->GetTextureUnit());
 
   vtkCamera *cam = r->GetActiveCamera();
   double *frange = cam->GetClippingRange();
-  this->BlurProgram->Program->SetUniformf("nearC",frange[0]);
-  this->BlurProgram->Program->SetUniformf("farC",frange[1]);
-  this->BlurProgram->Program->SetUniformf("MinimumCandidateAngle",
+  this->QuadHelper->Program->SetUniformf("nearC",frange[0]);
+  this->QuadHelper->Program->SetUniformf("farC",frange[1]);
+  this->QuadHelper->Program->SetUniformf("MinimumCandidateAngle",
     this->MinimumCandidateAngle);
-  this->BlurProgram->Program->SetUniformf("CandidatePointRatio",
+  this->QuadHelper->Program->SetUniformf("CandidatePointRatio",
     this->CandidatePointRatio);
   float offset[2];
-  offset[0] = 1.0/w;
-  offset[1] = 1.0/h;
-  this->BlurProgram->Program->SetUniform2f("pixelToTCoord", offset);
+  offset[0] = 1.0/width;
+  offset[1] = 1.0/height;
+  this->QuadHelper->Program->SetUniform2f("pixelToTCoord", offset);
 
-  this->Pass1->CopyToFrameBuffer(extraPixels, extraPixels,
-                                w-1-extraPixels,h-1-extraPixels,
-                                0,0, width, height,
-                                this->BlurProgram->Program,
-                                this->BlurProgram->VAO);
-
+  this->QuadHelper->Render();
   this->Pass1->Deactivate();
   this->Pass1Depth->Deactivate();
 
@@ -229,11 +197,10 @@ void vtkPointFillPass::ReleaseGraphicsResources(vtkWindow *w)
 
   this->Superclass::ReleaseGraphicsResources(w);
 
-  if (this->BlurProgram !=nullptr)
+  if (this->QuadHelper !=nullptr)
   {
-    this->BlurProgram->ReleaseGraphicsResources(w);
-    delete this->BlurProgram;
-    this->BlurProgram = nullptr;
+    delete this->QuadHelper;
+    this->QuadHelper = nullptr;
   }
   if(this->FrameBufferObject!=nullptr)
   {

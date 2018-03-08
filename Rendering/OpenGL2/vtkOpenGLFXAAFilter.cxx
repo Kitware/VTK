@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLQuadHelper.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderTimer.h"
 #include "vtkOpenGLRenderUtilities.h"
@@ -120,6 +121,11 @@ void vtkOpenGLFXAAFilter::ReleaseGraphicsResources()
   this->FreeGLObjects();
   this->PreparationTimer->ReleaseGraphicsResources();
   this->FXAATimer->ReleaseGraphicsResources();
+  if (this->QHelper)
+  {
+    delete this->QHelper;
+    this->QHelper = nullptr;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -174,9 +180,7 @@ vtkOpenGLFXAAFilter::vtkOpenGLFXAAFilter()
     NeedToRebuildShader(true),
     Renderer(nullptr),
     Input(nullptr),
-    Program(nullptr),
-    VAO(nullptr),
-    VBO(nullptr)
+    QHelper(nullptr)
 {
   std::fill(this->Viewport, this->Viewport + 4, 0);
 }
@@ -184,6 +188,11 @@ vtkOpenGLFXAAFilter::vtkOpenGLFXAAFilter()
 //------------------------------------------------------------------------------
 vtkOpenGLFXAAFilter::~vtkOpenGLFXAAFilter()
 {
+  if (this->QHelper)
+  {
+    delete this->QHelper;
+    this->QHelper = nullptr;
+  }
   this->FreeGLObjects();
   delete PreparationTimer;
   delete FXAATimer;
@@ -239,9 +248,6 @@ template <typename T> void DeleteHelper(T *& ptr)
 void vtkOpenGLFXAAFilter::FreeGLObjects()
 {
   DeleteHelper(this->Input);
-//  DeleteHelper(this->Program); // Managed by the shader cache
-  DeleteHelper(this->VAO);
-  DeleteHelper(this->VBO);
 }
 
 //------------------------------------------------------------------------------
@@ -293,57 +299,44 @@ void vtkOpenGLFXAAFilter::ApplyFilter()
 
   if (this->NeedToRebuildShader)
   {
-    DeleteHelper(this->VAO);
-    DeleteHelper(this->VBO);
-    this->Program = nullptr; // Don't free, shader cache manages these.
+    delete this->QHelper;
+    this->QHelper = nullptr;
     this->NeedToRebuildShader = false;
   }
 
-  if (!this->Program)
+  if (!this->QHelper)
   {
     std::string fragShader = vtkFXAAFilterFS;
     this->SubstituteFragmentShader(fragShader);
-    this->Program = renWin->GetShaderCache()->ReadyShaderProgram(
-          GLUtil::GetFullScreenQuadVertexShader().c_str(),
-          fragShader.c_str(),
-          GLUtil::GetFullScreenQuadGeometryShader().c_str());
+    this->QHelper = new vtkOpenGLQuadHelper(renWin,
+      GLUtil::GetFullScreenQuadVertexShader().c_str(),
+      fragShader.c_str(),
+      GLUtil::GetFullScreenQuadGeometryShader().c_str());
   }
   else
   {
-    renWin->GetShaderCache()->ReadyShaderProgram(this->Program);
+    renWin->GetShaderCache()->ReadyShaderProgram(this->QHelper->Program);
   }
 
-  if (!this->Program)
-  {
-    return;
-  }
-
-  if (!this->VAO)
-  {
-    this->VBO = vtkOpenGLBufferObject::New();
-    this->VAO = vtkOpenGLVertexArrayObject::New();
-    GLUtil::PrepFullScreenVAO(this->VBO, this->VAO, this->Program);
-  }
-
-  this->Program->SetUniformi("Input", this->Input->GetTextureUnit());
+  vtkShaderProgram *program = this->QHelper->Program;
+  program->SetUniformi("Input", this->Input->GetTextureUnit());
   float invTexSize[2] = { 1.f / static_cast<float>(this->Viewport[2]),
                           1.f / static_cast<float>(this->Viewport[3]) };
-  this->Program->SetUniform2f("InvTexSize", invTexSize);
+  program->SetUniform2f("InvTexSize", invTexSize);
 
-  this->Program->SetUniformf("RelativeContrastThreshold",
+  program->SetUniformf("RelativeContrastThreshold",
                              this->RelativeContrastThreshold);
-  this->Program->SetUniformf("HardContrastThreshold",
+  program->SetUniformf("HardContrastThreshold",
                              this->HardContrastThreshold);
-  this->Program->SetUniformf("SubpixelBlendLimit",
+  program->SetUniformf("SubpixelBlendLimit",
                              this->SubpixelBlendLimit);
-  this->Program->SetUniformf("SubpixelContrastThreshold",
+  program->SetUniformf("SubpixelContrastThreshold",
                              this->SubpixelContrastThreshold);
-  this->Program->SetUniformi("EndpointSearchIterations",
+  program->SetUniformi("EndpointSearchIterations",
                              this->EndpointSearchIterations);
 
-  this->VAO->Bind();
-  GLUtil::DrawFullScreenQuad();
-  this->VAO->Release();
+  this->QHelper->Render();
+
   this->Input->Deactivate();
 }
 
