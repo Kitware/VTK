@@ -399,7 +399,7 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
     divergence->SetNumberOfTuples(array->GetNumberOfTuples());
     switch (arrayType)
     {
-      vtkFloatingPointTemplateMacro(Fill(gradients, static_cast<VTK_TT>(0), this->ReplacementValueOption));
+      vtkFloatingPointTemplateMacro(Fill(divergence, static_cast<VTK_TT>(0), this->ReplacementValueOption));
     }
     if (this->DivergenceArrayName)
     {
@@ -418,7 +418,7 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
     vorticity->SetNumberOfTuples(array->GetNumberOfTuples());
     switch (arrayType)
     {
-      vtkFloatingPointTemplateMacro(Fill(gradients, static_cast<VTK_TT>(0), this->ReplacementValueOption));
+      vtkFloatingPointTemplateMacro(Fill(vorticity, static_cast<VTK_TT>(0), this->ReplacementValueOption));
     }
     if (this->VorticityArrayName)
     {
@@ -436,7 +436,7 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
     qCriterion->SetNumberOfTuples(array->GetNumberOfTuples());
     switch (arrayType)
     {
-      vtkFloatingPointTemplateMacro(Fill(gradients, static_cast<VTK_TT>(0), this->ReplacementValueOption));
+      vtkFloatingPointTemplateMacro(Fill(qCriterion, static_cast<VTK_TT>(0), this->ReplacementValueOption));
     }
     if (this->QCriterionArrayName)
     {
