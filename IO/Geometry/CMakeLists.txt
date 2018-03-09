@@ -15,6 +15,7 @@ SET(Module_SRCS
   vtkMFIXReader.cxx
   vtkMoleculeReaderBase.cxx
   vtkOBJReader.cxx
+  vtkOBJWriter.cxx
   vtkOpenFOAMReader.cxx
   vtkParticleReader.cxx
   vtkPDBReader.cxx
