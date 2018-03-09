@@ -27,6 +27,7 @@
 #include "vtkVolumeProperty.h"
 
 #include "ospray/ospray.h"
+#include "ospray/version.h"
 
 vtkStandardNewMacro(vtkOSPRayTetrahedraMapperNode);
 
@@ -137,11 +138,26 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
       vtkCell *cell = dataSet->GetCell(i);
       if (cell->GetCellType() == VTK_TETRA)
       {
+#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
+        for (int j=0; j<4; j++)
+        {
+          this->Cells.push_back(-1);
+        }
+#endif
         for (int j=0; j<4; j++)
         {
           this->Cells.push_back(cell->GetPointId(j));
         }
       }
+#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
+      else if (cell->GetCellType() == VTK_HEXAHEDRON)
+      {
+        for (int j=0; j<8; j++)
+        {
+          this->Cells.push_back(cell->GetPointId(j));
+        }
+      }
+#endif
     }
 
     // Now the point data to volume render
@@ -166,7 +182,12 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
         this->Cells.clear();
         this->Field.clear();
       }
+
+#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
+      this->OSPRayVolume = ospNewVolume("unstructured_volume");
+#else
       this->OSPRayVolume = ospNewVolume("tetrahedral_volume");
+#endif
       assert(this->OSPRayVolume);
 
       OSPData verticesData = ospNewData(this->Vertices.size(),OSP_FLOAT3,
@@ -178,12 +199,20 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
       assert(fieldData);
       ospSetData(this->OSPRayVolume, "field", fieldData);
 
-      OSPData tetrahedraData = ospNewData(this->Cells.size()/4,OSP_INT4,this->Cells.data(),0);
-      assert(tetrahedraData);
-      ospSetData(this->OSPRayVolume, "tetrahedra", tetrahedraData);
+      OSPData indicesData = ospNewData(this->Cells.size()/4,OSP_INT4,this->Cells.data(),0);
+      assert(indicesData);
+#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
+      ospSetData(this->OSPRayVolume, "indices", indicesData);
+#else
+      ospSetData(this->OSPRayVolume, "tetrahedra", indicesData);
+#endif
 
       ospSet1i(this->OSPRayVolume, "nVertices", static_cast<int>(this->Vertices.size()));
+#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
+      ospSet1i(this->OSPRayVolume, "nCells", static_cast<int>(this->Cells.size())/8);
+#else
       ospSet1i(this->OSPRayVolume, "nTetrahedra", static_cast<int>(this->Cells.size())/4);
+#endif
     }
 
     double* dim = mapper->GetBounds();
