@@ -35,22 +35,32 @@ public:
   ~vtkSegYReader();
 
 public:
-  bool GetImageData(vtkImageData*); // export the data in segy file as 3D volume
-  bool ExportData3D(vtkImageData*); // export the data in segy file as 3D volume
   bool LoadFromFile(std::string path);
+
+  bool Is3DComputeParameters(int* extent, double* origin, double* spacing);
+  void LoadTraces();
+
+  void ExportData3D(vtkImageData*, int* extent, double* origin, double* spacing);
   void ExportData2D(vtkStructuredGrid*);
+
   void AddScalars(vtkStructuredGrid*);
   void SetXYCoordBytePositions(int x, int y);
   void SetVerticalCRS(int);
 
+  std::ifstream In;
+
+protected:
+  bool ReadHeader();
+
 private:
-  bool ReadHeader(std::ifstream& in);
   std::vector<vtkSegYTrace*> Traces;
-  int FormatCode;
   vtkSegYBinaryHeaderBytesPositions* BinaryHeaderBytesPos;
   vtkSegYTraceReader* TraceReader;
-  int SampleCountPerTrace;
   int VerticalCRS;
+  // Binary Header
+  short SampleInterval;
+  int FormatCode;
+  int SampleCountPerTrace;
 };
 
 #endif

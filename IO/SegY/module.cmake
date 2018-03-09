@@ -9,7 +9,7 @@ vtk_module(vtkIOSegY
   DEPENDS
     vtkCommonDataModel
     vtkCommonExecutionModel
-    vtkIOCore
+    vtkIOImage
   PRIVATE_DEPENDS
     vtkCommonCore
   )
