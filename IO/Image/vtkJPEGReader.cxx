@@ -400,7 +400,6 @@ int vtkJPEGReader::CanReadFile(const char* fname)
   // certain variables must be stored here for longjmp
   struct vtk_jpeg_error_mgr jerr;
   jerr.JPEGReader = this;
-  jerr.fp = nullptr;
 
   // open the file
   jerr.fp = vtksys::SystemTools::Fopen(fname, "rb");

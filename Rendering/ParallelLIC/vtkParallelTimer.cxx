@@ -248,18 +248,33 @@ vtkParallelTimerBuffer &vtkParallelTimerBuffer::operator>>(ostringstream &s)
     switch (c)
     {
       case 'i':
-        s << *(reinterpret_cast<int*>(this->Data+i));
-        i += sizeof(int);
+      {
+        int temp;
+        size_t n = sizeof(temp);
+        memcpy(&temp, this->Data+i, n);
+        s << temp;
+        i += n;
+      }
         break;
 
       case 'l':
-        s << *(reinterpret_cast<long long*>(this->Data+i));
-        i += sizeof(long long);
+      {
+        long long temp;
+        size_t n = sizeof(temp);
+        memcpy(&temp, this->Data+i, n);
+        s << temp;
+        i += n;
+      }
         break;
 
       case 'd':
-        s << *(reinterpret_cast<double*>(this->Data+i));
-        i += sizeof(double);
+      {
+        double temp;
+        size_t n = sizeof(temp);
+        memcpy(&temp, this->Data+i, n);
+        s << temp;
+        i += n;
+      }
         break;
 
       case 's':
