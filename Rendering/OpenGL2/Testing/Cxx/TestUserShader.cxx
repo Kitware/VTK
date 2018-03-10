@@ -88,6 +88,18 @@ int TestUserShader(int argc, char *argv[])
     "  myNormalMCVSOutput = normalMC;\n", //but we add this
     false // only do it once
     );
+  mapper->AddShaderReplacement(
+    vtkShader::Vertex,
+    "//VTK::Color::Impl", // dummy replacement for testing clear method
+    true,
+    "VTK::Color::Impl\n",
+    false
+    );
+  mapper->ClearShaderReplacement(
+    vtkShader::Vertex,     // clear our dummy replacement
+    "//VTK::Color::Impl",
+    true
+    );
 
   // now modify the fragment shader
   mapper->AddShaderReplacement(
