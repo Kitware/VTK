@@ -35,6 +35,7 @@
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
+#include <iomanip>
 #include <sstream>
 #include <vector>
 
@@ -238,6 +239,46 @@ class vtkAMReXParticlesReader::AMReXParticleHeader
     return true;
   }
 
+  // seems like the DATA_<filenumber> files can be written with differing number
+  // of leading zeros. That being the case, we try a few options starting the
+  // most recent successful match.
+  // Returns empty string if failed to find a valid filename.
+  std::string GetDATAFileName(
+    const std::string& plotfilename, const std::string& ptype, int level, int filenumber) const
+  {
+    std::string fname =
+      this->GetDATAFileName(plotfilename, ptype, level, filenumber, this->DataFormatZeroFill);
+    if (!fname.empty())
+    {
+      return fname;
+    }
+
+    for (int cc = 7; cc >= 0; --cc)
+    {
+      fname = this->GetDATAFileName(plotfilename, ptype, level, filenumber, cc);
+      if (!fname.empty())
+      {
+        this->DataFormatZeroFill = cc;
+        return fname;
+      }
+    }
+
+    return std::string();
+  }
+
+  // Returns empty string if failed to find a valid filename.
+  std::string GetDATAFileName(const std::string& plotfilename, const std::string& ptype, int level,
+    int filenumber, int zerofill) const
+  {
+    std::ostringstream str;
+    str << plotfilename << "/" << ptype << "/Level_" << level << "/DATA_" << std::setfill('0')
+        << std::setw(zerofill) << filenumber;
+    return (vtksys::SystemTools::FileExists(str.str(), /*isFile*/ true)) ? str.str()
+                                                                         : std::string();
+  }
+
+  mutable int DataFormatZeroFill;
+
 public:
   struct GridInfo
   {
@@ -266,6 +307,11 @@ public:
   int num_levels;
   std::vector<int> grids_per_level;
   std::vector<std::vector<GridInfo> > grids;
+
+  AMReXParticleHeader()
+    : DataFormatZeroFill(5)
+  {
+  }
 
   void PrintSelf(ostream& os, vtkIndent indent)
   {
@@ -464,17 +510,8 @@ public:
       return true;
     }
 
-    const char* ptype = self->ParticleType.c_str();
-    char buffer[256];
-
-#if defined(_MSC_VER) && (_MSC_VER <= 1800)
-    // (Visual Studio 2013 and earlier
-    _snprintf(buffer, 256, "/%s/Level_%d/DATA_%05d", ptype, level, gridInfo.which);
-#else
-    std::snprintf(buffer, 256, "/%s/Level_%d/DATA_%05d", ptype, level, gridInfo.which);
-#endif
-    const std::string fname(self->PlotFileName + buffer);
-
+    const std::string& fname =
+      this->GetDATAFileName(self->PlotFileName, self->ParticleType, level, gridInfo.which);
     std::ifstream ifp(fname, std::ios::binary);
     if (!ifp.good())
     {
