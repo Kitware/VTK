@@ -15,10 +15,13 @@
 #ifndef vtk_kissfft_h
 #define vtk_kissfft_h
 
-#cmakedefine VTK_USE_SYSTEM_KISSFFT
-#ifndef VTK_USE_SYSTEM_KISSFFT
+/* Use the kissfft library configured for VTK.  */
+#cmakedefine01 VTK_MODULE_USE_EXTERNAL_vtkkissfft
+
+#if VTK_MODULE_USE_EXTERNAL_vtkkissfft
 # define VTK_KISSFFT_HEADER(header) <vtkkissfft/header>
 #else
 # define VTK_KISSFFT_HEADER(header) <header>
 #endif
+
 #endif
