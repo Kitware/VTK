@@ -13,6 +13,7 @@ set(VTK_Modules
   vtkInfovisLayout
   vtkInteractionStyle
   vtkRenderingLabel
+  vtkRendering${VTK_RENDERING_BACKEND}
   vtkViewsInfovis
 )
 if(TARGET vtkGUISupportQt AND
