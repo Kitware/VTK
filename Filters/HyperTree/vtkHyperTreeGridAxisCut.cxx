@@ -293,7 +293,7 @@ void vtkHyperTreeGridAxisCut::RecursivelyProcessTree( vtkHyperTreeGridCursor* in
       double* size = childCursor->GetSize();
 
       // Check whether child is intersected by plane
-      if ( origin[axis] <= inter && ( origin[axis] + size[axis] >= inter ) )
+      if ( origin[axis] <= inter && ( origin[axis] + size[axis] > inter ) )
       {
         // Child is intersected by plane, descend into current child
         outCursor->ToChild( outChild );
