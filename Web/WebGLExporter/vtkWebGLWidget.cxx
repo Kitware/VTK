@@ -38,14 +38,14 @@ vtkWebGLWidget::vtkWebGLWidget()
 
 vtkWebGLWidget::~vtkWebGLWidget()
 {
-  if (this->binaryData) delete[] this->binaryData;
+  delete[] this->binaryData;
   while(this->colors.size() !=0)
   {
     double* xrgb = this->colors.back();
     this->colors.pop_back();
     delete[] xrgb;
   }
-  if (this->title) delete[] this->title;
+  delete[] this->title;
 }
 
 unsigned char* vtkWebGLWidget::GetBinaryData(int vtkNotUsed(part))

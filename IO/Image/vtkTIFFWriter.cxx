@@ -351,10 +351,10 @@ void vtkTIFFWriter::WriteVolume(T* buffer)
        TIFFSetField(tif, TIFFTAG_PREDICTOR, 2);
        vtkErrorMacro("LZW compression is patented outside US so it is disabled");
     }
-     else if (compression == COMPRESSION_DEFLATE)
-     {
-       TIFFSetField(tif, TIFFTAG_PREDICTOR, 2);
-     }
+    else if (compression == COMPRESSION_DEFLATE)
+    {
+      TIFFSetField(tif, TIFFTAG_PREDICTOR, 2);
+    }
 
     if (bitsPerSample == 32)
     {

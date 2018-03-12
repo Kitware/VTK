@@ -1100,8 +1100,8 @@ void vtkTIFFReader::ReadTwoSamplesPerPixelImage(void *out,
   if(this->GetDataScalarType() == VTK_UNSIGNED_CHAR)
   {
     unsigned char* image;
-     if (this->InternalImage->PlanarConfig == PLANARCONFIG_CONTIG)
-     {
+    if (this->InternalImage->PlanarConfig == PLANARCONFIG_CONTIG)
+    {
       for ( row = 0; row < (int)height; row ++ )
       {
         if (TIFFReadScanline(this->InternalImage->Image, buf, row, 0) <= 0)
@@ -1128,7 +1128,7 @@ void vtkTIFFReader::ReadTwoSamplesPerPixelImage(void *out,
           image += inc;
         }
       }
-     }
+    }
     else if(this->InternalImage->PlanarConfig == PLANARCONFIG_SEPARATE)
     {
       unsigned long s;

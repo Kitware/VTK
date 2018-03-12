@@ -109,11 +109,11 @@ int vtkConstrainedPointHandleRepresentationTest1(int , char * [] )
   pos[0] = 12.0;
   node1->SetPosition(pos[0], pos[1], pos[2]);
   pos2 = node1->GetPosition();
-   if (pos2 == nullptr)
-   {
+  if (pos2 == nullptr)
+  {
     std::cerr << "Failure in Get/Set Position pos,  null pointer." << std::endl;
     return EXIT_FAILURE;
-   }
+  }
   else if (pos2[0] != pos[0] ||
            pos2[1] != pos[1])
   {
@@ -125,22 +125,22 @@ int vtkConstrainedPointHandleRepresentationTest1(int , char * [] )
     std::cout << "Set Position to "  << pos2[0] << ", " << pos2[1] << ", " << pos2[2]  << std::endl;
   }
 
-   pos[0] -= 1.0;
-   node1->SetPosition(pos[0], pos[1], pos[2]);
-   double pos3[3];
-   node1->GetPosition(pos3);
-   if (pos3[0] != pos[0] ||
-       pos3[1] != pos[1])
-   {
+  pos[0] -= 1.0;
+  node1->SetPosition(pos[0], pos[1], pos[2]);
+  double pos3[3];
+  node1->GetPosition(pos3);
+  if (pos3[0] != pos[0] ||
+      pos3[1] != pos[1])
+  {
     std::cerr << "Failure in Get/Set Position pos, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] <<", instead got " << pos3[0] << ", " << pos3[1] << ", " << pos3[2]  << std::endl;
     return EXIT_FAILURE;
-   }
+  }
   else
   {
     std::cout << "Set Position to "  << pos3[0] << ", " << pos3[1] << ", " << pos3[2]  << std::endl;
   }
 
-   // Properties
+  // Properties
   vtkSmartPointer<vtkProperty> prop1 =
     vtkSmartPointer<vtkProperty>::New();
   double colour[3] = {0.2, 0.3, 0.4};

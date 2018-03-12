@@ -208,8 +208,12 @@ int vtkElevationFilter::RequestData(vtkInformation*,
     switch ( points->GetDataType() )
     {
       vtkTemplateMacro(
-        vtkElevationAlgorithm<VTK_TT>::Elevate(this,numPts,diffVector,length2,
-                                               (VTK_TT *)pts,scalars));
+        vtkElevationAlgorithm<VTK_TT>::Elevate(this,
+                                               numPts,
+                                               diffVector,
+                                               length2,
+                                               static_cast<VTK_TT *>(pts),
+                                               scalars));
     }
   }//fast path
 

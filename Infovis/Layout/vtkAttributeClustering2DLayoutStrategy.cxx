@@ -120,10 +120,10 @@ void vtkAttributeClustering2DLayoutStrategy::SetVertexAttribute(const char* att)
     this->VertexAttribute = cp1;
     do { *cp1++ = *cp2++; } while ( --n );
   }
-   else
-   {
+  else
+  {
     this->VertexAttribute = nullptr;
-   }
+  }
 
   this->Modified();
 

@@ -87,11 +87,11 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
         }
         else
         {
-           if (ren->GetRenderWindow()->GetDoubleBuffer())
-           {
+          if (ren->GetRenderWindow()->GetDoubleBuffer())
+          {
             glDrawBuffer(static_cast<GLenum>(win->GetBackRightBuffer()));
             glReadBuffer(static_cast<GLenum>(win->GetBackRightBuffer()));
-           }
+          }
           else
           {
             glDrawBuffer(static_cast<GLenum>(win->GetFrontRightBuffer()));

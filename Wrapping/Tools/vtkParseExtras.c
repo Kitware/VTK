@@ -1634,7 +1634,7 @@ size_t vtkParse_DecomposeTemplatedType(
     assert(defaults != NULL);
     arg = defaults[template_arg_count];
     assert(arg != NULL);
-    new_text = (char *)malloc(strlen(arg + 1));
+    new_text = (char *)malloc(strlen(arg) + 1);
     strcpy(new_text, arg);
     vtkParse_AddStringToArray(&template_args, &template_arg_count, new_text);
   }

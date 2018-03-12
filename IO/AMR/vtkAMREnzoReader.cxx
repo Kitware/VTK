@@ -239,14 +239,14 @@ void vtkAMREnzoReader::SetFileName( const char* fileName )
       this->Internal->HierarchyFileName = tempName;
       this->Internal->BoundaryFileName  = this->Internal->MajorFileName+bExtName;
     }
-   else if( tempName.length() > bExtName.length() &&
-       tempName.substr( tempName.length() - bExtName.length() )==bExtName )
-   {
-     this->Internal->MajorFileName =
-        tempName.substr( 0, tempName.length() - bExtName.length() );
-     this->Internal->BoundaryFileName  = tempName;
-     this->Internal->HierarchyFileName = this->Internal->MajorFileName+hExtName;
-   }
+    else if( tempName.length() > bExtName.length() &&
+             tempName.substr( tempName.length() - bExtName.length() )==bExtName )
+    {
+      this->Internal->MajorFileName =
+         tempName.substr( 0, tempName.length() - bExtName.length() );
+      this->Internal->BoundaryFileName  = tempName;
+      this->Internal->HierarchyFileName = this->Internal->MajorFileName+hExtName;
+    }
     else
     {
       vtkErrorMacro( "Enzo file has invalid extension!");

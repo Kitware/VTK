@@ -252,10 +252,10 @@ bool vtkSQLQuery::SetQuery(const char *queryString)
     this->Query = cp1;
     do { *cp1++ = *cp2++; } while ( --n ); \
   }
-   else
-   {
+  else
+  {
     this->Query = nullptr;
-   }
+  }
   this->Modified();
   return true;
 }

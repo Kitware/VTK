@@ -194,11 +194,11 @@ void vtkDataReader::SetInputString(const char *in, int len)
     this->InputString[len] = 0;
     this->InputStringLength = len;
   }
-   else
-   {
+  else
+  {
     this->InputString = nullptr;
     this->InputStringLength = 0;
-   }
+  }
 
   this->Modified();
 }
@@ -2254,7 +2254,8 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, vtkIdType numPts)
     else if ( this->ReadAllScalars )
     {
       a->AddArray(data);
-    }    data->Delete();
+    }
+    data->Delete();
   }
   else
   {

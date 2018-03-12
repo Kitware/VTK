@@ -624,13 +624,13 @@ void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials,
       *list++ = topology_list[k2-4] - 1;
       k2++;
     }
-     else
-     {
-       for(j=0; j < ctype[4*i+2]; j++)
-       {
-         *list++ = topology_list[k2++] - 1;
-       }
-     }
+    else
+    {
+      for(j=0; j < ctype[4*i+2]; j++)
+      {
+        *list++ = topology_list[k2++] - 1;
+      }
+    }
   }
 
   delete [] topology_list;

@@ -803,8 +803,8 @@ vtkIdType vtkStringArray::LookupValue(const vtkStdString& value)
   {
     // Check whether we still have a value equivalent to what we're
     // looking for.
-      if (value == *found)
-      {
+    if (value == *found)
+    {
       // Check that the value in the original array hasn't changed.
       vtkIdType index = this->Lookup->IndexArray->GetId(offset);
       vtkStdString currentValue = this->GetValue(index);
@@ -812,7 +812,7 @@ vtkIdType vtkStringArray::LookupValue(const vtkStdString& value)
       {
         return index;
       }
-      }
+    }
     else
     {
       break;

@@ -3330,9 +3330,9 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
 #ifdef BACK_TO_FRONT
     if(currentZ<zTarget)
 #else
-      if(currentZ>zTarget)
+    if(currentZ>zTarget)
 #endif
-      {
+    {
       this->CompositeFunction(zTarget);
 
       // Update the zTarget
@@ -3362,7 +3362,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
         }
         ++it;
       }
-      }
+    }
     else
     {
       if(this->MaxPixelListSizeReached)
@@ -3700,10 +3700,10 @@ void  vtkUnstructuredGridVolumeZSweepMapper::RasterizeTriangle(
   {
     if(x>this->XBounds[1])
     {
-       if(x<this->ImageInUseSize[0])
-       {
+      if(x<this->ImageInUseSize[0])
+      {
         this->XBounds[1]=x;
-       }
+      }
       else
       {
         this->XBounds[1]=this->ImageInUseSize[0]-1;
@@ -3817,14 +3817,14 @@ void  vtkUnstructuredGridVolumeZSweepMapper::RasterizeTriangle(
        this->SimpleEdge->Init(v0,v2,dx20,dy20,0);
        leftEdge=this->SimpleEdge;
     }
-     else
-     {
+    else
+    {
        // v0v1 on left
        this->DoubleEdge->Init(v0,v1,v2,dx10,dy10,0); // true=on right
        leftEdge=this->DoubleEdge;
        this->SimpleEdge->Init(v0,v2,dx20,dy20,1);
        rightEdge=this->SimpleEdge;
-     }
+    }
   }
 
   int y=v0->GetScreenY();

@@ -57,7 +57,7 @@ void vtkCellQuality::PrintSelf (ostream& os, vtkIndent indent)
   {
     "None",
     "Area",
-    "AspectBeta"
+    "AspectBeta",
     "AspectFrobenius",
     "AspectGamma",
     "AspectRatio",

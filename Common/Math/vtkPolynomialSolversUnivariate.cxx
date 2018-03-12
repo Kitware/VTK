@@ -668,7 +668,9 @@ extern "C" {
 
 static int vtkPolynomialSolversUnivariateCompareRoots( const void* a, const void* b )
 {
-  return ( *( (const double*) a ) ) < ( *( (const double*) b ) ) ? -1 : 1;
+  double aa = *static_cast<const double*>(a);
+  double bb = *static_cast<const double*>(b);
+  return ( aa < bb ) ? -1 : 1;
 }
 
 } // extern "C"

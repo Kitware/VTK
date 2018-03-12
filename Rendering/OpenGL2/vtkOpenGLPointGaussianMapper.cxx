@@ -763,65 +763,65 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
       vtkDataArray *sizes = poly->GetPointData()->GetArray(
               this->Owner->GetScaleArray());
       switch (sizes->GetDataType())
-        {
-          vtkTemplateMacro(
-              vtkOpenGLPointGaussianMapperHelperSizes(
-                offsets,
-                static_cast<VTK_TT*>(sizes->GetVoidPointer(0)),
-                sizes->GetNumberOfComponents(),
-                this->Owner->GetScaleArrayComponent(),
-                poly->GetPoints()->GetNumberOfPoints(),
-                this,
-                poly->GetVerts()
-              ));
-        }
-      }
-      else
       {
-        vtkOpenGLPointGaussianMapperHelperSizes(
-          offsets,
-          static_cast<float *>(nullptr), 0, 0,
-          poly->GetPoints()->GetNumberOfPoints(),
-          this,
-          poly->GetVerts()
-        );
+        vtkTemplateMacro(
+            vtkOpenGLPointGaussianMapperHelperSizes(
+              offsets,
+              static_cast<VTK_TT*>(sizes->GetVoidPointer(0)),
+              sizes->GetNumberOfComponents(),
+              this->Owner->GetScaleArrayComponent(),
+              poly->GetPoints()->GetNumberOfPoints(),
+              this,
+              poly->GetVerts()
+            ));
       }
-      this->VBOs->CacheDataArray("offsetMC", offsets, ren, VTK_FLOAT);
-      offsets->Delete();
     }
     else
     {
-      this->VBOs->CacheDataArray("offsetMC", nullptr, ren, VTK_FLOAT);
-    }
-
-    if (this->Colors)
-    {
-      vtkUnsignedCharArray *clrs = vtkUnsignedCharArray::New();
-      clrs->SetNumberOfComponents(4);
-      clrs->SetNumberOfTuples(splatCount);
-
-      vtkOpenGLPointGaussianMapperHelperColors(
-        clrs,
+      vtkOpenGLPointGaussianMapperHelperSizes(
+        offsets,
+        static_cast<float *>(nullptr), 0, 0,
         poly->GetPoints()->GetNumberOfPoints(),
-        this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : (unsigned char*)nullptr,
-        this->Colors ? this->Colors->GetNumberOfComponents() : 0,
-        hasOpacityArray ? poly->GetPointData()->GetArray(
-          this->Owner->GetOpacityArray()) : (vtkDataArray*)nullptr,
-        this->Owner->GetOpacityArrayComponent(), this, poly->GetVerts()
-        );
-      this->VBOs->CacheDataArray("scalarColor", clrs, ren, VTK_UNSIGNED_CHAR);
-      clrs->Delete();
-      }
-
-    this->VBOs->BuildAllVBOs(ren);
-
-    // we use no IBO
-    for (int i = PrimitiveStart; i < PrimitiveEnd; i++)
-    {
-      this->Primitives[i].IBO->IndexCount = 0;
+        this,
+        poly->GetVerts()
+      );
     }
-    this->Primitives[PrimitiveTris].IBO->IndexCount = splatCount;
-    this->VBOBuildTime.Modified();
+    this->VBOs->CacheDataArray("offsetMC", offsets, ren, VTK_FLOAT);
+    offsets->Delete();
+  }
+  else
+  {
+    this->VBOs->CacheDataArray("offsetMC", nullptr, ren, VTK_FLOAT);
+  }
+
+  if (this->Colors)
+  {
+    vtkUnsignedCharArray *clrs = vtkUnsignedCharArray::New();
+    clrs->SetNumberOfComponents(4);
+    clrs->SetNumberOfTuples(splatCount);
+
+    vtkOpenGLPointGaussianMapperHelperColors(
+      clrs,
+      poly->GetPoints()->GetNumberOfPoints(),
+      this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : (unsigned char*)nullptr,
+      this->Colors ? this->Colors->GetNumberOfComponents() : 0,
+      hasOpacityArray ? poly->GetPointData()->GetArray(
+        this->Owner->GetOpacityArray()) : (vtkDataArray*)nullptr,
+      this->Owner->GetOpacityArrayComponent(), this, poly->GetVerts()
+      );
+    this->VBOs->CacheDataArray("scalarColor", clrs, ren, VTK_UNSIGNED_CHAR);
+    clrs->Delete();
+  }
+
+  this->VBOs->BuildAllVBOs(ren);
+
+  // we use no IBO
+  for (int i = PrimitiveStart; i < PrimitiveEnd; i++)
+  {
+    this->Primitives[i].IBO->IndexCount = 0;
+  }
+  this->Primitives[PrimitiveTris].IBO->IndexCount = splatCount;
+  this->VBOBuildTime.Modified();
 }
 
 //-----------------------------------------------------------------------------

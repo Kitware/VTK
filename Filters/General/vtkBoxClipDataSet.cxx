@@ -3611,11 +3611,11 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
               break; // some vertex could be on plane, so you need to test all vertex
             }
           }
-            if (outside == 0)
-            {
+          if (outside == 0)
+          {
             // else it is possible intersection if other plane
             newCellId = newcellArray->InsertNextCell(4,v_id);
-            }
+          }
           else
           {
             newCellId = tets[1]->InsertNextCell(4,v_id);

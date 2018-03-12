@@ -1149,13 +1149,13 @@ vtkStreamingDemandDrivenPipeline
         {
           input = this->GetInputData(0, 0);
         }
-          if (input &&
-              input->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP()))
-          {
+        if (input &&
+            input->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP()))
+        {
           dataInfo->CopyEntry(input->GetInformation(),
                               vtkDataObject::DATA_TIME_STEP(),
                               1);
-          }
+        }
         // Does the update request have it? If yes, copy it. This
         // should not normally happen.
         else if (outInfo->Has(UPDATE_TIME_STEP()))

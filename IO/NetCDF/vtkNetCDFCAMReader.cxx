@@ -186,10 +186,10 @@ void vtkNetCDFCAMReader::SetFileName(const char* fileName)
     }
     while ( --n );
   }
-   else
-   {
+  else
+  {
     this->FileName = nullptr;
-   }
+  }
   this->Modified();
 }
 
@@ -222,10 +222,10 @@ void vtkNetCDFCAMReader::SetConnectivityFileName(const char* fileName)
     }
     while ( --n );
   }
-   else
-   {
+  else
+  {
     this->ConnectivityFileName = nullptr;
-   }
+  }
   this->Modified();
 }
 

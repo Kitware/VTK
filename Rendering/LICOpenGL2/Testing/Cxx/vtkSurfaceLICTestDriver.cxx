@@ -160,18 +160,15 @@ int vtkSurfaceLICTestDriver(
   {
     renWin->SetSize(300, 300);
   }
-  else
-  if (camera_config == 2)
+  else if (camera_config == 2)
   {
     renWin->SetSize(300, 270);
   }
-  else
-  if (camera_config == 3)
+  else if (camera_config == 3)
   {
     renWin->SetSize(400, 340);
   }
-  else
-  if (camera_config == 4)
+  else if (camera_config == 4)
   {
     renWin->SetSize(364, 256);
   }
@@ -345,8 +342,7 @@ int vtkSurfaceLICTestDriver(
     camera->SetViewUp(0.41, 0.83, 0.35);
     renderer->ResetCamera();
   }
-  else
-  if (camera_config == 2)
+  else if (camera_config == 2)
   {
     renWin->SetSize(300, 270);
     camera->SetFocalPoint(0.0, 0.0, 0.0);
@@ -356,8 +352,7 @@ int vtkSurfaceLICTestDriver(
     renderer->ResetCamera();
     camera->Zoom(1.2);
   }
-  else
-  if (camera_config == 3)
+  else if (camera_config == 3)
   {
     renWin->SetSize(400, 340);
     camera->SetFocalPoint(0.0, 0.0, 0.0);
@@ -367,8 +362,7 @@ int vtkSurfaceLICTestDriver(
     renderer->ResetCamera();
     camera->Zoom(1.4);
   }
-  else
-  if (camera_config == 4)
+  else if (camera_config == 4)
   {
     renWin->SetSize(364, 256);
     renderer->SetBackground(0.3216, 0.3412, 0.4314);

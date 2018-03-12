@@ -97,34 +97,43 @@ public:
   vtkColorQuantizeNode *GetChild2() { return this->Child2; }
 
   int GetIndex( int c[3] )
-    {  if ( this->Index>=0 ) {return this->Index;}
-       if ( c[this->Axis]>this->SplitPoint )
-         {return this->Child2->GetIndex(c);}
-       return this->Child1->GetIndex(c); };
+  {
+    if ( this->Index>=0 )
+    {
+      return this->Index;
+    }
+    if ( c[this->Axis]>this->SplitPoint )
+    {
+      return this->Child2->GetIndex(c);
+    }
+    return this->Child1->GetIndex(c);
+  }
 
 
   void GetAverageColor(int c[3])
   {
-      if(this->AverageCount)
-      {
-        c[0] = static_cast<int>(this->AverageColor[0] / this->AverageCount);
-        c[1] = static_cast<int>(this->AverageColor[1] / this->AverageCount);
-        c[2] = static_cast<int>(this->AverageColor[2] / this->AverageCount);
-      }
+    if(this->AverageCount)
+    {
+      c[0] = static_cast<int>(this->AverageColor[0] / this->AverageCount);
+      c[1] = static_cast<int>(this->AverageColor[1] / this->AverageCount);
+      c[2] = static_cast<int>(this->AverageColor[2] / this->AverageCount);
+    }
   }
 
   void StartColorAveraging()
-  {if (this->Child1)
+  {
+    if (this->Child1)
     {
       this->Child1->StartColorAveraging(); this->Child2->StartColorAveraging();
     }
     else
     {
       this->AverageCount = 0;
-      this->AverageColor[0] =
-        this->AverageColor[1] = this->AverageColor[2] = 0.0;
+      this->AverageColor[0] = 0.0;
+      this->AverageColor[1] = 0.0;
+      this->AverageColor[2] = 0.0;
     }
-  };
+  }
 
   void AddColor( int c[3] )
     { this->AverageCount++; this->AverageColor[0] += c[0];

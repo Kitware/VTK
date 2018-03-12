@@ -27,7 +27,7 @@
 #include <vtksys/SystemTools.hxx>
 
 #include <algorithm>
-#include <signal.h>
+#include <csignal>
 #include <sstream>
 #include <string>
 #include <vector>

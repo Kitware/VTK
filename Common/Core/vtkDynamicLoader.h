@@ -30,7 +30,6 @@
 #include <vtksys/DynamicLoader.hxx>
 
 typedef vtksys::DynamicLoader::LibraryHandle vtkLibHandle;
-// Cannot use this as this is a void (*)() but VTK old API used to be void*
 typedef vtksys::DynamicLoader::SymbolPointer vtkSymbolPointer;
 
 class VTKCOMMONCORE_EXPORT vtkDynamicLoader : public vtkObject
@@ -54,9 +53,8 @@ public:
 
   /**
    * Find the address of the symbol in the given library
-   * static vtkSymbolPointer GetSymbolAddress(vtkLibHandle, const char*);
    */
-  static void* GetSymbolAddress(vtkLibHandle, const char*);
+  static vtkSymbolPointer GetSymbolAddress(vtkLibHandle, const char*);
 
   /**
    * Return the library prefix for the given architecture

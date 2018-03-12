@@ -1227,8 +1227,7 @@ int vtkEnSightReader::ReadCaseFileTime(char* line)
         {
           this->MinimumTimeValue = timeStep;
         }
-        else
-        if ( timeStep > this->MaximumTimeValue )
+        else if ( timeStep > this->MaximumTimeValue )
         {
           this->MaximumTimeValue = timeStep;
         }

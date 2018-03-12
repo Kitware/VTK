@@ -579,10 +579,10 @@ void vtkBMPReader::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "LookupTable: " << this->LookupTable << "\n";
   }
-    else
-    {
+  else
+  {
     os << indent << "LookupTable: nullptr\n";
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

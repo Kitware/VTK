@@ -308,10 +308,10 @@ int vtkTimerLog::GetNumberOfEvents()
   {
     return vtkTimerLog::MaxEntries;
   }
-   else
-   {
+  else
+  {
     return vtkTimerLog::NextEntry;
-   }
+  }
 }
 
 //----------------------------------------------------------------------------

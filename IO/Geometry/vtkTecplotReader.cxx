@@ -1008,8 +1008,7 @@ void vtkTecplotReader::GetStructuredGridFromBlockPackingZone
   {
     this->Internal->TopologyDim = MAX( this->Internal->TopologyDim, 1 );
   }
-  else
-  if ( kDimSize == 1 )
+  else if ( kDimSize == 1 )
   {
     this->Internal->TopologyDim = MAX( this->Internal->TopologyDim, 2 );
   }

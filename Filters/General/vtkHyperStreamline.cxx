@@ -573,8 +573,7 @@ int vtkHyperStreamline::RequestData(
         sNext->CellId = sPtr->CellId;
         sNext->SubId = sPtr->SubId;
       }
-      else
-      if ( evalResult == 0 )
+      else if ( evalResult == 0 )
       { //integration has passed out of cell
         sNext->CellId = input->FindCell(xNext, cell, sPtr->CellId, tol2,
                                         sNext->SubId, sNext->P, w);
