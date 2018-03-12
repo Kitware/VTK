@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkMultiBlockDataSet.cxx
+  Module:    vtkPartitionedDataSetCollection.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,76 +12,78 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkMultiBlockDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkPartitionedDataSet.h"
 
-vtkStandardNewMacro(vtkMultiBlockDataSet);
+vtkStandardNewMacro(vtkPartitionedDataSetCollection);
 //----------------------------------------------------------------------------
-vtkMultiBlockDataSet::vtkMultiBlockDataSet() = default;
+vtkPartitionedDataSetCollection::vtkPartitionedDataSetCollection()
+{
+}
 
 //----------------------------------------------------------------------------
-vtkMultiBlockDataSet::~vtkMultiBlockDataSet() = default;
+vtkPartitionedDataSetCollection::~vtkPartitionedDataSetCollection()
+{
+}
 
 //----------------------------------------------------------------------------
-vtkMultiBlockDataSet* vtkMultiBlockDataSet::GetData(vtkInformation* info)
+vtkPartitionedDataSetCollection* vtkPartitionedDataSetCollection::GetData(
+  vtkInformation* info)
 {
   return
-    info? vtkMultiBlockDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
+    info? vtkPartitionedDataSetCollection::SafeDownCast(
+      info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------
-vtkMultiBlockDataSet* vtkMultiBlockDataSet::GetData(vtkInformationVector* v,
-                                                    int i)
+vtkPartitionedDataSetCollection* vtkPartitionedDataSetCollection::GetData(
+  vtkInformationVector* v, int i)
 {
-  return vtkMultiBlockDataSet::GetData(v->GetInformationObject(i));
+  return vtkPartitionedDataSetCollection::GetData(v->GetInformationObject(i));
 }
 
 //----------------------------------------------------------------------------
-void vtkMultiBlockDataSet::SetNumberOfBlocks(unsigned int numBlocks)
+void vtkPartitionedDataSetCollection::SetNumberOfPartitionedDataSets(
+  unsigned int numDataSets)
 {
-  this->Superclass::SetNumberOfChildren(numBlocks);
+  this->Superclass::SetNumberOfChildren(numDataSets);
 }
 
 
 //----------------------------------------------------------------------------
-unsigned int vtkMultiBlockDataSet::GetNumberOfBlocks()
+unsigned int vtkPartitionedDataSetCollection::GetNumberOfPartitionedDataSets()
 {
   return this->Superclass::GetNumberOfChildren();
 }
 
 //----------------------------------------------------------------------------
-vtkDataObject* vtkMultiBlockDataSet::GetBlock(unsigned int blockno)
+vtkPartitionedDataSet* vtkPartitionedDataSetCollection::GetPartitionedDataSet(
+  unsigned int idx)
 {
-  return this->Superclass::GetChild(blockno);
+  return vtkPartitionedDataSet::SafeDownCast(this->Superclass::GetChild(idx));
 }
 
 //----------------------------------------------------------------------------
-void vtkMultiBlockDataSet::SetBlock(unsigned int blockno, vtkDataObject* block)
+void vtkPartitionedDataSetCollection::SetPartitionedDataSet(
+  unsigned int idx, vtkPartitionedDataSet* dataset)
 {
-  if (block && block->IsA("vtkCompositeDataSet") &&
-      !block->IsA("vtkMultiBlockDataSet") &&
-      !block->IsA("vtkMultiPieceDataSet") &&
-      !block->IsA("vtkPartitionedDataSet"))
-  {
-    vtkErrorMacro(<< block->GetClassName() << " cannot be added as a block.");
-    return;
-  }
-  this->Superclass::SetChild(blockno, block);
+  this->Superclass::SetChild(idx, dataset);
 }
 
 //----------------------------------------------------------------------------
-void vtkMultiBlockDataSet::RemoveBlock(unsigned int blockno)
+void vtkPartitionedDataSetCollection::RemovePartitionedDataSet(
+  unsigned int idx)
 {
-  this->Superclass::RemoveChild(blockno);
+  this->Superclass::RemoveChild(idx);
 }
 
 //----------------------------------------------------------------------------
-void vtkMultiBlockDataSet::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPartitionedDataSetCollection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
-

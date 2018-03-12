@@ -37,6 +37,8 @@ class vtkMultiBlockDataSet;
 class vtkMultiPieceDataSet;
 class vtkNonOverlappingAMR;
 class vtkOverlappingAMR;
+class vtkPartitionedDataSet;
+class vtkPartitionedDataSetCollection;
 
 class VTKIOLEGACY_EXPORT vtkCompositeDataWriter : public vtkDataWriter
 {
@@ -70,6 +72,8 @@ protected:
   bool WriteCompositeData(ostream*, vtkHierarchicalBoxDataSet*);
   bool WriteCompositeData(ostream*, vtkOverlappingAMR*);
   bool WriteCompositeData(ostream*, vtkNonOverlappingAMR*);
+  bool WriteCompositeData(ostream*, vtkPartitionedDataSet*);
+  bool WriteCompositeData(ostream*, vtkPartitionedDataSetCollection*);
   bool WriteBlock(ostream* fp, vtkDataObject* block);
 
 private:

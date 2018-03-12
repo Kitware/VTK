@@ -125,6 +125,8 @@
 #define VTK_PISTON_DATA_OBJECT             34
 #define VTK_PATH                           35
 #define VTK_UNSTRUCTURED_GRID_BASE         36
+#define VTK_PARTITIONED_DATA_SET           37
+#define VTK_PARTITIONED_DATA_SET_COLLECTION 38
 
 /*--------------------------------------------------------------------------*/
 /* Define a casting macro for use by the constants below.  */

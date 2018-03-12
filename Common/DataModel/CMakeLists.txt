@@ -118,6 +118,8 @@ set(Module_SRCS
   vtkOctreePointLocatorNode.cxx
   vtkOrderedTriangulator.cxx
   vtkOutEdgeIterator.cxx
+  vtkPartitionedDataSet.cxx
+  vtkPartitionedDataSetCollection.cxx
   vtkPath.cxx
   vtkPentagonalPrism.cxx
   vtkPeriodicDataArray.txx

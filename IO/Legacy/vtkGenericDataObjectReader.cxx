@@ -28,6 +28,8 @@
 #include "vtkNonOverlappingAMR.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataReader.h"
 #include "vtkRectilinearGrid.h"
@@ -168,6 +170,12 @@ int vtkGenericDataObjectReader::RequestDataObject(
       case VTK_NON_OVERLAPPING_AMR:
         output = vtkNonOverlappingAMR::New();
         break;
+      case VTK_PARTITIONED_DATA_SET:
+        output = vtkPartitionedDataSet::New();
+        break;
+      case VTK_PARTITIONED_DATA_SET_COLLECTION:
+        output = vtkPartitionedDataSetCollection::New();
+        break;
       default:
         return 0;
     }
@@ -231,6 +239,8 @@ int vtkGenericDataObjectReader::RequestInformation(
     case VTK_MULTIPIECE_DATA_SET:
     case VTK_OVERLAPPING_AMR:
     case VTK_NON_OVERLAPPING_AMR:
+    case VTK_PARTITIONED_DATA_SET:
+    case VTK_PARTITIONED_DATA_SET_COLLECTION:
       reader = vtkCompositeDataReader::New();
       break;
     default:
@@ -347,6 +357,18 @@ int vtkGenericDataObjectReader::RequestData(
         "vtkHierarchicalBoxDataSet", output);
       return 1;
     }
+    case VTK_PARTITIONED_DATA_SET:
+    {
+      this->ReadData<vtkCompositeDataReader, vtkPartitionedDataSet>(
+        "vtkPartitionedDataSet", output);
+      return 1;
+    }
+    case VTK_PARTITIONED_DATA_SET_COLLECTION:
+    {
+      this->ReadData<vtkCompositeDataReader, vtkPartitionedDataSetCollection>(
+        "vtkPartitionedDataSetCollection", output);
+      return 1;
+    }
     default:
         vtkErrorMacro("Could not read file " << this->FileName);
   }
@@ -445,6 +467,14 @@ int vtkGenericDataObjectReader::ReadOutputType()
     if (strncmp(this->LowerCase(line), "non_overlapping_amr", strlen("non_overlapping_amr")) == 0)
     {
       return VTK_NON_OVERLAPPING_AMR;
+    }
+    if (strncmp(this->LowerCase(line), "partitioned", strlen("partitioned")) == 0)
+    {
+      return VTK_PARTITIONED_DATA_SET;
+    }
+    if (strncmp(this->LowerCase(line), "partitioned_collection", strlen("partitioned_collection")) == 0)
+    {
+      return VTK_PARTITIONED_DATA_SET_COLLECTION;
     }
 
     vtkDebugMacro(<< "Cannot read dataset type: " << line);
