@@ -384,7 +384,8 @@ int vtkGenericDataArray<DerivedT, ValueTypeT>
     size = size < 0 ? 0 : size;
     int numComps = this->GetNumberOfComponents() > 0
         ? this->GetNumberOfComponents() : 1;
-    vtkIdType numTuples = ceil(size / static_cast<double>(numComps));
+    double ceilNum = ceil(static_cast<double>(size) / static_cast<double>(numComps));
+    vtkIdType numTuples = static_cast<vtkIdType>(ceilNum);
     // NOTE: if numTuples is 0, AllocateTuples is expected to release the
     // memory.
     if (this->AllocateTuples(numTuples) == false)
