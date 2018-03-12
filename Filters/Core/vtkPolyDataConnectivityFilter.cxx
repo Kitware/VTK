@@ -353,7 +353,7 @@ int vtkPolyDataConnectivityFilter::RequestData(
           // If we asked to mark the visited point ids, mark them.
           if (this->MarkVisitedPointIds)
           {
-            this->VisitedPointIds->InsertUniqueId(id);
+            this->VisitedPointIds->InsertUniqueId(pts[i]);
           }
         }
         newCellId = output->InsertNextCell(this->Mesh->GetCellType(cellId),
@@ -389,7 +389,7 @@ int vtkPolyDataConnectivityFilter::RequestData(
             // If we asked to mark the visited point ids, mark them.
             if (this->MarkVisitedPointIds)
             {
-              this->VisitedPointIds->InsertUniqueId(id);
+              this->VisitedPointIds->InsertUniqueId(pts[i]);
             }
 
           }
@@ -416,7 +416,7 @@ int vtkPolyDataConnectivityFilter::RequestData(
           // If we asked to mark the visited point ids, mark them.
           if (this->MarkVisitedPointIds)
           {
-            this->VisitedPointIds->InsertUniqueId(id);
+            this->VisitedPointIds->InsertUniqueId(pts[i]);
           }
         }
         newCellId = output->InsertNextCell(this->Mesh->GetCellType(cellId),
