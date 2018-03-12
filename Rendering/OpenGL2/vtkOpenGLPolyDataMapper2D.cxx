@@ -577,8 +577,8 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     }
   }
 
-  // on apple with the AMD PrimID bug we use a slow
-  // painful approach to work around it
+  // on Apple Macs with the AMD PrimID bug <rdar://20747550>
+  // we use a slow painful approach to work around it (pre 10.11).
   this->AppleBugPrimIDs.resize(0);
   if (this->HaveAppleBug && this->HaveCellScalars)
   {
@@ -597,7 +597,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     static bool warnAppleBugOnce = true;
     if (warnAppleBugOnce)
     {
-      vtkWarningMacro("VTK is working around a bug in Apple-AMD hardware related to gl_PrimitiveID.  This may cause significant memory and performance impacts. Your hardware has been identified as vendor "
+      vtkWarningMacro("VTK is working around a bug in Apple-AMD hardware related to gl_PrimitiveID. This may cause significant memory and performance impacts. You should update to macOS 10.11 or later, where the bug is fixed. Your hardware has been identified as vendor "
                       << (const char *)glGetString(GL_VENDOR) << " with renderer of "
                       << (const char *)glGetString(GL_RENDERER));
       warnAppleBugOnce = false;

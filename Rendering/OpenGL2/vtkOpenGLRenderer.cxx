@@ -60,6 +60,10 @@ PURPOSE.  See the above copyright notice for more information.
 #include <sstream>
 #include <string>
 
+#ifdef __APPLE__
+#import <CoreFoundation/CoreFoundation.h>
+#endif
+
 class vtkGLPickInfo
 {
 public:
@@ -893,8 +897,14 @@ bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
       vendor.find("AMD") != std::string::npos ||
       vendor.find("amd") != std::string::npos)
   {
-    // assume we have the bug
-    this->HaveApplePrimitiveIdBugValue = true;
+    // assume we have the bug if we are running on <= macOS 10.10.x
+    // Apple fixed this bug in OS X 10.11 beta 15A216g.
+    // kCFCoreFoundationVersionNumber10_10_Max = 1199, we use the raw number
+    // because the constant isn't present in older SDKs.
+    if (kCFCoreFoundationVersionNumber <= 1199)
+    {
+      this->HaveApplePrimitiveIdBugValue = true;
+    }
 
     // but exclude systems we know do not have it
     std::string renderer = (const char *)glGetString(GL_RENDERER);
@@ -923,6 +933,15 @@ bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
       this->HaveApplePrimitiveIdBugValue = false;
     }
   }
+
+  // On all versions of macOS and with all GPUs,
+  // allow an env var to force the workaround to be used.
+  const char* forceWorkaround = std::getenv("VTK_FORCE_APPLE_PRIMITIVEID_WORKAROUND");
+  if (forceWorkaround)
+  {
+    this->HaveApplePrimitiveIdBugValue = true;
+  }
+
 #else
   this->HaveApplePrimitiveIdBugValue = false;
 #endif

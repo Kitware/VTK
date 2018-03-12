@@ -3091,8 +3091,8 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
     this->CellTextureBuildString = toString.str();
   }
 
-  // on apple with the AMD PrimID bug we use a slow
-  // painful approach to work around it
+  // on Apple Macs with the AMD PrimID bug <rdar://20747550>
+  // we use a slow painful approach to work around it (pre 10.11).
   this->AppleBugPrimIDs.resize(0);
   if (this->HaveAppleBug &&
       !pointPicking &&
