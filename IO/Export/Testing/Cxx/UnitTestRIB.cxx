@@ -32,14 +32,14 @@
 
 #include <sstream>
 
-#define TEST_SET_GET_VALUE( variable, command ) \
-  if( variable != command )   \
-  {   \
-    std::cout << "Error in " << #command << std::endl; \
-    std::cout << "  In " __FILE__ ", line " << __LINE__ << std::endl;   \
-    std::cout << "Expected |" << variable << "|" << std::endl;           \
-    std::cout << "but got  |" << command << "|" << std::endl;            \
-    status += 1; \
+#define TEST_SET_GET_VALUE( variable, command )                        \
+  if( (variable) != (command) )                                        \
+  {                                                                    \
+    std::cout << "Error in " << #command << std::endl;                 \
+    std::cout << "  In " __FILE__ ", line " << __LINE__ << std::endl;  \
+    std::cout << "Expected |" << (variable) << "|" << std::endl;       \
+    std::cout << "but got  |" << (command) << "|" << std::endl;        \
+    status += 1;                                                       \
   }
 
 static int TestRIBProperty();

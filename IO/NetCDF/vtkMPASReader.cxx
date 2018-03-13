@@ -199,10 +199,10 @@ bool vtkMPASReader::Internal::isExtraDim(const string &name)
 //----------------------------------------------------------------------------
 
 #define CHECK_MALLOC(ptr) \
-  if (ptr == nullptr)                  \
-  {                               \
-  vtkErrorMacro( << "malloc failed!" << endl);     \
-  return(0);                      \
+  if ((ptr) == nullptr)                          \
+  {                                              \
+  vtkErrorMacro( << "malloc failed!" << endl);   \
+  return(0);                                     \
   }
 
 
@@ -211,7 +211,7 @@ bool vtkMPASReader::Internal::isExtraDim(const string &name)
 //----------------------------------------------------------------------------
 
 #define CHECK_DIM(ncFile, name) \
-  if (!isNcDim(ncFile, name))                                         \
+  if (!isNcDim(ncFile, name))                                       \
   {                                                                 \
   vtkErrorMacro( << "Cannot find dimension: " << name << endl);     \
   return 0;                                                         \
@@ -221,8 +221,8 @@ bool vtkMPASReader::Internal::isExtraDim(const string &name)
 // Macro to check if the named NetCDF variable exists
 //----------------------------------------------------------------------------
 
-#define CHECK_VAR(ncFile, name)                                      \
-  if (!isNcVar(ncFile, name))                                        \
+#define CHECK_VAR(ncFile, name)                                    \
+  if (!isNcVar(ncFile, name))                                      \
   {                                                                \
   vtkErrorMacro( << "Cannot find variable: " << name << endl);     \
   return 0;                                                        \

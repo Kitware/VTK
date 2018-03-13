@@ -77,17 +77,17 @@ vtkPythonAlgorithm::~vtkPythonAlgorithm()
 //          function using the macro should return.  Pass in a
 //          block comment /**/ for void functions using this macro
 #define VTK_GET_METHOD(var, obj, method, failValue)          \
-  if (!obj)                                                  \
-  {                                                        \
+  if (!(obj))                                                \
+  {                                                          \
     return failValue;                                        \
-  }                                                        \
+  }                                                          \
   vtkSmartPyObject var(PyObject_GetAttrString(obj, method)); \
-  if (!var)                                                  \
-  {                                                        \
+  if (!(var))                                                \
+  {                                                          \
     return failValue;                                        \
-  }                                                        \
+  }                                                          \
   if (!PyCallable_Check(var))                                \
-  {                                                        \
+  {                                                          \
     return failValue;                                        \
   }
 

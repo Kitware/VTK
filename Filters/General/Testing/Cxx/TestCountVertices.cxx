@@ -118,9 +118,9 @@ int TestCountVertices(int, char*[])
 #define TEST_VERTICES(idx, expected) \
   { \
   vtkIdType numVerts = verts->GetTypedComponent(idx, 0); \
-  if (numVerts != expected) \
+  if (numVerts != (expected)) \
   { \
-    std::cerr << "Expected cell @idx=" << idx << " to have " << expected \
+    std::cerr << "Expected cell @idx=" << (idx) << " to have " << (expected) \
               << " vertices, but found " << numVerts<< "\n"; \
     return EXIT_FAILURE; \
   } \

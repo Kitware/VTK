@@ -610,10 +610,10 @@ static int TestColorConvert(const Triple &rgb, const Triple &hsv,
   double *result2;
 
 #define COMPARE(testname, target, dest) \
-  if (target != dest)                              \
+  if ((target) != (dest)) \
   { \
     vtkGenericWarningMacro(<< "Incorrect " #testname " conversion.  Got " \
-                           << dest << " expected " << target); \
+                           << (dest) << " expected " << (target)); \
     return 0; \
   }
 

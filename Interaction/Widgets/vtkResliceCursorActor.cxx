@@ -317,7 +317,7 @@ vtkActor * vtkResliceCursorActor::GetCenterlineActor( int axis )
 //----------------------------------------------------------------------
 // Prints an object if it exists.
 #define vtkPrintMemberObjectMacro( obj, os, indent ) \
-  os << indent << #obj << ": "; \
+  os << (indent) << #obj << ": "; \
   if (this->obj) \
   { \
     os << this->obj << "\n"; \

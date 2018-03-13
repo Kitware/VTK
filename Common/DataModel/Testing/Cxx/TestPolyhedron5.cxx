@@ -65,7 +65,7 @@ Point indices:                       Face indices:
 #define CORNERS 8
 #define EDGES   12
 #define FACES   6
-#define NPOINTS CORNERS+EDGES+FACES
+#define NPOINTS (CORNERS+EDGES+FACES)
 
 const int Faces[FACES][8] =
 {

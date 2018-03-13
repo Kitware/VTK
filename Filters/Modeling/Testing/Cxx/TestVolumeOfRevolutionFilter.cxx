@@ -145,13 +145,13 @@ vtkSmartPointer<vtkPolyData> GeneratePolyData()
   myp_##vtkArrayType->SetNumberOfTuples(nPoints);                       \
   {                                                                     \
     dataType tuple[nComponents];                                        \
-    for (vtkIdType j=0;j<nComponents;j++)                               \
+    for (vtkIdType j=0;j<(nComponents);j++)                             \
     {                                                                   \
       tuple[j] = value;                                                 \
     }                                                                   \
     for (vtkIdType i=0;i<nPoints;i++)                                   \
     {                                                                   \
-      for (vtkIdType j=0;j<nComponents;j++)                             \
+      for (vtkIdType j=0;j<(nComponents);j++)                           \
       {                                                                 \
         tuple[j] += 1;                                                  \
       }                                                                 \
@@ -170,13 +170,13 @@ vtkSmartPointer<vtkPolyData> GeneratePolyData()
   myc_##vtkArrayType->SetNumberOfTuples(nCells);                        \
   {                                                                     \
     dataType tuple[nComponents];                                        \
-    for (vtkIdType j=0;j<nComponents;j++)                               \
+    for (vtkIdType j=0;j<(nComponents);j++)                             \
     {                                                                   \
       tuple[j] = value;                                                 \
     }                                                                   \
     for (vtkIdType i=0;i<nCells;i++)                                    \
     {                                                                   \
-      for (vtkIdType j=0;j<nComponents;j++)                             \
+      for (vtkIdType j=0;j<(nComponents);j++)                           \
       {                                                                 \
         tuple[j] += 1;                                                  \
       }                                                                 \
