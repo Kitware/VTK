@@ -132,11 +132,20 @@ public:
     int destType);
 
   /**
+   * Check if the array already exists.
+   * offset is the index of the first vertex of the array if it exists.
+   * totalOffset is the total number of vertices in the appended arrays.
+   * Note that if the array does not exist, offset is equal to totalOffset.
+   */
+  bool ArrayExists(const char *attribute, vtkDataArray *da,
+    vtkIdType& offset,
+    vtkIdType& totalOffset);
+
+  /**
    * Append a data array for an attribute in the VBO Group
    * registers the data array until build is called
    */
-  void AppendDataArray(const char *attribute, vtkDataArray *da,
-    int destType);
+  void AppendDataArray(const char *attribute, vtkDataArray *da, int destType);
 
   /**
    * using the data arays in this group

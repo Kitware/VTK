@@ -501,7 +501,6 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
   this->AppleBugPrimIDs.resize(0);
 
   dataIter iter;
-  unsigned int voffset = 0;
   this->VBOs->ClearAllVBOs();
 
   if (this->Data.begin() == this->Data.end())
@@ -521,21 +520,30 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
     hdata->Data->GetPoints()->GetBounds(bounds);
     bbox.AddBounds(bounds);
 
-    hdata->StartVertex = voffset;
     for (int i = 0; i < PrimitiveEnd; i++)
     {
       hdata->StartIndex[i] =
         static_cast<unsigned int>(this->IndexArray[i].size());
     }
+
+    vtkIdType voffset = 0;
     this->AppendOneBufferObject(ren, act, hdata,
       voffset, newColors, newNorms);
-    hdata->NextVertex = voffset;
+    hdata->StartVertex = static_cast<unsigned int>(voffset);
+    hdata->NextVertex = hdata->StartVertex + hdata->Data->GetPoints()->GetNumberOfPoints();
     for (int i = 0; i < PrimitiveEnd; i++)
     {
       hdata->NextIndex[i] =
         static_cast<unsigned int>(this->IndexArray[i].size());
     }
   }
+
+  // clear color cache
+  for (auto& c : this->ColorArrayMap)
+  {
+    c.second->Delete();
+  }
+  this->ColorArrayMap.clear();
 
   vtkOpenGLVertexBufferObject *posVBO = this->VBOs->GetVBO("vertexMC");
   if (posVBO && this->ShiftScaleMethod ==
@@ -667,7 +675,7 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
   vtkRenderer *ren,
   vtkActor *act,
   vtkCompositeMapperHelperData *hdata,
-  unsigned int &voffset,
+  vtkIdType &voffset,
   std::vector<unsigned char> &newColors,
   std::vector<float> &newNorms
   )
@@ -834,12 +842,53 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
     }
   }
 
+  // Check if color array is already computed for the current array.
+  // This step is mandatory otherwise the test ArrayExists will fail for "scalarColor" even if
+  // the array used to map the color has already been added.
+  if (c)
+  {
+    int cellFlag = 0; // not used
+    vtkAbstractArray* abstractArray = this->GetAbstractScalars(poly, this->ScalarMode,
+      this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
+
+    auto iter = this->ColorArrayMap.find(abstractArray);
+    if (iter != this->ColorArrayMap.end())
+    {
+      c = iter->second;
+    }
+    else
+    {
+      this->ColorArrayMap[abstractArray] = c;
+      c->Register(this);
+    }
+  }
+
   // Build the VBO
-  this->VBOs->AppendDataArray(
-    "vertexMC", poly->GetPoints()->GetData(), VTK_FLOAT);
-  this->VBOs->AppendDataArray("normalMC", n, VTK_FLOAT);
-  this->VBOs->AppendDataArray("scalarColor", c, VTK_UNSIGNED_CHAR);
-  this->VBOs->AppendDataArray("tcoord", tcoords, VTK_FLOAT);
+  vtkIdType offsetPos, offsetNorm, offsetColor, offsetTex, totalOffset, dummy;
+  bool exists =
+    this->VBOs->ArrayExists("vertexMC", poly->GetPoints()->GetData(), offsetPos, totalOffset) &&
+    this->VBOs->ArrayExists("normalMC", n, offsetNorm, dummy) &&
+    this->VBOs->ArrayExists("scalarColor", c, offsetColor,dummy) &&
+    this->VBOs->ArrayExists("tcoord", tcoords, offsetTex, dummy);
+
+  // if all used arrays have the same offset and have already been added,
+  // we can reuse them and save memory
+  if (exists &&
+    (offsetNorm == 0 || offsetPos == offsetNorm) &&
+    (offsetColor == 0 || offsetPos == offsetColor) &&
+    (offsetTex == 0 || offsetPos == offsetTex))
+  {
+    voffset = offsetPos;
+  }
+  else
+  {
+    this->VBOs->AppendDataArray("vertexMC", poly->GetPoints()->GetData(), VTK_FLOAT);
+    this->VBOs->AppendDataArray("normalMC", n, VTK_FLOAT);
+    this->VBOs->AppendDataArray("scalarColor", c, VTK_UNSIGNED_CHAR);
+    this->VBOs->AppendDataArray("tcoord", tcoords, VTK_FLOAT);
+
+    voffset = totalOffset;
+  }
 
   // now create the IBOs
   vtkOpenGLIndexBufferObject::AppendPointIndexBuffer(
@@ -942,9 +991,6 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
     vtkOpenGLIndexBufferObject::AppendVertexIndexBuffer(
       this->IndexArray[PrimitiveVertices], prims, voffset);
   }
-
-
-  voffset += poly->GetPoints()->GetNumberOfPoints();
 
   // free up polydata if allocated due to apple bug
   if (poly != hdata->Data)
