@@ -455,7 +455,7 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet *set,
   {
     vtkIdType size = *newCells++;
 
-    if (duplicateCellIds)
+    if (duplicateCellIds && nextDuplicateCellId < duplicateCellIds->GetNumberOfIds())
     {
       vtkIdType skipId = duplicateCellIds->GetId(nextDuplicateCellId);
 
