@@ -954,7 +954,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
       "//VTK::TCoord::Dec\n"
       "uniform mat4 tcMatrix;",
       false);
-    for (auto it : tcoordnames)
+    for (const auto& it : tcoordnames)
     {
       int tcoordComps = this->VBOs->GetNumberOfComponents(it.c_str());
       if (tcoordComps == 1)
@@ -971,7 +971,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
   }
   else
   {
-    for (auto it : tcoordnames)
+    for (const auto& it : tcoordnames)
     {
       vsimpl = vsimpl + it + "VCVSOutput = " + it + ";\n";
     }
@@ -983,7 +983,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
   std::string gsdec;
   std::string gsimpl;
   std::string fsdec;
-  for (auto it : tcoordnames)
+  for (const auto& it : tcoordnames)
   {
     int tcoordComps = this->VBOs->GetNumberOfComponents(it.c_str());
     std::string tCoordType;
