@@ -310,6 +310,25 @@ public:
 
   AMReXParticleHeader()
     : DataFormatZeroFill(5)
+    , real_component_names()
+    , int_component_names()
+    , int_base_component_names()
+    , int_type(0)
+    , real_type(0)
+    , dim(0)
+    , num_int_base(0)
+    , num_real_base(0)
+    , num_real_extra(0)
+    , num_int_extra(0)
+    , num_int(0)
+    , num_real(0)
+    , is_checkpoint(false)
+    , num_particles(0)
+    , max_next_id(0)
+    , finest_level(0)
+    , num_levels(0)
+    , grids_per_level()
+    , grids()
   {
   }
 
