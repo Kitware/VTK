@@ -72,7 +72,7 @@ protected:
    */
   void AppendOneBufferObject(vtkRenderer *ren,
     vtkActor *act, vtkCompositeMapperHelperData *hdata,
-    unsigned int &flat_index,
+    vtkIdType &flat_index,
     std::vector<unsigned char> &colors,
     std::vector<float> &norms) override;
 
@@ -178,7 +178,7 @@ void vtkCompositeLICHelper::AppendOneBufferObject(
   vtkRenderer *ren,
   vtkActor *act,
   vtkCompositeMapperHelperData *hdata,
-  unsigned int &voffset,
+  vtkIdType &voffset,
   std::vector<unsigned char> &newColors,
   std::vector<float> &newNorms
   )
