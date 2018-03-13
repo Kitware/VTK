@@ -57,7 +57,7 @@
 #include <array> // For std::array!
 
 class vtkOpenGLFramebufferObject;
-class vtkOpenGLBufferObject;
+class vtkOpenGLQuadHelper;
 class vtkOpenGLVertexArrayObject;
 class vtkRenderTimerLog;
 class vtkShaderProgram;
@@ -259,21 +259,10 @@ protected:
   vtkRenderPass *VolumetricPass;
   const vtkRenderState *RenderState;
 
-  vtkShaderProgram *CopyColorProgram;
-  vtkOpenGLVertexArrayObject *CopyColorVAO;
-  vtkOpenGLBufferObject *CopyColorVBO;
-
-  vtkShaderProgram *CopyDepthProgram;
-  vtkOpenGLVertexArrayObject *CopyDepthVAO;
-  vtkOpenGLBufferObject *CopyDepthVBO;
-
-  vtkShaderProgram *BackBlendProgram;
-  vtkOpenGLVertexArrayObject *BackBlendVAO;
-  vtkOpenGLBufferObject *BackBlendVBO;
-
-  vtkShaderProgram *BlendProgram;
-  vtkOpenGLVertexArrayObject *BlendVAO;
-  vtkOpenGLBufferObject *BlendVBO;
+  vtkOpenGLQuadHelper *CopyColorHelper;
+  vtkOpenGLQuadHelper *CopyDepthHelper;
+  vtkOpenGLQuadHelper *BackBlendHelper;
+  vtkOpenGLQuadHelper *BlendHelper;
 
   vtkTextureObject *Textures[NumberOfTextures];
 

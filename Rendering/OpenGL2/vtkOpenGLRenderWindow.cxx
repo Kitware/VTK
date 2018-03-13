@@ -30,6 +30,7 @@
 #include "vtkOpenGLLight.h"
 #include "vtkOpenGLProperty.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
@@ -240,6 +241,8 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->DepthRenderBufferObject = 0;
   this->AlphaBitPlanes = 8;
   this->Capabilities = nullptr;
+
+  this->TQuad2DVBO = nullptr;
 }
 
 // free up memory & close the window
@@ -262,6 +265,12 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
   this->GLStateIntegers.clear();
 
   this->ShaderCache->UnRegister(this);
+
+  if (this->TQuad2DVBO)
+  {
+    this->TQuad2DVBO->Delete();
+    this->TQuad2DVBO = nullptr;
+  }
 
   delete [] this->Capabilities;
   this->Capabilities = nullptr;
@@ -354,6 +363,11 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
   }
 
   this->RenderTimer->ReleaseGraphicsResources();
+
+  if (this->TQuad2DVBO)
+  {
+    this->TQuad2DVBO->ReleaseGraphicsResources();
+  }
 
   delete this->State;
   this->State = new vtkOpenGLState();
@@ -2339,4 +2353,27 @@ int vtkOpenGLRenderWindow::SupportsOpenGL()
   this->OpenGLSupportTested = true;
 
   return this->OpenGLSupportResult;
+}
+
+vtkOpenGLBufferObject *vtkOpenGLRenderWindow::GetTQuad2DVBO()
+{
+  if (!this->TQuad2DVBO || !this->TQuad2DVBO->GetHandle())
+  {
+    if (!this->TQuad2DVBO)
+    {
+      this->TQuad2DVBO = vtkOpenGLBufferObject::New();
+      this->TQuad2DVBO->SetType(vtkOpenGLBufferObject::ArrayBuffer);
+    }
+    float verts[16] = {  1.f, 1.f, 1.f, 1.f,
+                        -1.f, 1.f, 0.f, 1.f,
+                         1.f,-1.f, 1.f, 0.f,
+                        -1.f,-1.f, 0.f, 0.f };
+
+    bool res = this->TQuad2DVBO->Upload(verts, 16, vtkOpenGLBufferObject::ArrayBuffer);
+    if (!res)
+    {
+      vtkGenericWarningMacro("Error uploading fullscreen quad vertex data.");
+    }
+  }
+  return this->TQuad2DVBO;
 }

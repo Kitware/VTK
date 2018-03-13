@@ -33,7 +33,7 @@
 
 class vtkDepthPeelingPassLayerList; // Pimpl
 class vtkOpenGLFramebufferObject;
-class vtkOpenGLHelper;
+class vtkOpenGLQuadHelper;
 class vtkOpenGLRenderWindow;
 class vtkTextureObject;
 
@@ -97,8 +97,7 @@ public:
   vtkTextureObject *Pass1; // render target for the scene
   vtkTextureObject *Pass1Depth; // render target for the depth
 
-  // Structures for the various cell types we render.
-  vtkOpenGLHelper *BlurProgram;
+  vtkOpenGLQuadHelper *QuadHelper;
 
   float CandidatePointRatio;
   float MinimumCandidateAngle;

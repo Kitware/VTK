@@ -18,6 +18,7 @@
 #include "vtkNew.h"
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkRenderingOpenGLConfigure.h"
 #include "vtkShaderProgram.h"
@@ -167,6 +168,38 @@ bool vtkOpenGLRenderUtilities::PrepFullScreenVAO(vtkOpenGLBufferObject *vertBuf,
 
   vao->Bind();
 
+  res = vao->AddAttributeArray(prog, vertBuf, "ndCoordIn", 0, 4 * sizeof(float),
+                               VTK_FLOAT, 2, false);
+  if (!res)
+  {
+    vao->Release();
+    vtkGenericWarningMacro("Error binding ndCoords to VAO.");
+    return false;
+  }
+
+  res = vao->AddAttributeArray(prog, vertBuf, "texCoordIn", 2 * sizeof(float),
+                               4 * sizeof(float), VTK_FLOAT, 2, false);
+  if (!res)
+  {
+    vao->Release();
+    vtkGenericWarningMacro("Error binding texCoords to VAO.");
+    return false;
+  }
+
+  vao->Release();
+  return true;
+}
+
+bool vtkOpenGLRenderUtilities::PrepFullScreenVAO(
+  vtkOpenGLRenderWindow *renWin,
+  vtkOpenGLVertexArrayObject *vao,
+  vtkShaderProgram *prog)
+{
+  bool res;
+
+  vao->Bind();
+
+  vtkOpenGLBufferObject *vertBuf = renWin->GetTQuad2DVBO();
   res = vao->AddAttributeArray(prog, vertBuf, "ndCoordIn", 0, 4 * sizeof(float),
                                VTK_FLOAT, 2, false);
   if (!res)

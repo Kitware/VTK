@@ -17,7 +17,7 @@
 
 // Fragment shader used by the DOF render pass.
 
-in vec2 tcoordVC;
+in vec2 texCoord;
 uniform sampler2D source;
 uniform sampler2D depth;
 uniform float nearC;
@@ -32,9 +32,9 @@ uniform vec2  pixelToTCoord;
 void main(void)
 {
   // original pixel
-  float fbdepth = texture2D(depth,tcoordVC).r;
+  float fbdepth = texture2D(depth,texCoord).r;
   fbdepth = 2.0*nearC/(farC + nearC -fbdepth*(farC - nearC));
-  vec4  fbcolor = texture2D(source,tcoordVC);
+  vec4  fbcolor = texture2D(source,texCoord);
 
   vec4  closestColor = vec4(0.0,0.0,0.0,0.0);
   float closestDepth = 0.0;
@@ -55,7 +55,7 @@ void main(void)
     {
     for (int j = -3; j <= 3; j++)
       {
-      float adepth = texture2D(depth,tcoordVC + pixelToTCoord*vec2(i,j)).r;
+      float adepth = texture2D(depth,texCoord + pixelToTCoord*vec2(i,j)).r;
       float mdepth = 2.0*nearC/(farC + nearC -adepth*(farC - nearC));
       if (mdepth < fbdepth*CandidatePointRatio && (i != 0 || j != 0))
         {
@@ -73,7 +73,7 @@ void main(void)
         minTheta2 = min(minTheta2,theta);
         maxTheta2 = max(maxTheta2,theta);
         count = count + 1;
-        closestColor += texture2D(source,tcoordVC + pixelToTCoord*vec2(i,j));
+        closestColor += texture2D(source,texCoord + pixelToTCoord*vec2(i,j));
         closestDepth += adepth;
         }
       }

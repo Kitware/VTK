@@ -15,7 +15,7 @@
 
 =========================================================================*/
 
-in vec2 tcoordVC;
+in vec2 texCoord;
 
 uniform sampler2D translucentRGBATexture;
 uniform sampler2D opaqueRGBATexture;
@@ -26,11 +26,11 @@ uniform sampler2D opaqueZTexture;
 
 void main()
 {
-  vec4 t1Color = texture2D(translucentRGBATexture, tcoordVC);
-  vec4 t2Color = texture2D(opaqueRGBATexture, tcoordVC);
+  vec4 t1Color = texture2D(translucentRGBATexture, texCoord);
+  vec4 t2Color = texture2D(opaqueRGBATexture, texCoord);
   gl_FragData[0].a = t1Color.a +  (1.0-t1Color.a)*t2Color.a;
   gl_FragData[0].rgb = (t1Color.rgb*t1Color.a + t2Color.rgb*(1.0-t1Color.a));
 
-  float depth = texture2D(opaqueZTexture, tcoordVC).x;
+  float depth = texture2D(opaqueZTexture, texCoord).x;
   gl_FragDepth = depth;
 }

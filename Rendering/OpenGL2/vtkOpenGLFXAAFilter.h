@@ -53,6 +53,7 @@ class vtkOpenGLRenderer;
 class vtkOpenGLRenderTimer;
 class vtkShaderProgram;
 class vtkTextureObject;
+class vtkOpenGLQuadHelper;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLFXAAFilter: public vtkObject
 {
@@ -142,9 +143,7 @@ protected:
   vtkOpenGLRenderer *Renderer;
   vtkTextureObject *Input;
 
-  vtkShaderProgram *Program;
-  vtkOpenGLVertexArrayObject *VAO;
-  vtkOpenGLBufferObject *VBO;
+  vtkOpenGLQuadHelper *QHelper;
 
 private:
   vtkOpenGLFXAAFilter(const vtkOpenGLFXAAFilter&) = delete;

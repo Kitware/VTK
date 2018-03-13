@@ -212,12 +212,6 @@ public:
     this->ImageSampleTexture.clear();
     this->ImageSampleTexNames.clear();
 
-    if (this->ImageSampleVBO)
-    {
-      this->ImageSampleVBO->Delete();
-      this->ImageSampleVBO = nullptr;
-    }
-
     if (this->ImageSampleVAO)
     {
       this->ImageSampleVAO->Delete();
@@ -528,7 +522,6 @@ public:
   std::vector<std::string> ImageSampleTexNames;
   vtkShaderProgram* ImageSampleProg = nullptr;
   vtkOpenGLVertexArrayObject* ImageSampleVAO = nullptr;
-  vtkOpenGLBufferObject* ImageSampleVBO = nullptr;
   size_t NumImageSampleDrawBuffers = 0;
   bool RebuildImageSampleProg = false;
   bool RenderPassAttached = false;
@@ -1881,10 +1874,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::EndImageSample(
 
     if (!this->ImageSampleVAO)
     {
-      this->ImageSampleVBO = vtkOpenGLBufferObject::New();
       this->ImageSampleVAO = vtkOpenGLVertexArrayObject::New();
       GLUtil::PrepFullScreenVAO(
-        this->ImageSampleVBO, this->ImageSampleVAO, this->ImageSampleProg);
+        win, this->ImageSampleVAO, this->ImageSampleProg);
     }
 
     vtkOpenGLState *ostate = win->GetState();
@@ -2263,12 +2255,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal ::
     }
     this->ImageSampleTexture.clear();
     this->ImageSampleTexNames.clear();
-
-    if (this->ImageSampleVBO)
-    {
-      this->ImageSampleVBO->Delete();
-      this->ImageSampleVBO = nullptr;
-    }
 
     if (this->ImageSampleVAO)
     {

@@ -23,6 +23,7 @@
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLQuadHelper.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
@@ -122,6 +123,26 @@ void vtkDualDepthPeelingPass::ReleaseGraphicsResources(vtkWindow* win)
   if (this->VolumetricPass)
   {
     this->VolumetricPass->ReleaseGraphicsResources(win);
+  }
+  if (this->BlendHelper)
+  {
+    delete this->BlendHelper;
+    this->BlendHelper = nullptr;
+  }
+  if (this->BackBlendHelper)
+  {
+    delete this->BackBlendHelper;
+    this->BackBlendHelper = nullptr;
+  }
+  if (this->CopyColorHelper)
+  {
+    delete this->CopyColorHelper;
+    this->CopyColorHelper = nullptr;
+  }
+  if (this->CopyDepthHelper)
+  {
+    delete this->CopyDepthHelper;
+    this->CopyDepthHelper = nullptr;
   }
 
   this->FreeGLObjects();
@@ -779,18 +800,10 @@ bool vtkDualDepthPeelingPass::SetVolumetricShaderParameters(
 vtkDualDepthPeelingPass::vtkDualDepthPeelingPass()
   : VolumetricPass(nullptr),
     RenderState(nullptr),
-    CopyColorProgram(nullptr),
-    CopyColorVAO(nullptr),
-    CopyColorVBO(nullptr),
-    CopyDepthProgram(nullptr),
-    CopyDepthVAO(nullptr),
-    CopyDepthVBO(nullptr),
-    BackBlendProgram(nullptr),
-    BackBlendVAO(nullptr),
-    BackBlendVBO(nullptr),
-    BlendProgram(nullptr),
-    BlendVAO(nullptr),
-    BlendVBO(nullptr),
+    CopyColorHelper(nullptr),
+    CopyDepthHelper(nullptr),
+    BackBlendHelper(nullptr),
+    BlendHelper(nullptr),
     FrontSource(FrontA),
     FrontDestination(FrontB),
     DepthSource(DepthA),
@@ -823,6 +836,26 @@ vtkDualDepthPeelingPass::~vtkDualDepthPeelingPass()
   if (this->VolumetricPass)
   {
     this->SetVolumetricPass(nullptr);
+  }
+  if (this->BlendHelper)
+  {
+    delete this->BlendHelper;
+    this->BlendHelper = nullptr;
+  }
+  if (this->BackBlendHelper)
+  {
+    delete this->BackBlendHelper;
+    this->BackBlendHelper = nullptr;
+  }
+  if (this->CopyColorHelper)
+  {
+    delete this->CopyColorHelper;
+    this->CopyColorHelper = nullptr;
+  }
+  if (this->CopyDepthHelper)
+  {
+    delete this->CopyDepthHelper;
+    this->CopyDepthHelper = nullptr;
   }
 }
 
@@ -860,21 +893,6 @@ void vtkDualDepthPeelingPass::FreeGLObjects()
       this->Textures[i] = nullptr;
     }
   }
-
-  DeleteHelper(this->CopyColorVAO);
-  DeleteHelper(this->CopyColorVBO);
-  DeleteHelper(this->CopyDepthVAO);
-  DeleteHelper(this->CopyDepthVBO);
-  DeleteHelper(this->BackBlendVAO);
-  DeleteHelper(this->BackBlendVBO);
-  DeleteHelper(this->BlendVAO);
-  DeleteHelper(this->BlendVBO);
-
-  // don't delete the shader programs -- let the cache clean them up.
-  this->CopyColorProgram = nullptr;
-  this->CopyDepthProgram = nullptr;
-  this->BackBlendProgram = nullptr;
-  this->BlendProgram = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -931,14 +949,13 @@ void vtkDualDepthPeelingPass::Initialize(const vtkRenderState *s)
   // start the event here:
   TIME_FUNCTION(vtkDualDepthPeelingPass::Initialize);
 
-  // See if we can reuse existing textures:
-  if (this->Textures[Back] &&
-      (static_cast<int>(this->Textures[Back]->GetHeight()) !=
-       this->ViewportHeight ||
-       static_cast<int>(this->Textures[Back]->GetWidth()) !=
-       this->ViewportWidth))
+  // adjust size as needed
+  for (int i = 0; i < static_cast<int>(NumberOfTextures); ++i)
   {
-    this->FreeGLObjects();
+    if (this->Textures[i])
+    {
+      this->Textures[i]->Resize(this->ViewportWidth, this->ViewportHeight);
+    }
   }
 
   // Allocate new textures if needed:
@@ -1136,13 +1153,12 @@ void vtkDualDepthPeelingPass::CopyOpaqueDepthBuffer()
 
   this->State->glDisable(GL_BLEND);
 
-  typedef vtkOpenGLRenderUtilities GLUtil;
-
   vtkOpenGLRenderWindow *renWin = static_cast<vtkOpenGLRenderWindow*>(
         this->RenderState->GetRenderer()->GetRenderWindow());
-  if (!this->CopyDepthProgram)
+  if (!this->CopyDepthHelper)
   {
-    std::string fragShader = GLUtil::GetFullScreenQuadFragmentShaderTemplate();
+    std::string fragShader =
+      vtkOpenGLRenderUtilities::GetFullScreenQuadFragmentShaderTemplate();
     vtkShaderProgram::Substitute(
           fragShader, "//VTK::FSQ::Decl",
           "uniform float clearValue;\n"
@@ -1156,44 +1172,32 @@ void vtkDualDepthPeelingPass::CopyOpaqueDepthBuffer()
           "    }\n"
           "  gl_FragData[0] = gl_FragData[1] = vec4(-1, d, 0., 0.);\n"
           );
-    this->CopyDepthProgram = renWin->GetShaderCache()->ReadyShaderProgram(
-          GLUtil::GetFullScreenQuadVertexShader().c_str(),
+    this->CopyDepthHelper = new vtkOpenGLQuadHelper(renWin,
+          nullptr,
           fragShader.c_str(),
-          GLUtil::GetFullScreenQuadGeometryShader().c_str());
+          nullptr);
   }
   else
   {
-    renWin->GetShaderCache()->ReadyShaderProgram(this->CopyDepthProgram);
+    renWin->GetShaderCache()->ReadyShaderProgram(this->CopyDepthHelper->Program);
   }
 
-  if (!this->CopyDepthProgram)
+  if (!this->CopyDepthHelper->Program)
   {
     return;
-  }
-
-  if (!this->CopyDepthVAO)
-  {
-    this->CopyDepthVBO = vtkOpenGLBufferObject::New();
-    this->CopyDepthVAO = vtkOpenGLVertexArrayObject::New();
-    GLUtil::PrepFullScreenVAO(this->CopyDepthVBO, this->CopyDepthVAO,
-                              this->CopyDepthProgram);
   }
 
   // Get the clear value. We don't set this, so it should still be what the
   // opaque pass uses:
   GLfloat clearValue = 1.f;
   glGetFloatv(GL_DEPTH_CLEAR_VALUE, &clearValue);
-  this->CopyDepthProgram->SetUniformf("clearValue", clearValue);
-  this->CopyDepthProgram->SetUniformi(
+  this->CopyDepthHelper->Program->SetUniformf("clearValue", clearValue);
+  this->CopyDepthHelper->Program->SetUniformi(
         "oDepth", this->Textures[OpaqueDepth]->GetTextureUnit());
 
-  this->CopyDepthVAO->Bind();
-
   annotate("Copying opaque depth!");
-  GLUtil::DrawFullScreenQuad();
+  this->CopyDepthHelper->Render();
   annotate("Opaque depth copied!");
-
-  this->CopyDepthVAO->Release();
 
   this->Textures[OpaqueDepth]->Deactivate();
 }
@@ -1345,53 +1349,41 @@ void vtkDualDepthPeelingPass::CopyFrontSourceToFrontDestination()
 
   this->State->glDisable(GL_BLEND);
 
-  typedef vtkOpenGLRenderUtilities GLUtil;
-
   vtkOpenGLRenderWindow *renWin = static_cast<vtkOpenGLRenderWindow*>(
         this->RenderState->GetRenderer()->GetRenderWindow());
-  if (!this->CopyColorProgram)
+  if (!this->CopyColorHelper)
   {
-    std::string fragShader = GLUtil::GetFullScreenQuadFragmentShaderTemplate();
+    std::string fragShader =
+      vtkOpenGLRenderUtilities::GetFullScreenQuadFragmentShaderTemplate();
     vtkShaderProgram::Substitute(
           fragShader, "//VTK::FSQ::Decl",
           "uniform sampler2D inTex;\n");
     vtkShaderProgram::Substitute(
           fragShader, "//VTK::FSQ::Impl",
           "  gl_FragData[0] = texture2D(inTex, texCoord);\n");
-    this->CopyColorProgram = renWin->GetShaderCache()->ReadyShaderProgram(
-          GLUtil::GetFullScreenQuadVertexShader().c_str(),
+    this->CopyColorHelper = new vtkOpenGLQuadHelper(renWin,
+          nullptr,
           fragShader.c_str(),
-          GLUtil::GetFullScreenQuadGeometryShader().c_str());
+          nullptr);
   }
   else
   {
-    renWin->GetShaderCache()->ReadyShaderProgram(this->CopyColorProgram);
+    renWin->GetShaderCache()->ReadyShaderProgram(this->CopyColorHelper->Program);
   }
 
-  if (!this->CopyColorProgram)
+  if (!this->CopyColorHelper->Program)
   {
     return;
   }
 
-  if (!this->CopyColorVAO)
-  {
-    this->CopyColorVBO = vtkOpenGLBufferObject::New();
-    this->CopyColorVAO = vtkOpenGLVertexArrayObject::New();
-    GLUtil::PrepFullScreenVAO(this->CopyColorVBO, this->CopyColorVAO,
-                              this->CopyColorProgram);
-  }
-
   this->Textures[this->FrontSource]->Activate();
-  this->CopyColorProgram->SetUniformi(
+  this->CopyColorHelper->Program->SetUniformi(
         "inTex", this->Textures[this->FrontSource]->GetTextureUnit());
 
-  this->CopyColorVAO->Bind();
-
   annotate("Copying front texture src -> dst for pre-pass initialization!");
-  GLUtil::DrawFullScreenQuad();
+  this->CopyColorHelper->Render();
   annotate("Front texture copied!");
 
-  this->CopyColorVAO->Release();
 
   this->Textures[this->FrontSource]->Deactivate();
 }
@@ -1405,7 +1397,7 @@ void vtkDualDepthPeelingPass::InitializeTargetsForTranslucentPass()
   // this ensures that valid outputs are captured.
   this->ActivateDrawBuffer(BackTemp);
   this->State->glClearColor(0.f, 0.f, 0.f, 0.f);
-  glClear(GL_COLOR_BUFFER_BIT);
+  this->State->glClear(GL_COLOR_BUFFER_BIT);
 
   this->ActivateDrawBuffer(this->DepthDestination);
   this->State->glClearColor(-1.f, -1.f, 0.f, 0.f);
@@ -1524,13 +1516,12 @@ void vtkDualDepthPeelingPass::BlendBackBuffer()
   this->State->glBlendEquation(GL_FUNC_ADD);
   this->State->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-  typedef vtkOpenGLRenderUtilities GLUtil;
-
   vtkOpenGLRenderWindow *renWin = static_cast<vtkOpenGLRenderWindow*>(
         this->RenderState->GetRenderer()->GetRenderWindow());
-  if (!this->BackBlendProgram)
+  if (!this->BackBlendHelper)
   {
-    std::string fragShader = GLUtil::GetFullScreenQuadFragmentShaderTemplate();
+    std::string fragShader =
+      vtkOpenGLRenderUtilities::GetFullScreenQuadFragmentShaderTemplate();
     vtkShaderProgram::Substitute(
           fragShader, "//VTK::FSQ::Decl",
           "uniform sampler2D newPeel;\n"
@@ -1545,39 +1536,29 @@ void vtkDualDepthPeelingPass::BlendBackBuffer()
           "\n"
           "  gl_FragData[0] = f;\n"
           );
-    this->BackBlendProgram = renWin->GetShaderCache()->ReadyShaderProgram(
-          GLUtil::GetFullScreenQuadVertexShader().c_str(),
+    this->BackBlendHelper = new vtkOpenGLQuadHelper(renWin,
+          nullptr,
           fragShader.c_str(),
-          GLUtil::GetFullScreenQuadGeometryShader().c_str());
+          nullptr);
   }
   else
   {
-    renWin->GetShaderCache()->ReadyShaderProgram(this->BackBlendProgram);
+    renWin->GetShaderCache()->ReadyShaderProgram(this->BackBlendHelper->Program);
   }
 
-  if (!this->BackBlendProgram)
+  if (!this->BackBlendHelper->Program)
   {
     return;
   }
 
-  if (!this->BackBlendVAO)
-  {
-    this->BackBlendVBO = vtkOpenGLBufferObject::New();
-    this->BackBlendVAO = vtkOpenGLVertexArrayObject::New();
-    GLUtil::PrepFullScreenVAO(this->BackBlendVBO, this->BackBlendVAO,
-                              this->BackBlendProgram);
-  }
-
-  this->BackBlendProgram->SetUniformi(
+  this->BackBlendHelper->Program->SetUniformi(
         "newPeel", this->Textures[BackTemp]->GetTextureUnit());
 
-  this->BackBlendVAO->Bind();
 
   annotate("Start blending back!");
-  GLUtil::DrawFullScreenQuad();
+  this->BackBlendHelper->Render();
   annotate("Back blended!");
 
-  this->BackBlendVAO->Release();
 
   this->Textures[BackTemp]->Deactivate();
 }
@@ -1834,13 +1815,12 @@ void vtkDualDepthPeelingPass::BlendFinalImage()
     this->State->glDisable(GL_SCISSOR_TEST);
   }
 
-  typedef vtkOpenGLRenderUtilities GLUtil;
-
   vtkOpenGLRenderWindow *renWin = static_cast<vtkOpenGLRenderWindow*>(
         this->RenderState->GetRenderer()->GetRenderWindow());
-  if (!this->BlendProgram)
+  if (!this->BlendHelper)
   {
-    std::string fragShader = GLUtil::GetFullScreenQuadFragmentShaderTemplate();
+    std::string fragShader =
+      vtkOpenGLRenderUtilities::GetFullScreenQuadFragmentShaderTemplate();
     vtkShaderProgram::Substitute(
           fragShader, "//VTK::FSQ::Decl",
           "uniform sampler2D frontTexture;\n"
@@ -1858,41 +1838,31 @@ void vtkDualDepthPeelingPass::BlendFinalImage()
           "  // transparent-over-opaque blending pass.\n"
           "  gl_FragData[0].a = (1. - front.a * (1. - back.a));\n"
           );
-    this->BlendProgram = renWin->GetShaderCache()->ReadyShaderProgram(
-          GLUtil::GetFullScreenQuadVertexShader().c_str(),
+    this->BlendHelper = new vtkOpenGLQuadHelper(renWin,
+          nullptr,
           fragShader.c_str(),
-          GLUtil::GetFullScreenQuadGeometryShader().c_str());
+          nullptr);
   }
   else
   {
-    renWin->GetShaderCache()->ReadyShaderProgram(this->BlendProgram);
+    renWin->GetShaderCache()->ReadyShaderProgram(this->BlendHelper->Program);
   }
 
-  if (!this->BlendProgram)
+  if (!this->BlendHelper->Program)
   {
     return;
   }
 
-  if (!this->BlendVAO)
-  {
-    this->BlendVBO = vtkOpenGLBufferObject::New();
-    this->BlendVAO = vtkOpenGLVertexArrayObject::New();
-    GLUtil::PrepFullScreenVAO(this->BlendVBO, this->BlendVAO,
-                              this->BlendProgram);
-  }
-
-  this->BlendProgram->SetUniformi(
+  this->BlendHelper->Program->SetUniformi(
         "frontTexture", this->Textures[this->FrontSource]->GetTextureUnit());
-  this->BlendProgram->SetUniformi(
+  this->BlendHelper->Program->SetUniformi(
         "backTexture", this->Textures[Back]->GetTextureUnit());
 
-  this->BlendVAO->Bind();
 
   annotate("blending final!");
-  GLUtil::DrawFullScreenQuad();
+  this->BlendHelper->Render();
   annotate("final blended!");
 
-  this->BlendVAO->Release();
 
   this->Textures[this->FrontSource]->Deactivate();
   this->Textures[Back]->Deactivate();

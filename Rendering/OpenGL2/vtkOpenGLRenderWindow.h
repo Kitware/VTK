@@ -34,6 +34,7 @@
 #include <string>                      // for ivar
 
 class vtkIdList;
+class vtkOpenGLBufferObject;
 class vtkOpenGLHardwareSupport;
 class vtkOpenGLShaderCache;
 class vtkOpenGLVertexBufferObjectCache;
@@ -425,6 +426,11 @@ public:
   virtual vtkOpenGLState *GetState() {
     return this->State; }
 
+  // Get a VBO that can be shared by many
+  // It consists of normalized display
+  // coordinates for a quad and tcoords
+  vtkOpenGLBufferObject *GetTQuad2DVBO();
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow() override;
@@ -547,6 +553,9 @@ protected:
   float MaximumHardwareLineWidth;
 
   char *Capabilities;
+
+  // used for fast quad rendering
+  vtkOpenGLBufferObject *TQuad2DVBO;
 
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) = delete;
