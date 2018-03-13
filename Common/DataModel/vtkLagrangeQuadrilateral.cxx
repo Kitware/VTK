@@ -353,7 +353,6 @@ void vtkLagrangeQuadrilateral::Derivatives(
   double* vtkNotUsed(derivs))
 {
   // TODO: Fill me in?
-  return;
 }
 
 double* vtkLagrangeQuadrilateral::GetParametricCoords()

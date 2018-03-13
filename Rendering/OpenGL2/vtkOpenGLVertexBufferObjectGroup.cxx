@@ -109,7 +109,6 @@ void vtkOpenGLVertexBufferObjectGroup::RemoveAttribute(
     diter->second.clear();
     this->UsedDataArrays.erase(diter);
   }
-  return;
 }
 
 void vtkOpenGLVertexBufferObjectGroup::CacheDataArray(
