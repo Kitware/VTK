@@ -759,7 +759,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
 
   // ------------------------
   // Find the children of the root variable
-  std::string rootChildren = MI_EMPTY_STRING;
+  std::string rootChildren;
 
   int nvars = static_cast<int>(variables.size());
   int ivar = 0;
@@ -1001,7 +1001,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
       vtkMINCImageWriterPutAttributeTextMacro(MIident, ident.c_str());
 
       // For history, include any previous history
-      std::string history = MI_EMPTY_STRING;
+      std::string history;
       const char *previousHistory = nullptr;
       if (this->ImageAttributes)
       {
