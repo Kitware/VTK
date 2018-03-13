@@ -31,6 +31,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTransform2D.h"
 #include "vtkVectorOperators.h"
+#include "vtkMath.h"
 
 #include <algorithm>
 #include <cassert>
@@ -439,7 +440,7 @@ bool vtkControlPointsItem::ClampPos(double pos[2], double bounds[4])
     return false;
   }
   bool clamped = false;
-  if (pos[0] < bounds[0])
+  if (pos[0] < bounds[0] || vtkMath::IsNan(pos[0]))
   {
     pos[0] = bounds[0];
     clamped = true;
@@ -449,7 +450,7 @@ bool vtkControlPointsItem::ClampPos(double pos[2], double bounds[4])
     pos[0] = bounds[1];
     clamped = true;
   }
-  if (pos[1] < 0.)
+  if (pos[1] < 0. || vtkMath::IsNan(pos[0]))
   {
     pos[1] = 0.;
     clamped = true;
