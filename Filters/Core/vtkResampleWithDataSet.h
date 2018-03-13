@@ -35,6 +35,7 @@
 #include "vtkNew.h" // For vtkCompositeDataProbeFilter member variable
 #include "vtkPassInputTypeAlgorithm.h"
 
+class vtkAbstractCellLocator;
 class vtkCompositeDataProbeFilter;
 class vtkDataSet;
 
@@ -131,6 +132,15 @@ public:
   vtkSetMacro(MarkBlankPointsAndCells, bool);
   vtkGetMacro(MarkBlankPointsAndCells, bool);
   vtkBooleanMacro(MarkBlankPointsAndCells, bool);
+  //@}
+
+  //@{
+  /*
+   * Set/Get the prototype cell locator to use for probing the source dataset.
+   * The value is forwarded to the underlying probe filter.
+   */
+   virtual void SetCellLocatorPrototype(vtkAbstractCellLocator*);
+   virtual vtkAbstractCellLocator* GetCellLocatorPrototype() const;
   //@}
 
   vtkMTimeType GetMTime() override;
