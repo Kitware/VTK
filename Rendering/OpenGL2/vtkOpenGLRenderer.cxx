@@ -61,7 +61,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <string>
 
 #ifdef __APPLE__
-#import <CoreFoundation/CoreFoundation.h>
+#include <CoreFoundation/CoreFoundation.h>
 #endif
 
 class vtkGLPickInfo
