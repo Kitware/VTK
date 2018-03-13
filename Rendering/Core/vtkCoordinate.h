@@ -39,7 +39,9 @@
  *   NORMALIZED VIEWPORT - x-y (0,1) normalized value in viewport
  *      0, 0 is the lower left of the first pixel,
  *      1, 1 is the upper right of the last pixel
- *   VIEW -                x-y-z (-1,1) values in camera coordinates. (z is depth)
+ *   VIEW -                x-y-z (-1,1) values in pose coordinates. (z is depth)
+ *   POSE -                world coords translated and rotated to the camera
+ *                         position and view direction
  *   WORLD -               x-y-z global coordinate values
  *   USERDEFINED -         x-y-z in User defined space
  * </PRE>
@@ -66,8 +68,9 @@ class vtkViewport;
 #define VTK_VIEWPORT            2
 #define VTK_NORMALIZED_VIEWPORT 3
 #define VTK_VIEW                4
-#define VTK_WORLD               5
-#define VTK_USERDEFINED         6
+#define VTK_POSE                5
+#define VTK_WORLD               6
+#define VTK_USERDEFINED         7
 
 class VTKRENDERINGCORE_EXPORT vtkCoordinate : public vtkObject
 {
@@ -99,6 +102,8 @@ public:
     { this->SetCoordinateSystem(VTK_NORMALIZED_VIEWPORT); }
   void SetCoordinateSystemToView()
     { this->SetCoordinateSystem(VTK_VIEW); }
+  void SetCoordinateSystemToPose()
+    { this->SetCoordinateSystem(VTK_POSE); }
   void SetCoordinateSystemToWorld()
     { this->SetCoordinateSystem(VTK_WORLD); }
   //@}
