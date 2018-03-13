@@ -286,6 +286,7 @@ if (NOT HDF5_EXTERNALLY_CONFIGURED)
   endif ()
 endif ()
 
+if (FALSE)
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   if (CMAKE_HOST_UNIX)
     set (CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/HDF_Group/${HDF5_PACKAGE_NAME}/${HDF5_PACKAGE_VERSION}"
@@ -297,6 +298,7 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
       CACHE PATH "Install path prefix, prepended onto install directories." FORCE)
     set (CMAKE_GENERIC_PROGRAM_FILES)
   endif ()
+endif ()
 endif ()
 
 #-----------------------------------------------------------------------------
