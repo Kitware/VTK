@@ -281,7 +281,7 @@ public:
           stream << " block=" << key.CompositeID;
         }
       }
-      else if (stream.str().size() == 0)
+      else if (stream.str().empty())
       {
         assert(this->Self->GetReportStatisticsOnly());
         stream << "stats";

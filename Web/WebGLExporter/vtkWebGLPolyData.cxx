@@ -61,7 +61,7 @@ vtkWebGLPolyData::vtkWebGLPolyData()
 vtkWebGLPolyData::~vtkWebGLPolyData()
 {
   vtkWebGLDataSet* obj;
-  while(this->Internal->Parts.size() != 0)
+  while(!this->Internal->Parts.empty())
   {
     obj = this->Internal->Parts.back();
     this->Internal->Parts.pop_back();
@@ -75,7 +75,7 @@ void vtkWebGLPolyData::SetMesh(float* _vertices, int _numberOfVertices, int* _in
   this->webGlType = wTRIANGLES;
 
   vtkWebGLDataSet* obj;
-  while(this->Internal->Parts.size() != 0)
+  while(!this->Internal->Parts.empty())
   {
     obj = this->Internal->Parts.back();
     this->Internal->Parts.pop_back();
@@ -179,7 +179,7 @@ void vtkWebGLPolyData::SetLine(float *_points, int _numberOfPoints, int *_index,
   this->webGlType = wLINES;
 
   vtkWebGLDataSet* obj;
-  while(this->Internal->Parts.size() != 0)
+  while(!this->Internal->Parts.empty())
   {
     obj = this->Internal->Parts.back();
     this->Internal->Parts.pop_back();
@@ -274,7 +274,7 @@ void vtkWebGLPolyData::GenerateBinaryData()
     obj->GenerateBinaryData();
     ss << obj->GetMD5();
   }
-  if(this->Internal->Parts.size() != 0)
+  if(!this->Internal->Parts.empty())
   {
     std::string localMD5;
     vtkWebGLExporter::ComputeMD5((const unsigned char*)ss.str().c_str(), static_cast<int>(ss.str().size()), localMD5);
@@ -434,7 +434,7 @@ void vtkWebGLPolyData::SetPoints(float *points, int numberOfPoints, unsigned cha
 
   // Delete Old Objects
   vtkWebGLDataSet* obj;
-  while(this->Internal->Parts.size() != 0)
+  while(!this->Internal->Parts.empty())
   {
     obj = this->Internal->Parts.back();
     this->Internal->Parts.pop_back();

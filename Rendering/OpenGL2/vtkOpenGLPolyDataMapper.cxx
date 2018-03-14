@@ -896,7 +896,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
   }
 
   std::vector<texinfo> textures = this->GetTextures(actor);
-  if (textures.size() == 0)
+  if (textures.empty())
   {
     return;
   }
@@ -935,7 +935,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
   }
 
   // if no texture coordinates then we are done
-  if (tcoordnames.size() == 0)
+  if (tcoordnames.empty())
   {
     shaders[vtkShader::Vertex]->SetSource(VSSource);
     shaders[vtkShader::Geometry]->SetSource(GSSource);

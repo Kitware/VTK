@@ -184,7 +184,7 @@ void vtkTransformFeedback::BindBuffer(bool allocateOneBuffer)
 //------------------------------------------------------------------------------
 void vtkTransformFeedback::ReadBuffer(int index)
 {
-  if (this->Buffers.size() == 0)
+  if (this->Buffers.empty())
   {
     vtkErrorMacro("Buffers not set by BindBuffer().");
     return;
@@ -226,7 +226,7 @@ int vtkTransformFeedback::GetBufferHandle(int index)
 //------------------------------------------------------------------------------
 void vtkTransformFeedback::ReleaseGraphicsResources()
 {
-  if (this->Buffers.size() > 0)
+  if (!this->Buffers.empty())
   {
     for (auto v : this->Buffers)
     {

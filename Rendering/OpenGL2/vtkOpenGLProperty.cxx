@@ -71,7 +71,7 @@ bool vtkOpenGLProperty::RenderTextures(vtkActor*, vtkRenderer* ren)
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 
-  return (textures.size() > 0);
+  return (!textures.empty());
 }
 
 //-----------------------------------------------------------------------------

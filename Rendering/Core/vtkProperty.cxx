@@ -311,7 +311,7 @@ void vtkProperty::RemoveTexture(const char* name)
 //----------------------------------------------------------------------------
 void vtkProperty::RemoveAllTextures()
 {
-  while (this->Textures.size())
+  while (!this->Textures.empty())
   {
     auto iter = this->Textures.begin();
     iter->second->UnRegister(this);

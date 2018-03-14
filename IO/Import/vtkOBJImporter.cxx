@@ -251,7 +251,7 @@ std::string vtkOBJPolyDataProcessor::GetTextureFilename( int idx )
 {
   vtkOBJImportedMaterial* mtl = this->GetMaterial(idx);
 
-  if (mtl && mtl->texture_filename.size())
+  if (mtl && !mtl->texture_filename.empty())
   {
     std::vector<std::string> path_and_filename(2);
     path_and_filename[0] = this->TexturePath;
