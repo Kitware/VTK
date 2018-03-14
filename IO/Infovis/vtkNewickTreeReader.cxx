@@ -50,9 +50,7 @@ vtkNewickTreeReader::vtkNewickTreeReader()
 }
 
 //----------------------------------------------------------------------------
-vtkNewickTreeReader::~vtkNewickTreeReader()
-{
-}
+vtkNewickTreeReader::~vtkNewickTreeReader() = default;
 
 //----------------------------------------------------------------------------
 vtkTree* vtkNewickTreeReader::GetOutput()

@@ -39,9 +39,7 @@ vtkMatricizeArray::vtkMatricizeArray() :
 {
 }
 
-vtkMatricizeArray::~vtkMatricizeArray()
-{
-}
+vtkMatricizeArray::~vtkMatricizeArray() = default;
 
 void vtkMatricizeArray::PrintSelf(ostream& os, vtkIndent indent)
 {

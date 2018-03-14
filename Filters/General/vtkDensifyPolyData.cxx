@@ -349,9 +349,7 @@ vtkDensifyPolyData::vtkDensifyPolyData()
 }
 
 //----------------------------------------------------------------------------
-vtkDensifyPolyData::~vtkDensifyPolyData()
-{
-}
+vtkDensifyPolyData::~vtkDensifyPolyData() = default;
 
 //----------------------------------------------------------------------------
 int vtkDensifyPolyData::RequestData(

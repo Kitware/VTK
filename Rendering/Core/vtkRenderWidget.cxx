@@ -25,9 +25,7 @@ vtkRenderWidget::vtkRenderWidget()
 {
 }
 
-vtkRenderWidget::~vtkRenderWidget()
-{
-}
+vtkRenderWidget::~vtkRenderWidget() = default;
 
 void vtkRenderWidget::SetPosition(const vtkVector2i &pos)
 {

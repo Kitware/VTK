@@ -46,9 +46,7 @@ vtkLagrangeHexahedron::vtkLagrangeHexahedron()
     }
 }
 
-vtkLagrangeHexahedron::~vtkLagrangeHexahedron()
-{
-}
+vtkLagrangeHexahedron::~vtkLagrangeHexahedron() = default;
 
 void vtkLagrangeHexahedron::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -37,13 +37,9 @@
 
 vtkStandardNewMacro(vtkSliceAndDiceLayoutStrategy);
 
-vtkSliceAndDiceLayoutStrategy::vtkSliceAndDiceLayoutStrategy()
-{
-}
+vtkSliceAndDiceLayoutStrategy::vtkSliceAndDiceLayoutStrategy() = default;
 
-vtkSliceAndDiceLayoutStrategy::~vtkSliceAndDiceLayoutStrategy()
-{
-}
+vtkSliceAndDiceLayoutStrategy::~vtkSliceAndDiceLayoutStrategy() = default;
 
 void vtkSliceAndDiceLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -39,9 +39,7 @@ vtkAreaContourSpectrumFilter::vtkAreaContourSpectrumFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkAreaContourSpectrumFilter::~vtkAreaContourSpectrumFilter()
-{
-}
+vtkAreaContourSpectrumFilter::~vtkAreaContourSpectrumFilter() = default;
 
 //----------------------------------------------------------------------------
 int vtkAreaContourSpectrumFilter::FillInputPortInformation(

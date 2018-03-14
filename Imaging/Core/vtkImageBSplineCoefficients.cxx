@@ -41,9 +41,7 @@ vtkImageBSplineCoefficients::vtkImageBSplineCoefficients()
 }
 
 //----------------------------------------------------------------------------
-vtkImageBSplineCoefficients::~vtkImageBSplineCoefficients()
-{
-}
+vtkImageBSplineCoefficients::~vtkImageBSplineCoefficients() = default;
 
 //----------------------------------------------------------------------------
 void vtkImageBSplineCoefficients::AllocateOutputData(

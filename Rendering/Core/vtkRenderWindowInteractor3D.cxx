@@ -43,9 +43,7 @@ vtkRenderWindowInteractor3D::vtkRenderWindowInteractor3D()
 }
 
 //----------------------------------------------------------------------------
-vtkRenderWindowInteractor3D::~vtkRenderWindowInteractor3D()
-{
-}
+vtkRenderWindowInteractor3D::~vtkRenderWindowInteractor3D() = default;
 
 //----------------------------------------------------------------------------
 void vtkRenderWindowInteractor3D::Enable()

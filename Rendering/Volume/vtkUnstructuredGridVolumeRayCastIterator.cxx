@@ -27,9 +27,7 @@ vtkUnstructuredGridVolumeRayCastIterator::vtkUnstructuredGridVolumeRayCastIterat
   this->MaxNumberOfIntersections = 32;
 }
 
-vtkUnstructuredGridVolumeRayCastIterator::~vtkUnstructuredGridVolumeRayCastIterator()
-{
-}
+vtkUnstructuredGridVolumeRayCastIterator::~vtkUnstructuredGridVolumeRayCastIterator() = default;
 
 void vtkUnstructuredGridVolumeRayCastIterator::PrintSelf(ostream& os, vtkIndent indent)
 {

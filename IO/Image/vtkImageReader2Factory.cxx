@@ -67,13 +67,9 @@ void vtkImageReader2Factory::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
-vtkImageReader2Factory::vtkImageReader2Factory()
-{
-}
+vtkImageReader2Factory::vtkImageReader2Factory() = default;
 
-vtkImageReader2Factory::~vtkImageReader2Factory()
-{
-}
+vtkImageReader2Factory::~vtkImageReader2Factory() = default;
 
 void vtkImageReader2Factory::RegisterReader(vtkImageReader2* r)
 {

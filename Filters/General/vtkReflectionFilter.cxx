@@ -84,9 +84,7 @@ vtkReflectionFilter::vtkReflectionFilter()
 }
 
 //---------------------------------------------------------------------------
-vtkReflectionFilter::~vtkReflectionFilter()
-{
-}
+vtkReflectionFilter::~vtkReflectionFilter() = default;
 
 //---------------------------------------------------------------------------
 void vtkReflectionFilter::FlipTuple(double* tuple, int* mirrorDir, int nComp)

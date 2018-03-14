@@ -45,9 +45,7 @@ vtkTreeAreaView::vtkTreeAreaView()
 }
 
 //----------------------------------------------------------------------------
-vtkTreeAreaView::~vtkTreeAreaView()
-{
-}
+vtkTreeAreaView::~vtkTreeAreaView() = default;
 
 //----------------------------------------------------------------------------
 vtkRenderedTreeAreaRepresentation* vtkTreeAreaView::GetTreeAreaRepresentation()

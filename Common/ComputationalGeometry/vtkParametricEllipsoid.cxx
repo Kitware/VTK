@@ -40,9 +40,7 @@ vtkParametricEllipsoid::vtkParametricEllipsoid() :
 }
 
 //----------------------------------------------------------------------------
-vtkParametricEllipsoid::~vtkParametricEllipsoid()
-{
-}
+vtkParametricEllipsoid::~vtkParametricEllipsoid() = default;
 
 //----------------------------------------------------------------------------
 void vtkParametricEllipsoid::Evaluate(double uvw[3], double Pt[3],

@@ -36,9 +36,7 @@ vtkReduceTable::vtkReduceTable()
 }
 
 //---------------------------------------------------------------------------
-vtkReduceTable::~vtkReduceTable()
-{
-}
+vtkReduceTable::~vtkReduceTable() = default;
 
 //---------------------------------------------------------------------------
 int vtkReduceTable::RequestData(

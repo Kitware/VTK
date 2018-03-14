@@ -20,16 +20,10 @@
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
 //-----------------------------------------------------------------------------
-vtkHierarchicalBoxDataSet::vtkHierarchicalBoxDataSet()
-{
-
-}
+vtkHierarchicalBoxDataSet::vtkHierarchicalBoxDataSet() = default;
 
 //-----------------------------------------------------------------------------
-vtkHierarchicalBoxDataSet::~vtkHierarchicalBoxDataSet()
-{
-
-}
+vtkHierarchicalBoxDataSet::~vtkHierarchicalBoxDataSet() = default;
 
 //-----------------------------------------------------------------------------
 void vtkHierarchicalBoxDataSet::PrintSelf(ostream &os, vtkIndent indent)

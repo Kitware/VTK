@@ -41,9 +41,7 @@ vtkNormalizeMatrixVectors::vtkNormalizeMatrixVectors() :
 {
 }
 
-vtkNormalizeMatrixVectors::~vtkNormalizeMatrixVectors()
-{
-}
+vtkNormalizeMatrixVectors::~vtkNormalizeMatrixVectors() = default;
 
 void vtkNormalizeMatrixVectors::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -60,14 +60,10 @@ vtkMTimeType vtkOpenGLRenderPass::GetShaderStageMTime()
 }
 
 //------------------------------------------------------------------------------
-vtkOpenGLRenderPass::vtkOpenGLRenderPass()
-{
-}
+vtkOpenGLRenderPass::vtkOpenGLRenderPass() = default;
 
 //------------------------------------------------------------------------------
-vtkOpenGLRenderPass::~vtkOpenGLRenderPass()
-{
-}
+vtkOpenGLRenderPass::~vtkOpenGLRenderPass() = default;
 
 //------------------------------------------------------------------------------
 void vtkOpenGLRenderPass::PreRender(const vtkRenderState *s)

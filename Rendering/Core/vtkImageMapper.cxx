@@ -49,9 +49,7 @@ vtkImageMapper::vtkImageMapper()
 
 }
 
-vtkImageMapper::~vtkImageMapper()
-{
-}
+vtkImageMapper::~vtkImageMapper() = default;
 
 //----------------------------------------------------------------------------
 void vtkImageMapper::SetInputData(vtkImageData *input)

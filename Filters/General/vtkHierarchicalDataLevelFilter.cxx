@@ -20,13 +20,9 @@ vtkStandardNewMacro(vtkHierarchicalDataLevelFilter);
 
 // Construct object with PointIds and CellIds on; and ids being generated
 // as scalars.
-vtkHierarchicalDataLevelFilter::vtkHierarchicalDataLevelFilter()
-{
-}
+vtkHierarchicalDataLevelFilter::vtkHierarchicalDataLevelFilter() = default;
 
-vtkHierarchicalDataLevelFilter::~vtkHierarchicalDataLevelFilter()
-{
-}
+vtkHierarchicalDataLevelFilter::~vtkHierarchicalDataLevelFilter() = default;
 
 void vtkHierarchicalDataLevelFilter::PrintSelf(ostream& os, vtkIndent indent)
 {

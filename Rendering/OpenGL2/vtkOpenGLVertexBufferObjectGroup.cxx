@@ -37,9 +37,7 @@ typedef std::map<std::string, vtkOpenGLVertexBufferObject *>::iterator vboIter;
 typedef std::map<std::string, std::vector<vtkDataArray *> >::iterator arrayIter;
 
 // ----------------------------------------------------------------------------
-vtkOpenGLVertexBufferObjectGroup::vtkOpenGLVertexBufferObjectGroup()
-{
-}
+vtkOpenGLVertexBufferObjectGroup::vtkOpenGLVertexBufferObjectGroup() = default;
 
 // ----------------------------------------------------------------------------
 vtkOpenGLVertexBufferObjectGroup::~vtkOpenGLVertexBufferObjectGroup()

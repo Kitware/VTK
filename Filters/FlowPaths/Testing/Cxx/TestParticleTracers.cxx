@@ -91,9 +91,7 @@ protected:
       dx[i] = (this->BoundingBox[2*i+1]- this->BoundingBox[2*i]) / (this->Extent[2*i+1] - this->Extent[2*i]);
     }
   }
-  ~TestTimeSource() override
-  {
-  }
+  ~TestTimeSource() override = default;
 
   int ProcessRequest(vtkInformation* request,
                      vtkInformationVector** inputVector,

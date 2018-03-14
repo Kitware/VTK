@@ -45,9 +45,7 @@ vtkIcicleView::vtkIcicleView()
 }
 
 //----------------------------------------------------------------------------
-vtkIcicleView::~vtkIcicleView()
-{
-}
+vtkIcicleView::~vtkIcicleView() = default;
 
 //----------------------------------------------------------------------------
 void vtkIcicleView::SetTopToBottom(bool reversed)

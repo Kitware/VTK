@@ -27,9 +27,7 @@ vtkInformationDataObjectKey::vtkInformationDataObjectKey(const char* name, const
 }
 
 //----------------------------------------------------------------------------
-vtkInformationDataObjectKey::~vtkInformationDataObjectKey()
-{
-}
+vtkInformationDataObjectKey::~vtkInformationDataObjectKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationDataObjectKey::PrintSelf(ostream& os, vtkIndent indent)

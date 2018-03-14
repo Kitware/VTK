@@ -21,9 +21,7 @@
 
 #include "vtkArraySort.h"
 
-vtkArraySort::vtkArraySort()
-{
-}
+vtkArraySort::vtkArraySort() = default;
 
 vtkArraySort::vtkArraySort(DimensionT i) :
   Storage(1)

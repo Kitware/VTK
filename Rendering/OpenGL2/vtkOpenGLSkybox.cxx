@@ -79,9 +79,7 @@ vtkOpenGLSkybox::vtkOpenGLSkybox()
   this->OpenGLActor->SetProperty(this->GetProperty());
 }
 
-vtkOpenGLSkybox::~vtkOpenGLSkybox()
-{
-}
+vtkOpenGLSkybox::~vtkOpenGLSkybox() = default;
 
 
 // Actual Skybox render method.

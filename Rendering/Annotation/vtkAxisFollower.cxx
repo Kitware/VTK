@@ -83,9 +83,7 @@ vtkAxisFollower::vtkAxisFollower() : vtkFollower()
 }
 
 //----------------------------------------------------------------------
-vtkAxisFollower::~vtkAxisFollower()
-{
-}
+vtkAxisFollower::~vtkAxisFollower() = default;
 
 //----------------------------------------------------------------------
 void vtkAxisFollower::SetAxis(vtkAxisActor *axis)

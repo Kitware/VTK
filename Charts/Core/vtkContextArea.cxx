@@ -56,9 +56,7 @@ vtkContextArea::vtkContextArea()
 }
 
 //------------------------------------------------------------------------------
-vtkContextArea::~vtkContextArea()
-{
-}
+vtkContextArea::~vtkContextArea() = default;
 
 //------------------------------------------------------------------------------
 void vtkContextArea::InitializeDrawArea()

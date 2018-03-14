@@ -34,9 +34,7 @@ vtkFocalPlanePointPlacer::vtkFocalPlanePointPlacer()
 }
 
 //----------------------------------------------------------------------
-vtkFocalPlanePointPlacer::~vtkFocalPlanePointPlacer()
-{
-}
+vtkFocalPlanePointPlacer::~vtkFocalPlanePointPlacer() = default;
 
 //----------------------------------------------------------------------
 int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,

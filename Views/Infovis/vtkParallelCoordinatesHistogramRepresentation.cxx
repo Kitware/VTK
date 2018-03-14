@@ -112,9 +112,7 @@ vtkParallelCoordinatesHistogramRepresentation::vtkParallelCoordinatesHistogramRe
   theme->Delete();
 }
 //------------------------------------------------------------------------------
-vtkParallelCoordinatesHistogramRepresentation::~vtkParallelCoordinatesHistogramRepresentation()
-{
-}
+vtkParallelCoordinatesHistogramRepresentation::~vtkParallelCoordinatesHistogramRepresentation() = default;
 //------------------------------------------------------------------------------
 // Histogram quad color is defined by theme->CellColor
 void vtkParallelCoordinatesHistogramRepresentation::ApplyViewTheme(vtkViewTheme* theme)

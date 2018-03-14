@@ -40,9 +40,7 @@ vtkDijkstraImageGeodesicPath::vtkDijkstraImageGeodesicPath()
 }
 
 //----------------------------------------------------------------------------
-vtkDijkstraImageGeodesicPath::~vtkDijkstraImageGeodesicPath()
-{
-}
+vtkDijkstraImageGeodesicPath::~vtkDijkstraImageGeodesicPath() = default;
 
 
 //----------------------------------------------------------------------------

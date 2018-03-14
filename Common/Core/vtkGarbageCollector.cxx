@@ -76,9 +76,7 @@ static bool vtkGarbageCollectorGlobalDebugFlag;
 static vtkMultiThreaderIDType vtkGarbageCollectorMainThread;
 
 //----------------------------------------------------------------------------
-vtkGarbageCollector::vtkGarbageCollector()
-{
-}
+vtkGarbageCollector::vtkGarbageCollector() = default;
 
 //----------------------------------------------------------------------------
 vtkGarbageCollector::~vtkGarbageCollector()

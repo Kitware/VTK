@@ -39,9 +39,7 @@ vtkRenderViewBase::vtkRenderViewBase()
   this->SetInteractor(iren);
 }
 
-vtkRenderViewBase::~vtkRenderViewBase()
-{
-}
+vtkRenderViewBase::~vtkRenderViewBase() = default;
 
 vtkRenderer* vtkRenderViewBase::GetRenderer()
 {

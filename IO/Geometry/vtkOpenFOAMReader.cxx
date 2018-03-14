@@ -471,7 +471,7 @@ struct vtkFoamLabelVectorVector
 {
   typedef std::vector<vtkTypeInt64> CellType;
 
-  virtual ~vtkFoamLabelVectorVector() {}
+  virtual ~vtkFoamLabelVectorVector() = default;
   virtual size_t GetLabelSize() const = 0; // in bytes
   virtual void ResizeBody(vtkIdType bodyLength) = 0;
   virtual void* WritePointer(vtkIdType i, vtkIdType bodyI, vtkIdType number) = 0;

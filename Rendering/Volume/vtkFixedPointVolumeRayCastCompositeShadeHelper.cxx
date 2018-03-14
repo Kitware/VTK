@@ -30,14 +30,10 @@
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastCompositeShadeHelper);
 
 // Construct a new vtkFixedPointVolumeRayCastCompositeShadeHelper with default values
-vtkFixedPointVolumeRayCastCompositeShadeHelper::vtkFixedPointVolumeRayCastCompositeShadeHelper()
-{
-}
+vtkFixedPointVolumeRayCastCompositeShadeHelper::vtkFixedPointVolumeRayCastCompositeShadeHelper() = default;
 
 // Destruct a vtkFixedPointVolumeRayCastCompositeShadeHelper - clean up any memory used
-vtkFixedPointVolumeRayCastCompositeShadeHelper::~vtkFixedPointVolumeRayCastCompositeShadeHelper()
-{
-}
+vtkFixedPointVolumeRayCastCompositeShadeHelper::~vtkFixedPointVolumeRayCastCompositeShadeHelper() = default;
 
 
 // This method is used when the interpolation type is nearest neighbor and

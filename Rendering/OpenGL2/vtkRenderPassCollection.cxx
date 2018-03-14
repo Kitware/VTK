@@ -29,14 +29,10 @@ vtkCollectionSimpleIterator &cookie)
 }
 
 // ----------------------------------------------------------------------------
-vtkRenderPassCollection::vtkRenderPassCollection()
-{
-}
+vtkRenderPassCollection::vtkRenderPassCollection() = default;
 
 // ----------------------------------------------------------------------------
-vtkRenderPassCollection::~vtkRenderPassCollection()
-{
-}
+vtkRenderPassCollection::~vtkRenderPassCollection() = default;
 
 // ----------------------------------------------------------------------------
 // hide the standard AddItem from the user and the compiler.

@@ -33,9 +33,7 @@ vtkTableToSQLiteWriter::vtkTableToSQLiteWriter()
 }
 
 //----------------------------------------------------------------------------
-vtkTableToSQLiteWriter::~vtkTableToSQLiteWriter()
-{
-}
+vtkTableToSQLiteWriter::~vtkTableToSQLiteWriter() = default;
 
 //----------------------------------------------------------------------------
 void vtkTableToSQLiteWriter::WriteData()

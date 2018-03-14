@@ -58,9 +58,7 @@ vtkPhyloXMLTreeReader::vtkPhyloXMLTreeReader()
 }
 
 //----------------------------------------------------------------------------
-vtkPhyloXMLTreeReader::~vtkPhyloXMLTreeReader()
-{
-}
+vtkPhyloXMLTreeReader::~vtkPhyloXMLTreeReader() = default;
 
 //----------------------------------------------------------------------------
 vtkTree* vtkPhyloXMLTreeReader::GetOutput()

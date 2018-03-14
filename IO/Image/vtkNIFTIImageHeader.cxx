@@ -47,9 +47,7 @@ vtkNIFTIImageHeader::vtkNIFTIImageHeader()
 }
 
 //----------------------------------------------------------------------------
-vtkNIFTIImageHeader::~vtkNIFTIImageHeader()
-{
-}
+vtkNIFTIImageHeader::~vtkNIFTIImageHeader() = default;
 
 //----------------------------------------------------------------------------
 void vtkNIFTIImageHeader::Initialize()

@@ -56,9 +56,7 @@ vtkColorLegend::vtkColorLegend()
 }
 
 //-----------------------------------------------------------------------------
-vtkColorLegend::~vtkColorLegend()
-{
-}
+vtkColorLegend::~vtkColorLegend() = default;
 
 //-----------------------------------------------------------------------------
 void vtkColorLegend::PrintSelf(ostream &os, vtkIndent indent)

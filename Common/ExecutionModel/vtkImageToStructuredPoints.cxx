@@ -36,9 +36,7 @@ vtkImageToStructuredPoints::vtkImageToStructuredPoints()
 }
 
 //----------------------------------------------------------------------------
-vtkImageToStructuredPoints::~vtkImageToStructuredPoints()
-{
-}
+vtkImageToStructuredPoints::~vtkImageToStructuredPoints() = default;
 
 
 //----------------------------------------------------------------------------

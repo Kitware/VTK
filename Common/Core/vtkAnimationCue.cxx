@@ -31,9 +31,7 @@ vtkAnimationCue::vtkAnimationCue()
 }
 
 //----------------------------------------------------------------------------
-vtkAnimationCue::~vtkAnimationCue()
-{
-}
+vtkAnimationCue::~vtkAnimationCue() = default;
 
 //----------------------------------------------------------------------------
 void vtkAnimationCue::StartCueInternal()

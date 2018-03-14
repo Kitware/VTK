@@ -46,9 +46,7 @@ class vtkPlotBox::Private :
     public std::vector< std::vector<double> >
 {
 public:
-  Private()
-  {
-  }
+  Private() = default;
 };
 
 //-----------------------------------------------------------------------------

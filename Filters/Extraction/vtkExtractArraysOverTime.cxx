@@ -25,9 +25,7 @@ vtkExtractArraysOverTime::vtkExtractArraysOverTime()
 }
 
 //----------------------------------------------------------------------------
-vtkExtractArraysOverTime::~vtkExtractArraysOverTime()
-{
-}
+vtkExtractArraysOverTime::~vtkExtractArraysOverTime() = default;
 
 //----------------------------------------------------------------------------
 void vtkExtractArraysOverTime::PrintSelf(ostream& os, vtkIndent indent)

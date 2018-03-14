@@ -35,9 +35,7 @@ vtkMoleculeToAtomBallFilter::vtkMoleculeToAtomBallFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkMoleculeToAtomBallFilter::~vtkMoleculeToAtomBallFilter()
-{
-}
+vtkMoleculeToAtomBallFilter::~vtkMoleculeToAtomBallFilter() = default;
 
 //----------------------------------------------------------------------------
 int vtkMoleculeToAtomBallFilter::RequestData(

@@ -18,13 +18,9 @@
 
 vtkAbstractObjectFactoryNewMacro(vtkContextDevice3D)
 
-vtkContextDevice3D::vtkContextDevice3D()
-{
-}
+vtkContextDevice3D::vtkContextDevice3D() = default;
 
-vtkContextDevice3D::~vtkContextDevice3D()
-{
-}
+vtkContextDevice3D::~vtkContextDevice3D() = default;
 
 //-----------------------------------------------------------------------------
 void vtkContextDevice3D::PrintSelf(ostream &os, vtkIndent indent)

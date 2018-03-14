@@ -81,9 +81,7 @@ vtkProp3DAxisFollower::vtkProp3DAxisFollower()
 }
 
 //----------------------------------------------------------------------
-vtkProp3DAxisFollower::~vtkProp3DAxisFollower()
-{
-}
+vtkProp3DAxisFollower::~vtkProp3DAxisFollower() = default;
 
 //----------------------------------------------------------------------
 void vtkProp3DAxisFollower::SetAxis(vtkAxisActor *axis)

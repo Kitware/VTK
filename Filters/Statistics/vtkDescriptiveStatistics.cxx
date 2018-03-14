@@ -54,9 +54,7 @@ vtkDescriptiveStatistics::vtkDescriptiveStatistics()
 }
 
 // ----------------------------------------------------------------------
-vtkDescriptiveStatistics::~vtkDescriptiveStatistics()
-{
-}
+vtkDescriptiveStatistics::~vtkDescriptiveStatistics() = default;
 
 // ----------------------------------------------------------------------
 void vtkDescriptiveStatistics::PrintSelf( ostream &os, vtkIndent indent )
@@ -622,7 +620,7 @@ public:
     this->Data = vals;
     this->Nominal = nominal;
   }
-  ~ZedDeviationDeviantFunctor() override { }
+  ~ZedDeviationDeviantFunctor() override = default;
   void operator() ( vtkDoubleArray* result,
                             vtkIdType id ) override
   {
@@ -642,7 +640,7 @@ public:
     this->Nominal = nominal;
     this->Deviation = deviation;
   }
-  ~SignedTableColumnDeviantFunctor() override { }
+  ~SignedTableColumnDeviantFunctor() override = default;
   void operator() ( vtkDoubleArray* result,
                             vtkIdType id ) override
   {
@@ -662,7 +660,7 @@ public:
     this->Nominal = nominal;
     this->Deviation = deviation;
   }
-  ~UnsignedTableColumnDeviantFunctor() override { }
+  ~UnsignedTableColumnDeviantFunctor() override = default;
   void operator() ( vtkDoubleArray* result,
                             vtkIdType id ) override
   {

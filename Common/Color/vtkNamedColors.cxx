@@ -34,9 +34,7 @@ public:
     this->Init();
   }
 
-  virtual ~vtkNamedColorsDataStore()
-  {
-  }
+  virtual ~vtkNamedColorsDataStore() = default;
 
 public:
   //-----------------------------------------------------------------------------

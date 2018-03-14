@@ -20,14 +20,10 @@
 #include "vtkSmartPointer.h"
 
 //----------------------------------------------------------------------------
-vtkUnstructuredGridBase::vtkUnstructuredGridBase()
-{
-}
+vtkUnstructuredGridBase::vtkUnstructuredGridBase() = default;
 
 //----------------------------------------------------------------------------
-vtkUnstructuredGridBase::~vtkUnstructuredGridBase()
-{
-}
+vtkUnstructuredGridBase::~vtkUnstructuredGridBase() = default;
 
 //----------------------------------------------------------------------------
 void vtkUnstructuredGridBase::DeepCopy(vtkDataObject *src)

@@ -51,8 +51,8 @@ public:
     }
   }
 private:
-  ViewUpdater() { }
-  ~ViewUpdater() override { }
+  ViewUpdater() = default;
+  ~ViewUpdater() override = default;
   std::vector<vtkView*> Views;
 };
 

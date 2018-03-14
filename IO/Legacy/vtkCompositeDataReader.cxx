@@ -40,14 +40,10 @@
 
 vtkStandardNewMacro(vtkCompositeDataReader);
 //----------------------------------------------------------------------------
-vtkCompositeDataReader::vtkCompositeDataReader()
-{
-}
+vtkCompositeDataReader::vtkCompositeDataReader() = default;
 
 //----------------------------------------------------------------------------
-vtkCompositeDataReader::~vtkCompositeDataReader()
-{
-}
+vtkCompositeDataReader::~vtkCompositeDataReader() = default;
 
 //----------------------------------------------------------------------------
 vtkCompositeDataSet* vtkCompositeDataReader::GetOutput()

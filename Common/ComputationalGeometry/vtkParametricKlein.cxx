@@ -36,9 +36,7 @@ vtkParametricKlein::vtkParametricKlein()
 }
 
 //----------------------------------------------------------------------------
-vtkParametricKlein::~vtkParametricKlein()
-{
-}
+vtkParametricKlein::~vtkParametricKlein() = default;
 
 //----------------------------------------------------------------------------
 void vtkParametricKlein::Evaluate(double uvw[3], double Pt[3],

@@ -42,13 +42,9 @@ using namespace vtksys;
 vtkStandardNewMacro(vtkTableFFT);
 
 //-----------------------------------------------------------------------------
-vtkTableFFT::vtkTableFFT()
-{
-}
+vtkTableFFT::vtkTableFFT() = default;
 
-vtkTableFFT::~vtkTableFFT()
-{
-}
+vtkTableFFT::~vtkTableFFT() = default;
 
 void vtkTableFFT::PrintSelf(ostream &os, vtkIndent indent)
 {

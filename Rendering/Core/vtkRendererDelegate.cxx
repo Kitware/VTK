@@ -21,9 +21,7 @@ vtkRendererDelegate::vtkRendererDelegate()
   this->Used=false;
 }
 
-vtkRendererDelegate::~vtkRendererDelegate()
-{
-}
+vtkRendererDelegate::~vtkRendererDelegate() = default;
 
 void vtkRendererDelegate::PrintSelf(ostream& os, vtkIndent indent)
 {

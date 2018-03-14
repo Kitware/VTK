@@ -40,9 +40,7 @@ vtkImageToPoints::vtkImageToPoints()
 }
 
 //----------------------------------------------------------------------------
-vtkImageToPoints::~vtkImageToPoints()
-{
-}
+vtkImageToPoints::~vtkImageToPoints() = default;
 
 //----------------------------------------------------------------------------
 void vtkImageToPoints::PrintSelf(ostream& os, vtkIndent indent)

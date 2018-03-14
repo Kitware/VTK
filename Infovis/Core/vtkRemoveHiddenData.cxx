@@ -53,9 +53,7 @@ vtkRemoveHiddenData::vtkRemoveHiddenData()
   this->SetNumberOfInputPorts(2);
 }
 
-vtkRemoveHiddenData::~vtkRemoveHiddenData()
-{
-}
+vtkRemoveHiddenData::~vtkRemoveHiddenData() = default;
 
 int vtkRemoveHiddenData::FillInputPortInformation(int port, vtkInformation* info)
 {

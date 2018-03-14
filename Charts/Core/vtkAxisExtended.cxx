@@ -38,9 +38,7 @@ vtkAxisExtended::vtkAxisExtended()
   this->IsAxisVertical = false;
 }
 
-vtkAxisExtended::~vtkAxisExtended()
-{
-}
+vtkAxisExtended::~vtkAxisExtended() = default;
 
 // This method return a value to make step sizes corresponding to low q and j values more preferable
 double vtkAxisExtended::Simplicity(int qIndex, int qLength, int j, double lmin,

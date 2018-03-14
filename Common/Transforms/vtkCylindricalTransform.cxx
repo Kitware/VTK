@@ -21,13 +21,9 @@
 vtkStandardNewMacro(vtkCylindricalTransform);
 
 //----------------------------------------------------------------------------
-vtkCylindricalTransform::vtkCylindricalTransform()
-{
-}
+vtkCylindricalTransform::vtkCylindricalTransform() = default;
 
-vtkCylindricalTransform::~vtkCylindricalTransform()
-{
-}
+vtkCylindricalTransform::~vtkCylindricalTransform() = default;
 
 void vtkCylindricalTransform::PrintSelf(ostream& os, vtkIndent indent)
 {

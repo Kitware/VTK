@@ -20,14 +20,10 @@
 vtkStandardNewMacro(vtkOpaquePass);
 
 // ----------------------------------------------------------------------------
-vtkOpaquePass::vtkOpaquePass()
-{
-}
+vtkOpaquePass::vtkOpaquePass() = default;
 
 // ----------------------------------------------------------------------------
-vtkOpaquePass::~vtkOpaquePass()
-{
-}
+vtkOpaquePass::~vtkOpaquePass() = default;
 
 // ----------------------------------------------------------------------------
 void vtkOpaquePass::PrintSelf(ostream& os, vtkIndent indent)

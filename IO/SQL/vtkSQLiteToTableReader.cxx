@@ -30,14 +30,10 @@
 vtkStandardNewMacro(vtkSQLiteToTableReader);
 
 //----------------------------------------------------------------------------
-vtkSQLiteToTableReader::vtkSQLiteToTableReader()
-{
-}
+vtkSQLiteToTableReader::vtkSQLiteToTableReader() = default;
 
 //----------------------------------------------------------------------------
-vtkSQLiteToTableReader::~vtkSQLiteToTableReader()
-{
-}
+vtkSQLiteToTableReader::~vtkSQLiteToTableReader() = default;
 
 //----------------------------------------------------------------------------
 int vtkSQLiteToTableReader::RequestData(vtkInformation *,

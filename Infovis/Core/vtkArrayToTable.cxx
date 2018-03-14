@@ -136,9 +136,7 @@ vtkArrayToTable::vtkArrayToTable()
 
 // ----------------------------------------------------------------------
 
-vtkArrayToTable::~vtkArrayToTable()
-{
-}
+vtkArrayToTable::~vtkArrayToTable() = default;
 
 // ----------------------------------------------------------------------
 

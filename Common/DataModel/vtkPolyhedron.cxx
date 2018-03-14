@@ -55,7 +55,7 @@ class vtkPointIdMap : public map<vtkIdType, vtkIdType> {};
 struct Edge : public std::pair<vtkIdType, vtkIdType>
 {
 public:
-  Edge() {}
+  Edge() = default;
   Edge(vtkIdType a, vtkIdType b) : std::pair<vtkIdType, vtkIdType>(a, b) {}
   Edge(vtkCell* edge) : std::pair<vtkIdType, vtkIdType>(edge->GetPointId(0), edge->GetPointId(1)) {}
   friend ostream& operator<< (ostream& stream, const Edge& e) { stream << e.first << " - " << e.second; return stream; }

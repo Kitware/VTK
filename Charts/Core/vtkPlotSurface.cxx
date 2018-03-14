@@ -42,9 +42,7 @@ vtkPlotSurface::vtkPlotSurface()
 }
 
 //-----------------------------------------------------------------------------
-vtkPlotSurface::~vtkPlotSurface()
-{
-}
+vtkPlotSurface::~vtkPlotSurface() = default;
 
 //-----------------------------------------------------------------------------
 void vtkPlotSurface::PrintSelf(ostream &os, vtkIndent indent)

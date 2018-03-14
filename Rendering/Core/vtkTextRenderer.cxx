@@ -31,9 +31,7 @@ vtkTextRenderer *vtkTextRenderer::Instance = nullptr;
 vtkTextRendererCleanup vtkTextRenderer::Cleanup;
 
 //----------------------------------------------------------------------------
-vtkTextRendererCleanup::vtkTextRendererCleanup()
-{
-}
+vtkTextRendererCleanup::vtkTextRendererCleanup() = default;
 
 //----------------------------------------------------------------------------
 vtkTextRendererCleanup::~vtkTextRendererCleanup()

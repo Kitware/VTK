@@ -37,13 +37,9 @@
 
 vtkStandardNewMacro(vtkBoxLayoutStrategy);
 
-vtkBoxLayoutStrategy::vtkBoxLayoutStrategy()
-{
-}
+vtkBoxLayoutStrategy::vtkBoxLayoutStrategy() = default;
 
-vtkBoxLayoutStrategy::~vtkBoxLayoutStrategy()
-{
-}
+vtkBoxLayoutStrategy::~vtkBoxLayoutStrategy() = default;
 
 void vtkBoxLayoutStrategy::Layout(
     vtkTree* inputTree,

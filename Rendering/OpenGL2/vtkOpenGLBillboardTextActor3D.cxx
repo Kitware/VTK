@@ -51,14 +51,10 @@ RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 }
 
 //------------------------------------------------------------------------------
-vtkOpenGLBillboardTextActor3D::vtkOpenGLBillboardTextActor3D()
-{
-}
+vtkOpenGLBillboardTextActor3D::vtkOpenGLBillboardTextActor3D() = default;
 
 //------------------------------------------------------------------------------
-vtkOpenGLBillboardTextActor3D::~vtkOpenGLBillboardTextActor3D()
-{
-}
+vtkOpenGLBillboardTextActor3D::~vtkOpenGLBillboardTextActor3D() = default;
 
 //------------------------------------------------------------------------------
 int vtkOpenGLBillboardTextActor3D::RenderGL2PS(vtkViewport *viewport,

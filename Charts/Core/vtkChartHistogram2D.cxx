@@ -48,9 +48,7 @@ vtkChartHistogram2D::vtkChartHistogram2D()
 }
 
 //-----------------------------------------------------------------------------
-vtkChartHistogram2D::~vtkChartHistogram2D()
-{
-}
+vtkChartHistogram2D::~vtkChartHistogram2D() = default;
 
 //-----------------------------------------------------------------------------
 void vtkChartHistogram2D::Update()

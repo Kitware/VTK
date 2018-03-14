@@ -42,9 +42,7 @@ vtkParametricConicSpiral::vtkParametricConicSpiral()
 }
 
 //----------------------------------------------------------------------------
-vtkParametricConicSpiral::~vtkParametricConicSpiral()
-{
-}
+vtkParametricConicSpiral::~vtkParametricConicSpiral() = default;
 
 //----------------------------------------------------------------------------
 void vtkParametricConicSpiral::Evaluate(double uvw[3], double Pt[3],

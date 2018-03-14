@@ -25,14 +25,10 @@
 vtkStandardNewMacro(vtkXMLPStructuredGridReader);
 
 //----------------------------------------------------------------------------
-vtkXMLPStructuredGridReader::vtkXMLPStructuredGridReader()
-{
-}
+vtkXMLPStructuredGridReader::vtkXMLPStructuredGridReader() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLPStructuredGridReader::~vtkXMLPStructuredGridReader()
-{
-}
+vtkXMLPStructuredGridReader::~vtkXMLPStructuredGridReader() = default;
 
 //----------------------------------------------------------------------------
 void vtkXMLPStructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)

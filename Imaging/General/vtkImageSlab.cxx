@@ -48,9 +48,7 @@ vtkImageSlab::vtkImageSlab()
 }
 
 //----------------------------------------------------------------------------
-vtkImageSlab::~vtkImageSlab()
-{
-}
+vtkImageSlab::~vtkImageSlab() = default;
 
 //----------------------------------------------------------------------------
 int vtkImageSlab::RequestInformation(

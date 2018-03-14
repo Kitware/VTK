@@ -51,9 +51,7 @@ vtkCorrelativeStatistics::vtkCorrelativeStatistics()
 }
 
 // ----------------------------------------------------------------------
-vtkCorrelativeStatistics::~vtkCorrelativeStatistics()
-{
-}
+vtkCorrelativeStatistics::~vtkCorrelativeStatistics() = default;
 
 // ----------------------------------------------------------------------
 void vtkCorrelativeStatistics::PrintSelf( ostream &os, vtkIndent indent )
@@ -817,7 +815,7 @@ public:
     this->InterYX = interYX;
     this->InterXY = interXY;
   }
-  ~BivariateRegressionDeviationsFunctor() override { }
+  ~BivariateRegressionDeviationsFunctor() override = default;
   void operator() ( vtkDoubleArray* result,
                             vtkIdType id ) override
   {

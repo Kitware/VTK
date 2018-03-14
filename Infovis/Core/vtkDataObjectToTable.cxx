@@ -39,9 +39,7 @@ vtkDataObjectToTable::vtkDataObjectToTable()
 }
 
 //---------------------------------------------------------------------------
-vtkDataObjectToTable::~vtkDataObjectToTable()
-{
-}
+vtkDataObjectToTable::~vtkDataObjectToTable() = default;
 
 //---------------------------------------------------------------------------
 int vtkDataObjectToTable::FillInputPortInformation(

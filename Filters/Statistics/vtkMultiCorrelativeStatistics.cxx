@@ -37,9 +37,7 @@ vtkMultiCorrelativeStatistics::vtkMultiCorrelativeStatistics()
 }
 
 // ----------------------------------------------------------------------
-vtkMultiCorrelativeStatistics::~vtkMultiCorrelativeStatistics()
-{
-}
+vtkMultiCorrelativeStatistics::~vtkMultiCorrelativeStatistics() = default;
 
 // ----------------------------------------------------------------------
 void vtkMultiCorrelativeStatistics::PrintSelf( ostream& os, vtkIndent indent )

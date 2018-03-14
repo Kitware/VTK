@@ -249,9 +249,7 @@ vtkDensifyPointCloudFilter::vtkDensifyPointCloudFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkDensifyPointCloudFilter::~vtkDensifyPointCloudFilter()
-{
-}
+vtkDensifyPointCloudFilter::~vtkDensifyPointCloudFilter() = default;
 
 //----------------------------------------------------------------------------
 // Produce the output data

@@ -35,9 +35,7 @@ vtkParametricBour::vtkParametricBour()
 }
 
 //----------------------------------------------------------------------------//
-vtkParametricBour::~vtkParametricBour()
-{
-}
+vtkParametricBour::~vtkParametricBour() = default;
 
 //----------------------------------------------------------------------------//
 void vtkParametricBour::Evaluate(double uvw[3], double Pt[3],

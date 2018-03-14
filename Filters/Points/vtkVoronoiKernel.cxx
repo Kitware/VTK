@@ -21,15 +21,11 @@
 vtkStandardNewMacro(vtkVoronoiKernel);
 
 //----------------------------------------------------------------------------
-vtkVoronoiKernel::vtkVoronoiKernel()
-{
-}
+vtkVoronoiKernel::vtkVoronoiKernel() = default;
 
 
 //----------------------------------------------------------------------------
-vtkVoronoiKernel::~vtkVoronoiKernel()
-{
-}
+vtkVoronoiKernel::~vtkVoronoiKernel() = default;
 
 //----------------------------------------------------------------------------
 vtkIdType vtkVoronoiKernel::

@@ -54,9 +54,7 @@ vtkRibbonFilter::vtkRibbonFilter()
                                vtkDataSetAttributes::NORMALS);
 }
 
-vtkRibbonFilter::~vtkRibbonFilter()
-{
-}
+vtkRibbonFilter::~vtkRibbonFilter() = default;
 
 
 int vtkRibbonFilter::RequestData(

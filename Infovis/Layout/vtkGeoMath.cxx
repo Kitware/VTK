@@ -27,14 +27,10 @@ vtkStandardNewMacro(vtkGeoMath);
 
 
 //----------------------------------------------------------------------------
-vtkGeoMath::vtkGeoMath()
-{
-}
+vtkGeoMath::vtkGeoMath() = default;
 
 //-----------------------------------------------------------------------------
-vtkGeoMath::~vtkGeoMath()
-{
-}
+vtkGeoMath::~vtkGeoMath() = default;
 
 //-----------------------------------------------------------------------------
 void vtkGeoMath::PrintSelf(ostream& os, vtkIndent indent)

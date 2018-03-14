@@ -29,14 +29,10 @@
 vtkStandardNewMacro(vtkRemoveGhosts);
 
 //-----------------------------------------------------------------------------
-vtkRemoveGhosts::vtkRemoveGhosts()
-{
-}
+vtkRemoveGhosts::vtkRemoveGhosts() = default;
 
 //-----------------------------------------------------------------------------
-vtkRemoveGhosts::~vtkRemoveGhosts()
-{
-}
+vtkRemoveGhosts::~vtkRemoveGhosts() = default;
 
 //-----------------------------------------------------------------------------
 void vtkRemoveGhosts::PrintSelf(ostream &os, vtkIndent indent)

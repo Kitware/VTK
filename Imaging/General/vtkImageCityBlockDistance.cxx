@@ -23,9 +23,7 @@
 vtkStandardNewMacro(vtkImageCityBlockDistance);
 
 //----------------------------------------------------------------------------
-vtkImageCityBlockDistance::vtkImageCityBlockDistance()
-{
-}
+vtkImageCityBlockDistance::vtkImageCityBlockDistance() = default;
 
 
 //----------------------------------------------------------------------------

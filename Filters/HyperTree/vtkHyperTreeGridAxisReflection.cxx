@@ -36,9 +36,7 @@ vtkHyperTreeGridAxisReflection::vtkHyperTreeGridAxisReflection()
 }
 
 //-----------------------------------------------------------------------------
-vtkHyperTreeGridAxisReflection::~vtkHyperTreeGridAxisReflection()
-{
-}
+vtkHyperTreeGridAxisReflection::~vtkHyperTreeGridAxisReflection() = default;
 
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridAxisReflection::PrintSelf( ostream& os, vtkIndent indent )

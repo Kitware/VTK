@@ -39,14 +39,10 @@ void vtkOpenGLGL2PSExporter::PrintSelf(std::ostream &os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-vtkOpenGLGL2PSExporter::vtkOpenGLGL2PSExporter()
-{
-}
+vtkOpenGLGL2PSExporter::vtkOpenGLGL2PSExporter() = default;
 
 //------------------------------------------------------------------------------
-vtkOpenGLGL2PSExporter::~vtkOpenGLGL2PSExporter()
-{
-}
+vtkOpenGLGL2PSExporter::~vtkOpenGLGL2PSExporter() = default;
 
 //------------------------------------------------------------------------------
 void vtkOpenGLGL2PSExporter::WriteData()

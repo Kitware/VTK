@@ -25,14 +25,10 @@
 
 vtkStandardNewMacro(vtkBlockIdScalars);
 //----------------------------------------------------------------------------
-vtkBlockIdScalars::vtkBlockIdScalars()
-{
-}
+vtkBlockIdScalars::vtkBlockIdScalars() = default;
 
 //----------------------------------------------------------------------------
-vtkBlockIdScalars::~vtkBlockIdScalars()
-{
-}
+vtkBlockIdScalars::~vtkBlockIdScalars() = default;
 
 //----------------------------------------------------------------------------
 // Map ids into attribute data

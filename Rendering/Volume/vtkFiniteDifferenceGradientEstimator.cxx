@@ -314,9 +314,7 @@ vtkFiniteDifferenceGradientEstimator::vtkFiniteDifferenceGradientEstimator()
 }
 
 // Destruct a vtkFiniteDifferenceGradientEstimator - free up any memory used
-vtkFiniteDifferenceGradientEstimator::~vtkFiniteDifferenceGradientEstimator()
-{
-}
+vtkFiniteDifferenceGradientEstimator::~vtkFiniteDifferenceGradientEstimator() = default;
 
 static VTK_THREAD_RETURN_TYPE vtkSwitchOnDataType( void *arg )
 {

@@ -141,9 +141,7 @@ vtkQuadratureSchemeDictionaryGenerator::vtkQuadratureSchemeDictionaryGenerator()
 }
 
 //-----------------------------------------------------------------------------
-vtkQuadratureSchemeDictionaryGenerator::~vtkQuadratureSchemeDictionaryGenerator()
-{
-}
+vtkQuadratureSchemeDictionaryGenerator::~vtkQuadratureSchemeDictionaryGenerator() = default;
 
 //-----------------------------------------------------------------------------
 int vtkQuadratureSchemeDictionaryGenerator::FillInputPortInformation(int port,

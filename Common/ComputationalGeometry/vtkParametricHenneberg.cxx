@@ -35,9 +35,7 @@ vtkParametricHenneberg::vtkParametricHenneberg()
 }
 
 //----------------------------------------------------------------------------//
-vtkParametricHenneberg::~vtkParametricHenneberg()
-{
-}
+vtkParametricHenneberg::~vtkParametricHenneberg() = default;
 
 //----------------------------------------------------------------------------//
 void vtkParametricHenneberg::Evaluate(double uvw[3], double Pt[3],

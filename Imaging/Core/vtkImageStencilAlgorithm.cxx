@@ -38,9 +38,7 @@ vtkImageStencilAlgorithm::vtkImageStencilAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkImageStencilAlgorithm::~vtkImageStencilAlgorithm()
-{
-}
+vtkImageStencilAlgorithm::~vtkImageStencilAlgorithm() = default;
 
 //----------------------------------------------------------------------------
 void vtkImageStencilAlgorithm::PrintSelf(ostream& os, vtkIndent indent)

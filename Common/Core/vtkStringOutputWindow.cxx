@@ -24,9 +24,7 @@ vtkStringOutputWindow::vtkStringOutputWindow()
   this->OStream.clear();
 }
 
-vtkStringOutputWindow::~vtkStringOutputWindow()
-{
-}
+vtkStringOutputWindow::~vtkStringOutputWindow() = default;
 
 void vtkStringOutputWindow::Initialize()
 {

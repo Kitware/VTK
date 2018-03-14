@@ -44,9 +44,7 @@ vtkSpherePuzzleArrows::vtkSpherePuzzleArrows()
 
 //----------------------------------------------------------------------------
 // Destruct the puzzle.
-vtkSpherePuzzleArrows::~vtkSpherePuzzleArrows()
-{
-}
+vtkSpherePuzzleArrows::~vtkSpherePuzzleArrows() = default;
 
 //----------------------------------------------------------------------------
 void vtkSpherePuzzleArrows::SetPermutationComponent(int comp, int val)

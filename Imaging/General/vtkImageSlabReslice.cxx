@@ -40,9 +40,7 @@ vtkImageSlabReslice::vtkImageSlabReslice()
 }
 
 //----------------------------------------------------------------------------
-vtkImageSlabReslice::~vtkImageSlabReslice()
-{
-}
+vtkImageSlabReslice::~vtkImageSlabReslice() = default;
 
 //----------------------------------------------------------------------------
 int vtkImageSlabReslice::RequestInformation(

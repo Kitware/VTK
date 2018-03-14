@@ -80,9 +80,7 @@ vtkCollapseGraph::vtkCollapseGraph()
 }
 
 
-vtkCollapseGraph::~vtkCollapseGraph()
-{
-}
+vtkCollapseGraph::~vtkCollapseGraph() = default;
 
 void vtkCollapseGraph::PrintSelf(ostream& os, vtkIndent indent)
 {

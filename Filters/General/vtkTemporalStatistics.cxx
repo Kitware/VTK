@@ -155,9 +155,7 @@ vtkTemporalStatistics::vtkTemporalStatistics()
   this->GeneratedChangingTopologyWarning = false;
 }
 
-vtkTemporalStatistics::~vtkTemporalStatistics()
-{
-}
+vtkTemporalStatistics::~vtkTemporalStatistics() = default;
 
 void vtkTemporalStatistics::PrintSelf(ostream &os, vtkIndent indent)
 {

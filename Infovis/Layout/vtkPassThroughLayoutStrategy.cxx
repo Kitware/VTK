@@ -26,15 +26,11 @@ vtkStandardNewMacro(vtkPassThroughLayoutStrategy);
 
 // ----------------------------------------------------------------------
 
-vtkPassThroughLayoutStrategy::vtkPassThroughLayoutStrategy()
-{
-}
+vtkPassThroughLayoutStrategy::vtkPassThroughLayoutStrategy() = default;
 
 // ----------------------------------------------------------------------
 
-vtkPassThroughLayoutStrategy::~vtkPassThroughLayoutStrategy()
-{
-}
+vtkPassThroughLayoutStrategy::~vtkPassThroughLayoutStrategy() = default;
 
 // ----------------------------------------------------------------------
 // Set the graph that will be laid out

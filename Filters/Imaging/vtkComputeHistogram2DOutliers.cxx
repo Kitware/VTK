@@ -48,9 +48,7 @@ vtkComputeHistogram2DOutliers::vtkComputeHistogram2DOutliers()
   this->BuildTime.Modified();
 }
 //------------------------------------------------------------------------------
-vtkComputeHistogram2DOutliers::~vtkComputeHistogram2DOutliers()
-{
-}
+vtkComputeHistogram2DOutliers::~vtkComputeHistogram2DOutliers() = default;
 //------------------------------------------------------------------------------
 int vtkComputeHistogram2DOutliers::RequestData(
   vtkInformation* vtkNotUsed(request),

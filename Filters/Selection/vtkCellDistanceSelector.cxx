@@ -34,9 +34,7 @@ vtkCellDistanceSelector::vtkCellDistanceSelector()
 }
 
 // ----------------------------------------------------------------------
-vtkCellDistanceSelector::~vtkCellDistanceSelector()
-{
-}
+vtkCellDistanceSelector::~vtkCellDistanceSelector() = default;
 
 // ----------------------------------------------------------------------
 void vtkCellDistanceSelector::PrintSelf( ostream& os, vtkIndent indent )

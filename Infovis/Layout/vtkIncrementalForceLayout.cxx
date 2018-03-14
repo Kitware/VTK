@@ -207,9 +207,7 @@ void Quad::Visit(vtkVector2f &prev, vtkVector2f &p, vtkIdType vert, float x1, fl
 class vtkIncrementalForceLayout::Implementation
 {
 public:
-  Implementation()
-  {
-  }
+  Implementation() = default;
 
   vtkVector2f& GetPosition(vtkIdType i)
   {

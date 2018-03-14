@@ -60,9 +60,7 @@ vtkGraphToGlyphs::vtkGraphToGlyphs()
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "scale");
 }
 
-vtkGraphToGlyphs::~vtkGraphToGlyphs()
-{
-}
+vtkGraphToGlyphs::~vtkGraphToGlyphs() = default;
 
 int vtkGraphToGlyphs::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {

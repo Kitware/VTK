@@ -45,9 +45,7 @@ vtkImageEllipsoidSource::vtkImageEllipsoidSource()
 }
 
 //----------------------------------------------------------------------------
-vtkImageEllipsoidSource::~vtkImageEllipsoidSource()
-{
-}
+vtkImageEllipsoidSource::~vtkImageEllipsoidSource() = default;
 
 //----------------------------------------------------------------------------
 void vtkImageEllipsoidSource::PrintSelf(ostream& os, vtkIndent indent)

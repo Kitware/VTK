@@ -33,9 +33,7 @@ vtkGeometricErrorMetric::vtkGeometricErrorMetric()
 }
 
 //-----------------------------------------------------------------------------
-vtkGeometricErrorMetric::~vtkGeometricErrorMetric()
-{
-}
+vtkGeometricErrorMetric::~vtkGeometricErrorMetric() = default;
 
 //-----------------------------------------------------------------------------
 // Description :

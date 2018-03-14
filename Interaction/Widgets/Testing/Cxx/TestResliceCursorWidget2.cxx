@@ -114,7 +114,7 @@ public:
     this->RCW[0]->Render();
   }
 
-  vtkResliceCursorCallback() {}
+  vtkResliceCursorCallback() = default;
   vtkImagePlaneWidget* IPW[3];
   vtkResliceCursorWidget *RCW[3];
 };

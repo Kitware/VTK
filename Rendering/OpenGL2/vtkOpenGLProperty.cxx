@@ -28,13 +28,9 @@
 
 vtkStandardNewMacro(vtkOpenGLProperty);
 
-vtkOpenGLProperty::vtkOpenGLProperty()
-{
-}
+vtkOpenGLProperty::vtkOpenGLProperty() = default;
 
-vtkOpenGLProperty::~vtkOpenGLProperty()
-{
-}
+vtkOpenGLProperty::~vtkOpenGLProperty() = default;
 
 
 // ----------------------------------------------------------------------------

@@ -40,9 +40,7 @@ vtkExtractSelectedTree::vtkExtractSelectedTree()
   this->SetNumberOfInputPorts(2);
 }
 
-vtkExtractSelectedTree::~vtkExtractSelectedTree()
-{
-}
+vtkExtractSelectedTree::~vtkExtractSelectedTree() = default;
 
 //----------------------------------------------------------------------------
 void vtkExtractSelectedTree::SetSelectionConnection(vtkAlgorithmOutput* in)

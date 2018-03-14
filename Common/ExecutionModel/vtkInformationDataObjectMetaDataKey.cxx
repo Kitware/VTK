@@ -24,9 +24,7 @@ vtkInformationDataObjectMetaDataKey::vtkInformationDataObjectMetaDataKey(const c
 }
 
 //----------------------------------------------------------------------------
-vtkInformationDataObjectMetaDataKey::~vtkInformationDataObjectMetaDataKey()
-{
-}
+vtkInformationDataObjectMetaDataKey::~vtkInformationDataObjectMetaDataKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationDataObjectMetaDataKey::CopyDefaultInformation(

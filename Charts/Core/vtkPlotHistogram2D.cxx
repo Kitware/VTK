@@ -35,9 +35,7 @@ vtkPlotHistogram2D::vtkPlotHistogram2D()
 }
 
 //-----------------------------------------------------------------------------
-vtkPlotHistogram2D::~vtkPlotHistogram2D()
-{
-}
+vtkPlotHistogram2D::~vtkPlotHistogram2D() = default;
 
 void vtkPlotHistogram2D::Update()
 {

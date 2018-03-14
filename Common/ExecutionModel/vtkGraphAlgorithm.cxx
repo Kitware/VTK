@@ -38,9 +38,7 @@ vtkGraphAlgorithm::vtkGraphAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkGraphAlgorithm::~vtkGraphAlgorithm()
-{
-}
+vtkGraphAlgorithm::~vtkGraphAlgorithm() = default;
 
 //----------------------------------------------------------------------------
 void vtkGraphAlgorithm::PrintSelf(ostream& os, vtkIndent indent)

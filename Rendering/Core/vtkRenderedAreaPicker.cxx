@@ -37,14 +37,10 @@
 vtkStandardNewMacro(vtkRenderedAreaPicker);
 
 //--------------------------------------------------------------------------
-vtkRenderedAreaPicker::vtkRenderedAreaPicker()
-{
-}
+vtkRenderedAreaPicker::vtkRenderedAreaPicker() = default;
 
 //--------------------------------------------------------------------------
-vtkRenderedAreaPicker::~vtkRenderedAreaPicker()
-{
-}
+vtkRenderedAreaPicker::~vtkRenderedAreaPicker() = default;
 
 //--------------------------------------------------------------------------
 // Does what this class is meant to do.

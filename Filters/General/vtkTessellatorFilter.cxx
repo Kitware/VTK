@@ -59,9 +59,7 @@ public:
   {
     this->Tessellator = tf;
   }
-  ~vtkProgressCommand() override
-  {
-  }
+  ~vtkProgressCommand() override = default;
   void Execute( vtkObject*, unsigned long, void* callData ) override
   {
     double subprogress = *( static_cast<double*>( callData ) );

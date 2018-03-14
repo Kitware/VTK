@@ -32,10 +32,7 @@ vtkUniformGridAMRAlgorithm::vtkUniformGridAMRAlgorithm()
 }
 
 //------------------------------------------------------------------------------
-vtkUniformGridAMRAlgorithm::~vtkUniformGridAMRAlgorithm()
-{
-
-}
+vtkUniformGridAMRAlgorithm::~vtkUniformGridAMRAlgorithm() = default;
 
 //------------------------------------------------------------------------------
 void vtkUniformGridAMRAlgorithm::PrintSelf(ostream& os, vtkIndent indent)

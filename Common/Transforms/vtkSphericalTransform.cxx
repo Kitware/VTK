@@ -21,13 +21,9 @@
 vtkStandardNewMacro(vtkSphericalTransform);
 
 //----------------------------------------------------------------------------
-vtkSphericalTransform::vtkSphericalTransform()
-{
-}
+vtkSphericalTransform::vtkSphericalTransform() = default;
 
-vtkSphericalTransform::~vtkSphericalTransform()
-{
-}
+vtkSphericalTransform::~vtkSphericalTransform() = default;
 
 void vtkSphericalTransform::PrintSelf(ostream& os, vtkIndent indent)
 {

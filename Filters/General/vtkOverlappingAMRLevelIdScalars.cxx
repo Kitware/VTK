@@ -27,14 +27,10 @@
 
 vtkStandardNewMacro(vtkOverlappingAMRLevelIdScalars);
 //----------------------------------------------------------------------------
-vtkOverlappingAMRLevelIdScalars::vtkOverlappingAMRLevelIdScalars()
-{
-}
+vtkOverlappingAMRLevelIdScalars::vtkOverlappingAMRLevelIdScalars() = default;
 
 //----------------------------------------------------------------------------
-vtkOverlappingAMRLevelIdScalars::~vtkOverlappingAMRLevelIdScalars()
-{
-}
+vtkOverlappingAMRLevelIdScalars::~vtkOverlappingAMRLevelIdScalars() = default;
 
 //----------------------------------------------------------------------------
 void vtkOverlappingAMRLevelIdScalars::AddColorLevels(

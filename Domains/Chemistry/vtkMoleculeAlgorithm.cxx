@@ -34,9 +34,7 @@ vtkMoleculeAlgorithm::vtkMoleculeAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkMoleculeAlgorithm::~vtkMoleculeAlgorithm()
-{
-}
+vtkMoleculeAlgorithm::~vtkMoleculeAlgorithm() = default;
 
 //----------------------------------------------------------------------------
 void vtkMoleculeAlgorithm::PrintSelf(ostream& os, vtkIndent indent)

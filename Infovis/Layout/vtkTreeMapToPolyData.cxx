@@ -40,9 +40,7 @@ vtkTreeMapToPolyData::vtkTreeMapToPolyData()
   this->AddNormals = true;
 }
 
-vtkTreeMapToPolyData::~vtkTreeMapToPolyData()
-{
-}
+vtkTreeMapToPolyData::~vtkTreeMapToPolyData() = default;
 
 int vtkTreeMapToPolyData::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {

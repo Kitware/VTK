@@ -26,9 +26,7 @@ vtkShader::vtkShader()
   this->ShaderType = vtkShader::Unknown;
 }
 
-vtkShader::~vtkShader()
-{
-}
+vtkShader::~vtkShader() = default;
 
 void vtkShader::SetType(Type type)
 {

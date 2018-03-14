@@ -22,14 +22,10 @@
 vtkStandardNewMacro(vtkLightsPass);
 
 // ----------------------------------------------------------------------------
-vtkLightsPass::vtkLightsPass()
-{
-}
+vtkLightsPass::vtkLightsPass() = default;
 
 // ----------------------------------------------------------------------------
-vtkLightsPass::~vtkLightsPass()
-{
-}
+vtkLightsPass::~vtkLightsPass() = default;
 
 // ----------------------------------------------------------------------------
 void vtkLightsPass::PrintSelf(ostream& os, vtkIndent indent)

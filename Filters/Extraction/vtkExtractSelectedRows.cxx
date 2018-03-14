@@ -57,9 +57,7 @@ vtkExtractSelectedRows::vtkExtractSelectedRows()
 }
 
 //----------------------------------------------------------------------------
-vtkExtractSelectedRows::~vtkExtractSelectedRows()
-{
-}
+vtkExtractSelectedRows::~vtkExtractSelectedRows() = default;
 
 //----------------------------------------------------------------------------
 int vtkExtractSelectedRows::FillInputPortInformation(int port, vtkInformation* info)

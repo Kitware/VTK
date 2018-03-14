@@ -39,9 +39,7 @@ vtkSPHQuarticKernel::vtkSPHQuarticKernel()
 }
 
 //----------------------------------------------------------------------------
-vtkSPHQuarticKernel::~vtkSPHQuarticKernel()
-{
-}
+vtkSPHQuarticKernel::~vtkSPHQuarticKernel() = default;
 
 //----------------------------------------------------------------------------
 // At this point, the spatial step, the dimension of the kernel, and the cutoff

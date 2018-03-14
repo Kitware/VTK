@@ -2898,9 +2898,7 @@ vtkTestTessellatorSubdivision::vtkTestTessellatorSubdivision()
   this->AmbiguousTests = 0;
 }
 
-vtkTestTessellatorSubdivision::~vtkTestTessellatorSubdivision()
-{
-}
+vtkTestTessellatorSubdivision::~vtkTestTessellatorSubdivision() = default;
 
 void vtkTestTessellatorSubdivision::PrintSelf( ostream& os, vtkIndent indent )
 {

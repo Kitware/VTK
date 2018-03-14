@@ -50,9 +50,7 @@ vtkSMPContourGridManyPieces::vtkSMPContourGridManyPieces()
     "VTK 8.1");
 }
 
-vtkSMPContourGridManyPieces::~vtkSMPContourGridManyPieces()
-{
-}
+vtkSMPContourGridManyPieces::~vtkSMPContourGridManyPieces() = default;
 
 namespace
 {
@@ -91,9 +89,7 @@ public:
   {
   }
 
-  ~vtkContourGridManyPiecesFunctor()
-  {
-  }
+  ~vtkContourGridManyPiecesFunctor() = default;
 
   void Initialize()
   {

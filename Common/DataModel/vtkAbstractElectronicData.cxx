@@ -22,9 +22,7 @@ vtkAbstractElectronicData::vtkAbstractElectronicData()
 }
 
 //----------------------------------------------------------------------------
-vtkAbstractElectronicData::~vtkAbstractElectronicData()
-{
-}
+vtkAbstractElectronicData::~vtkAbstractElectronicData() = default;
 
 //----------------------------------------------------------------------------
 void vtkAbstractElectronicData::PrintSelf(ostream& os, vtkIndent indent)

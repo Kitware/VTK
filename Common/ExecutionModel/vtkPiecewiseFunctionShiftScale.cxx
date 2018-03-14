@@ -29,9 +29,7 @@ vtkPiecewiseFunctionShiftScale::vtkPiecewiseFunctionShiftScale()
   this->ValueScale = 1.0;
 }
 
-vtkPiecewiseFunctionShiftScale::~vtkPiecewiseFunctionShiftScale()
-{
-}
+vtkPiecewiseFunctionShiftScale::~vtkPiecewiseFunctionShiftScale() = default;
 
 int vtkPiecewiseFunctionShiftScale::RequestData(
   vtkInformation *,

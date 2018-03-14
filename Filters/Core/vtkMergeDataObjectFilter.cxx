@@ -36,9 +36,7 @@ vtkMergeDataObjectFilter::vtkMergeDataObjectFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkMergeDataObjectFilter::~vtkMergeDataObjectFilter()
-{
-}
+vtkMergeDataObjectFilter::~vtkMergeDataObjectFilter() = default;
 
 //----------------------------------------------------------------------------
 // Specify a data object at a specified table location.

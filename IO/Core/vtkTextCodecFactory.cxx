@@ -198,10 +198,6 @@ void vtkTextCodecFactory::Initialize()
   }
 }
 
-vtkTextCodecFactory::vtkTextCodecFactory()
-{
-}
+vtkTextCodecFactory::vtkTextCodecFactory() = default;
 
-vtkTextCodecFactory::~vtkTextCodecFactory()
-{
-}
+vtkTextCodecFactory::~vtkTextCodecFactory() = default;

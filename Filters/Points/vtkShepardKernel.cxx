@@ -32,9 +32,7 @@ vtkShepardKernel::vtkShepardKernel()
 
 
 //----------------------------------------------------------------------------
-vtkShepardKernel::~vtkShepardKernel()
-{
-}
+vtkShepardKernel::~vtkShepardKernel() = default;
 
 
 //----------------------------------------------------------------------------

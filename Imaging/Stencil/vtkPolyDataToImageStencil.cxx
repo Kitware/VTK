@@ -81,9 +81,7 @@ vtkPolyDataToImageStencil::vtkPolyDataToImageStencil()
 }
 
 //----------------------------------------------------------------------------
-vtkPolyDataToImageStencil::~vtkPolyDataToImageStencil()
-{
-}
+vtkPolyDataToImageStencil::~vtkPolyDataToImageStencil() = default;
 
 //----------------------------------------------------------------------------
 void vtkPolyDataToImageStencil::SetInputData(vtkPolyData *input)

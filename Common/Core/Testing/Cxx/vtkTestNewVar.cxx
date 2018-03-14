@@ -20,13 +20,9 @@
 
 vtkStandardNewMacro(vtkTestNewVar);
 
-vtkTestNewVar::vtkTestNewVar()
-{
-}
+vtkTestNewVar::vtkTestNewVar() = default;
 
-vtkTestNewVar::~vtkTestNewVar()
-{
-}
+vtkTestNewVar::~vtkTestNewVar() = default;
 
 vtkIdType vtkTestNewVar::GetPointsRefCount()
 {

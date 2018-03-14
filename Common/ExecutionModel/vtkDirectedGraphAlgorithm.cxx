@@ -38,9 +38,7 @@ vtkDirectedGraphAlgorithm::vtkDirectedGraphAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkDirectedGraphAlgorithm::~vtkDirectedGraphAlgorithm()
-{
-}
+vtkDirectedGraphAlgorithm::~vtkDirectedGraphAlgorithm() = default;
 
 //----------------------------------------------------------------------------
 void vtkDirectedGraphAlgorithm::PrintSelf(ostream& os, vtkIndent indent)

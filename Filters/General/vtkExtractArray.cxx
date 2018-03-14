@@ -39,9 +39,7 @@ vtkExtractArray::vtkExtractArray() :
   this->SetNumberOfOutputPorts(1);
 }
 
-vtkExtractArray::~vtkExtractArray()
-{
-}
+vtkExtractArray::~vtkExtractArray() = default;
 
 void vtkExtractArray::PrintSelf(ostream& os, vtkIndent indent)
 {

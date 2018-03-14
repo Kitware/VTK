@@ -37,12 +37,8 @@ vtkCxxSetObjectMacro(vtkXMLPMultiBlockDataWriter,
 class vtkXMLPMultiBlockDataWriter::vtkInternal
 {
 public:
-  vtkInternal()
-  {
-  }
-  ~vtkInternal()
-  {
-  }
+  vtkInternal() = default;
+  ~vtkInternal() = default;
   void Allocate(int numPieces, int numProcs)
   {
       this->NumberOfPieces = numPieces;

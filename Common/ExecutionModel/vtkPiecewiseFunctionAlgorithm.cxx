@@ -33,9 +33,7 @@ vtkPiecewiseFunctionAlgorithm::vtkPiecewiseFunctionAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkPiecewiseFunctionAlgorithm::~vtkPiecewiseFunctionAlgorithm()
-{
-}
+vtkPiecewiseFunctionAlgorithm::~vtkPiecewiseFunctionAlgorithm() = default;
 
 //----------------------------------------------------------------------------
 void vtkPiecewiseFunctionAlgorithm::PrintSelf(ostream& os, vtkIndent indent)

@@ -28,9 +28,7 @@ vtkGeodesicPath::vtkGeodesicPath()
 }
 
 //-----------------------------------------------------------------------------
-vtkGeodesicPath::~vtkGeodesicPath()
-{
-}
+vtkGeodesicPath::~vtkGeodesicPath() = default;
 
 //-----------------------------------------------------------------------------
 int vtkGeodesicPath::FillInputPortInformation(int port,

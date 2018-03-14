@@ -40,6 +40,4 @@ vtkSkybox::vtkSkybox()
 }
 
 //------------------------------------------------------------------------------
-vtkSkybox::~vtkSkybox()
-{
-}
+vtkSkybox::~vtkSkybox() = default;

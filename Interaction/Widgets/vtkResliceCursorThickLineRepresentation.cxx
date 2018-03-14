@@ -34,9 +34,7 @@ vtkResliceCursorThickLineRepresentation::vtkResliceCursorThickLineRepresentation
 }
 
 //----------------------------------------------------------------------
-vtkResliceCursorThickLineRepresentation::~vtkResliceCursorThickLineRepresentation()
-{
-}
+vtkResliceCursorThickLineRepresentation::~vtkResliceCursorThickLineRepresentation() = default;
 
 //----------------------------------------------------------------------
 void vtkResliceCursorThickLineRepresentation::CreateDefaultResliceAlgorithm()

@@ -62,7 +62,7 @@ vtkCxxSetObjectMacro(vtkSphereTree,DataSet,vtkDataSet);
 // and unstructured)
 struct vtkSphereTreeHierarchy
 {
-  virtual ~vtkSphereTreeHierarchy() {}
+  virtual ~vtkSphereTreeHierarchy() = default;
 };
 
 struct vtkStructuredHierarchy : public vtkSphereTreeHierarchy

@@ -119,7 +119,7 @@ public:
 
 
 private:
-  TemporalFractalOutputUtil(){}
+  TemporalFractalOutputUtil() = default;
   std::vector<vtkSmartPointer<vtkDataObject> > DataSets;
   std::vector<unsigned int> Levels;
 };

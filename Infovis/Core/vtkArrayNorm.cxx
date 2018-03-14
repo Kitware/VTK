@@ -44,9 +44,7 @@ vtkArrayNorm::vtkArrayNorm() :
 {
 }
 
-vtkArrayNorm::~vtkArrayNorm()
-{
-}
+vtkArrayNorm::~vtkArrayNorm() = default;
 
 void vtkArrayNorm::SetWindow(const vtkArrayRange& window)
 {

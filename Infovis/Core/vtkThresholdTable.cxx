@@ -35,9 +35,7 @@ vtkThresholdTable::vtkThresholdTable() : MinValue(0), MaxValue(VTK_INT_MAX), Mod
 {
 }
 
-vtkThresholdTable::~vtkThresholdTable()
-{
-}
+vtkThresholdTable::~vtkThresholdTable() = default;
 
 void vtkThresholdTable::PrintSelf(ostream& os, vtkIndent indent)
 {

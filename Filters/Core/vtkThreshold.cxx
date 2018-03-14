@@ -49,9 +49,7 @@ vtkThreshold::vtkThreshold()
   this->UseContinuousCellRange = 0;
 }
 
-vtkThreshold::~vtkThreshold()
-{
-}
+vtkThreshold::~vtkThreshold() = default;
 
 // Criterion is cells whose scalars are less or equal to lower threshold.
 void vtkThreshold::ThresholdByLower(double lower)

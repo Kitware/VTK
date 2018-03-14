@@ -121,13 +121,9 @@ private:
 
 };
 
-vtkCirclePackFrontChainLayoutStrategyImplementation::vtkCirclePackFrontChainLayoutStrategyImplementation()
-{
-}
+vtkCirclePackFrontChainLayoutStrategyImplementation::vtkCirclePackFrontChainLayoutStrategyImplementation() = default;
 
-vtkCirclePackFrontChainLayoutStrategyImplementation::~vtkCirclePackFrontChainLayoutStrategyImplementation()
-{
-}
+vtkCirclePackFrontChainLayoutStrategyImplementation::~vtkCirclePackFrontChainLayoutStrategyImplementation() = default;
 
 void vtkCirclePackFrontChainLayoutStrategyImplementation::incrListIteratorWrapAround(std::list<vtkIdType>::iterator& i,
                                                                                      std::list<vtkIdType>& frontChain)

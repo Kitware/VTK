@@ -24,14 +24,10 @@
 
 vtkStandardNewMacro(vtkXMLMultiBlockDataWriter);
 //----------------------------------------------------------------------------
-vtkXMLMultiBlockDataWriter::vtkXMLMultiBlockDataWriter()
-{
-}
+vtkXMLMultiBlockDataWriter::vtkXMLMultiBlockDataWriter() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLMultiBlockDataWriter::~vtkXMLMultiBlockDataWriter()
-{
-}
+vtkXMLMultiBlockDataWriter::~vtkXMLMultiBlockDataWriter() = default;
 
 //----------------------------------------------------------------------------
 int vtkXMLMultiBlockDataWriter::FillInputPortInformation(

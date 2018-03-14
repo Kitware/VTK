@@ -37,14 +37,10 @@
 
 vtkStandardNewMacro(vtkCompositeDataWriter);
 //----------------------------------------------------------------------------
-vtkCompositeDataWriter::vtkCompositeDataWriter()
-{
-}
+vtkCompositeDataWriter::vtkCompositeDataWriter() = default;
 
 //----------------------------------------------------------------------------
-vtkCompositeDataWriter::~vtkCompositeDataWriter()
-{
-}
+vtkCompositeDataWriter::~vtkCompositeDataWriter() = default;
 
 //----------------------------------------------------------------------------
 vtkCompositeDataSet* vtkCompositeDataWriter::GetInput()

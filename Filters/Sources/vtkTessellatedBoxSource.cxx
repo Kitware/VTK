@@ -42,9 +42,7 @@ vtkTessellatedBoxSource::vtkTessellatedBoxSource()
 }
 
 // ----------------------------------------------------------------------------
-vtkTessellatedBoxSource::~vtkTessellatedBoxSource()
-{
-}
+vtkTessellatedBoxSource::~vtkTessellatedBoxSource() = default;
 
 // Duplicate point method.
 // Each face of the box is defined by the 3 points: an origin, a point along

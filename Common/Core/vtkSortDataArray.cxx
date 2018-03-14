@@ -40,14 +40,10 @@
 vtkStandardNewMacro(vtkSortDataArray);
 
 //-------------------------------------------------------------------------
-vtkSortDataArray::vtkSortDataArray()
-{
-}
+vtkSortDataArray::vtkSortDataArray() = default;
 
 //---------------------------------------------------------------------------
-vtkSortDataArray::~vtkSortDataArray()
-{
-}
+vtkSortDataArray::~vtkSortDataArray() = default;
 
 //---------------------------------------------------------------------------
 void vtkSortDataArray::Sort(vtkIdList *keys, int dir)

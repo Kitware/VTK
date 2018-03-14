@@ -21,14 +21,10 @@
 
 vtkStandardNewMacro(vtkMultiBlockDataSet);
 //----------------------------------------------------------------------------
-vtkMultiBlockDataSet::vtkMultiBlockDataSet()
-{
-}
+vtkMultiBlockDataSet::vtkMultiBlockDataSet() = default;
 
 //----------------------------------------------------------------------------
-vtkMultiBlockDataSet::~vtkMultiBlockDataSet()
-{
-}
+vtkMultiBlockDataSet::~vtkMultiBlockDataSet() = default;
 
 //----------------------------------------------------------------------------
 vtkMultiBlockDataSet* vtkMultiBlockDataSet::GetData(vtkInformation* info)

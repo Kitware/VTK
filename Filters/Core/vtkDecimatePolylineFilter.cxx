@@ -95,9 +95,7 @@ vtkDecimatePolylineFilter::vtkDecimatePolylineFilter()
 }
 
 //---------------------------------------------------------------------
-vtkDecimatePolylineFilter::~vtkDecimatePolylineFilter()
-{
-}
+vtkDecimatePolylineFilter::~vtkDecimatePolylineFilter() = default;
 
 //---------------------------------------------------------------------
 double vtkDecimatePolylineFilter::

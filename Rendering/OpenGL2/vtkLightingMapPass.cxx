@@ -37,9 +37,7 @@ vtkLightingMapPass::vtkLightingMapPass()
 }
 
 // ----------------------------------------------------------------------------
-vtkLightingMapPass::~vtkLightingMapPass()
-{
-}
+vtkLightingMapPass::~vtkLightingMapPass() = default;
 
 // ----------------------------------------------------------------------------
 void vtkLightingMapPass::PrintSelf(ostream& os, vtkIndent indent)

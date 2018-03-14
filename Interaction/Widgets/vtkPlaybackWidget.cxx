@@ -20,14 +20,10 @@
 vtkStandardNewMacro(vtkPlaybackWidget);
 
 //-------------------------------------------------------------------------
-vtkPlaybackWidget::vtkPlaybackWidget()
-{
-}
+vtkPlaybackWidget::vtkPlaybackWidget() = default;
 
 //-------------------------------------------------------------------------
-vtkPlaybackWidget::~vtkPlaybackWidget()
-{
-}
+vtkPlaybackWidget::~vtkPlaybackWidget() = default;
 
 //----------------------------------------------------------------------
 void vtkPlaybackWidget::CreateDefaultRepresentation()

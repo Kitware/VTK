@@ -103,7 +103,7 @@ class vtkTableBasedClipperEdgeHashEntry
 {
 public:
   vtkTableBasedClipperEdgeHashEntry();
-  virtual ~vtkTableBasedClipperEdgeHashEntry() { }
+  virtual ~vtkTableBasedClipperEdgeHashEntry() = default;
 
   int      GetPointId(void) { return ptId; };
   void     SetInfo( int, int, int );
@@ -193,7 +193,7 @@ class  vtkTableBasedClipperDataSetFromVolume
   public:
     vtkTableBasedClipperDataSetFromVolume( int ptSizeGuess );
     vtkTableBasedClipperDataSetFromVolume( int nPts, int ptSizeGuess );
-    virtual ~vtkTableBasedClipperDataSetFromVolume() { }
+    virtual ~vtkTableBasedClipperDataSetFromVolume() = default;
 
     int  AddPoint( int p1, int p2, double percent )
          { return numPrevPts + edges.AddPoint( p1, p2, percent ); }
@@ -603,7 +603,7 @@ class  vtkTableBasedClipperVolumeFromVolume :
   public:
               vtkTableBasedClipperVolumeFromVolume
               ( int precision, int nPts, int ptSizeGuess );
-     ~vtkTableBasedClipperVolumeFromVolume() override { }
+     ~vtkTableBasedClipperVolumeFromVolume() override = default;
 
     void      ConstructDataSet( vtkDataSet *,
                                 vtkUnstructuredGrid *, double * );
@@ -834,9 +834,7 @@ vtkTableBasedClipperHexList::vtkTableBasedClipperHexList()
 {
 }
 
-vtkTableBasedClipperHexList::~vtkTableBasedClipperHexList()
-{
-}
+vtkTableBasedClipperHexList::~vtkTableBasedClipperHexList() = default;
 
 void vtkTableBasedClipperHexList::AddHex( int cellId,
      int v1, int v2, int v3, int v4, int v5, int v6, int v7, int v8 )
@@ -885,9 +883,7 @@ vtkTableBasedClipperWedgeList::vtkTableBasedClipperWedgeList()
 {
 }
 
-vtkTableBasedClipperWedgeList::~vtkTableBasedClipperWedgeList()
-{
-}
+vtkTableBasedClipperWedgeList::~vtkTableBasedClipperWedgeList() = default;
 
 void vtkTableBasedClipperWedgeList::AddWedge
    ( int cellId, int v1, int v2, int v3, int v4, int v5, int v6 )
@@ -933,9 +929,7 @@ vtkTableBasedClipperPyramidList::vtkTableBasedClipperPyramidList()
 {
 }
 
-vtkTableBasedClipperPyramidList::~vtkTableBasedClipperPyramidList()
-{
-}
+vtkTableBasedClipperPyramidList::~vtkTableBasedClipperPyramidList() = default;
 
 void vtkTableBasedClipperPyramidList::AddPyramid
    ( int cellId, int v1, int v2, int v3, int v4, int v5 )
@@ -981,9 +975,7 @@ vtkTableBasedClipperTetList::vtkTableBasedClipperTetList()
 {
 }
 
-vtkTableBasedClipperTetList::~vtkTableBasedClipperTetList()
-{
-}
+vtkTableBasedClipperTetList::~vtkTableBasedClipperTetList() = default;
 
 void vtkTableBasedClipperTetList::AddTet
    ( int cellId, int v1,int v2,int v3,int v4 )
@@ -1028,9 +1020,7 @@ vtkTableBasedClipperQuadList::vtkTableBasedClipperQuadList()
 {
 }
 
-vtkTableBasedClipperQuadList::~vtkTableBasedClipperQuadList()
-{
-}
+vtkTableBasedClipperQuadList::~vtkTableBasedClipperQuadList() = default;
 
 void vtkTableBasedClipperQuadList::AddQuad
    ( int cellId, int v1,int v2,int v3,int v4 )
@@ -1074,9 +1064,7 @@ vtkTableBasedClipperTriList::vtkTableBasedClipperTriList()
 {
 }
 
-vtkTableBasedClipperTriList::~vtkTableBasedClipperTriList()
-{
-}
+vtkTableBasedClipperTriList::~vtkTableBasedClipperTriList() = default;
 
 void vtkTableBasedClipperTriList::AddTri
    ( int cellId, int v1,int v2,int v3 )
@@ -1119,9 +1107,7 @@ vtkTableBasedClipperLineList::vtkTableBasedClipperLineList()
 {
 }
 
-vtkTableBasedClipperLineList::~vtkTableBasedClipperLineList()
-{
-}
+vtkTableBasedClipperLineList::~vtkTableBasedClipperLineList() = default;
 
 void vtkTableBasedClipperLineList::AddLine( int cellId, int v1,int v2 )
 {
@@ -1162,9 +1148,7 @@ vtkTableBasedClipperVertexList::vtkTableBasedClipperVertexList()
 {
 }
 
-vtkTableBasedClipperVertexList::~vtkTableBasedClipperVertexList()
-{
-}
+vtkTableBasedClipperVertexList::~vtkTableBasedClipperVertexList() = default;
 
 void vtkTableBasedClipperVertexList::AddVertex( int cellId, int v1 )
 {

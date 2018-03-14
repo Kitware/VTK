@@ -45,9 +45,7 @@ vtkHyperTreeGridCursor::vtkHyperTreeGridCursor()
 }
 
 //-----------------------------------------------------------------------------
-vtkHyperTreeGridCursor::~vtkHyperTreeGridCursor()
-{
-}
+vtkHyperTreeGridCursor::~vtkHyperTreeGridCursor() = default;
 
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridCursor* vtkHyperTreeGridCursor::Clone()

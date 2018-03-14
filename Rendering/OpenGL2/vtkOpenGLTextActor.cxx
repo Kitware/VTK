@@ -52,14 +52,10 @@ int vtkOpenGLTextActor::RenderOverlay(vtkViewport *viewport)
 }
 
 //------------------------------------------------------------------------------
-vtkOpenGLTextActor::vtkOpenGLTextActor()
-{
-}
+vtkOpenGLTextActor::vtkOpenGLTextActor() = default;
 
 //------------------------------------------------------------------------------
-vtkOpenGLTextActor::~vtkOpenGLTextActor()
-{
-}
+vtkOpenGLTextActor::~vtkOpenGLTextActor() = default;
 
 //------------------------------------------------------------------------------
 int vtkOpenGLTextActor::RenderGL2PS(vtkViewport *viewport,

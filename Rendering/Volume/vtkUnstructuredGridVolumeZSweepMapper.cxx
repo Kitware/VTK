@@ -69,9 +69,7 @@ enum
 class vtkPixelListEntry
 {
 public:
-  vtkPixelListEntry()
-  {
-  }
+  vtkPixelListEntry() = default;
 
   void Init(double values[VTK_VALUES_SIZE],
             double zView,
@@ -121,7 +119,7 @@ private:
 class vtkVertexEntry
 {
 public:
-  vtkVertexEntry() {}
+  vtkVertexEntry() = default;
 
   vtkVertexEntry(int screenX,
                  int screenY,
@@ -236,7 +234,7 @@ public:
   virtual double GetZview()=0;
 protected:
   // Destructor.
-  virtual ~vtkScreenEdge() {}
+  virtual ~vtkScreenEdge() = default;
 };
 
 //-----------------------------------------------------------------------------

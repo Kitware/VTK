@@ -55,10 +55,7 @@ vtkAMRGaussianPulseSource::vtkAMRGaussianPulseSource()
 }
 
 //------------------------------------------------------------------------------
-vtkAMRGaussianPulseSource::~vtkAMRGaussianPulseSource()
-{
-
-}
+vtkAMRGaussianPulseSource::~vtkAMRGaussianPulseSource() = default;
 
 //------------------------------------------------------------------------------
 void vtkAMRGaussianPulseSource::PrintSelf(ostream& os, vtkIndent indent)

@@ -155,7 +155,7 @@ public:
     UpdateRearClippingPlane(rearClippingPlane, normal, focalPoint, slabThickness);
   }
 
-  vtkInteractorStyleCallback(){}
+  vtkInteractorStyleCallback() = default;
 
   void SetFrontClippingPlane(vtkPlane* fcPlane)
   {

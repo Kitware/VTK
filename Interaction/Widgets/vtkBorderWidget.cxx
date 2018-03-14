@@ -54,9 +54,7 @@ vtkBorderWidget::vtkBorderWidget()
 }
 
 //-------------------------------------------------------------------------
-vtkBorderWidget::~vtkBorderWidget()
-{
-}
+vtkBorderWidget::~vtkBorderWidget() = default;
 
 //-------------------------------------------------------------------------
 void vtkBorderWidget::SetCursor(int cState)

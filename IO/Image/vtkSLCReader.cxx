@@ -32,9 +32,7 @@ vtkSLCReader::vtkSLCReader()
   this->Error = 0;
 }
 
-vtkSLCReader::~vtkSLCReader()
-{
-}
+vtkSLCReader::~vtkSLCReader() = default;
 
 // Decodes an array of eight bit run-length encoded data.
 unsigned char* vtkSLCReader::Decode8BitData( unsigned char *in_ptr,

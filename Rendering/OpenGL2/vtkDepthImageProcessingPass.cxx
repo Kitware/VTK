@@ -63,9 +63,7 @@ vtkDepthImageProcessingPass::vtkDepthImageProcessingPass()
 }
 
 // ----------------------------------------------------------------------------
-vtkDepthImageProcessingPass::~vtkDepthImageProcessingPass()
-{
-}
+vtkDepthImageProcessingPass::~vtkDepthImageProcessingPass() = default;
 
 // ----------------------------------------------------------------------------
 void vtkDepthImageProcessingPass::PrintSelf(ostream& os, vtkIndent indent)

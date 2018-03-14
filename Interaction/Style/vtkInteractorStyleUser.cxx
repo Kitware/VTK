@@ -38,9 +38,7 @@ vtkInteractorStyleUser::vtkInteractorStyleUser()
 }
 
 //----------------------------------------------------------------------------
-vtkInteractorStyleUser::~vtkInteractorStyleUser()
-{
-}
+vtkInteractorStyleUser::~vtkInteractorStyleUser() = default;
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::PrintSelf(ostream& os, vtkIndent indent)

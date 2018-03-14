@@ -31,9 +31,7 @@ vtkImplicitHalo::vtkImplicitHalo()
 }
 
 // ----------------------------------------------------------------------------
-vtkImplicitHalo::~vtkImplicitHalo()
-{
-}
+vtkImplicitHalo::~vtkImplicitHalo() = default;
 
 // ----------------------------------------------------------------------------
 double vtkImplicitHalo::EvaluateFunction(double x[3])

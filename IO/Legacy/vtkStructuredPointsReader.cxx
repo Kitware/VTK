@@ -36,9 +36,7 @@ vtkStructuredPointsReader::vtkStructuredPointsReader()
   output->Delete();
 }
 
-vtkStructuredPointsReader::~vtkStructuredPointsReader()
-{
-}
+vtkStructuredPointsReader::~vtkStructuredPointsReader() = default;
 
 //----------------------------------------------------------------------------
 void vtkStructuredPointsReader::SetOutput(vtkStructuredPoints *output)

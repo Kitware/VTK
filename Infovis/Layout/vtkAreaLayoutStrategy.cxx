@@ -28,9 +28,7 @@ vtkAreaLayoutStrategy::vtkAreaLayoutStrategy()
   this->ShrinkPercentage = 0.0;
 }
 
-vtkAreaLayoutStrategy::~vtkAreaLayoutStrategy()
-{
-}
+vtkAreaLayoutStrategy::~vtkAreaLayoutStrategy() = default;
 
 void vtkAreaLayoutStrategy::LayoutEdgePoints(
   vtkTree* inputTree,

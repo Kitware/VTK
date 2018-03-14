@@ -25,9 +25,7 @@ vtkMoleculeToPolyDataFilter::vtkMoleculeToPolyDataFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkMoleculeToPolyDataFilter::~vtkMoleculeToPolyDataFilter()
-{
-}
+vtkMoleculeToPolyDataFilter::~vtkMoleculeToPolyDataFilter() = default;
 
 //----------------------------------------------------------------------------
 vtkMolecule * vtkMoleculeToPolyDataFilter::GetInput()

@@ -51,9 +51,7 @@ vtkTemporalInterpolator::vtkTemporalInterpolator()
 }
 
 //----------------------------------------------------------------------------
-vtkTemporalInterpolator::~vtkTemporalInterpolator()
-{
-}
+vtkTemporalInterpolator::~vtkTemporalInterpolator() = default;
 
 //----------------------------------------------------------------------------
 void vtkTemporalInterpolator::PrintSelf(ostream& os, vtkIndent indent)

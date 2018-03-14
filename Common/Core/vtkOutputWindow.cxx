@@ -95,9 +95,7 @@ vtkOutputWindow::vtkOutputWindow()
   this->CurrentMessageType = MESSAGE_TYPE_TEXT;
 }
 
-vtkOutputWindow::~vtkOutputWindow()
-{
-}
+vtkOutputWindow::~vtkOutputWindow() = default;
 
 void vtkOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -39,9 +39,7 @@ vtkSPHCubicKernel::vtkSPHCubicKernel()
 }
 
 //----------------------------------------------------------------------------
-vtkSPHCubicKernel::~vtkSPHCubicKernel()
-{
-}
+vtkSPHCubicKernel::~vtkSPHCubicKernel() = default;
 
 //----------------------------------------------------------------------------
 // At this point, the spatial step, the dimension of the kernel, and the cutoff

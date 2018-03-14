@@ -30,14 +30,10 @@
 vtkStandardNewMacro(vtkCompositeDataGeometryFilter);
 
 //-----------------------------------------------------------------------------
-vtkCompositeDataGeometryFilter::vtkCompositeDataGeometryFilter()
-{
-}
+vtkCompositeDataGeometryFilter::vtkCompositeDataGeometryFilter() = default;
 
 //-----------------------------------------------------------------------------
-vtkCompositeDataGeometryFilter::~vtkCompositeDataGeometryFilter()
-{
-}
+vtkCompositeDataGeometryFilter::~vtkCompositeDataGeometryFilter() = default;
 
 //-----------------------------------------------------------------------------
 int vtkCompositeDataGeometryFilter::FillInputPortInformation(

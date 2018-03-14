@@ -48,9 +48,7 @@ vtkResampleToImage::vtkResampleToImage()
 }
 
 //----------------------------------------------------------------------------
-vtkResampleToImage::~vtkResampleToImage()
-{
-}
+vtkResampleToImage::~vtkResampleToImage() = default;
 
 //----------------------------------------------------------------------------
 void vtkResampleToImage::PrintSelf(ostream& os, vtkIndent indent)

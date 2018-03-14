@@ -32,9 +32,7 @@ vtkSmoothErrorMetric::vtkSmoothErrorMetric()
 }
 
 //-----------------------------------------------------------------------------
-vtkSmoothErrorMetric::~vtkSmoothErrorMetric()
-{
-}
+vtkSmoothErrorMetric::~vtkSmoothErrorMetric() = default;
 
 //-----------------------------------------------------------------------------
 double vtkSmoothErrorMetric::GetAngleTolerance()

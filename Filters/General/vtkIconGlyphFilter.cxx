@@ -51,9 +51,7 @@ vtkIconGlyphFilter::vtkIconGlyphFilter()
 }
 
 //-----------------------------------------------------------------------------
-vtkIconGlyphFilter::~vtkIconGlyphFilter()
-{
-}
+vtkIconGlyphFilter::~vtkIconGlyphFilter() = default;
 
 //-----------------------------------------------------------------------------
 void vtkIconGlyphFilter::PrintSelf(ostream& os, vtkIndent indent)

@@ -41,9 +41,7 @@ vtkTableReader::vtkTableReader()
 }
 
 //----------------------------------------------------------------------------
-vtkTableReader::~vtkTableReader()
-{
-}
+vtkTableReader::~vtkTableReader() = default;
 
 //----------------------------------------------------------------------------
 vtkTable* vtkTableReader::GetOutput()

@@ -20,9 +20,7 @@
 vtkStandardNewMacro(vtkWidgetSet);
 
 //----------------------------------------------------------------------
-vtkWidgetSet::vtkWidgetSet()
-{
-}
+vtkWidgetSet::vtkWidgetSet() = default;
 
 //----------------------------------------------------------------------
 vtkWidgetSet::~vtkWidgetSet()

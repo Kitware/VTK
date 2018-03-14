@@ -29,9 +29,7 @@
 
 vtkStandardNewMacro(vtkGraphToPoints);
 
-vtkGraphToPoints::vtkGraphToPoints()
-{
-}
+vtkGraphToPoints::vtkGraphToPoints() = default;
 
 int vtkGraphToPoints::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {

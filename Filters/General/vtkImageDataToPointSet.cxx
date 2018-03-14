@@ -31,13 +31,9 @@
 vtkStandardNewMacro(vtkImageDataToPointSet);
 
 //-------------------------------------------------------------------------
-vtkImageDataToPointSet::vtkImageDataToPointSet()
-{
-}
+vtkImageDataToPointSet::vtkImageDataToPointSet() = default;
 
-vtkImageDataToPointSet::~vtkImageDataToPointSet()
-{
-}
+vtkImageDataToPointSet::~vtkImageDataToPointSet() = default;
 
 void vtkImageDataToPointSet::PrintSelf(ostream &os, vtkIndent indent)
 {

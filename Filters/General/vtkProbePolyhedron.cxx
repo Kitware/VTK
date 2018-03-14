@@ -39,9 +39,7 @@ vtkProbePolyhedron::vtkProbePolyhedron()
 }
 
 //----------------------------------------------------------------------------
-vtkProbePolyhedron::~vtkProbePolyhedron()
-{
-}
+vtkProbePolyhedron::~vtkProbePolyhedron() = default;
 
 //----------------------------------------------------------------------------
 void vtkProbePolyhedron::SetSourceConnection(vtkAlgorithmOutput* algOutput)

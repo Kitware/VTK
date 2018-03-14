@@ -37,9 +37,7 @@ vtkParametricEnneper::vtkParametricEnneper()
 }
 
 //----------------------------------------------------------------------------
-vtkParametricEnneper::~vtkParametricEnneper()
-{
-}
+vtkParametricEnneper::~vtkParametricEnneper() = default;
 
 //----------------------------------------------------------------------------
 void vtkParametricEnneper::Evaluate(double uvw[3], double Pt[3],

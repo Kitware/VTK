@@ -19,14 +19,10 @@
 vtkStandardNewMacro(vtkByteSwap);
 
 //----------------------------------------------------------------------------
-vtkByteSwap::vtkByteSwap()
-{
-}
+vtkByteSwap::vtkByteSwap() = default;
 
 //----------------------------------------------------------------------------
-vtkByteSwap::~vtkByteSwap()
-{
-}
+vtkByteSwap::~vtkByteSwap() = default;
 
 //----------------------------------------------------------------------------
 // Define swap functions for each type size.

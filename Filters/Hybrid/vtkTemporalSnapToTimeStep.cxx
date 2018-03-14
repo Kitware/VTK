@@ -32,9 +32,7 @@ vtkTemporalSnapToTimeStep::vtkTemporalSnapToTimeStep()
 }
 
 //----------------------------------------------------------------------------
-vtkTemporalSnapToTimeStep::~vtkTemporalSnapToTimeStep()
-{
-}
+vtkTemporalSnapToTimeStep::~vtkTemporalSnapToTimeStep() = default;
 
 //----------------------------------------------------------------------------
 int vtkTemporalSnapToTimeStep::ProcessRequest(

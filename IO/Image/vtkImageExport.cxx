@@ -39,9 +39,7 @@ vtkImageExport::vtkImageExport()
 }
 
 //----------------------------------------------------------------------------
-vtkImageExport::~vtkImageExport()
-{
-}
+vtkImageExport::~vtkImageExport() = default;
 
 //----------------------------------------------------------------------------
 vtkAlgorithm* vtkImageExport::GetInputAlgorithm()

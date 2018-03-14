@@ -40,10 +40,7 @@ vtkStructuredGridPartitioner::vtkStructuredGridPartitioner()
 }
 
 //------------------------------------------------------------------------------
-vtkStructuredGridPartitioner::~vtkStructuredGridPartitioner()
-{
-
-}
+vtkStructuredGridPartitioner::~vtkStructuredGridPartitioner() = default;
 
 //------------------------------------------------------------------------------
 void vtkStructuredGridPartitioner::PrintSelf(

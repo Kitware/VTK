@@ -46,9 +46,7 @@ vtkGeoSampleArcs::vtkGeoSampleArcs()
   this->OutputCoordinateSystem = RECTANGULAR;
 }
 
-vtkGeoSampleArcs::~vtkGeoSampleArcs()
-{
-}
+vtkGeoSampleArcs::~vtkGeoSampleArcs() = default;
 
 int vtkGeoSampleArcs::RequestData(
   vtkInformation *vtkNotUsed(request),

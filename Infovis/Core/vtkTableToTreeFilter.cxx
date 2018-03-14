@@ -39,13 +39,9 @@
 vtkStandardNewMacro(vtkTableToTreeFilter);
 
 
-vtkTableToTreeFilter::vtkTableToTreeFilter()
-{
-}
+vtkTableToTreeFilter::vtkTableToTreeFilter() = default;
 
-vtkTableToTreeFilter::~vtkTableToTreeFilter()
-{
-}
+vtkTableToTreeFilter::~vtkTableToTreeFilter() = default;
 
 void vtkTableToTreeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {

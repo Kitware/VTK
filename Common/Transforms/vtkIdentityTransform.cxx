@@ -22,14 +22,10 @@
 vtkStandardNewMacro(vtkIdentityTransform);
 
 //----------------------------------------------------------------------------
-vtkIdentityTransform::vtkIdentityTransform()
-{
-}
+vtkIdentityTransform::vtkIdentityTransform() = default;
 
 //----------------------------------------------------------------------------
-vtkIdentityTransform::~vtkIdentityTransform()
-{
-}
+vtkIdentityTransform::~vtkIdentityTransform() = default;
 
 //----------------------------------------------------------------------------
 void vtkIdentityTransform::PrintSelf(ostream& os, vtkIndent indent)

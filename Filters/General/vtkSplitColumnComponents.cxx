@@ -35,9 +35,7 @@ vtkSplitColumnComponents::vtkSplitColumnComponents()
 }
 
 //---------------------------------------------------------------------------
-vtkSplitColumnComponents::~vtkSplitColumnComponents()
-{
-}
+vtkSplitColumnComponents::~vtkSplitColumnComponents() = default;
 
 //---------------------------------------------------------------------------
 // Templated function in an anonymous namespace to copy the data from the

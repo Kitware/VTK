@@ -47,9 +47,7 @@ vtkTreeRingToPolyData::vtkTreeRingToPolyData()
   this->ShrinkPercentage = 0.0;
 }
 
-vtkTreeRingToPolyData::~vtkTreeRingToPolyData()
-{
-}
+vtkTreeRingToPolyData::~vtkTreeRingToPolyData() = default;
 
 int vtkTreeRingToPolyData::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {

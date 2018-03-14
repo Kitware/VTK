@@ -20,14 +20,10 @@
 
 
 //---------------------------------------------------------------------------
-vtkGenericAttribute::vtkGenericAttribute()
-{
-}
+vtkGenericAttribute::vtkGenericAttribute() = default;
 
 //---------------------------------------------------------------------------
-vtkGenericAttribute::~vtkGenericAttribute()
-{
-}
+vtkGenericAttribute::~vtkGenericAttribute() = default;
 
 //---------------------------------------------------------------------------
 void vtkGenericAttribute::PrintSelf(ostream& os, vtkIndent indent)

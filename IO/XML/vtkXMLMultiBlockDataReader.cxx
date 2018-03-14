@@ -28,14 +28,10 @@
 vtkStandardNewMacro(vtkXMLMultiBlockDataReader);
 
 //----------------------------------------------------------------------------
-vtkXMLMultiBlockDataReader::vtkXMLMultiBlockDataReader()
-{
-}
+vtkXMLMultiBlockDataReader::vtkXMLMultiBlockDataReader() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLMultiBlockDataReader::~vtkXMLMultiBlockDataReader()
-{
-}
+vtkXMLMultiBlockDataReader::~vtkXMLMultiBlockDataReader() = default;
 
 //----------------------------------------------------------------------------
 void vtkXMLMultiBlockDataReader::PrintSelf(ostream& os, vtkIndent indent)

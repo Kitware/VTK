@@ -52,7 +52,7 @@ public:
   }
 protected:
   vtkCameraCallbackCommand() { this->Self = nullptr; }
-  ~vtkCameraCallbackCommand() override {}
+  ~vtkCameraCallbackCommand() override = default;
 };
 
 //----------------------------------------------------------------------------

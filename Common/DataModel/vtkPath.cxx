@@ -40,9 +40,7 @@ vtkPath::vtkPath()
 }
 
 //----------------------------------------------------------------------------
-vtkPath::~vtkPath()
-{
-}
+vtkPath::~vtkPath() = default;
 
 //----------------------------------------------------------------------------
 void vtkPath::Allocate(vtkIdType size, int extSize)

@@ -25,14 +25,10 @@
 
 vtkStandardNewMacro(vtkAppendArcLength);
 //----------------------------------------------------------------------------
-vtkAppendArcLength::vtkAppendArcLength()
-{
-}
+vtkAppendArcLength::vtkAppendArcLength() = default;
 
 //----------------------------------------------------------------------------
-vtkAppendArcLength::~vtkAppendArcLength()
-{
-}
+vtkAppendArcLength::~vtkAppendArcLength() = default;
 
 //----------------------------------------------------------------------------
 int vtkAppendArcLength::RequestData(

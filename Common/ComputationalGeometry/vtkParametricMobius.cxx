@@ -37,9 +37,7 @@ vtkParametricMobius::vtkParametricMobius()
 }
 
 //----------------------------------------------------------------------------
-vtkParametricMobius::~vtkParametricMobius()
-{
-}
+vtkParametricMobius::~vtkParametricMobius() = default;
 
 //----------------------------------------------------------------------------
 void vtkParametricMobius::Evaluate(double uvw[3], double Pt[3],

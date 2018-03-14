@@ -50,9 +50,7 @@ vtkInformationObjectBaseVectorKey::vtkInformationObjectBaseVectorKey(
 }
 
 //----------------------------------------------------------------------------
-vtkInformationObjectBaseVectorKey::~vtkInformationObjectBaseVectorKey()
-{
-}
+vtkInformationObjectBaseVectorKey::~vtkInformationObjectBaseVectorKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationObjectBaseVectorKey::PrintSelf(

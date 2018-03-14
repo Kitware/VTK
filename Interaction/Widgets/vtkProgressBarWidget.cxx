@@ -26,9 +26,7 @@ vtkProgressBarWidget::vtkProgressBarWidget()
 }
 
 //-------------------------------------------------------------------------
-vtkProgressBarWidget::~vtkProgressBarWidget()
-{
-}
+vtkProgressBarWidget::~vtkProgressBarWidget() = default;
 
 //----------------------------------------------------------------------
 void vtkProgressBarWidget::CreateDefaultRepresentation()

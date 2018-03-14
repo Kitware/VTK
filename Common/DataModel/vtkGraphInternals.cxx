@@ -32,9 +32,7 @@ vtkGraphInternals::vtkGraphInternals()
 }
 
 //----------------------------------------------------------------------------
-vtkGraphInternals::~vtkGraphInternals()
-{
-}
+vtkGraphInternals::~vtkGraphInternals() = default;
 
 //----------------------------------------------------------------------------
 void vtkGraphInternals::RemoveEdgeFromOutList(vtkIdType e, std::vector<vtkOutEdgeType>& outEdges)

@@ -2012,9 +2012,7 @@ vtkIntersectionPolyDataFilter::vtkIntersectionPolyDataFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkIntersectionPolyDataFilter::~vtkIntersectionPolyDataFilter()
-{
-}
+vtkIntersectionPolyDataFilter::~vtkIntersectionPolyDataFilter() = default;
 
 //----------------------------------------------------------------------------
 void vtkIntersectionPolyDataFilter::PrintSelf(ostream &os, vtkIndent indent)

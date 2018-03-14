@@ -24,14 +24,10 @@
 
 
 //----------------------------------------------------------------------------
-vtkImageInPlaceFilter::vtkImageInPlaceFilter()
-{
-}
+vtkImageInPlaceFilter::vtkImageInPlaceFilter() = default;
 
 //----------------------------------------------------------------------------
-vtkImageInPlaceFilter::~vtkImageInPlaceFilter()
-{
-}
+vtkImageInPlaceFilter::~vtkImageInPlaceFilter() = default;
 
 //----------------------------------------------------------------------------
 

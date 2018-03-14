@@ -103,7 +103,7 @@ public:
   }
 
   // Virtuals for templated subclasses
-  virtual ~vtkBucketList() {}
+  virtual ~vtkBucketList() = default;
   virtual void BuildLocator() = 0;
 
   // place points in appropriate buckets

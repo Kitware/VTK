@@ -57,9 +57,7 @@ vtkContextView::vtkContextView()
 }
 
 //----------------------------------------------------------------------------
-vtkContextView::~vtkContextView()
-{
-}
+vtkContextView::~vtkContextView() = default;
 
 //----------------------------------------------------------------------------
 vtkContext2D* vtkContextView::GetContext()

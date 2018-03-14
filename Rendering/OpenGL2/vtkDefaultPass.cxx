@@ -23,14 +23,10 @@
 vtkStandardNewMacro(vtkDefaultPass);
 
 // ----------------------------------------------------------------------------
-vtkDefaultPass::vtkDefaultPass()
-{
-}
+vtkDefaultPass::vtkDefaultPass() = default;
 
 // ----------------------------------------------------------------------------
-vtkDefaultPass::~vtkDefaultPass()
-{
-}
+vtkDefaultPass::~vtkDefaultPass() = default;
 
 // ----------------------------------------------------------------------------
 void vtkDefaultPass::PrintSelf(ostream& os, vtkIndent indent)

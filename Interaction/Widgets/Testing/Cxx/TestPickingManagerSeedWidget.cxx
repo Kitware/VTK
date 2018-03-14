@@ -355,7 +355,7 @@ public:
     }
   }
 
-  vtkPickingManagerCallback() {}
+  vtkPickingManagerCallback() = default;
 };
 
 //------------------------------------------------------------------------------

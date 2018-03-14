@@ -27,13 +27,9 @@
 
 vtkStandardNewMacro(vtkOpenGLPropItem)
 
-vtkOpenGLPropItem::vtkOpenGLPropItem()
-{
-}
+vtkOpenGLPropItem::vtkOpenGLPropItem() = default;
 
-vtkOpenGLPropItem::~vtkOpenGLPropItem()
-{
-}
+vtkOpenGLPropItem::~vtkOpenGLPropItem() = default;
 
 void vtkOpenGLPropItem::UpdateTransforms()
 {

@@ -20,14 +20,10 @@
 vtkStandardNewMacro(vtkTextWidget);
 
 //-------------------------------------------------------------------------
-vtkTextWidget::vtkTextWidget()
-{
-}
+vtkTextWidget::vtkTextWidget() = default;
 
 //-------------------------------------------------------------------------
-vtkTextWidget::~vtkTextWidget()
-{
-}
+vtkTextWidget::~vtkTextWidget() = default;
 
 //-------------------------------------------------------------------------
 void vtkTextWidget::SetTextActor(vtkTextActor *textActor)

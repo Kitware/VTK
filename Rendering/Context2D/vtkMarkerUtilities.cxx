@@ -20,14 +20,10 @@
 #include <algorithm>
 
 //-----------------------------------------------------------------------------
-vtkMarkerUtilities::vtkMarkerUtilities()
-{
-}
+vtkMarkerUtilities::vtkMarkerUtilities() = default;
 
 //-----------------------------------------------------------------------------
-vtkMarkerUtilities::~vtkMarkerUtilities()
-{
-}
+vtkMarkerUtilities::~vtkMarkerUtilities() = default;
 
 //-----------------------------------------------------------------------------
 void vtkMarkerUtilities::GenerateMarker(vtkImageData *data, int style, int width)

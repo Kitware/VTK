@@ -44,9 +44,7 @@ vtkLagrangeCurve::vtkLagrangeCurve()
     }
 }
 
-vtkLagrangeCurve::~vtkLagrangeCurve()
-{
-}
+vtkLagrangeCurve::~vtkLagrangeCurve() = default;
 
 void vtkLagrangeCurve::PrintSelf(ostream& os, vtkIndent indent)
 {

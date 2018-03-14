@@ -438,9 +438,7 @@ public:
 
   //---------------------------------------------------------------------------
 protected:
-  vtkSuperCursor<N>()
-  {
-  }
+  vtkSuperCursor<N>() = default;
 
   // Number of cursors in supercursor
   unsigned int NumberOfCursors;

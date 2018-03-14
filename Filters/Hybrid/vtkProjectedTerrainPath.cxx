@@ -62,9 +62,7 @@ vtkProjectedTerrainPath::vtkProjectedTerrainPath()
 }
 
 //-----------------------------------------------------------------------------
-vtkProjectedTerrainPath::~vtkProjectedTerrainPath()
-{
-}
+vtkProjectedTerrainPath::~vtkProjectedTerrainPath() = default;
 
 //----------------------------------------------------------------------------
 void vtkProjectedTerrainPath::SetSourceConnection(vtkAlgorithmOutput* algOutput)

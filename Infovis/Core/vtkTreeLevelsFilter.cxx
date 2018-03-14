@@ -35,10 +35,7 @@
 
 vtkStandardNewMacro(vtkTreeLevelsFilter);
 
-vtkTreeLevelsFilter::vtkTreeLevelsFilter()
-{
-
-}
+vtkTreeLevelsFilter::vtkTreeLevelsFilter() = default;
 
 int vtkTreeLevelsFilter::RequestData(
   vtkInformation *vtkNotUsed(request),

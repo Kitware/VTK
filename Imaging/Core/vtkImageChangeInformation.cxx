@@ -63,9 +63,7 @@ vtkImageData *vtkImageChangeInformation::GetInformationInput()
 }
 
 //----------------------------------------------------------------------------
-vtkImageChangeInformation::~vtkImageChangeInformation()
-{
-}
+vtkImageChangeInformation::~vtkImageChangeInformation() = default;
 
 //----------------------------------------------------------------------------
 void vtkImageChangeInformation::PrintSelf(ostream& os, vtkIndent indent)

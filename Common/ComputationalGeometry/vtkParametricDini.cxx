@@ -39,9 +39,7 @@ vtkParametricDini::vtkParametricDini()
 }
 
 //----------------------------------------------------------------------------
-vtkParametricDini::~vtkParametricDini()
-{
-}
+vtkParametricDini::~vtkParametricDini() = default;
 
 //----------------------------------------------------------------------------
 void vtkParametricDini::Evaluate(double uvw[3], double Pt[3],

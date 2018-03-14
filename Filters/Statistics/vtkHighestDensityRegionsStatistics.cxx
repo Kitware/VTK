@@ -43,9 +43,7 @@ vtkHighestDensityRegionsStatistics::vtkHighestDensityRegionsStatistics()
 }
 
 // ----------------------------------------------------------------------
-vtkHighestDensityRegionsStatistics::~vtkHighestDensityRegionsStatistics()
-{
-}
+vtkHighestDensityRegionsStatistics::~vtkHighestDensityRegionsStatistics() = default;
 
 // ----------------------------------------------------------------------
 void vtkHighestDensityRegionsStatistics::PrintSelf(ostream& os,

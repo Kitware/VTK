@@ -54,9 +54,7 @@ vtkAffineWidget::vtkAffineWidget()
 }
 
 //----------------------------------------------------------------------------------
-vtkAffineWidget::~vtkAffineWidget()
-{
-}
+vtkAffineWidget::~vtkAffineWidget() = default;
 
 //----------------------------------------------------------------------
 void vtkAffineWidget::SetEnabled(int enabling)

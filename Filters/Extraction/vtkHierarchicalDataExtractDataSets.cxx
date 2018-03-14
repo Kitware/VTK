@@ -18,14 +18,10 @@ PURPOSE.  See the above copyright notice for more information.
 vtkStandardNewMacro(vtkHierarchicalDataExtractDataSets);
 
 //----------------------------------------------------------------------------
-vtkHierarchicalDataExtractDataSets::vtkHierarchicalDataExtractDataSets()
-{
-}
+vtkHierarchicalDataExtractDataSets::vtkHierarchicalDataExtractDataSets() = default;
 
 //----------------------------------------------------------------------------
-vtkHierarchicalDataExtractDataSets::~vtkHierarchicalDataExtractDataSets()
-{
-}
+vtkHierarchicalDataExtractDataSets::~vtkHierarchicalDataExtractDataSets() = default;
 
 //----------------------------------------------------------------------------
 void vtkHierarchicalDataExtractDataSets::PrintSelf(ostream& os, vtkIndent indent)

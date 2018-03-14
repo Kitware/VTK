@@ -36,9 +36,7 @@ vtkTree::vtkTree()
 }
 
 //----------------------------------------------------------------------------
-vtkTree::~vtkTree()
-{
-}
+vtkTree::~vtkTree() = default;
 
 //----------------------------------------------------------------------------
 vtkIdType vtkTree::GetChild(vtkIdType v, vtkIdType i)

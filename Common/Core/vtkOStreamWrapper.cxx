@@ -42,9 +42,7 @@ vtkOStreamWrapper::vtkOStreamWrapper(vtkOStreamWrapper& r): ostr(r.ostr)
 }
 
 //----------------------------------------------------------------------------
-vtkOStreamWrapper::~vtkOStreamWrapper()
-{
-}
+vtkOStreamWrapper::~vtkOStreamWrapper() = default;
 
 //----------------------------------------------------------------------------
 vtkOStreamWrapper& vtkOStreamWrapper::operator << (const EndlType&)

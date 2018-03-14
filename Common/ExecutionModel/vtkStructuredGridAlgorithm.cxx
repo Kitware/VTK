@@ -33,9 +33,7 @@ vtkStructuredGridAlgorithm::vtkStructuredGridAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkStructuredGridAlgorithm::~vtkStructuredGridAlgorithm()
-{
-}
+vtkStructuredGridAlgorithm::~vtkStructuredGridAlgorithm() = default;
 
 //----------------------------------------------------------------------------
 void vtkStructuredGridAlgorithm::PrintSelf(ostream& os, vtkIndent indent)

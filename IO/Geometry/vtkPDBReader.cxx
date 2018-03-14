@@ -31,13 +31,9 @@ inline void StdStringToUpper(std::string& s)
 
 vtkStandardNewMacro(vtkPDBReader);
 
-vtkPDBReader::vtkPDBReader()
-{
-}
+vtkPDBReader::vtkPDBReader() = default;
 
-vtkPDBReader::~vtkPDBReader()
-{
-}
+vtkPDBReader::~vtkPDBReader() = default;
 
 void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
 {

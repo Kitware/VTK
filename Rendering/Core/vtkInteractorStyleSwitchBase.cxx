@@ -23,14 +23,10 @@
 vtkObjectFactoryNewMacro(vtkInteractorStyleSwitchBase)
 
 //----------------------------------------------------------------------------
-vtkInteractorStyleSwitchBase::vtkInteractorStyleSwitchBase()
-{
-}
+vtkInteractorStyleSwitchBase::vtkInteractorStyleSwitchBase() = default;
 
 //----------------------------------------------------------------------------
-vtkInteractorStyleSwitchBase::~vtkInteractorStyleSwitchBase()
-{
-}
+vtkInteractorStyleSwitchBase::~vtkInteractorStyleSwitchBase() = default;
 
 //----------------------------------------------------------------------------
 vtkRenderWindowInteractor* vtkInteractorStyleSwitchBase::GetInteractor()

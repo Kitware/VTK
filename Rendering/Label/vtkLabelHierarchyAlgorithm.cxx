@@ -33,9 +33,7 @@ vtkLabelHierarchyAlgorithm::vtkLabelHierarchyAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkLabelHierarchyAlgorithm::~vtkLabelHierarchyAlgorithm()
-{
-}
+vtkLabelHierarchyAlgorithm::~vtkLabelHierarchyAlgorithm() = default;
 
 //----------------------------------------------------------------------------
 void vtkLabelHierarchyAlgorithm::PrintSelf(ostream& os, vtkIndent indent)

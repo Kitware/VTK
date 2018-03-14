@@ -106,9 +106,7 @@ vtkDotProductSimilarity::vtkDotProductSimilarity() :
 
 // ----------------------------------------------------------------------
 
-vtkDotProductSimilarity::~vtkDotProductSimilarity()
-{
-}
+vtkDotProductSimilarity::~vtkDotProductSimilarity() = default;
 
 // ----------------------------------------------------------------------
 

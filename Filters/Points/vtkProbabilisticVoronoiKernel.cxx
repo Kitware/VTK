@@ -25,15 +25,11 @@
 vtkStandardNewMacro(vtkProbabilisticVoronoiKernel);
 
 //----------------------------------------------------------------------------
-vtkProbabilisticVoronoiKernel::vtkProbabilisticVoronoiKernel()
-{
-}
+vtkProbabilisticVoronoiKernel::vtkProbabilisticVoronoiKernel() = default;
 
 
 //----------------------------------------------------------------------------
-vtkProbabilisticVoronoiKernel::~vtkProbabilisticVoronoiKernel()
-{
-}
+vtkProbabilisticVoronoiKernel::~vtkProbabilisticVoronoiKernel() = default;
 
 //----------------------------------------------------------------------------
 vtkIdType vtkProbabilisticVoronoiKernel::

@@ -38,10 +38,7 @@ vtkUniformGridPartitioner::vtkUniformGridPartitioner()
 }
 
 //------------------------------------------------------------------------------
-vtkUniformGridPartitioner::~vtkUniformGridPartitioner()
-{
-
-}
+vtkUniformGridPartitioner::~vtkUniformGridPartitioner() = default;
 
 //------------------------------------------------------------------------------
 void vtkUniformGridPartitioner::PrintSelf(std::ostream &oss, vtkIndent indent)

@@ -33,9 +33,7 @@ vtkShrinkFilter::vtkShrinkFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkShrinkFilter::~vtkShrinkFilter()
-{
-}
+vtkShrinkFilter::~vtkShrinkFilter() = default;
 
 //----------------------------------------------------------------------------
 void vtkShrinkFilter::PrintSelf(ostream& os, vtkIndent indent)

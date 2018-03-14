@@ -25,9 +25,7 @@
 #include <functional>
 #include <numeric>
 
-vtkArrayExtents::vtkArrayExtents()
-{
-}
+vtkArrayExtents::vtkArrayExtents() = default;
 
 vtkArrayExtents::vtkArrayExtents(const CoordinateT i) :
   Storage(1)

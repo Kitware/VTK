@@ -28,9 +28,7 @@ vtkStreamerBase::vtkStreamerBase()
 }
 
 //-----------------------------------------------------------------------------
-vtkStreamerBase::~vtkStreamerBase()
-{
-}
+vtkStreamerBase::~vtkStreamerBase() = default;
 
 //-----------------------------------------------------------------------------
 void vtkStreamerBase::PrintSelf(ostream &os, vtkIndent indent)

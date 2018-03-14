@@ -35,9 +35,7 @@ vtkGeoSphereTransform::vtkGeoSphereTransform()
   this->BaseAltitude = 0.0;
 }
 
-vtkGeoSphereTransform::~vtkGeoSphereTransform()
-{
-}
+vtkGeoSphereTransform::~vtkGeoSphereTransform() = default;
 
 void vtkGeoSphereTransform::PrintSelf( ostream& os, vtkIndent indent )
 {

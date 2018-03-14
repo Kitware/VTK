@@ -47,9 +47,7 @@ public:
     this->Event.SetButton(vtkContextMouseEvent::NO_BUTTON);
     this->IsDirty = true;
   }
-  ~Private()
-  {
-  }
+  ~Private() = default;
 
   // The item with a current mouse down
   vtkWeakPointer<vtkAbstractContextItem> itemMousePressCurrent;

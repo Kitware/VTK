@@ -33,9 +33,7 @@ vtkAnnotationLayersAlgorithm::vtkAnnotationLayersAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkAnnotationLayersAlgorithm::~vtkAnnotationLayersAlgorithm()
-{
-}
+vtkAnnotationLayersAlgorithm::~vtkAnnotationLayersAlgorithm() = default;
 
 //----------------------------------------------------------------------------
 void vtkAnnotationLayersAlgorithm::PrintSelf(ostream& os, vtkIndent indent)

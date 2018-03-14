@@ -28,14 +28,10 @@
 vtkStandardNewMacro(vtkMoleculeToBondStickFilter);
 
 //----------------------------------------------------------------------------
-vtkMoleculeToBondStickFilter::vtkMoleculeToBondStickFilter()
-{
-}
+vtkMoleculeToBondStickFilter::vtkMoleculeToBondStickFilter() = default;
 
 //----------------------------------------------------------------------------
-vtkMoleculeToBondStickFilter::~vtkMoleculeToBondStickFilter()
-{
-}
+vtkMoleculeToBondStickFilter::~vtkMoleculeToBondStickFilter() = default;
 
 //----------------------------------------------------------------------------
 int vtkMoleculeToBondStickFilter::RequestData(

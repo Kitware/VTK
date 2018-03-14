@@ -149,6 +149,4 @@ vtkCellIterator::vtkCellIterator()
 }
 
 //------------------------------------------------------------------------------
-vtkCellIterator::~vtkCellIterator()
-{
-}
+vtkCellIterator::~vtkCellIterator() = default;

@@ -47,9 +47,7 @@ vtkStandardNewMacro(vtkOBJPolyDataProcessor)
 }
 
 //----------------------------------------------------------------------------
-vtkOBJImporter::~vtkOBJImporter()
-{
-}
+vtkOBJImporter::~vtkOBJImporter() = default;
 
 int CanReadFile( vtkObject* that, const std::string& fname )
 {
@@ -160,9 +158,7 @@ std::string vtkOBJImporter::GetOutputDescription(int idx)
 
 struct vtkOBJImportedPolyDataWithMaterial
 {
-  ~vtkOBJImportedPolyDataWithMaterial()
-  {
-  }
+  ~vtkOBJImportedPolyDataWithMaterial() = default;
   vtkOBJImportedPolyDataWithMaterial()
   { // initialize some structures to store the file contents in
     points            = vtkSmartPointer<vtkPoints>::New();

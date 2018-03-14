@@ -35,9 +35,7 @@ vtkCompositeDataProbeFilter::vtkCompositeDataProbeFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkCompositeDataProbeFilter::~vtkCompositeDataProbeFilter()
-{
-}
+vtkCompositeDataProbeFilter::~vtkCompositeDataProbeFilter() = default;
 
 //----------------------------------------------------------------------------
 int vtkCompositeDataProbeFilter::FillInputPortInformation(

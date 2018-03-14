@@ -45,9 +45,7 @@ vtkPerturbCoincidentVertices::vtkPerturbCoincidentVertices()
 }
 
 //----------------------------------------------------------------------------
-vtkPerturbCoincidentVertices::~vtkPerturbCoincidentVertices()
-{
-}
+vtkPerturbCoincidentVertices::~vtkPerturbCoincidentVertices() = default;
 
 //----------------------------------------------------------------------------
 void vtkPerturbCoincidentVertices::SpiralPerturbation(vtkGraph *input, vtkGraph *output)
@@ -186,9 +184,7 @@ void vtkPerturbCoincidentVertices::SpiralPerturbation(vtkGraph *input, vtkGraph 
 struct Coord
 {
   double coord[2];
-  Coord()
-  {
-  }
+  Coord() = default;
   Coord( const double src[3] )
   {
     this->coord[0] = src[0];

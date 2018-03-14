@@ -35,9 +35,7 @@ vtkImageToImageStencil::vtkImageToImageStencil()
 }
 
 //----------------------------------------------------------------------------
-vtkImageToImageStencil::~vtkImageToImageStencil()
-{
-}
+vtkImageToImageStencil::~vtkImageToImageStencil() = default;
 
 //----------------------------------------------------------------------------
 void vtkImageToImageStencil::PrintSelf(ostream& os, vtkIndent indent)

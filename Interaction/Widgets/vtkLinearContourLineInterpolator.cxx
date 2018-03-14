@@ -18,14 +18,10 @@
 vtkStandardNewMacro(vtkLinearContourLineInterpolator);
 
 //----------------------------------------------------------------------
-vtkLinearContourLineInterpolator::vtkLinearContourLineInterpolator()
-{
-}
+vtkLinearContourLineInterpolator::vtkLinearContourLineInterpolator() = default;
 
 //----------------------------------------------------------------------
-vtkLinearContourLineInterpolator::~vtkLinearContourLineInterpolator()
-{
-}
+vtkLinearContourLineInterpolator::~vtkLinearContourLineInterpolator() = default;
 
 //----------------------------------------------------------------------
 int vtkLinearContourLineInterpolator::InterpolateLine( vtkRenderer *vtkNotUsed(ren),

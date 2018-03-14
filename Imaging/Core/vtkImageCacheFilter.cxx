@@ -32,9 +32,7 @@ vtkImageCacheFilter::vtkImageCacheFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkImageCacheFilter::~vtkImageCacheFilter()
-{
-}
+vtkImageCacheFilter::~vtkImageCacheFilter() = default;
 
 //----------------------------------------------------------------------------
 vtkExecutive* vtkImageCacheFilter::CreateDefaultExecutive()

@@ -25,9 +25,7 @@ vtkLZMADataCompressor::vtkLZMADataCompressor()
 }
 
 //----------------------------------------------------------------------------
-vtkLZMADataCompressor::~vtkLZMADataCompressor()
-{
-}
+vtkLZMADataCompressor::~vtkLZMADataCompressor() = default;
 
 //----------------------------------------------------------------------------
 void vtkLZMADataCompressor::PrintSelf(ostream& os, vtkIndent indent)

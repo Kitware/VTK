@@ -43,9 +43,7 @@ vtkExtractSelectedThresholds::vtkExtractSelectedThresholds()
 }
 
 //----------------------------------------------------------------------------
-vtkExtractSelectedThresholds::~vtkExtractSelectedThresholds()
-{
-}
+vtkExtractSelectedThresholds::~vtkExtractSelectedThresholds() = default;
 
 //----------------------------------------------------------------------------
 int vtkExtractSelectedThresholds::RequestData(

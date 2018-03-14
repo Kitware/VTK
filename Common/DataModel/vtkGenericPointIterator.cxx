@@ -16,14 +16,10 @@
 
 
 //----------------------------------------------------------------------------
-vtkGenericPointIterator::vtkGenericPointIterator()
-{
-}
+vtkGenericPointIterator::vtkGenericPointIterator() = default;
 
 //----------------------------------------------------------------------------
-vtkGenericPointIterator::~vtkGenericPointIterator()
-{
-}
+vtkGenericPointIterator::~vtkGenericPointIterator() = default;
 
 //----------------------------------------------------------------------------
 void vtkGenericPointIterator::PrintSelf(ostream& os, vtkIndent indent)

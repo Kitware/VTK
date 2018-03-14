@@ -70,9 +70,7 @@ vtkPointSetCellIterator::vtkPointSetCellIterator()
 }
 
 //------------------------------------------------------------------------------
-vtkPointSetCellIterator::~vtkPointSetCellIterator()
-{
-}
+vtkPointSetCellIterator::~vtkPointSetCellIterator() = default;
 
 //------------------------------------------------------------------------------
 void vtkPointSetCellIterator::ResetToFirstCell()

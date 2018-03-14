@@ -36,9 +36,7 @@ vtkDatabaseToTableReader::vtkDatabaseToTableReader()
 }
 
 //----------------------------------------------------------------------------
-vtkDatabaseToTableReader::~vtkDatabaseToTableReader()
-{
-}
+vtkDatabaseToTableReader::~vtkDatabaseToTableReader() = default;
 
 //----------------------------------------------------------------------------
 bool vtkDatabaseToTableReader::SetDatabase(vtkSQLDatabase *db)

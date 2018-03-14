@@ -42,9 +42,7 @@ vtkDataSetToDataObjectFilter::vtkDataSetToDataObjectFilter()
   this->FieldData = 1;
 }
 
-vtkDataSetToDataObjectFilter::~vtkDataSetToDataObjectFilter()
-{
-}
+vtkDataSetToDataObjectFilter::~vtkDataSetToDataObjectFilter() = default;
 
 //----------------------------------------------------------------------------
 int vtkDataSetToDataObjectFilter::RequestData(

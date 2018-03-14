@@ -62,8 +62,8 @@ public:
   std::vector< std::vector<double> > Storage;
 
 protected:
-  vtkGraphEdgePoints() { }
-  ~vtkGraphEdgePoints() override { }
+  vtkGraphEdgePoints() = default;
+  ~vtkGraphEdgePoints() override = default;
 
 private:
   vtkGraphEdgePoints(const vtkGraphEdgePoints&) = delete;

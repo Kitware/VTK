@@ -43,9 +43,7 @@ vtkTreeReader::vtkTreeReader()
 }
 
 //----------------------------------------------------------------------------
-vtkTreeReader::~vtkTreeReader()
-{
-}
+vtkTreeReader::~vtkTreeReader() = default;
 
 //----------------------------------------------------------------------------
 vtkTree* vtkTreeReader::GetOutput()

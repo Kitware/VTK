@@ -98,9 +98,7 @@ template <class I> void MappedCellIterator<I>
 }
 
 template <class I>
-MappedCellIterator<I>::~MappedCellIterator()
-{
-}
+MappedCellIterator<I>::~MappedCellIterator() = default;
 
 template <class I> void
 MappedCellIterator<I>::SetMappedUnstructuredGrid(vtkMappedUnstructuredGrid<I, ThisType> *grid)
@@ -183,7 +181,7 @@ public:
   vtkPoints* GetPoints() { return _grid->GetPoints(); }
 
 protected:
-  MappedGridImpl(){}
+  MappedGridImpl() = default;
   ~MappedGridImpl() override { _grid->UnRegister(this); }
 
 private:
@@ -306,7 +304,7 @@ protected:
     this->SetImplementation(ig);
     ig->Delete();
   }
-  ~MappedGrid() override {}
+  ~MappedGrid() override = default;
 
 private:
   MappedGrid(const MappedGrid&) = delete;

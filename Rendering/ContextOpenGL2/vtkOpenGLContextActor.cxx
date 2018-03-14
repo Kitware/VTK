@@ -25,14 +25,10 @@
 vtkStandardNewMacro(vtkOpenGLContextActor);
 
 //----------------------------------------------------------------------------
-vtkOpenGLContextActor::vtkOpenGLContextActor()
-{
-}
+vtkOpenGLContextActor::vtkOpenGLContextActor() = default;
 
 //----------------------------------------------------------------------------
-vtkOpenGLContextActor::~vtkOpenGLContextActor()
-{
-}
+vtkOpenGLContextActor::~vtkOpenGLContextActor() = default;
 
 //----------------------------------------------------------------------------
 void vtkOpenGLContextActor::ReleaseGraphicsResources(vtkWindow *window)

@@ -60,9 +60,7 @@ vtkHoverWidget::vtkHoverWidget()
 }
 
 //-------------------------------------------------------------------------
-vtkHoverWidget::~vtkHoverWidget()
-{
-}
+vtkHoverWidget::~vtkHoverWidget() = default;
 
 //----------------------------------------------------------------------
 void vtkHoverWidget::SetEnabled(int enabling)

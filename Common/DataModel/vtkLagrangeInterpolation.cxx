@@ -122,9 +122,7 @@ vtkLagrangeInterpolation::vtkLagrangeInterpolation()
   vtkLagrangeInterpolation::PrepareForOrder(maxOrder);
 }
 
-vtkLagrangeInterpolation::~vtkLagrangeInterpolation()
-{
-}
+vtkLagrangeInterpolation::~vtkLagrangeInterpolation() = default;
 
 void vtkLagrangeInterpolation::PrintSelf(ostream& os, vtkIndent indent)
 {

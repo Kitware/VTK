@@ -33,9 +33,7 @@ vtkPolyDataAlgorithm::vtkPolyDataAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkPolyDataAlgorithm::~vtkPolyDataAlgorithm()
-{
-}
+vtkPolyDataAlgorithm::~vtkPolyDataAlgorithm() = default;
 
 //----------------------------------------------------------------------------
 void vtkPolyDataAlgorithm::PrintSelf(ostream& os, vtkIndent indent)

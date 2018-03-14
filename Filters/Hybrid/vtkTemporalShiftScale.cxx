@@ -40,9 +40,7 @@ vtkTemporalShiftScale::vtkTemporalShiftScale()
 }
 
 //----------------------------------------------------------------------------
-vtkTemporalShiftScale::~vtkTemporalShiftScale()
-{
-}
+vtkTemporalShiftScale::~vtkTemporalShiftScale() = default;
 
 //----------------------------------------------------------------------------
 void vtkTemporalShiftScale::PrintSelf(ostream& os, vtkIndent indent)

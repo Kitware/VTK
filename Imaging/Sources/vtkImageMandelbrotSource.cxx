@@ -62,9 +62,7 @@ vtkImageMandelbrotSource::vtkImageMandelbrotSource()
 }
 
 //----------------------------------------------------------------------------
-vtkImageMandelbrotSource::~vtkImageMandelbrotSource()
-{
-}
+vtkImageMandelbrotSource::~vtkImageMandelbrotSource() = default;
 
 //----------------------------------------------------------------------------
 void vtkImageMandelbrotSource::PrintSelf(ostream& os, vtkIndent indent)

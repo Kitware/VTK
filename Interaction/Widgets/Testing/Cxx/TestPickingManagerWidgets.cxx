@@ -161,7 +161,7 @@ public:
     }
   }
 
-  vtkEnableManagerCallback() {}
+  vtkEnableManagerCallback() = default;
 };
 
 //------------------------------------------------------------------------------

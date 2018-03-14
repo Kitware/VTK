@@ -27,9 +27,7 @@
 
 vtkStandardNewMacro(vtkMatrixMathFilter);
 
-vtkMatrixMathFilter::~vtkMatrixMathFilter ()
-{
-}
+vtkMatrixMathFilter::~vtkMatrixMathFilter () = default;
 
 vtkMatrixMathFilter::vtkMatrixMathFilter ()
 {

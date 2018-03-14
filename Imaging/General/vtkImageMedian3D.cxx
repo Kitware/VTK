@@ -37,9 +37,7 @@ vtkImageMedian3D::vtkImageMedian3D()
 }
 
 //-----------------------------------------------------------------------------
-vtkImageMedian3D::~vtkImageMedian3D()
-{
-}
+vtkImageMedian3D::~vtkImageMedian3D() = default;
 
 //-----------------------------------------------------------------------------
 void vtkImageMedian3D::PrintSelf(ostream& os, vtkIndent indent)

@@ -23,14 +23,10 @@
 vtkStandardNewMacro(vtkXMLPImageDataWriter);
 
 //----------------------------------------------------------------------------
-vtkXMLPImageDataWriter::vtkXMLPImageDataWriter()
-{
-}
+vtkXMLPImageDataWriter::vtkXMLPImageDataWriter() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLPImageDataWriter::~vtkXMLPImageDataWriter()
-{
-}
+vtkXMLPImageDataWriter::~vtkXMLPImageDataWriter() = default;
 
 //----------------------------------------------------------------------------
 void vtkXMLPImageDataWriter::PrintSelf(ostream& os, vtkIndent indent)

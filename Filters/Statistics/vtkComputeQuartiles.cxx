@@ -44,9 +44,7 @@ vtkComputeQuartiles::vtkComputeQuartiles()
 }
 
 //-----------------------------------------------------------------------------
-vtkComputeQuartiles::~vtkComputeQuartiles()
-{
-}
+vtkComputeQuartiles::~vtkComputeQuartiles() = default;
 
 //-----------------------------------------------------------------------------
 void vtkComputeQuartiles::PrintSelf(ostream& os, vtkIndent indent)

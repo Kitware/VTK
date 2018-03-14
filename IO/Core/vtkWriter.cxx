@@ -31,9 +31,7 @@ vtkWriter::vtkWriter()
   this->SetNumberOfOutputPorts(0);
 }
 
-vtkWriter::~vtkWriter()
-{
-}
+vtkWriter::~vtkWriter() = default;
 
 void vtkWriter::SetInputData(vtkDataObject *input)
 {

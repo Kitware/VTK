@@ -28,9 +28,7 @@ vtkTrivialConsumer::vtkTrivialConsumer()
 }
 
 //----------------------------------------------------------------------------
-vtkTrivialConsumer::~vtkTrivialConsumer()
-{
-}
+vtkTrivialConsumer::~vtkTrivialConsumer() = default;
 
 //----------------------------------------------------------------------------
 void vtkTrivialConsumer::PrintSelf(ostream& os, vtkIndent indent)

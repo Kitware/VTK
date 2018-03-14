@@ -43,9 +43,7 @@ vtkExtractSelectedIds::vtkExtractSelectedIds()
 }
 
 //----------------------------------------------------------------------------
-vtkExtractSelectedIds::~vtkExtractSelectedIds()
-{
-}
+vtkExtractSelectedIds::~vtkExtractSelectedIds() = default;
 
 //----------------------------------------------------------------------------
 int vtkExtractSelectedIds::FillInputPortInformation(

@@ -30,14 +30,10 @@
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastCompositeGOHelper);
 
 // Construct a new vtkFixedPointVolumeRayCastCompositeGOHelper with default values
-vtkFixedPointVolumeRayCastCompositeGOHelper::vtkFixedPointVolumeRayCastCompositeGOHelper()
-{
-}
+vtkFixedPointVolumeRayCastCompositeGOHelper::vtkFixedPointVolumeRayCastCompositeGOHelper() = default;
 
 // Destruct a vtkFixedPointVolumeRayCastCompositeGOHelper - clean up any memory used
-vtkFixedPointVolumeRayCastCompositeGOHelper::~vtkFixedPointVolumeRayCastCompositeGOHelper()
-{
-}
+vtkFixedPointVolumeRayCastCompositeGOHelper::~vtkFixedPointVolumeRayCastCompositeGOHelper() = default;
 
 
 // This method is used when the interpolation type is nearest neighbor and

@@ -58,9 +58,7 @@ vtkGeoCamera::vtkGeoCamera()
 }
 
 //-----------------------------------------------------------------------------
-vtkGeoCamera::~vtkGeoCamera()
-{
-}
+vtkGeoCamera::~vtkGeoCamera() = default;
 
 //-----------------------------------------------------------------------------
 void vtkGeoCamera::PrintSelf(ostream& os, vtkIndent indent)

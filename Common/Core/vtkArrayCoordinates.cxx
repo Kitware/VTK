@@ -21,9 +21,7 @@
 
 #include "vtkArrayCoordinates.h"
 
-vtkArrayCoordinates::vtkArrayCoordinates()
-{
-}
+vtkArrayCoordinates::vtkArrayCoordinates() = default;
 
 vtkArrayCoordinates::vtkArrayCoordinates(CoordinateT i) :
   Storage(1)

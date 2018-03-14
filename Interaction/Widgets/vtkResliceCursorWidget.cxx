@@ -69,9 +69,7 @@ vtkResliceCursorWidget::vtkResliceCursorWidget()
 }
 
 //----------------------------------------------------------------------------
-vtkResliceCursorWidget::~vtkResliceCursorWidget()
-{
-}
+vtkResliceCursorWidget::~vtkResliceCursorWidget() = default;
 
 //----------------------------------------------------------------------
 void vtkResliceCursorWidget::SetEnabled(int enabling)

@@ -35,9 +35,7 @@ vtkSubPixelPositionEdgels::vtkSubPixelPositionEdgels()
   this->SetNumberOfInputPorts(2);
 }
 
-vtkSubPixelPositionEdgels::~vtkSubPixelPositionEdgels()
-{
-}
+vtkSubPixelPositionEdgels::~vtkSubPixelPositionEdgels() = default;
 
 int vtkSubPixelPositionEdgels::RequestData(
   vtkInformation *vtkNotUsed(request),

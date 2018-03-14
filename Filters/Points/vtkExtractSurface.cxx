@@ -1289,9 +1289,7 @@ vtkExtractSurface::vtkExtractSurface()
 }
 
 //----------------------------------------------------------------------------
-vtkExtractSurface::~vtkExtractSurface()
-{
-}
+vtkExtractSurface::~vtkExtractSurface() = default;
 
 //----------------------------------------------------------------------------
 int vtkExtractSurface::RequestUpdateExtent(

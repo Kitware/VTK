@@ -57,9 +57,7 @@ vtkOpenGLMoleculeMapper::vtkOpenGLMoleculeMapper()
     (this->BondGlyphPointOutput->GetOutputPort());
 }
 
-vtkOpenGLMoleculeMapper::~vtkOpenGLMoleculeMapper()
-{
-}
+vtkOpenGLMoleculeMapper::~vtkOpenGLMoleculeMapper() = default;
 
 //----------------------------------------------------------------------------
 void vtkOpenGLMoleculeMapper::Render(vtkRenderer *ren, vtkActor *act )

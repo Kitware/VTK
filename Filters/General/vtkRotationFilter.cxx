@@ -38,9 +38,7 @@ vtkRotationFilter::vtkRotationFilter()
 }
 
 //---------------------------------------------------------------------------
-vtkRotationFilter::~vtkRotationFilter()
-{
-}
+vtkRotationFilter::~vtkRotationFilter() = default;
 
 //---------------------------------------------------------------------------
 void vtkRotationFilter::PrintSelf(ostream &os, vtkIndent indent)

@@ -815,9 +815,7 @@ vtkLoopBooleanPolyDataFilter::vtkLoopBooleanPolyDataFilter() :
 }
 
 //-----------------------------------------------------------------------------
-vtkLoopBooleanPolyDataFilter::~vtkLoopBooleanPolyDataFilter()
-{
-}
+vtkLoopBooleanPolyDataFilter::~vtkLoopBooleanPolyDataFilter() = default;
 
 //-----------------------------------------------------------------------------
 int vtkLoopBooleanPolyDataFilter::RequestData(

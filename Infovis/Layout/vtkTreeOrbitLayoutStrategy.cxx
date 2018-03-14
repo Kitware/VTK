@@ -44,10 +44,7 @@ vtkTreeOrbitLayoutStrategy::vtkTreeOrbitLayoutStrategy()
   this->ChildRadiusFactor = .5;
 }
 
-vtkTreeOrbitLayoutStrategy::~vtkTreeOrbitLayoutStrategy()
-{
-
-}
+vtkTreeOrbitLayoutStrategy::~vtkTreeOrbitLayoutStrategy() = default;
 
 // Helper method for recursively orbiting children
 // around their parents

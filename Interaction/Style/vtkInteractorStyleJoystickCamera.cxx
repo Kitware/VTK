@@ -32,9 +32,7 @@ vtkInteractorStyleJoystickCamera::vtkInteractorStyleJoystickCamera()
 }
 
 //----------------------------------------------------------------------------
-vtkInteractorStyleJoystickCamera::~vtkInteractorStyleJoystickCamera()
-{
-}
+vtkInteractorStyleJoystickCamera::~vtkInteractorStyleJoystickCamera() = default;
 
 //----------------------------------------------------------------------------
 // Mouse events

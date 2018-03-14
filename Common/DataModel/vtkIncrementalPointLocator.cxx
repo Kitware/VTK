@@ -17,13 +17,9 @@
 #include "vtkIncrementalPointLocator.h"
 
 
-vtkIncrementalPointLocator::vtkIncrementalPointLocator()
-{
-}
+vtkIncrementalPointLocator::vtkIncrementalPointLocator() = default;
 
-vtkIncrementalPointLocator::~vtkIncrementalPointLocator()
-{
-}
+vtkIncrementalPointLocator::~vtkIncrementalPointLocator() = default;
 
 void vtkIncrementalPointLocator::PrintSelf( ostream & os, vtkIndent indent )
 {

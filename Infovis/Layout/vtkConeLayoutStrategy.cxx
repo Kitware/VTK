@@ -42,9 +42,7 @@ vtkConeLayoutStrategy::vtkConeLayoutStrategy()
   this->Spacing = 1.0;
 }
 
-vtkConeLayoutStrategy::~vtkConeLayoutStrategy()
-{
-}
+vtkConeLayoutStrategy::~vtkConeLayoutStrategy() = default;
 
 double vtkConeLayoutStrategy::LocalPlacement(vtkIdType node, vtkPoints *points)
 {

@@ -33,9 +33,7 @@ vtkSelectionAlgorithm::vtkSelectionAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkSelectionAlgorithm::~vtkSelectionAlgorithm()
-{
-}
+vtkSelectionAlgorithm::~vtkSelectionAlgorithm() = default;
 
 //----------------------------------------------------------------------------
 void vtkSelectionAlgorithm::PrintSelf(ostream& os, vtkIndent indent)

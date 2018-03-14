@@ -55,7 +55,7 @@ public:
 protected:
   vtkScenePickerSelectionRenderCommand()
                                       : InteractiveRender(false) {}
-  ~vtkScenePickerSelectionRenderCommand() override {}
+  ~vtkScenePickerSelectionRenderCommand() override = default;
   bool InteractiveRender;
 };
 

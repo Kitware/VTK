@@ -18,14 +18,10 @@
 #include "vtkCellArray.h"
 
 //----------------------------------------------------------------------------
-vtkAbstractCellLinks::vtkAbstractCellLinks()
-{
-}
+vtkAbstractCellLinks::vtkAbstractCellLinks() = default;
 
 //----------------------------------------------------------------------------
-vtkAbstractCellLinks::~vtkAbstractCellLinks()
-{
-}
+vtkAbstractCellLinks::~vtkAbstractCellLinks() = default;
 
 //----------------------------------------------------------------------------
 int vtkAbstractCellLinks::

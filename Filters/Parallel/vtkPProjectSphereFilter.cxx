@@ -24,14 +24,10 @@
 vtkStandardNewMacro(vtkPProjectSphereFilter);
 
 //-----------------------------------------------------------------------------
-vtkPProjectSphereFilter::vtkPProjectSphereFilter()
-{
-}
+vtkPProjectSphereFilter::vtkPProjectSphereFilter() = default;
 
 //-----------------------------------------------------------------------------
-vtkPProjectSphereFilter::~vtkPProjectSphereFilter()
-{
-}
+vtkPProjectSphereFilter::~vtkPProjectSphereFilter() = default;
 
 //-----------------------------------------------------------------------------
 void vtkPProjectSphereFilter::PrintSelf(ostream &os, vtkIndent indent)

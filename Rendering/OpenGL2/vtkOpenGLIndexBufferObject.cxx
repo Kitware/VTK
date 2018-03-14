@@ -35,9 +35,7 @@ vtkOpenGLIndexBufferObject::vtkOpenGLIndexBufferObject()
   this->SetType(vtkOpenGLIndexBufferObject::ElementArrayBuffer);
 }
 
-vtkOpenGLIndexBufferObject::~vtkOpenGLIndexBufferObject()
-{
-}
+vtkOpenGLIndexBufferObject::~vtkOpenGLIndexBufferObject() = default;
 
 namespace
 {

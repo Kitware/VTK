@@ -33,9 +33,7 @@ vtkGaussianKernel::vtkGaussianKernel()
 
 
 //----------------------------------------------------------------------------
-vtkGaussianKernel::~vtkGaussianKernel()
-{
-}
+vtkGaussianKernel::~vtkGaussianKernel() = default;
 
 //----------------------------------------------------------------------------
 void vtkGaussianKernel::

@@ -46,13 +46,9 @@ public:
   static MoleculePickCommand * New() {return new MoleculePickCommand;}
   vtkTypeMacro(MoleculePickCommand, vtkCommand);
 
-  MoleculePickCommand()
-  {
-  }
+  MoleculePickCommand() = default;
 
-  ~MoleculePickCommand() override
-  {
-  }
+  ~MoleculePickCommand() override = default;
 
   vtkIdTypeArray *GetAtomIds()
   {

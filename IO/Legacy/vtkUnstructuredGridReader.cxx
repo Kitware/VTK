@@ -41,9 +41,7 @@ vtkUnstructuredGridReader::vtkUnstructuredGridReader()
 }
 
 //----------------------------------------------------------------------------
-vtkUnstructuredGridReader::~vtkUnstructuredGridReader()
-{
-}
+vtkUnstructuredGridReader::~vtkUnstructuredGridReader() = default;
 
 //----------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkUnstructuredGridReader::GetOutput()

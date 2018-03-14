@@ -28,14 +28,10 @@
 
 vtkStandardNewMacro(vtkTreeRingView);
 //----------------------------------------------------------------------------
-vtkTreeRingView::vtkTreeRingView()
-{
-}
+vtkTreeRingView::vtkTreeRingView() = default;
 
 //----------------------------------------------------------------------------
-vtkTreeRingView::~vtkTreeRingView()
-{
-}
+vtkTreeRingView::~vtkTreeRingView() = default;
 
 //----------------------------------------------------------------------------
 void vtkTreeRingView::SetRootAngles(double start, double end)

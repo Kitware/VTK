@@ -343,9 +343,7 @@ vtkFitToHeightMapFilter::vtkFitToHeightMapFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkFitToHeightMapFilter::~vtkFitToHeightMapFilter()
-{
-}
+vtkFitToHeightMapFilter::~vtkFitToHeightMapFilter() = default;
 
 
 //----------------------------------------------------------------------------

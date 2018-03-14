@@ -136,14 +136,10 @@ bool vtkHiddenLineRemovalPass::WireframePropsExist(vtkProp **propArray,
 }
 
 //------------------------------------------------------------------------------
-vtkHiddenLineRemovalPass::vtkHiddenLineRemovalPass()
-{
-}
+vtkHiddenLineRemovalPass::vtkHiddenLineRemovalPass() = default;
 
 //------------------------------------------------------------------------------
-vtkHiddenLineRemovalPass::~vtkHiddenLineRemovalPass()
-{
-}
+vtkHiddenLineRemovalPass::~vtkHiddenLineRemovalPass() = default;
 
 //------------------------------------------------------------------------------
 void vtkHiddenLineRemovalPass::SetRepresentation(std::vector<vtkProp *> &props,

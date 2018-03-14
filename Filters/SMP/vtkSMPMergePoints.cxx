@@ -24,14 +24,10 @@
 vtkStandardNewMacro(vtkSMPMergePoints)
 
 //------------------------------------------------------------------------------
-vtkSMPMergePoints::vtkSMPMergePoints()
-{
-}
+vtkSMPMergePoints::vtkSMPMergePoints() = default;
 
 //------------------------------------------------------------------------------
-vtkSMPMergePoints::~vtkSMPMergePoints()
-{
-}
+vtkSMPMergePoints::~vtkSMPMergePoints() = default;
 
 //------------------------------------------------------------------------------
 void vtkSMPMergePoints::PrintSelf(ostream &os, vtkIndent indent)

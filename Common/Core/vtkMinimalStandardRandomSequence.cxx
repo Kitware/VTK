@@ -30,9 +30,7 @@ vtkMinimalStandardRandomSequence::vtkMinimalStandardRandomSequence()
 }
 
 // ----------------------------------------------------------------------------
-vtkMinimalStandardRandomSequence::~vtkMinimalStandardRandomSequence()
-{
-}
+vtkMinimalStandardRandomSequence::~vtkMinimalStandardRandomSequence() = default;
 
 // ----------------------------------------------------------------------------
 void vtkMinimalStandardRandomSequence::SetSeedOnly(int value)

@@ -24,9 +24,7 @@ vtkClientSocket::vtkClientSocket()
 }
 
 //-----------------------------------------------------------------------------
-vtkClientSocket::~vtkClientSocket()
-{
-}
+vtkClientSocket::~vtkClientSocket() = default;
 
 //-----------------------------------------------------------------------------
 int vtkClientSocket::ConnectToServer(const char* hostName, int port)

@@ -33,9 +33,7 @@ vtkExtractVectorComponents::vtkExtractVectorComponents()
   this->OutputsInitialized = 0;
 }
 
-vtkExtractVectorComponents::~vtkExtractVectorComponents()
-{
-}
+vtkExtractVectorComponents::~vtkExtractVectorComponents() = default;
 
 // Get the output dataset representing velocity x-component. If output is nullptr
 // then input hasn't been set, which is necessary for abstract objects. (Note:

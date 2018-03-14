@@ -19,14 +19,10 @@
 
 vtkStandardNewMacro(vtkServerSocket);
 //-----------------------------------------------------------------------------
-vtkServerSocket::vtkServerSocket()
-{
-}
+vtkServerSocket::vtkServerSocket() = default;
 
 //-----------------------------------------------------------------------------
-vtkServerSocket::~vtkServerSocket()
-{
-}
+vtkServerSocket::~vtkServerSocket() = default;
 
 //-----------------------------------------------------------------------------
 int vtkServerSocket::GetServerPort()

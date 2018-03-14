@@ -36,13 +36,9 @@
 class vtkOpenGLContextDevice3D::Private
 {
 public:
-  Private()
-  {
-  }
+  Private() = default;
 
-  ~Private()
-  {
-  }
+  ~Private() = default;
 
   void Transpose(double *in, double *transposed)
   {

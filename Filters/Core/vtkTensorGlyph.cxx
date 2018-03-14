@@ -59,9 +59,7 @@ vtkTensorGlyph::vtkTensorGlyph()
 }
 
 //----------------------------------------------------------------------------
-vtkTensorGlyph::~vtkTensorGlyph()
-{
-}
+vtkTensorGlyph::~vtkTensorGlyph() = default;
 
 //----------------------------------------------------------------------------
 int vtkTensorGlyph::RequestUpdateExtent(

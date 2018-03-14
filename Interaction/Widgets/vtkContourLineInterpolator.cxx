@@ -19,14 +19,10 @@
 
 
 //----------------------------------------------------------------------
-vtkContourLineInterpolator::vtkContourLineInterpolator()
-{
-}
+vtkContourLineInterpolator::vtkContourLineInterpolator() = default;
 
 //----------------------------------------------------------------------
-vtkContourLineInterpolator::~vtkContourLineInterpolator()
-{
-}
+vtkContourLineInterpolator::~vtkContourLineInterpolator() = default;
 
 //----------------------------------------------------------------------
 int vtkContourLineInterpolator::UpdateNode( vtkRenderer *,
