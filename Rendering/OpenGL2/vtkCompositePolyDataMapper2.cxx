@@ -864,7 +864,12 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
   }
 
   // Build the VBO
-  vtkIdType offsetPos, offsetNorm, offsetColor, offsetTex, totalOffset, dummy;
+  vtkIdType offsetPos = 0;
+  vtkIdType offsetNorm = 0;
+  vtkIdType offsetColor = 0;
+  vtkIdType offsetTex = 0;
+  vtkIdType totalOffset = 0;
+  vtkIdType dummy = 0;
   bool exists =
     this->VBOs->ArrayExists("vertexMC", poly->GetPoints()->GetData(), offsetPos, totalOffset) &&
     this->VBOs->ArrayExists("normalMC", n, offsetNorm, dummy) &&
