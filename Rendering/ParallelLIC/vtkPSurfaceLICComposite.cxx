@@ -914,7 +914,7 @@ int vtkPSurfaceLICComposite::AddGuardPixels(
         int ng
           = static_cast<int>(vectorMax[r][b]*arc)
           + this->NumberOfEEGuardPixels
-          + this->NumberOfAAGuardPixels;;
+          + this->NumberOfAAGuardPixels;
         ng = ng<2 ? 2 : ng;
         #ifdef vtkSurfaceLICPainterTIME
         log->GetHeader() << " " << ng;

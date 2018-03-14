@@ -125,7 +125,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   LineSourceWidget0->SetPoint2(6.3766, -0.5886, 26.6274);
   LineSourceWidget0->SetResolution(20);
 
-  vtkPStreamTracer* Stream0 = vtkPStreamTracer::New();;
+  vtkPStreamTracer* Stream0 = vtkPStreamTracer::New();
   Stream0->SetInputConnection(tv->GetOutputPort());
   Stream0->SetSourceConnection(LineSourceWidget0->GetOutputPort());
   Stream0->SetIntegrationStepUnit(2);
@@ -136,7 +136,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   Stream0->SetMaximumNumberOfSteps(2000);
   Stream0->SetTerminalSpeed(1e-12);
 
-  vtkGeometryFilter* Geometry6 = vtkGeometryFilter::New();;
+  vtkGeometryFilter* Geometry6 = vtkGeometryFilter::New();
   Geometry6->SetInputConnection(Stream0->GetOutputPort());
 
   vtkLookupTable* LookupTable1 = vtkLookupTable::New();

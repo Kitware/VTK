@@ -239,7 +239,7 @@ void vtkThresholdPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Lower Threshold: " << this->LowerThreshold << "\n";;
-  os << indent << "Upper Threshold: " << this->UpperThreshold << "\n";;
+  os << indent << "Lower Threshold: " << this->LowerThreshold << "\n";
+  os << indent << "Upper Threshold: " << this->UpperThreshold << "\n";
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }

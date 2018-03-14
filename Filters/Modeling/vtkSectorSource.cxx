@@ -121,7 +121,7 @@ void vtkSectorSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OuterRadius: " << this->OuterRadius << "\n";
   os << indent << "ZCoord: " << this->ZCoord << "\n";
   os << indent << "StartAngle: " << this->StartAngle << "\n";
-  os << indent << "EndAngle: " << this->EndAngle << "\n";;
+  os << indent << "EndAngle: " << this->EndAngle << "\n";
   os << indent << "CircumferentialResolution: " << this->CircumferentialResolution << "\n";
   os << indent << "RadialResolution: " << this->RadialResolution << "\n";
 }

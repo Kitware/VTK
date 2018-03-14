@@ -99,7 +99,7 @@ void vtkReflectionFilter::FlipTuple(double* tuple, int* mirrorDir, int nComp)
 int vtkReflectionFilter::ComputeBounds(vtkDataObject* input, double bounds[6])
 {
   // get the input and output
-  vtkDataSet *inputDS = vtkDataSet::SafeDownCast(input);;
+  vtkDataSet *inputDS = vtkDataSet::SafeDownCast(input);
   vtkCompositeDataSet* inputCD = vtkCompositeDataSet::SafeDownCast(input);
 
   if (inputDS)

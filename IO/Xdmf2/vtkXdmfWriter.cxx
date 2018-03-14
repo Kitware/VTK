@@ -162,8 +162,8 @@ void vtkXdmfWriterInternal::DetermineCellTypes(vtkPointSet * t, vtkXdmfWriterInt
           vtkSmartPointer<vtkIdList>(l))).first;
       l->Delete();
     }
-    // it->second->InsertUniqueId(cc);;
-    it->second->InsertNextId(cc);;
+    // it->second->InsertUniqueId(cc);
+    it->second->InsertNextId(cc);
   }
   cell->Delete();
 }

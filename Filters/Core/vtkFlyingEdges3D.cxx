@@ -133,7 +133,7 @@ public:
   {
     this->Origin[0] = this->Origin[0] + this->Spacing[0]*this->Min0;
     this->Origin[1] = this->Origin[1] + this->Spacing[1]*this->Min1;
-    this->Origin[2] = this->Origin[2] + this->Spacing[2]*this->Min2;;
+    this->Origin[2] = this->Origin[2] + this->Spacing[2]*this->Min2;
   }
 
   // The three main passes of the algorithm.
@@ -257,7 +257,7 @@ public:
     if ( this->InterpolateAttributes )
     {
       vtkIdType v0=ijk0[0] + ijk0[1]*incs[1] + ijk0[2]*incs[2];
-      vtkIdType v1=ijk1[0] + ijk1[1]*incs[1] + ijk1[2]*incs[2];;
+      vtkIdType v1=ijk1[0] + ijk1[1]*incs[1] + ijk1[2]*incs[2];
       this->Arrays.InterpolateEdge(v0,v1,t,vId);
     }
   }
@@ -711,7 +711,7 @@ InterpolateEdge(double value, vtkIdType ijk[3],
   if ( this->InterpolateAttributes )
   {
     vtkIdType v0=ijk0[0] + ijk0[1]*incs[1] + ijk0[2]*incs[2];
-    vtkIdType v1=ijk1[0] + ijk1[1]*incs[1] + ijk1[2]*incs[2];;
+    vtkIdType v1=ijk1[0] + ijk1[1]*incs[1] + ijk1[2]*incs[2];
     this->Arrays.InterpolateEdge(v0,v1,t,vId);
   }
 }

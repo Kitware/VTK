@@ -3210,7 +3210,7 @@ int TestClampValues()
   }
 
   vtkMath::ClampValues( nullptr, 1000, nullptr);
-  vtkMath::ClampValues( nullptr, 1000, nullptr, nullptr);;
+  vtkMath::ClampValues( nullptr, 1000, nullptr, nullptr);
 
   if (status)
   {

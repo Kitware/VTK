@@ -53,7 +53,7 @@ public:
   virtual unsigned int GetFlatIndex() { return this->Index;}
 protected:
   AMRIndexIterator(): Level(0), Index(0) {}
-  ~AMRIndexIterator() override = default;;
+  ~AMRIndexIterator() override = default;
   unsigned int Level;
   int Index;
   unsigned int NumLevels;

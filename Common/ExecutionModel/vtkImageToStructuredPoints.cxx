@@ -84,7 +84,7 @@ int vtkImageToStructuredPoints::RequestData(
   int idxX, idxY, idxZ;
   int maxX = 0;
   int maxY = 0;
-  int maxZ = 0;;
+  int maxZ = 0;
   vtkIdType inIncX, inIncY, inIncZ;
   int rowLength;
   unsigned char *inPtr1, *inPtr, *outPtr;

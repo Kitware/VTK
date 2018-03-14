@@ -800,12 +800,12 @@ void vtkChacoReader::PrintSelf(ostream& os, vtkIndent indent)
 
   for (i=1; i<=this->NumberOfPointWeightArrays; i++)
   {
-    cout << "vertex weight array name: " << this->GetVertexWeightArrayName(i) << endl;;
+    cout << "vertex weight array name: " << this->GetVertexWeightArrayName(i) << endl;
   }
 
   for (i=1; i<=this->NumberOfCellWeightArrays; i++)
   {
-    cout << "edge weight array name: " << this->GetEdgeWeightArrayName(i) << endl;;
+    cout << "edge weight array name: " << this->GetEdgeWeightArrayName(i) << endl;
   }
 }
 

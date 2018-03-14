@@ -1818,7 +1818,7 @@ vtkIdType vtkGraph::GetNumberOfElements(int type)
     case EDGE:
       return this->GetNumberOfEdges();
   }
-  return this->Superclass::GetNumberOfElements(type);;
+  return this->Superclass::GetNumberOfElements(type);
 }
 
 //----------------------------------------------------------------------------

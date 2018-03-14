@@ -44,7 +44,7 @@ int UnitTestMaskPoints (int, char*[])
   vtkSmartPointer<vtkMaskPoints> mask0 =
     vtkSmartPointer<vtkMaskPoints>::New();
   mask0->Print(print0);
-  std::cout << "PASSED" << std::endl;;
+  std::cout << "PASSED" << std::endl;
 
   std::cout << "Testing defaults...";
   mask0->SetInputData(MakePolyData(10000));

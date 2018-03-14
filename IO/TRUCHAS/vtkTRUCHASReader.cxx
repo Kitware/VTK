@@ -984,8 +984,8 @@ int vtkTRUCHASReader::RequestData(
 
 
     bool isFloat = this->Internals->array_isFloat[array_name];
-    double **vals_out = nullptr;;
-    int **ivals_out = nullptr;;
+    double **vals_out = nullptr;
+    int **ivals_out = nullptr;
     if (isFloat)
     {
       vals_out = new double *[dims[0]];

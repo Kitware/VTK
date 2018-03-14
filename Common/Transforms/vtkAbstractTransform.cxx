@@ -377,7 +377,7 @@ public:
   vtkAbstractTransform *MakeTransform() override { return vtkSimpleTransform::New(); };
   void Inverse() override { this->Matrix->Invert(); this->Modified(); };
 protected:
-  vtkSimpleTransform() = default;;
+  vtkSimpleTransform() = default;
   vtkSimpleTransform(const vtkSimpleTransform&);
   vtkSimpleTransform& operator=(const vtkSimpleTransform&);
 };

@@ -955,7 +955,7 @@ int vtkPDataSetReader::PolyDataExecute(vtkInformation*,
   int idx;
 
   updatePiece =
-    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());;
+    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   updateNumberOfPieces =
     info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 

@@ -1504,7 +1504,7 @@ SelectLine(double origin[3], double ray[3], vtkIdType &numSelected)
     return nullptr;
   }
 
-  vtkIdType numCells = this->DataSet->GetNumberOfCells();;
+  vtkIdType numCells = this->DataSet->GetNumberOfCells();
 
   // Specialized for structured grids
   if ( this->Hierarchy &&
@@ -1555,7 +1555,7 @@ SelectPlane(double origin[3], double normal[3], vtkIdType &numSelected)
     return nullptr;
   }
 
-  vtkIdType numCells = this->DataSet->GetNumberOfCells();;
+  vtkIdType numCells = this->DataSet->GetNumberOfCells();
 
   // Specialized for structured grids
   if ( this->Hierarchy &&

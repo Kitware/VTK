@@ -52,7 +52,7 @@ vtkOpenQubeMoleculeSource::~vtkOpenQubeMoleculeSource()
 //----------------------------------------------------------------------------
 vtkMolecule *vtkOpenQubeMoleculeSource::GetOutput()
 {
-  return vtkMolecule::SafeDownCast(this->GetOutputDataObject(0));;
+  return vtkMolecule::SafeDownCast(this->GetOutputDataObject(0));
 }
 
 //----------------------------------------------------------------------------

@@ -982,8 +982,8 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
   //
   // Let go of inputs
   //
-  if (this->InputDataT[0]) this->InputDataT[0] = nullptr;;
-  if (this->InputDataT[1]) this->InputDataT[1] = nullptr;;
+  if (this->InputDataT[0]) this->InputDataT[0] = nullptr;
+  if (this->InputDataT[1]) this->InputDataT[1] = nullptr;
 
   //
   // Write Particles out if necessary

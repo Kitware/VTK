@@ -268,7 +268,7 @@ int vtkStripper::RequestData(
         //
         if ( i >= 3 )
         {
-          pts[0] = triPts[0];;
+          pts[0] = triPts[0];
           pts[1] = triPts[1];
           pts[2] = triPts[2];
           newStrips->InsertNextCell(3,pts);

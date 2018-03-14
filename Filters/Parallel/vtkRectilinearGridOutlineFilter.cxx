@@ -64,7 +64,7 @@ int vtkRectilinearGridOutlineFilter::RequestData(
   vtkDataArray* xCoords  = input->GetXCoordinates();
   vtkDataArray* yCoords  = input->GetYCoordinates();
   vtkDataArray* zCoords  = input->GetZCoordinates();
-  int*          ext      = input->GetExtent();;
+  int*          ext      = input->GetExtent();
   int*          wholeExt =
     inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 

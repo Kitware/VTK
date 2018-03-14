@@ -1996,7 +1996,7 @@ void vtkImageData::SetDataDescription(int desc)
       break;
 
     case VTK_XYZ_GRID:
-      this->Voxel = vtkVoxel::New();;
+      this->Voxel = vtkVoxel::New();
       break;
   }
 }

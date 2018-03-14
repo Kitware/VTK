@@ -166,7 +166,7 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
     else if (mblock != nullptr
              && strcmp(tagName, "Block") == 0)
     {
-      vtkMultiBlockDataSet* childDS = vtkMultiBlockDataSet::New();;
+      vtkMultiBlockDataSet* childDS = vtkMultiBlockDataSet::New();
       this->ReadComposite(childXML, childDS, filePath, dataSetIndex);
       const char* name = childXML->GetAttribute("name");
       mblock->SetBlock(index, childDS);
@@ -177,7 +177,7 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
     else if (mblock!=nullptr
              && strcmp(tagName, "Piece") == 0)
     {
-      vtkMultiPieceDataSet* childDS = vtkMultiPieceDataSet::New();;
+      vtkMultiPieceDataSet* childDS = vtkMultiPieceDataSet::New();
       this->ReadComposite(childXML, childDS, filePath, dataSetIndex);
       const char* name = childXML->GetAttribute("name");
       mblock->SetBlock(index, childDS);
@@ -293,7 +293,7 @@ int vtkXMLMultiBlockDataReader::FillMetaData(vtkCompositeDataSet* metadata,
     else if (mblock!=nullptr
              && strcmp(tagName, "Piece") == 0)
     {
-      vtkMultiPieceDataSet* childDS = vtkMultiPieceDataSet::New();;
+      vtkMultiPieceDataSet* childDS = vtkMultiPieceDataSet::New();
       this->FillMetaData(childDS, childXML, dataSetIndex);
       mblock->SetBlock(index, childDS);
       childDS->Delete();

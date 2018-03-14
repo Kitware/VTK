@@ -726,9 +726,9 @@ int vtkQtTableModelAdapter::columnCount(const QModelIndex &) const
   switch (this->ViewType)
   {
     case FULL_VIEW:
-      return this->Table->GetNumberOfColumns();;
+      return this->Table->GetNumberOfColumns();
     case DATA_VIEW:
-      return this->DataEndColumn - this->DataStartColumn + 1;;
+      return this->DataEndColumn - this->DataStartColumn + 1;
     default:
       vtkGenericWarningMacro("vtkQtTreeModelAdapter: Bad view type.");
   };

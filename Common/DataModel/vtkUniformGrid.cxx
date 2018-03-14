@@ -610,7 +610,7 @@ vtkCell *vtkUniformGrid::FindAndGetCell(double x[3],
   double xOut[3];
   int iMax = 0;
   int jMax = 0;
-  int kMax = 0;;
+  int kMax = 0;
   vtkCell *cell = nullptr;
   double *origin = this->GetOrigin();
   double *spacing = this->GetSpacing();

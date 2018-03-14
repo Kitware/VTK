@@ -224,7 +224,7 @@ vtkStdString vtkSplitColumnComponents::GetComponentLabel(
   case NAMES_WITH_UNDERSCORES:
   default:
     stream << array->GetName() << "_"
-      << vtkGetComponentName(array, component_no).c_str();;
+      << vtkGetComponentName(array, component_no).c_str();
     break;
   }
   return stream.str();

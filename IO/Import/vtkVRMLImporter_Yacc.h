@@ -1277,7 +1277,7 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
   { beginProto(yyvsp[0].string); ;
   break;}
   case 15:
-  { endProto();  //free(yyvsp[-7].string);;
+  { endProto();  //free(yyvsp[-7].string);
   break;}
   case 16:
   { beginProto(yyvsp[0].string); ;
@@ -1333,7 +1333,7 @@ int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
   { self->enterNode(yyvsp[0].string); ;
   break;}
   case 35:
-  { self->exitNode(); //free(yyvsp[-4].string);;
+  { self->exitNode(); //free(yyvsp[-4].string);
   break;}
   case 38:
   { self->enterField(yyvsp[0].string); ;

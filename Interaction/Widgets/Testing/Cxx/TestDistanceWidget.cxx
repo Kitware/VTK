@@ -899,7 +899,7 @@ int TestDistanceWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   VTK_CREATE(vtkRenderWindow, renWin);
   renWin->AddRenderer(ren1);
 
-  VTK_CREATE(vtkRenderWindowInteractor, iren);;
+  VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renWin);
 
   // Create a test pipeline

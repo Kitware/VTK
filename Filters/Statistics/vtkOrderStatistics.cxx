@@ -526,7 +526,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
     // Last quantile index is always cardinality with no jump (corresponding to the last and thus largest value)
     qIdxPair.first = nRowHist - 1;
-    qIdxPair.second = nRowHist - 1;;
+    qIdxPair.second = nRowHist - 1;
     quantileIndices.push_back( qIdxPair );
 
     // Finally prepare quantile values column depending on data type

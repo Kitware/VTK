@@ -49,7 +49,7 @@ int UnitTestImplicitDataSet (int, char*[])
   impVol->AddObserver(vtkCommand::ErrorEvent, errorObserver);
   impVol->EvaluateFunction(0.0, 0.0, 0.0);
   int status1 = errorObserver->CheckErrorMessage("Can't evaluate function: either data set is missing or data set has no point data");
-  double zero[3], zg[3];;
+  double zero[3], zg[3];
   zero[0] = zero[1] = zero[2] = 0.0;
   impVol->EvaluateGradient(zero, zg);
   status1 += errorObserver->CheckErrorMessage("Can't evaluate gradient: either data set is missing or data set has no point data");

@@ -130,7 +130,7 @@ class vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperSubArray
 public:
   std::vector<vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>  Entries;
   vtkTimeStamp BuildTime;
-  vtkOpenGLGlyph3DMapperSubArray() = default;;
+  vtkOpenGLGlyph3DMapperSubArray() = default;
   ~vtkOpenGLGlyph3DMapperSubArray()
   {
     this->ClearEntries();

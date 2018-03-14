@@ -261,7 +261,7 @@ template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtk
 
   vtkSmartPointer<vtkPointSource> randomSphere =
     vtkSmartPointer<vtkPointSource>::New();
-  randomSphere->SetRadius(sphere->GetRadius() * 2.0);;
+  randomSphere->SetRadius(sphere->GetRadius() * 2.0);
   randomSphere->SetNumberOfPoints(numberOfPoints);
   randomSphere->Update();
   vtkSmartPointer<vtkDoubleArray> distances =
@@ -332,7 +332,7 @@ template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtk
     for (vtkIdType p = 0; p < ptIds->GetNumberOfIds(); ++p)
     {
       double value;
-      randomSphere->GetOutput()->GetPointData()->GetArray("Distances")->GetTuple(ptIds->GetId(p), &value);;
+      randomSphere->GetOutput()->GetPointData()->GetArray("Distances")->GetTuple(ptIds->GetId(p), &value);
       double weight;
       weights->GetTuple(p, &weight);
       probe += weight * value;
@@ -376,7 +376,7 @@ template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtk
     for (vtkIdType p = 0; p < ptIds->GetNumberOfIds(); ++p)
     {
       double value;
-      sphere->GetOutput()->GetPointData()->GetScalars()->GetTuple(ptIds->GetId(p), &value);;
+      sphere->GetOutput()->GetPointData()->GetScalars()->GetTuple(ptIds->GetId(p), &value);
       double weight;
       weights->GetTuple(p, &weight);
       probe += weight * value;
@@ -470,7 +470,7 @@ template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType number
     for (vtkIdType p = 0; p < ptIds->GetNumberOfIds(); ++p)
     {
       double value;
-      randomSphere->GetOutput()->GetPointData()->GetArray("TestDistances")->GetTuple(ptIds->GetId(p), &value);;
+      randomSphere->GetOutput()->GetPointData()->GetArray("TestDistances")->GetTuple(ptIds->GetId(p), &value);
       double weight;
       weights->GetTuple(p, &weight);
       probe += weight * value;
@@ -513,7 +513,7 @@ template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType number
     for (vtkIdType p = 0; p < ptIds->GetNumberOfIds(); ++p)
     {
       double value;
-      sphere->GetOutput()->GetPointData()->GetScalars()->GetTuple(ptIds->GetId(p), &value);;
+      sphere->GetOutput()->GetPointData()->GetScalars()->GetTuple(ptIds->GetId(p), &value);
       double weight;
       weights->GetTuple(p, &weight);
       probe += weight * value;

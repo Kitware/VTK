@@ -2219,7 +2219,7 @@ int vtkPolyData::GetScalarFieldCriticalIndex (vtkIdType pointId,
     for(int i = 0; i < triangleNb; i++)
     {
       vtkCell *c = this->GetCell(triangleList->GetId(i));
-      pointList = c->GetPointIds();;
+      pointList = c->GetPointIds();
       int pointNb = pointList->GetNumberOfIds();
 
       if(pointList->IsId(pointId) >= 0)

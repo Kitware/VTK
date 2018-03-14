@@ -42,8 +42,8 @@ public:
   vtkTypeMacro(vtkDummyImageFilter,vtkImageAlgorithm);
 
 protected:
-  vtkDummyImageFilter() = default;;
-  ~vtkDummyImageFilter() override = default;;
+  vtkDummyImageFilter() = default;
+  ~vtkDummyImageFilter() override = default;
 
   int RequestData(
     vtkInformation* request,
