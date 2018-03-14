@@ -1014,10 +1014,6 @@ void vtkCocoaRenderWindow::CreateGLContext()
         this->MultiSamples /= 2;
       }
     }
-    else
-    {
-      this->SetContextSupportsOpenGL32(true);
-    }
   }
 
   // do we have a shared render window?

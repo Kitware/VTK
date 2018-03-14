@@ -740,11 +740,6 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
           }
         }
       }
-      if (this->ContextId &&
-          (iContextAttribs[1] >= 4 || iContextAttribs[3] >= 2))
-      {
-        this->SetContextSupportsOpenGL32(true);
-      }
     }
     // fallback on old approach
     if (!this->ContextId)
