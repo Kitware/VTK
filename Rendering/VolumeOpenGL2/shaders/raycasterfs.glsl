@@ -39,6 +39,7 @@ vec4 g_fragColor = vec4(0.0);
 ///
 //////////////////////////////////////////////////////////////////////////////
 vec3 g_dataPos;
+vec3 g_terminatePos;
 vec3 g_dirStep;
 vec4 g_srcColor;
 vec4 g_eyePosObj;
@@ -54,8 +55,6 @@ float g_terminatePointMax;
 //VTK::Termination::Dec
 
 //VTK::Cropping::Dec
-
-//VTK::Clipping::Dec
 
 //VTK::Shading::Dec
 
@@ -87,6 +86,8 @@ float g_terminatePointMax;
 
 uniform float in_scale;
 uniform float in_bias;
+
+//VTK::Clipping::Dec
 
 //////////////////////////////////////////////////////////////////////////////
 ///
@@ -172,6 +173,8 @@ vec4 castRay(const float zStart, const float zEnd)
 {
   //VTK::DepthPeeling::Ray::Init
 
+  //VTK::Clipping::Impl
+
   //VTK::DepthPeeling::Ray::PathCheck
 
   //VTK::Shading::Init
@@ -182,8 +185,6 @@ vec4 castRay(const float zStart, const float zEnd)
     //VTK::Base::Impl
 
     //VTK::Cropping::Impl
-
-    //VTK::Clipping::Impl
 
     //VTK::BinaryMask::Impl
 

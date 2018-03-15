@@ -40,6 +40,7 @@ set (VolumeCxxTests
   TestGPURayCastDependentComponentsLightParameters.cxx
   TestGPURayCastDepthPeeling.cxx
   TestGPURayCastDepthPeelingBlendModes.cxx
+  TestGPURayCastDepthPeelingClip.cxx
   TestGPURayCastDepthPeelingOpaque.cxx
   TestGPURayCastDepthPeelingTransVol.cxx
   TestGPURayCastFourComponentsAdditive.cxx
