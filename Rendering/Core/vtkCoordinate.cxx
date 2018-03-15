@@ -71,6 +71,8 @@ const char *vtkCoordinate::GetCoordinateSystemAsString()
       return "Normalized Viewport";
     case VTK_VIEW:
       return "View";
+    case VTK_POSE:
+      return "Pose";
     case VTK_WORLD:
       return "World";
     case VTK_USERDEFINED:
@@ -185,6 +187,15 @@ double *vtkCoordinate::GetComputedWorldValue(vtkViewport* viewport)
                                            refValue[1],
                                            refValue[2]);
         break;
+      case VTK_POSE:
+        viewport->DisplayToNormalizedDisplay(refValue[0],refValue[1]);
+        viewport->NormalizedDisplayToViewport(refValue[0],refValue[1]);
+        viewport->ViewportToNormalizedViewport(refValue[0],refValue[1]);
+        viewport->NormalizedViewportToView(refValue[0],
+                                           refValue[1],
+                                           refValue[2]);
+        viewport->ViewToPose(refValue[0], refValue[1], refValue[2]);
+        break;
     }
 
     // add to current value
@@ -209,7 +220,10 @@ double *vtkCoordinate::GetComputedWorldValue(vtkViewport* viewport)
       viewport->NormalizedViewportToView(val[0],val[1],val[2]);
       VTK_FALLTHROUGH;
     case VTK_VIEW:
-      viewport->ViewToWorld(val[0],val[1],val[2]);
+      viewport->ViewToPose(val[0],val[1],val[2]);
+      VTK_FALLTHROUGH;
+    case VTK_POSE:
+      viewport->PoseToWorld(val[0],val[1],val[2]);
       break;
   }
 
@@ -363,7 +377,10 @@ double *vtkCoordinate::GetComputedDoubleDisplayValue(vtkViewport* viewport)
         val[1] += refValue[1];
         val[2] += refValue[2];
       }
-      viewport->WorldToView(val[0],val[1],val[2]);
+      viewport->WorldToPose(val[0],val[1],val[2]);
+      VTK_FALLTHROUGH;
+    case VTK_POSE:
+      viewport->PoseToView(val[0],val[1],val[2]);
       VTK_FALLTHROUGH;
     case VTK_VIEW:
       viewport->ViewToNormalizedViewport(val[0],val[1],val[2]);
@@ -436,6 +453,7 @@ double *vtkCoordinate::GetComputedValue(vtkViewport* viewport)
   switch (this->CoordinateSystem)
   {
     case VTK_WORLD:
+    case VTK_POSE:
       return this->GetComputedWorldValue(viewport);
     case VTK_VIEW:
     case VTK_NORMALIZED_VIEWPORT:

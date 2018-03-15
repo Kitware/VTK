@@ -504,6 +504,16 @@ public:
    */
   void WorldToView(double &wx, double &wy, double &wz) override;
 
+  //@{
+  /**
+   * Convert to from pose coordinates
+   */
+  void WorldToPose(double &wx, double &wy, double &wz) override;
+  void PoseToWorld(double &wx, double &wy, double &wz) override;
+  void ViewToPose(double &wx, double &wy, double &wz) override;
+  void PoseToView(double &wx, double &wy, double &wz) override;
+  //@}
+
   /**
    * Given a pixel location, return the Z value. The z value is
    * normalized (0,1) between the front and back clipping planes.
