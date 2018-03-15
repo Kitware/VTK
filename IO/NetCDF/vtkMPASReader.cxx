@@ -535,6 +535,7 @@ int vtkMPASReader::RequestInformation(
   {
     // Tell the pipeline what steps are available
     std::vector<double> timeSteps;
+    timeSteps.reserve(this->NumberOfTimeSteps);
     for (int i = 0; i < this->NumberOfTimeSteps; ++i)
     {
       timeSteps.push_back(static_cast<double>(i));

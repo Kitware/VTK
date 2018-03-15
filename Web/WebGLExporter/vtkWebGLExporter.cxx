@@ -453,6 +453,7 @@ void vtkWebGLExporter::generateRendererData(vtkRendererCollection* renderers, co
   ss << "\"Renderers\": [";
 
   std::vector<vtkRenderer*> orderedList;
+  orderedList.reserve(renderers->GetNumberOfItems());
   for(int i=0; i<renderers->GetNumberOfItems(); i++) orderedList.push_back(vtkRenderer::SafeDownCast(renderers->GetItemAsObject(i)));
   std::sort(orderedList.begin(), orderedList.begin()+orderedList.size(), sortLayer);
 

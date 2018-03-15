@@ -190,6 +190,7 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::packTreeNodes(vtkIdTyp
                              circle);
     }
     std::vector<vtkIdType> childNodesPackList;
+    childNodesPackList.reserve(tree->GetNumberOfChildren(treeNode));
     for(int i=0;i<tree->GetNumberOfChildren(treeNode);i++)
     {
       childNodesPackList.push_back(tree->GetChild(treeNode,i));

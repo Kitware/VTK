@@ -2282,6 +2282,7 @@ void vtkPolyhedron::Clip(double value,
   {
     vtkIdType nIds = poly->GetNumberOfIds();
     vector<vtkIdType> polygon;
+    polygon.reserve(nIds);
     for (int i = 0; i < nIds; ++i)
     {
       polygon.push_back(poly->GetId(i));
