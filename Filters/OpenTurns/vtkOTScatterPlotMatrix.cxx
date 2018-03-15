@@ -20,13 +20,17 @@
 #include "vtkChart.h"
 #include "vtkChartXY.h"
 #include "vtkColor.h"
+#include "vtkColorTransferFunction.h"
 #include "vtkCompositeDataIterator.h"
+#include "vtkExecutive.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkOTDensityMap.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
+#include "vtkPlotHistogram2D.h"
 #include "vtkPlotPoints.h"
 #include "vtkTable.h"
 #include "vtkTextProperty.h"
@@ -85,6 +89,8 @@ void vtkOTScatterPlotMatrix::AddSupplementaryPlot(vtkChart* chart,
   vtkStdString column,
   int plotCorner)
 {
+  vtkChartXY* xy = vtkChartXY::SafeDownCast(chart);
+
   if (plotType != NOPLOT && plotType != HISTOGRAM &&
     this->DensityMapsSettings[plotType]->ShowDensityMap && !this->Animating)
   {
@@ -120,7 +126,6 @@ void vtkOTScatterPlotMatrix::AddSupplementaryPlot(vtkChart* chart,
       if (densityLineTable)
       {
         vtkPlot* densityPlot = chart->AddPlot(vtkChart::LINE);
-        vtkChartXY* xy = vtkChartXY::SafeDownCast(chart);
         if (xy)
         {
           xy->AutoAxesOff();
@@ -139,6 +144,39 @@ void vtkOTScatterPlotMatrix::AddSupplementaryPlot(vtkChart* chart,
       }
     }
     iter->Delete();
+
+    // Draw the density map image as well
+    vtkImageData* image = vtkImageData::SafeDownCast(density->GetExecutive()->GetOutputData(1));
+    if (image)
+    {
+      vtkNew<vtkPlotHistogram2D> histo;
+      histo->SetInputData(image);
+      if (this->TransferFunction.Get() == nullptr)
+      {
+        double* range = image->GetScalarRange();
+        vtkNew<vtkColorTransferFunction> stc;
+        stc->SetColorSpaceToDiverging();
+        stc->AddRGBPoint(range[0], 59. / 255., 76. / 255., 192. / 255.);
+        stc->AddRGBPoint(0.5 * (range[0] + range[1]), 221. / 255., 221. / 255., 221. / 255.);
+        stc->AddRGBPoint(range[1], 180. / 255., 4. / 255., 38. / 255.);
+        stc->Build();
+        histo->SetTransferFunction(stc);
+      }
+      else
+      {
+        histo->SetTransferFunction(this->TransferFunction);
+      }
+      histo->Update();
+      chart->AddPlot(histo);
+      if (xy)
+      {
+        xy->LowerPlot(histo); // push the plot in background
+      }
+    }
+    else
+    {
+      vtkWarningMacro("Density image is not found.");
+    }
   }
 }
 
@@ -197,4 +235,20 @@ void vtkOTScatterPlotMatrix::SetDensityMapColor(int plotType,
 void vtkOTScatterPlotMatrix::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
+}
+
+//----------------------------------------------------------------------------
+vtkScalarsToColors* vtkOTScatterPlotMatrix::GetTransferFunction()
+{
+  return this->TransferFunction;
+}
+
+//----------------------------------------------------------------------------
+void vtkOTScatterPlotMatrix::SetTransferFunction(vtkScalarsToColors* stc)
+{
+  if (this->TransferFunction.Get() != stc)
+  {
+    this->TransferFunction = stc;
+    this->Modified();
+  }
 }
