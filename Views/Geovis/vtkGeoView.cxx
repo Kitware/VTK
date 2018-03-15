@@ -47,7 +47,7 @@ vtkCxxSetObjectMacro(vtkGeoView, Terrain, vtkGeoTerrain);
 //----------------------------------------------------------------------------
 vtkGeoView::vtkGeoView()
 {
-  this->Terrain = 0;
+  this->Terrain = nullptr;
 
   // Replace the interactor style
   vtkGeoInteractorStyle* style = vtkGeoInteractorStyle::New();
@@ -102,7 +102,7 @@ vtkGeoView::~vtkGeoView()
   this->LowResEarthMapper->Delete();
   this->LowResEarthActor->Delete();
   this->Assembly->Delete();
-  this->SetTerrain(0);
+  this->SetTerrain(nullptr);
 }
 
 //----------------------------------------------------------------------------

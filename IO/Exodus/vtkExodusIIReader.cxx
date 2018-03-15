@@ -1426,7 +1426,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
     for ( int i = 0; i < binfo->Size; ++i )
     {
       int entitiesPerCell = binfo->PointsPerCell;
-      if ( ent != 0)
+      if ( ent != nullptr)
       {
         entitiesPerCell = ent->GetValue (i);
       }
@@ -2092,7 +2092,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     {
       vtkErrorMacro( "Could not read nodal map variable " << minfop->Name.c_str() << "." );
       arr->Delete();
-      arr = 0;
+      arr = nullptr;
     }
   }
   else if ( key.ObjectType == vtkExodusIIReader::GLOBAL_ELEMENT_ID )
@@ -2173,7 +2173,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         {
           vtkErrorMacro( "Could not read elem num map for global implicit id" );
           src->Delete();
-          return 0;
+          return nullptr;
         }
     }
     else // single file, just make the implicit index explicit
@@ -2240,7 +2240,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         {
           vtkErrorMacro( "Could not node node num map for global implicit id" );
           src->Delete();
-          return 0;
+          return nullptr;
         }
     }
     else // single file, just make the implicit index explicit
@@ -2318,7 +2318,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         {
           vtkErrorMacro( "Could not read old-style node or element map." );
           iarr->Delete();
-          iarr = 0;
+          iarr = nullptr;
         }
       }
     }

@@ -2500,7 +2500,7 @@ void vtkPKdTree::AllocateAndZeroFieldArrayMinMax()
     this->CellDataMax.resize(this->NumCellArrays, 0);
 
     std::fill(this->CellDataName.begin(), this->CellDataName.end(), std::string());
-    this->CellDataName.resize(this->NumCellArrays, 0);
+    this->CellDataName.resize(this->NumCellArrays, nullptr);
   }
 
   if (this->NumPointArrays > 0)

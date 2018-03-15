@@ -3804,7 +3804,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetMaskShaderParameters(
   if(noOfComponents == 1 &&
      this->Parent->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
   {
-    if (this->Parent->MaskInput != 0 && this->Parent->MaskType == LabelMapMaskType)
+    if (this->Parent->MaskInput != nullptr && this->Parent->MaskType == LabelMapMaskType)
     {
       this->Mask1RGBTable->Activate();
       prog->SetUniformi("in_mask1",
@@ -3923,7 +3923,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::FinishRendering(
   if(numComp == 1 &&
      this->Parent->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
   {
-    if (this->Parent->MaskInput != 0 && this->Parent->MaskType == LabelMapMaskType)
+    if (this->Parent->MaskInput != nullptr && this->Parent->MaskType == LabelMapMaskType)
     {
       this->Mask1RGBTable->Deactivate();
       this->Mask2RGBTable->Deactivate();
