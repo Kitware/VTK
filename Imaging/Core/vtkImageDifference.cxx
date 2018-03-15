@@ -132,7 +132,7 @@ public:
   void Reduce();
 
 private:
-  vtkImageDifferenceSMPFunctor();
+  vtkImageDifferenceSMPFunctor() = delete;
 
   vtkImageDifference *Algorithm;
   vtkImageData ***Inputs;

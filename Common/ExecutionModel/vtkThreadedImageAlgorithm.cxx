@@ -481,7 +481,7 @@ public:
   }
 
 private:
-  vtkThreadedImageAlgorithmFunctor();
+  vtkThreadedImageAlgorithmFunctor() = delete;
 
   vtkThreadedImageAlgorithm *Algorithm;
   vtkInformation *Request;

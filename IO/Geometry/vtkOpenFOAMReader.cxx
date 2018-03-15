@@ -1113,7 +1113,7 @@ private:
   vtkStdString CasePath;
 
   // declare and define as private
-  vtkFoamFile();
+  vtkFoamFile() = delete;
   bool InflateNext(unsigned char *buf, int requestSize, int *readSize = nullptr);
   int NextTokenHead();
   // hacks to keep exception throwing / recursive codes out-of-line to make
@@ -2442,7 +2442,7 @@ private:
   bool Managed;
   const vtkFoamEntry *UpperEntryPtr;
 
-  vtkFoamEntryValue();
+  vtkFoamEntryValue() = delete;
   vtkObjectBase *ToVTKObject()
   {
     return this->Superclass::VtkObjectPtr;
@@ -3169,7 +3169,7 @@ private:
   vtkStdString Keyword;
   vtkFoamDict *UpperDictPtr;
 
-  vtkFoamEntry();
+  vtkFoamEntry() = delete;
 
 public:
   vtkFoamEntry(vtkFoamDict *upperDictPtr) :
@@ -3294,7 +3294,7 @@ private:
   vtkFoamToken Token;
   const vtkFoamDict *UpperDictPtr;
 
-  vtkFoamDict(const vtkFoamDict &);
+  vtkFoamDict(const vtkFoamDict &) = delete;
 
 public:
   vtkFoamDict(const vtkFoamDict *upperDictPtr = nullptr) :

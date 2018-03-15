@@ -110,8 +110,8 @@ protected:
   // List structure: only for the pixel list (two-way)
   vtkPixelListEntry *Previous;
 private:
-  vtkPixelListEntry(const vtkPixelListEntry &other);
-  vtkPixelListEntry &operator=(const vtkPixelListEntry &other);
+  vtkPixelListEntry(const vtkPixelListEntry &other) = delete;
+  vtkPixelListEntry &operator=(const vtkPixelListEntry &other) = delete;
 };
 
 //-----------------------------------------------------------------------------

@@ -143,7 +143,7 @@ struct LSDynaFamily::BufferingInfo
     vtkIdType leftOver;
     const vtkIdType size; //default buffer size
 private:
-  LSDynaFamily::BufferingInfo& operator=( const LSDynaFamily::BufferingInfo & );
+  LSDynaFamily::BufferingInfo& operator=( const LSDynaFamily::BufferingInfo & ) = delete;
 };
 
 //-----------------------------------------------------------------------------
