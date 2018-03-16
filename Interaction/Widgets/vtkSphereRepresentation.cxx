@@ -239,10 +239,13 @@ void vtkSphereRepresentation::HighlightHandle(int highlight)
 //------------------------------------------------------------------------------
 void vtkSphereRepresentation::RegisterPickers()
 {
-  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
-    ->AddPicker(this->HandlePicker, this);
-  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
-    ->AddPicker(this->SpherePicker, this);
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+  {
+    return;
+  }
+  pm->AddPicker(this->HandlePicker, this);
+  pm->AddPicker(this->SpherePicker, this);
 }
 
 //----------------------------------------------------------------------

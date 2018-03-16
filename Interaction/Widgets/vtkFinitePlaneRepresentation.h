@@ -217,6 +217,11 @@ public:
     Pushing
   };
 
+  /*
+  * Register internal Pickers within PickingManager
+  */
+  void RegisterPickers() override;
+
 protected:
   vtkFinitePlaneRepresentation();
   ~vtkFinitePlaneRepresentation() override;
@@ -225,9 +230,6 @@ protected:
 
   // Size the glyphs representing hot spots (e.g., handles)
   virtual void SizeHandles();
-
-  // Register internal Pickers within PickingManager
-  void RegisterPickers() override;
 
   void SetHighlightNormal(int highlight);
   void SetHighlightPlane(int highlight);

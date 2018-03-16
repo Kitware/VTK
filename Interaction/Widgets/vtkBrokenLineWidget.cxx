@@ -280,6 +280,7 @@ void vtkBrokenLineWidget::SetEnabled( int enabling )
     }
     this->BuildRepresentation();
     this->SizeHandles();
+    this->RegisterPickers();
 
     this->InvokeEvent( vtkCommand::EnableEvent,nullptr );
   }
@@ -310,6 +311,7 @@ void vtkBrokenLineWidget::SetEnabled( int enabling )
     this->CurrentHandle = nullptr;
     this->InvokeEvent( vtkCommand::DisableEvent,nullptr );
     this->SetCurrentRenderer( nullptr );
+    this->UnRegisterPickers();
   }
 
   this->Interactor->Render();

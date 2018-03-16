@@ -215,6 +215,11 @@ public:
   vtkGetStringMacro(LengthUnit);
   //@}
 
+  /*
+  * Register internal Pickers within PickingManager
+  */
+  void RegisterPickers() override;
+
 protected:
   vtkMeasurementCubeHandleRepresentation3D();
   ~vtkMeasurementCubeHandleRepresentation3D() override;
@@ -239,9 +244,6 @@ protected:
   double                       MaxRelativeCubeScreenArea;
   double                       SideLength;
   char                       * LengthUnit;
-
-  // Register internal Pickers within PickingManager
-  void RegisterPickers() override;
 
   // Methods to manipulate the cursor
   virtual void Translate(double *p1, double *p2);

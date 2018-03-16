@@ -270,6 +270,11 @@ public:
   void StepBackward();
   //@}
 
+  /*
+  * Register internal Pickers within PickingManager
+  */
+  void RegisterPickers() override;
+
 protected:
   vtkBoxRepresentation();
   ~vtkBoxRepresentation() override;
@@ -318,9 +323,6 @@ protected:
   vtkActor *CurrentHandle;
   int      CurrentHexFace;
   vtkCellPicker *LastPicker;
-
-  // Register internal Pickers within PickingManager
-  void RegisterPickers() override;
 
   // Transform the hexahedral points (used for rotations)
   vtkTransform *Transform;

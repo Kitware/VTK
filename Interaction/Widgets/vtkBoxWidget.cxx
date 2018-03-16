@@ -267,6 +267,7 @@ void vtkBoxWidget::SetEnabled(int enabling)
       this->CurrentRenderer->AddActor(this->Handle[j]);
       this->Handle[j]->SetProperty(this->HandleProperty);
     }
+    this->RegisterPickers();
 
     this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
   }
@@ -301,6 +302,7 @@ void vtkBoxWidget::SetEnabled(int enabling)
     this->CurrentHandle = nullptr;
     this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
     this->SetCurrentRenderer(nullptr);
+    this->UnRegisterPickers();
   }
 
   this->Interactor->Render();

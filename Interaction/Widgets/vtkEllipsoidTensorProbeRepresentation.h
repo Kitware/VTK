@@ -66,15 +66,17 @@ public:
   void ReleaseGraphicsResources(vtkWindow *) override;
   //@}
 
+  /*
+  * Register internal Pickers within PickingManager
+  */
+  void RegisterPickers() override;
+
 protected:
   vtkEllipsoidTensorProbeRepresentation();
   ~vtkEllipsoidTensorProbeRepresentation() override;
 
   // Get the interpolated tensor at the current position
   void EvaluateTensor( double t[9] );
-
-  // Register internal Pickers within PickingManager
-  void RegisterPickers() override;
 
   vtkActor           * EllipsoidActor;
   vtkPolyDataMapper  * EllipsoidMapper;

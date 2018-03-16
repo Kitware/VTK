@@ -170,6 +170,11 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
+  /*
+  * Register internal Pickers within PickingManager
+  */
+  void RegisterPickers() override;
+
 protected:
   vtkSliderRepresentation3D();
   ~vtkSliderRepresentation3D() override;
@@ -190,9 +195,6 @@ protected:
 
   // Do the picking
   vtkCellPicker *Picker;
-
-  // Register internal Pickers within PickingManager
-  void RegisterPickers() override;
 
   // Determine the parameter t along the slider
   virtual double ComputePickPosition(double eventPos[2]);

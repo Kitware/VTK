@@ -1724,10 +1724,13 @@ void vtkBoxRepresentation::HighlightOutline(int highlight)
 //------------------------------------------------------------------------------
 void vtkBoxRepresentation::RegisterPickers()
 {
-  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
-    ->AddPicker(this->HandlePicker, this);
-  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
-    ->AddPicker(this->HexPicker, this);
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+  {
+    return;
+  }
+  pm->AddPicker(this->HandlePicker, this);
+  pm->AddPicker(this->HexPicker, this);
 }
 
 //----------------------------------------------------------------------------

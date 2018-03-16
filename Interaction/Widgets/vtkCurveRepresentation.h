@@ -226,6 +226,11 @@ public:
    */
   void SetLineColor(double r, double g, double b);
 
+  /*
+  * Register internal Pickers within PickingManager
+  */
+  void RegisterPickers() override;
+
 protected:
   vtkCurveRepresentation();
   ~vtkCurveRepresentation() override;
@@ -266,9 +271,6 @@ protected:
   double LastPickPosition[3];
   vtkActor *CurrentHandle;
   int CurrentHandleIndex;
-
-  // Register internal Pickers within PickingManager
-  void RegisterPickers() override;
 
   // Methods to manipulate the curve.
   void MovePoint(double *p1, double *p2);

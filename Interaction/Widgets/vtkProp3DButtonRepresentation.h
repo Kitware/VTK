@@ -116,6 +116,11 @@ public:
   int HasTranslucentPolygonalGeometry() override;
   //@}
 
+  /*
+  * Register internal Pickers within PickingManager
+  */
+  void RegisterPickers() override;
+
 protected:
   vtkProp3DButtonRepresentation();
   ~vtkProp3DButtonRepresentation() override;
@@ -133,9 +138,6 @@ protected:
 
   // For picking the button
   vtkPropPicker *Picker;
-
-  // Register internal Pickers within PickingManager
-  void RegisterPickers() override;
 
 private:
   vtkProp3DButtonRepresentation(const vtkProp3DButtonRepresentation&) = delete;

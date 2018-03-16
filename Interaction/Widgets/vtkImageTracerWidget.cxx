@@ -272,6 +272,7 @@ void vtkImageTracerWidget::SetEnabled(int enabling)
     this->CurrentRenderer->AddViewProp(this->LineActor);
     this->LineActor->SetProperty(this->LineProperty);
     this->LineActor->PickableOff();
+    this->RegisterPickers();
 
     this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
   }
@@ -312,6 +313,7 @@ void vtkImageTracerWidget::SetEnabled(int enabling)
     this->CurrentHandle = nullptr;
     this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
     this->SetCurrentRenderer(nullptr);
+    this->UnRegisterPickers();
   }
 
   this->Interactor->Render();

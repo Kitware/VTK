@@ -232,6 +232,11 @@ public:
   vtkBooleanMacro( SmoothMotion, vtkTypeBool );
   //@}
 
+  /*
+  * Register internal Pickers within PickingManager
+  */
+  void RegisterPickers() override;
+
 protected:
   vtkPointHandleRepresentation3D();
   ~vtkPointHandleRepresentation3D() override;
@@ -246,9 +251,6 @@ protected:
   vtkCellPicker *CursorPicker;
   double LastPickPosition[3];
   double LastEventPosition[3];
-
-  // Register internal Pickers within PickingManager
-  void RegisterPickers() override;
 
   // Methods to manipulate the cursor
   int  ConstraintAxis;

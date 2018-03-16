@@ -111,7 +111,7 @@ public:
    * Enabled by default.
    */
   vtkBooleanMacro(PickingManaged, bool);
-  vtkSetMacro(PickingManaged, bool);
+  virtual void SetPickingManaged(bool managed);
   vtkGetMacro(PickingManaged, bool);
   //@}
 
@@ -256,12 +256,6 @@ protected:
    * Unregister internal pickers from the Picking Manager.
    */
   void UnRegisterPickers();
-
-  /**
-   * Update the pickers registered in the Picking Manager when pickers are
-   * modified.
-   */
-  virtual void PickersModified();
 
   /**
    * Return the picking manager associated on the context on which the

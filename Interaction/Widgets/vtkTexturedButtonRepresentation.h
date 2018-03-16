@@ -163,6 +163,11 @@ public:
   int HasTranslucentPolygonalGeometry() override;
   //@}
 
+  /*
+  * Register internal Pickers within PickingManager
+  */
+  void RegisterPickers() override;
+
 protected:
   vtkTexturedButtonRepresentation();
   ~vtkTexturedButtonRepresentation() override;
@@ -189,8 +194,6 @@ protected:
   // For picking the button
   vtkCellPicker *Picker;
 
-  // Register internal Pickers within PickingManager
-  void RegisterPickers() override;
 
 private:
   vtkTexturedButtonRepresentation(const vtkTexturedButtonRepresentation&) = delete;

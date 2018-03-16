@@ -74,7 +74,7 @@ public:
    * Enabled by default.
    */
   vtkBooleanMacro(PickingManaged, bool);
-  vtkSetMacro(PickingManaged, bool);
+  void SetPickingManaged(bool managed);
   vtkGetMacro(PickingManaged, bool);
   //@}
 
@@ -224,6 +224,18 @@ public:
   int RenderVolumetricGeometry(vtkViewport *vtkNotUsed(viewport)) override {return 0;}
   int HasTranslucentPolygonalGeometry() override { return 0; }
 
+  /**
+  * Register internal Pickers in the Picking Manager.
+  * Must be reimplemented by concrete widget representations to register
+  * their pickers.
+  */
+  virtual void RegisterPickers();
+
+  /**
+  * Unregister internal pickers from the Picking Manager.
+  */
+  virtual void UnRegisterPickers();
+
 protected:
   vtkWidgetRepresentation();
   ~vtkWidgetRepresentation() override;
@@ -255,24 +267,6 @@ protected:
   // This variable controls whether the picking is managed by the Picking
   // Manager or not. True by default.
   bool PickingManaged;
-
-  /**
-   * Register internal Pickers in the Picking Manager.
-   * Must be reimplemented by concrete widget representations to register
-   * their pickers.
-   */
-  virtual void RegisterPickers();
-
-  /**
-   * Unregister internal pickers from the Picking Manager.
-   */
-  virtual void UnRegisterPickers();
-
-  /**
-   * Update the pickers registered in the Picking Manager when pickers are
-   * modified.
-   */
-  virtual void PickersModified();
 
   /**
    * Return the picking manager associated on the context on which the widget

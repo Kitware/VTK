@@ -104,8 +104,12 @@ vtkPointHandleRepresentation3D::~vtkPointHandleRepresentation3D()
 //----------------------------------------------------------------------
 void vtkPointHandleRepresentation3D::RegisterPickers()
 {
-  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
-    ->AddPicker(this->CursorPicker, this);
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+  {
+    return;
+  }
+  pm->AddPicker(this->CursorPicker, this);
 }
 
 //-------------------------------------------------------------------------

@@ -303,6 +303,7 @@ void vtkImplicitPlaneWidget::SetEnabled(int enabling)
 
     this->UpdateRepresentation();
     this->SizeHandles();
+    this->RegisterPickers();
     this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
   }
 
@@ -332,6 +333,7 @@ void vtkImplicitPlaneWidget::SetEnabled(int enabling)
 
     this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
     this->SetCurrentRenderer(nullptr);
+    this->UnRegisterPickers();
   }
 
   this->Interactor->Render();

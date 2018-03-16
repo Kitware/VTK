@@ -300,6 +300,11 @@ public:
   int HasTranslucentPolygonalGeometry() override;
   //@}
 
+  /*
+  * Register internal Pickers within PickingManager
+  */
+  void RegisterPickers() override;
+
 protected:
   vtkSphereRepresentation();
   ~vtkSphereRepresentation() override;
@@ -320,9 +325,6 @@ protected:
   vtkCellPicker *HandlePicker;
   vtkCellPicker *SpherePicker;
   double LastPickPosition[3];
-
-  // Register internal Pickers within PickingManager
-  void RegisterPickers() override;
 
   // Methods to manipulate the sphere widget
   void Translate(double *p1, double *p2);

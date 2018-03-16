@@ -183,6 +183,7 @@ void vtkSphereWidget::SetEnabled(int enabling)
     this->HandleActor->SetProperty(this->HandleProperty);
     this->SelectRepresentation();
     this->SizeHandles();
+    this->RegisterPickers();
 
     this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
   }
@@ -207,6 +208,7 @@ void vtkSphereWidget::SetEnabled(int enabling)
 
     this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
     this->SetCurrentRenderer(nullptr);
+    this->UnRegisterPickers();
   }
 
   this->Interactor->Render();
