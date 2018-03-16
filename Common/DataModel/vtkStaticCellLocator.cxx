@@ -151,8 +151,12 @@ struct vtkCellBinner
   // These are helper functions
   vtkIdType CountBins(const int ijkMin[3], const int ijkMax[3])
   {
-    return ( (ijkMax[0]-ijkMin[0]+1) * (ijkMax[1]-ijkMin[1]+1) *
-             (ijkMax[2]-ijkMin[2]+1) );
+    // Ensure all temporary values are vtkIdType:
+    vtkIdType result = ijkMax[0]-ijkMin[0] + 1;
+    result *= ijkMax[1]-ijkMin[1] + 1;
+    result *= ijkMax[2]-ijkMin[2] + 1;
+
+    return result;
   }
 
   void Initialize()
