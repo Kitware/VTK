@@ -435,13 +435,19 @@ ComputeDivisions(vtkIdType totalBins, double bounds[6], int divs[3]) const
   double max=0.0, lengths[3];
   this->GetLengths(lengths);
 
+  // Use a finite tolerance when detecting zero width sides to ensure that
+  // numerical noise doesn't cause an explosion later on. We'll consider any
+  // length that's less than 0.1% of the average length to be zero:
+  double totLen = lengths[0] + lengths[1] + lengths[2];
+  const double zeroDetectionTolerance = totLen * (0.001 / 3.);
+
   for (int i=0; i<3; ++i)
   {
     if ( lengths[i] > max )
     {
       maxIdx = i;
     }
-    if ( lengths[i] > 0.0 )
+    if ( lengths[i] > zeroDetectionTolerance )
     {
       nonZero[i] = 1;
       numNonZero++;
@@ -468,7 +474,6 @@ ComputeDivisions(vtkIdType totalBins, double bounds[6], int divs[3]) const
   // Okay we need to compute the divisions roughly in proportion to the
   // bounding box edge lengths.  The idea is to make the bins as close to a
   // cube as possible. Ensure that the number of divisions is valid.
-  double totLen = lengths[0] + lengths[1] + lengths[2];
   double f = static_cast<double>(totalBins);
   f /= (nonZero[0] ? (lengths[0]/totLen) : 1.0);
   f /= (nonZero[1] ? (lengths[1]/totLen) : 1.0);
