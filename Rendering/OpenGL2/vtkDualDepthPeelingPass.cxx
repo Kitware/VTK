@@ -434,22 +434,23 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
 
     "\n"
     "  // Initialize g_dataPos as if startPoint lies Inside (b.)\n"
+    "  vec3 rayOrigin = ip_textureCoords;\n"
     "  g_dataPos = startPoint.xyz;\n"
-    "  bool isInsideBBox = !(any(greaterThan(startPoint.xyz, in_texMax[0])) ||\n"
-    "    any(lessThan(startPoint.xyz, in_texMin[0])));\n"
+    "\n"
+    "  bool isInsideBBox = !(any(greaterThan(g_dataPos, in_texMax[0])) ||\n"
+    "                        any(lessThan(g_dataPos, in_texMin[0])));\n"
     "  if (!isInsideBBox)\n"
     "  {\n"
-    "    vec3 distStartTexCoord = ip_textureCoords.xyz - startPoint.xyz;\n"
+    "    vec3 distStartTexCoord = rayOrigin - g_dataPos;\n"
     "    if (dot(distStartTexCoord, g_dirStep) < 0)\n"
     "    {\n"
     "      // startPoint lies behind the bounding box (c.)\n"
     "      return vec4(0.0);\n"
     "    }\n"
     "    // startPoint lies in-front (a.)\n"
-    "    g_dataPos = ip_textureCoords.xyz;\n"
+    "    g_dataPos = rayOrigin;\n"
     "  }\n"
-    "  g_dataPos += g_rayJitter;\n"
-    "  \n"
+    "\n"
     "  // End point\n"
     "  {\n"
     "    vec4 endPoint = WindowToNDC(gl_FragCoord.x, gl_FragCoord.y, zEnd);\n"
@@ -457,10 +458,14 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
     "    g_terminatePos = endPoint.xyz / endPoint.w;\n"
     "  }\n"
     "\n"
+    "  // Make sure that we're sampling consistently across boundaries:\n"
+    "  g_dataPos = ClampToSampleLocation(rayOrigin, g_dirStep, g_dataPos, true /*ceil*/);\n"
+    "\n"
     "  // Compute the number of steps and reinitialize the step counter.\n"
-    "  g_terminatePointMax = length(g_terminatePos.xyz - g_dataPos.xyz) / length(g_dirStep);\n"
+    "  g_terminatePointMax = length(g_terminatePos - g_dataPos) / length(g_dirStep);\n"
     "  g_currentT = 0.0;\n"
     "  g_fragColor = vec4(0.0);\n"
+    "  g_dataPos += g_rayJitter;\n"
     "\n";
 
   switch (this->CurrentStage)
@@ -711,6 +716,9 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             "  // as required for back-blending.\n"
             "  gl_FragData[0] = color;\n"
             );
+
+      vtkShaderProgram::Substitute(fragmentShader,
+            "//VTK::DepthPeeling::Ray::Init", rayInit);
       break;
 
     default:
