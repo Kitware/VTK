@@ -111,6 +111,8 @@ public:
   virtual void SaveCameraPose(int num);
   virtual void LoadCameraPose(int num);
   virtual void LoadNextCameraPose();
+  virtual std::vector<vtkOpenVRCameraPose> &GetSavedCameraPoses() {
+    return this->SavedCameraPoses; }
 
   // not used for dashboard overlays
   void Show();
