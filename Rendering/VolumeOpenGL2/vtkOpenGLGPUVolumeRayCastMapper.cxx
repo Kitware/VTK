@@ -1616,7 +1616,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
 {
   // Reset the message stream for extensions
   this->LoadDepthTextureExtensionsSucceeded = true;
-  return;
 }
 
 //----------------------------------------------------------------------------

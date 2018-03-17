@@ -252,7 +252,6 @@ void
 MappedGridImpl::Allocate(vtkIdType vtkNotUsed(numCells), int vtkNotUsed(extSize))
 {
   vtkWarningMacro(<<"Read only block\n");
-  return;
 }
 
 
@@ -282,7 +281,6 @@ void
 MappedGridImpl::ReplaceCell(vtkIdType vtkNotUsed(cellId), int vtkNotUsed(npts), vtkIdType *vtkNotUsed(pts))
 {
   vtkWarningMacro(<<"Read only block\n");
-  return;
 }
 
 

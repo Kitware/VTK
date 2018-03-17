@@ -223,7 +223,7 @@ const std::string& vtkCompositeDataDisplayAttributes::GetBlockMaterial(vtkDataOb
     return iter->second;
   }
 
-  static const std::string nomat = "";
+  static const std::string nomat;
   return nomat;
 }
 

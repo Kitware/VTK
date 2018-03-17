@@ -113,7 +113,7 @@ bool testCellIterator(vtkCellIterator *iter, vtkUnstructuredGrid *grid)
   if (std::string(#className_) != std::string(iter->GetClassName())) \
   { \
     cerr << "Unexpected iterator type (expected " #className_ ", got " \
-         << iter_->GetClassName() << ")" << endl; \
+         << (iter_)->GetClassName() << ")" << endl; \
     return false; \
   } \
   \

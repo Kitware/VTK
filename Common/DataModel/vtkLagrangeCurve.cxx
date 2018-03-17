@@ -294,7 +294,6 @@ void vtkLagrangeCurve::Derivatives(
   double* vtkNotUsed(derivs))
 {
   // TODO: Fill me in?
-  return;
 }
 
 double* vtkLagrangeCurve::GetParametricCoords()

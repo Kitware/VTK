@@ -48,7 +48,7 @@ int TestXMLHyperTreeGridIO(int argc, char* argv[])
   vtkDataArray *coords;
   int ntp;
 
-  std::string read1 = "";
+  std::string read1;
 
   read_in->GetGridSize(size);
   read1 += "SIZE "+std::to_string(size[0])+","+std::to_string(size[1])+","+std::to_string(size[2])+"\n";
@@ -92,7 +92,7 @@ int TestXMLHyperTreeGridIO(int argc, char* argv[])
   reader->Update();
   vtkHyperTreeGrid *wrote_out = reader->GetOutput();
 
-  std::string read2 = "";
+  std::string read2;
   wrote_out->GetGridSize(size);
   read2 += "SIZE "+std::to_string(size[0])+","+std::to_string(size[1])+","+std::to_string(size[2])+"\n";
   read2 +="DIMS "+std::to_string(wrote_out->GetDimension())+"\n";

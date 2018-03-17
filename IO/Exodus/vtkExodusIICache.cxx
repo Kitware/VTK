@@ -7,11 +7,11 @@
 //#undef VTK_EXO_DBG_CACHE
 
 #define VTK_EXO_PRT_KEY( ckey ) \
-  "(" << ckey.Time << ", " << ckey.ObjectType << ", " << ckey.ObjectId << ", " << ckey.ArrayId << ")"
+  "(" << (ckey).Time << ", " << (ckey).ObjectType << ", " << (ckey).ObjectId << ", " << (ckey).ArrayId << ")"
 #define VTK_EXO_PRT_ARR( cval ) \
-  " [" << cval << "," <<  (cval ? cval->GetActualMemorySize() / 1024. : 0.) << "/" << this->Size << "/" << this->Capacity << "]"
+  " [" << (cval) << "," <<  ((cval) ? (cval)->GetActualMemorySize() / 1024. : 0.) << "/" << this->Size << "/" << this->Capacity << "]"
 #define VTK_EXO_PRT_ARR2( cval ) \
-  " [" << cval << ", " <<  (cval ? cval->GetActualMemorySize() / 1024. : 0.) << "]"
+  " [" << (cval) << ", " <<  ((cval) ? (cval)->GetActualMemorySize() / 1024. : 0.) << "]"
 
 #if 0
 static void printCache( vtkExodusIICacheSet& cache, vtkExodusIICacheLRU& lru )

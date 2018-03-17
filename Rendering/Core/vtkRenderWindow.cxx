@@ -140,7 +140,6 @@ void vtkRenderWindow::SetSharedRenderWindow(vtkRenderWindow *val)
   {
     val->Register(this);
   }
-  return;
 }
 
 //----------------------------------------------------------------------------

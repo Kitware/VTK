@@ -79,7 +79,7 @@ bool vtkPolygon::IsConvex()
                               this->GetPointIds()->GetPointer(0));
 }
 
-#define VTK_POLYGON_FAILURE -1
+#define VTK_POLYGON_FAILURE (-1)
 #define VTK_POLYGON_OUTSIDE 0
 #define VTK_POLYGON_INSIDE 1
 #define VTK_POLYGON_INTERSECTION 2

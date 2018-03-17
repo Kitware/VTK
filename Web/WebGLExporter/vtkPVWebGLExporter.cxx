@@ -117,7 +117,7 @@ void vtkPVWebGLExporter::WriteData()
   // Write HTML file
   std::string htmlFile = baseFileName;
   htmlFile += ".html";
-  exporter->exportStaticScene(this->RenderWindow->GetRenderers(), 300, 300, htmlFile.c_str());
+  exporter->exportStaticScene(this->RenderWindow->GetRenderers(), 300, 300, htmlFile);
 }
 // ---------------------------------------------------------------------------
 void vtkPVWebGLExporter::PrintSelf(ostream& os, vtkIndent indent)

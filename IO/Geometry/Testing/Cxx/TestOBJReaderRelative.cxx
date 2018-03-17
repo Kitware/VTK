@@ -83,7 +83,7 @@ int TestOBJReaderRelative( int argc, char *argv[] )
   }
 
 #define CHECK_ARRAY_EXISTS(array)          \
-  if (!array)                              \
+  if (!(array))                            \
   {                                        \
   cerr << "Array does not exist." << endl; \
   retVal = 1;                              \

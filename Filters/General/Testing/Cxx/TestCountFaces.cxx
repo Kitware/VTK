@@ -118,9 +118,9 @@ int TestCountFaces(int, char*[])
 #define TEST_FACES(idx, expected) \
   { \
   vtkIdType numFaces = faces->GetTypedComponent(idx, 0); \
-  if (numFaces != expected) \
+  if (numFaces != (expected)) \
   { \
-    std::cerr << "Expected cell @idx=" << idx << " to have " << expected \
+    std::cerr << "Expected cell @idx=" << (idx) << " to have " << (expected) \
               << " faces, but found " << numFaces << "\n"; \
     return EXIT_FAILURE; \
   } \

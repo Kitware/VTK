@@ -178,7 +178,7 @@ vtkOpenGLRenderTimerLog::Convert(const OGLFrame &oglFrame)
 {
   Frame frame;
   frame.Events.reserve(oglFrame.Events.size());
-  for (auto event : oglFrame.Events)
+  for (const auto& event : oglFrame.Events)
   {
     frame.Events.push_back(this->Convert(event));
   }
@@ -196,7 +196,7 @@ vtkOpenGLRenderTimerLog::Convert(const OGLEvent &oglEvent)
   event.EndTime = oglEvent.Timer->GetStopTime();
 
   event.Events.reserve(oglEvent.Events.size());
-  for (auto subOGLEvent : oglEvent.Events)
+  for (const auto& subOGLEvent : oglEvent.Events)
   {
     event.Events.push_back(this->Convert(subOGLEvent));
   }
