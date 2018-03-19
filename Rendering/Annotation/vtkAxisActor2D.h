@@ -377,6 +377,17 @@ public:
   vtkBooleanMacro(SizeFontRelativeToAxis,vtkTypeBool);
   //@}
 
+  //@{
+  /**
+   * By default the AxisActor controls the font size of the axis label.  If this
+   * option is set to true, it will instead use whatever font size is set in the
+   * vtkTextProperty, allowing external control of the axis size.
+   */
+  vtkSetMacro(UseFontSizeFromProperty,vtkTypeBool);
+  vtkGetMacro(UseFontSizeFromProperty,vtkTypeBool);
+  vtkBooleanMacro(UseFontSizeFromProperty,vtkTypeBool);
+  //@}
+
   /**
    * Shallow copy of an axis actor. Overloads the virtual vtkProp method.
    */
@@ -420,6 +431,7 @@ protected:
   int   LastMaxLabelSize[2];
 
   int  SizeFontRelativeToAxis;
+  vtkTypeBool UseFontSizeFromProperty;
 
   virtual void BuildAxis(vtkViewport *viewport);
   static double ComputeStringOffset(double width, double height, double theta);

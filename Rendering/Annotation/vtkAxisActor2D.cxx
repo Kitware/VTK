@@ -63,6 +63,7 @@ vtkAxisActor2D::vtkAxisActor2D()
   this->LabelFactor = 0.75;
 
   this->SizeFontRelativeToAxis = 0;
+  this->UseFontSizeFromProperty = 0;
 
   this->RulerMode = 0;
   this->RulerDistance = 1.0;
@@ -623,15 +624,22 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
     if (positionsHaveChanged || viewportSizeHasChanged ||
         this->TitleTextProperty->GetMTime() > this->BuildTime)
     {
-      if ( ! this->SizeFontRelativeToAxis )
+      if ( ! this->UseFontSizeFromProperty )
       {
-        vtkTextMapper::SetRelativeFontSize(this->TitleMapper, viewport, size, stringSize, 0.015*this->FontFactor);
+        if ( ! this->SizeFontRelativeToAxis )
+        {
+          vtkTextMapper::SetRelativeFontSize(this->TitleMapper, viewport, size, stringSize, 0.015*this->FontFactor);
+        }
+        else
+        {
+          this->TitleMapper->SetConstrainedFontSize(viewport,
+                                                    static_cast<int>(0.33*len),
+                                                    static_cast<int>(0.2*len) );
+          this->TitleMapper->GetSize(viewport, stringSize);
+        }
       }
       else
       {
-        this->TitleMapper->SetConstrainedFontSize(viewport,
-                                                  static_cast<int>(0.33*len),
-                                                  static_cast<int>(0.2*len) );
         this->TitleMapper->GetSize(viewport, stringSize);
       }
     }
