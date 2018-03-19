@@ -12,6 +12,7 @@ set(Module_SRCS
   vtkOSPRayMaterialLibrary.cxx
   vtkOSPRayPass.cxx
   vtkOSPRayPolyDataMapperNode.cxx
+  vtkOSPRayVolumeCache.cxx
   vtkOSPRayVolumeMapper.cxx
   vtkOSPRayVolumeMapperNode.cxx
   vtkOSPRayTetrahedraMapperNode.cxx
