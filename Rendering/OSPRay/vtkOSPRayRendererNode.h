@@ -26,6 +26,7 @@
 #include "vtkRendererNode.h"
 #include <vector> // for ivars
 
+class vtkInformationDoubleKey;
 class vtkInformationDoubleVectorKey;
 class vtkInformationIntegerKey;
 class vtkInformationObjectBaseKey;
@@ -179,6 +180,30 @@ public:
    */
   static void SetMaterialLibrary(vtkOSPRayMaterialLibrary *, vtkRenderer *renderer);
   static vtkOSPRayMaterialLibrary* GetMaterialLibrary(vtkRenderer *renderer);
+  //@}
+
+  /**
+   * Requested time to show in a renderer and to lookup in a temporal cache.
+   */
+  static vtkInformationDoubleKey* VIEW_TIME();
+  //@{
+  /**
+   * Convenience method to set/get VIEW_TIME on a vtkRenderer.
+   */
+  static void SetViewTime(double , vtkRenderer *renderer);
+  static double GetViewTime(vtkRenderer *renderer);
+  //@}
+
+  /**
+   * Temporal cache size..
+   */
+  static vtkInformationIntegerKey* TIME_CACHE_SIZE();
+  //@{
+  /**
+   * Convenience method to set/get TIME_CACHE_SIZE on a vtkRenderer.
+   */
+  static void SetTimeCacheSize(int , vtkRenderer *renderer);
+  static int GetTimeCacheSize(vtkRenderer *renderer);
   //@}
 
   /**
