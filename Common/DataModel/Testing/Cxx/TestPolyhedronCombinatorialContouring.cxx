@@ -13,24 +13,15 @@
 
 =========================================================================*/
 
-#include "vtkCutter.h"
 #include "vtkNew.h"
-#include "vtkPlane.h"
-#include "vtkIncrementalPointLocator.h"
 #include "vtkPoints.h"
-#include "vtkPolyData.h"
-#include "vtkTestUtilities.h"
 #include "vtkClipDataSet.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkMergePoints.h"
 #include "vtkXMLUnstructuredGridReader.h"
-#include "vtkXMLUnstructuredGridWriter.h"
 #include "vtkDoubleArray.h"
 #include "vtkContourFilter.h"
 #include "vtkPointData.h"
 #include "vtkXMLPolyDataWriter.h"
-
-#include <bitset>
 
 using namespace std;
 
@@ -168,7 +159,7 @@ void BuildPoints(vtkPoints* pts)
   }
 }
 
-int TestPolyhedron5(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestPolyhedronCombinatorialContouring(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   vtkNew<vtkPoints> pts;
   BuildPoints(pts);
@@ -177,7 +168,6 @@ int TestPolyhedron5(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   g->Allocate(1);
   vtkNew<vtkIdList> ptIds;
 
-  vtkNew<vtkXMLUnstructuredGridWriter> gw;
   vtkNew<vtkXMLPolyDataWriter> pw;
 
   vtkNew<vtkDoubleArray> data;
