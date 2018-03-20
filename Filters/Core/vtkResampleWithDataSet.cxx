@@ -114,6 +114,16 @@ bool vtkResampleWithDataSet::GetPassFieldArrays()
   return this->Prober->GetPassFieldArrays() ? true : false;
 }
 
+void vtkResampleWithDataSet::SetCellLocatorPrototype(vtkAbstractCellLocator* locator)
+{
+  this->Prober->SetCellLocatorPrototype(locator);
+}
+
+vtkAbstractCellLocator* vtkResampleWithDataSet::GetCellLocatorPrototype() const
+{
+  return this->Prober->GetCellLocatorPrototype();
+}
+
 //----------------------------------------------------------------------------
 void vtkResampleWithDataSet::SetTolerance(double arg)
 {
