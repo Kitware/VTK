@@ -116,7 +116,7 @@ public:
   /**
    * If the input is an unstructured grid with nonlinear faces, this parameter
    * determines how many times the face is subdivided into linear faces.  If 0,
-   * the output is the equivalent of its linear couterpart (and the midpoints
+   * the output is the equivalent of its linear counterpart (and the midpoints
    * determining the nonlinear interpolation are discarded).  If 1 (the
    * default), the nonlinear face is triangulated based on the midpoints.  If
    * greater than 1, the triangulated pieces are recursively subdivided to reach

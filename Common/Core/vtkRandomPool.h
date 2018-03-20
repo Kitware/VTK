@@ -98,7 +98,7 @@ public:
    * array. The size of the array is Size*NumberOfComponents. Each x value
    * ranges between (0<=x<=1). The class will generate the pool as necessary
    * (a modified time for generation is maintained). Also a method is
-   * available for getting the value at the ith pool postion and compNum
+   * available for getting the value at the ith pool position and compNum
    * component. Finally, note that the GetValue() method uses modulo
    * reduction to ensure that the request remains inside of the pool. Two
    * forms are provided, the first assumes NumberOfComponents=1; the second

@@ -77,7 +77,7 @@ public:
    * trails or traces will become long and stringy. Setting
    * the MaxTraceTimeLength will limit how much of the trace
    * is displayed. Tracks longer then the Max will disappear
-   * and the trace will apppear like a snake of fixed length
+   * and the trace will appear like a snake of fixed length
    * which progresses as the particle moves
    */
   vtkSetMacro(MaxTrackLength,unsigned int);

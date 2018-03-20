@@ -492,7 +492,7 @@ int vtkTableToGraph::RequestData(
     vtkIdType, vtkTableToGraphCompare> hiddenMap;
 
   // Set up the vertex table.  If we have one, just populate the
-  // auxiliary arrays and vetex maps.
+  // auxiliary arrays and vertex maps.
   // If we are not provided one, create one using values found in
   // the edge table.
   if (!vertexTable)
