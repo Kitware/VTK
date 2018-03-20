@@ -27,6 +27,7 @@
 #define vtkOSPRayVolumeCache_h
 
 #include "vtkRenderingOSPRayModule.h" // For export macro
+#include "vtkSystemIncludes.h" //dll warning suppression
 #include <map> // for stl
 
 namespace osp
