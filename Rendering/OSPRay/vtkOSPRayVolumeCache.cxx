@@ -17,8 +17,6 @@
 
 #include "ospray/ospray.h"
 
-#include <iostream>
-
 //------------------------------------------------------------------------------
 vtkOSPRayVolumeCache::vtkOSPRayVolumeCache()
 {
