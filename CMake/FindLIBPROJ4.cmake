@@ -13,31 +13,17 @@ if ( NOT LIBPROJ4_INCLUDE_DIR OR NOT LIBPROJ4_LIBRARIES OR NOT LIBPROJ4_FOUND )
 
   find_library( LIBPROJ4_LIBRARIES
     NAMES proj
-    PATHS
-      ${_LIBPROJ4_DIR}/lib64
-      ${CMAKE_INSTALL_PREFIX}/lib64
-      /usr/local/lib64
-      /usr/lib64
+    HINTS
       ${_LIBPROJ4_DIR}
+      ${_LIBPROJ4_DIR}/lib64
       ${_LIBPROJ4_DIR}/lib
-      ${CMAKE_INSTALL_PREFIX}/bin
-      ${CMAKE_INSTALL_PREFIX}/lib
-      /usr/local/lib
-      /usr/lib
-    NO_DEFAULT_PATH
   )
 
   find_path( LIBPROJ4_INCLUDE_DIR
     NAMES proj_api.h
-    PATHS
+    HINTS
       ${_LIBPROJ4_DIR}
       ${_LIBPROJ4_DIR}/include
-      ${CMAKE_INSTALL_PREFIX}/include
-      /usr/local/pgsql/include
-      /usr/local/include
-      /usr/include
-      /usr/include/postgresql
-    NO_DEFAULT_PATH
   )
 
   if ( NOT LIBPROJ4_INCLUDE_DIR OR NOT LIBPROJ4_LIBRARIES )
