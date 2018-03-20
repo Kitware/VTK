@@ -49,6 +49,22 @@ public:
   vtkGetStringMacro(FilePrefix);
   //@}
 
+  //@{
+  /**
+  * Specify comment string that will be written to the obj file header.
+  */
+  vtkSetStringMacro(OBJFileComment);
+  vtkGetStringMacro(OBJFileComment);
+  //@}
+
+  //@{
+  /**
+  * Specify comment string that will be written to the mtl file header.
+  */
+  vtkSetStringMacro(MTLFileComment);
+  vtkGetStringMacro(MTLFileComment);
+  //@}
+
 protected:
   vtkOBJExporter();
   ~vtkOBJExporter() override;
@@ -56,6 +72,8 @@ protected:
   void WriteData() override;
   void WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMat, int &id);
   char *FilePrefix;
+  char *OBJFileComment;
+  char *MTLFileComment;
 private:
   vtkOBJExporter(const vtkOBJExporter&) = delete;
   void operator=(const vtkOBJExporter&) = delete;

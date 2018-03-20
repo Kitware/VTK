@@ -77,14 +77,6 @@ void vtkRIBExporter::WriteData()
     return;
   }
 
-  // first make sure there is only one renderer in this rendering window
-  if (this->RenderWindow->GetRenderers()->GetNumberOfItems() > 1)
-  {
-    vtkErrorMacro(<< "RIB files only support one renderer per window.");
-    return;
-  }
-
-  vtkRenderer *ren;
   vtkActorCollection *ac;
   vtkLightCollection *lc;
   vtkActor *anActor;
@@ -92,9 +84,11 @@ void vtkRIBExporter::WriteData()
   vtkTexture *aTexture;
 
   // get the renderer
-  vtkCollectionSimpleIterator sit;
-  this->RenderWindow->GetRenderers()->InitTraversal(sit);
-  ren = this->RenderWindow->GetRenderers()->GetNextRenderer(sit);
+  vtkRenderer *ren = this->ActiveRenderer;
+  if (!ren)
+  {
+    ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();
+  }
 
   // make sure it has at least one actor
   if (ren->GetActors()->GetNumberOfItems() < 1)
@@ -168,6 +162,7 @@ void vtkRIBExporter::WriteData()
   //
   // If there is no light defined, create one
   //
+  vtkCollectionSimpleIterator sit;
   lc->InitTraversal(sit);
   if (lc->GetNextLight(sit) == nullptr)
   {

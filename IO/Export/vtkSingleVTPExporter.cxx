@@ -110,6 +110,11 @@ void vtkSingleVTPExporter::WriteData()
   vtkCollectionSimpleIterator rit;
   for (rc->InitTraversal(rit); (ren = rc->GetNextRenderer(rit)); )
   {
+    if (this->ActiveRenderer && ren != this->ActiveRenderer)
+    {
+      // If ActiveRenderer is specified then ignore all other renderers
+      continue;
+    }
     if (!ren->GetDraw())
     {
       continue;

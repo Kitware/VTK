@@ -161,8 +161,12 @@ void vtkPOVExporter::WriteData()
   }
 
   //get the renderer
-  vtkRenderer *renderer =
-    this->RenderWindow->GetRenderers()->GetFirstRenderer();
+  vtkRenderer *renderer = this->ActiveRenderer;
+  if (!renderer)
+  {
+    renderer = this->RenderWindow->GetRenderers()->GetFirstRenderer();
+  }
+
   // make sure it has at least one actor
   if (renderer->GetActors()->GetNumberOfItems() < 1)
   {

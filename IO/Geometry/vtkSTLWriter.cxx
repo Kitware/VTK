@@ -25,6 +25,7 @@
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
 #include "vtkTriangleStrip.h"
+#include "vtkUnsignedCharArray.h"
 #include <vtksys/SystemTools.hxx>
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
@@ -34,15 +35,25 @@
 #endif
 
 vtkStandardNewMacro(vtkSTLWriter);
+vtkCxxSetObjectMacro(vtkSTLWriter, BinaryHeader, vtkUnsignedCharArray);
 
-static char header[]="Visualization Toolkit generated SLA File                                        ";
+static char vtkSTLWriterDefaultHeader[]="Visualization Toolkit generated SLA File";
+static const int vtkSTLWriterBinaryHeaderSize = 80;
 
 vtkSTLWriter::vtkSTLWriter()
 {
   this->FileType = VTK_ASCII;
   this->FileName = nullptr;
-  this->Header = new char[257];
-  strcpy(this->Header, header);
+  this->Header = nullptr;
+  this->SetHeader(vtkSTLWriterDefaultHeader);
+  this->BinaryHeader = nullptr;
+}
+
+vtkSTLWriter::~vtkSTLWriter()
+{
+  this->SetFileName(nullptr);
+  this->SetHeader(nullptr);
+  this->SetBinaryHeader(nullptr);
 }
 
 void vtkSTLWriter::WriteData()
@@ -110,7 +121,12 @@ void vtkSTLWriter::WriteAsciiSTL(
 //  Write header
 //
   vtkDebugMacro("Writing ASCII sla file");
-  fprintf(fp, "solid ascii\n");
+  fprintf(fp, "solid ");
+  if (this->GetHeader())
+  {
+    fprintf(fp, "%s", this->GetHeader());
+  }
+  fprintf(fp, "\n");
 
 //
 // Decompose any triangle strips into triangles
@@ -233,23 +249,45 @@ void vtkSTLWriter::WriteBinarySTL(
   //
   vtkDebugMacro("Writing Binary STL file");
 
-  char szHeader[80+1];
+  char binaryFileHeader[vtkSTLWriterBinaryHeaderSize] = { 0 };
 
   // Check for STL ASCII format key word 'solid'. According to STL file format
   // only ASCII files can have 'solid' as start key word, so we ignore it and
-  // use VTK string instead.
-  if (vtksys::SystemTools::StringStartsWith(this->Header, "solid"))
+  // use deafult VTK header instead.
+
+  if (this->BinaryHeader)
   {
-    vtkErrorMacro("Invalid header for Binary STL file. Cannot start with \"solid\". Changing to header to\n" << header);
-    strcpy(szHeader, header);
+    // Use binary header
+    if (vtksys::SystemTools::StringStartsWith(static_cast<const char*>(this->BinaryHeader->GetVoidPointer(0)), "solid"))
+    {
+      vtkErrorMacro("Invalid header for Binary STL file. Cannot start with \"solid\". Changing header to\n" << vtkSTLWriterDefaultHeader);
+      strncpy(binaryFileHeader, vtkSTLWriterDefaultHeader, vtkSTLWriterBinaryHeaderSize);
+    }
+    else
+    {
+      vtkIdType numberOfValues = (this->BinaryHeader->GetNumberOfValues() <= vtkSTLWriterBinaryHeaderSize ? this->BinaryHeader->GetNumberOfValues() : vtkSTLWriterBinaryHeaderSize);
+      memcpy(binaryFileHeader, this->BinaryHeader->GetVoidPointer(0), numberOfValues);
+      if (numberOfValues < vtkSTLWriterBinaryHeaderSize)
+      {
+        memset(binaryFileHeader + numberOfValues, 0, vtkSTLWriterBinaryHeaderSize - numberOfValues);
+      }
+    }
   }
   else
   {
-    memset(szHeader, 32, 80);  // fill with space (ASCII=>32)
-    snprintf(szHeader, sizeof(szHeader), "%s", this->Header);
+    // Use text header
+    if (vtksys::SystemTools::StringStartsWith(this->Header, "solid"))
+    {
+      vtkErrorMacro("Invalid header for Binary STL file. Cannot start with \"solid\". Changing header to\n" << vtkSTLWriterDefaultHeader);
+      strncpy(binaryFileHeader, vtkSTLWriterDefaultHeader, vtkSTLWriterBinaryHeaderSize);
+    }
+    else
+    {
+      strncpy(binaryFileHeader, this->Header, vtkSTLWriterBinaryHeaderSize);
+    }
   }
 
-  fwrite(szHeader, 1, 80, fp);
+  fwrite(binaryFileHeader, 1, vtkSTLWriterBinaryHeaderSize, fp);
 
   ulint = (unsigned long int) polys->GetNumberOfCells();
   vtkByteSwap::Swap4LE(&ulint);

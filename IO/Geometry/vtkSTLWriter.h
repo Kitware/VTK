@@ -36,6 +36,7 @@
 class vtkCellArray;
 class vtkPoints;
 class vtkPolyData;
+class vtkUnsignedCharArray;
 
 class VTKIOGEOMETRY_EXPORT vtkSTLWriter : public vtkWriter
 {
@@ -62,10 +63,22 @@ public:
 
   //@{
   /**
-   * Set the header for the file.
+   * Set the header for the file as text. The header cannot contain 0x00 characters.
+   * \sa SetBinaryHeader()
    */
   vtkSetStringMacro(Header);
   vtkGetStringMacro(Header);
+  //@}
+
+  //@{
+  /**
+  * Set binary header for the file.
+  * Binary header is only used when writing binary type files.
+  * If both Header and BinaryHeader are specified then BinaryHeader is used.
+  * Maximum length of binary header is 80 bytes, any content over this limit is ignored.
+  */
+  virtual void SetBinaryHeader(vtkUnsignedCharArray* binaryHeader);
+  vtkGetObjectMacro(BinaryHeader, vtkUnsignedCharArray);
   //@}
 
   //@{
@@ -80,11 +93,7 @@ public:
 
 protected:
   vtkSTLWriter();
-  ~vtkSTLWriter() override
-  {
-    delete[] this->FileName;
-    delete[] this->Header;
-  }
+  ~vtkSTLWriter();
 
   void WriteData() override;
 
@@ -93,8 +102,9 @@ protected:
   void WriteAsciiSTL(
     vtkPoints *pts, vtkCellArray *polys, vtkCellArray *strips);
 
-  char* FileName;
+  char *FileName;
   char *Header;
+  vtkUnsignedCharArray *BinaryHeader;
   int   FileType;
 
   int FillInputPortInformation(int port, vtkInformation *info) override;

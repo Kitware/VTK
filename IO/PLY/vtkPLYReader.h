@@ -36,6 +36,8 @@
 #include "vtkIOPLYModule.h" // For export macro
 #include "vtkAbstractPolyDataReader.h"
 
+class vtkStringArray;
+
 class VTKIOPLY_EXPORT vtkPLYReader : public vtkAbstractPolyDataReader
 {
 public:
@@ -52,9 +54,13 @@ public:
    */
   static int CanReadFile(const char *filename);
 
+  vtkGetObjectMacro(Comments, vtkStringArray);
+
 protected:
   vtkPLYReader();
   ~vtkPLYReader() override;
+
+  vtkStringArray* Comments;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 private:

@@ -62,7 +62,6 @@ void vtkVRMLExporter::SetFilePointer(FILE *fp)
 
 void vtkVRMLExporter::WriteData()
 {
-  vtkRenderer *ren;
   vtkActorCollection *ac;
   vtkActor *anActor, *aPart;
   vtkLightCollection *lc;
@@ -78,16 +77,12 @@ void vtkVRMLExporter::WriteData()
     return;
   }
 
-  // Always pick the first renderer
-  // first make sure there is only one renderer in this rendering window
-  //if (this->RenderWindow->GetRenderers()->GetNumberOfItems() > 1)
-  //  {
-  //  vtkErrorMacro(<< "VRML files only support one renderer per window.");
-  //  return;
-  //  }
-
   // get the renderer
-  ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();
+  vtkRenderer *ren = this->ActiveRenderer;
+  if (!ren)
+  {
+    ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();
+  }
 
   // make sure it has at least one actor
   if (ren->GetActors()->GetNumberOfItems() < 1)

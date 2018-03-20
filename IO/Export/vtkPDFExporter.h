@@ -17,6 +17,9 @@
  * @brief Exports vtkContext2D scenes to PDF.
  *
  * This exporter draws context2D scenes into a PDF file.
+ *
+ * If ActiveRenderer is specified then it exports contents of
+ * ActiveRenderer. Otherwise it exports contents of all renderers.
  */
 
 #ifndef vtkPDFExporter_h

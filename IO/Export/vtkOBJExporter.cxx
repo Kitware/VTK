@@ -27,15 +27,21 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
-#include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
+#include "vtkRenderWindow.h"
 #include "vtkTransform.h"
+#include "vtksys/SystemTools.hxx"
 
 vtkStandardNewMacro(vtkOBJExporter);
 
 vtkOBJExporter::vtkOBJExporter()
 {
   this->FilePrefix = nullptr;
+  this->OBJFileComment = nullptr;
+  this->MTLFileComment = nullptr;
+
+  this->SetOBJFileComment("wavefront obj file written by the visualization toolkit");
+  this->SetMTLFileComment("wavefront mtl file written by the visualization toolkit");
 }
 
 vtkOBJExporter::~vtkOBJExporter()
@@ -45,14 +51,6 @@ vtkOBJExporter::~vtkOBJExporter()
 
 void vtkOBJExporter::WriteData()
 {
-  vtkRenderer *ren;
-  FILE *fpObj, *fpMtl;
-  vtkActorCollection *ac;
-  vtkActor *anActor, *aPart;
-  char nameObj[2048];
-  char nameMtl[2048];
-  int idStart = 1;
-
   // make sure the user specified a filename
   if ( this->FilePrefix == nullptr)
   {
@@ -60,15 +58,11 @@ void vtkOBJExporter::WriteData()
     return;
   }
 
-  // first make sure there is only one renderer in this rendering window
-  if (this->RenderWindow->GetRenderers()->GetNumberOfItems() > 1)
+  vtkRenderer *ren = this->ActiveRenderer;
+  if (!ren)
   {
-    vtkErrorMacro(<< "obj files only support on renderer per window.");
-    return;
+    ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();
   }
-
-  // get the renderer
-  ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();
 
   // make sure it has at least one actor
   if (ren->GetActors()->GetNumberOfItems() < 1)
@@ -78,15 +72,15 @@ void vtkOBJExporter::WriteData()
   }
 
   // try opening the files
-  snprintf(nameObj,sizeof(nameObj),"%s.obj",this->FilePrefix);
-  snprintf(nameMtl,sizeof(nameMtl),"%s.mtl",this->FilePrefix);
-  fpObj = fopen(nameObj,"w");
+  std::string objFilePath = std::string(this->FilePrefix) + ".obj";
+  FILE *fpObj = fopen(objFilePath.c_str(), "w");
   if (!fpObj)
   {
     vtkErrorMacro(<< "unable to open .obj files ");
     return;
   }
-  fpMtl = fopen(nameMtl,"w");
+  std::string mtlFilePath = std::string(this->FilePrefix) + ".mtl";
+  FILE *fpMtl = fopen(mtlFilePath.c_str(), "w");
   if (!fpMtl)
   {
     fclose(fpObj);
@@ -98,20 +92,30 @@ void vtkOBJExporter::WriteData()
   //  Write header
   //
   vtkDebugMacro("Writing wavefront files");
-  fprintf(fpObj,
-          "# wavefront obj file written by the visualization toolkit\n\n");
-  fprintf(fpObj, "mtllib %s\n\n", nameMtl);
-  fprintf(fpMtl,
-          "# wavefront mtl file written by the visualization toolkit\n\n");
-
-  ac = ren->GetActors();
-  vtkAssemblyPath *apath;
-  vtkCollectionSimpleIterator ait;
-  for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait)); )
+  if (this->GetOBJFileComment())
   {
-    for (anActor->InitPathTraversal(); (apath=anActor->GetNextPath()); )
+    fprintf(fpObj, "# %s\n\n", this->GetOBJFileComment());
+  }
+
+  std::string mtlFileName = vtksys::SystemTools::GetFilenameName(mtlFilePath);
+  fprintf(fpObj, "mtllib %s\n\n", mtlFileName.c_str());
+
+  if (this->GetMTLFileComment())
+  {
+    fprintf(fpMtl, "# %s\n\n", this->GetMTLFileComment());
+  }
+
+
+  vtkActorCollection *allActors = ren->GetActors();
+  vtkCollectionSimpleIterator actorsIt;
+  vtkActor *anActor;
+  int idStart = 1;
+  for (allActors->InitTraversal(actorsIt); (anActor = allActors->GetNextActor(actorsIt)); )
+  {
+    vtkAssemblyPath *aPath;
+    for (anActor->InitPathTraversal(); (aPath = anActor->GetNextPath()); )
     {
-      aPart=static_cast<vtkActor *>(apath->GetLastNode()->GetViewProp());
+      vtkActor *aPart = vtkActor::SafeDownCast(aPath->GetLastNode()->GetViewProp());
       this->WriteAnActor(aPart, fpObj, fpMtl, idStart);
     }
   }
@@ -383,13 +387,7 @@ void vtkOBJExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  if (this->FilePrefix)
-  {
-    os << indent << "FilePrefix: " << this->FilePrefix << "\n";
-  }
-  else
-  {
-    os << indent << "FilePrefix: (null)\n";
-  }
+  os << indent << "FilePrefix: " << (this->FilePrefix ? this->FilePrefix : "(null)") << "\n";
+  os << indent << "OBJFileComment: " << (this->OBJFileComment ? this->OBJFileComment : "(null)") << "\n";
+  os << indent << "MTLFileComment: " << (this->MTLFileComment ? this->MTLFileComment : "(null)") << "\n";
 }
-
