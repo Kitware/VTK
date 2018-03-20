@@ -202,21 +202,24 @@ void vtkSOADataArrayTemplate<ValueType>::SetArray(int comp, ValueType* array,
     return;
   }
 
+  this->Data[comp]->SetBuffer(array, size);
+
   if(deleteMethod == VTK_DATA_ARRAY_DELETE)
   {
-    this->Data[comp]->SetBuffer(array, size, save, ::operator delete[] );
+    this->Data[comp]->SetFreeFunction(save != 0, ::operator delete[] );
   }
   else if(deleteMethod == VTK_DATA_ARRAY_ALIGNED_FREE)
   {
 #ifdef _WIN32
-    this->Data[comp]->SetBuffer(array, size, save, _aligned_free);
+    this->Data[comp]->SetFreeFunction(save != 0, _aligned_free);
 #else
-    this->Data[comp]->SetBuffer(array, size, save, free);
+    this->Data[comp]->SetFreeFunction(save != 0, free);
 #endif
   }
-  else
+  else if(deleteMethod == VTK_DATA_ARRAY_USER_DEFINED ||
+          deleteMethod == VTK_DATA_ARRAY_FREE)
   {
-    this->Data[comp]->SetBuffer(array, size, save, free);
+    this->Data[comp]->SetFreeFunction(save != 0, free);
   }
 
   if (updateMaxId)
@@ -225,6 +228,31 @@ void vtkSOADataArrayTemplate<ValueType>::SetArray(int comp, ValueType* array,
     this->MaxId = this->Size - 1;
   }
   this->DataChanged();
+}
+
+//-----------------------------------------------------------------------------
+template<class ValueType>
+void vtkSOADataArrayTemplate<ValueType>::SetArrayFreeFunction(void (*callback)(void *))
+{
+  const int numComps =  this->GetNumberOfComponents();
+  for(int i=0; i < numComps; ++i)
+  {
+    this->SetArrayFreeFunction(i, callback);
+  }
+}
+
+//-----------------------------------------------------------------------------
+template<class ValueType>
+void vtkSOADataArrayTemplate<ValueType>::SetArrayFreeFunction(int comp, void (*callback)(void *))
+{
+  const int numComps = this->GetNumberOfComponents();
+  if (comp >= numComps || comp < 0)
+  {
+    vtkErrorMacro("Invalid component number '" << comp << "' specified. "
+      "Use `SetNumberOfComponents` first to set the number of components.");
+    return;
+  }
+  this->Data[comp]->SetFreeFunction(false, callback);
 }
 
 //-----------------------------------------------------------------------------

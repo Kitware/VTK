@@ -52,7 +52,8 @@ public:
   {
     VTK_DATA_ARRAY_FREE=vtkAbstractArray::VTK_DATA_ARRAY_FREE,
     VTK_DATA_ARRAY_DELETE=vtkAbstractArray::VTK_DATA_ARRAY_DELETE,
-    VTK_DATA_ARRAY_ALIGNED_FREE=vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE
+    VTK_DATA_ARRAY_ALIGNED_FREE=vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE,
+    VTK_DATA_ARRAY_USER_DEFINED=vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED
   };
 
   static vtkAOSDataArrayTemplate* New();
@@ -184,6 +185,14 @@ public:
   void SetVoidArray(void* array, vtkIdType size, int save,
                     int deleteMethod) override;
   //@}
+
+  /**
+    * This method allows the user to specify a custom free function to be
+    * called when the array is deallocated. Calling this method will implicitly
+    * mean that the given free function will be called when the class
+    * cleans up or reallocates memory.
+  **/
+  void SetArrayFreeFunction(void (*callback)(void *)) override;
 
   // Overridden for optimized implementations:
   void SetTuple(vtkIdType tupleIdx, const float *tuple) override;

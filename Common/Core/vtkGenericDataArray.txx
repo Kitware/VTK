@@ -220,6 +220,15 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>
   vtkErrorMacro("SetVoidArray is not supported by this class.");
 }
 
+
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT>
+void vtkGenericDataArray<DerivedT, ValueTypeT>
+::SetArrayFreeFunction(void (*)(void *))
+{
+  vtkErrorMacro("SetArrayFreeFunction is not supported by this class.");
+}
+
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
 void* vtkGenericDataArray<DerivedT, ValueTypeT>

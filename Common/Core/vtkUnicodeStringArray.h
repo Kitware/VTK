@@ -71,6 +71,7 @@ public:
   void SetVoidArray(void *array, vtkIdType size, int save) override;
   void SetVoidArray(void *array, vtkIdType size, int save,
                     int deleteMethod) override;
+  void SetArrayFreeFunction(void (*callback)(void *)) override;
   unsigned long GetActualMemorySize() override; // in bytes
   int IsNumeric() override;
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;

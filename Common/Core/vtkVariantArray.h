@@ -47,6 +47,14 @@ class VTKCOMMONCORE_EXPORT vtkVariantArray : public vtkAbstractArray
   friend class boost::serialization::access;
 
 public:
+  enum DeleteMethod
+  {
+    VTK_DATA_ARRAY_FREE=vtkAbstractArray::VTK_DATA_ARRAY_FREE,
+    VTK_DATA_ARRAY_DELETE=vtkAbstractArray::VTK_DATA_ARRAY_DELETE,
+    VTK_DATA_ARRAY_ALIGNED_FREE=vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE,
+    VTK_DATA_ARRAY_USER_DEFINED=vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED
+  };
+
   static vtkVariantArray* New();
   vtkTypeMacro(vtkVariantArray,vtkAbstractArray);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -264,7 +272,15 @@ public:
   /**
    * Set the internal array used by this object.
    */
-  void SetArray(vtkVariant* arr, vtkIdType size, int save);
+  void SetArray(vtkVariant* arr, vtkIdType size, int save, int deleteMethod=VTK_DATA_ARRAY_DELETE);
+
+  /**
+    * This method allows the user to specify a custom free function to be
+    * called when the array is deallocated. Calling this method will implicitly
+    * mean that the given free function will be called when the class
+    * cleans up or reallocates memory.
+  **/
+  void SetArrayFreeFunction(void (*callback)(void *)) override;
 
   /**
    * Specify the number of values for this object to hold. Does an
@@ -327,7 +343,7 @@ protected:
   // Function to resize data
   vtkVariant* ResizeAndExtend(vtkIdType sz);
 
-  int SaveUserArray;
+  void (*DeleteFunction)(void*);
 
 private:
   vtkVariantArray(const vtkVariantArray&) = delete;

@@ -36,6 +36,14 @@ class vtkStringArrayLookup;
 class VTKCOMMONCORE_EXPORT vtkStringArray : public vtkAbstractArray
 {
 public:
+  enum DeleteMethod
+  {
+    VTK_DATA_ARRAY_FREE=vtkAbstractArray::VTK_DATA_ARRAY_FREE,
+    VTK_DATA_ARRAY_DELETE=vtkAbstractArray::VTK_DATA_ARRAY_DELETE,
+    VTK_DATA_ARRAY_ALIGNED_FREE=vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE,
+    VTK_DATA_ARRAY_USER_DEFINED=vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED
+  };
+
   static vtkStringArray* New();
   vtkTypeMacro(vtkStringArray,vtkAbstractArray);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -251,15 +259,25 @@ public:
    * from deleting the array when it cleans up or reallocates memory.
    * The class uses the actual array provided; it does not copy the data
    * from the supplied array. If save is 0, then this class is free to delete
-   * the array when it cleans up or reallocates. In that case, it is required
-   * that the array was allocated using the C++ new operator (and not malloc).
+   * the array when it cleans up or reallocates using the provided free function
+   * If the delete method is VTK_DATA_ARRAY_USER_DEFINED
+   * a custom free function can be assigned to be called using SetArrayFreeFunction,
+   * if no custom function is assigned we will default to delete[].
    */
-  void SetArray(vtkStdString* array, vtkIdType size, int save);
+  void SetArray(vtkStdString* array, vtkIdType size, int save, int deleteMethod=VTK_DATA_ARRAY_DELETE);
   void SetVoidArray(void* array, vtkIdType size, int save) override
     { this->SetArray(static_cast<vtkStdString*>(array), size, save); }
   void SetVoidArray(void* array, vtkIdType size, int save,
-                    int vtkNotUsed(deleteMethod)) override
-    { this->SetArray(static_cast<vtkStdString*>(array), size, save); }
+                    int deleteMethod) override
+    { this->SetArray(static_cast<vtkStdString*>(array), size, save, deleteMethod); }
+
+  /**
+    * This method allows the user to specify a custom free function to be
+    * called when the array is deallocated. Calling this method will implicitly
+    * mean that the given free function will be called when the class
+    * cleans up or reallocates memory.
+  **/
+  void SetArrayFreeFunction(void (*callback)(void *)) override;
 
   /**
    * Return the memory in kibibytes (1024 bytes) consumed by this data array. Used to
@@ -331,7 +349,7 @@ protected:
   vtkStdString* Array;   // pointer to data
   vtkStdString* ResizeAndExtend(vtkIdType sz);  // function to resize data
 
-  int SaveUserArray;
+  void (*DeleteFunction)(void*);
 
 private:
   vtkStringArray(const vtkStringArray&) = delete;

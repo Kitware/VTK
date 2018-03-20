@@ -331,7 +331,8 @@ public:
   {
     VTK_DATA_ARRAY_FREE,
     VTK_DATA_ARRAY_DELETE,
-    VTK_DATA_ARRAY_ALIGNED_FREE
+    VTK_DATA_ARRAY_ALIGNED_FREE,
+    VTK_DATA_ARRAY_USER_DEFINED
   };
 
   //@{
@@ -346,7 +347,10 @@ public:
    * will be used. If the delete method is VTK_DATA_ARRAY_DELETE, delete[]
    * will be used. If the delete method is VTK_DATA_ARRAY_ALIGNED_FREE
    * _aligned_free() will be used on windows, while free() will be used
-   * everywhere else.The default is FREE.
+   * everywhere else. If the delete method is VTK_DATA_ARRAY_USER_DEFINED
+   * a custom free function can be assigned to be called using SetArrayFreeFunction,
+   * if no custom function is assigned we will default to free().
+   * The default is FREE.
    * (Note not all subclasses can support deleteMethod.)
    */
   virtual void SetVoidArray(void *vtkNotUsed(array),
@@ -356,6 +360,14 @@ public:
                             int vtkNotUsed(deleteMethod))
     {this->SetVoidArray(array,size,save);};
   //@}
+
+  /**
+    * This method allows the user to specify a custom free function to be
+    * called when the array is deallocated. Calling this method will implicitly
+    * mean that the given free function will be called when the class
+    * cleans up or reallocates memory.
+  **/
+  virtual void SetArrayFreeFunction(void (*callback)(void *)) = 0;
 
   /**
    * This method copies the array data to the void pointer specified

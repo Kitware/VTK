@@ -33,6 +33,14 @@ class vtkBitArrayLookup;
 class VTKCOMMONCORE_EXPORT vtkBitArray : public vtkDataArray
 {
 public:
+  enum DeleteMethod
+  {
+    VTK_DATA_ARRAY_FREE=vtkAbstractArray::VTK_DATA_ARRAY_FREE,
+    VTK_DATA_ARRAY_DELETE=vtkAbstractArray::VTK_DATA_ARRAY_DELETE,
+    VTK_DATA_ARRAY_ALIGNED_FREE=vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE,
+    VTK_DATA_ARRAY_USER_DEFINED=vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED
+  };
+
   static vtkBitArray *New();
   vtkTypeMacro(vtkBitArray,vtkDataArray);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -242,22 +250,31 @@ public:
    * the array supplied by the user.  Set save to 1 to keep the class
    * from deleting the array when it cleans up or reallocates memory.
    * The class uses the actual array provided; it does not copy the data
-   * from the supplied array. If save 0, the array must have been allocated
-   * with new[] not malloc.
+   * from the supplied array.
+   * If the delete method is VTK_DATA_ARRAY_USER_DEFINED
+   * a custom free function can be assigned to be called using SetArrayFreeFunction,
+   * if no custom function is assigned we will default to delete[].
    */
 #ifndef __VTK_WRAP__
-  void SetArray(unsigned char* array, vtkIdType size, int save);
+  void SetArray(unsigned char* array, vtkIdType size, int save, int deleteMethod=VTK_DATA_ARRAY_DELETE);
 #endif
   void SetVoidArray(void *array, vtkIdType size, int save) override
   {
       this->SetArray(static_cast<unsigned char *>(array), size, save);
   }
-  void SetVoidArray(void *array, vtkIdType size, int save,
-                    int vtkNotUsed(deleteMethod)) override
+  void SetVoidArray(void *array, vtkIdType size, int save, int deleteMethod) override
   {
-      this->SetArray(static_cast<unsigned char *>(array), size, save);
+      this->SetArray(static_cast<unsigned char *>(array), size, save, deleteMethod);
   }
   //@}
+
+  /**
+    * This method allows the user to specify a custom free function to be
+    * called when the array is deallocated. Calling this method will implicitly
+    * mean that the given free function will be called when the class
+    * cleans up or reallocates memory.
+  **/
+  void SetArrayFreeFunction(void (*callback)(void *)) override;
 
   /**
    * Returns a new vtkBitArrayIterator instance.
@@ -302,7 +319,7 @@ protected:
   int TupleSize; //used for data conversion
   double *Tuple;
 
-  int SaveUserArray;
+  void (*DeleteFunction)(void*);
 
 private:
   // hide superclass' DeepCopy() from the user and the compiler
