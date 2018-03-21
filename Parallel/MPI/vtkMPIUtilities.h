@@ -19,6 +19,7 @@
 
 // Forward declarations
 class vtkMPIController;
+class vtkPointSet;
 
 namespace vtkMPIUtilities
 {
@@ -39,6 +40,16 @@ void Printf(vtkMPIController* comm, const char* format, ...);
 // must call this method.
 VTKPARALLELMPI_EXPORT
 void SynchronizedPrintf(vtkMPIController* comm, const char* format, ...);
+
+/**
+ * Get the points that are inside innerBounds and put them in output DataSet.
+ * Ask other MPI ranks for their corresponding points.
+ */
+VTKPARALLELMPI_EXPORT
+void GetPointsInsideBounds(vtkMPIController* controller,
+  vtkPointSet* input,
+  vtkPointSet* output,
+  const double innerBounds[6]);
 
 } // END namespace vtkMPIUtilities
 

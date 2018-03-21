@@ -79,9 +79,11 @@
 #include "vtkVector.h" // Small templated vector convenience class
 
 class vtkAbstractElectronicData;
+class vtkDataArray;
 class vtkMatrix3x3;
 class vtkPlane;
 class vtkPoints;
+class vtkUnsignedCharArray;
 class vtkUnsignedShortArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkMolecule : public vtkUndirectedGraph
@@ -344,6 +346,55 @@ public:
   vtkSetMacro(LatticeOrigin, vtkVector3d)
   //@}
 
+  /**
+   * Get the array that defines the ghost type of each atom.
+   */
+  vtkUnsignedCharArray* GetAtomGhostArray();
+
+  /**
+   * Allocate ghost array for atoms.
+   */
+  void AllocateAtomGhostArray();
+
+  /**
+   * Get the array that defines the ghost type of each bond.
+   */
+  vtkUnsignedCharArray* GetBondGhostArray();
+
+  /**
+   * Allocate ghost array for bonds.
+   */
+  void AllocateBondGhostArray();
+
+  /**
+   * Initialize a molecule with an atom per input point.
+   * Parameters atomPositions and atomicNumberArray should have the same size.
+   */
+  int Initialize(vtkPoints* atomPositions,
+    vtkUnsignedShortArray* atomicNumberArray,
+    vtkDataSetAttributes* atomData = nullptr);
+
+  /**
+   * Overloads Initialize method to allow vtkDataArray instead of vtkUnsignedShortArray.
+   */
+  int Initialize(vtkPoints* atomPositions,
+    vtkDataArray* atomicNumberArray,
+    vtkDataSetAttributes* atomData = nullptr);
+
+  /**
+   * Overloads Initialize method. Look for an atomic number array in atomData.
+   * If none found, take the first array.
+   */
+  int Initialize(vtkPoints* atomPositions,
+    vtkDataSetAttributes* atomData);
+
+  /**
+   * Use input molecule points, atomic number and atomic data to initialize the new molecule.
+   */
+  int Initialize(vtkMolecule* molecule);
+
+  static const char* GetAtomicNumberArrayName() {return "Atomic Numbers";}
+
  protected:
   vtkMolecule();
   ~vtkMolecule() override;
@@ -378,6 +429,8 @@ public:
   vtkSmartPointer<vtkMatrix3x3> Lattice;
   vtkVector3d LatticeOrigin;
 
+  vtkUnsignedCharArray* AtomGhostArray;
+  vtkUnsignedCharArray* BondGhostArray;
 private:
   vtkMolecule(const vtkMolecule&) = delete;
   void operator=(const vtkMolecule&) = delete;

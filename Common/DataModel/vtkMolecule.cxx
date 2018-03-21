@@ -16,12 +16,14 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkAbstractElectronicData.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkEdgeListIterator.h"
+#include "vtkGraphInternals.h"
 #include "vtkIdTypeArray.h"
 #include "vtkMatrix3x3.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPoints.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedShortArray.h"
 #include "vtkFloatArray.h"
 #include "vtkVector.h"
@@ -36,7 +38,9 @@ vtkStandardNewMacro(vtkMolecule);
 vtkMolecule::vtkMolecule()
   : ElectronicData(nullptr),
     Lattice(nullptr),
-    LatticeOrigin(0., 0., 0.)
+    LatticeOrigin(0., 0., 0.),
+    AtomGhostArray(nullptr),
+    BondGhostArray(nullptr)
 {
   this->Initialize();
 }
@@ -54,7 +58,7 @@ void vtkMolecule::Initialize()
   // Atomic numbers
   vtkNew<vtkUnsignedShortArray> atomicNums;
   atomicNums->SetNumberOfComponents(1);
-  atomicNums->SetName("Atomic Numbers");
+  atomicNums->SetName(vtkMolecule::GetAtomicNumberArrayName());
   vertData->SetScalars(atomicNums);
 
   // Nuclear coordinates
@@ -133,8 +137,7 @@ void vtkMolecule::PrintSelf(ostream &os, vtkIndent indent)
 vtkAtom vtkMolecule::AppendAtom(unsigned short atomicNumber,
                                 const vtkVector3f &pos)
 {
-  vtkUnsignedShortArray *atomicNums = vtkArrayDownCast<vtkUnsignedShortArray>
-    (this->GetVertexData()->GetScalars());
+  vtkUnsignedShortArray *atomicNums = this->GetAtomicNumberArray();
 
   assert(atomicNums);
 
@@ -164,10 +167,7 @@ unsigned short vtkMolecule::GetAtomAtomicNumber(vtkIdType id)
 {
   assert(id >= 0 && id < this->GetNumberOfAtoms());
 
-  vtkUnsignedShortArray *atomicNums = vtkArrayDownCast<vtkUnsignedShortArray>
-    (this->GetVertexData()->GetScalars());
-
-  assert(atomicNums);
+  vtkUnsignedShortArray *atomicNums = this->GetAtomicNumberArray();
 
   return atomicNums->GetValue(id);
 }
@@ -177,10 +177,7 @@ void vtkMolecule::SetAtomAtomicNumber(vtkIdType id, unsigned short atomicNum)
 {
   assert(id >= 0 && id < this->GetNumberOfAtoms());
 
-  vtkUnsignedShortArray *atomicNums = vtkArrayDownCast<vtkUnsignedShortArray>
-    (this->GetVertexData()->GetScalars());
-
-  assert(atomicNums);
+  vtkUnsignedShortArray *atomicNums = this->GetAtomicNumberArray();
 
   atomicNums->SetValue(id, atomicNum);
   this->Modified();
@@ -267,7 +264,7 @@ void vtkMolecule::SetBondOrder(vtkIdType bondId, unsigned short order)
   assert(bondOrders);
 
   this->Modified();
-  return bondOrders->SetValue(bondId, order);
+  bondOrders->InsertValue(bondId, order);
 }
 
 //----------------------------------------------------------------------------
@@ -310,7 +307,7 @@ vtkPoints * vtkMolecule::GetAtomicPositionArray()
 vtkUnsignedShortArray * vtkMolecule::GetAtomicNumberArray()
 {
   vtkUnsignedShortArray *atomicNums = vtkArrayDownCast<vtkUnsignedShortArray>
-    (this->GetVertexData()->GetScalars());
+    (this->GetVertexData()->GetScalars(vtkMolecule::GetAtomicNumberArrayName()));
 
   assert(atomicNums);
 
@@ -619,4 +616,184 @@ void vtkMolecule::GetLattice(vtkVector3d &a, vtkVector3d &b, vtkVector3d &c,
   {
     a = b = c = origin = vtkVector3d(0., 0., 0.);
   }
+}
+
+//----------------------------------------------------------------------------
+vtkUnsignedCharArray* vtkMolecule::GetAtomGhostArray()
+{
+  return vtkArrayDownCast<vtkUnsignedCharArray>(
+    this->GetVertexData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
+}
+
+//----------------------------------------------------------------------------
+void vtkMolecule::AllocateAtomGhostArray()
+{
+  if (this->GetAtomGhostArray() == nullptr)
+  {
+    vtkNew<vtkUnsignedCharArray> ghosts;
+    ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
+    ghosts->SetNumberOfComponents(1);
+    ghosts->SetNumberOfTuples(this->GetNumberOfAtoms());
+    ghosts->FillComponent(0, 0);
+    this->GetVertexData()->AddArray(ghosts);
+  }
+}
+
+//----------------------------------------------------------------------------
+vtkUnsignedCharArray* vtkMolecule::GetBondGhostArray()
+{
+  return vtkArrayDownCast<vtkUnsignedCharArray>(
+    this->GetEdgeData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
+}
+
+//----------------------------------------------------------------------------
+void vtkMolecule::AllocateBondGhostArray()
+{
+  if (this->GetBondGhostArray() == nullptr)
+  {
+    vtkNew<vtkUnsignedCharArray> ghosts;
+    ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
+    ghosts->SetNumberOfComponents(1);
+    ghosts->SetNumberOfTuples(this->GetNumberOfBonds());
+    ghosts->FillComponent(0, 0);
+    this->GetEdgeData()->AddArray(ghosts);
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkMolecule::Initialize(vtkPoints* atomPositions,
+  vtkUnsignedShortArray* atomicNumberArray,
+  vtkDataSetAttributes* atomData)
+{
+  // Start with default initialization the molecule
+  this->Initialize();
+
+  if (!atomPositions && !atomicNumberArray)
+  {
+    vtkWarningMacro(<< "Atom position and atomic numbers were not found: skip atomic data.");
+    return 1;
+  }
+
+  if (!atomPositions || !atomicNumberArray)
+  {
+    vtkErrorMacro(<< "Empty atoms or atomic numbers.");
+    return 0;
+  }
+
+  int nbAtoms = atomPositions->GetNumberOfPoints();
+  if (nbAtoms != atomicNumberArray->GetNumberOfTuples())
+  {
+    vtkErrorMacro(<< "Number of atoms not equal to number of atomic numbers.");
+    return 0;
+  }
+  if (atomData && nbAtoms != atomData->GetNumberOfTuples())
+  {
+    vtkErrorMacro(<< "Number of atoms not equal to number of atom properties.");
+    return 0;
+  }
+
+  static const std::string atomicNumberName = vtkMolecule::GetAtomicNumberArrayName();
+
+  // update atoms positions
+  this->ForceOwnership();
+  this->Internals->Adjacency.resize(nbAtoms, vtkVertexAdjacencyList());
+  this->SetPoints(atomPositions);
+
+  // if atom properties exists, copy it in VertexData and look for an atomic number in its arrays.
+  if (atomData)
+  {
+    this->GetVertexData()->ShallowCopy(atomData);
+
+    // if atomData contains an array with the atomic number name,
+    // copy this array with a new name as we will overwrite it.
+    vtkDataArray* otherArray = atomData->GetArray(atomicNumberName.c_str());
+    if (otherArray && otherArray != static_cast<vtkAbstractArray*>(atomicNumberArray))
+    {
+      this->GetVertexData()->RemoveArray(atomicNumberName.c_str());
+
+      // create a new name for the copied array.
+      std::string newName = std::string("Original ") + atomicNumberName;
+
+      // if the new name is available create a copy of the array with another name, and add it
+      // else no backup is done, array will be replaced.
+      if (!atomData->GetArray(newName.c_str()))
+      {
+        vtkDataArray* otherArrayCopy = otherArray->NewInstance();
+        otherArrayCopy->ShallowCopy(otherArray);
+        otherArrayCopy->SetName(newName.c_str());
+        this->GetVertexData()->AddArray(otherArrayCopy);
+      }
+      else
+      {
+        vtkWarningMacro(<< "Array '" << atomicNumberName << "' was replaced.");
+      }
+    }
+  }
+
+  // add atomic number array: if given array has the expected name, add it directly
+  // (it will replace the current one). Else copy it and add it with atomic number name.
+  if (atomicNumberName == atomicNumberArray->GetName())
+  {
+    this->GetVertexData()->AddArray(atomicNumberArray);
+  }
+  else
+  {
+    vtkNew<vtkUnsignedShortArray> atomicNumberArrayCopy;
+    atomicNumberArrayCopy->ShallowCopy(atomicNumberArray);
+    atomicNumberArrayCopy->SetName(atomicNumberName.c_str());
+    this->GetVertexData()->AddArray(atomicNumberArrayCopy.Get());
+  }
+
+  this->Modified();
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkMolecule::Initialize(vtkPoints* atomPositions,
+  vtkDataArray* atomicNumberArray,
+  vtkDataSetAttributes* atomData)
+{
+  vtkUnsignedShortArray* atomicNumberShortArray =
+    vtkUnsignedShortArray::SafeDownCast(atomicNumberArray);
+  vtkNew<vtkUnsignedShortArray> newAtomicNumberShortArray;
+  if (!atomicNumberShortArray && atomicNumberArray)
+  {
+    vtkIdType nbPoints = atomicNumberArray->GetNumberOfTuples();
+    newAtomicNumberShortArray->SetNumberOfComponents(1);
+    newAtomicNumberShortArray->SetNumberOfTuples(nbPoints);
+    newAtomicNumberShortArray->SetName(atomicNumberArray->GetName());
+    for (vtkIdType i = 0; i < nbPoints; i++)
+    {
+      newAtomicNumberShortArray->SetTuple1(i, atomicNumberArray->GetTuple1(i));
+    }
+    atomicNumberShortArray = newAtomicNumberShortArray;
+  }
+
+  return this->Initialize(atomPositions, atomicNumberShortArray, atomData);
+}
+
+//----------------------------------------------------------------------------
+int vtkMolecule::Initialize(vtkPoints* atomPositions, vtkDataSetAttributes* atomData)
+{
+  vtkDataArray* atomicNumberArray = atomData->GetArray(vtkMolecule::GetAtomicNumberArrayName());
+  if (!atomicNumberArray)
+  {
+    atomicNumberArray = atomData->GetScalars();
+  }
+
+  return this->Initialize(atomPositions, atomicNumberArray, atomData);
+}
+
+//----------------------------------------------------------------------------
+int vtkMolecule::Initialize(vtkMolecule* molecule)
+{
+  if (molecule == nullptr)
+  {
+    this->Initialize();
+    vtkErrorMacro(<< "No input molecule.");
+    return 0;
+  }
+
+  return this->Initialize(
+    molecule->GetPoints(), molecule->GetAtomicNumberArray(), molecule->GetVertexData());
 }

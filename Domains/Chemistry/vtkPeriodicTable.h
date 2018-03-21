@@ -59,12 +59,12 @@ public:
    * Given an atomic number, returns the symbol associated with the
    * element
    */
-  const char * GetSymbol(const unsigned short atomicNum);
+  const char * GetSymbol(unsigned short atomicNum);
 
   /**
    * Given an atomic number, returns the name of the element
    */
-  const char * GetElementName(const unsigned short atomicNum);
+  const char * GetElementName(unsigned short atomicNum);
 
   //@{
   /**
@@ -78,13 +78,19 @@ public:
   /**
    * Given an atomic number, return the covalent radius of the atom
    */
-  float GetCovalentRadius(const unsigned short atomicNum);
+  float GetCovalentRadius(unsigned short atomicNum);
 
   /**
    * Given an atomic number, returns the van der Waals radius of the
    * atom
    */
-  float GetVDWRadius(const unsigned short atomicNum);
+  float GetVDWRadius(unsigned short atomicNum);
+
+  /**
+   * Given an atomic number, returns the van der Waals radius of the
+   * atom
+   */
+  float GetMaxVDWRadius();
 
   /**
    * Fill the given vtkLookupTable to map atomic numbers to the

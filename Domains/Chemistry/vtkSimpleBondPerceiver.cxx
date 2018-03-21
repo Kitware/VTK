@@ -20,22 +20,25 @@
 #include "vtkMolecule.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOctreePointLocator.h"
 #include "vtkPeriodicTable.h"
 #include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedShortArray.h"
-
 
 #include <vector>
 
 //----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkSimpleBondPerceiver);
+vtkObjectFactoryNewMacro(vtkSimpleBondPerceiver);
 
 //----------------------------------------------------------------------------
 vtkSimpleBondPerceiver::vtkSimpleBondPerceiver()
   : Tolerance(0.45)
+  , IsToleranceAbsolute(true)
 {
 }
 
@@ -50,6 +53,7 @@ void vtkSimpleBondPerceiver::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Tolerance: " << this->Tolerance << "\n";
+  os << indent << "IsToleranceAbsolute: " << this->IsToleranceAbsolute << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -58,61 +62,138 @@ int vtkSimpleBondPerceiver::RequestData(
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  vtkMolecule *input = vtkMolecule::SafeDownCast
-    (vtkDataObject::GetData(inputVector[0]));
-  vtkMolecule *output = vtkMolecule::SafeDownCast
-    (vtkDataObject::GetData(outputVector));
+  vtkMolecule* input = vtkMolecule::SafeDownCast(vtkDataObject::GetData(inputVector[0]));
+  if (!input)
+  {
+    vtkErrorMacro(<< "Input vtkMolecule does not exists.");
+    return 0;
+  }
+
+  vtkMolecule* output = vtkMolecule::SafeDownCast(vtkDataObject::GetData(outputVector));
+  if (!output)
+  {
+    vtkErrorMacro(<< "Output vtkMolecule does not exists.");
+    return 0;
+  }
 
   // Copy input to output
   output->Initialize();
   output->DeepCopyStructure(input);
   output->ShallowCopyAttributes(input);
 
-  // Get pointers to data
-  vtkSmartPointer<vtkPoints> posArr = output->GetAtomicPositionArray();
-  vtkSmartPointer<vtkUnsignedShortArray> numArr = output->GetAtomicNumberArray();
+  this->ComputeBonds(output);
 
-  // Cache atomic radii
-  vtkNew<vtkPeriodicTable> pTab;
-  std::vector<float> radii (numArr->GetNumberOfTuples());
-  for (size_t i = 0; i < radii.size(); ++i)
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkSimpleBondPerceiver::ComputeBonds(vtkMolecule* molecule)
+{
+  if (!molecule)
   {
-    radii[i] = pTab->GetCovalentRadius(
-          numArr->GetValue(static_cast<vtkIdType>(i)));
+    vtkWarningMacro(<< "vtkMolecule to fill is not defined.");
+    return;
   }
 
-  // Check for bonds
-  double diff[3];
-  const vtkIdType numAtoms = output->GetNumberOfAtoms();
-  vtkDebugMacro(<<"Checking for bonds with tolerance " << this->Tolerance);
-  for (vtkIdType i = 0; i < numAtoms; ++i)
+  vtkPoints* atomPositions = molecule->GetPoints();
+
+  if (atomPositions->GetNumberOfPoints() == 0)
   {
-    double *ipos = posArr->GetPoint(i);
-    for (vtkIdType j = i+1; j < numAtoms; ++j)
+    // nothing to do.
+    return;
+  }
+
+  vtkNew<vtkPolyData> moleculePolyData;
+  moleculePolyData->SetPoints(atomPositions);
+  vtkNew<vtkOctreePointLocator> locator;
+  locator->SetDataSet(moleculePolyData.Get());
+  locator->BuildLocator();
+
+  vtkUnsignedCharArray* ghostAtoms = molecule->GetAtomGhostArray();
+  vtkUnsignedCharArray* ghostBonds = molecule->GetBondGhostArray();
+
+  vtkIdType nbAtoms = molecule->GetNumberOfAtoms();
+  vtkNew<vtkIdList> neighborsIdsList;
+  vtkNew<vtkPeriodicTable> periodicTable;
+  int nbElementsPeriodicTable = periodicTable->GetNumberOfElements();
+
+  /**
+   * Main algorithm:
+   *  - loop on each atom.
+   *  - use locator to determine potential pair: consider atoms in a radius of 2*covalentRadius
+   *  - for each potential pair, compute atomic radius (with tolerance) and distance
+   *  - if (d < r1 + r2) add a bond. Do not add twice a same bond. Do not create bond between two
+   * ghost atoms.
+   *  - if one of the two atoms is a ghost, mark bond as ghost
+   */
+  for (vtkIdType i = 0; i < nbAtoms; i++)
+  {
+    bool isGhostAtom = (ghostAtoms ? (ghostAtoms->GetTuple1(i) != 0) : false);
+    vtkIdType atomicNumber = molecule->GetAtomAtomicNumber(i);
+
+    if (atomicNumber < 1 || atomicNumber > nbElementsPeriodicTable)
     {
-      double cutoff = radii[i] + radii[j] + this->Tolerance;
-      posArr->GetPoint(j, diff);
-      diff[0] -= ipos[0];
-      diff[1] -= ipos[1];
-      diff[2] -= ipos[2];
+      continue;
+    }
 
-      if (fabs(diff[0]) > cutoff ||
-          fabs(diff[1]) > cutoff ||
-          fabs(diff[2]) > cutoff ||
-          (numArr->GetValue(i) == 1 && numArr->GetValue(j) == 1))
-        continue;
+    double covalentRadius = this->GetCovalentRadiusWithTolerance(periodicTable, atomicNumber);
+    double atomPosition[3];
+    atomPositions->GetPoint(i, atomPosition);
+    neighborsIdsList->SetNumberOfIds(0);
+    locator->FindPointsWithinRadius(2 * covalentRadius, atomPosition, neighborsIdsList.Get());
 
-      // Check radius and add bond if needed
-      double cutoffSq = cutoff * cutoff;
-      double diffsq = diff[0]*diff[0] + diff[1]*diff[1] + diff[2]*diff[2];
-      if (diffsq < cutoffSq && diffsq > 0.1)
+    vtkIdType nbNeighbors = neighborsIdsList->GetNumberOfIds();
+    vtkIdType* neighborsPtr = neighborsIdsList->GetPointer(0);
+    for (vtkIdType j = 0; j < nbNeighbors; ++j)
+    {
+      vtkIdType neighId = neighborsPtr[j];
+      bool isGhostNeigh = (ghostAtoms ? (ghostAtoms->GetTuple1(neighId) != 0) : false);
+      vtkIdType atomicNumberNeigh = molecule->GetAtomAtomicNumber(neighId);
+
+      if (atomicNumberNeigh < 1 || (atomicNumberNeigh > nbElementsPeriodicTable) ||
+        (isGhostAtom && isGhostNeigh))
       {
-        vtkDebugMacro(<<"Adding bond between " << i << " and " << j
-                      << ". Distance: " << diffsq << "\n");
-        output->AppendBond(i, j, 1);
+        continue;
+      }
+
+      double covalentRadiusNeigh =
+        this->GetCovalentRadiusWithTolerance(periodicTable, atomicNumberNeigh);
+      double radiusSumSquare =
+        (covalentRadius + covalentRadiusNeigh) * (covalentRadius + covalentRadiusNeigh);
+      double doubleNeighbourRadiusSquare = 4 * covalentRadiusNeigh * covalentRadiusNeigh;
+      double atomPositionNeigh[3];
+      molecule->GetAtom(neighId).GetPosition(atomPositionNeigh);
+      double distanceSquare = vtkMath::Distance2BetweenPoints(atomPosition, atomPositionNeigh);
+
+      /**
+       * Bond may have already been created:
+       *  - neighId <= i : we already check bonds for atom 'neighId' in a previous iteration.
+       *  - distanceSquare <= doubleNeighbourRadiusSquare : atom 'i' was in the list for potential
+       *    pair with neighId.
+       *  So if the bond i-neighId is possible, it was added the first time and we can continue.
+       *
+       * Distance can be to big:
+       *  - distanceSquare > radiusSumSquare
+       */
+      if ((neighId <= i && distanceSquare <= doubleNeighbourRadiusSquare) ||
+        distanceSquare > radiusSumSquare)
+      {
+        continue;
+      }
+
+      molecule->AppendBond(i, neighId);
+      if (ghostBonds)
+      {
+        ghostBonds->InsertNextValue(isGhostAtom || isGhostNeigh ? 1 : 0);
       }
     }
   }
+}
 
-  return 1;
+//----------------------------------------------------------------------------
+double vtkSimpleBondPerceiver::GetCovalentRadiusWithTolerance(vtkPeriodicTable* table,
+  vtkIdType atomicNumber)
+{
+  return this->IsToleranceAbsolute ? table->GetCovalentRadius(atomicNumber) + this->Tolerance / 2
+                                   : table->GetCovalentRadius(atomicNumber) * this->Tolerance;
 }

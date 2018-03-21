@@ -726,6 +726,7 @@ void vtkGraph::CopyInternal(vtkGraph *g, bool deep)
   }
 
   // Copy edge list
+  this->Internals->NumberOfEdges = g->Internals->NumberOfEdges;
   if (g->EdgeList && deep)
   {
     if (!this->EdgeList)
@@ -737,6 +738,10 @@ void vtkGraph::CopyInternal(vtkGraph *g, bool deep)
   else
   {
     this->SetEdgeList(g->EdgeList);
+    if (g->EdgeList)
+    {
+      this->BuildEdgeList();
+    }
   }
 
   // Propagate information used by distributed graphs

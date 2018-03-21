@@ -31,6 +31,7 @@ vtk_add_test_cxx(vtkDomainsChemistryCxxTests tests
   TestMultiCylinderOn.cxx
   TestMultiCylinderOff.cxx
   TestPeriodicTable.cxx,NO_VALID
+  TestPointSetToMoleculeFilter.cxx,NO_VALID
   TestProgrammableElectronicData.cxx,NO_VALID
   TestProteinRibbon.cxx
   TestSimpleBondPerceiver.cxx,NO_VALID

@@ -72,16 +72,26 @@ unsigned short vtkPeriodicTable::GetNumberOfElements()
 }
 
 //----------------------------------------------------------------------------
-const char * vtkPeriodicTable::GetSymbol(const unsigned short atomicNum)
+const char * vtkPeriodicTable::GetSymbol(unsigned short atomicNum)
 {
-  assert(atomicNum <= this->GetNumberOfElements());
+  if (atomicNum > this->GetNumberOfElements())
+  {
+    vtkWarningMacro("Atomic number out of range ! Using 0 instead of " << atomicNum);
+    atomicNum = 0;
+  }
+
   return this->BlueObeliskData->GetSymbols()->GetValue(atomicNum).c_str();
 }
 
 //----------------------------------------------------------------------------
-const char * vtkPeriodicTable::GetElementName(const unsigned short atomicNum)
+const char * vtkPeriodicTable::GetElementName(unsigned short atomicNum)
 {
-  assert(atomicNum <= this->GetNumberOfElements());
+  if (atomicNum > this->GetNumberOfElements())
+  {
+    vtkWarningMacro("Atomic number out of range ! Using 0 instead of " << atomicNum);
+    atomicNum = 0;
+  }
+
   return this->BlueObeliskData->GetNames()->GetValue(atomicNum).c_str();
 }
 
@@ -162,17 +172,38 @@ unsigned short vtkPeriodicTable::GetAtomicNumber(const char *str)
 }
 
 //----------------------------------------------------------------------------
-float vtkPeriodicTable::GetCovalentRadius(const unsigned short atomicNum)
+float vtkPeriodicTable::GetCovalentRadius(unsigned short atomicNum)
 {
-  assert(atomicNum <= this->GetNumberOfElements());
+  if (atomicNum > this->GetNumberOfElements())
+  {
+    vtkWarningMacro("Atomic number out of range ! Using 0 instead of " << atomicNum);
+    atomicNum = 0;
+  }
+
   return this->BlueObeliskData->GetCovalentRadii()->GetValue(atomicNum);
 }
 
 //----------------------------------------------------------------------------
-float vtkPeriodicTable::GetVDWRadius(const unsigned short atomicNum)
+float vtkPeriodicTable::GetVDWRadius(unsigned short atomicNum)
 {
-  assert(atomicNum <= this->GetNumberOfElements());
+  if (atomicNum > this->GetNumberOfElements())
+  {
+    vtkWarningMacro("Atomic number out of range ! Using 0 instead of " << atomicNum);
+    atomicNum = 0;
+  }
+
   return this->BlueObeliskData->GetVDWRadii()->GetValue(atomicNum);
+}
+
+//----------------------------------------------------------------------------
+float vtkPeriodicTable::GetMaxVDWRadius()
+{
+  float maxRadius = 0;
+  for(unsigned short i = 0; i < this->GetNumberOfElements(); i++)
+  {
+    maxRadius = std::max(maxRadius, this->GetVDWRadius(i));
+  }
+  return maxRadius;
 }
 
 //----------------------------------------------------------------------------
