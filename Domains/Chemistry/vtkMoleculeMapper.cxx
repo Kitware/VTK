@@ -18,6 +18,7 @@
 #include "vtkColor.h"
 #include "vtkCylinderSource.h"
 #include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkEventForwarderCommand.h"
 #include "vtkExecutive.h"
 #include "vtkFloatArray.h"
@@ -368,14 +369,44 @@ void vtkMoleculeMapper::UpdateAtomGlyphPolyData()
   this->AtomGlyphPolyData->Initialize();
 
   vtkMolecule *molecule = this->GetInput();
-  const vtkIdType numAtoms = molecule->GetNumberOfAtoms();
 
   int assoc; // output var for GetInputAbstractArrayToProcess
-  vtkAbstractArray *colorArray =
+  vtkAbstractArray *wholeColorArray =
       this->GetInputAbstractArrayToProcess(0, molecule, assoc);
-  if (colorArray)
+
+  vtkAbstractArray *colorArray = wholeColorArray != nullptr ? wholeColorArray->NewInstance() : nullptr;
+
+  vtkNew<vtkUnsignedShortArray> atomicNbWithoutGhostArray;
+  vtkUnsignedShortArray* atomicNbFullArray = molecule->GetAtomicNumberArray();
+  vtkNew<vtkPoints> points;
+  vtkPoints* allPoints = molecule->GetAtomicPositionArray();
+  vtkUnsignedCharArray* ghosts = molecule->GetAtomGhostArray();
+  for (vtkIdType i = 0; i < molecule->GetNumberOfAtoms(); i++)
   {
-    if (colorArray->GetNumberOfTuples() != molecule->GetNumberOfAtoms())
+    /**
+     * Skip ghost atoms but not ghost bonds:
+     *  - each atom is non-ghost for exactly one MPI node, that will handle it.
+     *  - a ghost bond links an atom and a ghost atom. So there is exactly two MPI nodes
+     *    that contain this ghost bond and no one that contains this bond as non-ghost.
+     *    We let this two MPI nodes handle the ghost bond, as we cannot know if the bond
+     *    was already handled.
+     */
+    if (ghosts && ghosts->GetValue(i) == 1)
+    {
+      continue;
+    }
+    atomicNbWithoutGhostArray->InsertNextValue(atomicNbFullArray->GetValue(i));
+    points->InsertNextPoint(allPoints->GetPoint(i));
+    if (colorArray != nullptr)
+    {
+      colorArray->InsertNextTuple(i, wholeColorArray);
+    }
+  }
+  const vtkIdType numAtoms = points->GetNumberOfPoints();
+
+  if (colorArray != nullptr)
+  {
+    if (colorArray->GetNumberOfTuples() != numAtoms)
     {
       vtkErrorMacro("Color array size does not match number of atoms.");
     }
@@ -385,10 +416,10 @@ void vtkMoleculeMapper::UpdateAtomGlyphPolyData()
           this->AtomGlyphPolyData->GetPointData()->AddArray(colorArray);
       this->AtomGlyphMapper->SelectColorArray(colorArrayIdx);
     }
+    colorArray->Delete();
   }
 
-  vtkUnsignedShortArray *atomicNums = molecule->GetAtomicNumberArray();
-  this->AtomGlyphPolyData->SetPoints(molecule->GetAtomicPositionArray());
+  this->AtomGlyphPolyData->SetPoints(points.Get());
   this->AtomGlyphMapper->SetLookupTable(this->LookupTable);
 
   vtkNew<vtkFloatArray> scaleFactors;
@@ -406,14 +437,14 @@ void vtkMoleculeMapper::UpdateAtomGlyphPolyData()
       for (vtkIdType i = 0; i < numAtoms; ++i)
       {
         scaleFactors->InsertNextValue(this->AtomicRadiusScaleFactor *
-          this->PeriodicTable->GetVDWRadius(atomicNums->GetValue(i)));
+          this->PeriodicTable->GetVDWRadius(atomicNbWithoutGhostArray->GetValue(i)));
       }
       break;
     case CovalentRadius:
       for (vtkIdType i = 0; i < numAtoms; ++i)
       {
         scaleFactors->InsertNextValue(this->AtomicRadiusScaleFactor *
-          this->PeriodicTable->GetCovalentRadius(atomicNums->GetValue(i)));
+          this->PeriodicTable->GetCovalentRadius(atomicNbWithoutGhostArray->GetValue(i)));
       }
       break;
     case UnitRadius:
@@ -423,15 +454,25 @@ void vtkMoleculeMapper::UpdateAtomGlyphPolyData()
       }
       break;
     case CustomArrayRadius: {
-      vtkDataArray *radii = molecule->GetVertexData()->GetArray("radii");
-      if (!radii)
+      vtkDataArray *allRadii = molecule->GetVertexData()->GetArray("radii");
+      if (!allRadii)
       {
         vtkWarningMacro("AtomicRadiusType set to CustomArrayRadius, but no "
                         "array named 'radii' found in input VertexData.");
         scaleFactors->SetNumberOfTuples(numAtoms);
         scaleFactors->FillComponent(0, this->AtomicRadiusScaleFactor);
+        break;
       }
-      else if (radii->GetNumberOfTuples() != numAtoms)
+      vtkNew<vtkDoubleArray> radii;
+      for (vtkIdType i = 0; i < molecule->GetNumberOfAtoms(); i++)
+      {
+        if (ghosts && ghosts->GetValue(i) == 1)
+        {
+          continue;
+        }
+        radii->InsertNextValue(allRadii->GetTuple1(i));
+      }
+      if (radii->GetNumberOfTuples() != numAtoms)
       {
         vtkWarningMacro("'radii' array contains " << radii->GetNumberOfTuples()
                         << " entries, but there are " << numAtoms << " atoms.");

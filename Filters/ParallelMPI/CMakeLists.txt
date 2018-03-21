@@ -1,5 +1,6 @@
 set(Module_SRCS
   vtkDistributedDataFilter.cxx
+  vtkDistributedPointCloudFilter.cxx
   vtkPExtractGrid.cxx
   vtkPExtractRectilinearGrid.cxx
   vtkPExtractVOI.cxx
