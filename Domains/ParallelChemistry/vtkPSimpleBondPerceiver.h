@@ -12,22 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
-// Extension to the Paraview's chemistry features developped by Aymeric Pellé from Université de
-// Technologie de Compiègne, France. <br>
-// Contributed by Laurent Colombet (laurent.colombet@cea.fr) and Thierry Carrard
-// (thierry.carrard@cea.fr) from
-// CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France, BP12, F-91297 Arpajon,
-// France. <br>
-
 /**
  * @class   vtkPSimpleBondPerceiver
  * @brief   Create a simple guess of a molecule's topology
  *
  *
  * vtkPSimpleBondPerceiver is the parallel version of vtkSimpleBondPerceiver.
- * It computes ghost atoms, ghost bonds and then it calls algorithm from the serial version.
+ * It computes ghost atoms, ghost bonds and then it calls algorithm from the
+ * serial version.
  *
+ * @par Thanks:
+ * This class has been written by Kitware SAS from an initial work made by
+ * Aymeric Pelle from Universite de Technologie de Compiegne, France,
+ * and Laurent Colombet and Thierry Carrard from Commissariat a l'Energie
+ * Atomique (CEA/DIF).
  */
 
 #ifndef vtkPSimpleBondPerceiver_h
