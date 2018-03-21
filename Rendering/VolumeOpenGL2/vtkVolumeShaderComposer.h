@@ -2259,9 +2259,14 @@ namespace vtkvolume
 
   //--------------------------------------------------------------------------
   std::string ClippingDeclarationFragment(vtkRenderer* vtkNotUsed(ren),
-                                          vtkVolumeMapper* vtkNotUsed(mapper),
+                                          vtkVolumeMapper* mapper,
                                           vtkVolume* vtkNotUsed(vol))
   {
+    if (!mapper->GetClippingPlanes())
+    {
+      return std::string();
+    }
+
     return std::string("\
       \n /// We support only 8 clipping planes for now\
       \n /// The first value is the size of the data array for clipping\
