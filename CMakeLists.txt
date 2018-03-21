@@ -1,4 +1,11 @@
 cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+foreach(policy
+    CMP0074 # CMake 3.12
+    )
+  if(POLICY ${policy})
+    cmake_policy(SET ${policy} NEW)
+  endif()
+endforeach()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Android" AND CMAKE_VERSION VERSION_LESS 3.7)
   message(FATAL_ERROR "CMake 3.7 or above is required to build for Android")
