@@ -283,6 +283,7 @@ struct CutFunctionWorker
 };
 } // end anon namespace
 
+//-----------------------------------------------------------------------------
 void vtkPlane::EvaluateFunction(vtkDataArray* input, vtkDataArray* output)
 {
   CutFunctionWorker worker(this->Normal, this->Origin);
@@ -299,6 +300,88 @@ void vtkPlane::EvaluateFunction(vtkDataArray* input, vtkDataArray* output)
 int vtkPlane::IntersectWithLine(double p1[3], double p2[3], double& t, double x[3])
 {
   return this->IntersectWithLine(p1, p2, this->GetNormal(), this->GetOrigin(), t, x);
+}
+
+//-----------------------------------------------------------------------------
+int vtkPlane::
+IntersectWithFinitePlane(double n[3], double o[3],
+                         double pOrigin[3], double px[3], double py[3],
+                         double x0[3], double x1[3])
+{
+  // Since we are dealing with convex shapes, if there is an intersection a
+  // single line is produced as output. So all this is necessary is to
+  // intersect the four bounding lines of the finite line and find the two
+  // intersection points.
+  int numInts = 0;
+  double t, *x = x0;
+  double xr0[3], xr1[3];
+
+  // First line
+  xr0[0] = pOrigin[0];
+  xr0[1] = pOrigin[1];
+  xr0[2] = pOrigin[2];
+  xr1[0] = px[0];
+  xr1[1] = px[1];
+  xr1[2] = px[2];
+  if ( vtkPlane::IntersectWithLine(xr0,xr1, n,o, t,x) )
+  {
+    numInts++;
+    x = x1;
+  }
+
+  // Second line
+  xr1[0] = py[0];
+  xr1[1] = py[1];
+  xr1[2] = py[2];
+  if ( vtkPlane::IntersectWithLine(xr0,xr1, n,o, t,x) )
+  {
+    numInts++;
+    x = x1;
+  }
+  if (numInts == 2 )
+  {
+    return 1;
+  }
+
+  // Third line
+  xr0[0] = pOrigin[0] + px[0] + py[0];
+  xr0[0] = pOrigin[1] + px[1] + py[1];
+  xr0[0] = pOrigin[2] + px[2] + py[2];
+  if ( vtkPlane::IntersectWithLine(xr0,xr1, n,o, t,x) )
+  {
+    numInts++;
+    x = x1;
+  }
+  if (numInts == 2 )
+  {
+    return 1;
+  }
+
+  // Fourth and last line
+  xr1[0] = px[0];
+  xr1[1] = px[1];
+  xr1[2] = px[2];
+  if ( vtkPlane::IntersectWithLine(xr0,xr1, n,o, t,x) )
+  {
+    numInts++;
+    x = x1;
+  }
+  if (numInts == 2 )
+  {
+    return 1;
+  }
+
+  // No intersection has occured, or a single degenerate point
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
+int vtkPlane::
+IntersectWithFinitePlane(double pOrigin[3], double px[3], double py[3],
+                         double x0[3], double x1[3])
+{
+  return this->IntersectWithFinitePlane(this->GetNormal(), this->GetOrigin(),
+                                        pOrigin, px, py, x0, x1);
 }
 
 //-----------------------------------------------------------------------------

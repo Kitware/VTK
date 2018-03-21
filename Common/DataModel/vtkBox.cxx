@@ -17,7 +17,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkBoundingBox.h"
 #include "vtkPlane.h"
+
 #include <cassert>
+#include <vector> // for IntersectWithPlane
+#include <algorithm> // for sorting
 
 vtkStandardNewMacro(vtkBox);
 
@@ -543,6 +546,155 @@ IntersectWithPlane(double bounds[6], double origin[3], double normal[3])
   return 0; //no intersection
 }
 
+
+//----------------------------------------------------------------------------
+// Support for IntersectWithPlane
+namespace {
+  struct IntPoint {
+    int Id;
+    double T;
+    IntPoint(int id, double t) : Id(id), T(t) {}
+  };
+
+  bool IntPointCompare(IntPoint &a, IntPoint &b)
+  { return (a.T < b.T); }
+
+}; // anonymous namespace
+
+//----------------------------------------------------------------------------
+// Return non-zero and generate polygon of intersection. Return 0 and there
+// is no intersection. An ordered list of intersection points is returned in
+// xout (ordered in the sense that they form a polygon). Note that the
+// number of intersections ranges from [3,6]. The memory layout for xout[18]
+// is consistent with the vtkPoints array and is organized as (xyz, xyz, xyz,
+// xyz, xyz, xyz).
+int vtkBox::
+IntersectWithPlane(double bounds[6], double origin[3], double normal[3],
+                   double xout[18])
+{
+  // Intersect the twelve edges using a pseudo-contouring approach. Then
+  // order the intersections to form a polygon.
+  static int edges[12][2] = { {0,1}, {2,3}, {4,5}, {6,7},
+                              {0,2}, {1,3}, {4,6}, {5,7},
+                              {0,4}, {1,5}, {2,6}, {3,7}};
+
+  // Generating scalars is needed for performing intersections. Also populate
+  // the box corner vertex coordinates,
+  int x, y, z, vertNum, edgeNum, v0, v1;
+  double n[3], xints[36], scalars[8], p[8][3];
+  double s0, s1, t;
+
+  // Make sure normal is non-zero and a unit vector
+  n[0] = normal[0];
+  n[1] = normal[1];
+  n[2] = normal[2];
+  if ( vtkMath::Normalize(n) == 0.0 )
+  {
+    return 0;
+  }
+
+  for (vertNum=0, z=4; z <= 5; ++z)
+  {
+    for (y=2; y <= 3; ++y)
+    {
+      for (x=0; x <= 1; ++x)
+      {
+        p[vertNum][0] = bounds[x];
+        p[vertNum][1] = bounds[y];
+        p[vertNum][2] = bounds[z];
+        scalars[vertNum] = vtkPlane::Evaluate(n,origin,p[vertNum]);
+        vertNum++;
+      }//x
+    }//y
+  }//z
+
+  // Intersect each of the twelve edges.
+  int numInts = 0;
+  for ( edgeNum=0; edgeNum < 12; ++edgeNum )
+  {
+    v0 = edges[edgeNum][0];
+    v1 = edges[edgeNum][1];
+    s0 = scalars[v0];
+    s1 = scalars[v1];
+    // Check for intersection
+    if ( (s0 < 0.0 && s1 >= 0.0) || (s0 >= 0.0 && s1 < 0.0) )
+    {
+      t = -s0 / (s1 - s0);
+      xints[3*numInts] = p[v0][0] + t * (p[v1][0] - p[v0][0]);
+      xints[3*numInts+1] = p[v0][1] + t * (p[v1][1] - p[v0][1]);
+      xints[3*numInts+2] = p[v0][2] + t * (p[v1][2] - p[v0][2]);
+      numInts++;
+    }
+  }
+
+  // If no intersection or invalid intersection just return
+  if ( numInts < 3 )
+  {
+    return 0;
+  }
+
+  // Now sort the intersection points. We do this sort even for triangles to
+  // provide consistent ordering (direction) around the plane normal. Note
+  // that anything less than three intesections is considered a
+  // non-intersection. Create a local coordinate system (xV, yV, n) with the
+  // normal out of the polygon plane.
+  int i;
+  double center[3], Vx[3], Vy[3], v[3], *xp, *xo, dx, dy;
+  center[0] = 0.5 * (bounds[0] + bounds[1]);
+  center[1] = 0.5 * (bounds[2] + bounds[3]);
+  center[2] = 0.5 * (bounds[4] + bounds[5]);
+
+  Vx[0] = xints[0] - center[0];
+  Vx[1] = xints[1] - center[1];
+  Vx[2] = xints[2] - center[2];
+  vtkMath::Normalize(Vx);
+  vtkMath::Cross(n,Vx,Vy);
+  vtkMath::Normalize(Vy);
+
+  // Now run around point computing angle [0,360) and then sort.
+  std::vector<IntPoint> IntPoints;
+  IntPoints.push_back(IntPoint(0,0.0));
+
+  for ( i=1; i < numInts; ++i )
+  {
+    xp = xints + 3*i;
+    v[0] = xp[0] - center[0];
+    v[1] = xp[1] - center[1];
+    v[2] = xp[2] - center[2];
+    vtkMath::Normalize(v);
+    dx = vtkMath::Dot(v,Vx);
+    dy = vtkMath::Dot(v,Vy);
+    t = atan2(dy,dx);
+    t = ( t >= 0 ? t : (2.0*vtkMath::Pi() + t) );
+    IntPoints.push_back(IntPoint(i,t));
+  }
+
+  std::sort(IntPoints.begin(), IntPoints.end(), IntPointCompare);
+
+  // Copy result of sort to output, merging coincident points.
+  // (Merging points in parametric space.)
+  int numOutInts = 0;
+  std::vector<IntPoint>::iterator i0 = IntPoints.begin();
+  std::vector<IntPoint>::iterator i1 = i0;
+  while ( i1 != IntPoints.end() && numOutInts < 6 )
+  {
+    i = i0->Id;
+    xp = xints + 3*i;
+    xo = xout + 3*numOutInts;
+    xo[0] = xp[0];
+    xo[1] = xp[1];
+    xo[2] = xp[2];
+    ++numOutInts;
+    do
+      {
+        i1++;
+      }
+    while ( i1 != IntPoints.end() && (i1->T - i0->T) < 0.001 );
+    i0 = i1;
+  }
+
+  return numOutInts;
+}
 
 //----------------------------------------------------------------------------
 void vtkBox::PrintSelf(ostream& os, vtkIndent indent)

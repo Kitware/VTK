@@ -68,12 +68,13 @@ public:
 
   //@{
   /**
-   * Convenience method allows creation of cube by specifying bounding box.
+   * Convenience methods allows creation of cube by specifying bounding box.
    */
   void SetBounds(double xMin, double xMax,
                  double yMin, double yMax,
                  double zMin, double zMax);
   void SetBounds(const double bounds[6]);
+  void GetBounds(double bounds[6]);
   //@}
 
   //@{

@@ -8,6 +8,7 @@ vtk_add_test_python(
   TestBandedContourFilter2.py
   TestBoxFunction.py
   TestContourLoopExtraction.py
+  TestContourLoopExtraction2.py
   TestCookieCutter.py
   TestCookieCutter2.py
   TestCookieCutter3.py

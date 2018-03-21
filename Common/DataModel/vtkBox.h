@@ -22,7 +22,7 @@
  * meeting along shared edges and all faces are orthogonal to the x-y-z
  * coordinate axes.  (If you wish to orient this box differently, recall that
  * the superclass vtkImplicitFunction supports a transformation matrix.)
- * vtkCube is a concrete implementation of vtkImplicitFunction.
+ * vtkBox is a concrete implementation of vtkImplicitFunction.
  *
  * @sa
  * vtkCubeSource vtkImplicitFunction
@@ -129,6 +129,20 @@ public:
    */
   static int IntersectWithPlane(double bounds[6], double origin[3],
                                 double normal[3]);
+
+  /**
+   * Plane intersection with the box. The plane is infinite in extent and
+   * defined by an origin and normal. The function returns the number of
+   * intersection points, and if does, up to six ordered intersection points
+   * are provided (i.e., the points are ordered and form a valid polygon).
+   * Thus the function returns non-zero if the plane and box intersect; zero
+   * otherwise. Note that if there is an intersection, the number of
+   * intersections ranges from [3,6]. xints memory layout is consistent with
+   * vtkPoints array layout and is organized as (xyz, xyz, xyz, xyz, xyz,
+   * xyz).
+   */
+  static int IntersectWithPlane(double bounds[6], double origin[3],
+                                double normal[3], double xints[18]);
 
 protected:
   vtkBox();

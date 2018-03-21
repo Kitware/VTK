@@ -14,7 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkContourLoopExtraction
- * @brief   extract closed loops (polygons) from lines
+ * @brief   extract closed loops (polygons) from lines and polylines
  *
  * This filter takes an input consisting of lines and polylines and
  * constructs polygons (i.e., closed loops) from them. It combines some of
@@ -22,39 +22,47 @@
  * manifold loops that are suitable for geometric operations. For example,
  * the vtkCookieCutter works well with this filter.
  *
- * Note that the input to this filter consists of points and line or polyline
- * cells. All other topological types (verts, polygons, triangle strips) are
- * ignored. The output of this filter is manifold polygons.
+ * Note that the input structure for this filter consists of points and line
+ * or polyline cells. All other topological types (verts, polygons, triangle
+ * strips) are ignored. The output of this filter is manifold polygons.
  *
  * @warning
  * Although the loops are constructed in 3-space, a normal vector must be
- * supplied to help select turns when multiple choices are possible. By
- * default the normal vector is n={0,0,1} but may be user specified. Note
- * also that some filters require that the loops are located in the
- * z=constant or z=0 plane. Hence a transform filter of some sort may be
- * necesssary to project the loops to a plane.
+ * supplied to help choose a turn direction when multiple choices are
+ * possible. By default the normal vector is n={0,0,1} but may be user
+ * specified. Note also that some filters require that the loops are located
+ * in the z=constant or z=0 plane. Hence a transform filter of some sort may
+ * be necesssary to project the loops to a plane.
  *
  * @warning
  * Note that lines that do not close in on themselves can be optionally
  * forced closed. This occurs when for example, 2D contours end and begin at
  * the boundaries of data. By forcing closure, the last point is joined to
- * the first point. Note that there are different closure modes: 1) do not
- * close (and hence reject the polygon); 2) close along grid boundaries
- * (vertical or horizontal x and y lines); and 3) close all open loops.
+ * the first point (with boundary points possibly added). Note that there are
+ * different closure modes: 1) do not close (and hence reject the polygon);
+ * 2) close along the dataset boundaries (i.e., the bounding box of a dataset
+ * used to generate the contour lines); and 3) close all open loops by
+ * connectiong the first and last point. If Option #2 is chosen, only loops
+ * that start and end on either a horizontal or vertical boundary are closed.
  *
  * @warning
  * Scalar thresholding can be enabled. If enabled, then only those loops with
  * *any" scalar point data within the thresholded range are extracted.
  *
  * @warning
- * Any detached lines forming degenerate loops of two points or less are
- * discarded. Non-manifold junctions are broken into separate, independent
- * loops.
+ * Any detached lines forming degenerate loops of defined by two points or
+ * less are discarded. Non-manifold junctions are broken into separate,
+ * independent loops.
+ *
+ * @warning
+ * Boundary closure only works if the end points are both on a vertical
+ * boundary or horizontal boundary. Otherwise new points would have to be
+ * added which this filter does not (currently) do.
  *
  * @sa
  * vtkCookieCutter vtkFlyingEdges2D vtkMarchingSquares vtkFeatureEdges
  * vtkConnectivityFilter vtkPolyDataConnectivityFilter
- * vtkDiscreteFlyingEdges2D
+ * vtkDiscreteFlyingEdges2D vtkStripper
  */
 
 #ifndef vtkContourLoopExtraction_h
@@ -81,9 +89,10 @@ public:
 
   //@{
   /**
-   * Specify whether to close loops or not. All loops can be closed; boundary
-   * loops (x or y vertical or horizontal lines) can be closed (default); or
-   * all loops can be closed.
+   * Specify whether to close loops or not. All non-closed loops can be
+   * rejected; boundary loops (end points lie on vertical or horizontal
+   * porions of the boundary) can be closed (default); or all loops can be
+   * forced closed by connecting first and last points.
    */
   vtkSetClampMacro(LoopClosure,int,VTK_LOOP_CLOSURE_OFF,VTK_LOOP_CLOSURE_ALL);
   vtkGetMacro(LoopClosure,int);
@@ -110,7 +119,7 @@ public:
   //@{
   /**
    * Set the scalar range to use to extract loop based on scalar
-   * connectivity.  If any scalar, point data, in the loop falls into the
+   * thresholding.  If any scalar, point data, in the loop falls into the
    * scalar range given, then the loop is extracted.
    */
   vtkSetVector2Macro(ScalarRange,double);
@@ -134,9 +143,14 @@ protected:
   bool ScalarThresholding;
   double ScalarRange[2];
   double Normal[3];
+  double DataSetBounds[6];
 
   int RequestData(vtkInformation *, vtkInformationVector **,
                   vtkInformationVector *) override;
+
+  // Internal data members
+  int DataDimension; //either 2D or 3D
+  double Bounds[6];
 
 private:
   vtkContourLoopExtraction(const vtkContourLoopExtraction&) = delete;

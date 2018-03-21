@@ -42,7 +42,6 @@ namespace {
   // [i,i+1). Any point (like an intersection point on the segment) is i+t,
   // where 0 <= t < 1.
 
-
   // Infrastructure for cropping----------------------------------------------
   struct LoopPoint
   {
@@ -114,24 +113,10 @@ namespace {
         visited[nei] = 1;
         lastCell = nei;
       }
-      else // non-manifold, for now just quit
+      else // non-manifold, for now just quit (TODO: break apart loops)
       {
         terminated = true;
         break;
-        // double x0[3], x1[3], x10[3];
-        // // first get a vector along the current cell
-        // polyData->GetPoint(pts[0],x0);
-        // polyData->GetPoint(pts[1],x1);
-        // vtkMath::Subtract(x1,x0,x10);
-        // vtkMath::Normalize(x10);
-
-        // // Now find the path that turns the most left
-        // for (int i=0; i < ncells; ++i)
-        // {
-        //   if ( (nei=cells[i]) != lastCell )
-        //   {
-        //   }
-        // }
       }
     }
 
@@ -157,49 +142,38 @@ namespace {
       ; //do nothing and it will close between the first and last points
     }
 
-    // If here we assume that the loop begins and ends on a rectangular
-    // boundary. Close the loop by walking the rectangular boundary.
-    else //loopClosure == VTK_LOOP_CLOSURE_BOUNDARY
+    // If here we assume that the loop begins and ends on the given bounding
+    // box (i.e. the boundary of the data). Close the loop by walking the
+    // bounding box in the plane defined by the Normal plus the loop start
+    // point.
+    else if (loopClosure == VTK_LOOP_CLOSURE_BOUNDARY)
     {
-      // First check the simple case, complete the loop along the boundary
-      double x[3], y[3], delX, delY;
-      inPts->GetPoint(sortedPoints[0].Id, x);
-      inPts->GetPoint(sortedPoints[1].Id, y);
-      delX = fabs(x[0]-y[0]);
-      delY = fabs(x[1]-y[1]);
-      // if no change in the x or y direction just return loop will complete
+      // First check the simple case, complete the loop along horizontal or
+      // vertical lines (assumed on the boundary).
+      double p0[3], p1[3], delX, delY;
+      inPts->GetPoint(sortedPoints[0].Id, p0);
+      inPts->GetPoint(sortedPoints[num-1].Id, p1);
+      delX = fabs(p0[0]-p1[0]);
+      delY = fabs(p0[1]-p1[1]);
+
+      // if no change in either the x or y direction just return, the loop will complete
       if ( delX < FLT_EPSILON || delY < FLT_EPSILON )
       {
-        ; //do nothing loop will complete
+        ; //do nothing loop will complete; points are along same (horizontal or vertical) boundary edge
       }
+
+      // Otherwise check if the points are on the "boundary" and then complete the loop
+      // along the shortest path around the boundary.
       else
       {
-        // Otherwise complete the loop to maintain polygon normal. This will cause
-        // new points to be inserted, not sure this should be done.
-        //
-        // Get the bounds of the partial loop; gather info for normal computation
-        // double n[3];
-        // double bds[6] = {VTK_FLOAT_MAX,VTK_FLOAT_MIN, VTK_FLOAT_MAX,VTK_FLOAT_MIN,
-        //                  VTK_FLOAT_MAX,VTK_FLOAT_MIN};
-        // vtkIdType *pts = new vtkIdType [num];
-        // for (int i=0; i < num; ++i)
-        // {
-        //   pts[i] = sortedPoints[i].Id;
-        //   inPts->GetPoint(sortedPoints[i].Id, x);
-        //   for (int j=0; j < 3; ++j)
-        //   {
-        //     bds[2*i] = (x[j] < bds[2*j] ? x[j] : bds[2*j]);
-        //     bds[2*i+1] = (x[j] > bds[2*j+1] ? x[j] : bds[2*j+1]);
-        //   }
-        // }
-
-        // // Compute the normal to the partial loop
-        // vtkPolygon::ComputeNormal(inPts,num,pts,n);
-
-        // For now this situation is skipped and no
-        // loop is returned.
         return;
       }
+    }
+
+    // Don't close
+    else //loopClosure == VTK_LOOP_CLOSURE_OFF
+    {
+      return;
     }
 
     // Return if not a valid loop
@@ -208,7 +182,7 @@ namespace {
       return;
     }
 
-    // Output the loop
+    // If here can output the loop
     outPolys->InsertNextCell(num);
     for (vtkIdType i=0; i < num; ++i)
     {
@@ -231,6 +205,7 @@ vtkContourLoopExtraction::vtkContourLoopExtraction()
   this->Normal[0] = 0.0;
   this->Normal[1] = 0.0;
   this->Normal[2] = 1.0;
+
 }
 
 //----------------------------------------------------------------------------
@@ -329,13 +304,14 @@ int vtkContourLoopExtraction::RequestData(
 
       rightEnd = TraverseLoop(1.0,polyData,lineId,start,sortedPoints,
                               visited,scalars,range);
+
       if ( rightEnd == start )
       {
         // extract loop, we've traversed all the way around
         if ( !scalars ||
              (range[0] <= this->ScalarRange[1] && range[1] >= this->ScalarRange[0]) )
         {
-          OutputPolygon(sortedPoints,points,outPolys,this->LoopClosure);
+          OutputPolygon(sortedPoints, points, outPolys, this->LoopClosure);
         }
       }
       else
@@ -344,7 +320,7 @@ int vtkContourLoopExtraction::RequestData(
         TraverseLoop(-1.0,polyData,lineId,start,sortedPoints,
                      visited,scalars,range);
         std::sort(sortedPoints.begin(), sortedPoints.end(), &PointSorter);
-        OutputPolygon(sortedPoints,points,outPolys,this->LoopClosure);
+        OutputPolygon(sortedPoints, points, outPolys, this->LoopClosure);
       }
     }//if not visited start a loop
   }
