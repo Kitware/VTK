@@ -22,6 +22,11 @@ find_path(LIBHARU_INCLUDE_DIR hpdf.h)
 find_library(LIBHARU_LIBRARY_RELEASE NAMES hpdf hpdfs libhpdf libhpdfs)
 find_library(LIBHARU_LIBRARY_DEBUG NAMES hpdfd hpdfsd libhpdfd libhpdfsd)
 
+include(CheckTypeSize)
+set(CMAKE_EXTRA_INCLUDE_FILES "${LIBHARU_INCLUDE_DIR}/hpdf.h")
+check_type_size(HPDF_Shading LIBHARU_HPDF_SHADING)
+set(CMAKE_EXTRA_INCLUDE_FILES)
+
 include(SelectLibraryConfigurations)
 select_library_configurations(LIBHARU)
 
@@ -31,6 +36,7 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(LibHaru DEFAULT_MSG
   LIBHARU_LIBRARY
   LIBHARU_INCLUDE_DIR
+  LIBHARU_HPDF_SHADING
 )
 
 if(LIBHARU_FOUND)
