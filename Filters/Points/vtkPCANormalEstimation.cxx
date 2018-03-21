@@ -238,6 +238,7 @@ int vtkPCANormalEstimation::RequestData(
   vtkFloatArray *normals = vtkFloatArray::New();
   normals->SetNumberOfComponents(3);
   normals->SetNumberOfTuples(numPts);
+  normals->SetName("PCANormals");
   float *n = static_cast<float*>(normals->GetVoidPointer(0));
 
   void *inPtr = input->GetPoints()->GetVoidPointer(0);
