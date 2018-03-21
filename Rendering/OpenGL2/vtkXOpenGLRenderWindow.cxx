@@ -1151,7 +1151,7 @@ void vtkXOpenGLRenderWindow::PopContext()
   GLXContext current = glXGetCurrentContext();
   GLXContext target = static_cast<GLXContext>(this->ContextStack.top());
   this->ContextStack.pop();
-  if (target != current)
+  if (target && target != current)
   {
     glXMakeCurrent(this->DisplayStack.top(),
       this->DrawableStack.top(),
