@@ -25,7 +25,7 @@
  *  operations, every process must call that method.
  *
  * @sa
- *  vtkStructuredGridConnectivity vtkGhostArray
+ *  vtkStructuredGridConnectivity
 */
 
 #ifndef vtkPStructuredGridConnectivity_h

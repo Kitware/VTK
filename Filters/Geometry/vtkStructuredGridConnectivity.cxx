@@ -348,17 +348,15 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
   if( ! this->IsNodeInterior( i,j,k, realExtent) )
   {
     // If the node is on the boundary of the computational domain mark it
-    if( this->IsNodeOnBoundary(i,j,k) )
-    {
-      // BOUNDARY might be used in the future
-      //vtkGhostArray::SetProperty( p, vtkGhostArray::BOUNDARY );
-    }
+    // if( this->IsNodeOnBoundary(i,j,k) )
+    // {
+    //   BOUNDARY might be used in the future
+    // }
 
     // Check if the node is also on a shared boundary or if it is a ghost node
     if(this->IsNodeOnSharedBoundary(gridID,realExtent,i,j,k))
     {
       // SHARED might be used in the future
-      //vtkGhostArray::SetProperty( p, vtkGhostArray::SHARED );
 
       // For shared nodes we must check for ownership
       vtkIdList *neiList = vtkIdList::New();
@@ -383,7 +381,6 @@ void vtkStructuredGridConnectivity::MarkNodeProperty(
           if( this->IsNodeWithinExtent(i,j,k,neiRealExtent) &&
               gridID > neiList->GetId( nei ) )
           {
-            // this was originally vtkGhostArray::IGNORE
             p |= vtkDataSetAttributes::HIDDENPOINT;
             break;
           }
@@ -1197,7 +1194,6 @@ void vtkStructuredGridConnectivity::CreateGhostedMaskArrays(const int gridID)
           if( this->IsNodeOnBoundary(i,j,k) )
           {
             // We might use BOUNDARY in the future
-            //vtkGhostArray::SetProperty( p,vtkGhostArray::BOUNDARY );
           }
           p |= vtkDataSetAttributes::DUPLICATEPOINT;
           this->GhostedPointGhostArray[gridID]->SetValue(idx,p);
