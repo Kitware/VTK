@@ -29,21 +29,13 @@ if(VTK_GHOSTSCRIPT_EXECUTABLE)
   set(GL2PSTestsPDF
     ${GL2PSTestsPDFBothOpenGL}
   )
-
-  # These only produce PDFs. They're separated since the above tests produce
-  # and verify both PDF and PS.
-  set(PDFTests
-    TestPDFContextExport.cxx,NO_DATA
-    TestPDFContextShading.cxx,NO_DATA
-    TestPDFExporterContextPolyData.cxx
-  )
 endif()
 
 vtk_add_test_cxx(vtkIOExportCxxTests tests
   X3DTest.cxx,NO_DATA,NO_VALID
   TestOBJExporter.cxx,NO_DATA,NO_VALID
   TestSingleVTPExporter.cxx,NO_DATA,NO_VALID
-  ${GL2PSTests} ${GL2PSTestsPDF} ${PDFTests} ${SVGTests}
+  ${GL2PSTests} ${GL2PSTestsPDF} ${SVGTests}
   TestRIBExporter.cxx,NO_VALID
   UnitTestRIB.cxx,NO_DATA,NO_VALID
   )
@@ -102,7 +94,6 @@ endif()
 set(TestGL2PSExporterVolumeRasterError 50)
 
 include(vtkTestingGL2PS)
-vtk_add_pdf_test_cxx(${PDFTests})
 # text alignment and rotation with TextAsPath off is not
 # yet implemented for the OpenGL2 backend.
 vtk_add_gl2ps_test_cxx(${GL2PSTests})

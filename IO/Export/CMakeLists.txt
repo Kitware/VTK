@@ -4,8 +4,6 @@ set(Module_SRCS
   vtkIVExporter.cxx
   vtkOBJExporter.cxx
   vtkOOGLExporter.cxx
-  vtkPDFContextDevice2D.cxx
-  vtkPDFExporter.cxx
   vtkPOVExporter.cxx
   vtkRIBExporter.cxx
   vtkRIBLight.cxx
