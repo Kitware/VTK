@@ -46,21 +46,25 @@ template <class ValueTypeT>
 void vtkAOSDataArrayTemplate<ValueTypeT>
 ::SetArray(ValueType* array, vtkIdType size, int save, int deleteMethod)
 {
+
+  this->Buffer->SetBuffer(array, size);
+
   if(deleteMethod == VTK_DATA_ARRAY_DELETE)
   {
-    this->Buffer->SetBuffer(array, size, save != 0, ::operator delete[] );
+    this->Buffer->SetFreeFunction(save != 0, ::operator delete[] );
   }
   else if(deleteMethod == VTK_DATA_ARRAY_ALIGNED_FREE)
   {
 #ifdef _WIN32
-    this->Buffer->SetBuffer(array, size, save != 0, _aligned_free);
+    this->Buffer->SetFreeFunction(save != 0, _aligned_free);
 #else
-    this->Buffer->SetBuffer(array, size, save != 0, free);
+    this->Buffer->SetFreeFunction(save != 0, free);
 #endif
   }
-  else
+  else if(deleteMethod == VTK_DATA_ARRAY_USER_DEFINED ||
+          deleteMethod == VTK_DATA_ARRAY_FREE)
   {
-    this->Buffer->SetBuffer(array, size, save != 0, free);
+    this->Buffer->SetFreeFunction(save != 0, free);
   }
 
   this->Size = size;
@@ -90,6 +94,13 @@ void vtkAOSDataArrayTemplate<ValueTypeT>
 ::SetVoidArray(void *array, vtkIdType size, int save, int deleteMethod)
 {
   this->SetArray(static_cast<ValueType*>(array), size, save, deleteMethod);
+}
+
+//-----------------------------------------------------------------------------
+template<class ValueType>
+void vtkAOSDataArrayTemplate<ValueType>::SetArrayFreeFunction(void (*callback)(void *))
+{
+  this->Buffer->SetFreeFunction(false, callback);
 }
 
 //-----------------------------------------------------------------------------

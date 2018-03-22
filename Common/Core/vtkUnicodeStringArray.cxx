@@ -312,6 +312,11 @@ void vtkUnicodeStringArray::SetVoidArray(void*, vtkIdType, int, int)
   vtkErrorMacro("Not implemented.");
 }
 
+void vtkUnicodeStringArray::SetArrayFreeFunction(void (*)(void *))
+{
+  vtkErrorMacro("Not implemented.");
+}
+
 unsigned long vtkUnicodeStringArray::GetActualMemorySize()
 {
   unsigned long count = 0;

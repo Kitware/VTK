@@ -90,6 +90,7 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestScalarsToColors.cxx
   # TestArrayCasting.cxx # Uses Boost in its own separate test.
   TestArrayExtents.cxx
+  TestArrayFreeFunctions.cxx
   TestArrayInterpolationDense.cxx
   TestArrayLookup.cxx
   TestArrayNullValues.cxx

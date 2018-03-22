@@ -49,7 +49,8 @@ public:
   {
     VTK_DATA_ARRAY_FREE=vtkAbstractArray::VTK_DATA_ARRAY_FREE,
     VTK_DATA_ARRAY_DELETE=vtkAbstractArray::VTK_DATA_ARRAY_DELETE,
-    VTK_DATA_ARRAY_ALIGNED_FREE=vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE
+    VTK_DATA_ARRAY_ALIGNED_FREE=vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE,
+    VTK_DATA_ARRAY_USER_DEFINED=vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED
   };
 
   static vtkSOADataArrayTemplate* New();
@@ -139,6 +140,23 @@ public:
   void SetArray(int comp, VTK_ZEROCOPY ValueType* array, vtkIdType size,
                 bool updateMaxId = false, bool save=false,
                 int deleteMethod=VTK_DATA_ARRAY_FREE);
+
+  /**
+    * This method allows the user to specify a custom free function to be
+    * called when the array is deallocated. Calling this method will implicitly
+    * mean that the given free function will be called when the class
+    * cleans up or reallocates memory. This custom free function will be
+    * used for all components.
+  **/
+  void SetArrayFreeFunction(void (*callback)(void *)) override;
+
+  /**
+    * This method allows the user to specify a custom free function to be
+    * called when the array is deallocated. Calling this method will implicitly
+    * mean that the given free function will be called when the class
+    * cleans up or reallocates memory.
+  **/
+  void SetArrayFreeFunction(int comp, void (*callback)(void *));
 
   /**
    * Return a pointer to a contiguous block of memory containing all values for

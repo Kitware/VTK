@@ -31,7 +31,7 @@
 #define SIZE 1000
 
 template <class T, class A, class V>
-int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
+int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size, bool vtkFree=false)
 {
   float tuple1[SIZE/100];
   double tuple3[SIZE/100];
@@ -73,7 +73,10 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   }
 
   strm << "\tSetVoidArray...";
-  ptr->SetVoidArray(array, size, 1);
+  int vtkDeletesMemory = (vtkFree) ? 0 : 1;
+  ptr->SetVoidArray(array, size,
+                    vtkDeletesMemory,
+                    vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
   strm << "OK" << endl;
 
   strm << "CreateDefaultLookupTable" << endl;
@@ -560,9 +563,8 @@ int otherArraysTest(ostream& strm)
   unsigned char *array = new unsigned char[SIZE];
   unsigned char value = static_cast<unsigned char>(1);
   for (int i = 0; i < SIZE; i++) *(array + i ) = i;
-  errors += doArrayTest (strm, ptr, array, value, SIZE);
+  errors += doArrayTest (strm, ptr, array, value, SIZE, true);
   ptr->Delete();
-  delete []array;
   }
 
   {
@@ -582,9 +584,8 @@ int otherArraysTest(ostream& strm)
   unsigned int *array = new unsigned int[SIZE];
   unsigned int value = static_cast<unsigned int>(1);
   for (int i = 0; i < SIZE; i++) *(array + i ) = i;
-  errors += doArrayTest (strm, ptr, array, value, SIZE);
+  errors += doArrayTest (strm, ptr, array, value, SIZE, true);
   ptr->Delete();
-  delete []array;
   }
 
   {
@@ -604,9 +605,8 @@ int otherArraysTest(ostream& strm)
   unsigned long *array = new unsigned long[SIZE];
   unsigned long value = static_cast<unsigned long>(1);
   for (int i = 0; i < SIZE; i++) *(array + i ) = i;
-  errors += doArrayTest (strm, ptr, array, value, SIZE);
+  errors += doArrayTest (strm, ptr, array, value, SIZE, true);
   ptr->Delete();
-  delete []array;
   }
 
   {
@@ -626,9 +626,8 @@ int otherArraysTest(ostream& strm)
   unsigned short *array = new unsigned short[SIZE];
   unsigned short value = static_cast<unsigned short>(1);
   for (int i = 0; i < SIZE; i++) *(array + i ) = i;
-  errors += doArrayTest (strm, ptr, array, value, SIZE);
+  errors += doArrayTest (strm, ptr, array, value, SIZE, true);
   ptr->Delete();
-  delete []array;
   }
 
   {
@@ -648,9 +647,8 @@ int otherArraysTest(ostream& strm)
   double *array = new double[SIZE];
   double value = static_cast<double>(1);
   for (int i = 0; i < SIZE; i++) *(array + i ) = i;
-  errors += doArrayTest (strm, ptr, array, value, SIZE);
+  errors += doArrayTest (strm, ptr, array, value, SIZE, true);
   ptr->Delete();
-  delete []array;
   }
 
   {

@@ -178,6 +178,7 @@ public:
   ValueType* GetPointer(vtkIdType valueIdx);
   void SetVoidArray(void*, vtkIdType, int) override;
   void SetVoidArray(void*, vtkIdType, int, int) override;
+  void SetArrayFreeFunction(void (*callback)(void *)) override;
   void* WriteVoidPointer(vtkIdType valueIdx, vtkIdType numValues) override;
   ValueType* WritePointer(vtkIdType valueIdx, vtkIdType numValues);
   //@}

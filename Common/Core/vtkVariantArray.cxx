@@ -43,6 +43,13 @@
 typedef std::multimap<vtkVariant, vtkIdType, vtkVariantLessThan>
   vtkVariantCachedUpdates;
 
+namespace
+{
+auto DefaultDeleteFunction = [](void *ptr) {
+  delete[] reinterpret_cast<vtkVariant *>(ptr);
+};
+}
+
 //----------------------------------------------------------------------------
 class vtkVariantArrayLookup
 {
@@ -94,16 +101,16 @@ void vtkVariantArray::PrintSelf(ostream& os, vtkIndent indent)
 vtkVariantArray::vtkVariantArray()
 {
   this->Array = nullptr;
-  this->SaveUserArray = 0;
+  this->DeleteFunction = DefaultDeleteFunction;
   this->Lookup = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkVariantArray::~vtkVariantArray()
 {
-  if (!this->SaveUserArray)
+  if (this->DeleteFunction)
   {
-    delete [] this->Array;
+    this->DeleteFunction(this->Array);
   }
   delete this->Lookup;
 }
@@ -119,9 +126,9 @@ int vtkVariantArray::Allocate(vtkIdType sz, vtkIdType)
 {
   if(sz > this->Size)
   {
-    if(!this->SaveUserArray)
+    if (this->DeleteFunction)
     {
-      delete [] this->Array;
+      this->DeleteFunction(this->Array);
     }
 
     this->Size = (sz > 0 ? sz : 1);
@@ -130,7 +137,7 @@ int vtkVariantArray::Allocate(vtkIdType sz, vtkIdType)
     {
       return 0;
     }
-    this->SaveUserArray = 0;
+    this->DeleteFunction = DefaultDeleteFunction;
   }
 
   this->MaxId = -1;
@@ -142,14 +149,14 @@ int vtkVariantArray::Allocate(vtkIdType sz, vtkIdType)
 //----------------------------------------------------------------------------
 void vtkVariantArray::Initialize()
 {
-  if(!this->SaveUserArray)
+  if (this->DeleteFunction)
   {
-    delete [] this->Array;
+    this->DeleteFunction(this->Array);
   }
   this->Array = nullptr;
   this->Size = 0;
   this->MaxId = -1;
-  this->SaveUserArray = 0;
+  this->DeleteFunction = DefaultDeleteFunction;
   this->DataChanged();
 }
 
@@ -442,15 +449,15 @@ void vtkVariantArray::DeepCopy(vtkAbstractArray *aa)
   }
 
   // Free our previous memory.
-  if(!this->SaveUserArray)
+  if (this->DeleteFunction)
   {
-    delete [] this->Array;
+    this->DeleteFunction(this->Array);
   }
 
   // Copy the given array into new memory.
   this->MaxId = va->GetMaxId();
   this->Size = va->GetSize();
-  this->SaveUserArray = 0;
+  this->DeleteFunction = DefaultDeleteFunction;
   this->Array = new vtkVariant[this->Size];
 
   for (int i = 0; i < (this->MaxId+1); ++i)
@@ -562,9 +569,9 @@ int vtkVariantArray::Resize(vtkIdType sz)
       newArray[i] = this->Array[i];
     }
 
-    if(!this->SaveUserArray)
+    if (this->DeleteFunction)
     {
-      delete[] this->Array;
+      this->DeleteFunction(this->Array);
     }
   }
 
@@ -574,7 +581,7 @@ int vtkVariantArray::Resize(vtkIdType sz)
   }
   this->Size = newSize;
   this->Array = newArray;
-  this->SaveUserArray = 0;
+  this->DeleteFunction = DefaultDeleteFunction;
   this->DataChanged();
   return 1;
 }
@@ -588,9 +595,9 @@ void vtkVariantArray::SetVoidArray(void *arr, vtkIdType size, int save)
 
 //----------------------------------------------------------------------------
 void vtkVariantArray::SetVoidArray(void *arr, vtkIdType size, int save,
-                                   int vtkNotUsed(deleteM))
+                                   int deleteM)
 {
-  this->SetArray(static_cast<vtkVariant*>(arr), size, save);
+  this->SetArray(static_cast<vtkVariant*>(arr), size, save, deleteM);
   this->DataChanged();
 }
 
@@ -694,12 +701,13 @@ vtkVariant* vtkVariantArray::GetPointer(vtkIdType id)
 }
 
 //----------------------------------------------------------------------------
-void vtkVariantArray::SetArray(vtkVariant* arr, vtkIdType size, int save)
+void vtkVariantArray::SetArray(vtkVariant* arr, vtkIdType size, int save,
+                               int deleteMethod)
 {
-  if ((this->Array) && (!this->SaveUserArray))
+  if ((this->Array) && (this->DeleteFunction))
   {
     vtkDebugMacro (<< "Deleting the array...");
-    delete [] this->Array;
+    this->DeleteFunction(this->Array);
   }
   else
   {
@@ -711,9 +719,38 @@ void vtkVariantArray::SetArray(vtkVariant* arr, vtkIdType size, int save)
   this->Array = arr;
   this->Size = size;
   this->MaxId = size-1;
-  this->SaveUserArray = save;
+
+  if(save!=0)
+  {
+    this->DeleteFunction = nullptr;
+  }
+  else if(deleteMethod == VTK_DATA_ARRAY_DELETE ||
+          deleteMethod == VTK_DATA_ARRAY_USER_DEFINED)
+  {
+    this->DeleteFunction = DefaultDeleteFunction;
+  }
+  else if(deleteMethod == VTK_DATA_ARRAY_ALIGNED_FREE)
+  {
+#ifdef _WIN32
+    this->DeleteFunction = _aligned_free;
+#else
+    this->DeleteFunction = free;
+#endif
+  }
+  else if(deleteMethod == VTK_DATA_ARRAY_FREE)
+  {
+    this->DeleteFunction = free;
+  }
+
   this->DataChanged();
 }
+
+//-----------------------------------------------------------------------------
+void vtkVariantArray::SetArrayFreeFunction(void (*callback)(void *))
+{
+  this->DeleteFunction = callback;
+}
+
 
 //----------------------------------------------------------------------------
 vtkVariant* vtkVariantArray::ResizeAndExtend(vtkIdType sz)
@@ -761,9 +798,9 @@ vtkVariant* vtkVariantArray::ResizeAndExtend(vtkIdType sz)
     {
       newArray[i] = this->Array[i];
     }
-    if(!this->SaveUserArray)
+    if (this->DeleteFunction)
     {
-      delete [] this->Array;
+      this->DeleteFunction(this->Array);
     }
   }
 
@@ -773,7 +810,7 @@ vtkVariant* vtkVariantArray::ResizeAndExtend(vtkIdType sz)
   }
   this->Size = newSize;
   this->Array = newArray;
-  this->SaveUserArray = 0;
+  this->DeleteFunction = DefaultDeleteFunction;
   this->DataChanged();
 
   return this->Array;
