@@ -6,8 +6,8 @@
 
 # If the environment var WikiExamplesTag exists, use it
 if (NOT DEFINED ENV{WikiExamplesTag})
-  # 13 February 2018 Fixes for static builds.
-  set(GIT_TAG 1dd445ed1ec07c0a828f1f758b2d8e0d9caf7708)
+  # 22 March 2018 Added Shader Examples
+  set(GIT_TAG b67070bd3199351ca98688f6ff30568b773cbc6f)
 else()
   set(GIT_TAG $ENV{WikiExamplesTag})
 endif()
