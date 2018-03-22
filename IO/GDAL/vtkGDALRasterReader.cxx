@@ -18,6 +18,7 @@
 // VTK includes
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCellDataToPointData.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkGDAL.h"
@@ -472,21 +473,22 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
   (void)err; //unused
 
   const double* d = GetGeoCornerPoints();
+  // 4,5 are the x,y coordinates for the oposite corner to 0,1
   double geoSpacing[] = {(d[4]-d[0])/this->Reader->RasterDimensions[0],
                          (d[5]-d[1])/this->Reader->RasterDimensions[1],
                          1};
 
-  // Set meta data on the image
-  this->UniformGridData->SetExtent(0, (destWidth - 1), 0, (destHeight - 1), 0, 0);
+  // destWidth, destHeight are the number of cells. Points are one more than cells
+  this->UniformGridData->SetExtent(0, destWidth, 0, destHeight, 0, 0);
   this->UniformGridData->SetSpacing(abs(geoSpacing[0]), abs(geoSpacing[1]), geoSpacing[2]);
-  this->UniformGridData->SetOrigin(std::min(d[0], d[2]), std::min(d[1], d[3]), 0);
+  this->UniformGridData->SetOrigin(std::min(d[0], d[4]), std::min(d[1], d[5]), 0);
   this->Convert<VTK_TYPE, RAW_TYPE>(rawUniformGridData, destWidth, destHeight,
                                     geoSpacing[0] < 0, geoSpacing[1] < 0);
 
   if (paletteBand)
   {
-    this->UniformGridData->GetPointData()->GetScalars()->SetName("Categories");
-    this->UniformGridData->GetPointData()->GetScalars()->SetLookupTable(
+    this->UniformGridData->GetCellData()->GetScalars()->SetName("Categories");
+    this->UniformGridData->GetCellData()->GetScalars()->SetLookupTable(
       colorTable);
   }
 }
@@ -553,7 +555,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::Convert(
       }
     }
   }
-  this->UniformGridData->GetPointData()->SetScalars(scArr);
+  this->UniformGridData->GetCellData()->SetScalars(scArr);
 }
 
 //-----------------------------------------------------------------------------
@@ -910,9 +912,13 @@ int vtkGDALRasterReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
+  vtkNew<vtkCellDataToPointData> c2p;
+  c2p->SetInputDataObject(this->Implementation->UniformGridData);
+  c2p->PassCellDataOn();
+  c2p->Update();
 
-  vtkUniformGrid::SafeDownCast(dataObj)->ShallowCopy(
-    this->Implementation->UniformGridData);
+
+  vtkUniformGrid::SafeDownCast(dataObj)->ShallowCopy(c2p->GetOutput());
   return 1;
 }
 
