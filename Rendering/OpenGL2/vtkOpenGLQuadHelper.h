@@ -15,7 +15,7 @@
  * @class   vtkOpenGLQuadHelper
  * @brief   Class to make rendering a full screen quad easier
  *
- * vtkOpenGLQuadHelper is desgined to be used by classes  in VTK that
+ * vtkOpenGLQuadHelper is designed to be used by classes in VTK that
  * need to render a quad to the screen with a shader program. This happens
  * often with render passes or other advanced rendering techniques.
  *
@@ -37,7 +37,7 @@
  * aTexture->Deactivate();
  * @endcode
  *
- * See also vtkOpenGLRenderUtilities
+ * @sa vtkOpenGLRenderUtilities
  */
 
 #ifndef vtkOpenGLQuadHelper_h

@@ -213,7 +213,7 @@ void vtkDepthPeelingPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "OcclusionRation: " << this->OcclusionRatio << endl;
+  os << indent << "OcclusionRatio: " << this->OcclusionRatio << endl;
 
   os << indent << "MaximumNumberOfPeels: " << this->MaximumNumberOfPeels
      << endl;

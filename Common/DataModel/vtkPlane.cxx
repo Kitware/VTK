@@ -371,7 +371,7 @@ IntersectWithFinitePlane(double n[3], double o[3],
     return 1;
   }
 
-  // No intersection has occured, or a single degenerate point
+  // No intersection has occurred, or a single degenerate point
   return 0;
 }
 

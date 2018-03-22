@@ -19,10 +19,14 @@
  *
  * This filter distributes points among processors into spatially
  * contiguous vtkPointSet, containing an equivalent number of points.
- *
  * Algorithm : Point cloud is recursively splitted in two, among MPI groups.
+ * Note Input cells are ignored.
  *
- * Input cells are ignored.
+ * @par Thanks:
+ * This class has been written by Kitware SAS from an initial work made by
+ * Aymeric Pelle from Universite de Technologie de Compiegne, France,
+ * and Laurent Colombet and Thierry Carrard from Commissariat a l'Energie
+ * Atomique (CEA/DIF).
  */
 
 #ifndef vtkDistributedPointCloudFilter_h
