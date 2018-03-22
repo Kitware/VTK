@@ -62,6 +62,7 @@ vtkAbstractWidget::~vtkAbstractWidget()
       this->CurrentRenderer->RemoveViewProp(this->WidgetRep);
     }
     this->WidgetRep->Delete();
+    this->WidgetRep = nullptr;
   }
 
   this->EventTranslator->Delete();
@@ -134,6 +135,7 @@ void vtkAbstractWidget::SetEnabled(int enabling)
     this->Enabled = 1;
     this->CreateDefaultRepresentation();
     this->WidgetRep->SetRenderer(this->CurrentRenderer);
+    this->WidgetRep->RegisterPickers();
 
     // listen for the events found in the EventTranslator
     if ( ! this->Parent )
@@ -187,6 +189,10 @@ void vtkAbstractWidget::SetEnabled(int enabling)
 
     this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
     this->SetCurrentRenderer(nullptr);
+    if (this->WidgetRep)
+      {
+      this->WidgetRep->UnRegisterPickers();
+      }
   }
 
   // We no longer call render when enabled state changes. It's the applications

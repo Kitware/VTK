@@ -173,6 +173,11 @@ public:
   vtkGetObjectMacro(Picker,vtkAbstractPropPicker);
   //@}
 
+  /*
+  * Register internal Pickers within PickingManager
+  */
+  void RegisterPickers() override;
+
 protected:
   vtkBalloonWidget();
   ~vtkBalloonWidget() override;
@@ -186,9 +191,6 @@ protected:
 
   // Support for picking
   vtkAbstractPropPicker *Picker;
-
-  // Register internal Pickers within PickingManager
-  void RegisterPickers() override;
 
   // The vtkProp that is being hovered over (which may be nullptr)
   vtkProp *CurrentProp;

@@ -185,14 +185,20 @@ void vtkBalloonWidget::SetPicker(vtkAbstractPropPicker *picker)
   this->Picker = picker;
   this->Picker->Register(this);
 
-  this->PickersModified();
+  this->UnRegisterPickers();
+  this->RegisterPickers();
   this->Modified();
 }
 
 //----------------------------------------------------------------------
 void vtkBalloonWidget::RegisterPickers()
 {
-  this->Interactor->GetPickingManager()->AddPicker(this->Picker, this);
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+  {
+    return;
+  }
+  pm->AddPicker(this->Picker, this);
 }
 
 //----------------------------------------------------------------------

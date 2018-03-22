@@ -321,6 +321,7 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
     // Add the image data annotation
     this->CurrentRenderer->AddViewProp(this->TextActor);
 
+    this->RegisterPickers();
     this->TexturePlaneActor->PickableOn();
 
     this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
@@ -360,6 +361,7 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
 
     this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
     this->SetCurrentRenderer(nullptr);
+    this->UnRegisterPickers();
   }
 
   this->Interactor->Render();

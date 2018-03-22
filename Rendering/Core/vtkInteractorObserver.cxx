@@ -164,6 +164,21 @@ void vtkInteractorObserver::SetInteractor(vtkRenderWindowInteractor* i)
 }
 
 //----------------------------------------------------------------------------
+void vtkInteractorObserver::SetPickingManaged(bool managed)
+{
+  if (this->PickingManaged == managed)
+  {
+    return;
+  }
+  this->UnRegisterPickers();
+  this->PickingManaged = managed;
+  if (this->PickingManaged)
+  {
+    this->RegisterPickers();
+  }
+}
+
+//----------------------------------------------------------------------------
 void vtkInteractorObserver::RegisterPickers()
 {
 }
@@ -178,18 +193,6 @@ void vtkInteractorObserver::UnRegisterPickers()
   }
 
   pm->RemoveObject(this);
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorObserver::PickersModified()
-{
-  if (!this->GetPickingManager())
-  {
-    return;
-  }
-
-  this->UnRegisterPickers();
-  this->RegisterPickers();
 }
 
 //----------------------------------------------------------------------------

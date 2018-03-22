@@ -155,8 +155,12 @@ void vtkEllipsoidTensorProbeRepresentation
 //----------------------------------------------------------------------
 void vtkEllipsoidTensorProbeRepresentation::RegisterPickers()
 {
-  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
-    ->AddPicker(this->CellPicker, this);
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+  {
+    return;
+  }
+  pm->AddPicker(this->CellPicker, this);
 }
 
 //----------------------------------------------------------------------

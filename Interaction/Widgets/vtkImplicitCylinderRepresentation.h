@@ -377,6 +377,11 @@ public:
   vtkGetMacro(RepresentationState, int);
   //@}
 
+  /*
+  * Register internal Pickers within PickingManager
+  */
+  void RegisterPickers() override;
+
 protected:
   vtkImplicitCylinderRepresentation();
   ~vtkImplicitCylinderRepresentation() override;
@@ -459,9 +464,6 @@ protected:
   // Do the picking
   vtkCellPicker *Picker;
   vtkCellPicker *CylPicker;
-
-  // Register internal Pickers within PickingManager
-  void RegisterPickers() override;
 
   // Transform the normal (used for rotation)
   vtkTransform *Transform;

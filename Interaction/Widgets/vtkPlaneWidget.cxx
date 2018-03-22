@@ -314,6 +314,7 @@ void vtkPlaneWidget::SetEnabled(int enabling)
     this->ConeActor2->SetProperty(this->HandleProperty);
 
     this->SelectRepresentation();
+    this->RegisterPickers();
     this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
   }
 
@@ -349,6 +350,7 @@ void vtkPlaneWidget::SetEnabled(int enabling)
     this->CurrentHandle = nullptr;
     this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
     this->SetCurrentRenderer(nullptr);
+    this->UnRegisterPickers();
   }
 
   this->Interactor->Render();

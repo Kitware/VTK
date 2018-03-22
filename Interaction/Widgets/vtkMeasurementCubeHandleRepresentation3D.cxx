@@ -142,8 +142,12 @@ vtkMeasurementCubeHandleRepresentation3D
 //----------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D::RegisterPickers()
 {
-  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
-    ->AddPicker(this->HandlePicker, this);
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+  {
+    return;
+  }
+  pm->AddPicker(this->HandlePicker, this);
 }
 
 //----------------------------------------------------------------------

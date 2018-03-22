@@ -136,6 +136,12 @@ public:
   //@}
 
   void Highlight(int highlight) override;
+
+  /*
+  * Register internal Pickers within PickingManager
+  */
+  void RegisterPickers() override;
+
 protected:
   vtkSphereHandleRepresentation();
   ~vtkSphereHandleRepresentation() override;
@@ -150,9 +156,6 @@ protected:
   vtkCellPicker *CursorPicker;
   double LastPickPosition[3];
   double LastEventPosition[2];
-
-  // Register internal Pickers within PickingManager
-  void RegisterPickers() override;
 
   // Methods to manipulate the cursor
   int  ConstraintAxis;

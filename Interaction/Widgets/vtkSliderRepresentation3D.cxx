@@ -241,8 +241,12 @@ vtkSliderRepresentation3D::~vtkSliderRepresentation3D()
 //----------------------------------------------------------------------
 void vtkSliderRepresentation3D::RegisterPickers()
 {
-  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
-    ->AddPicker(this->Picker, this);
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+  {
+    return;
+  }
+  pm->AddPicker(this->Picker, this);
 }
 
 //----------------------------------------------------------------------

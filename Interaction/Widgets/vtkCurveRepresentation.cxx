@@ -174,10 +174,13 @@ void vtkCurveRepresentation::SetClosed(vtkTypeBool closed)
 //----------------------------------------------------------------------
 void vtkCurveRepresentation::RegisterPickers()
 {
-  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
-    ->AddPicker(this->HandlePicker, this);
-  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
-    ->AddPicker(this->LinePicker, this);
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+  {
+    return;
+  }
+  pm->AddPicker(this->HandlePicker, this);
+  pm->AddPicker(this->LinePicker, this);
 }
 
 //----------------------------------------------------------------------------
