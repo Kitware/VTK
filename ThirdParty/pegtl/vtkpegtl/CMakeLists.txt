@@ -3,6 +3,7 @@ project (pegtl VERSION 2.4.0 LANGUAGES CXX)
 # define a header-only library
 add_library(vtkpegtl INTERFACE)
 vtk_target_export(vtkpegtl)
+vtk_target_install(vtkpegtl)
 
 target_include_directories(vtkpegtl INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -39,7 +40,7 @@ target_compile_features(vtkpegtl INTERFACE
 
 if (NOT VTK_INSTALL_NO_DEVELOPMENT)
   install(
-    DIRECTORY include/
-    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}"
+    DIRECTORY include
+    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtkpegtl"
     COMPONENT Development)
 endif()
