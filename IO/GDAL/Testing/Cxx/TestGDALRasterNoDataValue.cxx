@@ -12,6 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include <vtkCellData.h>
+#include <vtkDataArray.h>
 #include <vtkGDALRasterReader.h>
 #include <vtkNew.h>
 #include <vtkUniformGrid.h>
@@ -38,12 +40,6 @@ int TestGDALRasterNoDataValue(int argc, char** argv)
     reader->GetOutput());
 
   int numErrors = 0;
-
-  if (!rasterImage->HasAnyBlankPoints())
-  {
-    std::cerr << "Error image has no blank points" << std::endl;
-    ++numErrors;
-  }
 
   if (!rasterImage->HasAnyBlankCells())
   {

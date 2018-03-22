@@ -109,7 +109,7 @@ public:
 
   int HasNoDataValue;
   double NoDataValue;
-  vtkIdType NumberOfPoints;
+  vtkIdType NumberOfCells;
 
   vtkSmartPointer<vtkUniformGrid> UniformGridData;
   vtkGDALRasterReader* Reader;
@@ -123,7 +123,7 @@ vtkGDALRasterReader::vtkGDALRasterReaderInternal::vtkGDALRasterReaderInternal(
   GDALData(0),
   TargetDataType(GDT_Byte),
   BadCornerPoint(-1),
-  NumberOfPoints(0),
+  NumberOfCells(0),
   UniformGridData(0),
   Reader(reader)
 {
@@ -227,7 +227,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReadData(
 
   // Initialize
   this->UniformGridData = vtkSmartPointer<vtkUniformGrid>::New();
-  this->NumberOfPoints = 0;
+  this->NumberOfCells = 0;
 
   switch (this->TargetDataType)
   {
@@ -542,13 +542,13 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::Convert(
         RAW_TYPE tmp = rawUniformGridData[sourceIndex];
         if (this->HasNoDataValue && tmp == TNoDataValue)
         {
-          this->UniformGridData->BlankPoint(targetIndex);
+          this->UniformGridData->BlankCell(targetIndex);
         }
         else
         {
           if(tmp < min) min = tmp;
           if(tmp > max) max = tmp;
-          this->NumberOfPoints++;
+          this->NumberOfCells++;
         }
 
         scArr->InsertValue(targetIndex, rawUniformGridData[sourceIndex]);
@@ -830,9 +830,9 @@ const std::string& vtkGDALRasterReader::GetDriverLongName()
   return this->DriverLongName;
 }
 
-vtkIdType vtkGDALRasterReader::GetNumberOfPoints()
+vtkIdType vtkGDALRasterReader::GetNumberOfCells()
 {
-  return this->Implementation->NumberOfPoints;
+  return this->Implementation->NumberOfCells;
 }
 
 #ifdef _MSC_VER

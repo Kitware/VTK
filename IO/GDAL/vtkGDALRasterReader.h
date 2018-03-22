@@ -100,7 +100,10 @@ public:
   const std::string& GetDriverLongName();
   //@}
 
-  vtkIdType GetNumberOfPoints();
+  /**
+   * Return the number of cells that are not set to GDAL NODATA
+   */
+  vtkIdType GetNumberOfCells();
 
 protected:
 
