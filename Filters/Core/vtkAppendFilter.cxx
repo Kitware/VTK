@@ -147,6 +147,10 @@ int vtkAppendFilter::RequestData(
   // float, etc.), and 3) if a data array in a field, if it has the same name.
   vtkIdType totalNumPts = 0;
   vtkIdType totalNumCells = 0;
+  // If we only have a single dataset and it's an unstructured grid
+  // we can just shallow copy that and exit quickly.
+  int numDataSets = 0;
+  vtkUnstructuredGrid* inputUG = nullptr;
 
   vtkSmartPointer<vtkDataSetCollection> inputs;
   inputs.TakeReference(this->GetNonEmptyInputs(inputVector));
@@ -158,11 +162,20 @@ int vtkAppendFilter::RequestData(
   {
     totalNumPts += dataSet->GetNumberOfPoints();
     totalNumCells += dataSet->GetNumberOfCells();
+    numDataSets++;
+    inputUG = vtkUnstructuredGrid::SafeDownCast(dataSet);
   }
 
   if ( totalNumPts < 1)
   {
     vtkDebugMacro(<<"No data to append!");
+    return 1;
+  }
+
+  if ( numDataSets == 1 && inputUG != nullptr)
+  {
+    vtkDebugMacro(<<"Only a single unstructured grid in the composite dataset and we can shallow copy.");
+    output->ShallowCopy(inputUG);
     return 1;
   }
 
@@ -240,7 +253,7 @@ int vtkAppendFilter::RequestData(
     ptInserter->InitPointInsertion(newPts, outputBounds);
   }
 
-  // append the blocks / pieces in terms of the geoemetry and topology
+  // append the blocks / pieces in terms of the geometry and topology
   vtkIdType count = 0;
   vtkIdType ptOffset = 0;
   float decimal = 0.0;
