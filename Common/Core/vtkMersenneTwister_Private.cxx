@@ -725,6 +725,7 @@ static MaskNode *delete_lower_MaskNodes(MaskNode *head, int l)
         t = head->next;
         if (head->leng < l) {
             free(head);
+            head = nullptr;
         }
         else {
             tail->next = head;
