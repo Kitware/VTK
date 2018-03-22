@@ -453,6 +453,12 @@ int vtkOBJPolyDataProcessor::RequestData(
     char *pLine = rawLine;
     char *pEnd = rawLine + strlen(rawLine);
 
+    // watch for BOM
+    if (pEnd - pLine > 3 && pLine[0] == -17 && pLine[1] == -69 && pLine[2] == -65)
+    {
+      pLine += 3;
+    }
+
     // find the first non-whitespace character
     while (isspace(*pLine) && pLine < pEnd)
     {
