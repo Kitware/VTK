@@ -1,4 +1,8 @@
 include(CMakeDependentOption)
+
+vtk_module_third_party(JsonCpp
+  VERSION 0.7.0)
+
 cmake_dependent_option(VTK_SYSTEM_JSONCPP_SHARED "Whether the system jsoncpp is shared or not" ON VTK_USE_SYSTEM_JSONCPP "${BUILD_SHARED_LIBS}")
 
 if (VTK_USE_SYSTEM_JSONCPP)
@@ -18,6 +22,3 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
     DESTINATION "${VTK_INSTALL_INCLUDE_DIR}"
     COMPONENT   Development)
 endif ()
-
-vtk_module_third_party(JsonCpp
-  VERSION 0.7.0)
