@@ -41,6 +41,7 @@ vtkStandardNewMacro(vtkSTLReader);
 #define VTK_BINARY 1
 
 vtkCxxSetObjectMacro(vtkSTLReader, Locator, vtkIncrementalPointLocator);
+vtkCxxSetObjectMacro(vtkSTLReader, BinaryHeader, vtkUnsignedCharArray);
 
 //------------------------------------------------------------------------------
 // Construct object with merging set to true.
@@ -50,6 +51,8 @@ vtkSTLReader::vtkSTLReader()
   this->Merging = 1;
   this->ScalarTags = 0;
   this->Locator = nullptr;
+  this->Header = nullptr;
+  this->BinaryHeader = nullptr;
 
   this->SetNumberOfInputPorts(0);
 }
@@ -59,6 +62,8 @@ vtkSTLReader::~vtkSTLReader()
 {
   this->SetFileName(nullptr);
   this->SetLocator(nullptr);
+  this->SetHeader(nullptr);
+  this->SetBinaryHeader(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -258,13 +263,23 @@ bool vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
 
   //  File is read to obtain raw information as well as bounding box
   //
-  char header[81];
-  if (fread(header, 1, 80, fp) != 80)
+  if (!this->BinaryHeader)
+  {
+    vtkNew<vtkUnsignedCharArray> binaryHeader;
+    this->SetBinaryHeader(binaryHeader);
+  }
+  const int headerSize = 80; // fixed in STL file format
+  this->BinaryHeader->SetNumberOfValues(headerSize + 1); // allocate +1 byte for zero termination)
+  this->BinaryHeader->FillValue(0);
+  if (fread(this->BinaryHeader->GetVoidPointer(0), 1, headerSize, fp) != headerSize)
   {
     vtkErrorMacro("STLReader error reading file: " << this->FileName
       << " Premature EOF while reading header.");
     return false;
   }
+  this->SetHeader(static_cast<char*>(this->BinaryHeader->GetVoidPointer(0)));
+  // Remove extra zero termination from binary header
+  this->BinaryHeader->Resize(headerSize);
 
   unsigned long ulint;
   if (fread(&ulint, 1, 4, fp) != 4)
@@ -415,6 +430,10 @@ bool vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
 {
   vtkDebugMacro(<< "Reading ASCII STL file");
 
+  this->SetHeader(nullptr);
+  this->SetBinaryHeader(nullptr);
+  std::string header;
+
   char line[256];         // line buffer
   float vertCoord[3];     // scratch space when parsing "vertex %f %f %f"
   vtkIdType pts[3];       // point ids for building triangles
@@ -513,6 +532,16 @@ bool vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
         {
           ++solidId;
           state = scanFacet;  // Next state
+          if (!header.empty())
+          {
+            header += "\n";
+          }
+          header += arg;
+          // strip end-of-line character from the end
+          while (!header.empty() && (header.back() == '\r' || header.back() == '\n'))
+          {
+            header.pop_back();
+          }
         }
         else
         {
@@ -632,6 +661,8 @@ bool vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
       }
     }
   }
+
+  this->SetHeader(header.c_str());
 
   if (!errorMessage.empty())
   {

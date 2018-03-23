@@ -24,6 +24,7 @@
 #include "vtkPLY.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
 #include <vtksys/SystemTools.hxx>
 
 #include <cctype>
@@ -36,6 +37,7 @@ vtkStandardNewMacro(vtkPLYReader);
 vtkPLYReader::vtkPLYReader()
 {
   this->FileName = nullptr;
+  this->Comments = vtkStringArray::New();
 
   this->SetNumberOfInputPorts(0);
 }
@@ -43,6 +45,7 @@ vtkPLYReader::vtkPLYReader()
 vtkPLYReader::~vtkPLYReader()
 {
   delete [] this->FileName;
+  this->Comments->Delete();
 }
 
 namespace { //required so we don't violate ODR
@@ -126,6 +129,14 @@ int vtkPLYReader::RequestData(
   {
     vtkWarningMacro(<<"Could not open PLY file");
     return 0;
+  }
+
+  int numberOfComments = 0;
+  char** comments = vtkPLY::ply_get_comments(ply, &numberOfComments);
+  this->Comments->Reset();
+  for (int i = 0; i < numberOfComments; i++)
+  {
+    this->Comments->InsertNextValue(comments[i]);
   }
 
   // Check to make sure that we can read geometry

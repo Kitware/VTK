@@ -35,13 +35,14 @@ vtkOBJReader::vtkOBJReader()
 {
   this->FileName = nullptr;
   this->SetNumberOfInputPorts(0);
+  this->Comment = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkOBJReader::~vtkOBJReader()
 {
-  delete [] this->FileName;
-  this->FileName = nullptr;
+  this->SetFileName(nullptr);
+  this->SetComment(nullptr);
 }
 
 /*---------------------------------------------------------------------------*\
@@ -178,6 +179,8 @@ int vtkOBJReader::RequestData(
   int numNormals = 0;
 
   // First loop to initialize the data arrays for the different set of texture coordinates
+  bool readingFirstComment = true;
+  std::string firstComment;
   int lineNr = 0;
   while (everything_ok && fgets(rawLine, MAX_LINE, in) != nullptr)
   {
@@ -190,6 +193,22 @@ int vtkOBJReader::RequestData(
 
     // this first non-whitespace is the command
     const char *cmd = pLine;
+
+    if (readingFirstComment)
+    {
+      if (cmd[0] == '#')
+      {
+        cmd++; // skip #
+        while (isspace(*cmd) && cmd < pEnd) { cmd++; } // skip whitespace at comment start
+        firstComment += cmd;
+      }
+      else
+      {
+        // This is not a comment line, real file content is started.
+        // There may be more comments in the file but we ignore those.
+        readingFirstComment = false;
+      }
+    }
 
     // skip over non-whitespace
     while (!isspace(*pLine) && pLine < pEnd) { pLine++; }
@@ -230,6 +249,15 @@ int vtkOBJReader::RequestData(
       }
     }
   } // (end of first while loop)
+
+  // Comment lines include newline characters.
+  // Keep newlines between lines of multi-line comment, but
+  // remove the last newline to have a clean string when comment is single-line.
+  while (!firstComment.empty() && (firstComment.back() == '\r' || firstComment.back() == '\n'))
+  {
+    firstComment.pop_back();
+  }
+  this->SetComment(firstComment.c_str());
 
   // If no material texture coordinates are found, add default TCoords
   if (tcoords_map.size() == 0)

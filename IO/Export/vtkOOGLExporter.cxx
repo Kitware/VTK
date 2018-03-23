@@ -57,7 +57,6 @@ static int indent_now = 0;
 
 void vtkOOGLExporter::WriteData()
 {
-  vtkRenderer *ren;
   FILE *fp;
   int i, j;
   vtkActorCollection *ac;
@@ -81,15 +80,11 @@ void vtkOOGLExporter::WriteData()
     return;
   }
 
-  // first make sure there is only one renderer in this rendering window
-  if (this->RenderWindow->GetRenderers()->GetNumberOfItems() > 1)
+  vtkRenderer *ren = this->ActiveRenderer;
+  if (!ren)
   {
-    vtkErrorMacro(<< "Support for only one renderer per window.");
-    return;
+    ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();
   }
-
-  // get the renderer
-  ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();
 
   // make sure it has at least one actor
   if (ren->GetActors()->GetNumberOfItems() < 1)

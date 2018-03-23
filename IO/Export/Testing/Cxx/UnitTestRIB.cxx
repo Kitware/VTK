@@ -343,14 +343,13 @@ int TestRIBExporter()
 
   vtkSmartPointer<vtkRenderer> ren2 =
     vtkSmartPointer<vtkRenderer>::New ();
-  renWin->AddRenderer(ren2);
   exporter->SetFilePrefix("dummy");
+  exporter->SetActiveRenderer(ren2);
   exporter->Update();
-  status += errorObserver->CheckErrorMessage("RIB files only support one renderer per window");
+  status += errorObserver->CheckErrorMessage("ActiveRenderer must be a renderer owned by the RenderWindow");
 
-  renWin->RemoveRenderer(ren2);
-  ren1->RemoveActor(sphere);
-  ren1->RemoveActor(strip);
+  renWin->AddRenderer(ren2);
+  exporter->SetActiveRenderer(ren2);
   exporter->Update();
   status += errorObserver->CheckErrorMessage("No actors found for writing .RIB file");
 

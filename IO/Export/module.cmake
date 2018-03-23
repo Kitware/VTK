@@ -38,4 +38,5 @@ vtk_module(vtkIOExport
     vtkIOImage
     vtkImagingCore
     vtklibharu
+    vtksys
   )

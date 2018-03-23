@@ -42,6 +42,7 @@
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkObject.h"
 class vtkRenderWindow;
+class vtkRenderer;
 
 class VTKIOEXPORT_EXPORT vtkExporter : public vtkObject
 {
@@ -66,6 +67,21 @@ public:
    */
   virtual void SetRenderWindow(vtkRenderWindow*);
   vtkGetObjectMacro(RenderWindow,vtkRenderWindow);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the renderer that contains actors to be written.
+   * If it is set to nullptr (by default), then in most subclasses
+   * the behavior is to only export actors of the first renderer.
+   * In some subclasses, if ActiveRenderer is nullptr then
+   * actors of all renderers will be exported.
+   * The renderer must be in the renderer collection of the specified
+   * RenderWindow.
+   * \sa SetRenderWindow()
+   */
+  virtual void SetActiveRenderer(vtkRenderer*);
+  vtkGetObjectMacro(ActiveRenderer,vtkRenderer);
   //@}
 
   //@{
@@ -109,6 +125,7 @@ protected:
   ~vtkExporter() override;
 
   vtkRenderWindow *RenderWindow;
+  vtkRenderer *ActiveRenderer;
   virtual void WriteData() = 0;
 
   void (*StartWrite)(void *);

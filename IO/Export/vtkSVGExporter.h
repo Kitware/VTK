@@ -37,6 +37,9 @@
  *   triangles that make up larger polygons. This is a viewer issue and there
  *   not much we can do about it from the VTK side of things (and most viewers
  *   don't seem to have an antialiasing toggle, either...).
+ *
+ * If ActiveRenderer is specified then it exports contents of
+ * ActiveRenderer. Otherwise it exports contents of all renderers.
  */
 
 #ifndef vtkSVGExporter_h

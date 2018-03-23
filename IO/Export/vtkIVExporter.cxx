@@ -28,8 +28,8 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
+#include "vtkRenderWindow.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
@@ -57,7 +57,6 @@ static int indent_now = 0;
 
 void vtkIVExporter::WriteData()
 {
-  vtkRenderer *ren;
   FILE *fp;
   vtkActorCollection *ac;
   vtkActor *anActor, *aPart;
@@ -79,15 +78,12 @@ void vtkIVExporter::WriteData()
     return;
   }
 
-  // first make sure there is only one renderer in this rendering window
-  if (this->RenderWindow->GetRenderers()->GetNumberOfItems() > 1)
-  {
-    vtkErrorMacro(<< "OpenInventor files only support one renderer per window.");
-    return;
-  }
-
   // get the renderer
-  ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();
+  vtkRenderer *ren = this->ActiveRenderer;
+  if (!ren)
+  {
+    ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();
+  }
 
   // make sure it has at least one actor
   if (ren->GetActors()->GetNumberOfItems() < 1)

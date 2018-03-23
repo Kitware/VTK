@@ -87,6 +87,25 @@ public:
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
   //@}
 
+  /**
+  * Get header string.
+  * If an ASCII STL file contains multiple solids then
+  * headers are separated by newline character.
+  * If a binary STL file is read, the first zero-terminated
+  * string is stored in this header, the full header is available
+  * by using GetBinaryHeader().
+  * \sa GetBinaryHeader()
+  */
+  vtkGetStringMacro(Header);
+
+  /**
+  * Get binary file header string.
+  * If ASCII STL file is read then BinaryHeader is not set,
+  * and the header can be retrieved using.GetHeader() instead.
+  * \sa GetHeader()
+  */
+  vtkGetObjectMacro(BinaryHeader, vtkUnsignedCharArray);
+
 protected:
   vtkSTLReader();
   ~vtkSTLReader() override;
@@ -96,9 +115,17 @@ protected:
    */
   vtkIncrementalPointLocator* NewDefaultLocator();
 
+  /**
+  * Set header string. Internal use only.
+  */
+  vtkSetStringMacro(Header);
+  virtual void SetBinaryHeader(vtkUnsignedCharArray* binaryHeader);
+
   vtkTypeBool Merging;
   vtkTypeBool ScalarTags;
   vtkIncrementalPointLocator *Locator;
+  char* Header;
+  vtkUnsignedCharArray* BinaryHeader;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   bool ReadBinarySTL(FILE *fp, vtkPoints*, vtkCellArray*);

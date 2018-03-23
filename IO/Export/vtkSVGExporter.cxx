@@ -212,6 +212,11 @@ void vtkSVGExporter::RenderContextActors()
     vtkRenderer *ren;
     for (renCol->InitTraversal(renIt); (ren = renCol->GetNextRenderer(renIt));)
     {
+      if (this->ActiveRenderer && ren != this->ActiveRenderer)
+      {
+        // If ActiveRenderer is specified then ignore all other renderers
+        continue;
+      }
       if (ren->GetLayer() == i)
       {
         if (this->DrawBackground)

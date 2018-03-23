@@ -20,6 +20,9 @@
  * a .vtp file and a .png file containing the polydata and texture
  * elements of the scene.
  *
+ * If ActiveRenderer is specified then it exports contents of
+ * ActiveRenderer. Otherwise it exports contents of all renderers.
+ *
  * @sa
  * vtkExporter
 */

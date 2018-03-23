@@ -15,15 +15,18 @@
 #include "vtkExporter.h"
 
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 
 
 vtkCxxSetObjectMacro(vtkExporter,RenderWindow,vtkRenderWindow);
+vtkCxxSetObjectMacro(vtkExporter,ActiveRenderer,vtkRenderer);
 
 
 // Construct with no start and end write methods or arguments.
 vtkExporter::vtkExporter()
 {
   this->RenderWindow = nullptr;
+  this->ActiveRenderer = nullptr;
   this->StartWrite = nullptr;
   this->StartWriteArgDelete = nullptr;
   this->StartWriteArg = nullptr;
@@ -35,6 +38,7 @@ vtkExporter::vtkExporter()
 vtkExporter::~vtkExporter()
 {
   this->SetRenderWindow(nullptr);
+  this->SetActiveRenderer(nullptr);
 
   if ((this->StartWriteArg)&&(this->StartWriteArgDelete))
   {
@@ -55,6 +59,12 @@ void vtkExporter::Write()
   if ( !this->RenderWindow )
   {
     vtkErrorMacro(<< "No render window provided!");
+    return;
+  }
+  if ( this->ActiveRenderer != nullptr
+    && !this->RenderWindow->HasRenderer(this->ActiveRenderer) )
+  {
+    vtkErrorMacro(<< "ActiveRenderer must be a renderer owned by the RenderWindow");
     return;
   }
 
@@ -142,6 +152,16 @@ void vtkExporter::PrintSelf(ostream& os, vtkIndent indent)
   else
   {
     os << indent << "Render Window: (none)\n";
+  }
+
+  if ( this->ActiveRenderer )
+  {
+    os << indent << "Active Renderer: (" <<
+      static_cast<void *>(this->ActiveRenderer) << ")\n";
+  }
+  else
+  {
+    os << indent << "Active Renderer: (none)\n";
   }
 
   if ( this->StartWrite )
