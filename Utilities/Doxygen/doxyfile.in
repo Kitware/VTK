@@ -190,4 +190,5 @@ PREDEFINED  = "vtkSetMacro(name,type)= \
                "VTK_NEWINSTANCE=" \
                "VTK_ZEROCOPY=" \
                "VTK_EXPECTS(x)=" \
-               "VTK_SIZEHINT(...)="
+               "VTK_SIZEHINT(...)=" \
+               "DOXYGEN_SHOULD_SKIP_THIS"
