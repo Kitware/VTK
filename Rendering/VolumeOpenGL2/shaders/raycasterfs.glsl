@@ -85,10 +85,6 @@ float g_terminatePointMax;
 
 //VTK::DepthPeeling::Dec
 
-/// We support only 8 clipping planes for now
-/// The first value is the size of the data array for clipping
-/// planes (origin, normal)
-uniform float in_clippingPlanes[49];
 uniform float in_scale;
 uniform float in_bias;
 
