@@ -36,6 +36,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
@@ -195,6 +196,17 @@ void vtkPUnstructuredGridGhostCellsGenerator::PrintSelf(ostream& os, vtkIndent i
   os << indent << "MinimumNumberOfGhostLevels: " << this->MinimumNumberOfGhostLevels << endl;
 }
 
+//--------------------------------------------------------------------------
+int vtkPUnstructuredGridGhostCellsGenerator::RequestUpdateExtent(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*)
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  // we can't trust any ghost levels coming in so we notify all filters before
+  // this that we don't need ghosts
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
+  return 1;
+}
+
 //-----------------------------------------------------------------------------
 int vtkPUnstructuredGridGhostCellsGenerator::RequestData(
   vtkInformation *vtkNotUsed(request),
@@ -214,15 +226,8 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(
 
   if (!input)
   {
-    vtkErrorMacro(<< "No input data!");
+    vtkErrorMacro("No input data!");
     return 0;
-  }
-
-  if (input->GetCellGhostArray())
-  {
-    vtkDebugMacro(<< "Ghost cells already exist in the input. Nothing more to do.");
-    output->ShallowCopy(input);
-    return 1;
   }
 
   if (!this->Controller)
@@ -236,14 +241,33 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(
 
   if (maxGhostLevel == 0 || this->Controller->GetNumberOfProcesses() == 1)
   {
-    vtkDebugMacro("Ghost levels are not requested. Nothing more to do.");
+    vtkDebugMacro("Don't need ghost cells or only have a single process. Nothing more to do.");
     output->ShallowCopy(input);
     return 1;
   }
 
-  // determine which processes have any cells and then create a subcontroller
+  // if only a single process has cells then we can skip ghost cell computations but
+  // otherwise we need to do it from scratch since the ghost information coming in
+  // may be wrong (it was for the vtkFiltersParallelCxx-MPI-ParallelConnectivity4 test)
+  int needsGhosts = input->GetNumberOfCells() > 0 ? 1 : 0;
+
+  int globalNeedsGhosts = 0;
+  this->Controller->AllReduce(&needsGhosts, &globalNeedsGhosts, 1, vtkCommunicator::SUM_OP);
+  if (globalNeedsGhosts < 2)
+  {
+    vtkDebugMacro("At most one process has cells. Nothing more to do.");
+    output->ShallowCopy(input);
+    return 1;
+  }
+
+  // determine which processes have any non-ghost cells and then create a subcontroller
   // for just them to use
   int hasCells = input->GetNumberOfCells() > 0 ? 1 : 0;
+  if (hasCells && input->GetCellGhostArray() && input->GetCellGhostArray()->GetRange()[0] != 0)
+  {
+    hasCells = 0; // all the cells are ghost cells which we don't care about anymore
+  }
+
   vtkSmartPointer<vtkMPIController> subController;
   subController.TakeReference(
     vtkMPIController::SafeDownCast(this->Controller)->PartitionController(hasCells, 0));
@@ -255,22 +279,36 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(
     return 1;
   }
 
+  vtkNew<vtkUnstructuredGrid> cleanedInput;
+  vtkUnsignedCharArray* cellGhostArray = input->GetCellGhostArray();
+  if ( cellGhostArray == nullptr || cellGhostArray->GetValueRange()[1] == 0)
+  {
+    // we either have no ghost cells or do but there are no ghost entities so we just need
+    // to remove those arrays and can skip modifying the data set itself
+    cleanedInput->ShallowCopy(input);
+  }
+  else
+  {
+    cleanedInput->DeepCopy(input);
+    cleanedInput->RemoveGhostCells();
+  }
+  cleanedInput->GetPointData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
+  cleanedInput->GetCellData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
+  input = nullptr; // nullify input to make sure we don't use it after this
+
   delete this->Internals;
   this->Internals = new vtkPUnstructuredGridGhostCellsGenerator::vtkInternals();
   this->Internals->SubController = subController;
 
-  this->Internals->Input = input;
+  this->Internals->Input = cleanedInput;
 
-  vtkPointData *inputPD = input->GetPointData();
+  vtkPointData *inputPD = cleanedInput->GetPointData();
   this->Internals->InputGlobalPointIds = vtkIdTypeArray::FastDownCast(inputPD->GetGlobalIds());
   vtkUnstructuredGridBase *inputGridCopy = nullptr;
 
   if (!this->Internals->InputGlobalPointIds)
   {
-    inputGridCopy = input->NewInstance();
-    inputGridCopy->ShallowCopy(input);
-    this->Internals->Input = inputGridCopy;
-    inputPD = inputGridCopy->GetPointData();
+    inputPD = cleanedInput->GetPointData();
     this->Internals->InputGlobalPointIds =
       vtkIdTypeArray::FastDownCast(inputPD->GetArray(this->GlobalPointIdsArrayName));
     inputPD->SetGlobalIds(this->Internals->InputGlobalPointIds);
@@ -298,7 +336,7 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(
   {
     if (this->HasGlobalCellIds)
     {
-      vtkCellData *inputCD = input->GetCellData();
+      vtkCellData *inputCD = cleanedInput->GetCellData();
       if (!inputCD->GetGlobalIds())
       {
         vtkDataArray *globalCellIdsArray = inputCD->GetArray(this->GlobalCellIdsArrayName);
@@ -363,6 +401,7 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(
     inputGridCopy->Delete();
   }
 
+  vtkDebugMacro("Produced " << maxGhostLevel << " ghost levels.");
   return 1;
 }
 

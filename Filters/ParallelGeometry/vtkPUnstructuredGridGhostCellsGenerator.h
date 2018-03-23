@@ -175,7 +175,12 @@ protected:
   vtkPUnstructuredGridGhostCellsGenerator();
   ~vtkPUnstructuredGridGhostCellsGenerator();
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
+  int RequestUpdateExtent(
+    vtkInformation*,
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+
+  int RequestData(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *) override;
 
   void GetFirstGhostLayer(int, vtkUnstructuredGrid *);
