@@ -30,19 +30,19 @@ namespace {
 
 //------------------------------------------------------------------------------
 struct UseFree {
-  static constexpr int value = vtkAbstractArray::VTK_DATA_ARRAY_FREE;
+  static const int value = vtkAbstractArray::VTK_DATA_ARRAY_FREE;
 };
 
 struct UseDelete {
-  static constexpr int value = vtkAbstractArray::VTK_DATA_ARRAY_DELETE;
+  static const int value = vtkAbstractArray::VTK_DATA_ARRAY_DELETE;
 };
 
 struct UseAlignedFree {
-  static constexpr int value = vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE;
+  static const int value = vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE;
 };
 
 struct UseLambda {
-  static constexpr int value = vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED;
+  static const int value = vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED;
 };
 
 int timesLambdaFreeCalled = 0;
@@ -140,7 +140,7 @@ template <typename FreeType> int ExerciseDelete(FreeType f)
   arrays.push_back(vtkAOSDataArrayTemplate<double>::New());
   arrays.push_back(vtkSOADataArrayTemplate<double>::New());
 
-  constexpr std::size_t size = 5000;
+  const std::size_t size = 5000;
   for (auto it = arrays.begin(); it != arrays.end(); ++it)
   {
 
