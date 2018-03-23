@@ -15,6 +15,7 @@
 #include <vtkCellData.h>
 #include <vtkDataArray.h>
 #include <vtkGDALRasterReader.h>
+#include <vtkMathUtilities.h>
 #include <vtkNew.h>
 #include <vtkUniformGrid.h>
 
@@ -41,6 +42,15 @@ int TestGDALRasterNoDataValue(int argc, char** argv)
 
   int numErrors = 0;
 
+  double* bounds = rasterImage->GetBounds();
+  if (! vtkMathUtilities::FuzzyCompare(bounds[0], -73.7583450) ||
+      ! vtkMathUtilities::FuzzyCompare(bounds[1], -72.7583450) ||
+      ! vtkMathUtilities::FuzzyCompare(bounds[2], 42.8496040) ||
+      ! vtkMathUtilities::FuzzyCompare(bounds[3], 43.8496040))
+  {
+    std::cerr << "Bounds do not match what is reported by gdalinfo." << std::endl;
+    ++numErrors;
+  }
   if (!rasterImage->HasAnyBlankCells())
   {
     std::cerr << "Error image has no blank cells" << std::endl;
