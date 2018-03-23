@@ -547,6 +547,11 @@ void vtkOpenVRInteractorStyle::ProbeData(vtkEventDataDevice controller)
 
 void vtkOpenVRInteractorStyle::EndPickCallback(vtkSelection *sel)
 {
+  if (!sel)
+  {
+    return;
+  }
+
   vtkSelectionNode *node = sel->GetNode(0);
   if (!node || !node->GetProperties()->Has(vtkSelectionNode::PROP()))
   {

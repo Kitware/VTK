@@ -257,6 +257,7 @@ void vtkOpenVRRenderer::ResetCamera(double bounds[6])
   vtkOpenVRRenderWindow *win =
     static_cast<vtkOpenVRRenderWindow *>(this->GetRenderWindow());
   win->SetPhysicalTranslation(-center[0],-center[1]+distance,-center[2]);
+  win->SetPhysicalScale(distance);
 }
 
 // Alternative version of ResetCamera(bounds[6]);
