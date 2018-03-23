@@ -19,6 +19,8 @@
 #include "vtkNew.h"
 #include "vtkSMPTools.h"
 
+#include <cassert>
+
 vtkStandardNewMacro(vtkRandomPool);
 vtkCxxSetObjectMacro(vtkRandomPool,Sequence,vtkRandomSequence);
 
@@ -233,7 +235,7 @@ struct vtkRandomPoolInfo
     for (vtkIdType i=0; i < numThreads; ++i)
     {
       this->Sequencer[i] = ranSeq->NewInstance();
-      this->Sequencer[i]->Initialize(i);
+      assert(this->Sequencer[i] != nullptr);
     }
   }
 
