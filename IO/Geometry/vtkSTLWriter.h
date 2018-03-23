@@ -93,7 +93,7 @@ public:
 
 protected:
   vtkSTLWriter();
-  ~vtkSTLWriter();
+  ~vtkSTLWriter() override;
 
   void WriteData() override;
 
