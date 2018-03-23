@@ -107,7 +107,8 @@ MACRO_EXPANSION      = YES
 SEARCH_INCLUDES      = YES
 INCLUDE_PATH         =
 EXPAND_ONLY_PREDEF   = YES
-EXPAND_AS_DEFINED = vtkAllEventsMacro \
+EXPAND_AS_DEFINED = vtkDataArray \
+                    vtkAllEventsMacro \
                     vtkEventDeclarationMacro \
                     _vtk_add_event
 PREDEFINED  = "vtkSetMacro(name,type)= \
@@ -190,4 +191,5 @@ PREDEFINED  = "vtkSetMacro(name,type)= \
                "VTK_NEWINSTANCE=" \
                "VTK_ZEROCOPY=" \
                "VTK_EXPECTS(x)=" \
-               "VTK_SIZEHINT(...)="
+               "VTK_SIZEHINT(...)=" \
+               "DOXYGEN_SHOULD_SKIP_THIS"
