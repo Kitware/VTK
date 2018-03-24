@@ -556,7 +556,7 @@ namespace {
     IntPoint(int id, double t) : Id(id), T(t) {}
   };
 
-  bool IntPointCompare(IntPoint &a, IntPoint &b)
+  bool IntPointCompare(const IntPoint &a, const IntPoint &b)
   { return (a.T < b.T); }
 
 }; // anonymous namespace
