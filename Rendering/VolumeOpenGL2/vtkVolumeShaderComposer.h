@@ -2273,10 +2273,10 @@ namespace vtkvolume
       \n /// planes (origin, normal)\
       \n uniform float in_clippingPlanes[49];\
       \n\
-      \n int g_clip_numPlanes;\
-      \n vec3 g_clip_rayDirObj;\
-      \n mat4 g_clip_texToObjMat;\
-      \n mat4 g_clip_objToTexMat;\
+      \n int clip_numPlanes;\
+      \n vec3 clip_rayDirObj;\
+      \n mat4 clip_texToObjMat;\
+      \n mat4 clip_objToTexMat;\
       \n\
       \n// Tighten the sample range as needed to account for clip planes. \
       \n// Arguments are in texture coordinates. \
@@ -2288,11 +2288,11 @@ namespace vtkvolume
       \n  {\
       \n    if (in_useJittering)\
       \n    {\
-      \n      startPosObj = g_clip_texToObjMat * vec4(startPosTex - g_rayJitter, 1.0);\
+      \n      startPosObj = clip_texToObjMat * vec4(startPosTex - g_rayJitter, 1.0);\
       \n    }\
       \n    else\
       \n    {\
-      \n      startPosObj = g_clip_texToObjMat * vec4(startPosTex - g_dirStep, 1.0);\
+      \n      startPosObj = clip_texToObjMat * vec4(startPosTex - g_dirStep, 1.0);\
       \n    }\
       \n    if (startPosObj.w != 0.0)\
       \n    {\
@@ -2303,7 +2303,7 @@ namespace vtkvolume
       \n\
       \n  vec4 stopPosObj = vec4(0.0);\
       \n  {\
-      \n    stopPosObj = g_clip_texToObjMat * vec4(stopPosTex, 1.0);\
+      \n    stopPosObj = clip_texToObjMat * vec4(stopPosTex, 1.0);\
       \n    if (stopPosObj.w != 0.0)\
       \n    {\
       \n      stopPosObj = stopPosObj / stopPosObj.w;\
@@ -2311,7 +2311,7 @@ namespace vtkvolume
       \n    }\
       \n  }\
       \n\
-      \n  for (int i = 0; i < g_clip_numPlanes; i = i + 6)\
+      \n  for (int i = 0; i < clip_numPlanes; i = i + 6)\
       \n  {\
       \n    vec3 planeOrigin = vec3(in_clippingPlanes[i + 1],\
       \n                            in_clippingPlanes[i + 2],\
@@ -2332,7 +2332,7 @@ namespace vtkvolume
       \n      return false;\
       \n    }\
       \n\
-      \n    float rayDotNormal = dot(g_clip_rayDirObj, planeNormal);\
+      \n    float rayDotNormal = dot(clip_rayDirObj, planeNormal);\
       \n    bool frontFace = rayDotNormal > 0;\
       \n\
       \n    // Move the start position further from the eye if needed:\
@@ -2342,8 +2342,8 @@ namespace vtkvolume
       \n      // Scale the point-plane distance to the ray direction and update the\
       \n      // entry point.\
       \n      float rayScaledDist = startDistance / rayDotNormal;\
-      \n      startPosObj = vec4(startPosObj.xyz + rayScaledDist * g_clip_rayDirObj, 1.0);\
-      \n      vec4 newStartPosTex = g_clip_objToTexMat * vec4(startPosObj.xyz, 1.0);\
+      \n      startPosObj = vec4(startPosObj.xyz + rayScaledDist * clip_rayDirObj, 1.0);\
+      \n      vec4 newStartPosTex = clip_objToTexMat * vec4(startPosObj.xyz, 1.0);\
       \n      if (newStartPosTex.w != 0.0)\
       \n      {\
       \n        newStartPosTex /= newStartPosTex.w;\
@@ -2366,8 +2366,8 @@ namespace vtkvolume
       \n      // Scale the point-plane distance to the ray direction and update the\
       \n      // termination point.\
       \n      float rayScaledDist = stopDistance / rayDotNormal;\
-      \n      stopPosObj = vec4(stopPosObj.xyz + rayScaledDist * g_clip_rayDirObj, 1.0);\
-      \n      vec4 newStopPosTex = g_clip_objToTexMat * vec4(stopPosObj.xyz, 1.0);\
+      \n      stopPosObj = vec4(stopPosObj.xyz + rayScaledDist * clip_rayDirObj, 1.0);\
+      \n      vec4 newStopPosTex = clip_objToTexMat * vec4(stopPosObj.xyz, 1.0);\
       \n      if (newStopPosTex.w != 0.0)\
       \n      {\
       \n        newStopPosTex /= newStopPosTex.w;\
@@ -2401,18 +2401,18 @@ namespace vtkvolume
         \n    tempClip = tempClip/tempClip.w;\
         \n    tempClip.w = 1.0;\
         \n  }\
-        \n  g_clip_rayDirObj = normalize(tempClip.xyz);");
+        \n  clip_rayDirObj = normalize(tempClip.xyz);");
     }
     else
     {
       shaderStr = std::string("\
-        g_clip_rayDirObj = normalize(in_projectionDirection);");
+        clip_rayDirObj = normalize(in_projectionDirection);");
     }
 
     shaderStr += std::string("\
-      \n  g_clip_numPlanes = int(in_clippingPlanes[0]);\
-      \n  g_clip_texToObjMat = in_volumeMatrix[0] * in_textureDatasetMatrix[0];\
-      \n  g_clip_objToTexMat = in_inverseTextureDatasetMatrix[0] * in_inverseVolumeMatrix[0];");
+      \n  clip_numPlanes = int(in_clippingPlanes[0]);\
+      \n  clip_texToObjMat = in_volumeMatrix[0] * in_textureDatasetMatrix[0];\
+      \n  clip_objToTexMat = in_inverseTextureDatasetMatrix[0] * in_inverseVolumeMatrix[0];");
 
     return shaderStr;
   }
