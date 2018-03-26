@@ -172,7 +172,12 @@ void vtkPointWidget::SetEnabled(int enabling)
 //------------------------------------------------------------------------------
 void vtkPointWidget::RegisterPickers()
 {
-  this->Interactor->GetPickingManager()->AddPicker(this->CursorPicker, this);
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+  {
+    return;
+  }
+  pm->AddPicker(this->CursorPicker, this);
 }
 
 void vtkPointWidget::ProcessEvents(vtkObject* vtkNotUsed(object),

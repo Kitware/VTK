@@ -359,8 +359,13 @@ void vtkPlaneWidget::SetEnabled(int enabling)
 //------------------------------------------------------------------------------
 void vtkPlaneWidget::RegisterPickers()
 {
-  this->Interactor->GetPickingManager()->AddPicker(this->HandlePicker, this);
-  this->Interactor->GetPickingManager()->AddPicker(this->PlanePicker, this);
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+  {
+    return;
+  }
+  pm->AddPicker(this->HandlePicker, this);
+  pm->AddPicker(this->PlanePicker, this);
 }
 
 void vtkPlaneWidget::ProcessEvents(vtkObject* vtkNotUsed(object),

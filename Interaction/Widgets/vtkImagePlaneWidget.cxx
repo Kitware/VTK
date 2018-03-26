@@ -1811,7 +1811,12 @@ void vtkImagePlaneWidget::SetPicker(vtkAbstractPropPicker* picker)
 //------------------------------------------------------------------------------
 void vtkImagePlaneWidget::RegisterPickers()
 {
-  this->Interactor->GetPickingManager()->AddPicker(this->PlanePicker, this);
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+  {
+    return;
+  }
+  pm->AddPicker(this->PlanePicker, this);
 }
 
 //----------------------------------------------------------------------------

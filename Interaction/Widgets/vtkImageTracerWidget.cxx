@@ -216,9 +216,14 @@ void vtkImageTracerWidget::SetViewProp(vtkProp* prop)
 //------------------------------------------------------------------------------
 void vtkImageTracerWidget::RegisterPickers()
 {
-  this->Interactor->GetPickingManager()->AddPicker(this->PropPicker, this);
-  this->Interactor->GetPickingManager()->AddPicker(this->HandlePicker, this);
-  this->Interactor->GetPickingManager()->AddPicker(this->LinePicker, this);
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+  {
+    return;
+  }
+  pm->AddPicker(this->PropPicker, this);
+  pm->AddPicker(this->HandlePicker, this);
+  pm->AddPicker(this->LinePicker, this);
 }
 
 void vtkImageTracerWidget::SetEnabled(int enabling)

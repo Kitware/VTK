@@ -1448,6 +1448,11 @@ void vtkBoxWidget::GenerateOutline()
 //------------------------------------------------------------------------------
 void vtkBoxWidget::RegisterPickers()
 {
-  this->Interactor->GetPickingManager()->AddPicker(this->HandlePicker, this);
-  this->Interactor->GetPickingManager()->AddPicker(this->HexPicker, this);
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+  {
+    return;
+  }
+  pm->AddPicker(this->HandlePicker, this);
+  pm->AddPicker(this->HexPicker, this);
 }
