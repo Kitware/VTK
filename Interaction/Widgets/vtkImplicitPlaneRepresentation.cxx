@@ -1793,6 +1793,10 @@ void vtkImplicitPlaneRepresentation::SetNormalToCamera()
 //----------------------------------------------------------------------
 void vtkImplicitPlaneRepresentation::RegisterPickers()
 {
-  this->Renderer->GetRenderWindow()->GetInteractor()->GetPickingManager()
-    ->AddPicker(this->Picker, this);
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+  {
+    return;
+  }
+  pm->AddPicker(this->Picker, this);
 }

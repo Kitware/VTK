@@ -1001,7 +1001,12 @@ void vtkImplicitPlaneWidget::CreateDefaultProperties()
 //------------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::RegisterPickers()
 {
-  this->Interactor->GetPickingManager()->AddPicker(this->Picker, this);
+  vtkPickingManager* pm = this->GetPickingManager();
+  if (!pm)
+  {
+    return;
+  }
+  pm->AddPicker(this->Picker, this);
 }
 
 //----------------------------------------------------------------------------
