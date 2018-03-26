@@ -567,3 +567,61 @@ if (vtk_requirements)
   file(WRITE "${CMAKE_BINARY_DIR}/requirements.txt"
     "${vtk_requirements}\n")
 endif ()
+
+option(VTK_GENERATE_MODULES_JSON "Generate modules.json file for package maintenance" OFF)
+mark_as_advanced(VTK_GENERATE_MODULES_JSON)
+
+if(VTK_GENERATE_MODULES_JSON)
+  macro(_modules_json_boolean OUTPUT_VAR INPUT_VALUE)
+    if("${INPUT_VALUE}")
+      set(${OUTPUT_VAR} true)
+    else()
+      set(${OUTPUT_VAR} false)
+    endif()
+  endmacro()
+
+  macro(_modules_json_enum_strings OUTPUT_VAR)
+    set(_sep "")
+    foreach(_i ${ARGN})
+      set(${OUTPUT_VAR} "${${OUTPUT_VAR}}${_sep}\"${_i}\"\n")
+      set(_sep ",")
+    endforeach()
+  endmacro()
+
+  set(MODULES_JSON "{\"modules\":[\n")
+
+  set(MODULES_JSON_MODULE_SEPARATOR "")
+  foreach(vtk-module ${VTK_MODULES_ALL})
+    _modules_json_boolean(MODULES_JSON_IS_TEST "${${vtk-module}_IS_TEST}")
+    _modules_json_boolean(MODULES_JSON_EXCLUDE_FROM_WRAPPING "${${vtk-module}_EXCLUDE_FROM_WRAPPING}")
+    _modules_json_boolean(MODULES_JSON_ENABLED "${${vtk-module}_ENABLED}")
+
+    set(MODULES_JSON "${MODULES_JSON}${MODULES_JSON_MODULE_SEPARATOR}{\"name\":\"${vtk-module}\",
+      \"is_test\":${MODULES_JSON_IS_TEST},
+      \"exclude_from_wrapping\":${MODULES_JSON_EXCLUDE_FROM_WRAPPING},
+      \"enabled\":${MODULES_JSON_ENABLED},
+      \"depends\":[\n")
+    _modules_json_enum_strings(MODULES_JSON ${${vtk-module}_DEPENDS})
+    set(MODULES_JSON "${MODULES_JSON}],\"private_depends\":[\n")
+    _modules_json_enum_strings(MODULES_JSON ${${vtk-module}_PRIVATE_DEPENDS})
+    set(MODULES_JSON "${MODULES_JSON}],\"implements\":[\n")
+    _modules_json_enum_strings(MODULES_JSON ${${vtk-module}_IMPLEMENTS})
+    set(MODULES_JSON "${MODULES_JSON}]}\n")
+    set(MODULES_JSON_MODULE_SEPARATOR ",")
+  endforeach()
+
+  set(MODULES_JSON "${MODULES_JSON}],\"groups\":[\n")
+
+  set(MODULES_JSON_GROUP_SEPARATOR "")
+  foreach(vtk-group ${VTK_GROUPS})
+    set(MODULES_JSON "${MODULES_JSON}${MODULES_JSON_GROUP_SEPARATOR}{\"name\":\"${vtk-group}\",
+      \"modules\":[\n")
+    _modules_json_enum_strings(MODULES_JSON ${VTK_GROUP_${vtk-group}_MODULES})
+    set(MODULES_JSON "${MODULES_JSON}]}\n")
+    set(MODULES_JSON_GROUP_SEPARATOR ",")
+  endforeach()
+
+  set(MODULES_JSON "${MODULES_JSON}]}\n")
+
+  file(WRITE "${CMAKE_BINARY_DIR}/modules.json" "${MODULES_JSON}")
+endif()
