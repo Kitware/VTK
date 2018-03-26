@@ -24,7 +24,9 @@
  *
  * Note that the input structure for this filter consists of points and line
  * or polyline cells. All other topological types (verts, polygons, triangle
- * strips) are ignored. The output of this filter is manifold polygons.
+ * strips) are ignored. The output of this filter is by default manifold
+ * polygons. Note however, that optionally polyline loops may also be output
+ * if requested.
  *
  * @warning
  * Although the loops are constructed in 3-space, a normal vector must be
@@ -74,6 +76,10 @@
 #define VTK_LOOP_CLOSURE_OFF 0
 #define VTK_LOOP_CLOSURE_BOUNDARY 1
 #define VTK_LOOP_CLOSURE_ALL 2
+
+#define VTK_OUTPUT_POLYGONS 0
+#define VTK_OUTPUT_POLYLINES 1
+#define VTK_OUTPUT_BOTH 2
 
 class VTKFILTERSMODELING_EXPORT vtkContourLoopExtraction : public vtkPolyDataAlgorithm
 {
@@ -135,6 +141,24 @@ public:
   vtkGetVector3Macro(Normal,double);
   //@}
 
+  //@{
+  /**
+   * Specify the form of the output. Polygons can be output (default);
+   * polylines can be output (the first and last point is repeated); or both
+   * can be output.
+   */
+  vtkSetClampMacro(OutputMode,int,VTK_OUTPUT_POLYGONS,VTK_OUTPUT_BOTH);
+  vtkGetMacro(OutputMode,int);
+  void SetOutputModeToPolygons()
+    {this->SetOutputMode(VTK_OUTPUT_POLYGONS);};
+  void SetOutputModeToPolylines()
+    {this->SetOutputMode(VTK_OUTPUT_POLYLINES);};
+  void SetOutputModeToBoth()
+    {this->SetOutputMode(VTK_OUTPUT_BOTH);};
+  const char *GetOutputModeAsString();
+  //@}
+
+
 protected:
   vtkContourLoopExtraction();
   ~vtkContourLoopExtraction() override;
@@ -144,6 +168,7 @@ protected:
   double ScalarRange[2];
   double Normal[3];
   double DataSetBounds[6];
+  int OutputMode;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
                   vtkInformationVector *) override;

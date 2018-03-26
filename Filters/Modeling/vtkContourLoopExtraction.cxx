@@ -125,7 +125,8 @@ namespace {
 
   // March along connected lines to the end----------------------------------
   void OutputPolygon(LoopPointType &sortedPoints, vtkPoints *inPts,
-                     vtkCellArray *outPolys, int loopClosure)
+                     vtkCellArray *outLines, vtkCellArray *outPolys,
+                     int loopClosure)
   {
     // Check to see that last point is the same as the first. Such a loop is
     // closed and can be directly output. Otherwise, check on the strategy
@@ -183,10 +184,22 @@ namespace {
     }
 
     // If here can output the loop
-    outPolys->InsertNextCell(num);
-    for (vtkIdType i=0; i < num; ++i)
+    if ( outLines )
     {
-      outPolys->InsertCellPoint(sortedPoints[i].Id);
+      outLines->InsertNextCell(num+1);
+      for (vtkIdType i=0; i < num; ++i)
+      {
+        outLines->InsertCellPoint(sortedPoints[i].Id);
+      }
+      outLines->InsertCellPoint(sortedPoints[0].Id);
+    }
+    if ( outPolys )
+    {
+      outPolys->InsertNextCell(num);
+      for (vtkIdType i=0; i < num; ++i)
+      {
+        outPolys->InsertCellPoint(sortedPoints[i].Id);
+      }
     }
   }
 
@@ -206,6 +219,7 @@ vtkContourLoopExtraction::vtkContourLoopExtraction()
   this->Normal[1] = 0.0;
   this->Normal[2] = 1.0;
 
+  this->OutputMode = VTK_OUTPUT_POLYGONS;
 }
 
 //----------------------------------------------------------------------------
@@ -258,8 +272,19 @@ int vtkContourLoopExtraction::RequestData(
 
   // Prepare output
   output->SetPoints(points);
-  vtkCellArray *outPolys = vtkCellArray::New();
-  output->SetPolys(outPolys);
+  vtkCellArray *outLines=nullptr, *outPolys=nullptr;
+  if ( this->OutputMode == VTK_OUTPUT_POLYLINES ||
+       this->OutputMode == VTK_OUTPUT_BOTH )
+  {
+    outLines = vtkCellArray::New();
+    output->SetLines(outLines);
+  }
+  if ( this->OutputMode == VTK_OUTPUT_POLYGONS ||
+       this->OutputMode == VTK_OUTPUT_BOTH )
+  {
+    outPolys = vtkCellArray::New();
+    output->SetPolys(outPolys);
+  }
   output->GetPointData()->PassData(inPD);
 
   // Create a clean polydata containing only line segments and without other
@@ -311,7 +336,7 @@ int vtkContourLoopExtraction::RequestData(
         if ( !scalars ||
              (range[0] <= this->ScalarRange[1] && range[1] >= this->ScalarRange[0]) )
         {
-          OutputPolygon(sortedPoints, points, outPolys, this->LoopClosure);
+          OutputPolygon(sortedPoints, points, outLines, outPolys, this->LoopClosure);
         }
       }
       else
@@ -320,17 +345,25 @@ int vtkContourLoopExtraction::RequestData(
         TraverseLoop(-1.0,polyData,lineId,start,sortedPoints,
                      visited,scalars,range);
         std::sort(sortedPoints.begin(), sortedPoints.end(), &PointSorter);
-        OutputPolygon(sortedPoints, points, outPolys, this->LoopClosure);
+        OutputPolygon(sortedPoints, points, outLines, outPolys, this->LoopClosure);
       }
     }//if not visited start a loop
   }
 
-  vtkDebugMacro(<< "Generated " << outPolys->GetNumberOfCells()
-                << " polygons\n");
-
   // Clean up
   newLines->Delete();
-  outPolys->Delete();
+  if ( outLines != nullptr )
+  {
+    vtkDebugMacro(<< "Generated " << outLines->GetNumberOfCells()
+                  << " lines\n");
+    outLines->Delete();
+  }
+  if ( outPolys != nullptr )
+  {
+    vtkDebugMacro(<< "Generated " << outPolys->GetNumberOfCells()
+                  << " polygons\n");
+    outPolys->Delete();
+  }
   polyData->Delete();
   delete [] visited;
 
@@ -356,6 +389,24 @@ GetLoopClosureAsString(void)
 }
 
 //----------------------------------------------------------------------------
+const char *vtkContourLoopExtraction::
+GetOutputModeAsString(void)
+{
+  if ( this->OutputMode == VTK_OUTPUT_POLYGONS )
+  {
+    return "OutputModePolygons";
+  }
+  else if ( this->OutputMode == VTK_OUTPUT_POLYLINES )
+  {
+    return "OutputModePolylines";
+  }
+  else
+  {
+    return "OutputModeBoth";
+  }
+}
+
+//----------------------------------------------------------------------------
 void vtkContourLoopExtraction::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -371,5 +422,8 @@ void vtkContourLoopExtraction::PrintSelf(ostream& os, vtkIndent indent)
 
   double *n = this->GetNormal();
   os << indent << "Normal: (" << n[0] << ", " << n[1] << ", " << n[2] << ")\n";
+
+  os << indent << "Output Mode: ";
+  os << this->GetOutputModeAsString() << "\n";
 
 }
