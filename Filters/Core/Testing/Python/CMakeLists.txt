@@ -45,6 +45,7 @@ vtk_add_test_python(
   TestTriangleFilter.py
   TestUnstructuredGridPlaneCutter.py
   TestVectorDotNorm.py
+  TestWindowedSincPolylineSmoothing.py
   capCow.py
   capSphere.py
   clipArt.py

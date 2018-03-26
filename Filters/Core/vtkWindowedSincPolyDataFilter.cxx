@@ -29,9 +29,9 @@
 
 vtkStandardNewMacro(vtkWindowedSincPolyDataFilter);
 
+//-----------------------------------------------------------------------------
 // Construct object with number of iterations 20; passband .1;
 // feature edge smoothing turned off; feature
-
 // angle 45 degrees; edge angle 15 degrees; and boundary smoothing turned
 // on. Error scalars and vectors are not generated (by default). The
 // convergence criterion is 0.0 of the bounding box diagonal.
@@ -64,6 +64,7 @@ typedef struct _vtkMeshVertex
   vtkIdList *edges; // connected edges (list of connected point ids)
 } vtkMeshVertex, *vtkMeshVertexPtr;
 
+//-----------------------------------------------------------------------------
 int vtkWindowedSincPolyDataFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -102,9 +103,8 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   double *w, *c, *cprime;
   int zero, one, two, three;
 
-//
-// Check input
-//
+  // Check input
+  //
   numPts=input->GetNumberOfPoints();
   numCells=input->GetNumberOfCells();
   if (numPts < 1 || numCells < 1)
@@ -140,14 +140,13 @@ int vtkWindowedSincPolyDataFilter::RequestData(
     vtkWarningMacro(<<"Number of iterations == 0: passing data through unchanged");
     return 1;
   }
-//
-// Peform topological analysis. What we're gonna do is build a connectivity
-// array of connected vertices. The outcome will be one of three
-// classifications for a vertex: VTK_SIMPLE_VERTEX, VTK_FIXED_VERTEX. or
-// VTK_EDGE_VERTEX. Simple vertices are smoothed using all connected
-// vertices. FIXED vertices are never smoothed. Edge vertices are smoothed
-// using a subset of the attached vertices.
-//
+
+  // Peform topological analysis. What we're gonna do is build a connectivity
+  // array of connected vertices. The outcome will be one of three
+  // classifications for a vertex: VTK_SIMPLE_VERTEX, VTK_FIXED_VERTEX. or
+  // VTK_EDGE_VERTEX. Simple vertices are smoothed using all connected
+  // vertices. FIXED vertices are never smoothed. Edge vertices are smoothed
+  // using a subset of the attached vertices.
   vtkDebugMacro(<<"Analyzing topology...");
   Verts = new vtkMeshVertex[numPts];
   for (i=0; i<numPts; i++)
@@ -174,38 +173,55 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   for (inLines=input->GetLines(), inLines->InitTraversal();
   inLines->GetNextCell(npts,pts); )
   {
+    // Check for closed loop which are treated specially. Basically the
+    // last point is ignored (set to fixed).
+    bool closedLoop = ( pts[0] == pts[npts-1] && npts > 3 );
+
     for (j=0; j<npts; j++)
     {
       if ( Verts[pts[j]].type == VTK_SIMPLE_VERTEX )
       {
-        if ( j == (npts-1) ) //end-of-line marked FIXED
+        // First point
+        if ( j == 0 )
+        {
+          if ( !closedLoop )
+          {
+            Verts[pts[0]].type = VTK_FIXED_VERTEX;
+          }
+          else
+          {
+            Verts[pts[0]].type = VTK_FEATURE_EDGE_VERTEX;
+            Verts[pts[0]].edges = vtkIdList::New();
+            Verts[pts[0]].edges->SetNumberOfIds(2);
+            Verts[pts[0]].edges->SetId(0,pts[npts-2]);
+            Verts[pts[0]].edges->SetId(1,pts[1]);
+          }
+        }
+        // Last point
+        else if ( j == (npts-1) && !closedLoop )
         {
           Verts[pts[j]].type = VTK_FIXED_VERTEX;
         }
-        else if ( j == 0 ) //beginning-of-line marked FIXED
-        {
-          Verts[pts[0]].type = VTK_FIXED_VERTEX;
-          inPts->GetPoint(pts[0],x2);
-          inPts->GetPoint(pts[1],x3);
-        }
+        // Inbetween point
         else //is edge vertex (unless already edge vertex!)
         {
           Verts[pts[j]].type = VTK_FEATURE_EDGE_VERTEX;
           Verts[pts[j]].edges = vtkIdList::New();
           Verts[pts[j]].edges->SetNumberOfIds(2);
-          //Verts[pts[j]].edges = new vtkIdList(2,2);
           Verts[pts[j]].edges->SetId(0,pts[j-1]);
-          Verts[pts[j]].edges->SetId(1,pts[j+1]);
+          Verts[pts[j]].edges->SetId(1,pts[(closedLoop && j==(npts-2) ? 0 : (j+1))]);
         }
       } //if simple vertex
 
-      else if ( Verts[pts[j]].type == VTK_FEATURE_EDGE_VERTEX )
-      { //multiply connected, becomes fixed!
+      // Vertex has been visited before, need to fix it. Special case
+      // when working on closed loop.
+      else if ( Verts[pts[j]].type == VTK_FEATURE_EDGE_VERTEX &&
+                ! (closedLoop && j == (npts-1)) )
+      {
         Verts[pts[j]].type = VTK_FIXED_VERTEX;
         Verts[pts[j]].edges->Delete();
         Verts[pts[j]].edges = nullptr;
       }
-
     } //for all points in this line
   } //for all lines
 
@@ -375,7 +391,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
     }
 
     else if ( Verts[i].type == VTK_FEATURE_EDGE_VERTEX ||
-    Verts[i].type == VTK_BOUNDARY_EDGE_VERTEX )
+              Verts[i].type == VTK_BOUNDARY_EDGE_VERTEX )
     { //see how many edges; if two, what the angle is
 
       if ( !this->BoundarySmoothing &&
@@ -428,9 +444,9 @@ int vtkWindowedSincPolyDataFilter::RequestData(
                 << numFEdges << " feature edge vertices\n\t"
                 << numBEdges << " boundary edge vertices\n\t"
                 << numFixed << " fixed vertices\n\t");
-//
-// Perform Windowed Sinc function interpolation
-//
+
+  // Perform Windowed Sinc function interpolation
+  //
   vtkDebugMacro(<<"Beginning smoothing iterations...");
 
   // need 4 vectors of points
@@ -493,7 +509,6 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   double zerovector[3];
   zerovector[0] = zerovector[1] = zerovector[2] = 0.0;
 
-  //
   // Calculate the weights and the Chebychev coefficients c.
   //
 
@@ -727,9 +742,8 @@ int vtkWindowedSincPolyDataFilter::RequestData(
     }
   }
 
-//
-// Update output. Only point coordinates have changed.
-//
+  // Update output. Only point coordinates have changed.
+  //
   output->GetPointData()->PassData(input->GetPointData());
   output->GetCellData()->PassData(input->GetCellData());
 
@@ -780,18 +794,25 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   output->SetStrips(input->GetStrips());
 
   // finally delete the constructed (local) mesh
-  inMesh->Delete();
+  if ( inMesh != nullptr )
+  {
+    inMesh->Delete();
+  }
 
   //free up connectivity storage
   for (i=0; i<numPts; i++)
   {
-    if ( Verts[i].edges != nullptr ) {Verts[i].edges->Delete();}
+    if ( Verts[i].edges != nullptr )
+    {
+      Verts[i].edges->Delete();
+    }
   }
   delete [] Verts;
 
   return 1;
 }
 
+//-----------------------------------------------------------------------------
 void vtkWindowedSincPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
