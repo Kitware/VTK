@@ -29,6 +29,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestDistancePolyDataFilter.cxx
   TestGraphWeightEuclideanDistanceFilter.cxx,NO_VALID
   TestImageDataToPointSet.cxx,NO_VALID
+  TestIntersectionPolyDataFilter4.cxx,NO_VALID
   TestIntersectionPolyDataFilter3.cxx
   TestIntersectionPolyDataFilter2.cxx,NO_VALID
   TestIntersectionPolyDataFilter.cxx
