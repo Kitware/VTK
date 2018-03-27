@@ -790,7 +790,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ComputeSharedPoints()
     kdtree->BuildLocatorFromPoints(points);
     double bounds[6];
     kdtree->GetBounds(bounds);
-    double tolerance = 1.e-10*sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0])+
+    double tolerance = 1.e-6*sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0])+
                                    (bounds[3]-bounds[2])*(bounds[3]-bounds[2])+
                                    (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
 
@@ -803,11 +803,11 @@ void vtkPUnstructuredGridGhostCellsGenerator::ComputeSharedPoints()
         continue;
       }
       std::vector<double>& offProcSurfacePoints = iter->second;
-      double dist(0);
+      double dist2(0); // result will be distance squared
       for (size_t i=0;i<offProcSurfacePoints.size();i+=3)
       {
         vtkIdType id = kdtree->FindClosestPointWithinRadius(
-          tolerance, &offProcSurfacePoints[i], dist);
+          tolerance, &offProcSurfacePoints[i], dist2);
         if (id != -1)
         { // matching point...
           vtkIdType inputId = this->Internals->LocalPointsMap->GetValue(id);
