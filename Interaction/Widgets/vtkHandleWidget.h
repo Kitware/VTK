@@ -102,7 +102,7 @@ public:
 
   /**
    * Create the default widget representation if one is not set. By default
-   * an instance of vtkPointHandleRepresenation3D is created.
+   * an instance of vtkPointHandleRepresentation3D is created.
    */
   void CreateDefaultRepresentation() override;
 
