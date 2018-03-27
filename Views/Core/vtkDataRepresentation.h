@@ -258,7 +258,7 @@ protected:
   vtkAnnotationLink* AnnotationLinkInternal;
   //@}
 
-  // Whether is represenation can handle a selection.
+  // Whether its representation can handle a selection.
   bool Selectable;
 
   /**

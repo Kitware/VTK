@@ -631,7 +631,7 @@ protected:
   vtkTypeBool    UserControlledLookupTable;
   vtkTypeBool    DisplayText;
 
-  // The geometric represenation of the plane and it's outline
+  // The geometric representation of the plane and it's outline
   vtkPlaneSource    *PlaneSource;
   vtkPolyData       *PlaneOutlinePolyData;
   vtkActor          *PlaneOutlineActor;

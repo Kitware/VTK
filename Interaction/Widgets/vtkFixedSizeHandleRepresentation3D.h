@@ -19,7 +19,7 @@
  *
  * This class is a concrete implementation of vtkHandleRepresentation. It is
  * meant to be used as a representation for vtkHandleWidget. Unlike the other
- * represenations, this can maintain a constant size in pixels, regardless of
+ * representations, this can maintain a constant size in pixels, regardless of
  * the camera zoom parameters. The size in pixels may be set via
  * SetHandleSizeInPixels. This representation renders the markers as spherical
  * blobs in 3D space with the width as specified above, defaults to 10 pixels.

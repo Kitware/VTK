@@ -69,7 +69,7 @@ public:
 
   ~vtkOpenGLQuadHelper();
 
-  // Draw the Quad, will  bind the VAO for you
+  // Draw the Quad, will bind the VAO for you
   void Render();
 
  private:

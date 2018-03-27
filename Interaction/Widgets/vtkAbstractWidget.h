@@ -128,7 +128,7 @@ public:
   /**
    * Return an instance of vtkWidgetRepresentation used to represent this
    * widget in the scene. Note that the representation is a subclass of
-   * vtkProp (typically a subclass of vtkWidgetRepresenation) so it can be
+   * vtkProp (typically a subclass of vtkWidgetRepresentation) so it can be
    * added to the renderer independent of the widget.
    */
   vtkWidgetRepresentation *GetRepresentation()
