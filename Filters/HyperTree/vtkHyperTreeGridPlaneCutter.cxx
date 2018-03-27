@@ -178,6 +178,12 @@ int vtkHyperTreeGridPlaneCutter::FillOutputPortInformation( int,
 int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
                                                vtkDataObject* outputDO )
 {
+  // empty input, empty output.
+  if (input->GetNumberOfLeaves() == 0)
+  {
+    return 1;
+  }
+
   // Downcast output data object to polygonal data set
   vtkPolyData* output = vtkPolyData::SafeDownCast( outputDO );
   if ( ! output )
