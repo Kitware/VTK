@@ -296,6 +296,9 @@ if (BUILD_SHARED_LIBS)
   set_target_properties(vtklzma
     PROPERTIES
       DEFINE_SYMBOL DLL_EXPORT)
+  if(CMAKE_USE_PTHREADS_INIT)
+    target_link_libraries(vtklzma ${CMAKE_THREAD_LIBS_INIT})
+  endif()
 endif ()
 
 if (NOT VTK_INSTALL_NO_DEVELOPMENT)
