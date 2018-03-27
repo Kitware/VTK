@@ -94,8 +94,6 @@ public:
    * The UserData is the (void *)arg passed into the SetSingleMethod,
    * SetMultipleMethod, or SpawnThread method.
    */
-
-#define ThreadInfoStruct vtkMultiThreader::ThreadInfo
   class ThreadInfo
   {
   public:
@@ -227,6 +225,8 @@ private:
   vtkMultiThreader(const vtkMultiThreader&) = delete;
   void operator=(const vtkMultiThreader&) = delete;
 };
+
+using ThreadInfoStruct=vtkMultiThreader::ThreadInfo;
 
 #endif
 
