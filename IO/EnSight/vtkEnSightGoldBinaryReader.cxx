@@ -1446,11 +1446,25 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(
     realId = this->InsertNewPartId(partId);
     output = this->GetDataSetFromBlock(compositeOutput, realId);
     numPts = output->GetNumberOfPoints();
-    // If the part has no points, then only the part number is listed in
-    // the variable file.
-    if (numPts)
+    // If the part has points, part number is followed by "coordinates" or
+    // "block" and list of values.
+    // If the part has no points, only part number is given, which may be
+    // optionally followed by "coordinates" or "block", without any values.
+
+    lineRead = this->ReadLine(line); // "coordinates", "block" or next part
+
+    if (!numPts)
     {
-      this->ReadLine(line); // "coordinates" or "block"
+      if (lineRead && strncmp(line, "part", 4) == 0)
+      {
+        // Part number was not followed by "coordinates" or "block"; we are
+        // at the start of another part, skip to next iteration to avoid
+        // reading anything more.
+        continue;
+      }
+    }
+    else
+    {
       if (component == 0)
       {
         scalars = vtkFloatArray::New();
@@ -1640,15 +1654,31 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(
   lineRead = this->ReadLine(line);
   while (lineRead && strncmp(line, "part", 4) == 0)
   {
-    vectors = vtkFloatArray::New();
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     realId = this->InsertNewPartId(partId);
     output = this->GetDataSetFromBlock(compositeOutput, realId);
     numPts = output->GetNumberOfPoints();
-    if (numPts)
+    // If the part has points, part number is followed by "coordinates" or
+    // "block" and list of values.
+    // If the part has no points, only part number is given, which may be
+    // optionally followed by "coordinates" or "block", without any values.
+
+    lineRead = this->ReadLine(line); // "coordinates", "block" or next part
+
+    if (!numPts)
     {
-      this->ReadLine(line); // "coordinates" or "block"
+      if (lineRead && strncmp(line, "part", 4) == 0)
+      {
+        // Part number was not followed by "coordinates" or "block"; we are
+        // at the start of another part, skip to next iteration to avoid
+        // reading anything more.
+        continue;
+      }
+    }
+    else
+    {
+      vectors = vtkFloatArray::New();
       vectors->SetNumberOfComponents(3);
       vectors->SetNumberOfTuples(numPts);
       comp1 = new float[numPts];
