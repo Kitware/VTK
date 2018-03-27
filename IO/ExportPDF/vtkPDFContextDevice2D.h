@@ -20,7 +20,7 @@
 #ifndef vtkPDFContextDevice2D_h
 #define vtkPDFContextDevice2D_h
 
-#include "vtkIOExportModule.h" // For export macro
+#include "vtkIOExportPDFModule.h" // For export macro
 #include "vtkContextDevice2D.h"
 #include "vtkNew.h" // For vtkNew!
 
@@ -29,7 +29,7 @@ class vtkPath;
 class vtkRenderer;
 class vtkTransform;
 
-class VTKIOEXPORT_EXPORT vtkPDFContextDevice2D: public vtkContextDevice2D
+class VTKIOEXPORTPDF_EXPORT vtkPDFContextDevice2D: public vtkContextDevice2D
 {
 public:
   static vtkPDFContextDevice2D* New();

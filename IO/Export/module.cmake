@@ -37,6 +37,5 @@ vtk_module(vtkIOExport
     vtkFiltersGeometry
     vtkIOImage
     vtkImagingCore
-    vtklibharu
     vtksys
   )
