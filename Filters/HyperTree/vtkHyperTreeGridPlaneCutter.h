@@ -48,6 +48,7 @@ class vtkCellArray;
 class vtkCutter;
 class vtkIdList;
 class vtkPoints;
+class vtkPlane;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridPlaneCutter : public vtkHyperTreeGridAlgorithm
 {
@@ -60,10 +61,23 @@ public:
   /**
    * Specify the plane with its [a,b,c,d] Cartesian coefficients:
    * a*x + b*y + c*z = d
+   *
+   * @note This will be overridden the vtkPlane object, if specified.
    */
   vtkSetVector4Macro(Plane,double);
   vtkGetVector4Macro(Plane,double);
   //@}
+
+  /**
+   * Set the plane by specifying a vtkPlane object. This will override the
+   * plane equation if set, and may be null, in which case the equation will
+   * be used.
+   *
+   * @note This will override plane equation state when specified.
+   */
+  void SetPlane(vtkPlane *plane) { this->SetPlaneObj(plane); }
+  void SetPlaneObj(vtkPlane*);
+  vtkGetObjectMacro(PlaneObj, vtkPlane)
 
   //@{
   /**
@@ -73,6 +87,8 @@ public:
   vtkGetMacro(Dual,int);
   vtkBooleanMacro(Dual,int);
   //@}
+
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkHyperTreeGridPlaneCutter();
@@ -161,6 +177,11 @@ protected:
    * Cutter to be used on dual cells
    */
   vtkCutter* Cutter;
+
+  /**
+   * Plane object used to hold plane state.
+   */
+  vtkPlane *PlaneObj;
 
 private:
   vtkHyperTreeGridPlaneCutter(const vtkHyperTreeGridPlaneCutter&) = delete;
