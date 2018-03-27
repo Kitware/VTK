@@ -80,6 +80,8 @@
 
 class vtkAbstractElectronicData;
 class vtkDataArray;
+class vtkInformation;
+class vtkInformationVector;
 class vtkMatrix3x3;
 class vtkPlane;
 class vtkPoints;
@@ -210,6 +212,7 @@ public:
    */
   vtkPoints * GetAtomicPositionArray();
   vtkUnsignedShortArray * GetAtomicNumberArray();
+  vtkUnsignedShortArray * GetBondOrdersArray();
   //@}
 
   //@{
@@ -371,29 +374,70 @@ public:
    * Parameters atomPositions and atomicNumberArray should have the same size.
    */
   int Initialize(vtkPoints* atomPositions,
-    vtkUnsignedShortArray* atomicNumberArray,
-    vtkDataSetAttributes* atomData = nullptr);
-
-  /**
-   * Overloads Initialize method to allow vtkDataArray instead of vtkUnsignedShortArray.
-   */
-  int Initialize(vtkPoints* atomPositions,
     vtkDataArray* atomicNumberArray,
-    vtkDataSetAttributes* atomData = nullptr);
+    vtkDataSetAttributes* atomData);
 
   /**
-   * Overloads Initialize method. Look for an atomic number array in atomData.
-   * If none found, take the first array.
+   * Overloads Initialize method.
    */
   int Initialize(vtkPoints* atomPositions,
-    vtkDataSetAttributes* atomData);
+    vtkDataSetAttributes* atomData)
+  {
+    return this->Initialize(atomPositions, nullptr, atomData);
+  }
 
   /**
    * Use input molecule points, atomic number and atomic data to initialize the new molecule.
    */
   int Initialize(vtkMolecule* molecule);
 
-  static const char* GetAtomicNumberArrayName() {return "Atomic Numbers";}
+  //@{
+  /**
+   * Retrieve a molecule from an information vector.
+   */
+  static vtkMolecule* GetData(vtkInformation *info);
+  static vtkMolecule* GetData(vtkInformationVector *v, int i=0);
+  //@}
+
+  /**
+   * Return the VertexData of the underlying graph
+   */
+  vtkDataSetAttributes* GetAtomData()
+  {
+    return this->GetVertexData();
+  }
+
+  /**
+   * Return the EdgeData of the underlying graph
+   */
+  vtkDataSetAttributes* GetBondData()
+  {
+    return this->GetEdgeData();
+  }
+
+  /**
+   * Return the edge id from the underlying graph.
+   */
+  vtkIdType GetBondId(vtkIdType a, vtkIdType b)
+  {
+    return this->GetEdgeId(a, b);
+  }
+
+  //@{
+  /**
+   * Get/Set the atomic number array name.
+   */
+  vtkSetStringMacro(AtomicNumberArrayName);
+  vtkGetStringMacro(AtomicNumberArrayName);
+  //@}
+
+  //@{
+  /**
+   * Get/Set the bond orders array name.
+   */
+  vtkSetStringMacro(BondOrdersArrayName);
+  vtkGetStringMacro(BondOrdersArrayName);
+  //@}
 
  protected:
   vtkMolecule();
@@ -431,6 +475,10 @@ public:
 
   vtkUnsignedCharArray* AtomGhostArray;
   vtkUnsignedCharArray* BondGhostArray;
+
+  char* AtomicNumberArrayName;
+  char* BondOrdersArrayName;
+
 private:
   vtkMolecule(const vtkMolecule&) = delete;
   void operator=(const vtkMolecule&) = delete;
