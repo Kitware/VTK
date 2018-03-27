@@ -284,33 +284,46 @@ public:
     this->Data->GetDimensions(this->PointDim);
     this->PointSliceSize = this->PointDim[0] * this->PointDim[1];
 
-    this->CellDim[0] = this->PointDim[0] - 1;
-    this->CellDim[1] = this->PointDim[1] - 1;
-    this->CellDim[2] = this->PointDim[2] - 1;
+    this->CellDim[0] = vtkMath::Max(1, this->PointDim[0] - 1);
+    this->CellDim[1] = vtkMath::Max(1, this->PointDim[1] - 1);
+    this->CellDim[2] = vtkMath::Max(1, this->PointDim[2] - 1);
     this->CellSliceSize = this->CellDim[0] * this->CellDim[1];
   }
 
   void operator()(vtkIdType begin, vtkIdType end)
   {
-    for (vtkIdType i = begin; i < end; ++i)
+    for (vtkIdType cellId = begin; cellId < end; ++cellId)
     {
       int ptijk[3];
-      ptijk[2] = i/this->CellSliceSize;
-      ptijk[1] = (i%CellSliceSize)/this->CellDim[0];
-      ptijk[0] = (i%CellSliceSize)%this->CellDim[0];
+      ptijk[2] = cellId/this->CellSliceSize;
+      ptijk[1] = (cellId%CellSliceSize)/this->CellDim[0];
+      ptijk[0] = (cellId%CellSliceSize)%this->CellDim[0];
 
       vtkIdType ptid = ptijk[0] + this->PointDim[0]*ptijk[1] + this->PointSliceSize*ptijk[2];
-      if (!this->MaskArray[ptid] ||
-          !this->MaskArray[ptid + 1] ||
-          !this->MaskArray[ptid + this->PointDim[0]] ||
-          !this->MaskArray[ptid + this->PointDim[0] + 1] ||
-          !this->MaskArray[ptid + this->PointSliceSize] ||
-          !this->MaskArray[ptid + this->PointSliceSize + 1] ||
-          !this->MaskArray[ptid + this->PointDim[0] + this->PointSliceSize] ||
-          !this->MaskArray[ptid + this->PointDim[0] + this->PointSliceSize + 1])
+
+      int dim[3];
+      dim[0] = (this->PointDim[0] > 1) ? 1 : 0;
+      dim[1] = (this->PointDim[1] > 1) ? 1 : 0;
+      dim[2] = (this->PointDim[2] > 1) ? 1 : 0;
+
+      bool validCell = true;
+      for (int k = 0; k <= dim[2]; ++k)
       {
-        this->CellGhostArray->SetValue(i, this->CellGhostArray->GetValue(i) |
-                                          vtkDataSetAttributes::HIDDENPOINT);
+        for (int j = 0; j <= dim[1]; ++j)
+        {
+          for (int i = 0; i <= dim[0]; ++i)
+          {
+            validCell &= this->MaskArray[
+              ptid + i + (j * this->PointDim[0]) + (k * this->PointSliceSize)];
+          }
+        }
+      }
+
+      if (!validCell)
+      {
+        this->CellGhostArray->SetValue(
+          cellId,
+          this->CellGhostArray->GetValue(cellId) | vtkDataSetAttributes::HIDDENPOINT);
       }
     }
   }
