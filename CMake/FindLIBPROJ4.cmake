@@ -11,12 +11,22 @@ if ( NOT LIBPROJ4_INCLUDE_DIR OR NOT LIBPROJ4_LIBRARIES OR NOT LIBPROJ4_FOUND )
     file( TO_CMAKE_PATH "$ENV{LIBPROJ4_DIR}" _LIBPROJ4_DIR )
   endif ()
 
-  find_library( LIBPROJ4_LIBRARIES
+  set(LIBPROJ4_LIBRARY_SEARCH_PATHS
+    ${_LIBPROJ4_DIR}
+    ${_LIBPROJ4_DIR}/lib64
+    ${_LIBPROJ4_DIR}/lib
+  )
+
+  find_library( LIBPROJ4_LIBRARY_RELEASE
     NAMES proj
     HINTS
-      ${_LIBPROJ4_DIR}
-      ${_LIBPROJ4_DIR}/lib64
-      ${_LIBPROJ4_DIR}/lib
+      ${LIBPROJ4_LIBRARY_SEARCH_PATHS}
+  )
+
+  find_library( LIBPROJ4_LIBRARY_DEBUG
+    NAMES projd
+    PATHS
+      ${LIBPROJ4_LIBRARY_SEARCH_PATHS}
   )
 
   find_path( LIBPROJ4_INCLUDE_DIR
@@ -26,16 +36,20 @@ if ( NOT LIBPROJ4_INCLUDE_DIR OR NOT LIBPROJ4_LIBRARIES OR NOT LIBPROJ4_FOUND )
       ${_LIBPROJ4_DIR}/include
   )
 
-  if ( NOT LIBPROJ4_INCLUDE_DIR OR NOT LIBPROJ4_LIBRARIES )
-    if ( LIBPROJ4_REQUIRED )
-      message( FATAL_ERROR "LIBPROJ4 is required. Set LIBPROJ4_DIR" )
-    endif ()
-  else ()
-    set( LIBPROJ4_FOUND 1 )
-    mark_as_advanced( LIBPROJ4_FOUND )
-  endif ()
+  include(SelectLibraryConfigurations)
+  select_library_configurations(LIBPROJ4)
 
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args(LIBPROJ4
+                                    REQUIRED_VARS LIBPROJ4_LIBRARY LIBPROJ4_INCLUDE_DIR)
+
+  if(LIBPROJ4_FOUND)
+    set(LIBPROJ4_INCLUDE_DIRS ${LIBPROJ4_INCLUDE_DIR})
+
+    if(NOT LIBPROJ4_LIBRARIES)
+      set(LIBPROJ4_LIBRARIES ${LIBPROJ4_LIBRARY})
+    endif()
+  endif()
 endif ()
 
-mark_as_advanced( FORCE LIBPROJ4_INCLUDE_DIR )
-mark_as_advanced( FORCE LIBPROJ4_LIBRARIES )
+mark_as_advanced(LIBPROJ4_INCLUDE_DIR)
