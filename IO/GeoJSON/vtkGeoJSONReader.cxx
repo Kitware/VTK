@@ -35,6 +35,7 @@
 // C++ includes
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 vtkStandardNewMacro(vtkGeoJSONReader);
 
