@@ -18,8 +18,8 @@
  *
  * vtkGDALRasterReader is a source object that reads raster files and uses
  * GDAL as the underlying library for the task. GDAL is required for this
- * reader. The output of the reader is a vtkUniformGrid instead of vtkImageData
- * to support blanking.
+ * reader. The output of the reader is a vtkUniformGrid (vtkImageData
+ * with blanking) with cell data.
  *
  *
  * @sa

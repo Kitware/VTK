@@ -9,7 +9,6 @@ vtk_module(vtkIOGDAL
   DEPENDS
     vtkCommonCore
     vtkCommonExecutionModel
-    vtkFiltersCore
     vtkIOImage
   PRIVATE_DEPENDS
     vtkCommonDataModel

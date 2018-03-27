@@ -18,7 +18,6 @@
 // VTK includes
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCellDataToPointData.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkGDAL.h"
@@ -912,13 +911,7 @@ int vtkGDALRasterReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  vtkNew<vtkCellDataToPointData> c2p;
-  c2p->SetInputDataObject(this->Implementation->UniformGridData);
-  c2p->PassCellDataOn();
-  c2p->Update();
-
-
-  vtkUniformGrid::SafeDownCast(dataObj)->ShallowCopy(c2p->GetOutput());
+  vtkUniformGrid::SafeDownCast(dataObj)->ShallowCopy(this->Implementation->UniformGridData);
   return 1;
 }
 
