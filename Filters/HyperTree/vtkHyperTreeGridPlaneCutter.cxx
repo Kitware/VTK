@@ -324,6 +324,19 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
 
   // Clean up
   cleaner->Delete();
+
+  // Reset intermediate objects so subsequent executions of the filter behave:
+  if ( this->Points )
+  {
+    this->Points->Delete();
+    this->Points = vtkPoints::New();
+  }
+  if ( this->Cells )
+  {
+    this->Cells->Delete();
+    this->Cells = vtkCellArray::New();
+  }
+
   return 1;
 }
 
