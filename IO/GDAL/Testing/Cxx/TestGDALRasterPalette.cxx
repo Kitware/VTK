@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include "vtkCellDataToPointData.h"
+#include <vtkCellDataToPointData.h>
 #include <vtkDataArray.h>
 #include <vtkGDALRasterReader.h>
 #include <vtkImageActor.h>

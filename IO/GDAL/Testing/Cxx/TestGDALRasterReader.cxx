@@ -17,7 +17,7 @@
 // VTK includes
 #include <vtkImageActor.h>
 #include <vtkCellData.h>
-#include "vtkCellDataToPointData.h"
+#include <vtkCellDataToPointData.h>
 #include <vtkCompositePolyDataMapper.h>
 #include <vtkDataSetAttributes.h>
 #include <vtkDoubleArray.h>
