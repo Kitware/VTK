@@ -623,13 +623,12 @@ struct PositionFileMotion : public Motion
       return result;
     }
 
-    vtkSmartPointer<vtkTransform> compute_transform(
-      double time, const vtkVector3d& initial_centerOfMass, bool isOrientation) const
+    vtkSmartPointer<vtkTransform> compute_transform(double time) const
     {
       auto transform = vtkSmartPointer<vtkTransform>::New();
       transform->PostMultiply(); // default is PreMultiply.
 
-      if (isOrientation == false)
+      if (this->isOrientation == false)
       {
         // theta = omega * t
         vtkVector3d theta = this->angular_velocities * time;
@@ -640,7 +639,7 @@ struct PositionFileMotion : public Motion
         theta[2] = vtkMath::DegreesFromRadians(theta[2]);
 
         // change origin to initial_centerOfMass.
-        transform->Translate((initial_centerOfMass * -1.0).GetData());
+        transform->Translate((this->initial_centerOfMass * -1.0).GetData());
 
         // rotate about the center-of-mass
         transform->RotateY(theta[1]);
@@ -648,12 +647,12 @@ struct PositionFileMotion : public Motion
         transform->RotateZ(theta[2]);
 
         // reset origin
-        transform->Translate(initial_centerOfMass.GetData());
+        transform->Translate(this->initial_centerOfMass.GetData());
       }
       else
       {
         // change origin to initial_centerOfMass.
-        transform->Translate((initial_centerOfMass * -1.0).GetData());
+        transform->Translate((this->initial_centerOfMass * -1.0).GetData());
 
         // rotate about axis defined the direction cosines by the angle
         // specified.
@@ -661,7 +660,7 @@ struct PositionFileMotion : public Motion
           vtkMath::DegreesFromRadians(this->rotation), this->direction_cosines.GetData());
 
         // reset origin.
-        transform->Translate(initial_centerOfMass.GetData());
+        transform->Translate(this->initial_centerOfMass.GetData());
       }
 
       // translate to the new center.
@@ -745,7 +744,7 @@ struct PositionFileMotion : public Motion
       tuple = iter->second.interpolate(t, iter_next->second);
     }
 
-    auto transform = tuple.compute_transform(time, this->initial_centerOfMass, this->isOrientation);
+    auto transform = tuple.compute_transform(time);
     if (transform)
     {
       ApplyTransform worker(transform);
