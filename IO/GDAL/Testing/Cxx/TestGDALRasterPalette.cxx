@@ -12,13 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+#include <vtkCellDataToPointData.h>
 #include <vtkDataArray.h>
 #include <vtkGDALRasterReader.h>
 #include <vtkImageActor.h>
 #include <vtkImageProperty.h>
 #include <vtkLookupTable.h>
 #include <vtkNew.h>
-#include <vtkPointData.h>
+#include <vtkCellData.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
@@ -46,21 +48,20 @@ int TestGDALRasterPalette(int argc, char** argv)
   vtkUniformGrid *image = vtkUniformGrid::SafeDownCast(reader->GetOutput());
 
   // Check that reader generated point scalars
-  if (image->GetPointData()->GetNumberOfArrays() < 1)
+  if (image->GetCellData()->GetNumberOfArrays() < 1)
   {
-    std::cerr << "ERROR: Missing point data scalars" << std::endl;
+    std::cerr << "ERROR: Missing cell data scalars" << std::endl;
     return 1;
   }
-  if (image->GetPointData()->GetScalars()->GetSize() == 0)
+  if (image->GetCellData()->GetScalars()->GetSize() == 0)
   {
-    std::cerr << "ERROR: Point data scalars empty" << std::endl;
+    std::cerr << "ERROR: Cell data scalars empty" << std::endl;
     return 1;
   }
-  //image->GetPointData()->GetScalars()->Print(std::cout);
 
   // Check that reader generated color table
   vtkLookupTable *colorTable =
-    image->GetPointData()->GetScalars()->GetLookupTable();
+    image->GetCellData()->GetScalars()->GetLookupTable();
   if (!colorTable)
   {
     std::cerr << "ERROR: Missing color table" << std::endl;
@@ -78,7 +79,12 @@ int TestGDALRasterPalette(int argc, char** argv)
   // Create a renderer and actor
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkImageActor> actor;
-  actor->SetInputData(reader->GetOutput());
+
+  vtkNew<vtkCellDataToPointData> c2p;
+  c2p->SetInputDataObject(reader->GetOutput());
+  c2p->Update();
+
+  actor->SetInputData(vtkUniformGrid::SafeDownCast(c2p->GetOutput()));
   actor->InterpolateOff();
   //actor->GetProperty()->SetInterpolationTypeToNearest();
   actor->GetProperty()->SetLookupTable(colorTable);

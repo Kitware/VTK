@@ -17,6 +17,7 @@
 // VTK includes
 #include <vtkImageActor.h>
 #include <vtkCellData.h>
+#include <vtkCellDataToPointData.h>
 #include <vtkCompositePolyDataMapper.h>
 #include <vtkDataSetAttributes.h>
 #include <vtkDoubleArray.h>
@@ -33,6 +34,7 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkSmartPointer.h>
 #include <vtkTestUtilities.h>
+#include <vtkUniformGrid.h>
 
 // C++ includes
 #include <sstream>
@@ -53,8 +55,13 @@ int TestGDALRasterReader(int argc, char** argv)
   vtkNew<vtkRenderer> renderer;
 
   // Get the data
+  vtkNew<vtkCellDataToPointData> c2p;
+  c2p->SetInputDataObject(reader->GetOutput());
+  c2p->Update();
+
+
   vtkNew<vtkImageActor> actor;
-  actor->SetInputData(reader->GetOutput());
+  actor->SetInputData(vtkUniformGrid::SafeDownCast(c2p->GetOutput()));
   renderer->AddActor(actor);
 
   // Create a render window, and an interactor
