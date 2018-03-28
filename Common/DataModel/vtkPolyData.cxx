@@ -1109,10 +1109,17 @@ void vtkPolyData::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
   }
 
   this->vtkPolyData::GetCellPoints(cellId, npts, pts);
-  ptIds->InsertId (npts-1,pts[npts-1]);
-  for (i=0; i<npts-1; i++)
+  if ( npts < 1 )
   {
-    ptIds->SetId(i,pts[i]);
+    ptIds->Reset();
+  }
+  else
+  {
+    ptIds->InsertId(npts-1,pts[npts-1]);
+    for (i=0; i<npts-1; i++)
+    {
+      ptIds->SetId(i,pts[i]);
+    }
   }
 }
 
