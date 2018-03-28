@@ -6,6 +6,7 @@ set(Module_SRCS
   vtkThresholdTextureCoords.cxx
   vtkTransformTextureCoords.cxx
   vtkTriangularTCoords.cxx
+  vtkScalarsToTextureFilter.cxx
   )
 
 vtk_module_library(vtkFiltersTexture ${Module_SRCS})
