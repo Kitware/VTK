@@ -253,7 +253,7 @@ void vtkSTLWriter::WriteBinarySTL(
 
   // Check for STL ASCII format key word 'solid'. According to STL file format
   // only ASCII files can have 'solid' as start key word, so we ignore it and
-  // use deafult VTK header instead.
+  // use default VTK header instead.
 
   if (this->BinaryHeader)
   {

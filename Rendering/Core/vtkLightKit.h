@@ -139,7 +139,7 @@ public:
    * how bright the fill light is compared to the key light: larger
    * values correspond to a dimmer fill light.  The purpose of the
    * fill light is to light parts of the object not lit by the key
-   * light, while still maintaining constrast.  This type of lighting
+   * light, while still maintaining contrast.  This type of lighting
    * may correspond to indirect illumination from the key light, bounced
    * off a wall, floor, or other object.  The fill light should never
    * be brighter than the key light:  a good range for the key-to-fill
