@@ -97,40 +97,12 @@ int vtkWriter::RequestData(
   this->SetErrorCode(vtkErrorCode::NoError);
 
   vtkDataObject *input = this->GetInput();
-  int idx;
 
   // make sure input is available
   if ( !input )
   {
     vtkErrorMacro(<< "No input!");
     return 0;
-  }
-
-  for (idx = 0; idx < this->GetNumberOfInputPorts(); ++idx)
-  {
-    if (this->GetInputExecutive(idx, 0) != nullptr)
-    {
-      this->GetInputExecutive(idx, 0)->Update();
-    }
-  }
-
-  vtkMTimeType lastUpdateTime =  this->GetInput(0)->GetUpdateTime();
-  for (idx = 1; idx < this->GetNumberOfInputPorts(); ++idx)
-  {
-    if (this->GetInput(idx))
-    {
-      vtkMTimeType updateTime = this->GetInput(idx)->GetUpdateTime();
-      if ( updateTime > lastUpdateTime )
-      {
-        lastUpdateTime = updateTime;
-      }
-    }
-  }
-
-  if (lastUpdateTime < this->WriteTime && this->GetMTime() < this->WriteTime)
-  {
-    // we are up to date
-    return 1;
   }
 
   this->InvokeEvent(vtkCommand::StartEvent,nullptr);
