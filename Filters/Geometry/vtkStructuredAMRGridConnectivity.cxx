@@ -1118,7 +1118,6 @@ void vtkStructuredAMRGridConnectivity::CreateGhostedMaskArrays(
           {
             // We don't have BOUNDARY now but we might add
             // it in the future.
-            //vtkGhostArray::SetProperty(p,vtkGhostArray::BOUNDARY);
           }
 
           this->GhostedPointGhostArray[ gridID ]->SetValue(pntIdx,p);
@@ -1333,7 +1332,6 @@ void vtkStructuredAMRGridConnectivity::MarkNodeProperty(
     if( this->IsNodeOnBoundaryOfExtent(i,j,k,wholeExt))
     {
       //We might use BOUNDARY in the future
-      //vtkGhostArray::SetProperty( p, vtkGhostArray::BOUNDARY );
     }
 
     if( this->IsNodeOnSharedBoundary(i,j,k, gridId, gridExt) )
@@ -1341,7 +1339,6 @@ void vtkStructuredAMRGridConnectivity::MarkNodeProperty(
       // NOTE: for AMR grids, all the grids own all of their points so we don't
       // ignore any of the points.
       // We might use SHARED in the future
-      //vtkGhostArray::SetProperty(p,vtkGhostArray::SHARED);
     }
   }
 }

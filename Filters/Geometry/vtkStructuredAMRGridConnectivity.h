@@ -25,7 +25,7 @@
  *  implementation see vtkPStructuredAMRGridConnectivity.
  *
  * @sa
- *  vtkGhostArray vtkPStructuredAMRGridConnectivity vtkAbstractGridConnectivity
+ *  vtkPStructuredAMRGridConnectivity vtkAbstractGridConnectivity
 */
 
 #ifndef vtkStructuredAMRGridConnectivity_h

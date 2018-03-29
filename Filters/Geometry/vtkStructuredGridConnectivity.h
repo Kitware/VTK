@@ -23,7 +23,7 @@
  *  see vtkPStructuredGridConnectivity.
  *
  * @sa
- *  vtkGhostArray vtkPStructuredGridConnectivity
+ *  vtkPStructuredGridConnectivity
 */
 
 #ifndef vtkStructuredGridConnectivity_h
