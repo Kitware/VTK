@@ -2051,19 +2051,19 @@ namespace vtkvolume
       \n\
       \n  // Abscissa of the point on the depth buffer along the ray.\
       \n  // point in texture coordinates\
-      \n  vec4 terminatePoint = WindowToNDC(gl_FragCoord.x, gl_FragCoord.y, l_depthValue.x);\
+      \n  vec4 terminatePosTmp = WindowToNDC(gl_FragCoord.x, gl_FragCoord.y, l_depthValue.x);\
       \n\
       \n  // From normalized device coordinates to eye coordinates.\
       \n  // in_projectionMatrix is inversed because of way VT\
       \n  // From eye coordinates to texture coordinates\
-      \n  terminatePoint = ip_inverseTextureDataAdjusted *\
-      \n                   in_inverseVolumeMatrix[0] *\
-      \n                   in_inverseModelViewMatrix *\
-      \n                   in_inverseProjectionMatrix *\
-      \n                   terminatePoint;\
-      \n  terminatePoint /= terminatePoint.w;\
+      \n  terminatePosTmp = ip_inverseTextureDataAdjusted *\
+      \n                    in_inverseVolumeMatrix[0] *\
+      \n                    in_inverseModelViewMatrix *\
+      \n                    in_inverseProjectionMatrix *\
+      \n                    terminatePosTmp;\
+      \n  g_terminatePos = terminatePosTmp.xyz / terminatePosTmp.w;\
       \n\
-      \n  g_terminatePointMax = length(terminatePoint.xyz - g_dataPos.xyz) /\
+      \n  g_terminatePointMax = length(g_terminatePos.xyz - g_dataPos.xyz) /\
       \n                        length(g_dirStep);\
       \n  g_currentT = 0.0;");
   }
@@ -2273,9 +2273,112 @@ namespace vtkvolume
       \n /// planes (origin, normal)\
       \n uniform float in_clippingPlanes[49];\
       \n\
-      \n int clippingPlanesSize;\
-      \n vec3 objRayDir;\
-      \n mat4 textureToObjMat;");
+      \n int clip_numPlanes;\
+      \n vec3 clip_rayDirObj;\
+      \n mat4 clip_texToObjMat;\
+      \n mat4 clip_objToTexMat;\
+      \n\
+      \n// Tighten the sample range as needed to account for clip planes. \
+      \n// Arguments are in texture coordinates. \
+      \n// Returns true if the range is at all valid after clipping. If not, \
+      \n// the fragment should be discarded. \
+      \nbool AdjustSampleRangeForClipping(inout vec3 startPosTex, inout vec3 stopPosTex) \
+      \n{ \
+      \n  vec4 startPosObj = vec4(0.0);\
+      \n  {\
+      \n    if (in_useJittering)\
+      \n    {\
+      \n      startPosObj = clip_texToObjMat * vec4(startPosTex - g_rayJitter, 1.0);\
+      \n    }\
+      \n    else\
+      \n    {\
+      \n      startPosObj = clip_texToObjMat * vec4(startPosTex - g_dirStep, 1.0);\
+      \n    }\
+      \n    if (startPosObj.w != 0.0)\
+      \n    {\
+      \n      startPosObj = startPosObj / startPosObj.w;\
+      \n      startPosObj.w = 1.0;\
+      \n    }\
+      \n  }\
+      \n\
+      \n  vec4 stopPosObj = vec4(0.0);\
+      \n  {\
+      \n    stopPosObj = clip_texToObjMat * vec4(stopPosTex, 1.0);\
+      \n    if (stopPosObj.w != 0.0)\
+      \n    {\
+      \n      stopPosObj = stopPosObj / stopPosObj.w;\
+      \n      stopPosObj.w = 1.0;\
+      \n    }\
+      \n  }\
+      \n\
+      \n  for (int i = 0; i < clip_numPlanes; i = i + 6)\
+      \n  {\
+      \n    vec3 planeOrigin = vec3(in_clippingPlanes[i + 1],\
+      \n                            in_clippingPlanes[i + 2],\
+      \n                            in_clippingPlanes[i + 3]);\
+      \n    vec3 planeNormal = normalize(vec3(in_clippingPlanes[i + 4],\
+      \n                                      in_clippingPlanes[i + 5],\
+      \n                                      in_clippingPlanes[i + 6]));\
+      \n\
+      \n    // Abort if the entire segment is clipped:\
+      \n    // (We can do this before adjusting the term point, since it'll \
+      \n    // only move further into the clipped area)\
+      \n    float startDistance = dot(planeNormal, planeOrigin - startPosObj.xyz);\
+      \n    float stopDistance = dot(planeNormal, planeOrigin - stopPosObj.xyz);\
+      \n    bool startClipped = startDistance > 0.0;\
+      \n    bool stopClipped = stopDistance > 0.0;\
+      \n    if (startClipped && stopClipped)\
+      \n    {\
+      \n      return false;\
+      \n    }\
+      \n\
+      \n    float rayDotNormal = dot(clip_rayDirObj, planeNormal);\
+      \n    bool frontFace = rayDotNormal > 0;\
+      \n\
+      \n    // Move the start position further from the eye if needed:\
+      \n    if (frontFace && // Observing from the clipped side (plane's front face)\
+      \n        startDistance > 0.0) // Ray-entry lies on the clipped side.\
+      \n    {\
+      \n      // Scale the point-plane distance to the ray direction and update the\
+      \n      // entry point.\
+      \n      float rayScaledDist = startDistance / rayDotNormal;\
+      \n      startPosObj = vec4(startPosObj.xyz + rayScaledDist * clip_rayDirObj, 1.0);\
+      \n      vec4 newStartPosTex = clip_objToTexMat * vec4(startPosObj.xyz, 1.0);\
+      \n      if (newStartPosTex.w != 0.0)\
+      \n      {\
+      \n        newStartPosTex /= newStartPosTex.w;\
+      \n      }\
+      \n      startPosTex = newStartPosTex.xyz;\
+      \n      if (in_useJittering)\
+      \n      {\
+      \n        startPosTex += g_rayJitter;\
+      \n      }\
+      \n      else\
+      \n      {\
+      \n        startPosTex += g_dirStep;\
+      \n      }\
+      \n    }\
+      \n\
+      \n    // Move the end position closer to the eye if needed:\
+      \n    if (!frontFace && // Observing from the unclipped side (plane's back face)\
+      \n        stopDistance > 0.0) // Ray-entry lies on the unclipped side.\
+      \n    {\
+      \n      // Scale the point-plane distance to the ray direction and update the\
+      \n      // termination point.\
+      \n      float rayScaledDist = stopDistance / rayDotNormal;\
+      \n      stopPosObj = vec4(stopPosObj.xyz + rayScaledDist * clip_rayDirObj, 1.0);\
+      \n      vec4 newStopPosTex = clip_objToTexMat * vec4(stopPosObj.xyz, 1.0);\
+      \n      if (newStopPosTex.w != 0.0)\
+      \n      {\
+      \n        newStopPosTex /= newStopPosTex.w;\
+      \n      }\
+      \n      stopPosTex = newStopPosTex.xyz;\
+      \n    }\
+      \n  }\
+      \n\
+      \n  return true;\
+      \n}\
+      \n");
   }
 
   //--------------------------------------------------------------------------
@@ -2292,104 +2395,24 @@ namespace vtkvolume
     if (!ren->GetActiveCamera()->GetParallelProjection())
     {
       shaderStr = std::string("\
-        vec4 tempClip = in_volumeMatrix[0] * vec4(rayDir, 0.0);\
-        \n    if (tempClip.w != 0.0)\
-        \n      {\
-        \n      tempClip = tempClip/tempClip.w;\
-        \n      tempClip.w = 1.0;\
-        \n      }\
-        \n    objRayDir = tempClip.xyz;");
+        \n  vec4 tempClip = in_volumeMatrix[0] * vec4(rayDir, 0.0);\
+        \n  if (tempClip.w != 0.0)\
+        \n  {\
+        \n    tempClip = tempClip/tempClip.w;\
+        \n    tempClip.w = 1.0;\
+        \n  }\
+        \n  clip_rayDirObj = normalize(tempClip.xyz);");
     }
     else
     {
       shaderStr = std::string("\
-        objRayDir = normalize(in_projectionDirection);");
+        clip_rayDirObj = normalize(in_projectionDirection);");
     }
 
     shaderStr += std::string("\
-      \n  clippingPlanesSize = int(in_clippingPlanes[0]);\
-      \n  vec4 objDataPos = vec4(0.0);\
-      \n  textureToObjMat = in_volumeMatrix[0] * in_textureDatasetMatrix[0];\
-      \n\
-      \n  vec4 terminatePointObj = textureToObjMat * terminatePoint;\
-      \n  if (terminatePointObj.w != 0.0)\
-      \n   {\
-      \n   terminatePointObj = terminatePointObj/ terminatePointObj.w ;\
-      \n   terminatePointObj.w = 1.0;\
-      \n   }\
-      \n\
-      \n  for (int i = 0; i < clippingPlanesSize; i = i + 6)\
-      \n    {\
-      \n    if (in_useJittering)\
-      \n      {\
-      \n      objDataPos = textureToObjMat * vec4(g_dataPos - g_rayJitter,\
-      \n                                         1.0);\
-      \n      }\
-      \n    else\
-      \n      {\
-      \n      objDataPos = textureToObjMat * vec4(g_dataPos - g_dirStep, 1.0);\
-      \n      }\
-      \n    if (objDataPos.w != 0.0)\
-      \n      {\
-      \n      objDataPos = objDataPos/objDataPos.w; objDataPos.w = 1.0;\
-      \n      }\
-      \n    vec3 planeOrigin = vec3(in_clippingPlanes[i + 1],\
-      \n                            in_clippingPlanes[i + 2],\
-      \n                            in_clippingPlanes[i + 3]);\
-      \n    vec3 planeNormal = vec3(in_clippingPlanes[i + 4],\
-      \n                            in_clippingPlanes[i + 5],\
-      \n                            in_clippingPlanes[i + 6]);\
-      \n    vec3 normalizedPlaneNormal = normalize(planeNormal);\
-      \n\
-      \n    float rayDotNormal = dot(objRayDir, normalizedPlaneNormal);\
-      \n    bool frontFace = rayDotNormal > 0;\
-      \n    float distance = dot(normalizedPlaneNormal, planeOrigin - objDataPos.xyz);\
-      \n\
-      \n    if (frontFace && // Observing from the clipped side (plane's front face)\
-      \n      distance > 0.0) // Ray-entry lies on the clipped side.\
-      \n      {\
-      \n      // Scale the point-plane distance to the ray direction and update the\
-      \n      // entry point.\
-      \n      float rayScaledDist = distance / rayDotNormal;\
-      \n      vec4 newObjDataPos = vec4(objDataPos.xyz + rayScaledDist * objRayDir, 1.0);\
-      \n      newObjDataPos = in_inverseTextureDatasetMatrix[0]\
-      \n        * in_inverseVolumeMatrix[0] * vec4(newObjDataPos.xyz, 1.0);\
-      \n      if (newObjDataPos.w != 0.0)\
-      \n        {\
-      \n        newObjDataPos /= newObjDataPos.w;\
-      \n        }\
-      \n      if (in_useJittering)\
-      \n        {\
-      \n        g_dataPos = newObjDataPos.xyz + g_rayJitter;\
-      \n        }\
-      \n      else\
-      \n        {\
-      \n        g_dataPos = newObjDataPos.xyz + g_dirStep;\
-      \n        }\
-      \n\
-      \n      bool stop = any(greaterThan(g_dataPos, in_texMax[0])) ||\
-      \n        any(lessThan(g_dataPos, in_texMin[0]));\
-      \n      if (stop)\
-      \n        {\
-      \n        // The ray exits the bounding box before ever intersecting the plane (only\
-      \n        // the clipped space is hit).\
-      \n        discard;\
-      \n        }\
-      \n\
-      \n      bool behindGeometry = dot(terminatePointObj.xyz - planeOrigin.xyz, normalizedPlaneNormal) < 0.0;\
-      \n      if (behindGeometry)\
-      \n        {\
-      \n        // Geometry appears in front of the plane.\
-      \n        discard;\
-      \n        }\
-      \n\
-      \n      // Update the number of ray marching steps to account for the clipped entry point (\
-      \n      // this is necessary in case the ray hits geometry after marching behind the plane,\
-      \n      // given that the number of steps was assumed to be from the not-clipped entry).\
-      \n      g_terminatePointMax = length(terminatePoint.xyz - g_dataPos.xyz) /\
-      \n        length(g_dirStep);\
-      \n      }\
-      \n  }");
+      \n  clip_numPlanes = int(in_clippingPlanes[0]);\
+      \n  clip_texToObjMat = in_volumeMatrix[0] * in_textureDatasetMatrix[0];\
+      \n  clip_objToTexMat = in_inverseTextureDatasetMatrix[0] * in_inverseVolumeMatrix[0];");
 
     return shaderStr;
   }
@@ -2406,26 +2429,18 @@ namespace vtkvolume
     else
     {
       return std::string("\
-        \n    for (int i = 0; i < clippingPlanesSize && !g_skip; i = i + 6)\
-        \n      {\
-        \n      vec4 objDataPos = textureToObjMat * vec4(g_dataPos, 1.0);\
-        \n      if (objDataPos.w != 0.0)\
-        \n        {\
-        \n        objDataPos /= objDataPos.w;\
-        \n        }\
-        \n      vec3 planeOrigin = vec3(in_clippingPlanes[i + 1],\
-        \n                              in_clippingPlanes[i + 2],\
-        \n                              in_clippingPlanes[i + 3]);\
-        \n      vec3 planeNormal = vec3(in_clippingPlanes[i + 4],\
-        \n                              in_clippingPlanes[i + 5],\
-        \n                              in_clippingPlanes[i + 6]);\
-        \n      if (dot(vec3(objDataPos.xyz - planeOrigin), planeNormal) < 0 && dot(objRayDir, planeNormal) < 0)\
-        \n        {\
-        \n         g_skip = true;\
-        \n         g_exit = true;\
-        \n        }\
-        \n      }"
-      );
+      \n  // Adjust the ray segment to account for clipping range:\
+      \n  if (!AdjustSampleRangeForClipping(g_dataPos.xyz, g_terminatePos.xyz))\
+      \n  {\
+      \n    return vec4(0.);\
+      \n  }\
+      \n\
+      \n  // Update the number of ray marching steps to account for the clipped entry point (\
+      \n  // this is necessary in case the ray hits geometry after marching behind the plane,\
+      \n  // given that the number of steps was assumed to be from the not-clipped entry).\
+      \n  g_terminatePointMax = length(g_terminatePos.xyz - g_dataPos.xyz) /\
+      \n    length(g_dirStep);\
+      \n");
     }
   }
 
