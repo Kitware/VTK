@@ -313,8 +313,8 @@ public:
         {
           for (int i = 0; i <= dim[0]; ++i)
           {
-            validCell &= this->MaskArray[
-              ptid + i + (j * this->PointDim[0]) + (k * this->PointSliceSize)];
+            validCell &= (0 != this->MaskArray[
+              ptid + i + (j * this->PointDim[0]) + (k * this->PointSliceSize)]);
           }
         }
       }
