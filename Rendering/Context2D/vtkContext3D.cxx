@@ -161,10 +161,6 @@ void vtkContext3D::DisableClippingPlane(int i)
   this->Device->DisableClippingPlane(i);
 }
 
-vtkContext3D::vtkContext3D()
-{
-}
+vtkContext3D::vtkContext3D() = default;
 
-vtkContext3D::~vtkContext3D()
-{
-}
+vtkContext3D::~vtkContext3D() = default;

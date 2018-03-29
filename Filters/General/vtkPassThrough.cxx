@@ -31,9 +31,7 @@ vtkPassThrough::vtkPassThrough()
 }
 
 //----------------------------------------------------------------------------
-vtkPassThrough::~vtkPassThrough()
-{
-}
+vtkPassThrough::~vtkPassThrough() = default;
 
 //----------------------------------------------------------------------------
 int vtkPassThrough::RequestDataObject(vtkInformation *request,

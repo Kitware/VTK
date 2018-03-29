@@ -35,9 +35,7 @@ vtkParametricPseudosphere::vtkParametricPseudosphere()
 }
 
 //----------------------------------------------------------------------------//
-vtkParametricPseudosphere::~vtkParametricPseudosphere()
-{
-}
+vtkParametricPseudosphere::~vtkParametricPseudosphere() = default;
 
 //----------------------------------------------------------------------------//
 void vtkParametricPseudosphere::Evaluate(double uvw[3], double Pt[3],

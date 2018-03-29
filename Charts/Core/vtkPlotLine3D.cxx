@@ -25,14 +25,10 @@
 vtkStandardNewMacro(vtkPlotLine3D);
 
 //-----------------------------------------------------------------------------
-vtkPlotLine3D::vtkPlotLine3D()
-{
-}
+vtkPlotLine3D::vtkPlotLine3D() = default;
 
 //-----------------------------------------------------------------------------
-vtkPlotLine3D::~vtkPlotLine3D()
-{
-}
+vtkPlotLine3D::~vtkPlotLine3D() = default;
 
 //-----------------------------------------------------------------------------
 bool vtkPlotLine3D::Paint(vtkContext2D *painter)

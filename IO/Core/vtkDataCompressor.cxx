@@ -17,14 +17,10 @@
 
 
 //----------------------------------------------------------------------------
-vtkDataCompressor::vtkDataCompressor()
-{
-}
+vtkDataCompressor::vtkDataCompressor() = default;
 
 //----------------------------------------------------------------------------
-vtkDataCompressor::~vtkDataCompressor()
-{
-}
+vtkDataCompressor::~vtkDataCompressor() = default;
 
 //----------------------------------------------------------------------------
 void vtkDataCompressor::PrintSelf(ostream& os, vtkIndent indent)

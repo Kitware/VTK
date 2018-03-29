@@ -43,9 +43,7 @@ vtkLagrangeQuadrilateral::vtkLagrangeQuadrilateral()
     }
 }
 
-vtkLagrangeQuadrilateral::~vtkLagrangeQuadrilateral()
-{
-}
+vtkLagrangeQuadrilateral::~vtkLagrangeQuadrilateral() = default;
 
 void vtkLagrangeQuadrilateral::PrintSelf(ostream& os, vtkIndent indent)
 {

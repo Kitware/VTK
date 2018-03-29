@@ -39,13 +39,9 @@
 
 vtkStandardNewMacro(vtkPConnectivityFilter);
 
-vtkPConnectivityFilter::vtkPConnectivityFilter()
-{
-}
+vtkPConnectivityFilter::vtkPConnectivityFilter() = default;
 
-vtkPConnectivityFilter::~vtkPConnectivityFilter()
-{
-}
+vtkPConnectivityFilter::~vtkPConnectivityFilter() = default;
 
 int vtkPConnectivityFilter::RequestData(
   vtkInformation *request,

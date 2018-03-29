@@ -54,9 +54,7 @@ vtkInformationQuadratureSchemeDefinitionVectorKey::vtkInformationQuadratureSchem
 }
 
 //----------------------------------------------------------------------------
-vtkInformationQuadratureSchemeDefinitionVectorKey::~vtkInformationQuadratureSchemeDefinitionVectorKey()
-{
-}
+vtkInformationQuadratureSchemeDefinitionVectorKey::~vtkInformationQuadratureSchemeDefinitionVectorKey() = default;
 
 //----------------------------------------------------------------------------
 vtkInformationQuadratureSchemeDefinitionVectorValue *

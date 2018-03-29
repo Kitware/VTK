@@ -57,14 +57,10 @@ int vtkOpenGLTextActor3D::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 }
 
 //------------------------------------------------------------------------------
-vtkOpenGLTextActor3D::vtkOpenGLTextActor3D()
-{
-}
+vtkOpenGLTextActor3D::vtkOpenGLTextActor3D() = default;
 
 //------------------------------------------------------------------------------
-vtkOpenGLTextActor3D::~vtkOpenGLTextActor3D()
-{
-}
+vtkOpenGLTextActor3D::~vtkOpenGLTextActor3D() = default;
 
 //------------------------------------------------------------------------------
 int vtkOpenGLTextActor3D::RenderGL2PS(vtkViewport *vp,

@@ -24,14 +24,10 @@
 
 vtkStandardNewMacro(vtkMultiBlockDataGroupFilter);
 //-----------------------------------------------------------------------------
-vtkMultiBlockDataGroupFilter::vtkMultiBlockDataGroupFilter()
-{
-}
+vtkMultiBlockDataGroupFilter::vtkMultiBlockDataGroupFilter() = default;
 
 //-----------------------------------------------------------------------------
-vtkMultiBlockDataGroupFilter::~vtkMultiBlockDataGroupFilter()
-{
-}
+vtkMultiBlockDataGroupFilter::~vtkMultiBlockDataGroupFilter() = default;
 
 //-----------------------------------------------------------------------------
 int vtkMultiBlockDataGroupFilter::RequestInformation(

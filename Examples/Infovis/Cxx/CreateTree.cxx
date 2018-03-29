@@ -77,5 +77,5 @@ int main(int, char*[])
   tree->Delete();
   view->Delete();
 
-  return EXIT_SUCCESS;;
+  return EXIT_SUCCESS;
 }

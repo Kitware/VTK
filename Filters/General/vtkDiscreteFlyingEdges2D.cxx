@@ -107,7 +107,7 @@ public:
   {
     this->Origin[0] = this->Origin[0] + this->Spacing[0]*updateExt[0];
     this->Origin[1] = this->Origin[1] + this->Spacing[1]*updateExt[2];
-    this->Origin[2] = this->Origin[2] + this->Spacing[2]*updateExt[4];;
+    this->Origin[2] = this->Origin[2] + this->Spacing[2]*updateExt[4];
   }
 
   // The three passes of the algorithm.

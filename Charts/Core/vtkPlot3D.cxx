@@ -52,9 +52,7 @@ vtkPlot3D::vtkPlot3D()
 }
 
 //-----------------------------------------------------------------------------
-vtkPlot3D::~vtkPlot3D()
-{
-}
+vtkPlot3D::~vtkPlot3D() = default;
 
 //-----------------------------------------------------------------------------
 void vtkPlot3D::PrintSelf(ostream &os, vtkIndent indent)

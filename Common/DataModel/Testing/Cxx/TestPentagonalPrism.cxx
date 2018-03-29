@@ -126,7 +126,7 @@ vtkSmartPointer<vtkHexagonalPrism> MakeHexagonalPrism()
 template<typename T> int TestCell(const VTKCellType cellType,
                                   vtkSmartPointer<T> aCell)
 {
-  int status = 0;;
+  int status = 0;
   std::cout << "Testing " << aCell->GetClassName() << std::endl;
 
   std::cout << "  Testing Print of an uninitialized cell...";

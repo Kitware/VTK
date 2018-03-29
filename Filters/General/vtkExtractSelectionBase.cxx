@@ -30,9 +30,7 @@ vtkExtractSelectionBase::vtkExtractSelectionBase()
 }
 
 //----------------------------------------------------------------------------
-vtkExtractSelectionBase::~vtkExtractSelectionBase()
-{
-}
+vtkExtractSelectionBase::~vtkExtractSelectionBase() = default;
 
 //----------------------------------------------------------------------------
 int vtkExtractSelectionBase::FillInputPortInformation(

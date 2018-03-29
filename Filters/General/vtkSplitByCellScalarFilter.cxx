@@ -44,9 +44,7 @@ vtkSplitByCellScalarFilter::vtkSplitByCellScalarFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkSplitByCellScalarFilter::~vtkSplitByCellScalarFilter()
-{
-}
+vtkSplitByCellScalarFilter::~vtkSplitByCellScalarFilter() = default;
 
 //----------------------------------------------------------------------------
 int vtkSplitByCellScalarFilter::RequestData(

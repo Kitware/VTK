@@ -20,14 +20,10 @@
 vtkStandardNewMacro(vtkDataArrayCollectionIterator);
 
 //----------------------------------------------------------------------------
-vtkDataArrayCollectionIterator::vtkDataArrayCollectionIterator()
-{
-}
+vtkDataArrayCollectionIterator::vtkDataArrayCollectionIterator() = default;
 
 //----------------------------------------------------------------------------
-vtkDataArrayCollectionIterator::~vtkDataArrayCollectionIterator()
-{
-}
+vtkDataArrayCollectionIterator::~vtkDataArrayCollectionIterator() = default;
 
 //----------------------------------------------------------------------------
 void vtkDataArrayCollectionIterator::PrintSelf(ostream& os, vtkIndent indent)

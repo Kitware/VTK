@@ -19,13 +19,9 @@
 
 vtkStandardNewMacro(vtkRungeKutta2);
 
-vtkRungeKutta2::vtkRungeKutta2()
-{
-}
+vtkRungeKutta2::vtkRungeKutta2() = default;
 
-vtkRungeKutta2::~vtkRungeKutta2()
-{
-}
+vtkRungeKutta2::~vtkRungeKutta2() = default;
 
 // Calculate next time step
 int vtkRungeKutta2::ComputeNextStep(double* xprev, double* dxprev, double* xnext,

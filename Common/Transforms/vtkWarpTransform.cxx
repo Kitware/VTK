@@ -35,9 +35,7 @@ vtkWarpTransform::vtkWarpTransform()
 }
 
 //----------------------------------------------------------------------------
-vtkWarpTransform::~vtkWarpTransform()
-{
-}
+vtkWarpTransform::~vtkWarpTransform() = default;
 
 //------------------------------------------------------------------------
 // Check the InverseFlag, and perform a forward or reverse transform

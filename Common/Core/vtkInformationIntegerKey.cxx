@@ -25,9 +25,7 @@ vtkInformationIntegerKey::vtkInformationIntegerKey(const char* name, const char*
 }
 
 //----------------------------------------------------------------------------
-vtkInformationIntegerKey::~vtkInformationIntegerKey()
-{
-}
+vtkInformationIntegerKey::~vtkInformationIntegerKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationIntegerKey::PrintSelf(ostream& os, vtkIndent indent)

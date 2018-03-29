@@ -33,9 +33,7 @@ vtkDataObjectAlgorithm::vtkDataObjectAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkDataObjectAlgorithm::~vtkDataObjectAlgorithm()
-{
-}
+vtkDataObjectAlgorithm::~vtkDataObjectAlgorithm() = default;
 
 //----------------------------------------------------------------------------
 void vtkDataObjectAlgorithm::PrintSelf(ostream& os, vtkIndent indent)

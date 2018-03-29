@@ -26,9 +26,7 @@ vtkInformationInformationVectorKey::vtkInformationInformationVectorKey(const cha
 }
 
 //----------------------------------------------------------------------------
-vtkInformationInformationVectorKey::~vtkInformationInformationVectorKey()
-{
-}
+vtkInformationInformationVectorKey::~vtkInformationInformationVectorKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationInformationVectorKey::PrintSelf(ostream& os, vtkIndent indent)

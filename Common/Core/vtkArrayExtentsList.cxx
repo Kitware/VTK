@@ -21,9 +21,7 @@
 
 #include "vtkArrayExtentsList.h"
 
-vtkArrayExtentsList::vtkArrayExtentsList()
-{
-}
+vtkArrayExtentsList::vtkArrayExtentsList() = default;
 
 vtkArrayExtentsList::vtkArrayExtentsList(const vtkArrayExtents& i) :
   Storage(1)

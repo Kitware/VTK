@@ -33,9 +33,7 @@ vtkDataObjectReader::vtkDataObjectReader()
   output->Delete();
 }
 
-vtkDataObjectReader::~vtkDataObjectReader()
-{
-}
+vtkDataObjectReader::~vtkDataObjectReader() = default;
 
 //----------------------------------------------------------------------------
 vtkDataObject *vtkDataObjectReader::GetOutput()

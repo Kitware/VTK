@@ -46,7 +46,7 @@ bool fuzzyCompare3D(A a[3], A b[3])
 // Helpful class for storing and using color triples.
 class Triple {
 public:
-  Triple() {};
+  Triple() = default;
   Triple(double a, double b, double c) {
     data[0] = a; data[1] = b; data[2] = c;
   }

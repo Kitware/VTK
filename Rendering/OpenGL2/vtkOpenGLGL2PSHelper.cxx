@@ -70,6 +70,4 @@ vtkOpenGLGL2PSHelper::vtkOpenGLGL2PSHelper()
 }
 
 //------------------------------------------------------------------------------
-vtkOpenGLGL2PSHelper::~vtkOpenGLGL2PSHelper()
-{
-}
+vtkOpenGLGL2PSHelper::~vtkOpenGLGL2PSHelper() = default;

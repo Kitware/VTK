@@ -38,9 +38,7 @@ vtkParametricKuen::vtkParametricKuen()
 }
 
 //----------------------------------------------------------------------------//
-vtkParametricKuen::~vtkParametricKuen()
-{
-}
+vtkParametricKuen::~vtkParametricKuen() = default;
 
 //----------------------------------------------------------------------------//
 void vtkParametricKuen::Evaluate(double uvw[3], double Pt[3],

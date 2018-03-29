@@ -30,7 +30,7 @@ public:
   vtkTypeMacro(vtkTemporalRTAnalyticSource, vtkRTAnalyticSource);
 
 protected:
-  vtkTemporalRTAnalyticSource() {}
+  vtkTemporalRTAnalyticSource() = default;
 
   int RequestInformation(vtkInformation* request,
                          vtkInformationVector** inputVector,

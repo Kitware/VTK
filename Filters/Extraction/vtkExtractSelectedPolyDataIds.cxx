@@ -35,9 +35,7 @@ vtkExtractSelectedPolyDataIds::vtkExtractSelectedPolyDataIds()
 }
 
 //----------------------------------------------------------------------------
-vtkExtractSelectedPolyDataIds::~vtkExtractSelectedPolyDataIds()
-{
-}
+vtkExtractSelectedPolyDataIds::~vtkExtractSelectedPolyDataIds() = default;
 
 
 //----------------------------------------------------------------------------

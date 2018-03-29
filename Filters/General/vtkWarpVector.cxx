@@ -46,9 +46,7 @@ vtkWarpVector::vtkWarpVector()
 }
 
 //----------------------------------------------------------------------------
-vtkWarpVector::~vtkWarpVector()
-{
-}
+vtkWarpVector::~vtkWarpVector() = default;
 
 //----------------------------------------------------------------------------
 int vtkWarpVector::FillInputPortInformation(int vtkNotUsed(port),

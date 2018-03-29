@@ -49,7 +49,7 @@ int TestDensifyPolyData(int, char *[])
   boxPoints->InsertNextPoint(0.5,0.072707727551,0.5);
   boxPoints->InsertNextPoint(-0.014212930575,0.5,0.5);
 
-  VTK_CREATE(vtkPolyData, boxPolydata);;
+  VTK_CREATE(vtkPolyData, boxPolydata);
   VTK_CREATE(vtkCellArray, polys);
   boxPolydata->SetPolys(polys);
   boxPolydata->SetPoints(boxPoints);

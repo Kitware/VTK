@@ -43,9 +43,7 @@ vtkAppendPolyData::vtkAppendPolyData()
 }
 
 //----------------------------------------------------------------------------
-vtkAppendPolyData::~vtkAppendPolyData()
-{
-}
+vtkAppendPolyData::~vtkAppendPolyData() = default;
 
 //----------------------------------------------------------------------------
 // Add a dataset to the list of data to append.

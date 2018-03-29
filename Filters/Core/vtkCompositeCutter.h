@@ -34,7 +34,7 @@ public:
 
   static vtkCompositeCutter *New();
 
-  void PrintSelf(ostream& os, vtkIndent indent) override;;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkCompositeCutter(vtkImplicitFunction *cf=nullptr);

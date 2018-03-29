@@ -311,7 +311,7 @@ int vtkGPUVolumeRayCastMapper::ValidateInput(vtkVolumeProperty* property,
   vtkImageData* input  = this->GetInput(port);
 
   int goodSoFar = 1;
-  if(goodSoFar && input==0)
+  if(goodSoFar && input==nullptr)
   {
     vtkErrorMacro("Input is nullptr but is required");
     goodSoFar = 0;

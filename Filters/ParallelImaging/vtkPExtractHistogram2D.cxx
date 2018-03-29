@@ -84,7 +84,7 @@ void vtkPExtractHistogram2D::Learn(vtkTable *inData,
   reducedOutImage->DeepCopy(outImage);
 
   vtkDataArray* myArray = outImage->GetPointData()->GetScalars();
-  vtkDataArray* recvArray = reducedOutImage->GetPointData()->GetScalars();;
+  vtkDataArray* recvArray = reducedOutImage->GetPointData()->GetScalars();
 
   // this sums up all of the images and distributes them to
   // every node

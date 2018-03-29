@@ -81,6 +81,4 @@ vtkFXAAOptions::vtkFXAAOptions()
 }
 
 //------------------------------------------------------------------------------
-vtkFXAAOptions::~vtkFXAAOptions()
-{
-}
+vtkFXAAOptions::~vtkFXAAOptions() = default;

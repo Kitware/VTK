@@ -46,9 +46,7 @@ vtkCirclePackToPolyData::vtkCirclePackToPolyData()
   this->Resolution = 100;
 }
 
-vtkCirclePackToPolyData::~vtkCirclePackToPolyData()
-{
-}
+vtkCirclePackToPolyData::~vtkCirclePackToPolyData() = default;
 
 int vtkCirclePackToPolyData::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {

@@ -56,9 +56,7 @@ vtkImageAccumulate::vtkImageAccumulate()
 
 
 //----------------------------------------------------------------------------
-vtkImageAccumulate::~vtkImageAccumulate()
-{
-}
+vtkImageAccumulate::~vtkImageAccumulate() = default;
 
 //----------------------------------------------------------------------------
 void vtkImageAccumulate::SetComponentExtent(int extent[6])

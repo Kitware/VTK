@@ -35,13 +35,9 @@ vtkStandardNewMacro(vtkVertexGlyphFilter);
 
 //-----------------------------------------------------------------------------
 
-vtkVertexGlyphFilter::vtkVertexGlyphFilter()
-{
-}
+vtkVertexGlyphFilter::vtkVertexGlyphFilter() = default;
 
-vtkVertexGlyphFilter::~vtkVertexGlyphFilter()
-{
-}
+vtkVertexGlyphFilter::~vtkVertexGlyphFilter() = default;
 
 void vtkVertexGlyphFilter::PrintSelf(ostream &os, vtkIndent indent)
 {

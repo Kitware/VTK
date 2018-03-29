@@ -51,7 +51,7 @@ void vtkPMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
   }
   else
   {
-    os << indent << "Controller: (null)" << std::endl;;
+    os << indent << "Controller: (null)" << std::endl;
   }
 }
 

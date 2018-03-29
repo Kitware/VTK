@@ -30,14 +30,10 @@
 //
 vtkStandardNewMacro(vtkImageToStructuredGrid)
 
-vtkImageToStructuredGrid::vtkImageToStructuredGrid()
-{
-}
+vtkImageToStructuredGrid::vtkImageToStructuredGrid() = default;
 
 //------------------------------------------------------------------------------
-vtkImageToStructuredGrid::~vtkImageToStructuredGrid()
-{
-}
+vtkImageToStructuredGrid::~vtkImageToStructuredGrid() = default;
 
 //------------------------------------------------------------------------------
 void vtkImageToStructuredGrid::PrintSelf( std::ostream &oss,

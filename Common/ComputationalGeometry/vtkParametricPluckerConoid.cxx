@@ -36,9 +36,7 @@ vtkParametricPluckerConoid::vtkParametricPluckerConoid() :
 }
 
 //----------------------------------------------------------------------------//
-vtkParametricPluckerConoid::~vtkParametricPluckerConoid()
-{
-}
+vtkParametricPluckerConoid::~vtkParametricPluckerConoid() = default;
 
 //----------------------------------------------------------------------------//
 void vtkParametricPluckerConoid::Evaluate(double uvw[3], double Pt[3],

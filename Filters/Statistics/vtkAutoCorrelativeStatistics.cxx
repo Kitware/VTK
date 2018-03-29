@@ -47,9 +47,7 @@ vtkAutoCorrelativeStatistics::vtkAutoCorrelativeStatistics()
 }
 
 // ----------------------------------------------------------------------
-vtkAutoCorrelativeStatistics::~vtkAutoCorrelativeStatistics()
-{
-}
+vtkAutoCorrelativeStatistics::~vtkAutoCorrelativeStatistics() = default;
 
 // ----------------------------------------------------------------------
 void vtkAutoCorrelativeStatistics::PrintSelf( ostream &os, vtkIndent indent )

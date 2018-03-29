@@ -62,9 +62,7 @@ vtkSphereWidget2::vtkSphereWidget2()
 }
 
 //----------------------------------------------------------------------------
-vtkSphereWidget2::~vtkSphereWidget2()
-{
-}
+vtkSphereWidget2::~vtkSphereWidget2() = default;
 
 //----------------------------------------------------------------------
 void vtkSphereWidget2::SelectAction(vtkAbstractWidget *w)

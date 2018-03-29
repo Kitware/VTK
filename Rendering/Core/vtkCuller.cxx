@@ -15,13 +15,9 @@
 #include "vtkCuller.h"
 
 
-vtkCuller::vtkCuller()
-{
-}
+vtkCuller::vtkCuller() = default;
 
-vtkCuller::~vtkCuller()
-{
-}
+vtkCuller::~vtkCuller() = default;
 
 //----------------------------------------------------------------------------
 void vtkCuller::PrintSelf(ostream& os, vtkIndent indent)

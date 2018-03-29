@@ -117,7 +117,7 @@ void vtkCompositedSynchronizedRenderers::PrintSelf(ostream& os, vtkIndent indent
   os << indent << "Compositer: ";
   if (this->Compositer)
   {
-    this->Compositer->PrintSelf(os, indent.GetNextIndent());;
+    this->Compositer->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {

@@ -20,14 +20,10 @@
 vtkStandardNewMacro(vtkOverlayPass);
 
 // ----------------------------------------------------------------------------
-vtkOverlayPass::vtkOverlayPass()
-{
-}
+vtkOverlayPass::vtkOverlayPass() = default;
 
 // ----------------------------------------------------------------------------
-vtkOverlayPass::~vtkOverlayPass()
-{
-}
+vtkOverlayPass::~vtkOverlayPass() = default;
 
 // ----------------------------------------------------------------------------
 void vtkOverlayPass::PrintSelf(ostream& os, vtkIndent indent)

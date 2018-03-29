@@ -48,7 +48,7 @@ vtkOpenVRPanelRepresentation::vtkOpenVRPanelRepresentation()
   vtkTextProperty *prop = this->TextActor->GetTextProperty();
   this->TextActor->ForceOpaqueOn();
   this->TextActor->SetUserMatrix(vtkMatrix4x4::New());
-  this->TextActor->GetUserMatrix()->Delete();;
+  this->TextActor->GetUserMatrix()->Delete();
   prop->SetFontFamilyToTimes();
   prop->SetFrame(1);
   prop->SetFrameWidth(12);

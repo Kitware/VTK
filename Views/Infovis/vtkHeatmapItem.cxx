@@ -82,9 +82,7 @@ vtkHeatmapItem::vtkHeatmapItem() : PositionVector(0, 0)
 }
 
 //-----------------------------------------------------------------------------
-vtkHeatmapItem::~vtkHeatmapItem()
-{
-}
+vtkHeatmapItem::~vtkHeatmapItem() = default;
 
 //-----------------------------------------------------------------------------
 void vtkHeatmapItem::SetPosition(const vtkVector2f &pos)

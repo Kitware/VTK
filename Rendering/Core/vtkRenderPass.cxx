@@ -28,9 +28,7 @@ vtkRenderPass::vtkRenderPass()
 // ----------------------------------------------------------------------------
 // Description:
 // Destructor. Do nothing.
-vtkRenderPass::~vtkRenderPass()
-{
-}
+vtkRenderPass::~vtkRenderPass() = default;
 
 // ----------------------------------------------------------------------------
 // Description:

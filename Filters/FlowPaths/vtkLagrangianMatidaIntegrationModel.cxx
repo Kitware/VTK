@@ -44,9 +44,7 @@ vtkLagrangianMatidaIntegrationModel::vtkLagrangianMatidaIntegrationModel()
 }
 
 //---------------------------------------------------------------------------
-vtkLagrangianMatidaIntegrationModel::~vtkLagrangianMatidaIntegrationModel()
-{
-}
+vtkLagrangianMatidaIntegrationModel::~vtkLagrangianMatidaIntegrationModel() = default;
 
 //---------------------------------------------------------------------------
 void vtkLagrangianMatidaIntegrationModel::PrintSelf(ostream& os, vtkIndent indent)

@@ -174,9 +174,7 @@ vtkUnstructuredGridCellIterator::vtkUnstructuredGridCellIterator()
 }
 
 //------------------------------------------------------------------------------
-vtkUnstructuredGridCellIterator::~vtkUnstructuredGridCellIterator()
-{
-}
+vtkUnstructuredGridCellIterator::~vtkUnstructuredGridCellIterator() = default;
 
 //------------------------------------------------------------------------------
 void vtkUnstructuredGridCellIterator::ResetToFirstCell()

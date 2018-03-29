@@ -27,9 +27,7 @@ vtkGPUInfo::vtkGPUInfo()
 }
 
 // ----------------------------------------------------------------------------
-vtkGPUInfo::~vtkGPUInfo()
-{
-}
+vtkGPUInfo::~vtkGPUInfo() = default;
 
 // ----------------------------------------------------------------------------
 void vtkGPUInfo::PrintSelf(ostream& os, vtkIndent indent)

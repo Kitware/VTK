@@ -136,7 +136,7 @@ public:
   {
     this->Origin[0] = this->Origin[0] + this->Spacing[0]*this->Min0;
     this->Origin[1] = this->Origin[1] + this->Spacing[1]*this->Min1;
-    this->Origin[2] = this->Origin[2] + this->Spacing[2]*this->Min2;;
+    this->Origin[2] = this->Origin[2] + this->Spacing[2]*this->Min2;
   }
 
   // The three main passes of the algorithm.
@@ -1289,9 +1289,7 @@ vtkExtractSurface::vtkExtractSurface()
 }
 
 //----------------------------------------------------------------------------
-vtkExtractSurface::~vtkExtractSurface()
-{
-}
+vtkExtractSurface::~vtkExtractSurface() = default;
 
 //----------------------------------------------------------------------------
 int vtkExtractSurface::RequestUpdateExtent(

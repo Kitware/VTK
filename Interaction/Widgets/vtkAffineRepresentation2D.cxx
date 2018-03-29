@@ -957,7 +957,7 @@ void vtkAffineRepresentation2D::BuildRepresentation()
     this->XAxis->GetPosition2Coordinate()->SetValue(p2);
 
     p1[0] = this->DisplayOrigin[0];
-    p1[1] = this->DisplayOrigin[1] - this->CurrentAxesWidth;;
+    p1[1] = this->DisplayOrigin[1] - this->CurrentAxesWidth;
     this->YAxis->GetPositionCoordinate()->SetValue(p1);
     p2[0] = this->DisplayOrigin[0];
     p2[1] = this->DisplayOrigin[1] + this->CurrentAxesWidth;

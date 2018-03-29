@@ -22,14 +22,10 @@ vtkStandardNewMacro(vtkWeakReference)
 
 
 //----------------------------------------------------------------------------
-vtkWeakReference::vtkWeakReference()
-{
-}
+vtkWeakReference::vtkWeakReference() = default;
 
 //----------------------------------------------------------------------------
-vtkWeakReference::~vtkWeakReference()
-{
-}
+vtkWeakReference::~vtkWeakReference() = default;
 
 //----------------------------------------------------------------------------
 void vtkWeakReference::Set(vtkObject *object)

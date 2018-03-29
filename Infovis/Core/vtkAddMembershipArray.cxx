@@ -112,7 +112,7 @@ int vtkAddMembershipArray::RequestData(
     if(!this->InputArrayName || !this->InputValues)
       return 1;
 
-    vtkDataSetAttributes* ds = nullptr;;
+    vtkDataSetAttributes* ds = nullptr;
     switch(this->FieldType)
     {
       case vtkAddMembershipArray::VERTEX_DATA:

@@ -30,9 +30,7 @@ vtkInformationIntegerVectorKey
 }
 
 //----------------------------------------------------------------------------
-vtkInformationIntegerVectorKey::~vtkInformationIntegerVectorKey()
-{
-}
+vtkInformationIntegerVectorKey::~vtkInformationIntegerVectorKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationIntegerVectorKey::PrintSelf(ostream& os, vtkIndent indent)

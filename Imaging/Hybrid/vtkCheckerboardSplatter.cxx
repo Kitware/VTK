@@ -94,7 +94,7 @@ public:
   vtkIdType Offsets[9];
 
   // Construct the algorithm; initialize key data members.
-  vtkCheckerboardSplatterAlgorithm() {}
+  vtkCheckerboardSplatterAlgorithm() = default;
 
   // Integration between VTK and templated algorithm
   static void SplatPoints(vtkCheckerboardSplatter *self, vtkIdType npts,

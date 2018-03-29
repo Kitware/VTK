@@ -25,9 +25,7 @@ vtkLZ4DataCompressor::vtkLZ4DataCompressor()
 }
 
 //----------------------------------------------------------------------------
-vtkLZ4DataCompressor::~vtkLZ4DataCompressor()
-{
-}
+vtkLZ4DataCompressor::~vtkLZ4DataCompressor() = default;
 
 //----------------------------------------------------------------------------
 void vtkLZ4DataCompressor::PrintSelf(ostream& os, vtkIndent indent)

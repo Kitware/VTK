@@ -54,14 +54,10 @@ void vtkOpenGLTextMapper::RenderOverlay(vtkViewport *vp, vtkActor2D *act)
 }
 
 //------------------------------------------------------------------------------
-vtkOpenGLTextMapper::vtkOpenGLTextMapper()
-{
-}
+vtkOpenGLTextMapper::vtkOpenGLTextMapper() = default;
 
 //------------------------------------------------------------------------------
-vtkOpenGLTextMapper::~vtkOpenGLTextMapper()
-{
-}
+vtkOpenGLTextMapper::~vtkOpenGLTextMapper() = default;
 
 //------------------------------------------------------------------------------
 void vtkOpenGLTextMapper::RenderGL2PS(vtkViewport *vp, vtkActor2D *act,

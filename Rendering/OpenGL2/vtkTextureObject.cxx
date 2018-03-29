@@ -1571,7 +1571,7 @@ bool vtkTextureObject::CreateDepthFromRaw(unsigned int width,
   if (!this->InternalFormat)
   {
     this->InternalFormat
-      = OpenGLDepthInternalFormat[internalFormat];;
+      = OpenGLDepthInternalFormat[internalFormat];
   }
 
   if (!this->InternalFormat || !this->Type)

@@ -45,9 +45,7 @@ vtkResampleWithDataSet::vtkResampleWithDataSet()
 }
 
 //-----------------------------------------------------------------------------
-vtkResampleWithDataSet::~vtkResampleWithDataSet()
-{
-}
+vtkResampleWithDataSet::~vtkResampleWithDataSet() = default;
 
 //-----------------------------------------------------------------------------
 void vtkResampleWithDataSet::PrintSelf(ostream& os, vtkIndent indent)

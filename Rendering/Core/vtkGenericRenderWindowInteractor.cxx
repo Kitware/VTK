@@ -25,9 +25,7 @@ vtkGenericRenderWindowInteractor::vtkGenericRenderWindowInteractor()
 }
 
 //------------------------------------------------------------------
-vtkGenericRenderWindowInteractor::~vtkGenericRenderWindowInteractor()
-{
-}
+vtkGenericRenderWindowInteractor::~vtkGenericRenderWindowInteractor() = default;
 
 //------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::TimerEvent()

@@ -207,7 +207,7 @@ int vtkQuadraticHexahedron::EvaluatePosition(double* x,
                                              int& subId, double pcoords[3],
                                              double& dist2, double *weights)
 {
-  double  params[3] = {0.5, 0.5, 0.5};;
+  double  params[3] = {0.5, 0.5, 0.5};
   double derivs[60];
 
   // compute a bound on the volume to get a scale for an acceptable determinant

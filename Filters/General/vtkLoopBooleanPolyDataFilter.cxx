@@ -815,9 +815,7 @@ vtkLoopBooleanPolyDataFilter::vtkLoopBooleanPolyDataFilter() :
 }
 
 //-----------------------------------------------------------------------------
-vtkLoopBooleanPolyDataFilter::~vtkLoopBooleanPolyDataFilter()
-{
-}
+vtkLoopBooleanPolyDataFilter::~vtkLoopBooleanPolyDataFilter() = default;
 
 //-----------------------------------------------------------------------------
 int vtkLoopBooleanPolyDataFilter::RequestData(
@@ -1369,7 +1367,7 @@ void vtkLoopBooleanPolyDataFilter::Impl::PerformBoolean(
   vtkPolyData *surfaces[4];
   for (int i=0;i<4;i++)
   {
-    surfaces[i] = vtkPolyData::New();;
+    surfaces[i] = vtkPolyData::New();
   }
 
   this->ThresholdRegions(surfaces);

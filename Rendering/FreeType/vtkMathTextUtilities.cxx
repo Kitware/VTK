@@ -34,9 +34,7 @@ vtkMathTextUtilitiesCleanup vtkMathTextUtilities::Cleanup;
 // Create the singleton cleanup
 // Register our singleton cleanup callback against the FTLibrary so that
 // it might be called before the FTLibrary singleton is destroyed.
-vtkMathTextUtilitiesCleanup::vtkMathTextUtilitiesCleanup()
-{
-}
+vtkMathTextUtilitiesCleanup::vtkMathTextUtilitiesCleanup() = default;
 
 //----------------------------------------------------------------------------
 // Delete the singleton cleanup
@@ -158,14 +156,10 @@ vtkMathTextUtilities* vtkMathTextUtilities::New()
 }
 
 //----------------------------------------------------------------------------
-vtkMathTextUtilities::vtkMathTextUtilities()
-{
-}
+vtkMathTextUtilities::vtkMathTextUtilities() = default;
 
 //----------------------------------------------------------------------------
-vtkMathTextUtilities::~vtkMathTextUtilities()
-{
-}
+vtkMathTextUtilities::~vtkMathTextUtilities() = default;
 
 //----------------------------------------------------------------------------
 void vtkMathTextUtilities::PrintSelf(ostream &os, vtkIndent indent)

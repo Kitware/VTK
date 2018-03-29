@@ -55,9 +55,7 @@ vtkTensorProbeWidget::vtkTensorProbeWidget()
 }
 
 //----------------------------------------------------------------------
-vtkTensorProbeWidget::~vtkTensorProbeWidget()
-{
-}
+vtkTensorProbeWidget::~vtkTensorProbeWidget() = default;
 
 //----------------------------------------------------------------------
 void vtkTensorProbeWidget::CreateDefaultRepresentation()

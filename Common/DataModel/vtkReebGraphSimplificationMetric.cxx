@@ -28,9 +28,7 @@ vtkReebGraphSimplificationMetric::vtkReebGraphSimplificationMetric()
 }
 
 //----------------------------------------------------------------------------
-vtkReebGraphSimplificationMetric::~vtkReebGraphSimplificationMetric()
-{
-}
+vtkReebGraphSimplificationMetric::~vtkReebGraphSimplificationMetric() = default;
 
 //----------------------------------------------------------------------------
 void vtkReebGraphSimplificationMetric::PrintSelf(ostream& os, vtkIndent indent)

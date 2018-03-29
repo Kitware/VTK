@@ -59,8 +59,8 @@ public:
     }
   }
 private:
-  TestRenderViewUpdater() { }
-  ~TestRenderViewUpdater() override { }
+  TestRenderViewUpdater() = default;
+  ~TestRenderViewUpdater() override = default;
   std::vector<vtkView*> Views;
 };
 

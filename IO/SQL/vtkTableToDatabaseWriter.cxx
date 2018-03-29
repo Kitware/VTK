@@ -35,9 +35,7 @@ vtkTableToDatabaseWriter::vtkTableToDatabaseWriter()
 }
 
 //----------------------------------------------------------------------------
-vtkTableToDatabaseWriter::~vtkTableToDatabaseWriter()
-{
-}
+vtkTableToDatabaseWriter::~vtkTableToDatabaseWriter() = default;
 
 //----------------------------------------------------------------------------
 bool vtkTableToDatabaseWriter::SetDatabase(vtkSQLDatabase *db)

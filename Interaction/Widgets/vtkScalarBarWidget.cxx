@@ -40,9 +40,7 @@ vtkScalarBarWidget::vtkScalarBarWidget()
 }
 
 //-------------------------------------------------------------------------
-vtkScalarBarWidget::~vtkScalarBarWidget()
-{
-}
+vtkScalarBarWidget::~vtkScalarBarWidget() = default;
 
 //-----------------------------------------------------------------------------
 void vtkScalarBarWidget::SetRepresentation(vtkScalarBarRepresentation *rep)

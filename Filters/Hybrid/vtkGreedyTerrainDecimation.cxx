@@ -84,9 +84,7 @@ vtkGreedyTerrainDecimation::vtkGreedyTerrainDecimation()
 }
 
 //----------------------------------------------------------------------
-vtkGreedyTerrainDecimation::~vtkGreedyTerrainDecimation()
-{
-}
+vtkGreedyTerrainDecimation::~vtkGreedyTerrainDecimation() = default;
 
 //----------------------------------------------------------------------
 inline void vtkGreedyTerrainDecimation::GetTerrainPoint(int i, int j, double x[3])

@@ -155,9 +155,9 @@ void vtkThresholdTextureCoords::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Threshold Between\n";
   }
 
-  os << indent << "Lower Threshold: " << this->LowerThreshold << "\n";;
-  os << indent << "Upper Threshold: " << this->UpperThreshold << "\n";;
-  os << indent << "Texture Dimension: " << this->TextureDimension << "\n";;
+  os << indent << "Lower Threshold: " << this->LowerThreshold << "\n";
+  os << indent << "Upper Threshold: " << this->UpperThreshold << "\n";
+  os << indent << "Texture Dimension: " << this->TextureDimension << "\n";
 
   os << indent << "Out Texture Coordinate: (" << this->OutTextureCoord[0]
      << ", " << this->OutTextureCoord[1]

@@ -43,9 +43,7 @@ vtkSimpleBondPerceiver::vtkSimpleBondPerceiver()
 }
 
 //----------------------------------------------------------------------------
-vtkSimpleBondPerceiver::~vtkSimpleBondPerceiver()
-{
-}
+vtkSimpleBondPerceiver::~vtkSimpleBondPerceiver() = default;
 
 //----------------------------------------------------------------------------
 void vtkSimpleBondPerceiver::PrintSelf(ostream& os, vtkIndent indent)

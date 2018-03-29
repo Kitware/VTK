@@ -41,9 +41,7 @@ vtkExtractFunctionalBagPlot::vtkExtractFunctionalBagPlot()
 }
 
 //-----------------------------------------------------------------------------
-vtkExtractFunctionalBagPlot::~vtkExtractFunctionalBagPlot()
-{
-}
+vtkExtractFunctionalBagPlot::~vtkExtractFunctionalBagPlot() = default;
 
 //-----------------------------------------------------------------------------
 void vtkExtractFunctionalBagPlot::PrintSelf(ostream& os, vtkIndent indent)

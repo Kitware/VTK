@@ -30,9 +30,7 @@ vtkBezierContourLineInterpolator::vtkBezierContourLineInterpolator()
 }
 
 //----------------------------------------------------------------------
-vtkBezierContourLineInterpolator::~vtkBezierContourLineInterpolator()
-{
-}
+vtkBezierContourLineInterpolator::~vtkBezierContourLineInterpolator() = default;
 
 //----------------------------------------------------------------------
 int vtkBezierContourLineInterpolator::InterpolateLine( vtkRenderer *vtkNotUsed(ren),

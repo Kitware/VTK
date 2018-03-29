@@ -37,9 +37,7 @@ vtkParametricFigure8Klein::vtkParametricFigure8Klein()
 }
 
 //----------------------------------------------------------------------------
-vtkParametricFigure8Klein::~vtkParametricFigure8Klein()
-{
-}
+vtkParametricFigure8Klein::~vtkParametricFigure8Klein() = default;
 
 //----------------------------------------------------------------------------
 void vtkParametricFigure8Klein::Evaluate(double uvw[3], double Pt[3],

@@ -30,14 +30,10 @@
 
 vtkStandardNewMacro(vtkDirectedAcyclicGraph);
 //----------------------------------------------------------------------------
-vtkDirectedAcyclicGraph::vtkDirectedAcyclicGraph()
-{
-}
+vtkDirectedAcyclicGraph::vtkDirectedAcyclicGraph() = default;
 
 //----------------------------------------------------------------------------
-vtkDirectedAcyclicGraph::~vtkDirectedAcyclicGraph()
-{
-}
+vtkDirectedAcyclicGraph::~vtkDirectedAcyclicGraph() = default;
 
 //----------------------------------------------------------------------------
 vtkDirectedAcyclicGraph *vtkDirectedAcyclicGraph::GetData(vtkInformation *info)

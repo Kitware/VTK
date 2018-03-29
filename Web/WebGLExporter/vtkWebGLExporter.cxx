@@ -96,7 +96,7 @@ vtkWebGLExporter::vtkWebGLExporter()
 
 vtkWebGLExporter::~vtkWebGLExporter()
 {
-  while(this->Internal->Objects.size() != 0)
+  while(!this->Internal->Objects.empty())
   {
     vtkWebGLObject* obj = this->Internal->Objects.back();
     obj->Delete();
@@ -417,7 +417,7 @@ void vtkWebGLExporter::parseScene(vtkRendererCollection* renderers, const char* 
   }
   else
   {
-    while(this->Internal->Objects.size() != 0)
+    while(!this->Internal->Objects.empty())
     {
       this->Internal->tempObj.push_back(this->Internal->Objects.back());
       this->Internal->Objects.pop_back();
@@ -432,7 +432,7 @@ void vtkWebGLExporter::parseScene(vtkRendererCollection* renderers, const char* 
     vtkRenderer* renderer = vtkRenderer::SafeDownCast(renderers->GetItemAsObject(i));
     if (renderer->GetDraw()) this->parseRenderer(renderer, viewId, onlyWidget, nullptr);
   }
-  while(this->Internal->tempObj.size() != 0)
+  while(!this->Internal->tempObj.empty())
   {
     vtkWebGLObject* obj = this->Internal->tempObj.back();
     this->Internal->tempObj.pop_back();
@@ -453,6 +453,7 @@ void vtkWebGLExporter::generateRendererData(vtkRendererCollection* renderers, co
   ss << "\"Renderers\": [";
 
   std::vector<vtkRenderer*> orderedList;
+  orderedList.reserve(renderers->GetNumberOfItems());
   for(int i=0; i<renderers->GetNumberOfItems(); i++) orderedList.push_back(vtkRenderer::SafeDownCast(renderers->GetItemAsObject(i)));
   std::sort(orderedList.begin(), orderedList.begin()+orderedList.size(), sortLayer);
 

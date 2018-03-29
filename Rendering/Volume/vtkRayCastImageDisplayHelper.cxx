@@ -28,9 +28,7 @@ vtkRayCastImageDisplayHelper::vtkRayCastImageDisplayHelper()
 }
 
 // Destruct a vtkRayCastImageDisplayHelper - clean up any memory used
-vtkRayCastImageDisplayHelper::~vtkRayCastImageDisplayHelper()
-{
-}
+vtkRayCastImageDisplayHelper::~vtkRayCastImageDisplayHelper() = default;
 
 void vtkRayCastImageDisplayHelper::PrintSelf(ostream& os, vtkIndent indent)
 {

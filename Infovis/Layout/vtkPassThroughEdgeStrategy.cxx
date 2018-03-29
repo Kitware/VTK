@@ -33,13 +33,9 @@
 
 vtkStandardNewMacro(vtkPassThroughEdgeStrategy);
 
-vtkPassThroughEdgeStrategy::vtkPassThroughEdgeStrategy()
-{
-}
+vtkPassThroughEdgeStrategy::vtkPassThroughEdgeStrategy() = default;
 
-vtkPassThroughEdgeStrategy::~vtkPassThroughEdgeStrategy()
-{
-}
+vtkPassThroughEdgeStrategy::~vtkPassThroughEdgeStrategy() = default;
 
 void vtkPassThroughEdgeStrategy::Layout()
 {

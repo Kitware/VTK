@@ -34,14 +34,10 @@
 vtkStandardNewMacro(vtkXMLDataSetWriter);
 
 //----------------------------------------------------------------------------
-vtkXMLDataSetWriter::vtkXMLDataSetWriter()
-{
-}
+vtkXMLDataSetWriter::vtkXMLDataSetWriter() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLDataSetWriter::~vtkXMLDataSetWriter()
-{
-}
+vtkXMLDataSetWriter::~vtkXMLDataSetWriter() = default;
 
 //----------------------------------------------------------------------------
 int vtkXMLDataSetWriter::FillInputPortInformation(

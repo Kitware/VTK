@@ -21,9 +21,7 @@ vtkAbstractPolyDataReader::vtkAbstractPolyDataReader()
 {
 }
 
-vtkAbstractPolyDataReader::~vtkAbstractPolyDataReader()
-{
-}
+vtkAbstractPolyDataReader::~vtkAbstractPolyDataReader() = default;
 
 void vtkAbstractPolyDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {

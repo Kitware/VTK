@@ -33,14 +33,10 @@
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkUndirectedGraph);
 //----------------------------------------------------------------------------
-vtkUndirectedGraph::vtkUndirectedGraph()
-{
-}
+vtkUndirectedGraph::vtkUndirectedGraph() = default;
 
 //----------------------------------------------------------------------------
-vtkUndirectedGraph::~vtkUndirectedGraph()
-{
-}
+vtkUndirectedGraph::~vtkUndirectedGraph() = default;
 
 //----------------------------------------------------------------------------
 void vtkUndirectedGraph::GetInEdges(vtkIdType v, const vtkInEdgeType *& edges, vtkIdType & nedges)

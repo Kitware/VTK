@@ -32,9 +32,7 @@ vtkGeneralizedKernel::vtkGeneralizedKernel()
 
 
 //----------------------------------------------------------------------------
-vtkGeneralizedKernel::~vtkGeneralizedKernel()
-{
-}
+vtkGeneralizedKernel::~vtkGeneralizedKernel() = default;
 
 //----------------------------------------------------------------------------
 vtkIdType vtkGeneralizedKernel::

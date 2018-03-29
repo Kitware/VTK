@@ -116,7 +116,7 @@ protected:
 
 private:
   vtkMINCImageAttributeMap() : Map() {};
-  ~vtkMINCImageAttributeMap() {};
+  ~vtkMINCImageAttributeMap() = default;
 
   MapType Map;
 };

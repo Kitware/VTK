@@ -48,9 +48,7 @@ vtkFinitePlaneWidget::vtkFinitePlaneWidget()
 }
 
 //----------------------------------------------------------------------------
-vtkFinitePlaneWidget::~vtkFinitePlaneWidget()
-{
-}
+vtkFinitePlaneWidget::~vtkFinitePlaneWidget() = default;
 
 //----------------------------------------------------------------------------
 void vtkFinitePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)

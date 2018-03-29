@@ -22,14 +22,10 @@
 #include <vtksys/SystemTools.hxx>
 
 //----------------------------------------------------------------------------
-vtkXMLPDataWriter::vtkXMLPDataWriter()
-{
-}
+vtkXMLPDataWriter::vtkXMLPDataWriter() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLPDataWriter::~vtkXMLPDataWriter()
-{
-}
+vtkXMLPDataWriter::~vtkXMLPDataWriter() = default;
 
 //----------------------------------------------------------------------------
 void vtkXMLPDataWriter::PrintSelf(ostream& os, vtkIndent indent)

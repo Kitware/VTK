@@ -44,9 +44,7 @@ vtkBlockItem::vtkBlockItem()
 }
 
 //-----------------------------------------------------------------------------
-vtkBlockItem::~vtkBlockItem()
-{
-}
+vtkBlockItem::~vtkBlockItem() = default;
 
 //-----------------------------------------------------------------------------
 bool vtkBlockItem::Paint(vtkContext2D *painter)

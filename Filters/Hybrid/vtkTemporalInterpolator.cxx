@@ -51,9 +51,7 @@ vtkTemporalInterpolator::vtkTemporalInterpolator()
 }
 
 //----------------------------------------------------------------------------
-vtkTemporalInterpolator::~vtkTemporalInterpolator()
-{
-}
+vtkTemporalInterpolator::~vtkTemporalInterpolator() = default;
 
 //----------------------------------------------------------------------------
 void vtkTemporalInterpolator::PrintSelf(ostream& os, vtkIndent indent)
@@ -171,6 +169,7 @@ int vtkTemporalInterpolator::RequestInformation (
 
     // Generate list of new output time step values
     std::vector<double> OutputTimeValues;
+    OutputTimeValues.reserve(NumberOfOutputTimeSteps);
     for (int i=0; i<NumberOfOutputTimeSteps; i++)
     {
       OutputTimeValues.push_back(

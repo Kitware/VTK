@@ -126,7 +126,7 @@ int vtkCollectPolyData::RequestData(
 
   // Collect.
   vtkAppendPolyData *append = vtkAppendPolyData::New();
-  vtkPolyData *pd = nullptr;;
+  vtkPolyData *pd = nullptr;
 
   if (myId == 0)
   {

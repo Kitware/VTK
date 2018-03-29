@@ -73,7 +73,7 @@ public:
     this->DataX = vtkArrayDownCast<vtkDataArray>(valsX);
     this->DataY = vtkArrayDownCast<vtkDataArray>(valsY);
   }
-  ~BivariateContingenciesAndInformationFunctor() override { }
+  ~BivariateContingenciesAndInformationFunctor() override = default;
   void operator() ( vtkDoubleArray* result,
                             vtkIdType id ) override
   {
@@ -125,7 +125,7 @@ public:
     this->DataX = valsX;
     this->DataY = valsY;
   }
-  ~BivariateContingenciesAndInformationFunctor() override { }
+  ~BivariateContingenciesAndInformationFunctor() override = default;
   void operator() ( vtkDoubleArray* result,
                             vtkIdType id ) override
   {
@@ -191,12 +191,8 @@ class ContingencyImpl
 
   typedef std::map<Tuple,double> PDF;
 public:
-  ContingencyImpl ()
-  {
-  }
-  ~ContingencyImpl ()
-  {
-  }
+  ContingencyImpl () = default;
+  ~ContingencyImpl () = default;
 
   // ----------------------------------------------------------------------
   static void CalculateContingencyRow (vtkAbstractArray* valsX, vtkAbstractArray* valsY,
@@ -601,12 +597,8 @@ class ContingencyImpl<vtkStdString,vtkStringArray>
 
   typedef std::map<Tuple,double> PDF;
 public:
-  ContingencyImpl ()
-  {
-  }
-  ~ContingencyImpl ()
-  {
-  }
+  ContingencyImpl () = default;
+  ~ContingencyImpl () = default;
 
   // ----------------------------------------------------------------------
   static void CalculateContingencyRow (vtkAbstractArray* valsX, vtkAbstractArray* valsY,
@@ -964,9 +956,7 @@ vtkContingencyStatistics::vtkContingencyStatistics()
 };
 
 // ----------------------------------------------------------------------
-vtkContingencyStatistics::~vtkContingencyStatistics()
-{
-}
+vtkContingencyStatistics::~vtkContingencyStatistics() = default;
 
 // ----------------------------------------------------------------------
 void vtkContingencyStatistics::PrintSelf( ostream &os, vtkIndent indent )

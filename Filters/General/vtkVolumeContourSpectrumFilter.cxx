@@ -40,9 +40,7 @@ vtkVolumeContourSpectrumFilter::vtkVolumeContourSpectrumFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkVolumeContourSpectrumFilter::~vtkVolumeContourSpectrumFilter()
-{
-}
+vtkVolumeContourSpectrumFilter::~vtkVolumeContourSpectrumFilter() = default;
 
 //----------------------------------------------------------------------------
 int vtkVolumeContourSpectrumFilter::FillInputPortInformation(

@@ -42,9 +42,7 @@ vtkExtractSelectedLocations::vtkExtractSelectedLocations()
 }
 
 //----------------------------------------------------------------------------
-vtkExtractSelectedLocations::~vtkExtractSelectedLocations()
-{
-}
+vtkExtractSelectedLocations::~vtkExtractSelectedLocations() = default;
 
 //----------------------------------------------------------------------------
 int vtkExtractSelectedLocations::RequestData(

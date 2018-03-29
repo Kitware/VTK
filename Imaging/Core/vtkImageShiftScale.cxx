@@ -33,9 +33,7 @@ vtkImageShiftScale::vtkImageShiftScale()
 }
 
 //----------------------------------------------------------------------------
-vtkImageShiftScale::~vtkImageShiftScale()
-{
-}
+vtkImageShiftScale::~vtkImageShiftScale() = default;
 
 //----------------------------------------------------------------------------
 void vtkImageShiftScale::PrintSelf(ostream& os, vtkIndent indent)

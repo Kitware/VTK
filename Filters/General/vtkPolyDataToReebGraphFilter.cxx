@@ -32,9 +32,7 @@ vtkPolyDataToReebGraphFilter::vtkPolyDataToReebGraphFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkPolyDataToReebGraphFilter::~vtkPolyDataToReebGraphFilter()
-{
-}
+vtkPolyDataToReebGraphFilter::~vtkPolyDataToReebGraphFilter() = default;
 
 //----------------------------------------------------------------------------
 int vtkPolyDataToReebGraphFilter::FillInputPortInformation(int vtkNotUsed(portNumber), vtkInformation *info)

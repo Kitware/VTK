@@ -32,9 +32,7 @@ vtkUnstructuredGridAlgorithm::vtkUnstructuredGridAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkUnstructuredGridAlgorithm::~vtkUnstructuredGridAlgorithm()
-{
-}
+vtkUnstructuredGridAlgorithm::~vtkUnstructuredGridAlgorithm() = default;
 
 //----------------------------------------------------------------------------
 void vtkUnstructuredGridAlgorithm::PrintSelf(ostream& os, vtkIndent indent)

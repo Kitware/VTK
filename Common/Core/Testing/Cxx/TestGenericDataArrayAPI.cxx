@@ -331,6 +331,7 @@ int Test_void_SetTypedTuple_tupleIdx_tuple()
   for (vtkIdType t = 0; t < tuples; ++t)
   {
     std::vector<ScalarT> tuple;
+    tuple.reserve(comps);
     for (int c = 0; c < comps; ++c)
     {
       tuple.push_back(static_cast<ScalarT>(((t * comps) + c) % 17));
@@ -601,6 +602,7 @@ int Test_void_InsertTypedTuple_idx_t()
   for (vtkIdType t = 0; t < tuples; ++t)
   {
     std::vector<ScalarT> tuple;
+    tuple.reserve(comps);
     for (int c = 0; c < comps; ++c)
     {
       tuple.push_back(static_cast<ScalarT>(((t * comps) + c) % 17));
@@ -653,6 +655,7 @@ int Test_vtkIdType_InsertNextTypedTuple_t()
   for (vtkIdType t = 0; t < tuples; ++t)
   {
     std::vector<ScalarT> tuple;
+    tuple.reserve(comps);
     for (int c = 0; c < comps; ++c)
     {
       tuple.push_back(static_cast<ScalarT>(((t * comps) + c) % 17));

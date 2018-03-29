@@ -30,9 +30,7 @@ vtkVolumePicker::vtkVolumePicker()
 }
 
 //----------------------------------------------------------------------------
-vtkVolumePicker::~vtkVolumePicker()
-{
-}
+vtkVolumePicker::~vtkVolumePicker() = default;
 
 //----------------------------------------------------------------------------
 void vtkVolumePicker::PrintSelf(ostream& os, vtkIndent indent)

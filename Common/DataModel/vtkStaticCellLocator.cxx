@@ -252,7 +252,7 @@ struct vtkCellProcessor
     xyD = cb->xyD;
   }
 
-  virtual ~vtkCellProcessor() {}
+  virtual ~vtkCellProcessor() = default;
 
   // Satisfy cell locator API
   virtual vtkIdType FindCell(double pos[3], vtkGenericCell *cell,

@@ -55,10 +55,7 @@ vtkAMRGaussianPulseSource::vtkAMRGaussianPulseSource()
 }
 
 //------------------------------------------------------------------------------
-vtkAMRGaussianPulseSource::~vtkAMRGaussianPulseSource()
-{
-
-}
+vtkAMRGaussianPulseSource::~vtkAMRGaussianPulseSource() = default;
 
 //------------------------------------------------------------------------------
 void vtkAMRGaussianPulseSource::PrintSelf(ostream& os, vtkIndent indent)
@@ -319,7 +316,7 @@ void vtkAMRGaussianPulseSource::Generate3DDataSet( vtkOverlappingAMR *amr )
     refinedPatch = RefinePatch( grid, patches[patchIdx] );
     assert("pre: refined grid is nullptr" && (refinedPatch != nullptr) );
 
-    box = vtkAMRBox(refinedPatch->GetOrigin(), refinedPatch->GetDimensions(), refinedPatch->GetSpacing(),amr->GetOrigin(),amr->GetGridDescription());;
+    box = vtkAMRBox(refinedPatch->GetOrigin(), refinedPatch->GetDimensions(), refinedPatch->GetSpacing(),amr->GetOrigin(),amr->GetGridDescription());
     amr->SetSpacing(level+1,refinedPatch->GetSpacing());
     amr->SetAMRBox(level+1,patchIdx,box);
     amr->SetDataSet(level+1,patchIdx,refinedPatch);

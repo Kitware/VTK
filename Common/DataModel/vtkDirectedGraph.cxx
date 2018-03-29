@@ -34,14 +34,10 @@
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkDirectedGraph);
 //----------------------------------------------------------------------------
-vtkDirectedGraph::vtkDirectedGraph()
-{
-}
+vtkDirectedGraph::vtkDirectedGraph() = default;
 
 //----------------------------------------------------------------------------
-vtkDirectedGraph::~vtkDirectedGraph()
-{
-}
+vtkDirectedGraph::~vtkDirectedGraph() = default;
 
 //----------------------------------------------------------------------------
 vtkDirectedGraph *vtkDirectedGraph::GetData(vtkInformation *info)

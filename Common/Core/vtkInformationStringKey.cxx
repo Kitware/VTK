@@ -27,9 +27,7 @@ vtkInformationStringKey::vtkInformationStringKey(const char* name, const char* l
 }
 
 //----------------------------------------------------------------------------
-vtkInformationStringKey::~vtkInformationStringKey()
-{
-}
+vtkInformationStringKey::~vtkInformationStringKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationStringKey::PrintSelf(ostream& os, vtkIndent indent)

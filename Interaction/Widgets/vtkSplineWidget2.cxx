@@ -58,9 +58,7 @@ vtkSplineWidget2::vtkSplineWidget2()
 }
 
 //----------------------------------------------------------------------------
-vtkSplineWidget2::~vtkSplineWidget2()
-{
-}
+vtkSplineWidget2::~vtkSplineWidget2() = default;
 
 //----------------------------------------------------------------------
 void vtkSplineWidget2::SelectAction(vtkAbstractWidget *w)

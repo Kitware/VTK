@@ -25,9 +25,7 @@ vtkLZMADataCompressor::vtkLZMADataCompressor()
 }
 
 //----------------------------------------------------------------------------
-vtkLZMADataCompressor::~vtkLZMADataCompressor()
-{
-}
+vtkLZMADataCompressor::~vtkLZMADataCompressor() = default;
 
 //----------------------------------------------------------------------------
 void vtkLZMADataCompressor::PrintSelf(ostream& os, vtkIndent indent)
@@ -82,7 +80,7 @@ vtkLZMADataCompressor::UncompressBuffer(unsigned char const* compressedData,
   uint64_t memlim = UINT64_MAX;
   lzma_ret lzma_ret_ =  lzma_stream_buffer_decode(reinterpret_cast<uint64_t *>(&memlim), // No memory limit
                                             static_cast<uint32_t>(0), // Don't use any decoder flags
-                                            NULL, // Use default allocators (malloc/free)
+                                            nullptr, // Use default allocators (malloc/free)
                                             reinterpret_cast<const uint8_t *>(compressedData),&in_pos, compressedSize,
                                             reinterpret_cast<uint8_t*>(uncompressedData), &out_pos, uncompressedSize);
   switch(lzma_ret_)

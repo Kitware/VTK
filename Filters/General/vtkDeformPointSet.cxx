@@ -43,9 +43,7 @@ vtkDeformPointSet::vtkDeformPointSet()
 }
 
 //----------------------------------------------------------------------------
-vtkDeformPointSet::~vtkDeformPointSet()
-{
-}
+vtkDeformPointSet::~vtkDeformPointSet() = default;
 
 //----------------------------------------------------------------------------
 void vtkDeformPointSet::SetControlMeshConnection(vtkAlgorithmOutput* algOutput)

@@ -91,13 +91,9 @@ void vtkGenericDataObjectReader::ReadData(const char* DataClass, vtkDataObject* 
   reader->Delete();
 }
 
-vtkGenericDataObjectReader::vtkGenericDataObjectReader()
-{
-}
+vtkGenericDataObjectReader::vtkGenericDataObjectReader() = default;
 
-vtkGenericDataObjectReader::~vtkGenericDataObjectReader()
-{
-}
+vtkGenericDataObjectReader::~vtkGenericDataObjectReader() = default;
 
 int vtkGenericDataObjectReader::RequestDataObject(
   vtkInformation* /*information*/,

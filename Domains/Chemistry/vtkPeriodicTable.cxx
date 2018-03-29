@@ -51,9 +51,7 @@ vtkPeriodicTable::vtkPeriodicTable()
 }
 
 //----------------------------------------------------------------------------
-vtkPeriodicTable::~vtkPeriodicTable()
-{
-}
+vtkPeriodicTable::~vtkPeriodicTable() = default;
 
 //----------------------------------------------------------------------------
 void vtkPeriodicTable::PrintSelf(ostream& os, vtkIndent indent)

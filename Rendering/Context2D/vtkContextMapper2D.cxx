@@ -31,9 +31,7 @@ vtkContextMapper2D::vtkContextMapper2D()
 }
 
 //-----------------------------------------------------------------------------
-vtkContextMapper2D::~vtkContextMapper2D()
-{
-}
+vtkContextMapper2D::~vtkContextMapper2D() = default;
 
 //----------------------------------------------------------------------------
 void vtkContextMapper2D::SetInputData(vtkTable *input)

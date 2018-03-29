@@ -23,14 +23,10 @@
 vtkStandardNewMacro(vtkOpenGLVertexBufferObjectCache);
 
 // ----------------------------------------------------------------------------
-vtkOpenGLVertexBufferObjectCache::vtkOpenGLVertexBufferObjectCache()
-{
-}
+vtkOpenGLVertexBufferObjectCache::vtkOpenGLVertexBufferObjectCache() = default;
 
 // ----------------------------------------------------------------------------
-vtkOpenGLVertexBufferObjectCache::~vtkOpenGLVertexBufferObjectCache()
-{
-}
+vtkOpenGLVertexBufferObjectCache::~vtkOpenGLVertexBufferObjectCache() = default;
 
 void vtkOpenGLVertexBufferObjectCache::RemoveVBO(
   vtkOpenGLVertexBufferObject *vbo)

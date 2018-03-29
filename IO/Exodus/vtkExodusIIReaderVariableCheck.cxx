@@ -66,9 +66,7 @@ vtkExodusIIReaderVariableCheck::vtkExodusIIReaderVariableCheck()
   this->GlomType = -1;
 }
 
-vtkExodusIIReaderVariableCheck::~vtkExodusIIReaderVariableCheck()
-{
-}
+vtkExodusIIReaderVariableCheck::~vtkExodusIIReaderVariableCheck() = default;
 
 bool vtkExodusIIReaderVariableCheck::CheckTruth( const int* truth )
 {

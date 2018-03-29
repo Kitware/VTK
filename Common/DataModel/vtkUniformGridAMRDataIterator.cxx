@@ -53,7 +53,7 @@ public:
   virtual unsigned int GetFlatIndex() { return this->Index;}
 protected:
   AMRIndexIterator(): Level(0), Index(0) {}
-  ~AMRIndexIterator() override{};
+  ~AMRIndexIterator() override = default;
   unsigned int Level;
   int Index;
   unsigned int NumLevels;
@@ -78,7 +78,7 @@ class AMRLoadedDataIndexIterator: public AMRIndexIterator
 public:
   static AMRLoadedDataIndexIterator* New();
   vtkTypeMacro(AMRLoadedDataIndexIterator,AMRIndexIterator);
-  AMRLoadedDataIndexIterator(){}
+  AMRLoadedDataIndexIterator() = default;
   void Initialize(const std::vector<int>* numBlocks, const vtkAMRDataInternals::BlockList* dataBlocks)
   {
     assert(numBlocks && !numBlocks->empty());
@@ -116,9 +116,7 @@ vtkUniformGridAMRDataIterator::vtkUniformGridAMRDataIterator()
   this->AMRInfo = nullptr;
 }
 
-vtkUniformGridAMRDataIterator::~vtkUniformGridAMRDataIterator()
-{
-}
+vtkUniformGridAMRDataIterator::~vtkUniformGridAMRDataIterator() = default;
 
 
 vtkDataObject* vtkUniformGridAMRDataIterator::GetCurrentDataObject()

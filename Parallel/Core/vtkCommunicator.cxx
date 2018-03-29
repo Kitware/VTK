@@ -112,9 +112,7 @@ vtkCommunicator::vtkCommunicator()
 }
 
 //----------------------------------------------------------------------------
-vtkCommunicator::~vtkCommunicator()
-{
-}
+vtkCommunicator::~vtkCommunicator() = default;
 
 //----------------------------------------------------------------------------
 int vtkCommunicator::UseCopy = 0;

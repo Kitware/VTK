@@ -151,9 +151,7 @@ vtkAMRInformation::vtkAMRInformation(): NumBlocks(1,0)
   this->Bounds[5] = VTK_DOUBLE_MIN;
 }
 
-vtkAMRInformation::~vtkAMRInformation()
-{
-}
+vtkAMRInformation::~vtkAMRInformation() = default;
 
 void vtkAMRInformation::PrintSelf(ostream& os, vtkIndent indent)
 {

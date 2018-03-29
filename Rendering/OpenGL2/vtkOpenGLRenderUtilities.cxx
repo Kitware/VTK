@@ -24,14 +24,10 @@
 #include "vtkShaderProgram.h"
 
 // ----------------------------------------------------------------------------
-vtkOpenGLRenderUtilities::vtkOpenGLRenderUtilities()
-{
-}
+vtkOpenGLRenderUtilities::vtkOpenGLRenderUtilities() = default;
 
 // ----------------------------------------------------------------------------
-vtkOpenGLRenderUtilities::~vtkOpenGLRenderUtilities()
-{
-}
+vtkOpenGLRenderUtilities::~vtkOpenGLRenderUtilities() = default;
 
 void vtkOpenGLRenderUtilities::PrintSelf(ostream& os, vtkIndent indent)
 {

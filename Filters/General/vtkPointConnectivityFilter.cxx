@@ -31,14 +31,10 @@
 vtkStandardNewMacro(vtkPointConnectivityFilter);
 
 //----------------------------------------------------------------------------
-vtkPointConnectivityFilter::vtkPointConnectivityFilter()
-{
-}
+vtkPointConnectivityFilter::vtkPointConnectivityFilter() = default;
 
 //----------------------------------------------------------------------------
-vtkPointConnectivityFilter::~vtkPointConnectivityFilter()
-{
-}
+vtkPointConnectivityFilter::~vtkPointConnectivityFilter() = default;
 
 //----------------------------------------------------------------------------
 namespace {

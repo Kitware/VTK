@@ -31,9 +31,7 @@ vtkClearRGBPass::vtkClearRGBPass()
 }
 
 // ----------------------------------------------------------------------------
-vtkClearRGBPass::~vtkClearRGBPass()
-{
-}
+vtkClearRGBPass::~vtkClearRGBPass() = default;
 
 // ----------------------------------------------------------------------------
 void vtkClearRGBPass::PrintSelf(ostream& os, vtkIndent indent)

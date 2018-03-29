@@ -50,9 +50,7 @@ vtkTreeMapView::vtkTreeMapView()
 }
 
 //----------------------------------------------------------------------------
-vtkTreeMapView::~vtkTreeMapView()
-{
-}
+vtkTreeMapView::~vtkTreeMapView() = default;
 
 //----------------------------------------------------------------------------
 void vtkTreeMapView::SetLayoutStrategyToBox()

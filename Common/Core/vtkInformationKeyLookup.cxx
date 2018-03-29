@@ -44,9 +44,7 @@ vtkInformationKey *vtkInformationKeyLookup::Find(const std::string &name,
 }
 
 //------------------------------------------------------------------------------
-vtkInformationKeyLookup::vtkInformationKeyLookup()
-{
-}
+vtkInformationKeyLookup::vtkInformationKeyLookup() = default;
 
 //------------------------------------------------------------------------------
 vtkInformationKeyLookup::~vtkInformationKeyLookup()

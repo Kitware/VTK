@@ -677,5 +677,5 @@ vtkIdType vtkTable::GetNumberOfElements(int type)
     case ROW:
       return this->GetNumberOfRows();
   }
-  return this->Superclass::GetNumberOfElements(type);;
+  return this->Superclass::GetNumberOfElements(type);
 }

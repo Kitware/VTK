@@ -35,9 +35,7 @@ vtkInformationExecutivePortVectorKey::vtkInformationExecutivePortVectorKey(const
 }
 
 //----------------------------------------------------------------------------
-vtkInformationExecutivePortVectorKey::~vtkInformationExecutivePortVectorKey()
-{
-}
+vtkInformationExecutivePortVectorKey::~vtkInformationExecutivePortVectorKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationExecutivePortVectorKey::PrintSelf(ostream& os, vtkIndent indent)

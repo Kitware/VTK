@@ -92,15 +92,11 @@ public:
 //----------------------------------------------------------------------------
 // Construct object with default tuple dimension (number of components) of 1.
 vtkMeanValueCoordinatesInterpolator::
-vtkMeanValueCoordinatesInterpolator()
-{
-}
+vtkMeanValueCoordinatesInterpolator() = default;
 
 //----------------------------------------------------------------------------
 vtkMeanValueCoordinatesInterpolator::
-~vtkMeanValueCoordinatesInterpolator()
-{
-}
+~vtkMeanValueCoordinatesInterpolator() = default;
 
 //----------------------------------------------------------------------------
 // Templated function to generate weights of a general polygonal mesh.

@@ -34,9 +34,7 @@ vtkSynchronizeTimeFilter::vtkSynchronizeTimeFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkSynchronizeTimeFilter::~vtkSynchronizeTimeFilter()
-{
-}
+vtkSynchronizeTimeFilter::~vtkSynchronizeTimeFilter() = default;
 
 //----------------------------------------------------------------------------
 void vtkSynchronizeTimeFilter::SetSourceConnection(

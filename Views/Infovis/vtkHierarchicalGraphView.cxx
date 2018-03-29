@@ -29,14 +29,10 @@
 
 vtkStandardNewMacro(vtkHierarchicalGraphView);
 //----------------------------------------------------------------------------
-vtkHierarchicalGraphView::vtkHierarchicalGraphView()
-{
-}
+vtkHierarchicalGraphView::vtkHierarchicalGraphView() = default;
 
 //----------------------------------------------------------------------------
-vtkHierarchicalGraphView::~vtkHierarchicalGraphView()
-{
-}
+vtkHierarchicalGraphView::~vtkHierarchicalGraphView() = default;
 
 //----------------------------------------------------------------------------
 vtkRenderedGraphRepresentation* vtkHierarchicalGraphView::GetGraphRepresentation()

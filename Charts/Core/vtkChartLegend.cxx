@@ -41,9 +41,7 @@ public:
   Private() : Point(0, 0)
   {
   }
-  ~Private()
-  {
-  }
+  ~Private() = default;
 
   vtkVector2f Point;
   vtkWeakPointer<vtkChart> Chart;

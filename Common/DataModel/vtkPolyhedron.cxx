@@ -55,7 +55,7 @@ class vtkPointIdMap : public map<vtkIdType, vtkIdType> {};
 struct Edge : public std::pair<vtkIdType, vtkIdType>
 {
 public:
-  Edge() {}
+  Edge() = default;
   Edge(vtkIdType a, vtkIdType b) : std::pair<vtkIdType, vtkIdType>(a, b) {}
   Edge(vtkCell* edge) : std::pair<vtkIdType, vtkIdType>(edge->GetPointId(0), edge->GetPointId(1)) {}
   friend ostream& operator<< (ostream& stream, const Edge& e) { stream << e.first << " - " << e.second; return stream; }
@@ -1778,7 +1778,7 @@ int CreateContours(EdgeFaceSetMap& edgeFaceMap,
 
   vtkNew<vtkIdList> poly;
   EdgeSet visited;
-  while (availableContourEdges.size() > 0)
+  while (!availableContourEdges.empty())
   {
     Edge start = *availableContourEdges.begin();
     Edge at(start);
@@ -1889,7 +1889,7 @@ void vtkPolyhedron::Contour(double value,
     offset += lines->GetNumberOfCells();
   }
 
-  if (contourPointEdgeMultiMap.size() == 0)
+  if (contourPointEdgeMultiMap.empty())
   {
     return; // no contours made
   }
@@ -1952,7 +1952,7 @@ bool FindNext(vector<Edge>& unordered, const Edge& last, vector<Edge>::iterator&
 
 bool OrderEdgePolygon(vector<Edge>& unordered, vector<vector<Edge>>& ordered)
 {
-  if (unordered.size() == 0)
+  if (unordered.empty())
   {
     return true;
   }
@@ -1969,13 +1969,13 @@ bool OrderEdgePolygon(vector<Edge>& unordered, vector<vector<Edge>>& ordered)
   edgePolygon.push_back(last);
   unordered.erase(unordered.begin());
 
-  while (unordered.size() > 0)
+  while (!unordered.empty())
   {
     vector<Edge>::iterator next;
     Edge nextEdge;
     if (!FindNext(unordered, last, next, nextEdge))
     {
-      if (unordered.size() > 0)
+      if (!unordered.empty())
       {
         last = *unordered.begin();
       }
@@ -2133,7 +2133,7 @@ void MergeTriFacePolygons(vtkPolyhedron* cell,
         facePolygons.push_back(at->second);
     }
 
-    if (facePolygons.size() > 0)
+    if (!facePolygons.empty())
     {
       vector<vector<vtkIdType>> mergedPolygons;
       MergeTriFacePolygons(facePolygons, mergedPolygons, originalEdges, contourPointEdgeMultiMap);
@@ -2215,7 +2215,7 @@ void vtkPolyhedron::Clip(double value,
     return;
   }
 
-  if (contourPointEdgeMultiMap.size() == 0)
+  if (contourPointEdgeMultiMap.empty())
   {
     return;
   }
@@ -2264,7 +2264,7 @@ void vtkPolyhedron::Clip(double value,
     }
 
     // if a polygon was identified (if all face points are all + or all -, there is no polygon)
-    if (polygon.size() > 0)
+    if (!polygon.empty())
     {
       triFacePolygonMap.insert(make_pair(i, polygon));
     }
@@ -2282,11 +2282,12 @@ void vtkPolyhedron::Clip(double value,
   {
     vtkIdType nIds = poly->GetNumberOfIds();
     vector<vtkIdType> polygon;
+    polygon.reserve(nIds);
     for (int i = 0; i < nIds; ++i)
     {
       polygon.push_back(poly->GetId(i));
     }
-    if (polygon.size() > 0)
+    if (!polygon.empty())
       pPolygons->push_back(polygon);
   };
 
@@ -2295,7 +2296,7 @@ void vtkPolyhedron::Clip(double value,
   // this next bit finds closed polyhedra by looking at disjoint sets of point ids
   // that hold the polyhedra. Note that if two closed polyhedra share one point
   // that they are identified as one closed polyhedron with two closed parts.
-  while (polygons.size() > 0)
+  while (!polygons.empty())
   {
     // the set of point ids that form a closed polyhedron
     unordered_set<vtkIdType> polyhedralIdSet;

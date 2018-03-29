@@ -41,9 +41,7 @@ public:
   return new vtkTFCallback;
   }
 
-  vtkTFCallback()
-  {
-  }
+  vtkTFCallback() = default;
 
   void Execute( vtkObject *caller, unsigned long event,
                 void *vtkNotUsed(callData) ) override

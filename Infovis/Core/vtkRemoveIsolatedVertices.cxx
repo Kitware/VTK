@@ -36,14 +36,10 @@
 
 vtkStandardNewMacro(vtkRemoveIsolatedVertices);
 //----------------------------------------------------------------------------
-vtkRemoveIsolatedVertices::vtkRemoveIsolatedVertices()
-{
-}
+vtkRemoveIsolatedVertices::vtkRemoveIsolatedVertices() = default;
 
 //----------------------------------------------------------------------------
-vtkRemoveIsolatedVertices::~vtkRemoveIsolatedVertices()
-{
-}
+vtkRemoveIsolatedVertices::~vtkRemoveIsolatedVertices() = default;
 
 //----------------------------------------------------------------------------
 int vtkRemoveIsolatedVertices::RequestData(

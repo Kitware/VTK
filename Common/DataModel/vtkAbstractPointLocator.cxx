@@ -29,9 +29,7 @@ vtkAbstractPointLocator::vtkAbstractPointLocator()
 }
 
 //-----------------------------------------------------------------------------
-vtkAbstractPointLocator::~vtkAbstractPointLocator()
-{
-}
+vtkAbstractPointLocator::~vtkAbstractPointLocator() = default;
 
 
 //-----------------------------------------------------------------------------

@@ -36,9 +36,7 @@ vtkParametricRoman::vtkParametricRoman():
 }
 
 //----------------------------------------------------------------------------
-vtkParametricRoman::~vtkParametricRoman()
-{
-}
+vtkParametricRoman::~vtkParametricRoman() = default;
 
 //----------------------------------------------------------------------------
 void vtkParametricRoman::Evaluate(double uvw[3], double Pt[3],

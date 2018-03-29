@@ -26,14 +26,10 @@
 vtkStandardNewMacro(vtkXMLPImageDataReader);
 
 //----------------------------------------------------------------------------
-vtkXMLPImageDataReader::vtkXMLPImageDataReader()
-{
-}
+vtkXMLPImageDataReader::vtkXMLPImageDataReader() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLPImageDataReader::~vtkXMLPImageDataReader()
-{
-}
+vtkXMLPImageDataReader::~vtkXMLPImageDataReader() = default;
 
 //----------------------------------------------------------------------------
 void vtkXMLPImageDataReader::PrintSelf(ostream& os, vtkIndent indent)

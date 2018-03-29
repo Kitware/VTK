@@ -391,7 +391,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
     // one to process the whole block)
     this->PushInformation(inInfo);
 
-    vtkDebugMacro(<< "EXECUTING " << this->Algorithm->GetClassName());;
+    vtkDebugMacro(<< "EXECUTING " << this->Algorithm->GetClassName());
 
     // True when the pipeline is iterating over the current (simple)
     // filter to produce composite output. In this case,

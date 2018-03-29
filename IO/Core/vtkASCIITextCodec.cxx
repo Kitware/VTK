@@ -102,9 +102,7 @@ vtkASCIITextCodec::vtkASCIITextCodec() : vtkTextCodec()
 }
 
 
-vtkASCIITextCodec::~vtkASCIITextCodec()
-{
-}
+vtkASCIITextCodec::~vtkASCIITextCodec() = default;
 
 
 void vtkASCIITextCodec::PrintSelf(ostream& os, vtkIndent indent)

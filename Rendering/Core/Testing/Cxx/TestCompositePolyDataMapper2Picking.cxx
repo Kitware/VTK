@@ -64,13 +64,9 @@ public:
   static PointPickCommand * New() {return new PointPickCommand;}
   vtkTypeMacro(PointPickCommand, vtkCommand);
 
-  PointPickCommand()
-  {
-  }
+  PointPickCommand() = default;
 
-  ~PointPickCommand() override
-  {
-  }
+  ~PointPickCommand() override = default;
 
   void SetPointIds(vtkSelection *selection)
   {

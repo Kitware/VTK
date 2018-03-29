@@ -37,9 +37,7 @@ vtkImageAlgorithm::vtkImageAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkImageAlgorithm::~vtkImageAlgorithm()
-{
-}
+vtkImageAlgorithm::~vtkImageAlgorithm() = default;
 
 //----------------------------------------------------------------------------
 void vtkImageAlgorithm::PrintSelf(ostream& os, vtkIndent indent)

@@ -27,13 +27,9 @@
 
 vtkStandardNewMacro(vtkCircularLayoutStrategy);
 
-vtkCircularLayoutStrategy::vtkCircularLayoutStrategy()
-{
-}
+vtkCircularLayoutStrategy::vtkCircularLayoutStrategy() = default;
 
-vtkCircularLayoutStrategy::~vtkCircularLayoutStrategy()
-{
-}
+vtkCircularLayoutStrategy::~vtkCircularLayoutStrategy() = default;
 
 void vtkCircularLayoutStrategy::Layout()
 {

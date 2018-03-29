@@ -25,9 +25,7 @@ vtkStringToImage::vtkStringToImage()
 }
 
 //-----------------------------------------------------------------------------
-vtkStringToImage::~vtkStringToImage()
-{
-}
+vtkStringToImage::~vtkStringToImage() = default;
 
 //-----------------------------------------------------------------------------
 void vtkStringToImage::SetScaleToPowerOfTwo(bool scale)

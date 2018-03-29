@@ -28,9 +28,7 @@ vtkMultiBlockFromTimeSeriesFilter::vtkMultiBlockFromTimeSeriesFilter()
   this->UpdateTimeIndex = 0;
 }
 
-vtkMultiBlockFromTimeSeriesFilter::~vtkMultiBlockFromTimeSeriesFilter()
-{
-}
+vtkMultiBlockFromTimeSeriesFilter::~vtkMultiBlockFromTimeSeriesFilter() = default;
 
 int vtkMultiBlockFromTimeSeriesFilter::FillInputPortInformation(
   int, vtkInformation *info)

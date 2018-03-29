@@ -33,13 +33,9 @@
 
 vtkStandardNewMacro(vtkTransposeMatrix);
 
-vtkTransposeMatrix::vtkTransposeMatrix()
-{
-}
+vtkTransposeMatrix::vtkTransposeMatrix() = default;
 
-vtkTransposeMatrix::~vtkTransposeMatrix()
-{
-}
+vtkTransposeMatrix::~vtkTransposeMatrix() = default;
 
 void vtkTransposeMatrix::PrintSelf(ostream& os, vtkIndent indent)
 {

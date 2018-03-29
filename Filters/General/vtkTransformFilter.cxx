@@ -125,7 +125,7 @@ int vtkTransformFilter::RequestData(
 
   vtkPoints *inPts;
   vtkPoints *newPts;
-  vtkDataArray *inVectors, *inCellVectors;;
+  vtkDataArray *inVectors, *inCellVectors;
   vtkDataArray *newVectors=nullptr, *newCellVectors=nullptr;
   vtkDataArray *inNormals, *inCellNormals;
   vtkDataArray *newNormals=nullptr, *newCellNormals=nullptr;

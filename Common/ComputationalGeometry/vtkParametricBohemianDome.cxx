@@ -38,9 +38,7 @@ vtkParametricBohemianDome::vtkParametricBohemianDome() :
 }
 
 //----------------------------------------------------------------------------//
-vtkParametricBohemianDome::~vtkParametricBohemianDome()
-{
-}
+vtkParametricBohemianDome::~vtkParametricBohemianDome() = default;
 
 //----------------------------------------------------------------------------//
 void vtkParametricBohemianDome::Evaluate(double uvw[3], double Pt[3],

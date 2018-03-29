@@ -28,13 +28,9 @@
 
 vtkStandardNewMacro(vtkSquarifyLayoutStrategy);
 
-vtkSquarifyLayoutStrategy::vtkSquarifyLayoutStrategy()
-{
-}
+vtkSquarifyLayoutStrategy::vtkSquarifyLayoutStrategy() = default;
 
-vtkSquarifyLayoutStrategy::~vtkSquarifyLayoutStrategy()
-{
-}
+vtkSquarifyLayoutStrategy::~vtkSquarifyLayoutStrategy() = default;
 
 void vtkSquarifyLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {

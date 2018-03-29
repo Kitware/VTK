@@ -221,9 +221,7 @@ vtkImageToAMR::vtkImageToAMR()
 }
 
 //----------------------------------------------------------------------------
-vtkImageToAMR::~vtkImageToAMR()
-{
-}
+vtkImageToAMR::~vtkImageToAMR() = default;
 
 //----------------------------------------------------------------------------
 int vtkImageToAMR::FillInputPortInformation(int , vtkInformation* info)

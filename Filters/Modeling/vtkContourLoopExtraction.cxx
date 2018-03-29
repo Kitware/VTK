@@ -223,9 +223,7 @@ vtkContourLoopExtraction::vtkContourLoopExtraction()
 }
 
 //----------------------------------------------------------------------------
-vtkContourLoopExtraction::~vtkContourLoopExtraction()
-{
-}
+vtkContourLoopExtraction::~vtkContourLoopExtraction() = default;
 
 //----------------------------------------------------------------------------
 int vtkContourLoopExtraction::RequestData(

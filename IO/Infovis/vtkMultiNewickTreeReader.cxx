@@ -47,9 +47,7 @@ vtkMultiNewickTreeReader::vtkMultiNewickTreeReader()
 }
 
 //----------------------------------------------------------------------------
-vtkMultiNewickTreeReader::~vtkMultiNewickTreeReader()
-{
-}
+vtkMultiNewickTreeReader::~vtkMultiNewickTreeReader() = default;
 
 //----------------------------------------------------------------------------
 vtkMultiPieceDataSet * vtkMultiNewickTreeReader::GetOutput()

@@ -438,9 +438,7 @@ public:
 
   //---------------------------------------------------------------------------
 protected:
-  vtkSuperCursor<N>()
-  {
-  }
+  vtkSuperCursor<N>() = default;
 
   // Number of cursors in supercursor
   unsigned int NumberOfCursors;
@@ -3362,12 +3360,12 @@ void vtkHyperTreeGrid::GenerateDualCornerFromLeaf1D( vtkHyperTreeGridCursor* cur
   if ( ! cursorL->GetTree() )
   {
     // Move to left corner
-    pt[this->Orientation] -= .5 * cursor->GetSize()[this->Orientation];;
+    pt[this->Orientation] -= .5 * cursor->GetSize()[this->Orientation];
   }
   if ( ! cursorR->GetTree() )
   {
     // Move to right corner
-    pt[this->Orientation] += .5 * cursor->GetSize()[this->Orientation];;
+    pt[this->Orientation] += .5 * cursor->GetSize()[this->Orientation];
   }
 
   // Retrieve global index of center cursor
@@ -3502,7 +3500,7 @@ void vtkHyperTreeGrid::GenerateDualCornerFromLeaf2D( vtkHyperTreeGridCursor* cur
     // If E, NE, and N neighbors are leaves, create a face if E, NE, N at higher level
     ids[1] = cursorE->GetGlobalNodeIndex();
     ids[2] = cursorN->GetGlobalNodeIndex();
-    ids[3] = cursorNE->GetGlobalNodeIndex();;
+    ids[3] = cursorNE->GetGlobalNodeIndex();
     this->Connectivity->InsertNextTypedTuple( ids );
   }
 

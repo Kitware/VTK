@@ -24,14 +24,10 @@
 
 vtkStandardNewMacro(vtkMultiBlockMergeFilter);
 //-----------------------------------------------------------------------------
-vtkMultiBlockMergeFilter::vtkMultiBlockMergeFilter()
-{
-}
+vtkMultiBlockMergeFilter::vtkMultiBlockMergeFilter() = default;
 
 //-----------------------------------------------------------------------------
-vtkMultiBlockMergeFilter::~vtkMultiBlockMergeFilter()
-{
-}
+vtkMultiBlockMergeFilter::~vtkMultiBlockMergeFilter() = default;
 
 //-----------------------------------------------------------------------------
 int vtkMultiBlockMergeFilter::RequestData(

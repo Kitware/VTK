@@ -133,9 +133,7 @@ vtkPointOccupancyFilter::vtkPointOccupancyFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkPointOccupancyFilter::~vtkPointOccupancyFilter()
-{
-}
+vtkPointOccupancyFilter::~vtkPointOccupancyFilter() = default;
 
 //----------------------------------------------------------------------------
 int vtkPointOccupancyFilter::FillInputPortInformation(int, vtkInformation *info)

@@ -24,13 +24,9 @@
 
 vtkStandardNewMacro(vtkCompositeDataDisplayAttributesLegacy)
 
-vtkCompositeDataDisplayAttributesLegacy::vtkCompositeDataDisplayAttributesLegacy()
-{
-}
+vtkCompositeDataDisplayAttributesLegacy::vtkCompositeDataDisplayAttributesLegacy() = default;
 
-vtkCompositeDataDisplayAttributesLegacy::~vtkCompositeDataDisplayAttributesLegacy()
-{
-}
+vtkCompositeDataDisplayAttributesLegacy::~vtkCompositeDataDisplayAttributesLegacy() = default;
 
 void vtkCompositeDataDisplayAttributesLegacy::SetBlockVisibility(unsigned int flat_index, bool visible)
 {

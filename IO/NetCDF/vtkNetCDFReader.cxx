@@ -65,7 +65,7 @@
 
 class vtkNetCDFReaderPrivate {
 public:
-  vtkNetCDFReaderPrivate() {}
+  vtkNetCDFReaderPrivate() = default;
   ~vtkNetCDFReaderPrivate()
   {
     this->ArrayUnits.clear();

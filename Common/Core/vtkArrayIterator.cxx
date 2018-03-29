@@ -17,14 +17,10 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkArrayIterator::vtkArrayIterator()
-{
-}
+vtkArrayIterator::vtkArrayIterator() = default;
 
 //-----------------------------------------------------------------------------
-vtkArrayIterator::~vtkArrayIterator()
-{
-}
+vtkArrayIterator::~vtkArrayIterator() = default;
 
 //-----------------------------------------------------------------------------
 void vtkArrayIterator::PrintSelf(ostream& os, vtkIndent indent)

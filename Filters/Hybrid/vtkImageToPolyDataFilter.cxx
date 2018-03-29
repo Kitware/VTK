@@ -872,7 +872,7 @@ int vtkImageToPolyDataFilter::BuildEdges(vtkUnsignedCharArray *vtkNotUsed(pixels
   pointDescr->InsertValue(1, 1);
 
   x[0] = origin[0] + (dims[0]-1)*spacing[0];
-  x[1] = origin[1] + (dims[1]-1)*spacing[1];;
+  x[1] = origin[1] + (dims[1]-1)*spacing[1];
   x[2] = 0.0;
   points->InsertPoint(2, x);
   pointDescr->InsertValue(2, 1);

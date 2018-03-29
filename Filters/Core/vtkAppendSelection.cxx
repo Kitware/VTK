@@ -37,9 +37,7 @@ vtkAppendSelection::vtkAppendSelection()
 }
 
 //----------------------------------------------------------------------------
-vtkAppendSelection::~vtkAppendSelection()
-{
-}
+vtkAppendSelection::~vtkAppendSelection() = default;
 
 //----------------------------------------------------------------------------
 // Add a dataset to the list of data to append.

@@ -71,9 +71,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkTubePoint::vtkTubePoint()
-{
-}
+vtkTubePoint::vtkTubePoint() = default;
 
 //-----------------------------------------------------------------------------
 vtkTubePoint& vtkTubePoint::operator=(const vtkTubePoint& hp)

@@ -22,14 +22,10 @@
 
 
 //----------------------------------------------------------------------------
-vtkSimpleImageToImageFilter::vtkSimpleImageToImageFilter()
-{
-}
+vtkSimpleImageToImageFilter::vtkSimpleImageToImageFilter() = default;
 
 //----------------------------------------------------------------------------
-vtkSimpleImageToImageFilter::~vtkSimpleImageToImageFilter()
-{
-}
+vtkSimpleImageToImageFilter::~vtkSimpleImageToImageFilter() = default;
 
 //----------------------------------------------------------------------------
 int vtkSimpleImageToImageFilter::RequestUpdateExtent (

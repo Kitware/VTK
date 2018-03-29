@@ -36,9 +36,7 @@ vtkAggregateDataSetFilter::vtkAggregateDataSetFilter()
 }
 
 //-----------------------------------------------------------------------------
-vtkAggregateDataSetFilter::~vtkAggregateDataSetFilter()
-{
-}
+vtkAggregateDataSetFilter::~vtkAggregateDataSetFilter() = default;
 
 //-----------------------------------------------------------------------------
 void vtkAggregateDataSetFilter::SetNumberOfTargetProcesses(int tp)

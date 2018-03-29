@@ -42,9 +42,7 @@ vtkBooleanOperationPolyDataFilter::vtkBooleanOperationPolyDataFilter() :
 }
 
 //-----------------------------------------------------------------------------
-vtkBooleanOperationPolyDataFilter::~vtkBooleanOperationPolyDataFilter()
-{
-}
+vtkBooleanOperationPolyDataFilter::~vtkBooleanOperationPolyDataFilter() = default;
 
 //-----------------------------------------------------------------------------
 void vtkBooleanOperationPolyDataFilter::SortPolyData(vtkPolyData* input,

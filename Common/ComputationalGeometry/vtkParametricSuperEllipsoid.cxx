@@ -67,9 +67,7 @@ vtkParametricSuperEllipsoid::vtkParametricSuperEllipsoid() :
 }
 
 //----------------------------------------------------------------------------
-vtkParametricSuperEllipsoid::~vtkParametricSuperEllipsoid()
-{
-}
+vtkParametricSuperEllipsoid::~vtkParametricSuperEllipsoid() = default;
 
 //----------------------------------------------------------------------------
 void vtkParametricSuperEllipsoid::Evaluate(double uvw[3], double Pt[3],

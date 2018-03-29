@@ -200,9 +200,7 @@ vtkPointInterpolator2D::vtkPointInterpolator2D()
 }
 
 //----------------------------------------------------------------------------
-vtkPointInterpolator2D::~vtkPointInterpolator2D()
-{
-}
+vtkPointInterpolator2D::~vtkPointInterpolator2D() = default;
 
 //----------------------------------------------------------------------------
 // The driver of the algorithm

@@ -30,9 +30,7 @@ vtkInteractorStyleTrackball::vtkInteractorStyleTrackball()
 }
 
 //----------------------------------------------------------------------------
-vtkInteractorStyleTrackball::~vtkInteractorStyleTrackball()
-{
-}
+vtkInteractorStyleTrackball::~vtkInteractorStyleTrackball() = default;
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackball::PrintSelf(ostream& os, vtkIndent indent)

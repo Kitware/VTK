@@ -53,9 +53,7 @@ vtkSMPContourGrid::vtkSMPContourGrid()
 }
 
 //-----------------------------------------------------------------------------
-vtkSMPContourGrid::~vtkSMPContourGrid()
-{
-}
+vtkSMPContourGrid::~vtkSMPContourGrid() = default;
 
 //-----------------------------------------------------------------------------
 // This is to support parallel processing and potential polydata merging.

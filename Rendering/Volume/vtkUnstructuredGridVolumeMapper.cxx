@@ -27,9 +27,7 @@ vtkUnstructuredGridVolumeMapper::vtkUnstructuredGridVolumeMapper()
   this->BlendMode = vtkUnstructuredGridVolumeMapper::COMPOSITE_BLEND;
 }
 
-vtkUnstructuredGridVolumeMapper::~vtkUnstructuredGridVolumeMapper()
-{
-}
+vtkUnstructuredGridVolumeMapper::~vtkUnstructuredGridVolumeMapper() = default;
 
 void vtkUnstructuredGridVolumeMapper::SetInputData( vtkDataSet *genericInput )
 {

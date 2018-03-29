@@ -39,7 +39,7 @@ vtkWebGLWidget::vtkWebGLWidget()
 vtkWebGLWidget::~vtkWebGLWidget()
 {
   delete[] this->binaryData;
-  while(this->colors.size() !=0)
+  while(!this->colors.empty())
   {
     double* xrgb = this->colors.back();
     this->colors.pop_back();

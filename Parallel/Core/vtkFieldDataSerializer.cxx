@@ -29,16 +29,10 @@
 vtkStandardNewMacro(vtkFieldDataSerializer);
 
 //------------------------------------------------------------------------------
-vtkFieldDataSerializer::vtkFieldDataSerializer()
-{
-
-}
+vtkFieldDataSerializer::vtkFieldDataSerializer() = default;
 
 //------------------------------------------------------------------------------
-vtkFieldDataSerializer::~vtkFieldDataSerializer()
-{
-
-}
+vtkFieldDataSerializer::~vtkFieldDataSerializer() = default;
 
 //------------------------------------------------------------------------------
 void vtkFieldDataSerializer::PrintSelf(ostream& os, vtkIndent indent)

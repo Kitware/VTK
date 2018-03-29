@@ -45,9 +45,7 @@ vtkAppendCompositeDataLeaves::vtkAppendCompositeDataLeaves()
 }
 
 //----------------------------------------------------------------------------
-vtkAppendCompositeDataLeaves::~vtkAppendCompositeDataLeaves()
-{
-}
+vtkAppendCompositeDataLeaves::~vtkAppendCompositeDataLeaves() = default;
 
 //----------------------------------------------------------------------------
 int vtkAppendCompositeDataLeaves::RequestDataObject(

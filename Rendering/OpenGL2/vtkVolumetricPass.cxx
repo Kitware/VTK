@@ -20,14 +20,10 @@
 vtkStandardNewMacro(vtkVolumetricPass);
 
 // ----------------------------------------------------------------------------
-vtkVolumetricPass::vtkVolumetricPass()
-{
-}
+vtkVolumetricPass::vtkVolumetricPass() = default;
 
 // ----------------------------------------------------------------------------
-vtkVolumetricPass::~vtkVolumetricPass()
-{
-}
+vtkVolumetricPass::~vtkVolumetricPass() = default;
 
 // ----------------------------------------------------------------------------
 void vtkVolumetricPass::PrintSelf(ostream& os, vtkIndent indent)

@@ -24,14 +24,10 @@
 #include "vtkMultiProcessController.h"
 
 //----------------------------------------------------------------------------
-vtkXMLPStructuredDataWriter::vtkXMLPStructuredDataWriter()
-{
-}
+vtkXMLPStructuredDataWriter::vtkXMLPStructuredDataWriter() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLPStructuredDataWriter::~vtkXMLPStructuredDataWriter()
-{
-}
+vtkXMLPStructuredDataWriter::~vtkXMLPStructuredDataWriter() = default;
 
 //----------------------------------------------------------------------------
 void vtkXMLPStructuredDataWriter::PrintSelf(ostream& os, vtkIndent indent)

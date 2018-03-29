@@ -19,14 +19,10 @@
 vtkObjectFactoryNewMacro(vtkOSPRayVolumeInterface);
 
 // ----------------------------------------------------------------------------
-vtkOSPRayVolumeInterface::vtkOSPRayVolumeInterface()
-{
-}
+vtkOSPRayVolumeInterface::vtkOSPRayVolumeInterface() = default;
 
 // ----------------------------------------------------------------------------
-vtkOSPRayVolumeInterface::~vtkOSPRayVolumeInterface()
-{
-}
+vtkOSPRayVolumeInterface::~vtkOSPRayVolumeInterface() = default;
 
 // ----------------------------------------------------------------------------
 void vtkOSPRayVolumeInterface::PrintSelf(ostream& os, vtkIndent indent)

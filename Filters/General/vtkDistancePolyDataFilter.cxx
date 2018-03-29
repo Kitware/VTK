@@ -38,9 +38,7 @@ vtkDistancePolyDataFilter::vtkDistancePolyDataFilter() : vtkPolyDataAlgorithm()
 }
 
 //-----------------------------------------------------------------------------
-vtkDistancePolyDataFilter::~vtkDistancePolyDataFilter()
-{
-}
+vtkDistancePolyDataFilter::~vtkDistancePolyDataFilter() = default;
 
 
 //-----------------------------------------------------------------------------

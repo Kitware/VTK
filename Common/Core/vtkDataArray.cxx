@@ -123,7 +123,7 @@ struct DeepCopyWorker
     {
       for (int c = 0; c < comps; ++c)
       {
-        dst->SetComponent(t, c, src->GetComponent(t, c));;
+        dst->SetComponent(t, c, src->GetComponent(t, c));
       }
     }
   }

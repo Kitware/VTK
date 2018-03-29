@@ -25,14 +25,10 @@ VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(char);
 vtkStandardNewMacro(vtkCharArray);
 
 //----------------------------------------------------------------------------
-vtkCharArray::vtkCharArray()
-{
-}
+vtkCharArray::vtkCharArray() = default;
 
 //----------------------------------------------------------------------------
-vtkCharArray::~vtkCharArray()
-{
-}
+vtkCharArray::~vtkCharArray() = default;
 
 //----------------------------------------------------------------------------
 void vtkCharArray::PrintSelf(ostream& os, vtkIndent indent)

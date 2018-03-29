@@ -65,9 +65,7 @@ vtkMassProperties::vtkMassProperties()
 
 //----------------------------------------------------------------------------
 // Destroy any allocated memory.
-vtkMassProperties::~vtkMassProperties()
-{
-}
+vtkMassProperties::~vtkMassProperties() = default;
 
 //----------------------------------------------------------------------------
 // Description:

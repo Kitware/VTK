@@ -39,9 +39,7 @@ vtkArcParallelEdgeStrategy::vtkArcParallelEdgeStrategy()
   this->NumberOfSubdivisions = 10;
 }
 
-vtkArcParallelEdgeStrategy::~vtkArcParallelEdgeStrategy()
-{
-}
+vtkArcParallelEdgeStrategy::~vtkArcParallelEdgeStrategy() = default;
 
 void vtkArcParallelEdgeStrategy::Layout()
 {

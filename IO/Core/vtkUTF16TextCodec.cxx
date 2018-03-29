@@ -104,8 +104,8 @@ namespace
     testIterator& operator=(const vtkUnicodeString::value_type) override
       {return *this;}
 
-    testIterator() {}
-    ~testIterator() override {}
+    testIterator() = default;
+    ~testIterator() override = default;
 
   private:
     testIterator(const testIterator&) = delete;
@@ -121,9 +121,7 @@ vtkUTF16TextCodec::vtkUTF16TextCodec() : vtkTextCodec(), _endianExplicitlySet(fa
 {
 }
 
-vtkUTF16TextCodec::~vtkUTF16TextCodec()
-{
-}
+vtkUTF16TextCodec::~vtkUTF16TextCodec() = default;
 
 const char* vtkUTF16TextCodec::Name()
 {

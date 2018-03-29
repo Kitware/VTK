@@ -30,14 +30,10 @@
 vtkStandardNewMacro(vtkStructuredGridAppend);
 
 //----------------------------------------------------------------------------
-vtkStructuredGridAppend::vtkStructuredGridAppend()
-{
-}
+vtkStructuredGridAppend::vtkStructuredGridAppend() = default;
 
 //----------------------------------------------------------------------------
-vtkStructuredGridAppend::~vtkStructuredGridAppend()
-{
-}
+vtkStructuredGridAppend::~vtkStructuredGridAppend() = default;
 
 //----------------------------------------------------------------------------
 void vtkStructuredGridAppend::ReplaceNthInputConnection(

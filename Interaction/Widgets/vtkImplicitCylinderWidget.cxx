@@ -76,9 +76,7 @@ vtkImplicitCylinderWidget::vtkImplicitCylinderWidget()
 }
 
 //----------------------------------------------------------------------------
-vtkImplicitCylinderWidget::~vtkImplicitCylinderWidget()
-{
-}
+vtkImplicitCylinderWidget::~vtkImplicitCylinderWidget() = default;
 
 //----------------------------------------------------------------------
 void vtkImplicitCylinderWidget::SelectAction(vtkAbstractWidget *w)

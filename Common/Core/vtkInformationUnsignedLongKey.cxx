@@ -25,9 +25,7 @@ vtkInformationUnsignedLongKey::vtkInformationUnsignedLongKey(const char* name, c
 }
 
 //----------------------------------------------------------------------------
-vtkInformationUnsignedLongKey::~vtkInformationUnsignedLongKey()
-{
-}
+vtkInformationUnsignedLongKey::~vtkInformationUnsignedLongKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationUnsignedLongKey::PrintSelf(ostream& os, vtkIndent indent)

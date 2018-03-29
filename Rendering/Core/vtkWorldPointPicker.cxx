@@ -21,9 +21,7 @@
 
 vtkStandardNewMacro(vtkWorldPointPicker);
 
-vtkWorldPointPicker::vtkWorldPointPicker()
-{
-}
+vtkWorldPointPicker::vtkWorldPointPicker() = default;
 
 // Perform pick operation with selection point provided. The z location
 // is recovered from the zBuffer. Always returns 0 since no actors are picked.

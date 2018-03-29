@@ -28,14 +28,10 @@
 
 vtkStandardNewMacro(vtkProbeSelectedLocations);
 //----------------------------------------------------------------------------
-vtkProbeSelectedLocations::vtkProbeSelectedLocations()
-{
-}
+vtkProbeSelectedLocations::vtkProbeSelectedLocations() = default;
 
 //----------------------------------------------------------------------------
-vtkProbeSelectedLocations::~vtkProbeSelectedLocations()
-{
-}
+vtkProbeSelectedLocations::~vtkProbeSelectedLocations() = default;
 
 
 //----------------------------------------------------------------------------

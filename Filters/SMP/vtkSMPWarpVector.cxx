@@ -44,9 +44,7 @@ vtkSMPWarpVector::vtkSMPWarpVector()
 }
 
 //----------------------------------------------------------------------------
-vtkSMPWarpVector::~vtkSMPWarpVector()
-{
-}
+vtkSMPWarpVector::~vtkSMPWarpVector() = default;
 
 //----------------------------------------------------------------------------
 template <class T1, class T2>

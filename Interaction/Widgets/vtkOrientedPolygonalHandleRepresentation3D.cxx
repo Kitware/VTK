@@ -37,9 +37,7 @@ vtkOrientedPolygonalHandleRepresentation3D
 
 //----------------------------------------------------------------------
 vtkOrientedPolygonalHandleRepresentation3D
-::~vtkOrientedPolygonalHandleRepresentation3D()
-{
-}
+::~vtkOrientedPolygonalHandleRepresentation3D() = default;
 
 //----------------------------------------------------------------------
 void vtkOrientedPolygonalHandleRepresentation3D::UpdateHandle()

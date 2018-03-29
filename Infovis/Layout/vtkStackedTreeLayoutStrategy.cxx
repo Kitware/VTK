@@ -53,9 +53,7 @@ vtkStackedTreeLayoutStrategy::vtkStackedTreeLayoutStrategy()
   this->InteriorLogSpacingValue = 1.0;
 }
 
-vtkStackedTreeLayoutStrategy::~vtkStackedTreeLayoutStrategy()
-{
-}
+vtkStackedTreeLayoutStrategy::~vtkStackedTreeLayoutStrategy() = default;
 
 void vtkStackedTreeLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {

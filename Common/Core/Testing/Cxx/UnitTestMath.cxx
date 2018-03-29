@@ -896,7 +896,7 @@ int TestMultiplyScalar2D()
 class valueDouble3D
 {
 public:
-  valueDouble3D() {}
+  valueDouble3D() = default;
   valueDouble3D(double aa[3], double bb[3])
   {
     for (int i = 0; i < 3; ++i)
@@ -912,7 +912,7 @@ public:
 class valueFloat3D
 {
 public:
-  valueFloat3D() {}
+  valueFloat3D() = default;
   valueFloat3D(float aa[3], float bb[3])
   {
     for (int i = 0; i < 3; ++i)
@@ -3210,7 +3210,7 @@ int TestClampValues()
   }
 
   vtkMath::ClampValues( nullptr, 1000, nullptr);
-  vtkMath::ClampValues( nullptr, 1000, nullptr, nullptr);;
+  vtkMath::ClampValues( nullptr, 1000, nullptr, nullptr);
 
   if (status)
   {

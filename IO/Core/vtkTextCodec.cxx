@@ -38,14 +38,10 @@ bool vtkTextCodec::IsValid(istream&)
 }
 
 
-vtkTextCodec::~vtkTextCodec()
-{
-}
+vtkTextCodec::~vtkTextCodec() = default;
 
 
-vtkTextCodec::vtkTextCodec()
-{
-}
+vtkTextCodec::vtkTextCodec() = default;
 
 
 namespace
@@ -90,9 +86,7 @@ namespace
   {
   }
 
-  vtkUnicodeStringOutputIterator::~vtkUnicodeStringOutputIterator()
-  {
-  }
+  vtkUnicodeStringOutputIterator::~vtkUnicodeStringOutputIterator() = default;
 }
 
 

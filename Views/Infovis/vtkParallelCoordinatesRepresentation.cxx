@@ -2018,7 +2018,7 @@ int vtkParallelCoordinatesRepresentation::GetPositionAndSize(double* position,
   position[0] = this->Xs[0];
   position[1] = this->YMin;
 
-  size[0] = this->Xs[this->NumberOfAxes-1] - this->Xs[0];;
+  size[0] = this->Xs[this->NumberOfAxes-1] - this->Xs[0];
   size[1] = this->YMax - this->YMin;
   return 1;
 }

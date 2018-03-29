@@ -21,14 +21,10 @@
 vtkStandardNewMacro(vtkCameraWidget);
 
 //-------------------------------------------------------------------------
-vtkCameraWidget::vtkCameraWidget()
-{
-}
+vtkCameraWidget::vtkCameraWidget() = default;
 
 //-------------------------------------------------------------------------
-vtkCameraWidget::~vtkCameraWidget()
-{
-}
+vtkCameraWidget::~vtkCameraWidget() = default;
 
 //----------------------------------------------------------------------
 void vtkCameraWidget::CreateDefaultRepresentation()

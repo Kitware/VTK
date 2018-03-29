@@ -37,9 +37,7 @@ vtkImageGaussianSmooth::vtkImageGaussianSmooth()
 }
 
 //----------------------------------------------------------------------------
-vtkImageGaussianSmooth::~vtkImageGaussianSmooth()
-{
-}
+vtkImageGaussianSmooth::~vtkImageGaussianSmooth() = default;
 
 //----------------------------------------------------------------------------
 void vtkImageGaussianSmooth::PrintSelf(ostream& os, vtkIndent indent)

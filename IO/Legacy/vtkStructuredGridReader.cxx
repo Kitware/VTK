@@ -37,9 +37,7 @@ vtkStructuredGridReader::vtkStructuredGridReader()
   output->Delete();
 }
 
-vtkStructuredGridReader::~vtkStructuredGridReader()
-{
-}
+vtkStructuredGridReader::~vtkStructuredGridReader() = default;
 
 //----------------------------------------------------------------------------
 vtkStructuredGrid* vtkStructuredGridReader::GetOutput()

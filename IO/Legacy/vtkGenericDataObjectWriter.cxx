@@ -48,13 +48,9 @@ vtkDataWriter* CreateWriter(vtkAlgorithmOutput* input)
   return writer;
 }
 
-vtkGenericDataObjectWriter::vtkGenericDataObjectWriter()
-{
-}
+vtkGenericDataObjectWriter::vtkGenericDataObjectWriter() = default;
 
-vtkGenericDataObjectWriter::~vtkGenericDataObjectWriter()
-{
-}
+vtkGenericDataObjectWriter::~vtkGenericDataObjectWriter() = default;
 
 void vtkGenericDataObjectWriter::WriteData()
 {

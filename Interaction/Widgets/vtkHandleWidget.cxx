@@ -92,9 +92,7 @@ vtkHandleWidget::vtkHandleWidget()
 }
 
 //----------------------------------------------------------------------------------
-vtkHandleWidget::~vtkHandleWidget()
-{
-}
+vtkHandleWidget::~vtkHandleWidget() = default;
 
 //----------------------------------------------------------------------
 void vtkHandleWidget::CreateDefaultRepresentation()

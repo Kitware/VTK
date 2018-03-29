@@ -4556,9 +4556,9 @@ int count_from_dimensions(ValueInfo *val)
       cp = val->Dimensions[i];
       if (cp[0] != '\0')
       {
-        while (*cp != '\0' && *cp >= '0' && *cp <= '9') { cp++; }
-        while (*cp != '\0' && (*cp == 'u' || *cp == 'l' ||
-                               *cp == 'U' || *cp == 'L')) { cp++; }
+        while (*cp >= '0' && *cp <= '9') { cp++; }
+        while (*cp == 'u' || *cp == 'l' ||
+               *cp == 'U' || *cp == 'L') { cp++; }
         if (*cp == '\0')
         {
           n = (int)strtol(val->Dimensions[i], NULL, 0);

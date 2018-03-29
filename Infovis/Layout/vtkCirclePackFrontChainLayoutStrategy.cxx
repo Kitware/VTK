@@ -121,13 +121,9 @@ private:
 
 };
 
-vtkCirclePackFrontChainLayoutStrategyImplementation::vtkCirclePackFrontChainLayoutStrategyImplementation()
-{
-}
+vtkCirclePackFrontChainLayoutStrategyImplementation::vtkCirclePackFrontChainLayoutStrategyImplementation() = default;
 
-vtkCirclePackFrontChainLayoutStrategyImplementation::~vtkCirclePackFrontChainLayoutStrategyImplementation()
-{
-}
+vtkCirclePackFrontChainLayoutStrategyImplementation::~vtkCirclePackFrontChainLayoutStrategyImplementation() = default;
 
 void vtkCirclePackFrontChainLayoutStrategyImplementation::incrListIteratorWrapAround(std::list<vtkIdType>::iterator& i,
                                                                                      std::list<vtkIdType>& frontChain)
@@ -194,6 +190,7 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::packTreeNodes(vtkIdTyp
                              circle);
     }
     std::vector<vtkIdType> childNodesPackList;
+    childNodesPackList.reserve(tree->GetNumberOfChildren(treeNode));
     for(int i=0;i<tree->GetNumberOfChildren(treeNode);i++)
     {
       childNodesPackList.push_back(tree->GetChild(treeNode,i));

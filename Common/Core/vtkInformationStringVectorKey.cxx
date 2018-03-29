@@ -31,9 +31,7 @@ vtkInformationStringVectorKey
 }
 
 //----------------------------------------------------------------------------
-vtkInformationStringVectorKey::~vtkInformationStringVectorKey()
-{
-}
+vtkInformationStringVectorKey::~vtkInformationStringVectorKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationStringVectorKey::PrintSelf(ostream& os, vtkIndent indent)

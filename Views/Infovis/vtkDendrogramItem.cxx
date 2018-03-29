@@ -84,9 +84,7 @@ vtkDendrogramItem::vtkDendrogramItem() : PositionVector(0, 0)
 }
 
 //-----------------------------------------------------------------------------
-vtkDendrogramItem::~vtkDendrogramItem()
-{
-}
+vtkDendrogramItem::~vtkDendrogramItem() = default;
 
 //-----------------------------------------------------------------------------
 void vtkDendrogramItem::SetPosition(const vtkVector2f &pos)

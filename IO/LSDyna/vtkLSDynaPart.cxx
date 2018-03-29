@@ -230,7 +230,7 @@ public:
                      const vtkIdType& max):
     MinId(min),MaxId(max+1){} //maxId is meant to be exclusive
 
-  virtual ~InternalPointsUsed(){};
+  virtual ~InternalPointsUsed() = default;
 
   virtual bool isUsed(const vtkIdType &index) const = 0;
 

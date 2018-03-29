@@ -30,9 +30,7 @@ vtkXMLPUnstructuredDataReader::vtkXMLPUnstructuredDataReader()
 }
 
 //----------------------------------------------------------------------------
-vtkXMLPUnstructuredDataReader::~vtkXMLPUnstructuredDataReader()
-{
-}
+vtkXMLPUnstructuredDataReader::~vtkXMLPUnstructuredDataReader() = default;
 
 //----------------------------------------------------------------------------
 void vtkXMLPUnstructuredDataReader::PrintSelf(ostream& os, vtkIndent indent)

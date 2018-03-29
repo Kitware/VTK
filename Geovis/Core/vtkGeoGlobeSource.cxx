@@ -26,14 +26,10 @@
 
 vtkStandardNewMacro(vtkGeoGlobeSource);
 //----------------------------------------------------------------------------
-vtkGeoGlobeSource::vtkGeoGlobeSource()
-{
-}
+vtkGeoGlobeSource::vtkGeoGlobeSource() = default;
 
 //----------------------------------------------------------------------------
-vtkGeoGlobeSource::~vtkGeoGlobeSource()
-{
-}
+vtkGeoGlobeSource::~vtkGeoGlobeSource() = default;
 
 //----------------------------------------------------------------------------
 bool vtkGeoGlobeSource::FetchRoot(vtkGeoTreeNode* r)

@@ -219,14 +219,10 @@ protected:
 
 
 //----------------------------------------------------------------------------
-vtkThreadedCompositeDataPipeline::vtkThreadedCompositeDataPipeline()
-{
-}
+vtkThreadedCompositeDataPipeline::vtkThreadedCompositeDataPipeline() = default;
 
 //----------------------------------------------------------------------------
-vtkThreadedCompositeDataPipeline::~vtkThreadedCompositeDataPipeline()
-{
-}
+vtkThreadedCompositeDataPipeline::~vtkThreadedCompositeDataPipeline() = default;
 
 //-------------------------------------------------------------------------
 void vtkThreadedCompositeDataPipeline::PrintSelf(ostream &os, vtkIndent indent)

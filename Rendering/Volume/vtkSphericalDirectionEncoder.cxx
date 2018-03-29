@@ -32,9 +32,7 @@ vtkSphericalDirectionEncoder::vtkSphericalDirectionEncoder()
 }
 
 // Destruct a vtkSphericalDirectionEncoder - free up any memory used
-vtkSphericalDirectionEncoder::~vtkSphericalDirectionEncoder()
-{
-}
+vtkSphericalDirectionEncoder::~vtkSphericalDirectionEncoder() = default;
 
 // Encode n into a 2 byte value. The first byte will be theta - the
 // rotation angle around the z axis. The second (high order) byte is

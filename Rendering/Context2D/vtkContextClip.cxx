@@ -33,9 +33,7 @@ vtkContextClip::vtkContextClip()
 }
 
 //-----------------------------------------------------------------------------
-vtkContextClip::~vtkContextClip()
-{
-}
+vtkContextClip::~vtkContextClip() = default;
 
 //-----------------------------------------------------------------------------
 bool vtkContextClip::Paint(vtkContext2D *painter)

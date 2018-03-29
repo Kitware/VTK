@@ -36,9 +36,7 @@ vtkParametricFunction::vtkParametricFunction() :
 
 
 //----------------------------------------------------------------------------
-vtkParametricFunction::~vtkParametricFunction()
-{
-}
+vtkParametricFunction::~vtkParametricFunction() = default;
 
 
 //----------------------------------------------------------------------------

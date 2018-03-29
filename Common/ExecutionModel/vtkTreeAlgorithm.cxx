@@ -38,9 +38,7 @@ vtkTreeAlgorithm::vtkTreeAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkTreeAlgorithm::~vtkTreeAlgorithm()
-{
-}
+vtkTreeAlgorithm::~vtkTreeAlgorithm() = default;
 
 //----------------------------------------------------------------------------
 void vtkTreeAlgorithm::PrintSelf(ostream& os, vtkIndent indent)

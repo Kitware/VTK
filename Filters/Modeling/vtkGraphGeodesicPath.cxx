@@ -28,9 +28,7 @@ vtkGraphGeodesicPath::vtkGraphGeodesicPath()
 }
 
 //-----------------------------------------------------------------------------
-vtkGraphGeodesicPath::~vtkGraphGeodesicPath()
-{
-}
+vtkGraphGeodesicPath::~vtkGraphGeodesicPath() = default;
 
 //-----------------------------------------------------------------------------
 void vtkGraphGeodesicPath::PrintSelf(ostream& os, vtkIndent indent)

@@ -46,9 +46,7 @@ vtkContextTransform::vtkContextTransform() : ZoomAnchor(0.0f, 0.0f)
 }
 
 //-----------------------------------------------------------------------------
-vtkContextTransform::~vtkContextTransform()
-{
-}
+vtkContextTransform::~vtkContextTransform() = default;
 
 //-----------------------------------------------------------------------------
 bool vtkContextTransform::Paint(vtkContext2D *painter)

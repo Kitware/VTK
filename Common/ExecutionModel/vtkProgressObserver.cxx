@@ -19,13 +19,9 @@
 
 vtkStandardNewMacro(vtkProgressObserver);
 
-vtkProgressObserver::vtkProgressObserver()
-{
-}
+vtkProgressObserver::vtkProgressObserver() = default;
 
-vtkProgressObserver::~vtkProgressObserver()
-{
-}
+vtkProgressObserver::~vtkProgressObserver() = default;
 
 void vtkProgressObserver::UpdateProgress(double amount)
 {

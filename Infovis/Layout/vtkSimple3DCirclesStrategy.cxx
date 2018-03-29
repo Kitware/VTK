@@ -39,9 +39,7 @@ template <class T> bool IsZero( T value )
 class vtkSimple3DCirclesStrategyInternal
 {
 public:
-  vtkSimple3DCirclesStrategyInternal( void )
-  {
-  };
+  vtkSimple3DCirclesStrategyInternal( void ) = default;
   vtkSimple3DCirclesStrategyInternal( const vtkSimple3DCirclesStrategyInternal &from )
   {
     if ( &from != this )

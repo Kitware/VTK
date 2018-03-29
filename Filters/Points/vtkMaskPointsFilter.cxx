@@ -116,9 +116,7 @@ vtkMaskPointsFilter::vtkMaskPointsFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkMaskPointsFilter::~vtkMaskPointsFilter()
-{
-}
+vtkMaskPointsFilter::~vtkMaskPointsFilter() = default;
 
 //----------------------------------------------------------------------------
 int vtkMaskPointsFilter::

@@ -42,10 +42,7 @@ vtkRectilinearGridPartitioner::vtkRectilinearGridPartitioner()
 }
 
 //------------------------------------------------------------------------------
-vtkRectilinearGridPartitioner::~vtkRectilinearGridPartitioner()
-{
-
-}
+vtkRectilinearGridPartitioner::~vtkRectilinearGridPartitioner() = default;
 
 //------------------------------------------------------------------------------
 void vtkRectilinearGridPartitioner::PrintSelf(

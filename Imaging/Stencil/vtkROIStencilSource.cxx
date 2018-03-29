@@ -43,9 +43,7 @@ vtkROIStencilSource::vtkROIStencilSource()
 }
 
 //----------------------------------------------------------------------------
-vtkROIStencilSource::~vtkROIStencilSource()
-{
-}
+vtkROIStencilSource::~vtkROIStencilSource() = default;
 
 //----------------------------------------------------------------------------
 void vtkROIStencilSource::PrintSelf(ostream& os, vtkIndent indent)

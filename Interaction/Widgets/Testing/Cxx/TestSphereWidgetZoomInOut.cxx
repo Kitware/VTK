@@ -31,7 +31,7 @@ class vtkSphWCallback : public vtkCommand
     void Execute(vtkObject*, unsigned long, void*) override
     {
     }
-    vtkSphWCallback() {}
+    vtkSphWCallback() = default;
 };
 
 const char SphereWidgetEventLog[] =

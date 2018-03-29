@@ -44,9 +44,7 @@ vtkImageConvolve::vtkImageConvolve()
 
 //----------------------------------------------------------------------------
 // Destructor
-vtkImageConvolve::~vtkImageConvolve()
-{
-}
+vtkImageConvolve::~vtkImageConvolve() = default;
 
 //----------------------------------------------------------------------------
 void vtkImageConvolve::PrintSelf(ostream& os, vtkIndent indent)

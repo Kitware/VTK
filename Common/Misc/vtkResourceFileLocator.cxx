@@ -44,9 +44,7 @@ vtkResourceFileLocator::vtkResourceFileLocator()
 }
 
 //----------------------------------------------------------------------------
-vtkResourceFileLocator::~vtkResourceFileLocator()
-{
-}
+vtkResourceFileLocator::~vtkResourceFileLocator() = default;
 
 //----------------------------------------------------------------------------
 std::string vtkResourceFileLocator::Locate(

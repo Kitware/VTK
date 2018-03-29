@@ -28,9 +28,7 @@ vtkMatrix3x3::vtkMatrix3x3()
 }
 
 //----------------------------------------------------------------------------
-vtkMatrix3x3::~vtkMatrix3x3()
-{
-}
+vtkMatrix3x3::~vtkMatrix3x3() = default;
 
 //----------------------------------------------------------------------------
 void vtkMatrix3x3::Zero(double elements[9])

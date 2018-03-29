@@ -31,13 +31,9 @@
 vtkStandardNewMacro(vtkRectilinearGridToPointSet);
 
 //-------------------------------------------------------------------------
-vtkRectilinearGridToPointSet::vtkRectilinearGridToPointSet()
-{
-}
+vtkRectilinearGridToPointSet::vtkRectilinearGridToPointSet() = default;
 
-vtkRectilinearGridToPointSet::~vtkRectilinearGridToPointSet()
-{
-}
+vtkRectilinearGridToPointSet::~vtkRectilinearGridToPointSet() = default;
 
 void vtkRectilinearGridToPointSet::PrintSelf(ostream &os, vtkIndent indent)
 {

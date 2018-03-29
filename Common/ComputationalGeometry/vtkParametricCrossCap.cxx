@@ -36,9 +36,7 @@ vtkParametricCrossCap::vtkParametricCrossCap()
 }
 
 //----------------------------------------------------------------------------
-vtkParametricCrossCap::~vtkParametricCrossCap()
-{
-}
+vtkParametricCrossCap::~vtkParametricCrossCap() = default;
 
 //----------------------------------------------------------------------------
 void vtkParametricCrossCap::Evaluate(double uvw[3], double Pt[3],

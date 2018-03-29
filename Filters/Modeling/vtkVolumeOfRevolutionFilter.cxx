@@ -421,9 +421,7 @@ vtkVolumeOfRevolutionFilter::vtkVolumeOfRevolutionFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkVolumeOfRevolutionFilter::~vtkVolumeOfRevolutionFilter()
-{
-}
+vtkVolumeOfRevolutionFilter::~vtkVolumeOfRevolutionFilter() = default;
 
 //----------------------------------------------------------------------------
 int vtkVolumeOfRevolutionFilter::RequestData(

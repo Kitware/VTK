@@ -199,8 +199,8 @@ class vtkPCAAssessFunctor : public vtkMultiCorrelativeAssessFunctor
 public:
   static vtkPCAAssessFunctor* New();
 
-  vtkPCAAssessFunctor() { }
-  ~vtkPCAAssessFunctor() override { }
+  vtkPCAAssessFunctor() = default;
+  ~vtkPCAAssessFunctor() override = default;
   virtual bool InitializePCA(
                              vtkTable* inData, vtkTable* reqModel,
                              int normScheme, int basisScheme, int basisSize, double basisEnergy );
@@ -370,9 +370,7 @@ vtkPCAStatistics::vtkPCAStatistics()
 }
 
 // ----------------------------------------------------------------------
-vtkPCAStatistics::~vtkPCAStatistics()
-{
-}
+vtkPCAStatistics::~vtkPCAStatistics() = default;
 
 // ----------------------------------------------------------------------
 void vtkPCAStatistics::PrintSelf( ostream& os, vtkIndent indent )

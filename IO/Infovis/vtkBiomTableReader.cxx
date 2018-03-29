@@ -49,9 +49,7 @@ vtkBiomTableReader::vtkBiomTableReader()
 }
 
 //----------------------------------------------------------------------------
-vtkBiomTableReader::~vtkBiomTableReader()
-{
-}
+vtkBiomTableReader::~vtkBiomTableReader() = default;
 
 //----------------------------------------------------------------------------
 vtkTable* vtkBiomTableReader::GetOutput()

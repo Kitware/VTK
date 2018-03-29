@@ -380,7 +380,7 @@ public:
 
     // Put the number of floats
     int numFloats = static_cast<int>(size);
-    int numFloats_reversed = vtkX3DExporterFIWriterHelper::ReverseBytes(&numFloats);;
+    int numFloats_reversed = vtkX3DExporterFIWriterHelper::ReverseBytes(&numFloats);
     s = reinterpret_cast <char*> (&numFloats_reversed);
     bytesCompressed.append(s, 4);
 

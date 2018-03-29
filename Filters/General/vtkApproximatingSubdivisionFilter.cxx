@@ -28,9 +28,7 @@
 
 
 // Construct object with number of subdivisions set to 1.
-vtkApproximatingSubdivisionFilter::vtkApproximatingSubdivisionFilter()
-{
-}
+vtkApproximatingSubdivisionFilter::vtkApproximatingSubdivisionFilter() = default;
 
 int vtkApproximatingSubdivisionFilter::RequestData(
   vtkInformation *request,

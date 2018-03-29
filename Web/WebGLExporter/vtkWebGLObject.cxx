@@ -37,9 +37,7 @@ vtkWebGLObject::vtkWebGLObject()
 }
 
 //-----------------------------------------------------------------------------
-vtkWebGLObject::~vtkWebGLObject()
-{
-}
+vtkWebGLObject::~vtkWebGLObject() = default;
 
 //-----------------------------------------------------------------------------
 std::string vtkWebGLObject::GetId()

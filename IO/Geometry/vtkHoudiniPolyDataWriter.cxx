@@ -54,7 +54,7 @@ namespace
 
   struct AttributeBase
   {
-    virtual ~AttributeBase() {}
+    virtual ~AttributeBase() = default;
     virtual void StreamHeader(std::ostream&) const = 0;
     virtual void StreamData(std::ostream&, vtkIdType) const = 0;
   };

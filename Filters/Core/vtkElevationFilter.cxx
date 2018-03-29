@@ -136,9 +136,7 @@ vtkElevationFilter::vtkElevationFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkElevationFilter::~vtkElevationFilter()
-{
-}
+vtkElevationFilter::~vtkElevationFilter() = default;
 
 //----------------------------------------------------------------------------
 void vtkElevationFilter::PrintSelf(ostream& os, vtkIndent indent)

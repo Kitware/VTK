@@ -29,9 +29,7 @@ vtkClearZPass::vtkClearZPass()
 }
 
 // ----------------------------------------------------------------------------
-vtkClearZPass::~vtkClearZPass()
-{
-}
+vtkClearZPass::~vtkClearZPass() = default;
 
 // ----------------------------------------------------------------------------
 void vtkClearZPass::PrintSelf(ostream& os, vtkIndent indent)

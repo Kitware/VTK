@@ -24,9 +24,7 @@
 
 vtkStandardNewMacro( vtkAMRDataSetCache );
 
-vtkAMRDataSetCache::vtkAMRDataSetCache()
-{
-}
+vtkAMRDataSetCache::vtkAMRDataSetCache() = default;
 
 //------------------------------------------------------------------------------
 vtkAMRDataSetCache::~vtkAMRDataSetCache()

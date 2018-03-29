@@ -82,9 +82,7 @@ vtkContourWidget::vtkContourWidget()
 }
 
 //----------------------------------------------------------------------
-vtkContourWidget::~vtkContourWidget()
-{
-}
+vtkContourWidget::~vtkContourWidget() = default;
 
 //----------------------------------------------------------------------
 void vtkContourWidget::CreateDefaultRepresentation()

@@ -422,7 +422,7 @@ void vtkAMRUtilities::BlankGridsAtLevel(vtkOverlappingAMR* amr, int levelIdx,
       // it covers
       for (iter=dsChildren.begin(); iter!=dsChildren.end(); ++iter)
       {
-        vtkAMRBox ibox;;
+        vtkAMRBox ibox;
         int childGridIndex  = amr->GetCompositeIndex(levelIdx+1, *iter);
         if(processMap[childGridIndex]<0)
         {

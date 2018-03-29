@@ -59,9 +59,7 @@ vtkDistributedGraphHelper::vtkDistributedGraphHelper()
 }
 
 //----------------------------------------------------------------------------
-vtkDistributedGraphHelper::~vtkDistributedGraphHelper()
-{
-}
+vtkDistributedGraphHelper::~vtkDistributedGraphHelper() = default;
 
 //----------------------------------------------------------------------------
 vtkIdType vtkDistributedGraphHelper::GetVertexOwner(vtkIdType v) const

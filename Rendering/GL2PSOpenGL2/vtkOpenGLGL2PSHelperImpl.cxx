@@ -551,14 +551,10 @@ void vtkOpenGLGL2PSHelperImpl::DrawImage(vtkImageData *input, double pos[3])
 }
 
 //------------------------------------------------------------------------------
-vtkOpenGLGL2PSHelperImpl::vtkOpenGLGL2PSHelperImpl()
-{
-}
+vtkOpenGLGL2PSHelperImpl::vtkOpenGLGL2PSHelperImpl() = default;
 
 //------------------------------------------------------------------------------
-vtkOpenGLGL2PSHelperImpl::~vtkOpenGLGL2PSHelperImpl()
-{
-}
+vtkOpenGLGL2PSHelperImpl::~vtkOpenGLGL2PSHelperImpl() = default;
 
 //------------------------------------------------------------------------------
 const char *

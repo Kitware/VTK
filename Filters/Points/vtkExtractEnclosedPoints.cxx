@@ -148,9 +148,7 @@ vtkExtractEnclosedPoints::vtkExtractEnclosedPoints()
 }
 
 //----------------------------------------------------------------------------
-vtkExtractEnclosedPoints::~vtkExtractEnclosedPoints()
-{
-}
+vtkExtractEnclosedPoints::~vtkExtractEnclosedPoints() = default;
 
 //----------------------------------------------------------------------------
 // Partial implementation invokes vtkPointCloudFilter::RequestData(). This is

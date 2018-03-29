@@ -49,9 +49,7 @@ vtkRectilinearWipeWidget::vtkRectilinearWipeWidget()
 }
 
 //----------------------------------------------------------------------
-vtkRectilinearWipeWidget::~vtkRectilinearWipeWidget()
-{
-}
+vtkRectilinearWipeWidget::~vtkRectilinearWipeWidget() = default;
 
 //-------------------------------------------------------------------------
 void vtkRectilinearWipeWidget::SetCursor(int cState)

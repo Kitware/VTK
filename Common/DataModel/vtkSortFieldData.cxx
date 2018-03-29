@@ -24,14 +24,10 @@
 vtkStandardNewMacro(vtkSortFieldData);
 
 //-------------------------------------------------------------------------
-vtkSortFieldData::vtkSortFieldData()
-{
-}
+vtkSortFieldData::vtkSortFieldData() = default;
 
 //---------------------------------------------------------------------------
-vtkSortFieldData::~vtkSortFieldData()
-{
-}
+vtkSortFieldData::~vtkSortFieldData() = default;
 
 //-------------------------------------------------------------------------
 // Using vtkSortDataArray, it's easy to loop over all of the arrays in the

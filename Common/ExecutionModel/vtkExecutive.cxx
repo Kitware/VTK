@@ -53,9 +53,7 @@ public:
 };
 
 //----------------------------------------------------------------------------
-vtkExecutiveInternals::vtkExecutiveInternals()
-{
-}
+vtkExecutiveInternals::vtkExecutiveInternals() = default;
 
 //----------------------------------------------------------------------------
 vtkExecutiveInternals::~vtkExecutiveInternals()

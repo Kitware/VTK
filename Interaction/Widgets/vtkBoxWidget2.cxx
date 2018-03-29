@@ -117,9 +117,7 @@ vtkBoxWidget2::vtkBoxWidget2()
 }
 
 //----------------------------------------------------------------------------
-vtkBoxWidget2::~vtkBoxWidget2()
-{
-}
+vtkBoxWidget2::~vtkBoxWidget2() = default;
 
 //----------------------------------------------------------------------
 void vtkBoxWidget2::SelectAction(vtkAbstractWidget *w)

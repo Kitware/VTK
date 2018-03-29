@@ -29,9 +29,7 @@ vtkInformationDoubleVectorKey
 }
 
 //----------------------------------------------------------------------------
-vtkInformationDoubleVectorKey::~vtkInformationDoubleVectorKey()
-{
-}
+vtkInformationDoubleVectorKey::~vtkInformationDoubleVectorKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationDoubleVectorKey::PrintSelf(ostream& os, vtkIndent indent)

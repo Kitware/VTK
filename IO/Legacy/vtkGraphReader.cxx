@@ -42,9 +42,7 @@ vtkGraphReader::vtkGraphReader()
 }
 
 //----------------------------------------------------------------------------
-vtkGraphReader::~vtkGraphReader()
-{
-}
+vtkGraphReader::~vtkGraphReader() = default;
 
 //----------------------------------------------------------------------------
 vtkGraph* vtkGraphReader::GetOutput()

@@ -650,6 +650,4 @@ vtkMathTextFreeTypeTextRenderer::vtkMathTextFreeTypeTextRenderer()
 }
 
 //------------------------------------------------------------------------------
-vtkMathTextFreeTypeTextRenderer::~vtkMathTextFreeTypeTextRenderer()
-{
-}
+vtkMathTextFreeTypeTextRenderer::~vtkMathTextFreeTypeTextRenderer() = default;

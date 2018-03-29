@@ -53,9 +53,7 @@ vtkTreeHeatmapItem::vtkTreeHeatmapItem()
 }
 
 //-----------------------------------------------------------------------------
-vtkTreeHeatmapItem::~vtkTreeHeatmapItem()
-{
-}
+vtkTreeHeatmapItem::~vtkTreeHeatmapItem() = default;
 
 //-----------------------------------------------------------------------------
 void vtkTreeHeatmapItem::SetTree(vtkTree *tree)

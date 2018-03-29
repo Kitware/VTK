@@ -15,9 +15,7 @@
 #include "vtkPolygonBuilder.h"
 #include "vtkIdListCollection.h"
 
-vtkPolygonBuilder::vtkPolygonBuilder()
-{
-}
+vtkPolygonBuilder::vtkPolygonBuilder() = default;
 
 void vtkPolygonBuilder::InsertTriangle(vtkIdType* abc)
 {

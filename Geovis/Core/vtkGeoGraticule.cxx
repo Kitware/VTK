@@ -79,9 +79,7 @@ vtkGeoGraticule::vtkGeoGraticule()
   this->GeometryType = vtkGeoGraticule::POLYLINES;
 }
 
-vtkGeoGraticule::~vtkGeoGraticule()
-{
-}
+vtkGeoGraticule::~vtkGeoGraticule() = default;
 
 void vtkGeoGraticule::PrintSelf( ostream& os, vtkIndent indent )
 {

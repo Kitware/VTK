@@ -39,9 +39,7 @@ vtkTableAlgorithm::vtkTableAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkTableAlgorithm::~vtkTableAlgorithm()
-{
-}
+vtkTableAlgorithm::~vtkTableAlgorithm() = default;
 
 //----------------------------------------------------------------------------
 void vtkTableAlgorithm::PrintSelf(ostream& os, vtkIndent indent)

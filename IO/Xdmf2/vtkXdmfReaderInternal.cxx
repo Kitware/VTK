@@ -253,7 +253,7 @@ vtkXdmfDomain::~vtkXdmfDomain()
   delete this->PointArrays;
   delete this->CellArrays;
   delete this->Grids;
-  delete this->Sets;;
+  delete this->Sets;
 }
 
 //----------------------------------------------------------------------------

@@ -38,9 +38,7 @@ vtkParametricBoy::vtkParametricBoy()
 }
 
 //----------------------------------------------------------------------------
-vtkParametricBoy::~vtkParametricBoy()
-{
-}
+vtkParametricBoy::~vtkParametricBoy() = default;
 
 //----------------------------------------------------------------------------
 void vtkParametricBoy::Evaluate(double uvw[3], double Pt[3],

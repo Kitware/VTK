@@ -40,9 +40,7 @@ vtkRenderState::vtkRenderState(vtkRenderer *renderer)
 // Description:
 // Destructor. As a vtkRenderState does not own any of its variables,
 // the destructor does nothing.
-vtkRenderState::~vtkRenderState()
-{
-}
+vtkRenderState::~vtkRenderState() = default;
 
 // ----------------------------------------------------------------------------
 // Description:

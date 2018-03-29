@@ -51,8 +51,7 @@ vtkQuadraturePointsGenerator::vtkQuadraturePointsGenerator()
 }
 
 //-----------------------------------------------------------------------------
-vtkQuadraturePointsGenerator::~vtkQuadraturePointsGenerator()
-{}
+vtkQuadraturePointsGenerator::~vtkQuadraturePointsGenerator() = default;
 
 //-----------------------------------------------------------------------------
 int vtkQuadraturePointsGenerator::FillInputPortInformation(

@@ -22,9 +22,7 @@ vtkAbstractInteractionDevice::vtkAbstractInteractionDevice()
 {
 }
 
-vtkAbstractInteractionDevice::~vtkAbstractInteractionDevice()
-{
-}
+vtkAbstractInteractionDevice::~vtkAbstractInteractionDevice() = default;
 
 void vtkAbstractInteractionDevice::SetRenderWidget(vtkRenderWidget *widget)
 {

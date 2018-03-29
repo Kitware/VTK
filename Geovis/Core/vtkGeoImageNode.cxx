@@ -35,9 +35,7 @@ vtkGeoImageNode::vtkGeoImageNode()
 }
 
 //-----------------------------------------------------------------------------
-vtkGeoImageNode::~vtkGeoImageNode()
-{
-}
+vtkGeoImageNode::~vtkGeoImageNode() = default;
 
 //-----------------------------------------------------------------------------
 void vtkGeoImageNode::PrintSelf(ostream& os, vtkIndent indent)

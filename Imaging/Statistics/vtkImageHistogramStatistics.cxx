@@ -43,9 +43,7 @@ vtkImageHistogramStatistics::vtkImageHistogramStatistics()
 }
 
 //----------------------------------------------------------------------------
-vtkImageHistogramStatistics::~vtkImageHistogramStatistics()
-{
-}
+vtkImageHistogramStatistics::~vtkImageHistogramStatistics() = default;
 
 //----------------------------------------------------------------------------
 void vtkImageHistogramStatistics::PrintSelf(ostream& os, vtkIndent indent)

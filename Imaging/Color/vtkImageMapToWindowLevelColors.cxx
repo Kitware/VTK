@@ -31,9 +31,7 @@ vtkImageMapToWindowLevelColors::vtkImageMapToWindowLevelColors()
   this->Level  = 127.5;
 }
 
-vtkImageMapToWindowLevelColors::~vtkImageMapToWindowLevelColors()
-{
-}
+vtkImageMapToWindowLevelColors::~vtkImageMapToWindowLevelColors() = default;
 
 //----------------------------------------------------------------------------
 // This method checks to see if we can simply reference the input data

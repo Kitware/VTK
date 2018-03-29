@@ -28,14 +28,10 @@
 
 vtkStandardNewMacro(vtkWebUtilities);
 //----------------------------------------------------------------------------
-vtkWebUtilities::vtkWebUtilities()
-{
-}
+vtkWebUtilities::vtkWebUtilities() = default;
 
 //----------------------------------------------------------------------------
-vtkWebUtilities::~vtkWebUtilities()
-{
-}
+vtkWebUtilities::~vtkWebUtilities() = default;
 
 //----------------------------------------------------------------------------
 std::string vtkWebUtilities::WriteAttributesToJavaScript(

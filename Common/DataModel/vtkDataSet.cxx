@@ -708,7 +708,7 @@ vtkIdType vtkDataSet::GetNumberOfElements(int type)
     case CELL:
       return this->GetNumberOfCells();
   }
-  return this->Superclass::GetNumberOfElements(type);;
+  return this->Superclass::GetNumberOfElements(type);
 }
 
 //----------------------------------------------------------------------------

@@ -28,9 +28,7 @@ vtkStandardNewMacro(vtkSubdivideTetra);
 //----------------------------------------------------------------------------
 // Description:
 // Construct with all types of clipping turned off.
-vtkSubdivideTetra::vtkSubdivideTetra()
-{
-}
+vtkSubdivideTetra::vtkSubdivideTetra() = default;
 
 //----------------------------------------------------------------------------
 int vtkSubdivideTetra::RequestData(

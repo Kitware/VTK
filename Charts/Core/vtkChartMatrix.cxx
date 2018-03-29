@@ -29,7 +29,7 @@ class vtkChartMatrix::PIMPL
 {
 public:
   PIMPL() : Geometry(0, 0) {}
-  ~PIMPL() {}
+  ~PIMPL() = default;
 
   // Container for the vtkChart objects that make up the matrix.
   std::vector< vtkSmartPointer<vtkChart> > Charts;

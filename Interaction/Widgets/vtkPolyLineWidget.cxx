@@ -58,9 +58,7 @@ vtkPolyLineWidget::vtkPolyLineWidget()
 }
 
 //----------------------------------------------------------------------------
-vtkPolyLineWidget::~vtkPolyLineWidget()
-{
-}
+vtkPolyLineWidget::~vtkPolyLineWidget() = default;
 
 //----------------------------------------------------------------------
 void vtkPolyLineWidget::SelectAction(vtkAbstractWidget *w)

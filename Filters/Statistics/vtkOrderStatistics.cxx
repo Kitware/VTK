@@ -55,9 +55,7 @@ vtkOrderStatistics::vtkOrderStatistics()
 }
 
 // ----------------------------------------------------------------------
-vtkOrderStatistics::~vtkOrderStatistics()
-{
-}
+vtkOrderStatistics::~vtkOrderStatistics() = default;
 
 // ----------------------------------------------------------------------
 void vtkOrderStatistics::PrintSelf( ostream &os, vtkIndent indent )
@@ -528,7 +526,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
     // Last quantile index is always cardinality with no jump (corresponding to the last and thus largest value)
     qIdxPair.first = nRowHist - 1;
-    qIdxPair.second = nRowHist - 1;;
+    qIdxPair.second = nRowHist - 1;
     quantileIndices.push_back( qIdxPair );
 
     // Finally prepare quantile values column depending on data type
@@ -842,9 +840,7 @@ public:
     this->Data      = vtkArrayDownCast<vtkDataArray>( vals );
     this->Quantiles = vtkArrayDownCast<vtkDataArray>( quantiles );
   }
-  ~DataArrayQuantizer() override
-  {
-  }
+  ~DataArrayQuantizer() override = default;
   void operator() ( vtkDoubleArray* result,
                             vtkIdType id ) override
   {
@@ -883,9 +879,7 @@ public:
     this->Data      = vtkArrayDownCast<vtkStringArray>( vals );
     this->Quantiles = vtkArrayDownCast<vtkStringArray>( quantiles );
   }
-  ~StringArrayQuantizer() override
-  {
-  }
+  ~StringArrayQuantizer() override = default;
   void operator() ( vtkDoubleArray* result,
                             vtkIdType id ) override
   {
@@ -924,9 +918,7 @@ public:
     this->Data      = vtkArrayDownCast<vtkVariantArray>( vals );
     this->Quantiles = vtkArrayDownCast<vtkVariantArray>( quantiles );
   }
-  ~VariantArrayQuantizer() override
-  {
-  }
+  ~VariantArrayQuantizer() override = default;
   void operator() ( vtkDoubleArray* result,
                             vtkIdType id ) override
   {

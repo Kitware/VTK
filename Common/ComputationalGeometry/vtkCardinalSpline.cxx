@@ -22,9 +22,7 @@ vtkStandardNewMacro(vtkCardinalSpline);
 
 //----------------------------------------------------------------------------
 // Construct a Cardinal Spline.
-vtkCardinalSpline::vtkCardinalSpline ()
-{
-}
+vtkCardinalSpline::vtkCardinalSpline () = default;
 
 //----------------------------------------------------------------------------
 // Evaluate a 1D Spline

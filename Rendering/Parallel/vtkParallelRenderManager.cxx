@@ -199,7 +199,7 @@ void vtkParallelRenderManager::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "FullImage: ";
   if (this->FullImage)
   {
-    this->FullImage->PrintSelf(os, indent.GetNextIndent());;
+    this->FullImage->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
@@ -1339,7 +1339,7 @@ void vtkParallelRenderManager::MagnifyImageLinear(
 {
   int xmag, ymag;
   int x, y;
-  int srcComp = reducedImage->GetNumberOfComponents();;
+  int srcComp = reducedImage->GetNumberOfComponents();
 
   //Allocate full image so all pixels are on 4-byte integer boundaries.
   fullImage->SetNumberOfComponents(4);

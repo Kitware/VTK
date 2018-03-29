@@ -35,9 +35,7 @@ vtkSplitColumnComponents::vtkSplitColumnComponents()
 }
 
 //---------------------------------------------------------------------------
-vtkSplitColumnComponents::~vtkSplitColumnComponents()
-{
-}
+vtkSplitColumnComponents::~vtkSplitColumnComponents() = default;
 
 //---------------------------------------------------------------------------
 // Templated function in an anonymous namespace to copy the data from the
@@ -226,7 +224,7 @@ vtkStdString vtkSplitColumnComponents::GetComponentLabel(
   case NAMES_WITH_UNDERSCORES:
   default:
     stream << array->GetName() << "_"
-      << vtkGetComponentName(array, component_no).c_str();;
+      << vtkGetComponentName(array, component_no).c_str();
     break;
   }
   return stream.str();

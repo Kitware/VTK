@@ -36,9 +36,7 @@ vtkImageDataToUniformGrid::vtkImageDataToUniformGrid()
 }
 
 //----------------------------------------------------------------------------
-vtkImageDataToUniformGrid::~vtkImageDataToUniformGrid()
-{
-}
+vtkImageDataToUniformGrid::~vtkImageDataToUniformGrid() = default;
 
 //----------------------------------------------------------------------------
 void vtkImageDataToUniformGrid::PrintSelf(ostream &os, vtkIndent indent)

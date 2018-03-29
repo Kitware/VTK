@@ -30,14 +30,10 @@
 vtkStandardNewMacro(vtkXMLPTableWriter);
 
 //----------------------------------------------------------------------------
-vtkXMLPTableWriter::vtkXMLPTableWriter()
-{
-}
+vtkXMLPTableWriter::vtkXMLPTableWriter() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLPTableWriter::~vtkXMLPTableWriter()
-{
-}
+vtkXMLPTableWriter::~vtkXMLPTableWriter() = default;
 
 //----------------------------------------------------------------------------
 void vtkXMLPTableWriter::PrintSelf(ostream& os, vtkIndent indent)

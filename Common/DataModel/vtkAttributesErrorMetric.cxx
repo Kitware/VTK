@@ -34,9 +34,7 @@ vtkAttributesErrorMetric::vtkAttributesErrorMetric()
 }
 
 //-----------------------------------------------------------------------------
-vtkAttributesErrorMetric::~vtkAttributesErrorMetric()
-{
-}
+vtkAttributesErrorMetric::~vtkAttributesErrorMetric() = default;
 
 //-----------------------------------------------------------------------------
 // Description:

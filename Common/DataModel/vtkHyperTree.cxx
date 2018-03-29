@@ -577,9 +577,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  ~vtkCompactHyperTree() override
-  {
-  }
+  ~vtkCompactHyperTree() override = default;
 
   //---------------------------------------------------------------------------
   int GetBranchFactor() override

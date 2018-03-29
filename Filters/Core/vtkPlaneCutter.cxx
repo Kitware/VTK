@@ -1736,7 +1736,7 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
     vtkSphereTree* tree = nullptr;
     if (this->BuildTree)
     {
-      if (this->SphereTrees.size() < 1)
+      if (this->SphereTrees.empty())
       {
         this->SphereTrees.push_back(vtkSmartPointer<vtkSphereTree>::New());
       }

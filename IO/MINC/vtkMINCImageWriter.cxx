@@ -776,7 +776,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
     {
       if (strcmp(varname, *tryname) == 0)
       {
-        if (rootChildren != MI_EMPTY_STRING)
+        if (!rootChildren.empty())
         {
           rootChildren.append(MI_CHILD_SEPARATOR);
         }

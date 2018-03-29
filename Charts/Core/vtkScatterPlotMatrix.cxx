@@ -117,7 +117,7 @@ public:
       this->LabelFont->SetColor(0.0, 0.0, 0.0);
       this->LabelFont->SetOpacity(1.0);
     }
-    ~pimplChartSetting() {}
+    ~pimplChartSetting() = default;
 
     int MarkerStyle;
     float MarkerSize;

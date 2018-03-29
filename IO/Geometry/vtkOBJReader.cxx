@@ -260,7 +260,7 @@ int vtkOBJReader::RequestData(
   this->SetComment(firstComment.c_str());
 
   // If no material texture coordinates are found, add default TCoords
-  if (tcoords_map.size() == 0)
+  if (tcoords_map.empty())
   {
     vtkFloatArray *tcoords = vtkFloatArray::New();
     tcoords->SetNumberOfComponents(2);

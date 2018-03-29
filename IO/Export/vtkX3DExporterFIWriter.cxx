@@ -56,7 +56,7 @@ class vtkX3DExporterFIByteWriter
 {
 public:
   ~vtkX3DExporterFIByteWriter();
-  vtkX3DExporterFIByteWriter() {};
+  vtkX3DExporterFIByteWriter() = default;
   // This is the current byte to fill
   unsigned char CurrentByte;
   // This is the current byte position. Range: 0-7

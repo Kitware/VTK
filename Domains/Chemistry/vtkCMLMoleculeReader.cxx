@@ -77,7 +77,7 @@ vtkCMLMoleculeReader::~vtkCMLMoleculeReader()
 //----------------------------------------------------------------------------
 vtkMolecule *vtkCMLMoleculeReader::GetOutput()
 {
-  return vtkMolecule::SafeDownCast(this->GetOutputDataObject(0));;
+  return vtkMolecule::SafeDownCast(this->GetOutputDataObject(0));
 }
 
 //----------------------------------------------------------------------------

@@ -25,14 +25,10 @@ VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned int);
 vtkStandardNewMacro(vtkUnsignedIntArray);
 
 //----------------------------------------------------------------------------
-vtkUnsignedIntArray::vtkUnsignedIntArray()
-{
-}
+vtkUnsignedIntArray::vtkUnsignedIntArray() = default;
 
 //----------------------------------------------------------------------------
-vtkUnsignedIntArray::~vtkUnsignedIntArray()
-{
-}
+vtkUnsignedIntArray::~vtkUnsignedIntArray() = default;
 
 //----------------------------------------------------------------------------
 void vtkUnsignedIntArray::PrintSelf(ostream& os, vtkIndent indent)

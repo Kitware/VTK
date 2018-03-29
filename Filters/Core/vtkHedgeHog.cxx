@@ -139,7 +139,7 @@ int vtkHedgeHog::RequestData(
     }
 
     pts[0] = ptId;
-    pts[1] = ptId + numPts;;
+    pts[1] = ptId + numPts;
 
     newPts->SetPoint(pts[0], x);
     newPts->SetPoint(pts[1], newX);

@@ -21,15 +21,11 @@
 vtkStandardNewMacro(vtkLinearKernel);
 
 //----------------------------------------------------------------------------
-vtkLinearKernel::vtkLinearKernel()
-{
-}
+vtkLinearKernel::vtkLinearKernel() = default;
 
 
 //----------------------------------------------------------------------------
-vtkLinearKernel::~vtkLinearKernel()
-{
-}
+vtkLinearKernel::~vtkLinearKernel() = default;
 
 
 //----------------------------------------------------------------------------

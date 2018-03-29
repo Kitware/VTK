@@ -36,9 +36,7 @@ vtkFillHolesFilter::vtkFillHolesFilter()
 }
 
 //------------------------------------------------------------------------
-vtkFillHolesFilter::~vtkFillHolesFilter()
-{
-}
+vtkFillHolesFilter::~vtkFillHolesFilter() = default;
 
 //------------------------------------------------------------------------
 int vtkFillHolesFilter::RequestData(

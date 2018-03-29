@@ -53,9 +53,7 @@ vtkGeoTerrainNode::vtkGeoTerrainNode()
 }
 
 //-----------------------------------------------------------------------------
-vtkGeoTerrainNode::~vtkGeoTerrainNode()
-{
-}
+vtkGeoTerrainNode::~vtkGeoTerrainNode() = default;
 
 //-----------------------------------------------------------------------------
 void vtkGeoTerrainNode::PrintSelf(ostream& os, vtkIndent indent)

@@ -65,9 +65,7 @@ vtkParametricSuperToroid::vtkParametricSuperToroid() :
 }
 
 //----------------------------------------------------------------------------
-vtkParametricSuperToroid::~vtkParametricSuperToroid()
-{
-}
+vtkParametricSuperToroid::~vtkParametricSuperToroid() = default;
 
 
 //----------------------------------------------------------------------------

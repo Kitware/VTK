@@ -26,9 +26,7 @@ vtkSocketCollection::vtkSocketCollection()
 }
 
 //-----------------------------------------------------------------------------
-vtkSocketCollection::~vtkSocketCollection()
-{
-}
+vtkSocketCollection::~vtkSocketCollection() = default;
 
 //-----------------------------------------------------------------------------
 void vtkSocketCollection::AddItem(vtkSocket* soc)

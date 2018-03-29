@@ -172,9 +172,7 @@ vtkDataSetCellIterator::vtkDataSetCellIterator()
 }
 
 //------------------------------------------------------------------------------
-vtkDataSetCellIterator::~vtkDataSetCellIterator()
-{
-}
+vtkDataSetCellIterator::~vtkDataSetCellIterator() = default;
 
 //------------------------------------------------------------------------------
 void vtkDataSetCellIterator::ResetToFirstCell()

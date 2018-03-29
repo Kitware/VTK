@@ -25,9 +25,7 @@ vtkInformationDoubleKey::vtkInformationDoubleKey(const char* name, const char* l
 }
 
 //----------------------------------------------------------------------------
-vtkInformationDoubleKey::~vtkInformationDoubleKey()
-{
-}
+vtkInformationDoubleKey::~vtkInformationDoubleKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationDoubleKey::PrintSelf(ostream& os, vtkIndent indent)

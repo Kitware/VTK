@@ -58,9 +58,7 @@ vtkExtractSelectedGraph::vtkExtractSelectedGraph()
 }
 
 //----------------------------------------------------------------------------
-vtkExtractSelectedGraph::~vtkExtractSelectedGraph()
-{
-}
+vtkExtractSelectedGraph::~vtkExtractSelectedGraph() = default;
 
 //----------------------------------------------------------------------------
 int vtkExtractSelectedGraph::FillInputPortInformation(int port, vtkInformation* info)

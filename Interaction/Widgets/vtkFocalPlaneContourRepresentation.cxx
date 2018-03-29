@@ -40,9 +40,7 @@ vtkFocalPlaneContourRepresentation::vtkFocalPlaneContourRepresentation()
 }
 
 //----------------------------------------------------------------------
-vtkFocalPlaneContourRepresentation::~vtkFocalPlaneContourRepresentation()
-{
-}
+vtkFocalPlaneContourRepresentation::~vtkFocalPlaneContourRepresentation() = default;
 
 //----------------------------------------------------------------------
 // Compute the world position from the display position for this given

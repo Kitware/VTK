@@ -33,10 +33,7 @@ vtkAMRToMultiBlockFilter::vtkAMRToMultiBlockFilter()
 }
 
 //------------------------------------------------------------------------------
-vtkAMRToMultiBlockFilter::~vtkAMRToMultiBlockFilter()
-{
-
-}
+vtkAMRToMultiBlockFilter::~vtkAMRToMultiBlockFilter() = default;
 
 //------------------------------------------------------------------------------
 void vtkAMRToMultiBlockFilter::PrintSelf( std::ostream &oss, vtkIndent indent )

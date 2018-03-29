@@ -23,15 +23,9 @@
 #include "vtkTree.h"
 
 
-vtkCirclePackLayoutStrategy::vtkCirclePackLayoutStrategy()
-{
+vtkCirclePackLayoutStrategy::vtkCirclePackLayoutStrategy() = default;
 
-}
-
-vtkCirclePackLayoutStrategy::~vtkCirclePackLayoutStrategy()
-{
-
-}
+vtkCirclePackLayoutStrategy::~vtkCirclePackLayoutStrategy() = default;
 
 void vtkCirclePackLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {

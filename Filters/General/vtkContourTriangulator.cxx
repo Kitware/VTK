@@ -43,9 +43,7 @@ vtkContourTriangulator::vtkContourTriangulator()
 }
 
 //----------------------------------------------------------------------------
-vtkContourTriangulator::~vtkContourTriangulator()
-{
-}
+vtkContourTriangulator::~vtkContourTriangulator() = default;
 
 //----------------------------------------------------------------------------
 void vtkContourTriangulator::PrintSelf(ostream& os, vtkIndent indent)

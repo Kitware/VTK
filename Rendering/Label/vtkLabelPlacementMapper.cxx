@@ -330,7 +330,7 @@ public:
   struct ScreenTile
   {
     std::vector<LabelRect> Labels;
-    ScreenTile() { }
+    ScreenTile() = default;
     /// Is there space to place the given rectangle in this tile so that it doesn't overlap any labels in this tile?
     bool IsSpotOpen( const LabelRect& r )
     {

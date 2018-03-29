@@ -924,7 +924,7 @@ void vtkXOpenGLRenderWindow::SetFullScreen(int arg)
                            this->WindowId, &attribs);
 
       this->OldScreen[2] = attribs.width;
-      this->OldScreen[3] = attribs.height;;
+      this->OldScreen[3] = attribs.height;
 
       temp = this->GetPosition();
       this->OldScreen[0] = temp[0];

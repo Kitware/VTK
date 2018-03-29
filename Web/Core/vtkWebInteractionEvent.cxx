@@ -30,9 +30,7 @@ vtkWebInteractionEvent::vtkWebInteractionEvent() :
 }
 
 //----------------------------------------------------------------------------
-vtkWebInteractionEvent::~vtkWebInteractionEvent()
-{
-}
+vtkWebInteractionEvent::~vtkWebInteractionEvent() = default;
 
 //----------------------------------------------------------------------------
 void vtkWebInteractionEvent::PrintSelf(ostream& os, vtkIndent indent)

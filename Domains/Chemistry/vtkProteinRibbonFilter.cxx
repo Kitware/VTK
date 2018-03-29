@@ -80,9 +80,7 @@ vtkProteinRibbonFilter::vtkProteinRibbonFilter()
   this->ElementColors["CA"] = ToColor3ubFromHex3(0xDDDDDD);
 }
 
-vtkProteinRibbonFilter::~vtkProteinRibbonFilter()
-{
-}
+vtkProteinRibbonFilter::~vtkProteinRibbonFilter() = default;
 
 int vtkProteinRibbonFilter::FillInputPortInformation(int port,
                                                      vtkInformation *info)

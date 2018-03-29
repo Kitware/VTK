@@ -25,9 +25,7 @@ vtkInformationIntegerRequestKey::vtkInformationIntegerRequestKey(const char* nam
 }
 
 //----------------------------------------------------------------------------
-vtkInformationIntegerRequestKey::~vtkInformationIntegerRequestKey()
-{
-}
+vtkInformationIntegerRequestKey::~vtkInformationIntegerRequestKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationIntegerRequestKey::CopyDefaultInformation(

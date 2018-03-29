@@ -49,9 +49,7 @@ vtkWarpScalar::vtkWarpScalar()
 }
 
 //----------------------------------------------------------------------------
-vtkWarpScalar::~vtkWarpScalar()
-{
-}
+vtkWarpScalar::~vtkWarpScalar() = default;
 
 //----------------------------------------------------------------------------
 double *vtkWarpScalar::DataNormal(vtkIdType id, vtkDataArray *normals)

@@ -51,7 +51,7 @@ int vtkTriangularTCoords::RequestData(
   vtkIdType newId, numCells, cellId;
   vtkIdType *pts = nullptr;
   vtkIdType newIds[3];
-  vtkIdType npts = 0;;
+  vtkIdType npts = 0;
   int errorLogging = 1;
   vtkPoints *newPoints;
   vtkCellArray *newPolys;

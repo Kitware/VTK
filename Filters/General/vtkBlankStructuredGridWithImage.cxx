@@ -34,9 +34,7 @@ vtkBlankStructuredGridWithImage::vtkBlankStructuredGridWithImage()
 }
 
 //----------------------------------------------------------------------------
-vtkBlankStructuredGridWithImage::~vtkBlankStructuredGridWithImage()
-{
-}
+vtkBlankStructuredGridWithImage::~vtkBlankStructuredGridWithImage() = default;
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.

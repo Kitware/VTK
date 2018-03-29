@@ -31,9 +31,7 @@ vtkGenericSubdivisionErrorMetric::vtkGenericSubdivisionErrorMetric()
 }
 
 //-----------------------------------------------------------------------------
-vtkGenericSubdivisionErrorMetric::~vtkGenericSubdivisionErrorMetric()
-{
-}
+vtkGenericSubdivisionErrorMetric::~vtkGenericSubdivisionErrorMetric() = default;
 
 //-----------------------------------------------------------------------------
 // Avoid reference loop

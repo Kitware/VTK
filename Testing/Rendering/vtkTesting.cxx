@@ -974,7 +974,7 @@ int vtkTesting::InteractorEventLoop(int argc,
                                     vtkRenderWindowInteractor *iren,
                                     const char *playbackStream)
 {
-  bool disableReplay = false, record = false, playbackFile = false;;
+  bool disableReplay = false, record = false, playbackFile = false;
   std::string playbackFileName;
   for (int i = 0; i < argc; i++)
   {

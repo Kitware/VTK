@@ -25,9 +25,7 @@ vtkInformationIdTypeKey::vtkInformationIdTypeKey(const char* name, const char* l
 }
 
 //----------------------------------------------------------------------------
-vtkInformationIdTypeKey::~vtkInformationIdTypeKey()
-{
-}
+vtkInformationIdTypeKey::~vtkInformationIdTypeKey() = default;
 
 //----------------------------------------------------------------------------
 void vtkInformationIdTypeKey::PrintSelf(ostream& os, vtkIndent indent)

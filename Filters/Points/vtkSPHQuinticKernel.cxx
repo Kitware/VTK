@@ -26,9 +26,7 @@ vtkSPHQuinticKernel::vtkSPHQuinticKernel()
 }
 
 //----------------------------------------------------------------------------
-vtkSPHQuinticKernel::~vtkSPHQuinticKernel()
-{
-}
+vtkSPHQuinticKernel::~vtkSPHQuinticKernel() = default;
 
 //----------------------------------------------------------------------------
 // At this point, the spatial step, the dimension of the kernel, and the cutoff

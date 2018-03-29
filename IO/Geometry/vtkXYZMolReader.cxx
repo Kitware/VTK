@@ -34,9 +34,7 @@ vtkXYZMolReader::vtkXYZMolReader()
 }
 
 //----------------------------------------------------------------------------
-vtkXYZMolReader::~vtkXYZMolReader()
-{
-}
+vtkXYZMolReader::~vtkXYZMolReader() = default;
 
 //----------------------------------------------------------------------------
 char* vtkXYZMolReader::GetNextLine(FILE* fp, char* line, int maxlen)

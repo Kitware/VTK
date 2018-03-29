@@ -63,9 +63,7 @@ vtkStructuredNeighbor::vtkStructuredNeighbor(
 }
 
 //------------------------------------------------------------------------------
-vtkStructuredNeighbor::~vtkStructuredNeighbor()
-{
-}
+vtkStructuredNeighbor::~vtkStructuredNeighbor() = default;
 
 //------------------------------------------------------------------------------
 void vtkStructuredNeighbor::ComputeSendAndReceiveExtent(

@@ -48,9 +48,7 @@ vtkGraphLayoutView::vtkGraphLayoutView()
 }
 
 //----------------------------------------------------------------------------
-vtkGraphLayoutView::~vtkGraphLayoutView()
-{
-}
+vtkGraphLayoutView::~vtkGraphLayoutView() = default;
 
 //----------------------------------------------------------------------------
 vtkRenderedGraphRepresentation* vtkGraphLayoutView::GetGraphRepresentation()

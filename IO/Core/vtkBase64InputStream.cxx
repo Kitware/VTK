@@ -26,9 +26,7 @@ vtkBase64InputStream::vtkBase64InputStream()
 }
 
 //----------------------------------------------------------------------------
-vtkBase64InputStream::~vtkBase64InputStream()
-{
-}
+vtkBase64InputStream::~vtkBase64InputStream() = default;
 
 //----------------------------------------------------------------------------
 void vtkBase64InputStream::PrintSelf(ostream& os, vtkIndent indent)

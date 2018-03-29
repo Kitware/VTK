@@ -23,14 +23,10 @@
 vtkStandardNewMacro(vtkXMLPRectilinearGridWriter);
 
 //----------------------------------------------------------------------------
-vtkXMLPRectilinearGridWriter::vtkXMLPRectilinearGridWriter()
-{
-}
+vtkXMLPRectilinearGridWriter::vtkXMLPRectilinearGridWriter() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLPRectilinearGridWriter::~vtkXMLPRectilinearGridWriter()
-{
-}
+vtkXMLPRectilinearGridWriter::~vtkXMLPRectilinearGridWriter() = default;
 
 //----------------------------------------------------------------------------
 void vtkXMLPRectilinearGridWriter::PrintSelf(ostream& os, vtkIndent indent)

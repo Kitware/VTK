@@ -51,9 +51,7 @@ vtkDiscreteMarchingCubes::vtkDiscreteMarchingCubes()
   this->ComputeAdjacentScalars = 0;
 }
 
-vtkDiscreteMarchingCubes::~vtkDiscreteMarchingCubes()
-{
-}
+vtkDiscreteMarchingCubes::~vtkDiscreteMarchingCubes() = default;
 
 
 //

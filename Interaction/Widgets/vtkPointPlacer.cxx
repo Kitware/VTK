@@ -28,9 +28,7 @@ vtkPointPlacer::vtkPointPlacer()
 }
 
 //----------------------------------------------------------------------
-vtkPointPlacer::~vtkPointPlacer()
-{
-}
+vtkPointPlacer::~vtkPointPlacer() = default;
 
 //----------------------------------------------------------------------
 int vtkPointPlacer::UpdateWorldPosition( vtkRenderer *vtkNotUsed(ren),

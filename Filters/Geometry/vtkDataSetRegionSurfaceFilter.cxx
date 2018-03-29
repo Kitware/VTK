@@ -35,7 +35,7 @@ public:
   Internals() : NextRegion(0) {
     this->OldToNew[-1] = -1;
   };
-  ~Internals() {};
+  ~Internals() = default;
 
   //place to pass a material id back but still subclass
   int NextRegion;

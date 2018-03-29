@@ -35,9 +35,7 @@ vtkImageStencilToImage::vtkImageStencilToImage()
 }
 
 //----------------------------------------------------------------------------
-vtkImageStencilToImage::~vtkImageStencilToImage()
-{
-}
+vtkImageStencilToImage::~vtkImageStencilToImage() = default;
 
 //----------------------------------------------------------------------------
 int vtkImageStencilToImage::RequestInformation (

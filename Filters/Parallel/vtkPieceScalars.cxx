@@ -35,9 +35,7 @@ vtkPieceScalars::vtkPieceScalars()
 }
 
 //----------------------------------------------------------------------------
-vtkPieceScalars::~vtkPieceScalars()
-{
-}
+vtkPieceScalars::~vtkPieceScalars() = default;
 
 //----------------------------------------------------------------------------
 // Append data sets into single unstructured grid

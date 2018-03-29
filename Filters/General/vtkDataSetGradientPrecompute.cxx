@@ -39,13 +39,9 @@
 
 vtkStandardNewMacro(vtkDataSetGradientPrecompute);
 
-vtkDataSetGradientPrecompute::vtkDataSetGradientPrecompute()
-{
-}
+vtkDataSetGradientPrecompute::vtkDataSetGradientPrecompute() = default;
 
-vtkDataSetGradientPrecompute::~vtkDataSetGradientPrecompute()
-{
-}
+vtkDataSetGradientPrecompute::~vtkDataSetGradientPrecompute() = default;
 
 void vtkDataSetGradientPrecompute::PrintSelf(ostream& os, vtkIndent indent)
 {

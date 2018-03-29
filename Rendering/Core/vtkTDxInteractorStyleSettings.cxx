@@ -31,9 +31,7 @@ vtkTDxInteractorStyleSettings::vtkTDxInteractorStyleSettings()
 }
 
 // ----------------------------------------------------------------------------
-vtkTDxInteractorStyleSettings::~vtkTDxInteractorStyleSettings()
-{
-}
+vtkTDxInteractorStyleSettings::~vtkTDxInteractorStyleSettings() = default;
 
 
 //----------------------------------------------------------------------------

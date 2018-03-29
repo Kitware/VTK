@@ -72,9 +72,7 @@ vtkProjectSphereFilter::vtkProjectSphereFilter() : SplitLongitude(-180)
 }
 
 //-----------------------------------------------------------------------------
-vtkProjectSphereFilter::~vtkProjectSphereFilter()
-{
-}
+vtkProjectSphereFilter::~vtkProjectSphereFilter() = default;
 
 //-----------------------------------------------------------------------------
 void vtkProjectSphereFilter::PrintSelf(ostream &os, vtkIndent indent)

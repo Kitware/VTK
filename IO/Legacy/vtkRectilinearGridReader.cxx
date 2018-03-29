@@ -37,9 +37,7 @@ vtkRectilinearGridReader::vtkRectilinearGridReader()
 }
 
 //----------------------------------------------------------------------------
-vtkRectilinearGridReader::~vtkRectilinearGridReader()
-{
-}
+vtkRectilinearGridReader::~vtkRectilinearGridReader() = default;
 
 //----------------------------------------------------------------------------
 vtkRectilinearGrid* vtkRectilinearGridReader::GetOutput()

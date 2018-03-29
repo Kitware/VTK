@@ -26,14 +26,10 @@
 #include <set>
 vtkStandardNewMacro(vtkExtractSelectedBlock);
 //----------------------------------------------------------------------------
-vtkExtractSelectedBlock::vtkExtractSelectedBlock()
-{
-}
+vtkExtractSelectedBlock::vtkExtractSelectedBlock() = default;
 
 //----------------------------------------------------------------------------
-vtkExtractSelectedBlock::~vtkExtractSelectedBlock()
-{
-}
+vtkExtractSelectedBlock::~vtkExtractSelectedBlock() = default;
 
 //----------------------------------------------------------------------------
 int vtkExtractSelectedBlock::FillInputPortInformation(

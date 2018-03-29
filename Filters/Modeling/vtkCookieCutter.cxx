@@ -972,9 +972,7 @@ vtkCookieCutter::vtkCookieCutter()
 }
 
 //----------------------------------------------------------------------------
-vtkCookieCutter::~vtkCookieCutter()
-{
-}
+vtkCookieCutter::~vtkCookieCutter() = default;
 
 //----------------------------------------------------------------------------
 void vtkCookieCutter::SetLoopsConnection(vtkAlgorithmOutput* algOutput)

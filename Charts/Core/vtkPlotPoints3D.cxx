@@ -35,9 +35,7 @@ vtkPlotPoints3D::vtkPlotPoints3D()
 }
 
 //-----------------------------------------------------------------------------
-vtkPlotPoints3D::~vtkPlotPoints3D()
-{
-}
+vtkPlotPoints3D::~vtkPlotPoints3D() = default;
 
 //-----------------------------------------------------------------------------
 void vtkPlotPoints3D::PrintSelf(ostream &os, vtkIndent indent)

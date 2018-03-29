@@ -31,9 +31,7 @@ vtkPeriodicFilter::vtkPeriodicFilter()
 }
 
 //----------------------------------------------------------------------------
-vtkPeriodicFilter::~vtkPeriodicFilter()
-{
-}
+vtkPeriodicFilter::~vtkPeriodicFilter() = default;
 
 //----------------------------------------------------------------------------
 void vtkPeriodicFilter::PrintSelf(ostream& os, vtkIndent indent)

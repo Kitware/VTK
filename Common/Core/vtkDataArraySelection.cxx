@@ -239,7 +239,7 @@ int vtkDataArraySelection::GetArraySetting(int index)
 void vtkDataArraySelection::RemoveAllArrays()
 {
   vtkDebugMacro("Removing all arrays.");
-  if (this->Internal->Arrays.size())
+  if (!this->Internal->Arrays.empty())
   {
     this->Internal->Arrays.clear();
     this->Modified();

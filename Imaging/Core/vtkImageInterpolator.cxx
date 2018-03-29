@@ -37,9 +37,7 @@ vtkImageInterpolator::vtkImageInterpolator()
 }
 
 //----------------------------------------------------------------------------
-vtkImageInterpolator::~vtkImageInterpolator()
-{
-}
+vtkImageInterpolator::~vtkImageInterpolator() = default;
 
 //----------------------------------------------------------------------------
 void vtkImageInterpolator::PrintSelf(ostream& os, vtkIndent indent)

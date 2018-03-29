@@ -31,13 +31,9 @@
 
 vtkStandardNewMacro(vtkDataSetReader);
 
-vtkDataSetReader::vtkDataSetReader()
-{
-}
+vtkDataSetReader::vtkDataSetReader() = default;
 
-vtkDataSetReader::~vtkDataSetReader()
-{
-}
+vtkDataSetReader::~vtkDataSetReader() = default;
 
 int vtkDataSetReader::RequestDataObject(
   vtkInformation *,

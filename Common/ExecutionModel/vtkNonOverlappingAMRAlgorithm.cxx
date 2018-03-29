@@ -28,10 +28,7 @@ vtkNonOverlappingAMRAlgorithm::vtkNonOverlappingAMRAlgorithm()
 }
 
 //------------------------------------------------------------------------------
-vtkNonOverlappingAMRAlgorithm::~vtkNonOverlappingAMRAlgorithm()
-{
-
-}
+vtkNonOverlappingAMRAlgorithm::~vtkNonOverlappingAMRAlgorithm() = default;
 
 //------------------------------------------------------------------------------
 void vtkNonOverlappingAMRAlgorithm::PrintSelf(ostream& os, vtkIndent indent)

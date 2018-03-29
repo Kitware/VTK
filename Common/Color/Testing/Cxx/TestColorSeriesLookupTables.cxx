@@ -116,6 +116,7 @@ std::string DisplayOrdinalLUTAsString(vtkLookupTable *lut)
     << std::setw(8) << std::setprecision(6)
     << dR[0] << " to " << dR[1] << std::endl;
   std::vector<double> indices;
+  indices.reserve(tv);
   for (int i = 0; i < tv; ++i)
   {
     indices.push_back((dR[1] - dR[0]) * i / tv + dR[0]);
@@ -195,6 +196,7 @@ std::pair<bool, std::string> CompareOrdinalLUTs(vtkLookupTable *lut1,
       double dR[2];
       lut1->GetTableRange(dR);
       std::vector<double> indices;
+      indices.reserve(tv);
       for (int i = 0; i < tv; ++i)
       {
         indices.push_back((dR[1] - dR[0]) * i / tv + dR[0]);
@@ -257,6 +259,7 @@ std::pair<bool, std::string> CompareCategoricalLUTs(vtkLookupTable *lut1,
       double dR[2];
       lut1->GetTableRange(dR);
       std::vector<double> indices;
+      indices.reserve(tv);
       for (int i = 0; i < tv; ++i)
       {
         indices.push_back((dR[1] - dR[0]) * i / tv + dR[0]);

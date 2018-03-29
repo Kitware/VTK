@@ -28,14 +28,10 @@ vtkStandardNewMacro(vtkOverlappingAMR);
 vtkInformationKeyMacro(vtkOverlappingAMR,NUMBER_OF_BLANKED_POINTS,IdType);
 
 //----------------------------------------------------------------------------
-vtkOverlappingAMR::vtkOverlappingAMR()
-{
-}
+vtkOverlappingAMR::vtkOverlappingAMR() = default;
 
 //----------------------------------------------------------------------------
-vtkOverlappingAMR::~vtkOverlappingAMR()
-{
-}
+vtkOverlappingAMR::~vtkOverlappingAMR() = default;
 
 //----------------------------------------------------------------------------
 void vtkOverlappingAMR::PrintSelf(ostream& os, vtkIndent indent)

@@ -27,14 +27,10 @@
 
 vtkStandardNewMacro(vtkXMLUniformGridAMRWriter);
 //----------------------------------------------------------------------------
-vtkXMLUniformGridAMRWriter::vtkXMLUniformGridAMRWriter()
-{
-}
+vtkXMLUniformGridAMRWriter::vtkXMLUniformGridAMRWriter() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLUniformGridAMRWriter::~vtkXMLUniformGridAMRWriter()
-{
-}
+vtkXMLUniformGridAMRWriter::~vtkXMLUniformGridAMRWriter() = default;
 
 //----------------------------------------------------------------------------
 int vtkXMLUniformGridAMRWriter::FillInputPortInformation(

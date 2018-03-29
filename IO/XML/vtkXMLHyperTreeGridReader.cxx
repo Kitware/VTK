@@ -33,14 +33,10 @@
 vtkStandardNewMacro(vtkXMLHyperTreeGridReader);
 
 //----------------------------------------------------------------------------
-vtkXMLHyperTreeGridReader::vtkXMLHyperTreeGridReader()
-{
-}
+vtkXMLHyperTreeGridReader::vtkXMLHyperTreeGridReader() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLHyperTreeGridReader::~vtkXMLHyperTreeGridReader()
-{
-}
+vtkXMLHyperTreeGridReader::~vtkXMLHyperTreeGridReader() = default;
 
 //----------------------------------------------------------------------------
 void vtkXMLHyperTreeGridReader::PrintSelf(ostream& os, vtkIndent indent)

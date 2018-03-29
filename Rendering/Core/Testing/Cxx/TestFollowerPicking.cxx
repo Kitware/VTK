@@ -60,7 +60,7 @@ public:
       }
   }
 
-  vtkPickFollowerCallback() {}
+  vtkPickFollowerCallback() = default;
 };
 
 // -----------------------------------------------------------------------

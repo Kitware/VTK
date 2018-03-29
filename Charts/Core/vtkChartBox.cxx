@@ -55,9 +55,7 @@ public:
     this->YAxis->SetPoint1(0, 0);
     this->YAxis->SetTitle("Y");
   }
-  ~Private()
-  {
-  }
+  ~Private() = default;
   vtkSmartPointer<vtkPlotBox> Plot;
   std::vector<float> XPosition;
   vtkNew<vtkTransform2D> Transform;

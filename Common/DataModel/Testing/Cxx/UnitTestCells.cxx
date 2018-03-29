@@ -179,7 +179,7 @@ vtkSmartPointer<vtkVertex> MakeVertex()
   aVertex->GetPointIds()->SetId(0,0);
   aVertex->GetPoints()->SetPoint (0, 10.0, 20.0, 30.0);
 
-  return aVertex;;
+  return aVertex;
 }
 
 vtkSmartPointer<vtkPolyVertex> MakePolyVertex()
@@ -194,7 +194,7 @@ vtkSmartPointer<vtkPolyVertex> MakePolyVertex()
   aPolyVertex->GetPoints()->SetPoint (0, 10.0, 20.0, 30.0);
   aPolyVertex->GetPoints()->SetPoint (1, 30.0, 20.0, 10.0);
 
-  return aPolyVertex;;
+  return aPolyVertex;
 }
 
 vtkSmartPointer<vtkLine> MakeLine()
@@ -205,7 +205,7 @@ vtkSmartPointer<vtkLine> MakeLine()
   aLine->GetPointIds()->SetId(1,1);
   aLine->GetPoints()->SetPoint (0, 10.0, 20.0, 30.0);
   aLine->GetPoints()->SetPoint (1, 30.0, 20.0, 10.0);
-  return aLine;;
+  return aLine;
 }
 
 vtkSmartPointer<vtkPolyLine> MakePolyLine()
@@ -222,7 +222,7 @@ vtkSmartPointer<vtkPolyLine> MakePolyLine()
   aPolyLine->GetPoints()->SetPoint (1, 10.0, 30.0, 30.0);
   aPolyLine->GetPoints()->SetPoint (2, 10.0, 30.0, 40.0);
 
-  return aPolyLine;;
+  return aPolyLine;
 }
 
 vtkSmartPointer<vtkTriangle> MakeTriangle()

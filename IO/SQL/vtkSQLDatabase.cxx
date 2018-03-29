@@ -74,14 +74,10 @@ static vtkSQLDatabaseCleanup vtkCleanupSQLDatabaseGlobal;
 vtkInformationKeyMacro(vtkSQLDatabase, DATABASE, ObjectBase);
 
 // ----------------------------------------------------------------------
-vtkSQLDatabase::vtkSQLDatabase()
-{
-}
+vtkSQLDatabase::vtkSQLDatabase() = default;
 
 // ----------------------------------------------------------------------
-vtkSQLDatabase::~vtkSQLDatabase()
-{
-}
+vtkSQLDatabase::~vtkSQLDatabase() = default;
 
 // ----------------------------------------------------------------------
 void vtkSQLDatabase::RegisterCreateFromURLCallback(

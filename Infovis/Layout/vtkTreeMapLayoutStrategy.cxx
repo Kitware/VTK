@@ -25,13 +25,9 @@
 #include "vtkTree.h"
 
 
-vtkTreeMapLayoutStrategy::vtkTreeMapLayoutStrategy()
-{
-}
+vtkTreeMapLayoutStrategy::vtkTreeMapLayoutStrategy() = default;
 
-vtkTreeMapLayoutStrategy::~vtkTreeMapLayoutStrategy()
-{
-}
+vtkTreeMapLayoutStrategy::~vtkTreeMapLayoutStrategy() = default;
 
 void vtkTreeMapLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {

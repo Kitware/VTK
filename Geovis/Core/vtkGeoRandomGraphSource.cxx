@@ -32,15 +32,11 @@ vtkStandardNewMacro(vtkGeoRandomGraphSource);
 
 // ----------------------------------------------------------------------
 
-vtkGeoRandomGraphSource::vtkGeoRandomGraphSource()
-{
-}
+vtkGeoRandomGraphSource::vtkGeoRandomGraphSource() = default;
 
 // ----------------------------------------------------------------------
 
-vtkGeoRandomGraphSource::~vtkGeoRandomGraphSource()
-{
-}
+vtkGeoRandomGraphSource::~vtkGeoRandomGraphSource() = default;
 
 // ----------------------------------------------------------------------
 

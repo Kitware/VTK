@@ -35,9 +35,7 @@ vtkParametricCatalanMinimal::vtkParametricCatalanMinimal()
 }
 
 //----------------------------------------------------------------------------//
-vtkParametricCatalanMinimal::~vtkParametricCatalanMinimal()
-{
-}
+vtkParametricCatalanMinimal::~vtkParametricCatalanMinimal() = default;
 
 //----------------------------------------------------------------------------//
 void vtkParametricCatalanMinimal::Evaluate(double uvw[3], double Pt[3],

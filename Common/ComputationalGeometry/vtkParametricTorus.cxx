@@ -36,9 +36,7 @@ vtkParametricTorus::vtkParametricTorus() :
 }
 
 //----------------------------------------------------------------------------
-vtkParametricTorus::~vtkParametricTorus()
-{
-}
+vtkParametricTorus::~vtkParametricTorus() = default;
 
 //----------------------------------------------------------------------------
 void vtkParametricTorus::Evaluate(double uvw[3], double Pt[3],

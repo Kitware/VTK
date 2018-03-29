@@ -646,8 +646,7 @@ typedef std::map<vtkUnstructuredGridQuadricDecimationFace,
 class vtkUnstructuredGridQuadricDecimationFaceMap
 {
 public:
-  vtkUnstructuredGridQuadricDecimationFaceMap()
-  {}
+  vtkUnstructuredGridQuadricDecimationFaceMap() = default;
   ~vtkUnstructuredGridQuadricDecimationFaceMap()
   {
     clear();

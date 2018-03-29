@@ -1093,7 +1093,7 @@ public:
   {
     std::cout << "End interaction event\n" << std::flush;
   }
-  vtkBiDimensionalCallback() {}
+  vtkBiDimensionalCallback() = default;
 };
 
 int TestBiDimensionalWidget( int argc, char *argv[] )

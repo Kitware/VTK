@@ -21,14 +21,10 @@
 
 vtkStandardNewMacro(vtkMultiPieceDataSet);
 //----------------------------------------------------------------------------
-vtkMultiPieceDataSet::vtkMultiPieceDataSet()
-{
-}
+vtkMultiPieceDataSet::vtkMultiPieceDataSet() = default;
 
 //----------------------------------------------------------------------------
-vtkMultiPieceDataSet::~vtkMultiPieceDataSet()
-{
-}
+vtkMultiPieceDataSet::~vtkMultiPieceDataSet() = default;
 
 //----------------------------------------------------------------------------
 vtkMultiPieceDataSet* vtkMultiPieceDataSet::GetData(vtkInformation* info)

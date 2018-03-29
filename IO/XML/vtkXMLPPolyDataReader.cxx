@@ -25,14 +25,10 @@
 vtkStandardNewMacro(vtkXMLPPolyDataReader);
 
 //----------------------------------------------------------------------------
-vtkXMLPPolyDataReader::vtkXMLPPolyDataReader()
-{
-}
+vtkXMLPPolyDataReader::vtkXMLPPolyDataReader() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLPPolyDataReader::~vtkXMLPPolyDataReader()
-{
-}
+vtkXMLPPolyDataReader::~vtkXMLPPolyDataReader() = default;
 
 //----------------------------------------------------------------------------
 void vtkXMLPPolyDataReader::PrintSelf(ostream& os, vtkIndent indent)

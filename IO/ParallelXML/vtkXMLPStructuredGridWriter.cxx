@@ -23,14 +23,10 @@
 vtkStandardNewMacro(vtkXMLPStructuredGridWriter);
 
 //----------------------------------------------------------------------------
-vtkXMLPStructuredGridWriter::vtkXMLPStructuredGridWriter()
-{
-}
+vtkXMLPStructuredGridWriter::vtkXMLPStructuredGridWriter() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLPStructuredGridWriter::~vtkXMLPStructuredGridWriter()
-{
-}
+vtkXMLPStructuredGridWriter::~vtkXMLPStructuredGridWriter() = default;
 
 //----------------------------------------------------------------------------
 void vtkXMLPStructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)

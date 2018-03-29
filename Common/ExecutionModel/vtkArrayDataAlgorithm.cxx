@@ -39,9 +39,7 @@ vtkArrayDataAlgorithm::vtkArrayDataAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkArrayDataAlgorithm::~vtkArrayDataAlgorithm()
-{
-}
+vtkArrayDataAlgorithm::~vtkArrayDataAlgorithm() = default;
 
 //----------------------------------------------------------------------------
 void vtkArrayDataAlgorithm::PrintSelf(ostream& os, vtkIndent indent)

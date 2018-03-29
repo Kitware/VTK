@@ -40,9 +40,7 @@ vtkImageStencil::vtkImageStencil()
 }
 
 //----------------------------------------------------------------------------
-vtkImageStencil::~vtkImageStencil()
-{
-}
+vtkImageStencil::~vtkImageStencil() = default;
 
 //----------------------------------------------------------------------------
 void vtkImageStencil::SetStencilData(vtkImageStencilData *stencil)

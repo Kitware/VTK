@@ -43,9 +43,7 @@ vtkPruneTreeFilter::vtkPruneTreeFilter()
   this->ShouldPruneParentVertex = true;
 }
 
-vtkPruneTreeFilter::~vtkPruneTreeFilter()
-{
-}
+vtkPruneTreeFilter::~vtkPruneTreeFilter() = default;
 
 void vtkPruneTreeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {

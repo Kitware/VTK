@@ -38,14 +38,10 @@ void vtkDummyGPUInfoList::Probe()
 }
 
 // ----------------------------------------------------------------------------
-vtkDummyGPUInfoList::vtkDummyGPUInfoList()
-{
-}
+vtkDummyGPUInfoList::vtkDummyGPUInfoList() = default;
 
 // ----------------------------------------------------------------------------
-vtkDummyGPUInfoList::~vtkDummyGPUInfoList()
-{
-}
+vtkDummyGPUInfoList::~vtkDummyGPUInfoList() = default;
 
 // ----------------------------------------------------------------------------
 void vtkDummyGPUInfoList::PrintSelf(ostream& os, vtkIndent indent)

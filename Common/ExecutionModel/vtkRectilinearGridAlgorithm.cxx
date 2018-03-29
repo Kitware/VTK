@@ -33,9 +33,7 @@ vtkRectilinearGridAlgorithm::vtkRectilinearGridAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkRectilinearGridAlgorithm::~vtkRectilinearGridAlgorithm()
-{
-}
+vtkRectilinearGridAlgorithm::~vtkRectilinearGridAlgorithm() = default;
 
 //----------------------------------------------------------------------------
 void vtkRectilinearGridAlgorithm::PrintSelf(ostream& os, vtkIndent indent)

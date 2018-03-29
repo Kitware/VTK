@@ -24,9 +24,7 @@
 
 
 // Construct object with number of subdivisions set to 1.
-vtkInterpolatingSubdivisionFilter::vtkInterpolatingSubdivisionFilter()
-{
-}
+vtkInterpolatingSubdivisionFilter::vtkInterpolatingSubdivisionFilter() = default;
 
 int vtkInterpolatingSubdivisionFilter::RequestData(
   vtkInformation *request,

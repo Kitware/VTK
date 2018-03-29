@@ -27,9 +27,7 @@ vtkButtonRepresentation::vtkButtonRepresentation()
 
 
 //----------------------------------------------------------------------
-vtkButtonRepresentation::~vtkButtonRepresentation()
-{
-}
+vtkButtonRepresentation::~vtkButtonRepresentation() = default;
 
 //----------------------------------------------------------------------
 // Implement the modulo behavior in this method

@@ -25,14 +25,10 @@
 vtkStandardNewMacro(vtkXMLPRectilinearGridReader);
 
 //----------------------------------------------------------------------------
-vtkXMLPRectilinearGridReader::vtkXMLPRectilinearGridReader()
-{
-}
+vtkXMLPRectilinearGridReader::vtkXMLPRectilinearGridReader() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLPRectilinearGridReader::~vtkXMLPRectilinearGridReader()
-{
-}
+vtkXMLPRectilinearGridReader::~vtkXMLPRectilinearGridReader() = default;
 
 //----------------------------------------------------------------------------
 void vtkXMLPRectilinearGridReader::PrintSelf(ostream& os, vtkIndent indent)

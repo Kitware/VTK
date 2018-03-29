@@ -34,9 +34,7 @@ vtkPlotLine::vtkPlotLine()
 }
 
 //-----------------------------------------------------------------------------
-vtkPlotLine::~vtkPlotLine()
-{
-}
+vtkPlotLine::~vtkPlotLine() = default;
 
 //-----------------------------------------------------------------------------
 bool vtkPlotLine::Paint(vtkContext2D *painter)

@@ -36,9 +36,7 @@ vtkPolyDataReader::vtkPolyDataReader()
 }
 
 //----------------------------------------------------------------------------
-vtkPolyDataReader::~vtkPolyDataReader()
-{
-}
+vtkPolyDataReader::~vtkPolyDataReader() = default;
 
 //----------------------------------------------------------------------------
 vtkPolyData* vtkPolyDataReader::GetOutput()

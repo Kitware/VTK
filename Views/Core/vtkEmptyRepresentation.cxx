@@ -34,9 +34,7 @@ vtkEmptyRepresentation::vtkEmptyRepresentation()
   this->SetNumberOfInputPorts(0);
 }
 
-vtkEmptyRepresentation::~vtkEmptyRepresentation()
-{
-}
+vtkEmptyRepresentation::~vtkEmptyRepresentation() = default;
 
 //----------------------------------------------------------------------------
 vtkAlgorithmOutput* vtkEmptyRepresentation::GetInternalAnnotationOutputPort(

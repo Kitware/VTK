@@ -47,9 +47,7 @@ vtkCategoryLegend::vtkCategoryLegend()
 }
 
 //-----------------------------------------------------------------------------
-vtkCategoryLegend::~vtkCategoryLegend()
-{
-}
+vtkCategoryLegend::~vtkCategoryLegend() = default;
 
 //-----------------------------------------------------------------------------
 bool vtkCategoryLegend::Paint(vtkContext2D* painter)

@@ -23,14 +23,10 @@
 
 
 //----------------------------------------------------------------------------
-vtkXMLPUnstructuredDataWriter::vtkXMLPUnstructuredDataWriter()
-{
-}
+vtkXMLPUnstructuredDataWriter::vtkXMLPUnstructuredDataWriter() = default;
 
 //----------------------------------------------------------------------------
-vtkXMLPUnstructuredDataWriter::~vtkXMLPUnstructuredDataWriter()
-{
-}
+vtkXMLPUnstructuredDataWriter::~vtkXMLPUnstructuredDataWriter() = default;
 
 //----------------------------------------------------------------------------
 void vtkXMLPUnstructuredDataWriter::PrintSelf(ostream& os, vtkIndent indent)

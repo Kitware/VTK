@@ -31,9 +31,7 @@ vtkInteractorStyleTrackballCamera::vtkInteractorStyleTrackballCamera()
 }
 
 //----------------------------------------------------------------------------
-vtkInteractorStyleTrackballCamera::~vtkInteractorStyleTrackballCamera()
-{
-}
+vtkInteractorStyleTrackballCamera::~vtkInteractorStyleTrackballCamera() = default;
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballCamera::OnMouseMove()

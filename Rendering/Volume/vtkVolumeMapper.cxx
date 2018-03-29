@@ -41,9 +41,7 @@ vtkVolumeMapper::vtkVolumeMapper()
   this->CroppingRegionFlags = VTK_CROP_SUBVOLUME;
 }
 
-vtkVolumeMapper::~vtkVolumeMapper()
-{
-}
+vtkVolumeMapper::~vtkVolumeMapper() = default;
 
 void vtkVolumeMapper::ConvertCroppingRegionPlanesToVoxels()
 {

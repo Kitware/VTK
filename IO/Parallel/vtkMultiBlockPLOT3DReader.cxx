@@ -94,7 +94,7 @@ public:
   }
 
   virtual void operator()(vtkIdType, vtkIdType) {}
-  virtual ~ComputeFunctor() {}
+  virtual ~ComputeFunctor() = default;
 protected:
   // Check if the dependent data are existing, if it is missing and computable, then compute it, otherwise return nullptr
   // Compute the target data with number of components specified

@@ -24,10 +24,7 @@
 
 #include <cassert>
 
-vtkAMRBaseParticlesReader::vtkAMRBaseParticlesReader()
-{
-
-}
+vtkAMRBaseParticlesReader::vtkAMRBaseParticlesReader() = default;
 
 //------------------------------------------------------------------------------
 vtkAMRBaseParticlesReader::~vtkAMRBaseParticlesReader()

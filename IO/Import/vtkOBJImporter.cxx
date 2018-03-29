@@ -47,9 +47,7 @@ vtkStandardNewMacro(vtkOBJPolyDataProcessor)
 }
 
 //----------------------------------------------------------------------------
-vtkOBJImporter::~vtkOBJImporter()
-{
-}
+vtkOBJImporter::~vtkOBJImporter() = default;
 
 int CanReadFile( vtkObject* that, const std::string& fname )
 {
@@ -160,9 +158,7 @@ std::string vtkOBJImporter::GetOutputDescription(int idx)
 
 struct vtkOBJImportedPolyDataWithMaterial
 {
-  ~vtkOBJImportedPolyDataWithMaterial()
-  {
-  }
+  ~vtkOBJImportedPolyDataWithMaterial() = default;
   vtkOBJImportedPolyDataWithMaterial()
   { // initialize some structures to store the file contents in
     points            = vtkSmartPointer<vtkPoints>::New();
@@ -255,7 +251,7 @@ std::string vtkOBJPolyDataProcessor::GetTextureFilename( int idx )
 {
   vtkOBJImportedMaterial* mtl = this->GetMaterial(idx);
 
-  if (mtl && mtl->texture_filename.size())
+  if (mtl && !mtl->texture_filename.empty())
   {
     std::vector<std::string> path_and_filename(2);
     path_and_filename[0] = this->TexturePath;

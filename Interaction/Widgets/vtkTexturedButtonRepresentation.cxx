@@ -188,8 +188,8 @@ PlaceWidget(double scale, double xyz[3], double normal[3])
   double bds[6], center[3];
   this->Actor->GetBounds(bds);
   center[0] = (bds[0]+bds[1]) / 2.0;
-  center[1] = (bds[2]+bds[3]) / 2.0;;
-  center[2] = (bds[4]+bds[5]) / 2.0;;
+  center[1] = (bds[2]+bds[3]) / 2.0;
+  center[2] = (bds[4]+bds[5]) / 2.0;
 
   this->Actor->AddPosition(center[0]-xyz[0],
                            center[1]-xyz[1],
@@ -233,8 +233,8 @@ void vtkTexturedButtonRepresentation::PlaceWidget(double bds[6])
   // Get the bounds of the actor
   this->Actor->GetBounds(aBds);
   aCenter[0] = (aBds[0]+aBds[1]) / 2.0;
-  aCenter[1] = (aBds[2]+aBds[3]) / 2.0;;
-  aCenter[2] = (aBds[4]+aBds[5]) / 2.0;;
+  aCenter[1] = (aBds[2]+aBds[3]) / 2.0;
+  aCenter[2] = (aBds[4]+aBds[5]) / 2.0;
 
   // Now fit the actor bounds in the place bounds by tampering with its
   // transform.

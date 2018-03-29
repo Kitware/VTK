@@ -26,9 +26,7 @@ vtkAlgorithmOutput::vtkAlgorithmOutput()
 }
 
 //----------------------------------------------------------------------------
-vtkAlgorithmOutput::~vtkAlgorithmOutput()
-{
-}
+vtkAlgorithmOutput::~vtkAlgorithmOutput() = default;
 
 //----------------------------------------------------------------------------
 void vtkAlgorithmOutput::PrintSelf(ostream& os, vtkIndent indent)

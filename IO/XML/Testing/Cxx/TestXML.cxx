@@ -28,7 +28,7 @@ public:
   static vtkMyXML* New();
 
 protected:
-  vtkMyXML() {}
+  vtkMyXML() = default;
   void StartElement(const char*, const char**) override {}
   void EndElement(const char*) override {}
 

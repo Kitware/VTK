@@ -40,9 +40,7 @@ vtkGeoTerrain2D::vtkGeoTerrain2D()
 }
 
 //----------------------------------------------------------------------------
-vtkGeoTerrain2D::~vtkGeoTerrain2D()
-{
-}
+vtkGeoTerrain2D::~vtkGeoTerrain2D() = default;
 
 //----------------------------------------------------------------------------
 void vtkGeoTerrain2D::InitializeNodeAnalysis(vtkRenderer* ren)

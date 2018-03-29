@@ -30,9 +30,7 @@ vtkRenderTimerLog::vtkRenderTimerLog()
 }
 
 //------------------------------------------------------------------------------
-vtkRenderTimerLog::~vtkRenderTimerLog()
-{
-}
+vtkRenderTimerLog::~vtkRenderTimerLog() = default;
 
 //------------------------------------------------------------------------------
 void vtkRenderTimerLog::PrintSelf(std::ostream &os, vtkIndent indent)

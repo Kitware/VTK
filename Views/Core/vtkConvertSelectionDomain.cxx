@@ -50,9 +50,7 @@ vtkConvertSelectionDomain::vtkConvertSelectionDomain()
 }
 
 //----------------------------------------------------------------------------
-vtkConvertSelectionDomain::~vtkConvertSelectionDomain()
-{
-}
+vtkConvertSelectionDomain::~vtkConvertSelectionDomain() = default;
 
 //----------------------------------------------------------------------------
 static void vtkConvertSelectionDomainFindDomains(

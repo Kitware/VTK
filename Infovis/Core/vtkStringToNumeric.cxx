@@ -49,9 +49,7 @@ vtkStringToNumeric::vtkStringToNumeric()
   this->TrimWhitespacePriorToNumericConversion = false;
 }
 
-vtkStringToNumeric::~vtkStringToNumeric()
-{
-}
+vtkStringToNumeric::~vtkStringToNumeric() = default;
 
 int vtkStringToNumeric::CountItemsToConvert(vtkFieldData *fieldData)
 {

@@ -168,8 +168,7 @@ vtkPickingManager::vtkInternal::vtkInternal(vtkPickingManager* external)
 }
 
 //------------------------------------------------------------------------------
-vtkPickingManager::vtkInternal::~vtkInternal()
-{}
+vtkPickingManager::vtkInternal::~vtkInternal() = default;
 
 //------------------------------------------------------------------------------
 void vtkPickingManager::vtkInternal::

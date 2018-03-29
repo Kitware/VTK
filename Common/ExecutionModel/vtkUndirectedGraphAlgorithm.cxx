@@ -38,9 +38,7 @@ vtkUndirectedGraphAlgorithm::vtkUndirectedGraphAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-vtkUndirectedGraphAlgorithm::~vtkUndirectedGraphAlgorithm()
-{
-}
+vtkUndirectedGraphAlgorithm::~vtkUndirectedGraphAlgorithm() = default;
 
 //----------------------------------------------------------------------------
 void vtkUndirectedGraphAlgorithm::PrintSelf(ostream& os, vtkIndent indent)

@@ -25,14 +25,10 @@
 vtkStandardNewMacro(vtkInteractorStyleMultiTouchCamera);
 
 //----------------------------------------------------------------------------
-vtkInteractorStyleMultiTouchCamera::vtkInteractorStyleMultiTouchCamera()
-{
-}
+vtkInteractorStyleMultiTouchCamera::vtkInteractorStyleMultiTouchCamera() = default;
 
 //----------------------------------------------------------------------------
-vtkInteractorStyleMultiTouchCamera::~vtkInteractorStyleMultiTouchCamera()
-{
-}
+vtkInteractorStyleMultiTouchCamera::~vtkInteractorStyleMultiTouchCamera() = default;
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleMultiTouchCamera::OnRotate()

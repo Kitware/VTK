@@ -385,7 +385,7 @@ bool vtkEvenlySpacedStreamlines2D::IsLooping(
   // do we have enough points to form a loop
   vtkIdType p0 = points->GetNumberOfPoints() - 1;
   vtkIdType minLoopPoints = std::max(vtkIdType(3), this->MinimumNumberOfLoopPoints);
-  if (this->CurrentPoints[cellId].size() > 0 &&
+  if (!this->CurrentPoints[cellId].empty() &&
       p0 - this->MinPointIds[cellId] + 1 >= minLoopPoints)
   {
     vtkIdType p1 = p0 - 1;
