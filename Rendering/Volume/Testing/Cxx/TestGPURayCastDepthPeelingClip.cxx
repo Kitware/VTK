@@ -248,6 +248,7 @@ int TestGPURayCastDepthPeelingClip(int argc, char *argv[])
   style->AddObserver(vtkCommand::StartInteractionEvent, callback);
   style->AddObserver(vtkCommand::EndInteractionEvent, callback);
 
+  ren->ResetCamera();
   renWin->Render();
 
   iren->Initialize();
