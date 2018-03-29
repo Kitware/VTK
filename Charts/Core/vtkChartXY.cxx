@@ -814,12 +814,12 @@ void vtkChartXY::RecalculatePlotBounds()
     }
     if (this->ForceAxesToBounds)
     {
-      axis->SetUnscaledMinimumLimit(range[0]);
-      axis->SetUnscaledMaximumLimit(range[1]);
+      axis->SetMinimumLimit(range[0]);
+      axis->SetMaximumLimit(range[1]);
     }
     if (axis->GetBehavior() == vtkAxis::AUTO && initialized[i])
     {
-      axis->SetUnscaledRange(range[0], range[1]);
+      axis->SetRange(range[0], range[1]);
       axis->AutoScale();
     }
   }

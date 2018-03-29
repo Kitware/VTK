@@ -239,11 +239,12 @@ void vtkColorTransferControlPointsItem::ComputeBounds(double* bounds)
 {
   if (this->ColorTransferFunction)
   {
-    const double* range = this->ColorTransferFunction->GetRange();
-    bounds[0] = range[0];
-    bounds[1] = range[1];
+    this->ColorTransferFunction->GetRange(bounds);
     bounds[2] = 0.5;
     bounds[3] = 0.5;
+
+    this->TransformDataToScreen(bounds[0], bounds[2], bounds[0], bounds[2]);
+    this->TransformDataToScreen(bounds[1], bounds[3], bounds[1], bounds[3]);
   }
   else
   {

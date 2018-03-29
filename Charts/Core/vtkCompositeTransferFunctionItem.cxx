@@ -72,9 +72,11 @@ void vtkCompositeTransferFunctionItem::ComputeBounds(double* bounds)
   this->Superclass::ComputeBounds(bounds);
   if (this->OpacityFunction)
   {
-    double* opacityRange = this->OpacityFunction->GetRange();
-    bounds[0] = std::min(bounds[0], opacityRange[0]);
-    bounds[1] = std::max(bounds[1], opacityRange[1]);
+    double unused;
+    double opacityRange[2];
+    this->OpacityFunction->GetRange(opacityRange);
+    this->TransformDataToScreen(opacityRange[0], 1, bounds[0], unused);
+    this->TransformDataToScreen(opacityRange[1], 1, bounds[1], unused);
   }
 }
 
@@ -101,9 +103,9 @@ void vtkCompositeTransferFunctionItem::SetOpacityFunction(vtkPiecewiseFunction* 
 void vtkCompositeTransferFunctionItem::ComputeTexture()
 {
   this->Superclass::ComputeTexture();
-  double bounds[4];
-  this->GetBounds(bounds);
-  if (bounds[0] == bounds[1]
+  double screenBounds[4];
+  this->GetBounds(screenBounds);
+  if (screenBounds[0] == screenBounds[1]
       || !this->OpacityFunction)
   {
     return;
@@ -113,12 +115,19 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
     this->Texture = vtkImageData::New();
   }
 
+  double dataBounds[4];
+  this->TransformScreenToData(screenBounds[0], screenBounds[2],
+                              dataBounds[0], dataBounds[2]);
+  this->TransformScreenToData(screenBounds[1], screenBounds[3],
+                              dataBounds[1], dataBounds[3]);
+
   const bool logX = this->GetXAxis()->GetLogScaleActive();
   const bool logY = this->GetYAxis()->GetLogScaleActive();
 
   const int dimension = this->GetTextureWidth();
   double* values = new double[dimension];
-  this->OpacityFunction->GetTable(bounds[0], bounds[1], dimension, values, 1,
+  this->OpacityFunction->GetTable(dataBounds[0], dataBounds[1],
+                                  dimension, values, 1,
                                   logX ? 1 : 0);
   unsigned char* ptr =
     reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0,0,0));
@@ -127,13 +136,7 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
   if (this->MaskAboveCurve || this->PolyLinePen->GetLineType() != vtkPen::SOLID_LINE)
   {
     this->Shape->SetNumberOfPoints(dimension);
-
-    if (logX)
-    {
-      bounds[0] = std::log10(bounds[0]);
-      bounds[1] = std::log10(bounds[1]);
-    }
-    const double step = (bounds[1] - bounds[0]) / dimension;
+    const double step = (screenBounds[1] - screenBounds[0]) / dimension;
 
     for (int i = 0; i < dimension; ++i)
     {
@@ -144,7 +147,7 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
       }
       ptr[3] = static_cast<unsigned char>(values[i] * this->Opacity * 255);
 
-      double xValue = bounds[0] + step * i;
+      double xValue = screenBounds[0] + step * i;
       double yValue = values[i];
       if (logY)
       {

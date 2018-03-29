@@ -82,6 +82,44 @@ vtkScalarsToColorsItem::~vtkScalarsToColorsItem()
 }
 
 //-----------------------------------------------------------------------------
+void vtkScalarsToColorsItem::TransformDataToScreen(
+    const double dataX, const double dataY, double &screenX, double &screenY)
+{
+  const bool logX = this->GetXAxis() && this->GetXAxis()->GetLogScaleActive();
+  const bool logY = this->GetYAxis() && this->GetYAxis()->GetLogScaleActive();
+
+  screenX = logX ? log10(dataX) : dataX;
+  screenY = logY ? log10(dataY) : dataY;
+
+  // now, shift/scale to screen space.
+  const vtkRectd& ss = this->ShiftScale;
+  screenX = (screenX + ss[0]) * ss[2];
+  screenY = (screenY + ss[1]) * ss[3];
+}
+
+//-----------------------------------------------------------------------------
+void vtkScalarsToColorsItem::TransformScreenToData(
+    const double screenX, const double screenY, double &dataX, double &dataY)
+{
+  // inverse shift/scale from screen space.
+  const vtkRectd& ss = this->ShiftScale;
+  dataX = (screenX / ss[2]) - ss[0];
+  dataY = (screenY / ss[3]) - ss[1];
+
+  const bool logX = this->GetXAxis() && this->GetXAxis()->GetLogScaleActive();
+  const bool logY = this->GetYAxis() && this->GetYAxis()->GetLogScaleActive();
+
+  if (logX)
+  {
+    dataX = pow(10., dataX);
+  }
+  if (logY)
+  {
+    dataY = pow(10., dataY);
+  }
+}
+
+//-----------------------------------------------------------------------------
 void vtkScalarsToColorsItem::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -128,7 +166,7 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
   vtkSmartPointer<vtkPen> transparentPen = vtkSmartPointer<vtkPen>::New();
   transparentPen->SetLineType(vtkPen::NO_PEN);
   painter->ApplyPen(transparentPen);
-  painter->GetBrush()->SetColorF(0., 0.,0.,1.);
+  painter->GetBrush()->SetColorF(0., 0., 0., 1.);
   painter->GetBrush()->SetColorF(1., 1., 1., 1.);
   painter->GetBrush()->SetTexture(this->Texture);
   painter->GetBrush()->SetTextureProperties(
@@ -139,32 +177,10 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
   {
     double dbounds[4];
     this->GetBounds(dbounds);
-
-    const bool logX = this->GetXAxis()->GetLogScaleActive();
-    const bool logY = this->GetYAxis()->GetLogScaleActive();
-
-    if (logX)
-    {
-      dbounds[0] = std::log10(dbounds[0]);
-      dbounds[1] = std::log10(dbounds[1]);
-    }
-    if (logY)
-    {
-      dbounds[2] = std::log10(dbounds[2]);
-      dbounds[3] = std::log10(dbounds[3]);
-    }
-
-    // shift/scale to scale from data space to rendering space.
-    const vtkRectd& ss = this->ShiftScale;
-    float fbounds[4];
-    fbounds[0] = static_cast<float>((dbounds[0] + ss[0]) * ss[2]);
-    fbounds[1] = static_cast<float>((dbounds[1] + ss[0]) * ss[2]);
-    fbounds[2] = static_cast<float>((dbounds[2] + ss[1]) * ss[3]);
-    fbounds[3] = static_cast<float>((dbounds[3] + ss[1]) * ss[3]);
-    painter->DrawQuad(fbounds[0], fbounds[2],
-                      fbounds[0], fbounds[3],
-                      fbounds[1], fbounds[3],
-                      fbounds[1], fbounds[2]);
+    painter->DrawQuad(dbounds[0], dbounds[2],
+                      dbounds[0], dbounds[3],
+                      dbounds[1], dbounds[3],
+                      dbounds[1], dbounds[2]);
   }
   else
   {

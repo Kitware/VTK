@@ -107,6 +107,11 @@ protected:
 
   vtkGetMacro(TextureWidth, int);
 
+  void TransformDataToScreen(const double dataX, const double dataY,
+                             double &screenX, double &screenY);
+  void TransformScreenToData(const double screenX, const double screenY,
+                             double &dataX, double &dataY);
+
   //@{
   /**
    * Called whenever the ScalarsToColors function(s) is modified. It internally
