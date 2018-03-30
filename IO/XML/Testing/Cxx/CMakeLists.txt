@@ -10,6 +10,7 @@ vtk_add_test_cxx(vtkIOXMLCxxTests tests
   TestXMLMappedUnstructuredGridIO.cxx,NO_DATA,NO_VALID
   TestXMLToString.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestXMLUnstructuredGridReader.cxx
+  TestXMLWriteRead.cxx,NO_VALID,NO_DATA
   TestXMLWriterWithDataArrayFallback.cxx,NO_VALID
   )
 

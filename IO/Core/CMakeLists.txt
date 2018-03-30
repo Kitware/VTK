@@ -24,6 +24,6 @@ SET(Module_SRCS
   vtkArrayDataReader.cxx
   vtkArrayDataWriter.cxx
   vtkLZMADataCompressor.cxx
+  vtkNumberToString.cxx
   )
-
 vtk_module_library(vtkIOCore ${Module_SRCS})
