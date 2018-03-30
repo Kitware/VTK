@@ -32,6 +32,7 @@
 #   dashboard_source_name     = Name of source directory (VTK)
 #   dashboard_binary_name     = Name of binary directory (VTK-build)
 #   dashboard_cache           = Initial CMakeCache.txt file content
+#   dashboard_configure_args  = CMake configure args
 #   dashboard_cvs_tag         = CVS tag to checkout (ex: VTK-5-6)
 #   dashboard_do_coverage     = True to enable coverage (ex: gcov)
 #   dashboard_do_memcheck     = True to enable memcheck (ex: valgrind)
@@ -419,7 +420,7 @@ while(NOT dashboard_done)
 
   if(dashboard_fresh OR NOT dashboard_continuous OR count GREATER 0)
 
-    ctest_configure()
+    ctest_configure(OPTIONS "${dashboard_configure_args}")
 
     ctest_submit(PARTS Update Configure Notes)
     ctest_read_custom_files(${CTEST_BINARY_DIRECTORY})
