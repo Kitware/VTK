@@ -197,6 +197,9 @@ void vtkControlPointsItem::ComputeBounds( double* bounds)
     bounds[2] = std::min(bounds[2], point[1]);
     bounds[3] = std::max(bounds[3], point[1]);
   }
+
+  this->TransformDataToScreen(bounds[0], bounds[2], bounds[0], bounds[2]);
+  this->TransformDataToScreen(bounds[1], bounds[3], bounds[1], bounds[3]);
 }
 
 //-----------------------------------------------------------------------------
@@ -359,54 +362,77 @@ void vtkControlPointsItem::ComputePoints()
 //-----------------------------------------------------------------------------
 void vtkControlPointsItem::TransformScreenToData(const vtkVector2f& in, vtkVector2f& out)
 {
-  out = in;
+  double tmp[2] = { in.GetX(), in.GetY() };
 
-  // inverse shift/scale from screen space.
-  const vtkRectd& ss = this->ShiftScale;
-  out.SetX(static_cast<float>((out.GetX() / ss[2]) - ss[0]));
-  out.SetY(static_cast<float>((out.GetY() / ss[3]) - ss[1]));
+  this->TransformScreenToData(tmp[0], tmp[1], tmp[0], tmp[1]);
 
-  const bool logX = this->GetXAxis() && this->GetXAxis()->GetLogScaleActive();
-  const bool logY = this->GetYAxis() && this->GetYAxis()->GetLogScaleActive();
-
-  if (logX)
-  {
-    out.SetX(std::pow(10., out.GetX()));
-  }
-  if (logY)
-  {
-    out.SetY(std::pow(10., out.GetY()));
-  }
+  out.Set(static_cast<float>(tmp[0]), static_cast<float>(tmp[1]));
 }
 
 //-----------------------------------------------------------------------------
 void vtkControlPointsItem::TransformDataToScreen(const vtkVector2f& in, vtkVector2f& out)
 {
-  out = in;
+  double tmp[2] = { in.GetX(), in.GetY() };
+
+  this->TransformDataToScreen(tmp[0], tmp[1], tmp[0], tmp[1]);
+
+  out.Set(static_cast<float>(tmp[0]), static_cast<float>(tmp[1]));
+}
+
+//-----------------------------------------------------------------------------
+void vtkControlPointsItem::TransformScreenToData(
+    const double inX, const double inY, double &outX, double &outY)
+{
+  outX = inX;
+  outY = inY;
+
+  // inverse shift/scale from screen space.
+  const vtkRectd& ss = this->ShiftScale;
+  outX = (outX / ss[2]) - ss[0];
+  outY = (outY / ss[3]) - ss[1];
 
   const bool logX = this->GetXAxis() && this->GetXAxis()->GetLogScaleActive();
   const bool logY = this->GetYAxis() && this->GetYAxis()->GetLogScaleActive();
 
   if (logX)
   {
-    out.SetX(std::log10(out.GetX()));
+    outX = std::pow(10., outX);
   }
   if (logY)
   {
-    out.SetY(std::log10(out.GetY()));
+    outY = std::pow(10., outY);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkControlPointsItem::TransformDataToScreen(
+    const double inX, const double inY, double &outX, double &outY)
+{
+  outX = inX;
+  outY = inY;
+
+  const bool logX = this->GetXAxis() && this->GetXAxis()->GetLogScaleActive();
+  const bool logY = this->GetYAxis() && this->GetYAxis()->GetLogScaleActive();
+
+  if (logX)
+  {
+    outX = std::log10(outX);
+  }
+  if (logY)
+  {
+    outY = std::log10(outY);
   }
 
   // now, shift/scale to screen space.
   const vtkRectd& ss = this->ShiftScale;
-  out.SetX(static_cast<float>((out.GetX() + ss[0]) * ss[2]));
-  out.SetY(static_cast<float>((out.GetY() + ss[1]) * ss[3]));
+  outX = (outX + ss[0]) * ss[2];
+  outY = (outY + ss[1]) * ss[3];
 }
 
 //-----------------------------------------------------------------------------
 bool vtkControlPointsItem::Hit(const vtkContextMouseEvent &mouse)
 {
   vtkVector2f vpos = mouse.GetPos();
-  this->TransformScreenToData(vpos, vpos);
   double pos[2];
   pos[0] = vpos.GetX();
   pos[1] = vpos.GetY();
@@ -464,7 +490,16 @@ bool vtkControlPointsItem::ClampPos(double pos[2], double bounds[4])
 }
 
 //-----------------------------------------------------------------------------
-bool vtkControlPointsItem::ClampValidPos(double pos[2])
+bool vtkControlPointsItem::ClampValidDataPos(double pos[2])
+{
+  this->TransformDataToScreen(pos[0], pos[1], pos[0], pos[1]);
+  bool res = this->ClampValidScreenPos(pos);
+  this->TransformScreenToData(pos[0], pos[1], pos[0], pos[1]);
+  return res;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkControlPointsItem::ClampValidScreenPos(double pos[2])
 {
   double validBounds[4];
   this->GetValidBounds(validBounds);
@@ -512,10 +547,7 @@ void vtkControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType index)
   double point[4];
   this->GetControlPoint(index, point);
 
-  vtkVector2f vpoint(point[0], point[1]);
-  this->TransformDataToScreen(vpoint, vpoint);
-  point[0] = vpoint.GetX();
-  point[1] = vpoint.GetY();
+  this->TransformDataToScreen(point[0], point[1], point[0], point[1]);
 
   double pointInScene[2];
   vtkTransform2D* sceneTransform = painter->GetTransform();
@@ -838,18 +870,16 @@ bool vtkControlPointsItem::IsOverPoint(double* pos, vtkIdType pointId)
 }
 
 //-----------------------------------------------------------------------------
-vtkIdType vtkControlPointsItem::FindPoint(double* _pos)
+vtkIdType vtkControlPointsItem::FindPoint(double* posData)
 {
-  vtkVector2f vpos(_pos[0], _pos[1]);
-  this->TransformDataToScreen(vpos, vpos);
-  double pos[2] = {vpos.GetX(), vpos.GetY()};
+  double pos[2];
+  this->TransformDataToScreen(posData[0], posData[1], pos[0], pos[1]);
 
   double tolerance = 1.3;
   double radius2 = this->ScreenPointRadius * this->ScreenPointRadius
     * tolerance * tolerance;
 
-  double screenPos[2];
-  this->Transform->TransformPoints(pos, screenPos, 1);
+  this->Transform->TransformPoints(pos, pos, 1);
   vtkIdType pointId = -1;
   double minDist = VTK_DOUBLE_MAX;
   const int numberOfPoints = this->GetNumberOfPoints();
@@ -857,16 +887,11 @@ vtkIdType vtkControlPointsItem::FindPoint(double* _pos)
   {
     double point[4];
     this->GetControlPoint(i, point);
-    vtkVector2f vpos1(point[0], point[1]);
-    this->TransformDataToScreen(vpos1, vpos1);
-    point[0] = vpos1.GetX();
-    point[1] = vpos1.GetY();
-
-    double screenPoint[2];
-    this->Transform->TransformPoints(point, screenPoint, 1);
+    this->TransformDataToScreen(point[0], point[1], point[0], point[1]);
+    this->Transform->TransformPoints(point, point, 1);
     double distance2 =
-      (screenPoint[0] - screenPos[0]) * (screenPoint[0] - screenPos[0]) +
-      (screenPoint[1] - screenPos[1]) * (screenPoint[1] - screenPos[1]);
+      (point[0] - pos[0]) * (point[0] - pos[0]) +
+      (point[1] - pos[1]) * (point[1] - pos[1]);
     if (distance2 <= radius2)
     {
       if (distance2 == 0.)
@@ -880,7 +905,7 @@ vtkIdType vtkControlPointsItem::FindPoint(double* _pos)
       }
     }
     // don't search any further if the x is already too large
-    if (screenPoint[0] > (screenPos[0] + this->ScreenPointRadius * tolerance))
+    if (point[0] > (pos[0] + this->ScreenPointRadius * tolerance))
     {
       break;
     }
@@ -1010,11 +1035,14 @@ bool vtkControlPointsItem::MouseButtonPressEvent(const vtkContextMouseEvent &mou
   this->PointToToggle = -1;
   this->PointToDelete = -1;
 
-  vtkVector2f vpos = mouse.GetPos();
-  this->TransformScreenToData(vpos, vpos);
   double pos[2];
-  pos[0] = vpos.GetX();
-  pos[1] = vpos.GetY();
+  {
+    vtkVector2f vpos = mouse.GetPos();
+    pos[0] = vpos.GetX();
+    pos[1] = vpos.GetY();
+  }
+  this->TransformScreenToData(pos[0], pos[1], pos[0], pos[1]);
+
   vtkIdType pointUnderMouse = this->FindPoint(pos);
 
   if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
@@ -1028,7 +1056,7 @@ bool vtkControlPointsItem::MouseButtonPressEvent(const vtkContextMouseEvent &mou
              && this->GetNumberOfSelectedPoints() <= 1
              && !this->StrokeMode)
     {
-      this->ClampValidPos(pos);
+      this->ClampValidDataPos(pos);
       vtkIdType addedPoint = this->AddPoint(pos);
       this->SetCurrentPoint(addedPoint);
       return true;
@@ -1228,7 +1256,7 @@ vtkIdType vtkControlPointsItem::SetPointPos(vtkIdType point, const vtkVector2f& 
   double boundedPos[2];
   boundedPos[0] = newPos[0];
   boundedPos[1] = newPos[1];
-  this->ClampValidPos(boundedPos);
+  this->ClampValidDataPos(boundedPos);
 
   if (!this->SwitchPointsMode)
   {
@@ -1485,7 +1513,7 @@ void vtkControlPointsItem::Stroke(const vtkVector2f& newPos)
   double pos[2];
   pos[0] = newPos[0];
   pos[1] = newPos[1];
-  this->ClampValidPos(pos);
+  this->ClampValidDataPos(pos);
 
   // last point
   if (this->CurrentPoint != -1)

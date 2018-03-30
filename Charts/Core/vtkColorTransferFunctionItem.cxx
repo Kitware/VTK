@@ -70,9 +70,10 @@ void vtkColorTransferFunctionItem::ComputeBounds(double* bounds)
   this->Superclass::ComputeBounds(bounds);
   if (this->ColorTransferFunction)
   {
+    double unused;
     double* range = this->ColorTransferFunction->GetRange();
-    bounds[0] = range[0];
-    bounds[1] = range[1];
+    this->TransformDataToScreen(range[0], 1, bounds[0], unused);
+    this->TransformDataToScreen(range[1], 1, bounds[1], unused);
   }
 }
 
@@ -98,9 +99,9 @@ void vtkColorTransferFunctionItem::SetColorTransferFunction(vtkColorTransferFunc
 //-----------------------------------------------------------------------------
 void vtkColorTransferFunctionItem::ComputeTexture()
 {
-  double bounds[4];
-  this->GetBounds(bounds);
-  if (bounds[0] == bounds[1]
+  double screenBounds[4];
+  this->GetBounds(screenBounds);
+  if (screenBounds[0] == screenBounds[1]
       || !this->ColorTransferFunction)
   {
     return;
@@ -110,6 +111,12 @@ void vtkColorTransferFunctionItem::ComputeTexture()
     this->Texture = vtkImageData::New();
   }
 
+  double dataBounds[4];
+  this->TransformScreenToData(screenBounds[0], screenBounds[2],
+                              dataBounds[0], dataBounds[2]);
+  this->TransformScreenToData(screenBounds[1], screenBounds[3],
+                              dataBounds[1], dataBounds[3]);
+
   // Could depend of the screen resolution
   const int dimension = this->GetTextureWidth();
   double* values = new double[dimension];
@@ -118,22 +125,9 @@ void vtkColorTransferFunctionItem::ComputeTexture()
                            0, 0,
                            0, 0);
   this->Texture->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
-  bool isLogTable = this->GetXAxis()->GetLogScaleActive();
-  double logBoundsMin = bounds[0] > 0.0 ? log10(bounds[0]) : 0.0;
-  double logBoundsDelta = (bounds[0] > 0.0 && bounds[1] > 0.0)?
-    (log10(bounds[1])-log10(bounds[0])) : 0.0;
   for (int i = 0; i < dimension; ++i)
   {
-    if (isLogTable)
-    {
-      double normVal = i/(dimension-1.0);
-      double lval = logBoundsMin + normVal*logBoundsDelta;
-      values[i] = pow(10.0, lval);
-    }
-    else
-    {
-      values[i] = bounds[0] + i * (bounds[1] - bounds[0]) / (dimension - 1);
-    }
+    values[i] = dataBounds[0] + i * (dataBounds[1] - dataBounds[0]) / (dimension - 1);
   }
   unsigned char* ptr =
     reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0,0,0));
