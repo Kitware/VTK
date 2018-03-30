@@ -310,5 +310,8 @@ void vtkCompositePolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 
 vtkPolyDataMapper *vtkCompositePolyDataMapper::MakeAMapper()
 {
-  return vtkPolyDataMapper::New();
+  vtkPolyDataMapper* m = vtkPolyDataMapper::New();
+  // Copy our vtkMapper properties to the delegate
+  m->vtkMapper::ShallowCopy( this );
+  return m;
 }

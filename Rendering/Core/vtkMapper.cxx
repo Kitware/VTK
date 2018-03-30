@@ -195,6 +195,7 @@ void vtkMapper::SetRelativeCoincidentTopologyPolygonOffsetParameters(
   }
   this->CoincidentPolygonFactor = factor;
   this->CoincidentPolygonOffset = units;
+  this->Modified();
 }
 
 void vtkMapper::GetRelativeCoincidentTopologyPolygonOffsetParameters(
@@ -242,6 +243,7 @@ void vtkMapper::SetRelativeCoincidentTopologyLineOffsetParameters(
   }
   this->CoincidentLineFactor = factor;
   this->CoincidentLineOffset = units;
+  this->Modified();
 }
 
 void vtkMapper::GetRelativeCoincidentTopologyLineOffsetParameters(
@@ -284,6 +286,7 @@ void vtkMapper::SetRelativeCoincidentTopologyPointOffsetParameter(
     return;
   }
   this->CoincidentPointOffset = units;
+  this->Modified();
 }
 
 void vtkMapper::GetRelativeCoincidentTopologyPointOffsetParameter(
@@ -348,6 +351,16 @@ void vtkMapper::ShallowCopy(vtkAbstractMapper *mapper)
     {
       this->ColorByArrayComponent(m->GetArrayName(),m->GetArrayComponent());
     }
+
+    double f, u;
+    m->GetRelativeCoincidentTopologyPolygonOffsetParameters( f, u );
+    this->SetRelativeCoincidentTopologyPolygonOffsetParameters( f, u );
+
+    m->GetRelativeCoincidentTopologyLineOffsetParameters( f, u );
+    this->SetRelativeCoincidentTopologyLineOffsetParameters( f, u );
+
+    m->GetRelativeCoincidentTopologyPointOffsetParameter( u );
+    this->SetRelativeCoincidentTopologyPointOffsetParameter( u );
   }
 
   // Now do superclass
