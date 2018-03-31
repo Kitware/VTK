@@ -186,8 +186,6 @@ PREDEFINED  = "vtkSetMacro(name,type)= \
                    public: \
                    thisClass *NewInstance() const;" \
                "VTK_LEGACY(x)= x" \
-               "VTK_OVERRIDE=override" \
-               "VTK_DELETE=delete" \
                "VTK_NEWINSTANCE=" \
                "VTK_ZEROCOPY=" \
                "VTK_EXPECTS(x)=" \

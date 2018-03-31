@@ -138,18 +138,11 @@
 # define VTK_MAXPATH 32767 // Possible with Windows "extended paths"
 #endif
 
-#if (__cplusplus >= 201103L) || ( defined(_MSC_VER) && _MSC_VER >= 1700 )
+/* TODO: wrap in #ifndef VTK_LEGACY_REMOVE */
+#if 1
 # define VTK_OVERRIDE override
 # define VTK_FINAL final
-#else
-# define VTK_OVERRIDE
-# define VTK_FINAL
-#endif
-
-#if (__cplusplus >= 201103L) || ( defined(_MSC_VER) && _MSC_VER >= 1800 )
 # define VTK_DELETE_FUNCTION =delete
-#else
-# define VTK_DELETE_FUNCTION
 #endif
 
 /** extern template declarations for C++11

@@ -65,8 +65,8 @@ protected:
   void FetchFaces() override;
 
 private:
-  MappedCellIterator(const MappedCellIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const MappedCellIterator&) VTK_DELETE_FUNCTION;
+  MappedCellIterator(const MappedCellIterator&) = delete;
+  void operator=(const MappedCellIterator&) = delete;
 
   vtkIdType CellId;
   vtkIdType NumberOfCells;
@@ -289,7 +289,7 @@ public:
   typedef vtkMappedUnstructuredGrid<MappedGridImpl, MappedCellIterator<MappedGridImpl> > _myBase;
   vtkTypeMacro(MappedGrid, _myBase);
 
-  int GetDataObjectType() VTK_OVERRIDE { return VTK_UNSTRUCTURED_GRID_BASE; }
+  int GetDataObjectType() override { return VTK_UNSTRUCTURED_GRID_BASE; }
 
   static MappedGrid* New();
 
