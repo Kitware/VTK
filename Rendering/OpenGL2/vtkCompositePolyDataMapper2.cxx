@@ -123,32 +123,27 @@ void vtkCompositeMapperHelper2::SetShaderValues(
 
   if (useNanColor)
   {
-    float nanAmbient[3] = {
-      static_cast<float>(nanColor[0] * this->CurrentAmbientIntensity),
-      static_cast<float>(nanColor[1] * this->CurrentAmbientIntensity),
-      static_cast<float>(nanColor[2] * this->CurrentAmbientIntensity)
+    float fnancolor[3] = {
+      static_cast<float>(nanColor[0]),
+      static_cast<float>(nanColor[1]),
+      static_cast<float>(nanColor[2])
     };
-    float nanDiffuse[3] = {
-      static_cast<float>(nanColor[0] * this->CurrentDiffuseIntensity),
-      static_cast<float>(nanColor[1] * this->CurrentDiffuseIntensity),
-      static_cast<float>(nanColor[2] * this->CurrentDiffuseIntensity)
-    };
-    prog->SetUniform3f("ambientColorUniform", nanAmbient);
-    prog->SetUniform3f("diffuseColorUniform", nanDiffuse);
+    prog->SetUniform3f("ambientColorUniform", fnancolor);
+    prog->SetUniform3f("diffuseColorUniform", fnancolor);
   }
   else
   {
     vtkColor3d &aColor = hdata->AmbientColor;
     float ambientColor[3] = {
-      static_cast<float>(aColor[0] * this->CurrentAmbientIntensity),
-      static_cast<float>(aColor[1] * this->CurrentAmbientIntensity),
-      static_cast<float>(aColor[2] * this->CurrentAmbientIntensity)
+      static_cast<float>(aColor[0]),
+      static_cast<float>(aColor[1]),
+      static_cast<float>(aColor[2])
     };
     vtkColor3d &dColor = hdata->DiffuseColor;
     float diffuseColor[3] = {
-      static_cast<float>(dColor[0] * this->CurrentDiffuseIntensity),
-      static_cast<float>(dColor[1] * this->CurrentDiffuseIntensity),
-      static_cast<float>(dColor[2] * this->CurrentDiffuseIntensity)
+      static_cast<float>(dColor[0]),
+      static_cast<float>(dColor[1]),
+      static_cast<float>(dColor[2])
     };
     prog->SetUniform3f("ambientColorUniform", ambientColor);
     prog->SetUniform3f("diffuseColorUniform", diffuseColor);
@@ -174,8 +169,8 @@ void vtkCompositeMapperHelper2::ReplaceShaderColor(
     vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
       "//VTK::Color::Impl\n"
       "  if (OverridesColor) {\n"
-      "    ambientColor = ambientColorUniform;\n"
-      "    diffuseColor = diffuseColorUniform; }\n",
+      "    ambientColor = ambientColorUniform * ambientIntensity;\n"
+      "    diffuseColor = diffuseColorUniform * diffuseIntensity; }\n",
       false);
 
     shaders[vtkShader::Fragment]->SetSource(FSSource);
@@ -392,10 +387,6 @@ void vtkCompositeMapperHelper2::RenderPieceDraw(
     representation = VTK_POINTS;
     pointPicking = true;
   }
-
-  vtkProperty *ppty = actor->GetProperty();
-  this->CurrentAmbientIntensity = ppty->GetAmbient();
-  this->CurrentDiffuseIntensity = ppty->GetDiffuse();
 
   this->PrimitiveIDOffset = 0;
 

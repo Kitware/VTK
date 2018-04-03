@@ -135,8 +135,6 @@ protected:
   bool OverideColorUsed;
 
   vtkHardwareSelector *CurrentSelector;
-  double CurrentAmbientIntensity;
-  double CurrentDiffuseIntensity;
 
   std::vector<vtkPolyData*> RenderedList;
 
