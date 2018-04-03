@@ -1,11 +1,13 @@
-vtk_module(vtkFiltersMomentInvariants
+vtk_module(vtkFiltersParallelMomentInvariants
   TEST_DEPENDS
     vtkIOXML
   DEPENDS
     vtkFiltersCore
     vtkImagingCore
+    vtkFiltersMomentInvariants
+    vtkParallelCore
     vtkFiltersParallelDIY2
+    vtkParallelMPI
   PRIVATE_DEPENDS
     vtkeigen
-    vtkkissfft
   )

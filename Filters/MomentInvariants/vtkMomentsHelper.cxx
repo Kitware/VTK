@@ -57,6 +57,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "vtkMomentsHelper.h"
+#include "../ParallelDIY2/vtkPResampleWithDataSet.h"
 #include "vtkCell.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageConstantPad.h"
@@ -66,6 +67,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkNew.h"
 #include "vtkPixel.h"
 #include "vtkPointData.h"
+#include "vtkProbeFilter.h"
 #include "vtkQuad.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
@@ -218,61 +220,63 @@ std::vector<vtkMomentsTensor> vtkMomentsHelper::orthonormalizeMoments(int dimens
  * @param order: the maximal order up to which the moments are computed
  * @param fieldRank: 0 for scalar, 1 for vector and 2 for matrix
  * @param radius: the integration radius at which the moments are computed
- * @param ptID: point id of the location where the moments are computed
- * @param dataset: the dataset of which the moments are computed
+ * @param dimPtId: array of dimension-wise point ids of the location where the moments are computed.
+ * On a foreign proc, at least one is negative
+ * @param field: the dataset of which the moments are computed
  * @param nameOfPointData: the name of the array in the point data of which the momens are computed.
  * @return the moments
  */
-std::vector<vtkMomentsTensor> vtkMomentsHelper::allMomentsOrigResImageData(int dimension,
-  int order,
-  int fieldRank,
-  double radius,
-  int ptId,
-  vtkImageData* source,
-  std::string nameOfPointData)
+std::vector<vtkMomentsTensor> vtkMomentsHelper::allMomentsOrigResImageData(int dimension, int order,
+  int fieldRank, double radius, int* dimPtId, vtkImageData* field, std::string nameOfPointData)
 {
   std::vector<vtkMomentsTensor> tensors(order + 1);
   for (int o = 0; o < order + 1; o++)
   {
     tensors.at(o) = vtkMomentsTensor(dimension, o + fieldRank, fieldRank);
   }
-  if (ptId < 0)
-  {
-    return tensors;
-  }
 
-  double center[3];
-  source->GetPoint(ptId, center);
   double bounds[6];
-  source->GetBounds(bounds);
-  for (size_t d = 0; d < static_cast<size_t>(dimension); d++)
+  field->GetBounds(bounds);
+  double center[3];
+  for (size_t d = 0; d < static_cast<size_t>(dimension); ++d)
   {
-    if (center[d] - radius < bounds[2 * d] - 1e-10 ||
-      center[d] + radius > bounds[2 * d + 1] + 1e-10)
-    {
-      return tensors;
-    }
+    center[d] = bounds[2 * d] + dimPtId[d] * field->GetSpacing()[d];
+    //      std::cout<<"centers and bounds: "<<center[d]<<" "<<bounds[2*d]<<" "<<ptId[d]<<"\n";
   }
-
   double argument[3];
   double relArgument[3];
-  double* h = source->GetSpacing();
+  double* h = field->GetSpacing();
   if (dimension == 3)
   {
-    for (int i = -radius / h[0] - 1e-5; i <= radius / h[0] + 1e-5; i++)
+    for (int i = -radius / (h[0] - 1e-10); i <= radius / (h[0] - 1e-10); i++)
     {
-      for (int j = -radius / h[1] - 1e-5; j <= radius / h[1] + 1e-5; j++)
+      if (i > int(-radius / (h[0] - 1e-10)) &&
+        (dimPtId[0] + i <= 0 || dimPtId[0] + i >= field->GetDimensions()[0]))
       {
-        for (int k = -radius / h[2] - 1e-5; k <= radius / h[2] + 1e-5; k++)
+        continue;
+      }
+      for (int j = -radius / (h[1] - 1e-10); j <= radius / (h[1] - 1e-10); j++)
+      {
+        if (j > int(-radius / (h[1] - 1e-10)) &&
+          (dimPtId[1] + j <= 0 || dimPtId[1] + j >= field->GetDimensions()[1]))
         {
-          int index = ptId + i + j * source->GetDimensions()[0] +
-            k * source->GetDimensions()[1] * source->GetDimensions()[1];
-          source->GetPoint(index, argument);
+          continue;
+        }
+        for (int k = -radius / (h[2] - 1e-10); k <= radius / (h[2] - 1e-10); k++)
+        {
+          if (k > int(-radius / (h[2] - 1e-10)) &&
+            (dimPtId[2] + k <= 0 || dimPtId[2] + k >= field->GetDimensions()[2]))
+          {
+            continue;
+          }
+          int index = dimPtId[0] + i + (dimPtId[1] + j) * field->GetDimensions()[0] +
+            (dimPtId[2] + k) * field->GetDimensions()[0] * field->GetDimensions()[1];
+          field->GetPoint(index, argument);
           for (int d = 0; d < 3; ++d)
           {
-            relArgument[d] = argument[d] - source->GetPoint(ptId)[d];
+            relArgument[d] = argument[d] - center[d];
           }
-          if (vtkMath::Norm(relArgument) <= radius + 1e-5)
+          if (vtkMath::Norm(relArgument) <= radius + 1e-10)
           {
             for (int o = 0; o < order + 1; o++)
             {
@@ -283,10 +287,9 @@ std::vector<vtkMomentsTensor> vtkMomentsHelper::allMomentsOrigResImageData(int d
                 {
                   faktor *= relArgument[tensors.at(o).getMomentIndices(s).at(mi)];
                 }
-                tensors.at(o).set(s,
-                  tensors.at(o).get(s) +
+                tensors.at(o).set(s, tensors.at(o).get(s) +
                     h[0] * h[1] * h[2] * faktor *
-                      source->GetPointData()
+                      field->GetPointData()
                         ->GetArray(nameOfPointData.c_str())
                         ->GetTuple(index)[tensors.at(o).getFieldIndex(s)]);
                 // std::cout << "outputFieldIndex="<<getFieldIndexFromTensorIndices(tensors.at( o
@@ -305,24 +308,34 @@ std::vector<vtkMomentsTensor> vtkMomentsHelper::allMomentsOrigResImageData(int d
   }
   else
   {
-    for (int j = -radius / h[1] - 1e-5; j <= radius / h[1] + 1e-5; j++)
+    for (int j = -radius / (h[1] - 1e-10); j <= radius / (h[1] - 1e-10); j++)
     {
-      for (int i = -radius / h[0] - 1e-5; i <= radius / h[0] + 1e-5; i++)
+      if (j > int(-radius / (h[1] - 1e-10)) &&
+        (dimPtId[1] + j <= 0 || dimPtId[1] + j >= field->GetDimensions()[1]))
       {
-        int index = ptId + (i + j * source->GetDimensions()[0]);
-        source->GetPoint(index, argument);
+        continue;
+      }
+      for (int i = -radius / (h[0] - 1e-10); i <= radius / (h[0] - 1e-10); i++)
+      {
+        if (i > int(-radius / (h[0] - 1e-10)) &&
+          (dimPtId[0] + i <= 0 || dimPtId[0] + i >= field->GetDimensions()[0]))
+        {
+          continue;
+        }
+        int index = dimPtId[0] + i + (dimPtId[1] + j) * field->GetDimensions()[0];
+        field->GetPoint(index, argument);
         for (int d = 0; d < 3; ++d)
         {
-          relArgument[d] = argument[d] - source->GetPoint(ptId)[d];
+          relArgument[d] = argument[d] - center[d];
         }
 
-        if (vtkMath::Norm(relArgument) <= radius + 1e-5)
+        if (vtkMath::Norm(relArgument) <= radius + 1e-10)
         {
           //                    if(center[0]==16&&center[1]==-3)
           //                        std::cout<<"i,j "<<radius/h[0]<<" "<<radius/h[1]<<" "<<i<<"
           //                        "<<j<<" "<<relArgument[0]<<" "<<relArgument[1]<<"
-          //                        "<<source->GetPointData()->GetArray(nameOfPointData.c_str())->GetTuple(index)[0]<<"
-          //                        "<<source->GetPointData()->GetArray(nameOfPointData.c_str())->GetTuple(index)[1]<<"\n";
+          //                        "<<field->GetPointData()->GetArray(nameOfPointData.c_str())->GetTuple(index)[0]<<"
+          //                        "<<field->GetPointData()->GetArray(nameOfPointData.c_str())->GetTuple(index)[1]<<"\n";
           for (int o = 0; o < order + 1; o++)
           {
             for (size_t s = 0; s < tensors.at(o).size(); s++)
@@ -335,10 +348,9 @@ std::vector<vtkMomentsTensor> vtkMomentsHelper::allMomentsOrigResImageData(int d
               //                            if(center[0]==16&&center[1]==-3)
               //                                std::cout<<relArgument[0]<<" "<<relArgument[1]<<"
               //                                o="<<o<<" s="<<s<<" faktor="<<faktor<<"\n";
-              tensors.at(o).set(s,
-                tensors.at(o).get(s) +
+              tensors.at(o).set(s, tensors.at(o).get(s) +
                   h[0] * h[1] * faktor *
-                    source->GetPointData()
+                    field->GetPointData()
                       ->GetArray(nameOfPointData.c_str())
                       ->GetTuple(index)[tensors.at(o).getFieldIndex(s)]);
               //                        std::cout <<
@@ -355,7 +367,7 @@ std::vector<vtkMomentsTensor> vtkMomentsHelper::allMomentsOrigResImageData(int d
       }
     }
   }
-  // std::cout<<"radius="<<radius<<" hiervalue="<<integral<<" source"<<stencil->GetSpacing()<<"\n";
+  // std::cout<<"radius="<<radius<<" hiervalue="<<integral<<" field"<<stencil->GetSpacing()<<"\n";
   return tensors;
 }
 
@@ -682,13 +694,10 @@ void vtkMomentsHelper::BuildStencil(vtkImageData* stencil,
  * @param source: the dataset
  * @param stencil: contains the locations at which the dataset is evaluated for the integration
  * @param numberOfIntegrationSteps: how fine the discrete integration done in each dimension
- * @return the moments
+ * @return 0 if the stencil lies completely outside the field
  */
-bool vtkMomentsHelper::CenterStencil(double center[3],
-  vtkDataSet* source,
-  vtkImageData* stencil,
-  int numberOfIntegrationSteps,
-  std::string vtkNotUsed(nameOfPointData))
+bool vtkMomentsHelper::CenterStencil(double center[3], vtkDataSet* source, vtkImageData* stencil,
+  int numberOfIntegrationSteps, std::string nameOfPointData)
 {
   // put the center to the point where the moments shall be calculated
   if (numberOfIntegrationSteps == 1)
@@ -711,9 +720,8 @@ bool vtkMomentsHelper::CenterStencil(double center[3],
   //            return( false );
   //        }
 
-  int subId = 0;
-
   // interpolation of the source data at the integration points
+  int subId = 0;
   for (vtkIdType ptId = 0; ptId < stencil->GetNumberOfPoints(); ++ptId)
   {
     // find point coordinates
@@ -744,30 +752,44 @@ bool vtkMomentsHelper::CenterStencil(double center[3],
       return (false);
     }
   }
-  //        std::ostream stream(std::cout.rdbuf());
-  //        std::cout<<"Stencil\n";
-  //        std::cout<<"Stencil:"<<stencil->GetCenter()[0]<<" "<<stencil->GetCenter()[0]<<"\n";
-  //        std::cout<<"Stencil:"<<stencil->GetBounds()[0]<<" "<<stencil->GetBounds()[1]<<"\n";
-  //        stencil->PrintSelf(stream, vtkIndent(0));
-  //        std::cout<<"\n";
-  //        double x[3];
-  //        for( int ptId = 0; ptId < stencil->GetNumberOfPoints(); ++ptId )
-  //        {
-  //            stencil->GetPoint(ptId, x);
-  //            std::cout<<ptId<<" x="<<x[0]<<" "<<x[1]<<"\n";
-  //        }
 
-  //    if( stencil->GetBounds()[0] < source->GetBounds()[0] || stencil->GetBounds()[2] <
-  //    source->GetBounds()[2] || stencil->GetBounds()[4] < source->GetBounds()[4] ||
-  //    stencil->GetBounds()[1] > source->GetBounds()[1] || stencil->GetBounds()[3] >
-  //    source->GetBounds()[3] || stencil->GetBounds()[5] > source->GetBounds()[5] )
+  //  if( center[0] == 0 && center[1] == 0 )
+  //  {
+  //    std::ostream stream(std::cout.rdbuf());
+  //    std::cout<<"stencil=";
+  //    stencil->PrintSelf(stream, vtkIndent(0));
+  //    std::cout<<"\n";
+  //    std::cout<<"point="<<center[0]<<" "<<center[1]<<" range="<<stencil->GetScalarRange()[0]<<"
+  //    "<<stencil->GetScalarRange()[1]<<" bounds="<<stencil->GetBounds()[0]<<"
+  //    "<<stencil->GetBounds()[1]<<"\n";
+  //    for (vtkIdType ptId = 0; ptId < stencil->GetNumberOfPoints(); ++ptId)
   //    {
-  //        std::cout<<"StencilCenter:"<<stencil->GetCenter()[0]<<"
-  //        "<<stencil->GetCenter()[1]<<"\n";
-  //        std::cout<<"StencilBounds:"<<stencil->GetBounds()[0]<<" "<<stencil->GetBounds()[1]<<"
-  //        "<<stencil->GetBounds()[2]<<" "<<stencil->GetBounds()[3]<<"\n";
-  //
+  //      std::cout<<stencil->GetPointData()->GetArray(0)->GetTuple(ptId)[0]<<" ";
   //    }
+  //    std::cout<<"\n";
+  //  }
+
+  //  vtkNew<vtkPResampleWithDataSet> resample;
+  ////  resample->SetController(this->Controller);
+  //  resample->SetInputData(stencil);
+  //  resample->SetSourceData(source);
+  //  resample->Update();
+  //
+  //  vtkNew<vtkProbeFilter> resample;
+  //  resample->SetInputData(stencil);
+  //  resample->SetSourceData(source);
+  //  resample->Update();
+  //
+  //  if(
+  //  vtkImageData::SafeDownCast(resample->GetOutput())->GetPointData()->GetArray("vtkValidPointMask")->GetRange()[1]
+  //  == 0 )
+  //  {
+  //    return( false );
+  //  }
+  //
+  //  stencil->GetPointData()->RemoveArray(nameOfPointData.c_str());
+  //  stencil->GetPointData()->AddArray(vtkImageData::SafeDownCast(resample->GetOutput())->GetPointData()->GetArray(nameOfPointData.c_str()));
+
   return (true);
 }
 

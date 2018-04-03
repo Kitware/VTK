@@ -166,13 +166,8 @@ struct VTKFILTERSMOMENTINVARIANTS_EXPORT vtkMomentsHelper
    * computed.
    * @return the moments
    */
-  static std::vector<vtkMomentsTensor> allMomentsOrigResImageData(int dimension,
-    int order,
-    int fieldRank,
-    double radius,
-    int ptID,
-    vtkImageData* dataset,
-    std::string nameOfPointData);
+  static std::vector<vtkMomentsTensor> allMomentsOrigResImageData(int dimension, int order,
+    int fieldRank, double radius, int* dimPtId, vtkImageData* dataset, std::string nameOfPointData);
 
   /**
    * This function computes the factor that needs to be removed for the translational normalization
@@ -235,7 +230,7 @@ struct VTKFILTERSMOMENTINVARIANTS_EXPORT vtkMomentsHelper
    * @param source: the dataset
    * @param stencil: contains the locations at which the dataset is evaluated for the integration
    * @param numberOfIntegrationSteps: how fine the discrete integration done in each dimension
-   * @return the moments
+   * @return 0 if the stencil lies completely outside the field
    */
   static bool CenterStencil(double* center,
     vtkDataSet* source,
