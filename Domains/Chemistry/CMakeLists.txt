@@ -7,6 +7,7 @@ set(Module_SRCS
   vtkMoleculeMapper.cxx
   vtkMoleculeToAtomBallFilter.cxx
   vtkMoleculeToBondStickFilter.cxx
+  vtkMoleculeToLinesFilter.cxx
   vtkMoleculeToPolyDataFilter.cxx
   vtkPeriodicTable.cxx
   vtkPointSetToMoleculeFilter.cxx

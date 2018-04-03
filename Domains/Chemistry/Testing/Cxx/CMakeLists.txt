@@ -28,6 +28,7 @@ vtk_add_test_cxx(vtkDomainsChemistryCxxTests tests
   TestMoleculeIOLegacy.cxx
   TestMoleculeSelection.cxx,NO_VALID
   TestMoleculeMapperPropertyUpdate.cxx
+  TestMoleculeToLines.cxx,NO_VALID
   TestMultiCylinderOn.cxx
   TestMultiCylinderOff.cxx
   TestPeriodicTable.cxx,NO_VALID
