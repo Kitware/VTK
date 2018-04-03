@@ -38,6 +38,7 @@ static const unsigned int MooreCursors3D[26] = {
   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 };
 
 vtkStandardNewMacro(vtkHyperTreeGridPlaneCutter);
+vtkCxxSetObjectMacro(vtkHyperTreeGridPlaneCutter, PlaneObj, vtkPlane)
 
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridPlaneCutter::vtkHyperTreeGridPlaneCutter()
@@ -59,6 +60,7 @@ vtkHyperTreeGridPlaneCutter::vtkHyperTreeGridPlaneCutter()
   this->Centers = nullptr;
   this->Cutter = nullptr;
   this->Leaves = nullptr;
+  this->PlaneObj = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -93,6 +95,11 @@ vtkHyperTreeGridPlaneCutter::~vtkHyperTreeGridPlaneCutter()
     this->Cutter->Delete();
     this->Cutter = nullptr;
   }
+  if (this->PlaneObj)
+  {
+    this->PlaneObj->Delete();
+    this->PlaneObj = nullptr;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -105,6 +112,16 @@ void vtkHyperTreeGridPlaneCutter::PrintSelf( ostream& os, vtkIndent indent )
      << this->Plane[1] << " ) * Y + ( "
      << this->Plane[2] << " ) * Z = "
      << this->Plane[3] << "\n";
+
+  if ( this->PlaneObj )
+  {
+    os << indent << "PlaneObj:\n";
+    this->PlaneObj->PrintSelf( os, indent.GetNextIndent() );
+  }
+  else
+  {
+    os << indent << "PlaneObj: ( none )\n";
+  }
 
   if ( this->Dual )
   {
@@ -167,6 +184,17 @@ void vtkHyperTreeGridPlaneCutter::PrintSelf( ostream& os, vtkIndent indent )
 }
 
 //----------------------------------------------------------------------------
+vtkMTimeType vtkHyperTreeGridPlaneCutter::GetMTime()
+{
+  vtkMTimeType result = this->Superclass::GetMTime();
+  if (this->PlaneObj)
+  {
+    result = std::max(result, this->PlaneObj->GetMTime());
+  }
+  return result;
+}
+
+//----------------------------------------------------------------------------
 int vtkHyperTreeGridPlaneCutter::FillOutputPortInformation( int,
                                                             vtkInformation* info )
 {
@@ -178,6 +206,12 @@ int vtkHyperTreeGridPlaneCutter::FillOutputPortInformation( int,
 int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
                                                vtkDataObject* outputDO )
 {
+  // empty input, empty output.
+  if (input->GetNumberOfLeaves() == 0)
+  {
+    return 1;
+  }
+
   // Downcast output data object to polygonal data set
   vtkPolyData* output = vtkPolyData::SafeDownCast( outputDO );
   if ( ! output )
@@ -192,6 +226,35 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
     vtkErrorMacro (<< "Bad input dimension:"
                    << input->GetDimension());
     return 0;
+  }
+
+  // Sync plane parameters with equation, giving preference to the object
+  if (this->PlaneObj)
+  {
+    double n[3];
+    double o[3];
+    this->PlaneObj->GetNormal(n);
+    this->PlaneObj->GetOrigin(o);
+    std::copy_n(n, 3, this->Plane);
+    this->Plane[3] = vtkMath::Dot(n, o);
+  }
+  else
+  {
+    this->PlaneObj = vtkPlane::New();
+
+    unsigned int maxId = 0;
+    if ( fabs( this->Plane[1] ) > fabs( this->Plane[0] ) )
+    {
+      maxId = 1;
+    }
+    if ( fabs( this->Plane[2] ) > fabs( this->Plane[maxId] ) )
+    {
+      maxId = 2;
+    }
+    double origin[] = { 0., 0., 0. };
+    origin[maxId] = this->Plane[3] / this->Plane[maxId];
+    this->PlaneObj->SetOrigin( origin );
+    this->PlaneObj->SetNormal( this->Plane[0], this->Plane[1], this->Plane[2] );
   }
 
   // Retrieve input point data
@@ -215,29 +278,10 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
     this->Centers = vtkPoints::New();
     this->Centers->SetNumberOfPoints( 8 );
 
-    // Convert plane parameters into normal/origin specification
-    unsigned int maxId = 0;
-    if ( fabs( this->Plane[1] ) > fabs( this->Plane[0] ) )
-    {
-      maxId = 1;
-    }
-    if ( fabs( this->Plane[2] ) > fabs( this->Plane[maxId] ) )
-    {
-      maxId = 2;
-    }
-    double origin[] = { 0., 0., 0. };
-    origin[maxId] = this->Plane[3] / this->Plane[maxId];
-    vtkPlane* plane = vtkPlane::New();
-    plane->SetOrigin( origin );
-    plane->SetNormal( this->Plane[0], this->Plane[1], this->Plane[2] );
-
     // Initialize plane cutter
     this->Cutter = vtkCutter::New();
     this->Cutter->GenerateTrianglesOff();
-    this->Cutter->SetCutFunction( plane );
-
-    // Clean up
-    plane->Delete();
+    this->Cutter->SetCutFunction( this->PlaneObj );
 
     // Create storage to keep track of selected cells
     this->SelectedCells = vtkBitArray::New();
@@ -318,6 +362,19 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
 
   // Clean up
   cleaner->Delete();
+
+  // Reset intermediate objects so subsequent executions of the filter behave:
+  if ( this->Points )
+  {
+    this->Points->Delete();
+    this->Points = vtkPoints::New();
+  }
+  if ( this->Cells )
+  {
+    this->Cells->Delete();
+    this->Cells = vtkCellArray::New();
+  }
+
   return 1;
 }
 

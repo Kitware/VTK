@@ -79,6 +79,12 @@ int vtkHyperTreeGridAxisCut::FillOutputPortInformation( int, vtkInformation *inf
 int vtkHyperTreeGridAxisCut::ProcessTrees( vtkHyperTreeGrid* input,
                                            vtkDataObject* outputDO )
 {
+  // Skip empty trees
+  if (input->GetNumberOfLeaves() == 0)
+  {
+    return 1;
+  }
+
   // Downcast output data object to hyper tree grid
   vtkHyperTreeGrid* output = vtkHyperTreeGrid::SafeDownCast( outputDO );
   if ( ! output )
@@ -293,7 +299,7 @@ void vtkHyperTreeGridAxisCut::RecursivelyProcessTree( vtkHyperTreeGridCursor* in
       double* size = childCursor->GetSize();
 
       // Check whether child is intersected by plane
-      if ( origin[axis] <= inter && ( origin[axis] + size[axis] >= inter ) )
+      if ( origin[axis] <= inter && ( origin[axis] + size[axis] > inter ) )
       {
         // Child is intersected by plane, descend into current child
         outCursor->ToChild( outChild );

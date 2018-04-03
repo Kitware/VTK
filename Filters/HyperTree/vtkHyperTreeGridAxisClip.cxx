@@ -111,6 +111,57 @@ void vtkHyperTreeGridAxisClip::PrintSelf( ostream& os, vtkIndent indent )
 }
 
 //-----------------------------------------------------------------------------
+void vtkHyperTreeGridAxisClip::SetMinimumBounds(double x, double y, double z)
+{
+  double t[3] = { x, y, z };
+  this->SetMinimumBounds(t);
+}
+
+//-----------------------------------------------------------------------------
+void vtkHyperTreeGridAxisClip::SetMaximumBounds(double x, double y, double z)
+{
+  double t[3] = { x, y, z };
+  this->SetMaximumBounds(t);
+}
+
+//-----------------------------------------------------------------------------
+void vtkHyperTreeGridAxisClip::SetMinimumBounds(double b[3])
+{
+  if (this->Bounds[0] != b[0] ||
+      this->Bounds[2] != b[1] ||
+      this->Bounds[4] != b[2])
+  {
+    this->Bounds[0] = b[0];
+    this->Bounds[2] = b[1];
+    this->Bounds[4] = b[2];
+    this->Modified();
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkHyperTreeGridAxisClip::SetMaximumBounds(double b[3])
+{
+  if (this->Bounds[1] != b[0] ||
+      this->Bounds[3] != b[1] ||
+      this->Bounds[5] != b[2])
+  {
+    this->Bounds[1] = b[0];
+    this->Bounds[3] = b[1];
+    this->Bounds[5] = b[2];
+    this->Modified();
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkHyperTreeGridAxisClip::SetQuadricCoefficients(
+    double a0, double a1, double a2, double a3, double a4, double a5, double a6,
+    double a7, double a8, double a9)
+{
+  double t[10] = { a0, a1, a2, a3, a4, a5, a6, a7, a8, a9 };
+  this->SetQuadricCoefficients(t);
+}
+
+//-----------------------------------------------------------------------------
 int vtkHyperTreeGridAxisClip::FillOutputPortInformation( int, vtkInformation *info )
 {
   info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid" );
@@ -312,6 +363,22 @@ int vtkHyperTreeGridAxisClip::ProcessTrees( vtkHyperTreeGrid* input,
   // Retrieve input dimension
   unsigned int dimension = input->GetDimension();
 
+  // Set identical grid parameters
+  output->SetDimension( dimension );
+  output->SetOrientation( input->GetOrientation() );
+  output->SetTransposedRootIndexing( input->GetTransposedRootIndexing() );
+  output->SetBranchFactor( input->GetBranchFactor() );
+  output->SetMaterialMaskIndex( input->GetMaterialMaskIndex() );
+  output->SetHasInterface( input->GetHasInterface() );
+  output->SetInterfaceNormalsName( input->GetInterfaceNormalsName() );
+  output->SetInterfaceInterceptsName( input->GetInterfaceInterceptsName() );
+
+  // Skip empty datasets:
+  if (input->GetNumberOfLeaves() == 0)
+  {
+    return 1;
+  }
+
   // This filter works only with 3D grids
   if ( dimension == 2 &&
        static_cast<unsigned int>(this->PlaneNormalAxis) == input->GetOrientation() )
@@ -327,16 +394,6 @@ int vtkHyperTreeGridAxisClip::ProcessTrees( vtkHyperTreeGrid* input,
                    << input->GetOrientation( ));
     return 0;
   }
-
-  // Set identical grid parameters
-  output->SetDimension( dimension );
-  output->SetOrientation( input->GetOrientation() );
-  output->SetTransposedRootIndexing( input->GetTransposedRootIndexing() );
-  output->SetBranchFactor( input->GetBranchFactor() );
-  output->SetMaterialMaskIndex( input->GetMaterialMaskIndex() );
-  output->SetHasInterface( input->GetHasInterface() );
-  output->SetInterfaceNormalsName( input->GetInterfaceNormalsName() );
-  output->SetInterfaceInterceptsName( input->GetInterfaceInterceptsName() );
 
   // Initialize output point data
   this->InData = input->GetPointData();

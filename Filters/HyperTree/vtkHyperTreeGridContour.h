@@ -21,7 +21,7 @@
  * This filter extracts cells from a hyper tree grid that satisfy the
  * following contour: a cell is considered to be within range if its
  * value for the active scalar is within a specified range (inclusive).
- * The output remains a hyper tree grid.
+ * The output is a vtkPolyData.
  *
  * @sa
  * vtkHyperTreeGrid vtkHyperTreeGridAlgorithm vtkContourFilter

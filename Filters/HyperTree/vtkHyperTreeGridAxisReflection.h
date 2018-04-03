@@ -45,7 +45,7 @@ public:
   void PrintSelf( ostream&, vtkIndent ) override;
 
   /**
-   * Specify unique identifiers of vailable reflection planes.
+   * Specify unique identifiers of available reflection planes.
    */
   enum AxisReflectionPlane
   {
