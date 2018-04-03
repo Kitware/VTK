@@ -20,6 +20,7 @@ vtk_module(vtkIOGeometry
     vtkCommonMisc
     vtkCommonSystem
     vtkCommonTransforms
+    vtkIOImage
     vtksys
     vtkzlib
   )
