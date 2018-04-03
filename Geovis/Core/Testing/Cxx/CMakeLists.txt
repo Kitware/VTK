@@ -3,6 +3,8 @@ vtk_add_test_cxx(vtkGeovisCoreCxxTests tests
   TestGeoGraticule.cxx
   TestGeoProjection.cxx,NO_VALID
   TestGlobeSource.cxx
+  TestGDALRasterConverter.cxx
+  TestRasterReprojectionFilter.cxx
   )
 
 if(NOT VTK_REPLACE_OPENGL_OVERRIDES)
