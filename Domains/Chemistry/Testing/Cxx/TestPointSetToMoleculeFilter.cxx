@@ -13,6 +13,8 @@
 
 =========================================================================*/
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 #include "vtkMolecule.h"
 #include "vtkNew.h"
@@ -21,6 +23,14 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkUnsignedShortArray.h"
+
+#define CheckNumbers(name, first, second)                                                          \
+  if (first != second)                                                                             \
+  {                                                                                                \
+    cerr << "Error : wrong number of " << #name << ". Got " << first << " but expects " << second  \
+         << endl;                                                                                  \
+    return EXIT_FAILURE;                                                                           \
+  }
 
 int TestPointSetToMoleculeFilter(int, char* [])
 {
@@ -53,45 +63,57 @@ int TestPointSetToMoleculeFilter(int, char* [])
   extraData->SetName("ExtraData");
   polyData->GetPointData()->AddArray(extraData);
 
+  vtkNew<vtkCellArray> cells;
+  cells->InsertNextCell(2);
+  cells->InsertCellPoint(0);
+  cells->InsertCellPoint(1);
+  cells->InsertNextCell(2);
+  cells->InsertCellPoint(0);
+  cells->InsertCellPoint(2);
+  polyData->SetLines(cells);
+  vtkNew<vtkUnsignedShortArray> cellData;
+  cellData->SetNumberOfValues(2);
+  cellData->SetValue(0, 2);
+  cellData->SetValue(1, 2);
+  cellData->SetName("Bond Orders Bis");
+  polyData->GetCellData()->SetScalars(cellData);
+
   vtkNew<vtkPointSetToMoleculeFilter> filter;
   filter->SetInputData(polyData.Get());
   filter->Update();
-
   vtkMolecule* molecule = filter->GetOutput();
 
   if (!molecule)
   {
-    std::cout << "Output molecule was not initialized !" << std::endl;
+    cerr << "Output molecule was not initialized !" << endl;
     return EXIT_FAILURE;
   }
 
-  if (molecule->GetNumberOfAtoms() != numberOfAtoms)
-  {
-    std::cout << "Wrong number of atoms." << std::endl;
-    return EXIT_FAILURE;
-  }
+  CheckNumbers("atoms", molecule->GetNumberOfAtoms(), numberOfAtoms);
+  CheckNumbers("bonds", molecule->GetNumberOfBonds(), polyData->GetNumberOfLines());
 
   // all arrays are copied + atomic number created from scalars
-  const int nbExpectedArrays = 3;
-  if (molecule->GetVertexData()->GetNumberOfArrays() != nbExpectedArrays)
-  {
-    std::cout << "Wrong number of arrays (" << molecule->GetVertexData()->GetNumberOfArrays()
-              << " instead of " << nbExpectedArrays << ")" << std::endl;
-    return EXIT_FAILURE;
-  }
+  int nbExpectedArrays = polyData->GetPointData()->GetNumberOfArrays() + 1;
+  CheckNumbers("atom data arrays", molecule->GetAtomData()->GetNumberOfArrays(), nbExpectedArrays);
+
+  // all arrays are copied + bond orders array
+  nbExpectedArrays = polyData->GetCellData()->GetNumberOfArrays() + 1;
+  CheckNumbers("bond data arrays", molecule->GetBondData()->GetNumberOfArrays(), nbExpectedArrays);
 
   vtkDataArray* atomicNumbers = molecule->GetAtomicNumberArray();
   if (!atomicNumbers)
   {
-    std::cout << "No scalars array." << std::endl;
+    cerr << "Error: No atomic numbers array was found." << endl;
     return EXIT_FAILURE;
   }
+  CheckNumbers("atomic number value", atomicNumbers->GetTuple1(0), firstAtomicNb)
 
-  if (atomicNumbers->GetTuple1(0) != firstAtomicNb)
-  {
-    std::cout << "Wrong atomic number value !" << std::endl;
-    return EXIT_FAILURE;
-  }
+  filter->ConvertLinesIntoBondsOff();
+  filter->Update();
+  molecule = filter->GetOutput();
+
+  CheckNumbers("bonds", molecule->GetNumberOfBonds(), 0);
+  CheckNumbers("bond data arrays", molecule->GetBondData()->GetNumberOfArrays(), 1);
 
   return EXIT_SUCCESS;
 }
