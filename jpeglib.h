@@ -30,8 +30,9 @@
 #ifndef JCONFIG_INCLUDED        /* in case jinclude.h already did */
 #include "jconfig.h"            /* widely used configuration options */
 #endif
+#ifndef JMORECFG_INCLUDED
 #include "jmorecfg.h"           /* seldom changed options */
-
+#endif
 
 #ifdef __cplusplus
 #ifndef DONT_USE_EXTERN_C
