@@ -29,8 +29,15 @@
 # include <jpeglib.h>
 # include <jerror.h>
 #else
+# include <vtkjpeg/jconfig.h>
+# include <vtkjpeg/jmorecfg.h>
+// Ensure jpeglib.h does not include jconfig.h nor jmorecfg.h from another include directory.
+# define JCONFIG_INCLUDED
+# define JMORECFG_INCLUDED
 # include <vtkjpeg/jpeglib.h>
 # include <vtkjpeg/jerror.h>
+# undef JCONFIG_INCLUDED
+# undef JMORECFG_INCLUDED
 #endif
 
 #endif
