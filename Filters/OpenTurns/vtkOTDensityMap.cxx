@@ -20,6 +20,7 @@
 #include "vtkDataObject.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
+#include "vtkImagePermute.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationVector.h"
@@ -61,6 +62,7 @@ public:
 //-----------------------------------------------------------------------------
 vtkOTDensityMap::vtkOTDensityMap()
 {
+  this->SetNumberOfOutputPorts(2);
   this->ContourValues = vtkContourValues::New();
   this->GridSubdivisions = 50;
   this->ContourApproximationNumberOfPoints = 600;
@@ -125,6 +127,7 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
 {
   // Recover output
   vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outputVector, 0);
+  vtkImageData* imageOutput = vtkImageData::GetData(outputVector, 1);
 
   // Create Sample from input data array
   vtkDataArray* xArray = this->GetInputArrayToProcess(0, inputVector);
@@ -209,6 +212,7 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
     0);
 
   vtkDataArray* density = vtkOTUtilities::SampleToArray(this->DensityPDFCache->Cache);
+  density->SetName("Density");
   image->GetPointData()->SetScalars(density);
   density->Delete();
 
@@ -281,6 +285,12 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   }
   output->SetNumberOfBlocks(nBlock);
 
+  vtkNew<vtkImagePermute> flipImage;
+  flipImage->SetInputData(image);
+  flipImage->SetFilteredAxes(1, 0, 2);
+  flipImage->Update();
+  imageOutput->ShallowCopy(flipImage->GetOutput());
+
   // Store Build Time for cache
   this->BuildTime.Modified();
 
@@ -289,6 +299,19 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
+//----------------------------------------------------------------------------
+int vtkOTDensityMap::FillOutputPortInformation(
+  int port, vtkInformation* info)
+{
+  if (port == 1)
+  {
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
+    return 1;
+  }
+  return this->Superclass::FillOutputPortInformation(port, info);
+}
+
+//----------------------------------------------------------------------------
 void vtkOTDensityMap::BuildContours(vtkPolyData* contourPd,
   int numContours,
   const double* contourValues,

@@ -120,9 +120,9 @@ public:
   virtual void SetContourApproximationNumberOfPoints(int val);
   //@}
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info) override;
-
-  virtual int RequestData(vtkInformation* request,
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int RequestData(vtkInformation* request,
     vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
