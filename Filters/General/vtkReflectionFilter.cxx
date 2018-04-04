@@ -300,6 +300,8 @@ int vtkReflectionFilter::RequestDataInternal(
     outPoints->Allocate(numPts);
     output->Allocate(numCells);
   }
+  outPD->CopyAllOn();
+  outCD->CopyAllOn();
   outPD->CopyAllocate(inPD);
   outCD->CopyAllocate(inCD);
 
