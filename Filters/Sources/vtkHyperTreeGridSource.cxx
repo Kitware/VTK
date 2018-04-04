@@ -565,10 +565,15 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
     outData->GetArray( a )->Squeeze();
   }
 
-  assert( "post: dataset_and_data_size_match" && output->CheckAttributes() == 0 );
-
   this->LevelBitsIndexCnt.clear();
   this->LevelBitsIndex.clear();
+
+  if (output->CheckAttributes() != 0)
+  {
+    vtkErrorMacro("HyperTreeGrid generation failed.");
+    output->Initialize();
+    return 1;
+  }
 
   return 1;
 }
@@ -859,7 +864,15 @@ void vtkHyperTreeGridSource::SubdivideFromStringDescriptor( vtkHyperTreeGrid* ou
   vtkPointData* outData = output->GetPointData();
 
   // Calculate pointer into level descriptor string
-  int pointer = level ? childIdx + parentPos * this->BlockSize : treeIdx;
+  size_t pointer = static_cast<size_t>(level ? childIdx + parentPos * this->BlockSize
+                                             : treeIdx);
+
+  if (level >= this->LevelDescriptors.size() ||
+      pointer >= this->LevelDescriptors[level].size())
+  {
+    vtkErrorMacro("Error building HyperTreeGrid. Bad descriptor?");
+    return;
+  }
 
   // Calculate the node global index
   vtkIdType id = this->LevelBitsIndexCnt[level];
