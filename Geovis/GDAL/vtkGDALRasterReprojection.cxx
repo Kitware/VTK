@@ -1,6 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
+  Module:    vtkGDALRasterReprojection.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -11,11 +12,10 @@
    PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #include "vtkGDALRasterReprojection.h"
 
 // VTK Includes
-#include <vtkObjectFactory.h>
+#include "vtkObjectFactory.h"
 
 // GDAL Includes
 #undef LT_OBJDIR // fixes compiler warning (collision w/vtkIOStream.h)
@@ -50,8 +50,11 @@ void vtkGDALRasterReprojection::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 bool vtkGDALRasterReprojection::SuggestOutputDimensions(GDALDataset* dataset,
-  const char* projection, double geoTransform[6], int* nPixels, int* nLines,
-  double maxError)
+                                                        const char* projection,
+                                                        double geoTransform[6],
+                                                        int* nPixels,
+                                                        int* nLines,
+                                                        double maxError)
 {
   // Create OGRSpatialReference for projection
   OGRSpatialReference ref;
@@ -81,17 +84,22 @@ bool vtkGDALRasterReprojection::SuggestOutputDimensions(GDALDataset* dataset,
   CPLFree(outputWKT);
 
   // Estimate transform coefficients and output image dimensions
-  CPLErr err = GDALSuggestedWarpOutput(dataset, GDALGenImgProjTransform,
-    transformer, geoTransform, nPixels, nLines);
+  CPLErr err = GDALSuggestedWarpOutput(dataset,
+                                       GDALGenImgProjTransform,
+                                       transformer,
+                                       geoTransform,
+                                       nPixels,
+                                       nLines);
   GDALDestroyGenImgProjTransformer(transformer);
-  //std::cout << "Output image: " << *nPixels << " by " << *nLines << std::endl;
+  // std::cout << "Output image: " << *nPixels << " by " << *nLines <<
+  // std::endl;
 
   return true;
 }
 
 //----------------------------------------------------------------------------
-bool vtkGDALRasterReprojection::Reproject(
-  GDALDataset* input, GDALDataset* output)
+bool vtkGDALRasterReprojection::Reproject(GDALDataset* input,
+                                          GDALDataset* output)
 {
   // Convert this->ResamplingAlgorithm to GDALResampleAlg
   GDALResampleAlg algorithm = GRA_NearestNeighbour;
@@ -132,8 +140,13 @@ bool vtkGDALRasterReprojection::Reproject(
   warpOptions->pfnProgress = GDALTermProgress;
 
   warpOptions->pTransformerArg =
-    GDALCreateGenImgProjTransformer(input, GDALGetProjectionRef(input), output,
-      GDALGetProjectionRef(output), false, 0.0, 1);
+    GDALCreateGenImgProjTransformer(input,
+                                    GDALGetProjectionRef(input),
+                                    output,
+                                    GDALGetProjectionRef(output),
+                                    false,
+                                    0.0,
+                                    1);
   warpOptions->pfnTransformer = GDALGenImgProjTransform;
 
   // Set multithreaded option, even though it does not seem to work
@@ -142,10 +155,17 @@ bool vtkGDALRasterReprojection::Reproject(
     CSLSetNameValue(stringWarpOptions, "NUM_THREADS", "ALL_CPUS");
   warpOptions->papszWarpOptions = stringWarpOptions;
 
-  CPLErr err = GDALReprojectImage(input, input->GetProjectionRef(), output,
-    output->GetProjectionRef(), algorithm, memoryLimit, this->MaxError,
-    progressFcn, progressArg, warpOptions);
-  //std::cout << "warp returned: " << err << std::endl;
+  CPLErr err = GDALReprojectImage(input,
+                                  input->GetProjectionRef(),
+                                  output,
+                                  output->GetProjectionRef(),
+                                  algorithm,
+                                  memoryLimit,
+                                  this->MaxError,
+                                  progressFcn,
+                                  progressArg,
+                                  warpOptions);
+  // std::cout << "warp returned: " << err << std::endl;
 
   return true;
 }

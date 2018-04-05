@@ -1,8 +1,6 @@
 set(Module_SRCS
   vtkCompassRepresentation.cxx
   vtkCompassWidget.cxx
-  vtkGDALRasterConverter.cxx
-  vtkGDALRasterReprojection.cxx
   vtkGeoAdaptiveArcs.cxx
   vtkGeoAlignedImageRepresentation.cxx
   vtkGeoAlignedImageSource.cxx
@@ -28,7 +26,6 @@ set(Module_SRCS
   vtkGeoTreeNode.cxx
   vtkGeoTreeNodeCache.cxx
   vtkGlobeSource.cxx
-  vtkRasterReprojectionFilter.cxx
   )
 
 vtk_module_library(vtkGeovisCore ${Module_SRCS})

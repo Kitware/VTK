@@ -1,6 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
+  Module:    vtkRasterReprojectionFilter.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -11,38 +12,36 @@
    PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #include "vtkRasterReprojectionFilter.h"
 
 // VTK includes
+#include "vtkDataArray.h"
+#include "vtkDataObject.h"
+#include "vtkGDAL.h"
 #include "vtkGDALRasterConverter.h"
 #include "vtkGDALRasterReprojection.h"
-
-#include <vtkDataArray.h>
-#include <vtkDataObject.h>
-#include <vtkGDAL.h>
-#include <vtkImageData.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkMath.h>
-#include <vtkNew.h>
-#include <vtkObjectFactory.h>
-#include <vtkPointData.h>
-#include <vtkStreamingDemandDrivenPipeline.h>
-#include <vtkUniformGrid.h>
-#include <vtkXMLImageDataWriter.h>
+#include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkMath.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUniformGrid.h"
+#include "vtkXMLImageDataWriter.h"
 
 // GDAL includes
 #undef LT_OBJDIR // fixes compiler warning (collision w/vtkIOStream.h)
 #include <gdal_priv.h>
 
-// std includes
+// STL includes
 #include <algorithm>
 
 vtkStandardNewMacro(vtkRasterReprojectionFilter)
 
-  //----------------------------------------------------------------------------
-  class vtkRasterReprojectionFilter::vtkRasterReprojectionFilterInternal
+//----------------------------------------------------------------------------
+class vtkRasterReprojectionFilter::vtkRasterReprojectionFilterInternal
 {
 public:
   vtkRasterReprojectionFilterInternal();
@@ -138,7 +137,8 @@ void vtkRasterReprojectionFilter::PrintSelf(ostream& os, vtkIndent indent)
 
 //-----------------------------------------------------------------------------
 int vtkRasterReprojectionFilter::RequestData(
-  vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   // Get the input image data
@@ -159,7 +159,7 @@ int vtkRasterReprojectionFilter::RequestData(
   {
     return 0;
   }
-  //std::cout << "RequestData() has image to reproject!" << std::endl;
+  // std::cout << "RequestData() has image to reproject!" << std::endl;
 
   // Get the output image
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -172,17 +172,16 @@ int vtkRasterReprojectionFilter::RequestData(
   GDALDataset* inputGDAL = this->Internal->GDALConverter->CreateGDALDataset(
     inImageData, this->InputProjection);
 
-  if (this->Debug)
-  {
-    std::string tifFileName = "inputGDAL.tif";
-    this->Internal->GDALConverter->WriteTifFile(inputGDAL, tifFileName.c_str());
-    std::cout << "Wrote " << tifFileName << std::endl;
+#ifndef NDEBUG
+  std::string tifFileName = "inputGDAL.tif";
+  this->Internal->GDALConverter->WriteTifFile(inputGDAL, tifFileName.c_str());
+  std::cout << "Wrote " << tifFileName << std::endl;
 
-    double minValue, maxValue;
-    this->Internal->GDALConverter->FindDataRange(
-      inputGDAL, 1, &minValue, &maxValue);
-    std::cout << "Min: " << minValue << "  Max: " << maxValue << std::endl;
-  }
+  double minValue, maxValue;
+  this->Internal->GDALConverter->FindDataRange(
+    inputGDAL, 1, &minValue, &maxValue);
+  std::cout << "Min: " << minValue << "  Max: " << maxValue << std::endl;
+#endif
 
   // Construct GDAL dataset for output image
   vtkDataArray* array = inImageData->GetPointData()->GetScalars();
@@ -190,10 +189,12 @@ int vtkRasterReprojectionFilter::RequestData(
   int rasterCount = array->GetNumberOfComponents();
   GDALDataset* outputGDAL =
     this->Internal->GDALConverter->CreateGDALDataset(this->OutputDimensions[0],
-      this->OutputDimensions[1], vtkDataType, rasterCount);
+                                                     this->OutputDimensions[1],
+                                                     vtkDataType,
+                                                     rasterCount);
   this->Internal->GDALConverter->CopyBandInfo(inputGDAL, outputGDAL);
-  this->Internal->GDALConverter->SetGDALProjection(
-    outputGDAL, this->OutputProjection);
+  this->Internal->GDALConverter->SetGDALProjection(outputGDAL,
+                                                   this->OutputProjection);
   outputGDAL->SetGeoTransform(this->Internal->OutputImageGeoTransform);
   this->Internal->GDALConverter->CopyNoDataValues(inputGDAL, outputGDAL);
 
@@ -206,8 +207,8 @@ int vtkRasterReprojectionFilter::RequestData(
   if (this->Debug)
   {
     std::string tifFileName = "reprojectGDAL.tif";
-    this->Internal->GDALConverter->WriteTifFile(
-      outputGDAL, tifFileName.c_str());
+    this->Internal->GDALConverter->WriteTifFile(outputGDAL,
+                                                tifFileName.c_str());
     std::cout << "Wrote " << tifFileName << std::endl;
     double minValue, maxValue;
     this->Internal->GDALConverter->FindDataRange(
@@ -247,26 +248,29 @@ int vtkRasterReprojectionFilter::RequestData(
 
 //-----------------------------------------------------------------------------
 int vtkRasterReprojectionFilter::RequestUpdateExtent(
-  vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   // Set input extent to values saved in last RequestInformation() call
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-    this->Internal->InputImageExtent, 6);
+              this->Internal->InputImageExtent,
+              6);
   return VTK_OK;
 }
 
 //-----------------------------------------------------------------------------
 int vtkRasterReprojectionFilter::RequestInformation(
-  vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   // Get the info objects
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()) ||
-    !inInfo->Has(vtkDataObject::SPACING()) ||
-    !inInfo->Has(vtkDataObject::ORIGIN()))
+      !inInfo->Has(vtkDataObject::SPACING()) ||
+      !inInfo->Has(vtkDataObject::ORIGIN()))
   {
     vtkErrorMacro("Input information missing");
     return VTK_ERROR;
@@ -322,15 +326,18 @@ int vtkRasterReprojectionFilter::RequestInformation(
   int yDim = inputDataExtent[3] - inputDataExtent[2] + 1;
   GDALDataset* gdalDataset = this->Internal->GDALConverter->CreateGDALDataset(
     xDim, yDim, VTK_UNSIGNED_CHAR, 1);
-  this->Internal->GDALConverter->SetGDALProjection(
-    gdalDataset, this->InputProjection);
+  this->Internal->GDALConverter->SetGDALProjection(gdalDataset,
+                                                   this->InputProjection);
   this->Internal->GDALConverter->SetGDALGeoTransform(
     gdalDataset, inputOrigin, inputSpacing);
 
   int nPixels = 0;
   int nLines = 0;
-  this->Internal->GDALReprojection->SuggestOutputDimensions(gdalDataset,
-    this->OutputProjection, this->Internal->OutputImageGeoTransform, &nPixels,
+  this->Internal->GDALReprojection->SuggestOutputDimensions(
+    gdalDataset,
+    this->OutputProjection,
+    this->Internal->OutputImageGeoTransform,
+    &nPixels,
     &nLines);
   GDALClose(gdalDataset);
 
@@ -363,8 +370,8 @@ int vtkRasterReprojectionFilter::RequestInformation(
 }
 
 //-----------------------------------------------------------------------------
-int vtkRasterReprojectionFilter::FillInputPortInformation(
-  int port, vtkInformation* info)
+int vtkRasterReprojectionFilter::FillInputPortInformation(int port,
+                                                          vtkInformation* info)
 {
   this->Superclass::FillInputPortInformation(port, info);
   if (port == 0)
@@ -381,8 +388,8 @@ int vtkRasterReprojectionFilter::FillInputPortInformation(
 }
 
 //-----------------------------------------------------------------------------
-int vtkRasterReprojectionFilter::FillOutputPortInformation(
-  int port, vtkInformation* info)
+int vtkRasterReprojectionFilter::FillOutputPortInformation(int port,
+                                                           vtkInformation* info)
 {
   if (port == 0)
   {
