@@ -33,6 +33,7 @@ class vtkOpenVRRenderWindow;
 class vtkTextureObject;
 class vtkOpenVRCameraPose;
 class vtkOpenVRCamera;
+class vtkXMLDataElement;
 
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVROverlay : public vtkObject
 {
@@ -108,6 +109,7 @@ public:
   virtual void WriteCameraPoses();
   virtual void ReadCameraPoses();
   virtual void ReadCameraPoses(istream &is);
+  virtual void ReadCameraPoses(vtkXMLDataElement *xml);
   virtual void SaveCameraPose(int num);
   virtual void LoadCameraPose(int num);
   virtual void LoadNextCameraPose();
