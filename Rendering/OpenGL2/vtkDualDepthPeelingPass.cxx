@@ -875,19 +875,6 @@ void vtkDualDepthPeelingPass::SetCurrentStage(ShaderStage stage)
 }
 
 //------------------------------------------------------------------------------
-// Delete the vtkObject subclass pointed at by ptr if it is set.
-namespace {
-template <typename T> void DeleteHelper(T *& ptr)
-{
-  if (ptr)
-  {
-    ptr->Delete();
-    ptr = nullptr;
-  }
-}
-} // end anon namespace
-
-//------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::FreeGLObjects()
 {
   for (int i = 0; i < static_cast<int>(NumberOfTextures); ++i)
