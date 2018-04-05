@@ -31,14 +31,12 @@ struct TimedQuaternion
   vtkQuaterniond Q;     //VTK's quaternion: unit rotation axis with angles in degrees
 
   TimedQuaternion()
-    : Q(0.0)
+    : Time(0.0), Q(0.0)
   {
-    this->Time = 0.0;
   }
   TimedQuaternion(double t, const vtkQuaterniond& q)
+    : Time(t), Q(q)
   {
-    this->Time = t;
-    this->Q = q;
   }
 };
 
