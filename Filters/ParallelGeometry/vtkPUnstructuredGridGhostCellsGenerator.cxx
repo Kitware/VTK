@@ -304,7 +304,6 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(
 
   vtkPointData *inputPD = cleanedInput->GetPointData();
   this->Internals->InputGlobalPointIds = vtkIdTypeArray::FastDownCast(inputPD->GetGlobalIds());
-  vtkUnstructuredGridBase *inputGridCopy = nullptr;
 
   if (!this->Internals->InputGlobalPointIds)
   {
@@ -396,10 +395,6 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(
 
   delete this->Internals;
   this->Internals = nullptr;
-  if (inputGridCopy)
-  {
-    inputGridCopy->Delete();
-  }
 
   vtkDebugMacro("Produced " << maxGhostLevel << " ghost levels.");
   return 1;

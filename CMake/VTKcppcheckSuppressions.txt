@@ -13,7 +13,7 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on macOS with cppcheck 1.82.
+// at least on macOS with cppcheck 1.83.
 
 // To run:
 // cd /path/to/VTK/
@@ -577,6 +577,13 @@ syntaxError:Rendering/OpenGL2/vtkOpenGLVertexBufferObject.cxx
 
 // false positive: <https://trac.cppcheck.net/ticket/8367>
 CastIntegerToAddressAtReturn:Common/ExecutionModel/vtkAlgorithm.h
+
+// false positive: "syntax error"
+syntaxError:Accelerators/Vtkm/vtkmCellSetExplicit.cxx
+syntaxError:Accelerators/Vtkm/vtkmCellSetSingleType.cxx
+
+// false positive: struct member is never used.
+unusedStructMember:Common/Core/Testing/Cxx/TestArrayFreeFunctions.cxx
 
 // Not worth fixing, but not actually false positives.
 knownConditionTrueFalse:Rendering/Label/vtkLabeledTreeMapDataMapper.cxx
