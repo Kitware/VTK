@@ -161,6 +161,15 @@ public:
   vtkGetMacro(TriangleScale,float);
   //@}
 
+  /**
+   * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+   * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+   * Used by vtkHardwareSelector to determine if the prop supports hardware
+   * selection.
+   */
+  bool GetSupportsSelection() override
+    { return true; }
+
 protected:
   vtkPointGaussianMapper();
   ~vtkPointGaussianMapper() override;
