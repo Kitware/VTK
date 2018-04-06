@@ -174,10 +174,10 @@ public:
                                    std::string &geometryShader,
                                    std::string &fragmentShader,
                                    vtkAbstractMapper *mapper,
-                                   vtkProp *prop) VTK_OVERRIDE;
+                                   vtkProp *prop) override;
   bool SetShaderParameters(vtkShaderProgram *program,
                           vtkAbstractMapper *mapper, vtkProp *prop,
-                          vtkOpenGLVertexArrayObject* VAO = nullptr) VTK_OVERRIDE;
+                          vtkOpenGLVertexArrayObject* VAO = nullptr) override;
 
   /**
    * Helper method to compute the mNearest point in a given direction.

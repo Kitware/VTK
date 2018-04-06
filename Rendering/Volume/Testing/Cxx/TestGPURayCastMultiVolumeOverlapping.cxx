@@ -54,7 +54,7 @@ public:
   static MoveRotateCommand* New() { return new MoveRotateCommand; };
 
   void Execute(vtkObject* caller, unsigned long eventId,
-    void* /*data*/) VTK_OVERRIDE
+    void* /*data*/) override
   {
     switch (eventId)
     {

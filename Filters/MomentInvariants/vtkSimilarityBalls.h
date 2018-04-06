@@ -109,7 +109,7 @@ public:
    * @param os: the way how to print
    * @param indent: how far to the right the text shall appear
    */
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * standard pipeline input for port 1
@@ -155,21 +155,21 @@ protected:
   /**
    * destructor
    */
-  ~vtkSimilarityBalls() VTK_OVERRIDE;
+  ~vtkSimilarityBalls() override;
 
   /** main executive of the program, reads the input, calles the functions, and produces the utput.
    * @param request: ?
    * @param inputVector: the input information
    * @param outputVector: the output information
    */
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * standard vtk pipeline function?
    */
   int RequestUpdateExtent(vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
 private:
   vtkSimilarityBalls(const vtkSimilarityBalls&) = delete;
