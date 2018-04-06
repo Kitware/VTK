@@ -90,6 +90,19 @@ public:
   int PickProp3DPoint(double pos[3], vtkRenderer *renderer,
                vtkPropCollection* pickfrom);
 
+  /**
+   * Perform a pick from the user-provided list of vtkProps.
+   */
+  virtual int PickProp3DRay(double selectionPt[3], double eventWorldOrientation[4],
+    vtkRenderer *renderer, vtkPropCollection* pickfrom);
+
+  /**
+   * Perform pick operation with selection point provided. The
+   * selectionPt is in world coordinates.
+   * Return non-zero if something was successfully picked.
+   */
+  int Pick3DRay(double selectionPt[3], double orient[4], vtkRenderer *ren) override;
+
 protected:
   vtkPropPicker();
   ~vtkPropPicker() override;
