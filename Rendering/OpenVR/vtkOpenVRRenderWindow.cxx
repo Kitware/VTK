@@ -280,9 +280,6 @@ void vtkOpenVRRenderWindow::RenderModels()
   vtkOpenGLState *ostate = this->GetState();
   ostate->glEnable(GL_DEPTH_TEST);
 
-  bool bIsInputCapturedByAnotherProcess =
-    this->HMD->IsInputFocusCapturedByAnotherProcess();
-
   // for each device
   for (uint32_t unTrackedDevice = vr::k_unTrackedDeviceIndex_Hmd + 1;
        unTrackedDevice < vr::k_unMaxTrackedDeviceCount; unTrackedDevice++ )
@@ -313,12 +310,6 @@ void vtkOpenVRRenderWindow::RenderModels()
     // is the model's pose not valid?
     const vr::TrackedDevicePose_t &pose = this->TrackedDevicePose[ unTrackedDevice ];
     if( !pose.bPoseIsValid )
-    {
-      continue;
-    }
-
-    if( bIsInputCapturedByAnotherProcess &&
-        this->HMD->GetTrackedDeviceClass( unTrackedDevice ) == vr::TrackedDeviceClass_Controller )
     {
       continue;
     }

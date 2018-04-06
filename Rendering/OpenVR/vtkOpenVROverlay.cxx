@@ -136,6 +136,12 @@ void vtkOpenVROverlay::ReadCameraPoses(istream &is)
   vtkXMLDataElement *topel =
     vtkXMLUtilities::ReadElementFromStream(is);
 
+  this->ReadCameraPoses(topel);
+  topel->Delete();
+}
+
+void vtkOpenVROverlay::ReadCameraPoses(vtkXMLDataElement *topel)
+{
   if (topel)
   {
     int numPoses = topel->GetNumberOfNestedElements();
@@ -162,7 +168,6 @@ void vtkOpenVROverlay::ReadCameraPoses(istream &is)
         this->SavedCameraPoses[poseNum].MotionFactor);
       this->SavedCameraPoses[poseNum].Loaded = true;
     }
-    topel->Delete();
   }
 }
 
