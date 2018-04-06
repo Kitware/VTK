@@ -318,11 +318,10 @@ void vtkOpenGLVertexBufferObject::UploadDataArray(vtkDataArray *array)
   // Can we use the fast path?
   // have to compute auto shift scale first to know if we can use
   // the fast path
-  if (this->GetCoordShiftAndScaleMethod() == vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE)
+  bool useSS = false;
+  if (this->GetCoordShiftAndScaleMethod() ==
+      vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE)
   {
-    std::vector<double> shift;
-    std::vector<double> scale;
-    bool useSS = false;
     for (int i = 0; i < array->GetNumberOfComponents(); ++i)
     {
       double range[2];
@@ -336,26 +335,30 @@ void vtkOpenGLVertexBufferObject::UploadDataArray(vtkDataArray *array)
         break;
       }
     }
-    if (useSS)
+  }
+  if (useSS ||
+      this->GetCoordShiftAndScaleMethod() ==
+         vtkOpenGLVertexBufferObject::ALWAYS_AUTO_SHIFT_SCALE)
+  {
+    std::vector<double> shift;
+    std::vector<double> scale;
+    for (int i = 0; i < array->GetNumberOfComponents(); ++i)
     {
-      for (int i = 0; i < array->GetNumberOfComponents(); ++i)
+      double range[2];
+      array->GetRange(range, i);
+      shift.push_back(0.5 * (range[1] + range[0]));
+      double delta = range[1] - range[0];
+      if (delta > 0)
       {
-        double range[2];
-        array->GetRange(range, i);
-        shift.push_back(0.5 * (range[1] + range[0]));
-        double delta = range[1] - range[0];
-        if (delta > 0)
-        {
-          scale.push_back(1.0 / delta);
-        }
-        else
-        {
-          scale.push_back(1.0);
-        }
+        scale.push_back(1.0 / delta);
       }
-      this->SetShift(shift);
-      this->SetScale(scale);
+      else
+      {
+        scale.push_back(1.0);
+      }
     }
+    this->SetShift(shift);
+    this->SetScale(scale);
   }
 
   // can we use the fast path and just upload the raw array?
@@ -434,27 +437,32 @@ void vtkOpenGLVertexBufferObject::AppendDataArray(
   int offset = this->NumberOfTuples * this->Stride/sizeof(float);
 
   // compute auto Shift & Scale on first block
-  if (offset == 0 &&
-      this->GetCoordShiftAndScaleMethod() == vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE)
+  if (offset == 0)
   {
-    std::vector<double> shift;
-    std::vector<double> scale;
     bool useSS = false;
-    for (int i = 0; i < array->GetNumberOfComponents(); ++i)
+    if (this->GetCoordShiftAndScaleMethod() ==
+        vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE)
     {
-      double range[2];
-      array->GetRange(range, i);
-      double dshift = 0.5 * (range[1] + range[0]);
-      double delta = range[1] - range[0];
-      if (delta > 0 && (
-        fabs(dshift) / delta > 1.0e3 || fabs(log10(delta)) > 3.0))
+      for (int i = 0; i < array->GetNumberOfComponents(); ++i)
       {
-        useSS = true;
-        break;
+        double range[2];
+        array->GetRange(range, i);
+        double dshift = 0.5 * (range[1] + range[0]);
+        double delta = range[1] - range[0];
+        if (delta > 0 && (
+          fabs(dshift) / delta > 1.0e3 || fabs(log10(delta)) > 3.0))
+        {
+          useSS = true;
+          break;
+        }
       }
     }
-    if (useSS)
+    if (useSS ||
+        this->GetCoordShiftAndScaleMethod() ==
+           vtkOpenGLVertexBufferObject::ALWAYS_AUTO_SHIFT_SCALE)
     {
+      std::vector<double> shift;
+      std::vector<double> scale;
       for (int i = 0; i < array->GetNumberOfComponents(); ++i)
       {
         double range[2];
