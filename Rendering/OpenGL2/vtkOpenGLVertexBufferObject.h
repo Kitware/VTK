@@ -73,9 +73,10 @@ public:
     * scale vectors that remap the points to the unit cube.
     */
   enum ShiftScaleMethod {
-    DISABLE_SHIFT_SCALE,  //!< Do not shift/scale point coordinates. Ever!
-    AUTO_SHIFT_SCALE,     //!< The default, automatic computation.
-    MANUAL_SHIFT_SCALE    //!< Manual shift/scale provided (for use with AppendVBO)
+    DISABLE_SHIFT_SCALE,     //!< Do not shift/scale point coordinates. Ever!
+    AUTO_SHIFT_SCALE,        //!< The default, automatic computation.
+    ALWAYS_AUTO_SHIFT_SCALE, //!< Always shift scale using auto computed values
+    MANUAL_SHIFT_SCALE       //!< Manual shift/scale (for use with AppendVBO)
   };
 
   // Description:
