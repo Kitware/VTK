@@ -37,7 +37,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenVRCamera.h"
 #include "vtkOpenVRControlsHelper.h"
 #include "vtkOpenVRHardwarePicker.h"
-#include "vtkOpenVRPropPicker.h"
 #include "vtkOpenVRRenderWindow.h"
 #include "vtkOpenVRRenderWindowInteractor.h"
 #include "vtkOpenVRModel.h"
@@ -46,6 +45,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkPropPicker.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkSelection.h"
@@ -65,10 +65,6 @@ vtkStandardNewMacro(vtkOpenVRInteractorStyle);
 //----------------------------------------------------------------------------
 vtkOpenVRInteractorStyle::vtkOpenVRInteractorStyle()
 {
-  // override the base class picker
-  this->InteractionPicker->Delete();
-  this->InteractionPicker = vtkOpenVRPropPicker::New();
-
   for (int d = 0; d < vtkEventDataNumberOfDevices; ++d)
   {
     this->InteractionState[d] = VTKIS_NONE;
@@ -917,9 +913,7 @@ void vtkOpenVRInteractorStyle::UpdateRay(vtkEventDataDevice controller)
 
   //Compute ray length.
   double p1[3];
-  vtkOpenVRPropPicker* picker =
-    static_cast< vtkOpenVRPropPicker* >(this->InteractionPicker);
-  picker->PickProp3DRay(p0, wxyz, ren, ren->GetViewProps());
+  this->InteractionPicker->PickProp3DRay(p0, wxyz, ren, ren->GetViewProps());
 
   //If something is picked, set the length accordingly
   if (this->InteractionPicker->GetProp3D())

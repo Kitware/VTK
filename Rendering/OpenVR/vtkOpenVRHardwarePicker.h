@@ -26,17 +26,17 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkOpenVRHardwarePicker_h
 #define vtkOpenVRHardwarePicker_h
 
+#include "vtkPropPicker.h"
 #include "vtkRenderingOpenVRModule.h" // For export macro
-#include "vtkOpenVRPropPicker.h"
 
 class vtkSelection;
 
-class VTKRENDERINGOPENVR_EXPORT vtkOpenVRHardwarePicker : public vtkOpenVRPropPicker
+class VTKRENDERINGOPENVR_EXPORT vtkOpenVRHardwarePicker : public vtkPropPicker
 {
 public:
   static vtkOpenVRHardwarePicker *New();
 
-  vtkTypeMacro(vtkOpenVRHardwarePicker, vtkOpenVRPropPicker);
+  vtkTypeMacro(vtkOpenVRHardwarePicker, vtkPropPicker);
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
