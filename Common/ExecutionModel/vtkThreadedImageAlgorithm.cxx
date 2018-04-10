@@ -629,49 +629,50 @@ int vtkThreadedImageAlgorithm::RequestData(
   // allocate the output data and call CopyAttributeData
   this->PrepareImageData(inputVector, outputVector, str.Inputs, str.Outputs);
 
-  if (this->EnableSMP)
+  // need bytes per voxel to compute block size
+  int bytesPerVoxel = 1;
+
+  // get the update extent from the output, if there is an output
+  int updateExtent[6] = { 0, -1, 0, -1, 0, -1 };
+  if (numOutputPorts)
   {
-    // SMP is enabled, use vtkSMPTools to thread the filter
-    int updateExtent[6] = { 0, -1, 0, -1, 0, -1 };
-
-    // need bytes per voxel to compute block size
-    int bytesPerVoxel = 1;
-
-    // get the update extent from the output, if there is an output
-    if (numOutputPorts)
+    vtkImageData *outData = str.Outputs[0];
+    if (outData)
     {
-      vtkImageData *outData = str.Outputs[0];
-      if (outData)
-      {
-        bytesPerVoxel = (outData->GetScalarSize() *
-                         outData->GetNumberOfScalarComponents());
-        outData->GetExtent(updateExtent);
-      }
+      bytesPerVoxel = (outData->GetScalarSize() *
+                       outData->GetNumberOfScalarComponents());
+      outData->GetExtent(updateExtent);
     }
-    else
+  }
+  else
+  {
+    // if no output, get update extent from the first input
+    for (int inPort = 0; inPort < numInputPorts; inPort++)
     {
-      // if no output, get update extent from the first input
-      for (int inPort = 0; inPort < numInputPorts; inPort++)
+      if (this->GetNumberOfInputConnections(inPort))
       {
-        if (this->GetNumberOfInputConnections(inPort))
+        vtkImageData *inData = str.Inputs[inPort][0];
+        if (inData)
         {
-          vtkImageData *inData = str.Inputs[inPort][0];
-          if (inData)
-          {
-            bytesPerVoxel = (inData->GetScalarSize() *
-                             inData->GetNumberOfScalarComponents());
-            inData->GetExtent(updateExtent);
-            break;
-          }
+          bytesPerVoxel = (inData->GetScalarSize() *
+                           inData->GetNumberOfScalarComponents());
+          inData->GetExtent(updateExtent);
+          break;
         }
       }
     }
+  }
 
-    // verify that there is an extent for execution
-    if (updateExtent[0] <= updateExtent[1] &&
-        updateExtent[2] <= updateExtent[3] &&
-        updateExtent[4] <= updateExtent[5])
+  // verify that there is an extent for execution
+  if (updateExtent[0] <= updateExtent[1] &&
+      updateExtent[2] <= updateExtent[3] &&
+      updateExtent[4] <= updateExtent[5])
+  {
+    if (this->EnableSMP)
     {
+      // SMP is enabled, use vtkSMPTools to thread the filter
+      vtkIdType pieces = vtkSMPTools::GetEstimatedNumberOfThreads();
+
       // compute a reasonable number of pieces, this will be a multiple of
       // the number of available threads and relative to the data size
       vtkTypeInt64 bytesize = (
@@ -680,7 +681,7 @@ int vtkThreadedImageAlgorithm::RequestData(
         static_cast<vtkTypeInt64>(updateExtent[5] - updateExtent[4] + 1)*
         bytesPerVoxel);
       vtkTypeInt64 bytesPerPiece = this->DesiredBytesPerPiece;
-      vtkIdType pieces = vtkSMPTools::GetEstimatedNumberOfThreads();
+
       if (bytesPerPiece > 0 && bytesPerPiece < bytesize)
       {
         vtkTypeInt64 b = pieces*bytesPerPiece;
@@ -702,17 +703,22 @@ int vtkThreadedImageAlgorithm::RequestData(
 
       this->Debug = debug;
     }
-  }
-  else
-  {
-    // if SMP is not enabled, use the vtkMultiThreader
-    this->Threader->SetNumberOfThreads(this->NumberOfThreads);
-    this->Threader->SetSingleMethod(vtkThreadedImageAlgorithmThreadedExecute, &str);
-    // always shut off debugging to avoid threading problems with GetMacros
-    bool debug = this->Debug;
-    this->Debug = false;
-    this->Threader->SingleMethodExecute();
-    this->Debug = debug;
+    else
+    {
+      // if SMP is not enabled, use the vtkMultiThreader
+      vtkIdType pieces = this->NumberOfThreads;
+
+      // do a dummy execution of SplitExtent to compute the number of pieces
+      int subExtent[6];
+      pieces = this->SplitExtent(subExtent, updateExtent, 0, pieces);
+      this->Threader->SetNumberOfThreads(pieces);
+      this->Threader->SetSingleMethod(vtkThreadedImageAlgorithmThreadedExecute, &str);
+      // always shut off debugging to avoid threading problems with GetMacros
+      bool debug = this->Debug;
+      this->Debug = false;
+      this->Threader->SingleMethodExecute();
+      this->Debug = debug;
+    }
   }
 
   // free up the arrays
