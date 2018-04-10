@@ -8,6 +8,7 @@ vtk_add_test_python(
   coneResolution.py
   glyph2D.py
   TestPlatonicSolids.py,NO_RT
+  TestGlyphScaling.py
   )
 if(VTK_USE_TK AND Module_vtkRenderingTk)
   vtk_add_test_python(
