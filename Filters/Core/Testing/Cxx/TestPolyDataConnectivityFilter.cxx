@@ -13,11 +13,13 @@
 
 =========================================================================*/
 
+#include <vtkAppendPolyData.h>
 #include <vtkCellArray.h>
 #include <vtkFloatArray.h>
 #include <vtkMinimalStandardRandomSequence.h>
 #include <vtkPointData.h>
 #include <vtkPolyDataConnectivityFilter.h>
+#include <vtkSphereSource.h>
 #include <vtkSmartPointer.h>
 
 namespace
@@ -94,6 +96,96 @@ int FilterPolyDataConnectivity(int dataType, int outputPointsPrecision)
 
   return points->GetDataType();
 }
+
+bool MarkVisitedPoints()
+{
+  // Set up two disconnected spheres.
+  vtkNew<vtkSphereSource> sphere1;
+  sphere1->SetCenter(-1, 0, 0);
+  sphere1->Update();
+  vtkIdType numPtsSphere1 = sphere1->GetOutput()->GetNumberOfPoints();
+
+  vtkNew<vtkSphereSource> sphere2;
+  sphere2->SetCenter(1, 0, 0);
+  sphere2->SetPhiResolution(32);
+
+  vtkNew<vtkAppendPolyData> spheres;
+  spheres->SetInputConnection(sphere1->GetOutputPort());
+  spheres->AddInputConnection(sphere2->GetOutputPort());
+  spheres->Update();
+
+  // Test VTK_EXTRACT_CLOSEST_POINT_REGION mode.
+  // Select the one with the highest points IDS so we can ensure marked visited points
+  // use the original indices.
+  vtkPolyDataConnectivityFilter* connectivity = vtkPolyDataConnectivityFilter::New();
+  connectivity->SetInputConnection(spheres->GetOutputPort());
+  connectivity->SetExtractionModeToClosestPointRegion();
+  connectivity->SetClosestPoint(1, 0, 0);
+  connectivity->MarkVisitedPointIdsOn();
+  connectivity->Update();
+
+  // Check that the marked point IDs fall in the range of the second sphere, which is closest.
+  vtkIdList* visitedPts = connectivity->GetVisitedPointIds();
+  for (vtkIdType id = 0; id < visitedPts->GetNumberOfIds(); ++id)
+  {
+    vtkIdType visitedPt = visitedPts->GetId(id);
+    if (visitedPts->GetId(id) < numPtsSphere1)
+    {
+      std::cerr << "Visited point id " << visitedPt << " is from sphere1 and not sphere2 "
+        << "in VTK_EXTRACT_CLOSEST_POINT_REGION mode." << std::endl;
+      return false;
+    }
+  }
+
+  connectivity->Delete();
+
+  // Test VTK_EXTRACT_SPECIFIED_REGIONS mode.
+  connectivity = vtkPolyDataConnectivityFilter::New();
+  connectivity->SetInputConnection(spheres->GetOutputPort());
+  connectivity->SetExtractionModeToSpecifiedRegions();
+  connectivity->InitializeSpecifiedRegionList();
+  connectivity->AddSpecifiedRegion(1);
+  connectivity->Update();
+
+  // Check that the marked point IDs fall in the range of the second sphere, which is region 1.
+  bool succeeded = true;
+  visitedPts = connectivity->GetVisitedPointIds();
+  for (vtkIdType id = 0; id < visitedPts->GetNumberOfIds(); ++id)
+  {
+    vtkIdType visitedPt = visitedPts->GetId(id);
+    if (visitedPt < numPtsSphere1)
+    {
+      std::cerr << "Visited point id " << visitedPt << " is from sphere1 and not sphere2 "
+        << "in VTK_EXTRACT_SPECIFIED_REGIONS mode." << std::endl;
+        succeeded = false;
+    }
+  }
+
+  connectivity->Delete();
+
+  // Test VTK_EXTRACT_LARGEST_REGION mode.
+  connectivity = vtkPolyDataConnectivityFilter::New();
+  connectivity->SetInputConnection(spheres->GetOutputPort());
+  connectivity->SetExtractionModeToLargestRegion();
+  connectivity->Update();
+
+  // Check that the marked point IDs fall in the range of the second sphere, which is biggest.
+  visitedPts = connectivity->GetVisitedPointIds();
+  for (vtkIdType id = 0; id < visitedPts->GetNumberOfIds(); ++id)
+  {
+    vtkIdType visitedPt = visitedPts->GetId(id);
+    if (visitedPt < numPtsSphere1)
+    {
+      std::cerr << "Visited point id " << visitedPt << " is from sphere1 and not sphere2 "
+        << "in VTK_EXTRACT_SPECIFIED_REGIONS mode." << std::endl;
+      succeeded = false;
+    }
+  }
+
+  connectivity->Delete();
+
+  return succeeded;
+}
 }
 
 int TestPolyDataConnectivityFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
@@ -136,6 +228,11 @@ int TestPolyDataConnectivityFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[
   dataType = FilterPolyDataConnectivity(VTK_DOUBLE, vtkAlgorithm::DOUBLE_PRECISION);
 
   if(dataType != VTK_DOUBLE)
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (!MarkVisitedPoints())
   {
     return EXIT_FAILURE;
   }
