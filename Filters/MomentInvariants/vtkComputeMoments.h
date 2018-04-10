@@ -357,6 +357,10 @@ private:
    * positions
    */
   void Compute(size_t radiusIndex, vtkImageData* grid, vtkImageData* field, vtkImageData* output);
+
+private:
+  vtkComputeMoments(const vtkComputeMoments&) = delete;
+  void operator=(const vtkComputeMoments&) = delete;
 };
 
 #endif
