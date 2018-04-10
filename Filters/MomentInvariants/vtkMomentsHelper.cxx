@@ -57,7 +57,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "vtkMomentsHelper.h"
-#include "../ParallelDIY2/vtkPResampleWithDataSet.h"
 #include "vtkCell.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageConstantPad.h"

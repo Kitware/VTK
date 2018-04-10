@@ -1,3 +1,4 @@
+if (NOT WIN32) # disabled since vtkFiltersParallelDIY2 doesn't support WIN32
 vtk_module(vtkFiltersParallelMomentInvariants
   TEST_DEPENDS
     vtkIOXML
@@ -11,3 +12,4 @@ vtk_module(vtkFiltersParallelMomentInvariants
   PRIVATE_DEPENDS
     vtkeigen
   )
+endif()

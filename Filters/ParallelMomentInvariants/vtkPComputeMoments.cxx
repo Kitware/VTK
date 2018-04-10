@@ -57,16 +57,15 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkPComputeMoments.h"
 
+#include "vtkDoubleArray.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiProcessController.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-
-#include "../ParallelDIY2/vtkPResampleWithDataSet.h"
-#include "vtkDoubleArray.h"
-#include "vtkImageData.h"
 #include "vtkPointData.h"
+#include "vtkPResampleWithDataSet.h"
 #include "vtkProbeFilter.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include "vtkMomentsHelper.h"
 #include "vtkMomentsTensor.h"
