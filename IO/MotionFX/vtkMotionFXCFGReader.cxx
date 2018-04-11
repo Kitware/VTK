@@ -35,8 +35,9 @@
 #include "vtkVectorOperators.h"
 #include <vtksys/SystemTools.hxx>
 
-// grammar
-#include "vtkMotionFXCFGGrammar.h"
+// Set to 1 to generate debugging trace if grammar match fails.
+#define MOTIONFX_DEBUG_GRAMMAR 0
+#include "vtkMotionFXCFGGrammar.h" // grammar
 
 #include <fstream>
 #include <map>
@@ -1041,9 +1042,10 @@ public:
     tao::pegtl::parse<MotionFX::CFG::Grammar, Actions::CFG::action>(in, state);
     if (this->Motions.size() == 0)
     {
-      // tao::pegtl::read_input<> in2(filename);
-      // tao::pegtl::parse<MotionFX::CFG::Grammar, tao::pegtl::nothing,
-      //  tao::pegtl::tracer>(in2);
+#if MOTIONFX_DEBUG_GRAMMAR
+      tao::pegtl::read_input<> in2(filename);
+      tao::pegtl::parse<MotionFX::CFG::Grammar, tao::pegtl::nothing, tao::pegtl::tracer>(in2);
+#endif
       return false;
     }
 

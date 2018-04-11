@@ -22,7 +22,9 @@
 #include <vtk_pegtl.h>
 
 // for debugging
-//#include <vtkpegtl/include/tao/pegtl/contrib/tracer.hpp>
+#if MOTIONFX_DEBUG_GRAMMAR
+#include <vtkpegtl/include/tao/pegtl/contrib/tracer.hpp>
+#endif
 
 namespace MotionFX
 {
