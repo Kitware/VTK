@@ -687,7 +687,7 @@ IntersectWithPlane(double bounds[6], double origin[3], double normal[3],
     ++numOutInts;
     do
       {
-        i1++;
+        ++i1;
       }
     while ( i1 != IntPoints.end() && (i1->T - i0->T) < 0.001 );
     i0 = i1;

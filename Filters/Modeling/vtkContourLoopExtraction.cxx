@@ -220,22 +220,6 @@ vtkContourLoopExtraction::vtkContourLoopExtraction()
   this->Normal[2] = 1.0;
 
   this->OutputMode = VTK_OUTPUT_POLYGONS;
-
-  this->DataSetBounds[0] = 0.0;
-  this->DataSetBounds[1] = 0.0;
-  this->DataSetBounds[2] = 0.0;
-  this->DataSetBounds[3] = 0.0;
-  this->DataSetBounds[4] = 0.0;
-  this->DataSetBounds[5] = 0.0;
-
-  this->Bounds[0] = 0.0;
-  this->Bounds[1] = 0.0;
-  this->Bounds[2] = 0.0;
-  this->Bounds[3] = 0.0;
-  this->Bounds[4] = 0.0;
-  this->Bounds[5] = 0.0;
-
-  this->DataDimension = 0;
 }
 
 //----------------------------------------------------------------------------

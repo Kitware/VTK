@@ -167,15 +167,10 @@ protected:
   bool ScalarThresholding;
   double ScalarRange[2];
   double Normal[3];
-  double DataSetBounds[6];
   int OutputMode;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
                   vtkInformationVector *) override;
-
-  // Internal data members
-  int DataDimension; //either 2D or 3D
-  double Bounds[6];
 
 private:
   vtkContourLoopExtraction(const vtkContourLoopExtraction&) = delete;
