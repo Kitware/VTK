@@ -35,7 +35,7 @@
 
 namespace pdal
 {
-  class Reader;
+  class Stage;
 };
 
 class VTKIOPDAL_EXPORT vtkPDALReader: public vtkPolyDataAlgorithm
@@ -66,7 +66,7 @@ protected:
   /**
    * Read point record data i.e. position and visualisation data
    */
-  void ReadPointRecordData(pdal::Reader &reader, vtkPolyData* pointsPolyData);
+  void ReadPointRecordData(pdal::Stage &reader, vtkPolyData* pointsPolyData);
 
   char* FileName;
 };

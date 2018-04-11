@@ -96,8 +96,7 @@ int vtkPDALReader::RequestData(vtkInformation* vtkNotUsed(request),
     pdal::Option opt_filename("filename", this->FileName);
     pdal::Options opts;
     opts.add(opt_filename);
-    pdal::Stage* stage = factory.createStage(driverName);
-    pdal::Reader* reader = static_cast<pdal::Reader*>(stage);
+    pdal::Stage* reader = factory.createStage(driverName);
     if (! reader)
     {
       vtkErrorMacro("Cannot open file " << this->FileName);
@@ -127,7 +126,7 @@ int vtkPDALReader::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 //----------------------------------------------------------------------------
-void vtkPDALReader::ReadPointRecordData(pdal::Reader &reader,
+void vtkPDALReader::ReadPointRecordData(pdal::Stage &reader,
                                         vtkPolyData* pointsPolyData)
 {
   vtkNew<vtkPoints> points;
