@@ -359,8 +359,9 @@ void vtkComputeMoments::InterpretField(vtkImageData* field)
 /**
  * Make sure that the user has not entered weird values.
  * @param field: function of which the moments are computed
+ * @param grid: the uniform grid on which the moments are computed
  */
-void vtkComputeMoments::CheckValidity(vtkImageData*)
+void vtkComputeMoments::CheckValidity(vtkImageData* field, vtkImageData* grid)
 {
   if (this->Order < 0 || this->Order > 5)
   {
@@ -382,6 +383,41 @@ void vtkComputeMoments::CheckValidity(vtkImageData*)
     {
       vtkErrorMacro("The Radii must be positive.  It is " << Radii.at(i));
       return;
+    }
+  }
+  double fieldBounds[6];
+  field->GetBounds(fieldBounds);
+  double gridBounds[6];
+  grid->GetBounds(gridBounds);
+  for (size_t d = 0; d < static_cast<size_t>(this->Dimension); ++d)
+  {
+    if (fieldBounds[2 * d] > gridBounds[2 * d] + 1e-10 ||
+      fieldBounds[2 * d + 1] < gridBounds[2 * d + 1] - 1e-10)
+    {
+      vtkErrorMacro("The grid must be inside the field bounds.");
+    }
+  }
+  if (this->NumberOfIntegrationSteps == 0)
+  {
+    bool pointsDontMatch = false;
+    for (int ptId = 0; ptId < grid->GetNumberOfPoints(); ++ptId)
+    {
+      double center[3];
+      grid->GetPoint(ptId, center);
+      int id = field->FindPoint(center);
+      for (size_t d = 0; d < static_cast<size_t>(this->Dimension); ++d)
+      {
+        if (std::abs(field->GetPoint(id)[d] - center[d]) > 1e-3)
+        {
+          pointsDontMatch = true;
+          break;
+        }
+      }
+    }
+    if (pointsDontMatch)
+    {
+      vtkErrorMacro("The grid is supposed to be a subset of the field, but there are grid points "
+                    "that have no counterpart in the field.");
     }
   }
 }
@@ -631,14 +667,19 @@ void vtkComputeMoments::Compute(size_t radiusIndex,
     {
       //      cout<<ptId<<" "<<grid->GetPoint(ptId)[0]<<" "<<grid->GetPoint(ptId)[1]<<"
       //      "<<grid->GetPoint(ptId)[2]<<" "<<field->FindPoint(grid->GetPoint(ptId))<<endl;
+      double bounds[6];
+      field->GetBounds(bounds);
+      double center[3];
+      grid->GetPoint(ptId, center);
+      // determine the indices i and j per dimension of the center in this dataset.
+      int dimPtId[this->Dimension];
+      for (size_t d = 0; d < static_cast<size_t>(this->Dimension); ++d)
+      {
+        dimPtId[d] = (center[d] - bounds[2 * d]) / (field->GetSpacing()[d] - 1e-10);
+      }
       std::vector<vtkMomentsTensor> tensorVector =
-        vtkMomentsHelper::allMomentsOrigResImageData(this->Dimension,
-          this->Order,
-          this->FieldRank,
-          this->Radii.at(radiusIndex),
-          field->FindPoint(grid->GetPoint(ptId)),
-          field,
-          this->NameOfPointData);
+        vtkMomentsHelper::allMomentsOrigResImageData(this->Dimension, this->Order, this->FieldRank,
+          this->Radii.at(radiusIndex), dimPtId, field, this->NameOfPointData);
       // put them into the corresponding array
       for (size_t k = 0; k < tensorVector.size(); ++k)
       {
@@ -679,11 +720,25 @@ void vtkComputeMoments::Compute(size_t radiusIndex,
       // Get the xyz coordinate of the point in the grid dataset
       double center[3];
       grid->GetPoint(ptId, center);
-      if (!vtkMomentsHelper::isCloseToEdge(
-            this->Dimension, ptId, this->Radii.at(radiusIndex), grid) &&
-        vtkMomentsHelper::CenterStencil(
-          center, field, stencil, this->NumberOfIntegrationSteps, this->NameOfPointData))
+      if (vtkMomentsHelper::CenterStencil(
+            center, field, stencil, this->NumberOfIntegrationSteps, this->NameOfPointData))
       {
+        //        if( center[0] == 0 && center[1] == 0 )
+        //        {
+        //          std::ostream stream(std::cout.rdbuf());
+        //          std::cout<<"stencil=";
+        //          stencil->PrintSelf(stream, vtkIndent(0));
+        //          std::cout<<"\n";
+        //          std::cout<<"point="<<center[0]<<" "<<center[1]<<"
+        //          range="<<stencil->GetScalarRange()[0]<<" "<<stencil->GetScalarRange()[1]<<"
+        //          bounds="<<stencil->GetBounds()[0]<<" "<<stencil->GetBounds()[1]<<"\n";
+        //          for (vtkIdType ptId = 0; ptId < stencil->GetNumberOfPoints(); ++ptId)
+        //          {
+        //            std::cout<<stencil->GetPointData()->GetArray(this->NameOfPointData.c_str())->GetTuple(ptId)[0]<<"
+        //            ";
+        //          }
+        //          std::cout<<"\n";
+        //        }
         // get all the moments
         std::vector<vtkMomentsTensor> tensorVector = vtkMomentsHelper::allMoments(this->Dimension,
           this->Order,
@@ -751,9 +806,8 @@ void vtkComputeMoments::Compute(size_t radiusIndex,
   //#endif
 }
 
-int vtkComputeMoments::RequestUpdateExtent(vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector*)
+int vtkComputeMoments::RequestUpdateExtent(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*)
 {
   // We need to ask for the whole extent from this input.
   vtkInformation* momentsInfo = inputVector[0]->GetInformationObject(0);
@@ -764,8 +818,7 @@ int vtkComputeMoments::RequestUpdateExtent(vtkInformation*,
   if (momentsInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
   {
     momentsInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-      momentsInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
-      6);
+      momentsInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
   }
 
   momentsInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
@@ -774,19 +827,21 @@ int vtkComputeMoments::RequestUpdateExtent(vtkInformation*,
 
   vtkInformation* gridInfo = inputVector[1]->GetInformationObject(0);
 
-  gridInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
-
-  gridInfo->Remove(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-  if (gridInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+  if (gridInfo)
   {
-    gridInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-      gridInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
-      6);
-  }
+    gridInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
 
-  gridInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
-  gridInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
-  gridInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
+    gridInfo->Remove(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    if (gridInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+    {
+      gridInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+        gridInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
+    }
+
+    gridInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+    gridInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
+    gridInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
+  }
   return 1;
 }
 
@@ -820,7 +875,7 @@ int vtkComputeMoments::RequestData(vtkInformation* vtkNotUsed(request),
   if (field)
   {
     this->InterpretField(field);
-    this->CheckValidity(field);
+    this->CheckValidity(field, grid);
     this->BuildOutput(grid, output);
     for (size_t radiusIndex = 0; radiusIndex < this->Radii.size(); ++radiusIndex)
     {

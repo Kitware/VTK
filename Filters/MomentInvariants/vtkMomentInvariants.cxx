@@ -575,6 +575,14 @@ void vtkMomentInvariants::InterpretPattern(vtkImageData* pattern)
     pattern->GetPoint(pattern->FindPoint(this->CenterPattern), center);
     for (size_t d = 0; d < static_cast<size_t>(this->Dimension); d++)
     {
+      if (pattern->GetDimensions()[d] % 2 != 1)
+      {
+        vtkErrorMacro(
+          "If numberOfIntegrationSteps is zero, a point needs to be in the center of "
+          "the pattern. Resample the pattern with an odd dimension. pattern->GetDimensions()["
+          << d << "] is " << pattern->GetDimensions()[d]);
+        return;
+      }
       if (center[d] - this->RadiusPattern < bounds[2 * d] - 1e-10 ||
         center[d] + this->RadiusPattern > bounds[2 * d + 1] + 1e-10)
       {
@@ -1005,13 +1013,15 @@ void vtkMomentInvariants::HandlePattern(
   // calculation of the moments of the pattern
   if (this->NumberOfIntegrationSteps == 0)
   {
+    int dimPtId[this->Dimension];
+    for (size_t d = 0; d < static_cast<size_t>(this->Dimension); ++d)
+    {
+      dimPtId[d] = (pattern->GetDimensions()[d]) / 2;
+      //      std::cout << "pattern->GetDimensions()[d]="<<pattern->GetDimensions()[d] << "
+      //      dimPtId[d]="<<dimPtId[d]<< "\n";
+    }
     this->MomentsPattern = vtkMomentsHelper::allMomentsOrigResImageData(this->Dimension,
-      this->Order,
-      this->FieldRank,
-      this->RadiusPattern,
-      pattern->FindPoint(this->CenterPattern),
-      pattern,
-      this->NameOfPointData);
+      this->Order, this->FieldRank, this->RadiusPattern, dimPtId, pattern, this->NameOfPointData);
     // normalize the moments of the pattern w.r.t translation
     this->MomentsPatternTNormal =
       this->NormalizeT(this->MomentsPattern, this->RadiusPattern, this->IsTranslation, pattern);

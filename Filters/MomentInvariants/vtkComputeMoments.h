@@ -243,16 +243,13 @@ protected:
 
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  /** main executive of the program, reads the input, calles the functions, and
-   * produces the utput.
+  /**
+   * main executive of the program, reads the input, calles the
+   * functions, and produces the utput.
    * @param inputVector: the input information
    * @param outputVector: the output information
    */
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-
-private:
-  vtkComputeMoments(const vtkComputeMoments&) = delete;
-  void operator=(const vtkComputeMoments&) = delete;
 
   /**
    * the number of fields in the field
@@ -314,6 +311,29 @@ private:
   bool UseFFT;
 
   /**
+   * Make sure that the user has not entered weird values.
+   * @param field: function of which the moments are computed
+   * @param grid: the uniform grid on which the moments are computed
+   */
+  void CheckValidity(vtkImageData* field, vtkImageData* grid);
+
+  /**
+   * Find out the dimension and the date type of the field dataset.
+   * @param field: function of which the moments are computed
+   */
+  void InterpretField(vtkImageData* field);
+
+  /**
+   * Build the output dataset.
+   * @param grid: the uniform grid on which the moments are computed
+   * @param output: this vtkImageData has the same topology as grid and will
+   * contain numberOfFields scalar fields, each containing one moment at all
+   * positions
+   */
+  void BuildOutput(vtkImageData* grid, vtkImageData* output);
+
+private:
+  /**
    * the agorithm has two input ports
    * port 0 is the dataset of which the moments are computed
    * port 1 is the grid at whose locations the moments are computed.
@@ -338,26 +358,9 @@ private:
    */
   void Compute(size_t radiusIndex, vtkImageData* grid, vtkImageData* field, vtkImageData* output);
 
-  /**
-   * Make sure that the user has not entered weird values.
-   * @param field: function of which the moments are computed
-   */
-  void CheckValidity(vtkImageData* field);
-
-  /**
-   * Find out the dimension and the date type of the field dataset.
-   * @param field: function of which the moments are computed
-   */
-  void InterpretField(vtkImageData* field);
-
-  /**
-   * Build the output dataset.
-   * @param grid: the uniform grid on which the moments are computed
-   * @param output: this vtkImageData has the same topology as grid and will
-   * contain numberOfFields scalar fields, each containing one moment at all
-   * positions
-   */
-  void BuildOutput(vtkImageData* grid, vtkImageData* output);
+private:
+  vtkComputeMoments(const vtkComputeMoments&) = delete;
+  void operator=(const vtkComputeMoments&) = delete;
 };
 
 #endif

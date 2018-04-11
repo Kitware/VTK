@@ -274,7 +274,8 @@ protected:
 
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  /** main executive of the program, reads the input, calles the
+  /**
+   * main executive of the program, reads the input, calles the
    * functions, and produces the utput.
    * @param inputVector: the input information
    * @param outputVector: the output information
