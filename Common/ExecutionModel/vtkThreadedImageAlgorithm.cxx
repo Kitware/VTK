@@ -26,6 +26,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkSMPTools.h"
 
+#include <vector>
+
 // If SMP backend is Sequential then fall back to vtkMultiThreader,
 // else enable the newer vtkSMPTools code path by default.
 #ifdef VTK_SMP_Sequential
@@ -598,36 +600,42 @@ int vtkThreadedImageAlgorithm::RequestData(
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  // setup the thread structure
-  vtkImageThreadStruct str;
-  str.Filter = this;
-  str.Request = request;
-  str.InputsInfo = inputVector;
-  str.OutputsInfo = outputVector;
-  str.Inputs = nullptr;
-  str.Outputs = nullptr;
-
-  // create an array for input data objects
+  // count the total number of inputs, outputs
   int numInputPorts = this->GetNumberOfInputPorts();
+  int numOutputPorts = this->GetNumberOfOutputPorts();
+  int numDataObjects = numOutputPorts;
+  for (int i = 0; i < numInputPorts; i++)
+  {
+    numDataObjects += inputVector[i]->GetNumberOfInformationObjects();
+  }
+
+  // ThreadedRequestData() needs to be given the inputs and outputs
+  // as raw pointers, but we use std::vector for memory allocation
+  vtkImageData ***inputs = nullptr;
+  vtkImageData **outputs = nullptr;
+  std::vector<vtkImageData *> connections(numDataObjects);
+  std::vector<vtkImageData **> ports(numInputPorts);
+  size_t offset = 0;
+
+  // set pointers to the lists of data objects and input ports
   if (numInputPorts)
   {
-    str.Inputs = new vtkImageData ** [numInputPorts];
+    inputs = &ports[0];
     for (int i = 0; i < numInputPorts; i++)
     {
-      int numConnections = inputVector[i]->GetNumberOfInformationObjects();
-      str.Inputs[i] = new vtkImageData * [numConnections];
+      inputs[i] = &connections[offset];
+      offset += inputVector[i]->GetNumberOfInformationObjects();
     }
   }
 
-  // create an array for output data objects
-  int numOutputPorts = this->GetNumberOfOutputPorts();
+  // set pointer to the list of output data objects
   if (numOutputPorts)
   {
-    str.Outputs = new vtkImageData * [numOutputPorts];
+    outputs = &connections[offset];
   }
 
   // allocate the output data and call CopyAttributeData
-  this->PrepareImageData(inputVector, outputVector, str.Inputs, str.Outputs);
+  this->PrepareImageData(inputVector, outputVector, inputs, outputs);
 
   // need bytes per voxel to compute block size
   int bytesPerVoxel = 1;
@@ -636,7 +644,7 @@ int vtkThreadedImageAlgorithm::RequestData(
   int updateExtent[6] = { 0, -1, 0, -1, 0, -1 };
   if (numOutputPorts)
   {
-    vtkImageData *outData = str.Outputs[0];
+    vtkImageData *outData = outputs[0];
     if (outData)
     {
       bytesPerVoxel = (outData->GetScalarSize() *
@@ -651,7 +659,7 @@ int vtkThreadedImageAlgorithm::RequestData(
     {
       if (this->GetNumberOfInputConnections(inPort))
       {
-        vtkImageData *inData = str.Inputs[inPort][0];
+        vtkImageData *inData = inputs[inPort][0];
         if (inData)
         {
           bytesPerVoxel = (inData->GetScalarSize() *
@@ -697,7 +705,7 @@ int vtkThreadedImageAlgorithm::RequestData(
 
       vtkThreadedImageAlgorithmFunctor functor(
         this, request, inputVector, outputVector,
-        str.Inputs, str.Outputs, updateExtent, pieces);
+        inputs, outputs, updateExtent, pieces);
 
       vtkSMPTools::For(0, pieces, functor);
 
@@ -706,13 +714,21 @@ int vtkThreadedImageAlgorithm::RequestData(
     else
     {
       // if SMP is not enabled, use the vtkMultiThreader
-      vtkIdType pieces = this->NumberOfThreads;
+      vtkImageThreadStruct str;
+      str.Filter = this;
+      str.Request = request;
+      str.InputsInfo = inputVector;
+      str.OutputsInfo = outputVector;
+      str.Inputs = inputs;
+      str.Outputs = outputs;
 
       // do a dummy execution of SplitExtent to compute the number of pieces
       int subExtent[6];
-      pieces = this->SplitExtent(subExtent, updateExtent, 0, pieces);
+      vtkIdType pieces = this->SplitExtent(subExtent, updateExtent, 0,
+                                           this->NumberOfThreads);
       this->Threader->SetNumberOfThreads(pieces);
-      this->Threader->SetSingleMethod(vtkThreadedImageAlgorithmThreadedExecute, &str);
+      this->Threader->SetSingleMethod(vtkThreadedImageAlgorithmThreadedExecute,
+                                      &str);
       // always shut off debugging to avoid threading problems with GetMacros
       bool debug = this->Debug;
       this->Debug = false;
@@ -720,14 +736,6 @@ int vtkThreadedImageAlgorithm::RequestData(
       this->Debug = debug;
     }
   }
-
-  // free up the arrays
-  for (int i = 0; i < numInputPorts; i++)
-  {
-    delete [] str.Inputs[i];
-  }
-  delete [] str.Inputs;
-  delete [] str.Outputs;
 
   return 1;
 }
