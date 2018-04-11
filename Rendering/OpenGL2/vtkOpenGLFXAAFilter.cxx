@@ -225,6 +225,17 @@ void vtkOpenGLFXAAFilter::Prepare()
   this->BlendState = ostate->GetEnumState(GL_BLEND);
   this->DepthTestState = ostate->GetEnumState(GL_DEPTH_TEST);
 
+#ifdef __APPLE__
+  // Restore viewport to its original size. This is necessary only on
+  // MacOS when HiDPI is supported. Enabling HiDPI has the side effect that
+  // Cocoa will start overriding any glViewport calls in application code.
+  // For reference, see QCocoaWindow::initialize().
+  int origin[2];
+  int usize, vsize;
+  this->Renderer->GetTiledSizeAndOrigin(&usize, &vsize, origin, origin+1);
+  ostate->vtkglViewport(origin[0], origin[1], usize, vsize);
+#endif
+
   ostate->vtkglDisable(GL_BLEND);
   ostate->vtkglDisable(GL_DEPTH_TEST);
 
