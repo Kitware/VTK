@@ -168,7 +168,6 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
     {
       ostate->glEnable( GL_MULTISAMPLE );
     }
-    glBindFramebuffer( GL_FRAMEBUFFER, win->GetLeftRenderBufferId());
 
     // adjust for left eye position
     if (!ren->GetSelector())
@@ -183,7 +182,6 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
     {
       ostate->glEnable( GL_MULTISAMPLE );
     }
-    glBindFramebuffer( GL_FRAMEBUFFER, win->GetRightRenderBufferId());
 
     if (!ren->GetSelector())
     {

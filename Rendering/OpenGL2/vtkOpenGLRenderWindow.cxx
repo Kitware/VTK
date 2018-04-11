@@ -1123,6 +1123,106 @@ int vtkOpenGLRenderWindow::ReadPixels(
   }
 }
 
+//----------------------------------------------------------------------------
+// Update the system, if needed, due to stereo rendering. For some stereo
+// methods, subclasses might need to switch some hardware settings here.
+void vtkOpenGLRenderWindow::StereoUpdate(void)
+{
+  this->Superclass::StereoUpdate();
+
+
+  // // if were on a stereo renderer draw to special parts of screen
+  // if (this->Stereo)
+  // {
+  //   unsigned int dfbo = win->GetDefaultFrameBufferId();
+  //   if (dfbo)
+  //   {
+  //     // If the render window is using an FBO to render into, we ensure that
+  //     // it's selected.
+  //     glBindFramebuffer(GL_FRAMEBUFFER, dfbo);
+  //   }
+  // }
+
+
+  if (this->StereoRender && this->GetStereoType() == VTK_STEREO_CRYSTAL_EYES)
+  {
+    if (this->GetDoubleBuffer())
+    {
+      glDrawBuffer(static_cast<GLenum>(this->GetBackLeftBuffer()));
+      glReadBuffer(static_cast<GLenum>(this->GetBackLeftBuffer()));
+    }
+    else
+    {
+      glDrawBuffer(static_cast<GLenum>(this->GetFrontLeftBuffer()));
+      glReadBuffer(static_cast<GLenum>(this->GetFrontLeftBuffer()));
+    }
+  }
+  else
+  {
+    if (this->GetDoubleBuffer())
+    {
+      glDrawBuffer(static_cast<GLenum>(this->GetBackBuffer()));
+
+      // Reading back buffer means back left. see OpenGL spec.
+      // because one can write to two buffers at a time but can only read from
+      // one buffer at a time.
+      glReadBuffer(static_cast<GLenum>(this->GetBackBuffer()));
+    }
+    else
+    {
+      glDrawBuffer(static_cast<GLenum>(this->GetFrontBuffer()));
+
+      // Reading front buffer means front left. see OpenGL spec.
+      // because one can write to two buffers at a time but can only read from
+      // one buffer at a time.
+      glReadBuffer(static_cast<GLenum>(this->GetFrontBuffer()));
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+// Intermediate method performs operations required between the rendering
+// of the left and right eye.
+void vtkOpenGLRenderWindow::StereoMidpoint(void)
+{
+  this->Superclass::StereoMidpoint();
+
+  if (this->GetStereoType() == VTK_STEREO_CRYSTAL_EYES)
+  {
+    if (this->GetDoubleBuffer())
+    {
+      glDrawBuffer(static_cast<GLenum>(this->GetBackRightBuffer()));
+      glReadBuffer(static_cast<GLenum>(this->GetBackRightBuffer()));
+    }
+    else
+    {
+      glDrawBuffer(static_cast<GLenum>(this->GetFrontRightBuffer()));
+      glReadBuffer(static_cast<GLenum>(this->GetFrontRightBuffer()));
+    }
+  }
+  else
+  {
+    if (this->GetDoubleBuffer())
+    {
+      glDrawBuffer(static_cast<GLenum>(this->GetBackBuffer()));
+
+      // Reading back buffer means back left. see OpenGL spec.
+      // because one can write to two buffers at a time but can only read from
+      // one buffer at a time.
+      glReadBuffer(static_cast<GLenum>(this->GetBackBuffer()));
+    }
+    else
+    {
+      glDrawBuffer(static_cast<GLenum>(this->GetFrontBuffer()));
+
+      // Reading front buffer means front left. see OpenGL spec.
+      // because one can write to two buffers at a time but can only read from
+      // one buffer at a time.
+      glReadBuffer(static_cast<GLenum>(this->GetFrontBuffer()));
+    }
+  }
+}
+
 int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
                                         vtkUnsignedCharArray *data, int front,
                                         int right)

@@ -431,6 +431,18 @@ public:
   // coordinates for a quad and tcoords
   vtkOpenGLBufferObject *GetTQuad2DVBO();
 
+  /**
+   * Update the system, if needed, due to stereo rendering. For some stereo
+   * methods, subclasses might need to switch some hardware settings here.
+   */
+  void StereoUpdate() override;
+
+  /**
+   * Intermediate method performs operations required between the rendering
+   * of the left and right eye.
+   */
+  void StereoMidpoint() override;
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow() override;
