@@ -113,6 +113,7 @@ struct vtkImageThreadStruct
   vtkInformationVector *OutputsInfo;
   vtkImageData   ***Inputs;
   vtkImageData   **Outputs;
+  int *UpdateExtent;
 };
 
 //----------------------------------------------------------------------------
@@ -361,7 +362,7 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
 static VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *arg )
 {
   vtkImageThreadStruct *str;
-  int ext[6], splitExt[6], total;
+  int splitExt[6], total;
   int threadId, threadCount;
 
   threadId = static_cast<vtkMultiThreader::ThreadInfo *>(arg)->ThreadID;
@@ -370,56 +371,10 @@ static VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *ar
   str = static_cast<vtkImageThreadStruct *>
     (static_cast<vtkMultiThreader::ThreadInfo *>(arg)->UserData);
 
-  // if we have an output
-  if (str->Filter->GetNumberOfOutputPorts())
-  {
-    // which output port did the request come from
-    int outputPort =
-      str->Request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
-
-    // if output port is negative then that means this filter is calling the
-    // update directly, for now an error
-    if (outputPort == -1)
-    {
-      return VTK_THREAD_RETURN_VALUE;
-    }
-
-    // get the update extent from the output port
-    vtkInformation *outInfo =
-      str->OutputsInfo->GetInformationObject(outputPort);
-    int updateExtent[6];
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                 updateExtent);
-    memcpy(ext,updateExtent, sizeof(int)*6);
-  }
-  else
-  {
-    // if there is no output, then use UE from input, use the first input
-    int inPort;
-    bool found = false;
-    for (inPort = 0; inPort < str->Filter->GetNumberOfInputPorts(); ++inPort)
-    {
-      if (str->Filter->GetNumberOfInputConnections(inPort))
-      {
-        int updateExtent[6];
-        str->InputsInfo[inPort]
-          ->GetInformationObject(0)
-          ->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                updateExtent);
-        memcpy(ext,updateExtent, sizeof(int)*6);
-        found = true;
-        break;
-      }
-    }
-    if (!found)
-    {
-      return VTK_THREAD_RETURN_VALUE;
-    }
-  }
-
   // execute the actual method with appropriate extent
   // first find out how many pieces extent can be split into.
-  total = str->Filter->SplitExtent(splitExt, ext, threadId, threadCount);
+  total = str->Filter->SplitExtent(splitExt, str->UpdateExtent,
+                                   threadId, threadCount);
 
   if (threadId < total)
   {
@@ -435,12 +390,6 @@ static VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *ar
                                      str->Inputs, str->Outputs,
                                      splitExt, threadId);
   }
-  // else
-  //   {
-  //   otherwise don't use this thread. Sometimes the threads don't
-  //   break up very well and it is just as efficient to leave a
-  //   few threads idle.
-  //   }
 
   return VTK_THREAD_RETURN_VALUE;
 }
@@ -721,6 +670,7 @@ int vtkThreadedImageAlgorithm::RequestData(
       str.OutputsInfo = outputVector;
       str.Inputs = inputs;
       str.Outputs = outputs;
+      str.UpdateExtent = updateExtent;
 
       // do a dummy execution of SplitExtent to compute the number of pieces
       int subExtent[6];
