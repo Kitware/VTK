@@ -1092,7 +1092,10 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
   camWorldDirection[3] = 0.0;
 
   // Compute the normalized near plane normal
-  dataToWorld->MultiplyPoint(camWorldDirection, camPlaneNormal);
+  // by multiplying with the transpose of the volume matrix
+  vtkNew<vtkMatrix4x4> transposeDataToWorld;
+  vtkMatrix4x4::Transpose(vol->GetMatrix(), transposeDataToWorld);
+  transposeDataToWorld->MultiplyPoint(camWorldDirection, camPlaneNormal);
 
   vtkMath::Normalize(camWorldDirection);
   vtkMath::Normalize(camPlaneNormal);
@@ -1181,7 +1184,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderVolumeGeometry(
       camWorldDirection[3] = 0.0;
 
       // Compute the normalized near plane normal
-      dataToWorld->MultiplyPoint(camWorldDirection, camPlaneNormal);
+      vtkNew<vtkMatrix4x4> transposeDataToWorld;
+      vtkMatrix4x4::Transpose(vol->GetMatrix(), transposeDataToWorld);
+      transposeDataToWorld->MultiplyPoint(camWorldDirection, camPlaneNormal);
 
       vtkMath::Normalize(camWorldDirection);
       vtkMath::Normalize(camPlaneNormal);
