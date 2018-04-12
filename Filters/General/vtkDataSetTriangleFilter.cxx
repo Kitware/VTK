@@ -319,8 +319,22 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
       this->Triangulator->InitTriangulation(0.0,1.0, 0.0,1.0, 0.0,1.0, numPts);
       for (p=pPtr, j=0; j<numPts; j++, p+=3)
       {
-        ptId = cell->PointIds->GetId(j);
-        cell->Points->GetPoint(j, x);
+        // the wedge is "flipped" compared to other cells in that
+        // the normal of the first face points out instead of in
+        // so we flip the way we pass the points to the triangulator
+        const vtkIdType wedgemap[18] = {3, 4, 5, 0, 1, 2, 9, 10, 11, 6, 7, 8, 12, 13, 14, 15, 16, 17};
+        type = cell->GetCellType();
+        if (type == VTK_WEDGE || type == VTK_QUADRATIC_WEDGE || type == VTK_QUADRATIC_LINEAR_WEDGE ||
+            type == VTK_BIQUADRATIC_QUADRATIC_WEDGE)
+        {
+          ptId = cell->PointIds->GetId(wedgemap[j]);
+          cell->Points->GetPoint(wedgemap[j], x);
+        }
+        else
+        {
+          ptId = cell->PointIds->GetId(j);
+          cell->Points->GetPoint(j, x);
+        }
         this->Triangulator->InsertPoint(ptId, x, p, 0);
       }//for all cell points
       if ( cell->IsPrimaryCell() ) //use templates if topology is fixed
