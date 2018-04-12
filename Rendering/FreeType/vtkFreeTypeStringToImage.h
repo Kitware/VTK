@@ -15,9 +15,7 @@
 
 /**
  * @class   vtkFreeTypeStringToImage
- * @brief   uses Qt to render the supplied text to an image.
- *
- *
+ * @brief   render the supplied text to an image.
  *
 */
 
