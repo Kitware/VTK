@@ -472,7 +472,7 @@ void vtkOpenVRRenderWindow::Render()
 
 void vtkOpenVRRenderWindow::StereoUpdate()
 {
-  // camera handles what we need
+  glBindFramebuffer( GL_FRAMEBUFFER, this->GetLeftRenderBufferId());
 }
 
 void vtkOpenVRRenderWindow::StereoMidpoint()
@@ -495,6 +495,7 @@ void vtkOpenVRRenderWindow::StereoMidpoint()
     vr::Texture_t leftEyeTexture = {(void*)(long)this->LeftEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
     vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
   }
+  glBindFramebuffer( GL_FRAMEBUFFER, this->GetRightRenderBufferId());
 }
 
 void  vtkOpenVRRenderWindow::StereoRenderComplete()
