@@ -147,24 +147,25 @@ int vtkSegYReader::RequestInformation(vtkInformation * vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *outputVector)
 {
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  if (!outInfo)
+  {
+    vtkErrorMacro("Invalid output information object");
+    return 0;
+  }
+
+  std::cout << "DataExtent: ";
+  std::copy(this->DataExtent, this->DataExtent + 6, std::ostream_iterator<int>(std::cout, " "));
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               this->DataExtent, 6);
+  std::cout << std::endl;
   if (this->Is3D)
   {
-    vtkInformation* outInfo = outputVector->GetInformationObject(0);
-    if (!outInfo)
-    {
-      vtkErrorMacro("Invalid output information object");
-      return 0;
-    }
-
-    std::cout << "DataExtent: ";
-    std::copy(this->DataExtent, this->DataExtent + 6, std::ostream_iterator<int>(std::cout, " "));
-    std::cout << "\nDataOrigin: ";
+    std::cout << "DataOrigin: ";
     std::copy(this->DataOrigin, this->DataOrigin + 3, std::ostream_iterator<double>(std::cout, " "));
     std::cout << "\nDataSpacing: ";
     std::copy(this->DataSpacing, this->DataSpacing + 3, std::ostream_iterator<double>(std::cout, " "));
     std::cout << std::endl;
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-                 this->DataExtent, 6);
     outInfo->Set(vtkDataObject::ORIGIN(), this->DataOrigin, 3);
     outInfo->Set(vtkDataObject::SPACING(), this->DataSpacing, 3);
   }

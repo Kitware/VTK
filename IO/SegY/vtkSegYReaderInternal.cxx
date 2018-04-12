@@ -152,22 +152,29 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
       traceStartPos, this->In, this->FormatCode, &inlineNumber, &crosslineNumber);
     ++crosslineCount;
   }
+  if (traceStartPos + 240 < fileSize)
+  {
+    // we read a crossline from the next inline
+    --crosslineCount;
+  }
+  int inlineCount = (fileSize - FIRST_TRACE_START_POS) / traceSize / crosslineCount;
   if (traceStartPos + 240 >= fileSize)
   {
     // this is a 2D dataset
+    auto e = {
+      0, crosslineCount - 1,
+      0, this->SampleCountPerTrace - 1,
+      0, inlineCount - 1,
+    };
+    std::copy(e.begin(), e.end(), extent);
     return false;
   }
-  // we read a crossline from the next inline
-  --crosslineCount;
-  int inlineCount = (fileSize - FIRST_TRACE_START_POS) / traceSize / crosslineCount;
   inlineSecond = inlineNumber;
   float xStep = inlineSecond - inlineFirst;
-
   auto e = {0, inlineCount - 1,
             0, crosslineCount - 1,
             0, this->SampleCountPerTrace - 1};
   std::copy(e.begin(), e.end(), extent);
-
 
   // The samples are uniformly placed at sample interval depths
   // Dividing by 1000.0 to convert from microseconds to milliseconds.
