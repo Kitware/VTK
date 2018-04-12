@@ -35,6 +35,7 @@ set(Module_SRCS
   vtkEdgePoints.cxx
   vtkExtractSelectedFrustum.cxx
   vtkExtractSelectionBase.cxx
+  vtkFrustumSelector.cxx
   vtkGradientFilter.cxx
   vtkGraphLayoutFilter.cxx
   vtkGraphToPoints.cxx
