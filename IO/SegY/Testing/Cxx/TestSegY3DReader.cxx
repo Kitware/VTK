@@ -12,11 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME Test of vtkSegY2DReader
+// .NAME Test of vtkSegYReader
 // .SECTION Description
 //
 
-#include "vtkSegY3DReader.h"
+#include "vtkSegYReader.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
@@ -51,7 +51,7 @@ int TestSegY3DReader(int argc, char* argv[])
   lut->AddRGBPoint(0.0, 0.86, 0.86, 0.86);
   lut->AddRGBPoint(126, 0.70, 0.02, 0.15);
 
-  vtkNew<vtkSegY3DReader> reader;
+  vtkNew<vtkSegYReader> reader;
   vtkNew<vtkDataSetMapper> mapper;
   vtkNew<vtkActor> actor;
 

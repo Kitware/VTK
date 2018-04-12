@@ -13,260 +13,214 @@
 
 =========================================================================*/
 
-#include "vtkSegYReader.h"
-
-#include "vtkSegYBinaryHeaderBytesPositions.h"
-#include "vtkSegYIOUtils.h"
-#include "vtkSegYTraceReader.h"
-
-#include "vtkArrayData.h"
-#include "vtkFloatArray.h"
 #include "vtkImageData.h"
-#include "vtkPointData.h"
-#include "vtkPoints.h"
+#include "vtkInformationVector.h"
+#include "vtkInformation.h"
+#include "vtkObjectFactory.h"
+#include "vtkSegYReaderInternal.h"
 #include "vtkSmartPointer.h"
+#include "vtkSegYReader.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 
 #include <algorithm>
-#include <array>
 #include <iostream>
 #include <iterator>
-#include <map>
-#include <set>
 
-namespace {
-  const int FIRST_TRACE_START_POS = 3600;  // this->Traces start after 3200 + 400 file header
-};
+
+vtkStandardNewMacro(vtkSegYReader);
 
 //-----------------------------------------------------------------------------
-vtkSegYReader::vtkSegYReader() :
-  SampleInterval(0), FormatCode(0), SampleCountPerTrace(0)
+vtkSegYReader::vtkSegYReader()
 {
-  this->BinaryHeaderBytesPos = new vtkSegYBinaryHeaderBytesPositions();
-  this->VerticalCRS = 0;
-  this->TraceReader = new vtkSegYTraceReader();
+  this->SetNumberOfInputPorts(0);
+  this->Reader = new vtkSegYReaderInternal();
+  this->FileName = nullptr;
+  this->Is3D = false;
+  this->DataOrigin[0] = this->DataOrigin[1] = this->DataOrigin[2] = 0.0;
+  this->DataSpacing[0] = this->DataSpacing[1] = this->DataSpacing[2] = 1.0;
+  this->DataExtent[0] = this->DataExtent[2] = this->DataExtent[4] = 0;
+  this->DataExtent[1] = this->DataExtent[3] = this->DataExtent[5] = 0;
+
+  this->XYCoordMode = VTK_SEGY_SOURCE;
+  this->XCoordByte = 73;
+  this->YCoordByte = 77;
+
+  this->VerticalCRS = VTK_SEGY_VERTICAL_HEIGHTS;
+
 }
 
 //-----------------------------------------------------------------------------
 vtkSegYReader::~vtkSegYReader()
 {
-  delete this->BinaryHeaderBytesPos;
-  delete this->TraceReader;
-  for (auto trace : this->Traces)
-    delete trace;
+  delete this->Reader;
 }
 
 //-----------------------------------------------------------------------------
-void vtkSegYReader::SetXYCoordBytePositions(int x, int y)
+void vtkSegYReader::SetXYCoordModeToSource()
 {
-  this->TraceReader->SetXYCoordBytePositions(x, y);
+  this->SetXYCoordMode(VTK_SEGY_SOURCE);
 }
 
 //-----------------------------------------------------------------------------
-void vtkSegYReader::SetVerticalCRS(int v)
+void vtkSegYReader::SetXYCoordModeToCDP()
 {
-  this->VerticalCRS = v > 0 ? 1 : 0;
+  this->SetXYCoordMode(VTK_SEGY_CDP);
 }
 
 //-----------------------------------------------------------------------------
-bool vtkSegYReader::LoadFromFile(std::string path)
+void vtkSegYReader::SetXYCoordModeToCustom()
 {
-  this->In.open(path, std::ifstream::binary);
-  if (!this->In)
+  this->SetXYCoordMode(VTK_SEGY_CUSTOM);
+}
+
+
+//-----------------------------------------------------------------------------
+void vtkSegYReader::PrintSelf(ostream& os, vtkIndent indent)
+{
+  Superclass::PrintSelf(os, indent);
+}
+
+
+//-----------------------------------------------------------------------------
+int vtkSegYReader::RequestData(vtkInformation* vtkNotUsed(request),
+                               vtkInformationVector** vtkNotUsed(inputVector),
+                               vtkInformationVector* outputVector)
+{
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  if (!outInfo)
   {
-    std::cerr << "File not found:" << path << std::endl;
-    return false;
+    return 0;
   }
 
-  this->ReadHeader();
-  this->LoadTraces();
-
-  this->In.close();
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-void vtkSegYReader::LoadTraces()
-{
-  int traceStartPos = FIRST_TRACE_START_POS;
-  int fileSize = vtkSegYIOUtils::Instance()->getFileSize(this->In);
-  while (traceStartPos + 240 < fileSize)
+  vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  if (!output)
   {
-    vtkSegYTrace* pTrace = new vtkSegYTrace();
-    this->TraceReader->ReadTrace(traceStartPos, this->In, this->FormatCode, pTrace);
-    this->Traces.push_back(pTrace);
+    return 0;
   }
-}
 
-//-----------------------------------------------------------------------------
-bool vtkSegYReader::ReadHeader()
-{
-  this->SampleInterval = vtkSegYIOUtils::Instance()->readShortInteger(
-    this->BinaryHeaderBytesPos->SampleInterval, this->In);
-  this->FormatCode = vtkSegYIOUtils::Instance()->readShortInteger(
-    this->BinaryHeaderBytesPos->FormatCode, this->In);
-  this->In.seekg(this->BinaryHeaderBytesPos->MajorVersion, this->In.beg);
-  unsigned char majorVersion = vtkSegYIOUtils::Instance()->readUChar(this->In);
-  unsigned char minorVersion = vtkSegYIOUtils::Instance()->readUChar(this->In);
-  this->SampleCountPerTrace = vtkSegYIOUtils::Instance()->readShortInteger(
-    this->BinaryHeaderBytesPos->NumSamplesPerTrace, this->In);
-  short tracesPerEnsemble = vtkSegYIOUtils::Instance()->readShortInteger(
-    this->BinaryHeaderBytesPos->NumberTracesPerEnsemble, this->In);
-  short ensembleType = vtkSegYIOUtils::Instance()->readShortInteger(
-    this->BinaryHeaderBytesPos->EnsembleType, this->In);
-  short measurementSystem = vtkSegYIOUtils::Instance()->readShortInteger(
-    this->BinaryHeaderBytesPos->MeasurementSystem, this->In);
-  int byteOrderingDetection = vtkSegYIOUtils::Instance()->readLongInteger(
-    this->BinaryHeaderBytesPos->ByteOrderingDetection, this->In);
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-bool vtkSegYReader::Is3DComputeParameters(
-  int* extent, double* origin, double* spacing)
-{
-  this->ReadHeader();
-  int traceStartPos = FIRST_TRACE_START_POS;
-  int fileSize = vtkSegYIOUtils::Instance()->getFileSize(this->In);
-  int crosslineFirst, crosslineSecond, inlineFirst, inlineSecond,
-    inlineNumber, crosslineNumber;
-  int prevTraceStartPos = traceStartPos;
-  int crosslineCount = 0;
-  if (traceStartPos + 240 < fileSize)
+  if (this->Is3D)
   {
-    this->TraceReader->ReadInlineCrossline(
-      traceStartPos, this->In, this->FormatCode, &inlineFirst, &crosslineFirst);
-    ++crosslineCount;
+    this->Reader->LoadTraces();
+    this->Reader->ExportData3D(vtkImageData::SafeDownCast(output),
+                               this->DataExtent, this->DataOrigin, this->DataSpacing);
   }
-  int traceSize = traceStartPos - prevTraceStartPos;
-  if (traceStartPos + 240 < fileSize)
+  else
   {
-    this->TraceReader->ReadInlineCrossline(
-      traceStartPos, this->In, this->FormatCode, &inlineNumber, &crosslineSecond);
-    ++crosslineCount;
-  }
-  float yStep = crosslineSecond - crosslineFirst;
-  while(inlineFirst == inlineNumber && traceStartPos + 240 < fileSize)
-  {
-    this->TraceReader->ReadInlineCrossline(
-      traceStartPos, this->In, this->FormatCode, &inlineNumber, &crosslineNumber);
-    ++crosslineCount;
-  }
-  if (traceStartPos + 240 >= fileSize)
-  {
-    // this is a 2D dataset
-    return false;
-  }
-  // we read a crossline from the next inline
-  --crosslineCount;
-  int inlineCount = (fileSize - FIRST_TRACE_START_POS) / traceSize / crosslineCount;
-  inlineSecond = inlineNumber;
-  float xStep = inlineSecond - inlineFirst;
-
-  auto e = {0, inlineCount - 1,
-            0, crosslineCount - 1,
-            0, this->SampleCountPerTrace - 1};
-  std::copy(e.begin(), e.end(), extent);
-
-
-  // The samples are uniformly placed at sample interval depths
-  // Dividing by 1000.0 to convert from microseconds to milliseconds.
-  float zStep = this->SampleInterval / 1000.0;
-  std::array<double, 3> o = {static_cast<double>(inlineFirst),
-                             static_cast<double>(crosslineFirst),
-                             - zStep * (this->SampleCountPerTrace - 1)};
-  std::copy(o.begin(), o.end(), origin);
-  auto s = {xStep, yStep, zStep};
-  std::copy(s.begin(), s.end(), spacing);
-  return true;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-void vtkSegYReader::ExportData3D(vtkImageData* imageData,
-                                 int* extent, double* origin, double* spacing)
-{
-  imageData->SetExtent(extent);
-  imageData->SetOrigin(origin);
-  imageData->SetSpacing(spacing);
-  int* dims = imageData->GetDimensions();
-
-  vtkNew<vtkFloatArray> scalars;
-  scalars->SetNumberOfComponents(1);
-  scalars->SetNumberOfTuples(dims[0] * dims[1] * dims[2]);
-  scalars->SetName("trace");
-  imageData->GetPointData()->SetScalars(scalars);
-  for (int k = 0; k < this->SampleCountPerTrace; ++k)
-  {
-    for (int j = 0; j < dims[1]; ++j)
+    switch (this->XYCoordMode)
     {
-      for (int i = 0; i < dims[0]; ++i)
+    case VTK_SEGY_SOURCE:
       {
-        vtkSegYTrace* trace = this->Traces[i * dims[1] + j];
-        scalars->SetValue(k * dims[1] * dims[0] + j * dims[0] + i,
-                          trace->data[k]);
+        this->Reader->SetXYCoordBytePositions(72, 76);
+        break;
+      }
+    case VTK_SEGY_CDP:
+      {
+        this->Reader->SetXYCoordBytePositions(180, 184);
+        break;
+      }
+    case VTK_SEGY_CUSTOM:
+      {
+        this->Reader->SetXYCoordBytePositions(this->XCoordByte - 1,
+                                              this->YCoordByte - 1);
+        break;
+      }
+    default:
+      {
+        vtkErrorMacro(<< "Unknown value for XYCoordMode " << this->XYCoordMode);
+        return 1;
       }
     }
+    vtkStructuredGrid* grid = vtkStructuredGrid::SafeDownCast(output);
+    this->Reader->SetVerticalCRS(this->VerticalCRS);
+    this->Reader->LoadTraces();
+    this->Reader->ExportData2D(grid);
+    grid->Squeeze();
   }
-}
-
-
-//-----------------------------------------------------------------------------
-void vtkSegYReader::AddScalars(vtkStructuredGrid* grid)
-{
-  vtkSmartPointer<vtkFloatArray> outScalars =
-    vtkSmartPointer<vtkFloatArray>::New();
-  outScalars->SetName("trace");
-  outScalars->SetNumberOfComponents(1);
-
-  int crosslineCount = this->Traces.size();
-
-  outScalars->Allocate(crosslineCount * this->SampleCountPerTrace);
-
-  int j = 0;
-  for (int k = 0; k < this->SampleCountPerTrace; k++)
-  {
-    for (unsigned int i = 0; i < this->Traces.size(); i++)
-    {
-      outScalars->InsertValue(j++, this->Traces[i]->data[k]);
-    }
-  }
-
-  grid->GetPointData()->SetScalars(outScalars);
-  grid->GetPointData()->SetActiveScalars("trace");
+  this->Reader->In.close();
+  std::cout << "RequestData" << std::endl;
+  return 1;
 }
 
 //-----------------------------------------------------------------------------
-void vtkSegYReader::ExportData2D(vtkStructuredGrid* grid)
+int vtkSegYReader::RequestInformation(vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
-  if (!grid)
+  if (this->Is3D)
   {
-    return;
-  }
-  grid->SetDimensions(this->Traces.size(), this->SampleCountPerTrace, 1);
-  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-
-  for (int k = 0; k < this->SampleCountPerTrace; k++)
-  {
-    for (unsigned int i = 0; i < this->Traces.size(); i++)
+    vtkInformation* outInfo = outputVector->GetInformationObject(0);
+    if (!outInfo)
     {
-      auto trace = this->Traces[i];
-      float coordinateMultiplier = (trace->CoordinateMultiplier < 0)
-        ? 1.0 / (-trace->CoordinateMultiplier)
-        : trace->CoordinateMultiplier;
-      float x = trace->xCoordinate * coordinateMultiplier;
-      float y = trace->yCoordinate * coordinateMultiplier;
-
-      // The samples are uniformly placed at sample interval depths
-      // Dividing by 1000.0 to convert from microseconds to milliseconds.
-      int sign = this->VerticalCRS == 0 ? -1 : 1;
-      float z = sign * k * (trace->SampleInterval / 1000.0);
-      points->InsertNextPoint(x, y, z);
+      vtkErrorMacro("Invalid output information object");
+      return 0;
     }
+
+    std::cout << "DataExtent: ";
+    std::copy(this->DataExtent, this->DataExtent + 6, std::ostream_iterator<int>(std::cout, " "));
+    std::cout << "\nDataOrigin: ";
+    std::copy(this->DataOrigin, this->DataOrigin + 3, std::ostream_iterator<double>(std::cout, " "));
+    std::cout << "\nDataSpacing: ";
+    std::copy(this->DataSpacing, this->DataSpacing + 3, std::ostream_iterator<double>(std::cout, " "));
+    std::cout << std::endl;
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                 this->DataExtent, 6);
+    outInfo->Set(vtkDataObject::ORIGIN(), this->DataOrigin, 3);
+    outInfo->Set(vtkDataObject::SPACING(), this->DataSpacing, 3);
+  }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkSegYReader::FillOutputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
+{
+  const char* outputTypeName = this->Is3D ? "vtkImageData" : "vtkStructuredGrid";
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), outputTypeName);
+  std::cout << "FillOutputPortInformation" << std::endl;
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkSegYReader::RequestDataObject(
+  vtkInformation*,
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* outputVector)
+{
+  vtkInformation* info = outputVector->GetInformationObject(0);
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    info->Get(vtkDataObject::DATA_OBJECT()));
+
+  if (!this->FileName)
+  {
+    vtkErrorMacro("Requires valid input file name") ;
+    return 0;
   }
 
-  grid->SetPoints(points);
-  this->AddScalars(grid);
+  this->Reader->In.open(this->FileName, std::ifstream::binary);
+  if (!this->Reader->In)
+  {
+    std::cerr << "File not found:" << this->FileName << std::endl;
+    return 0;
+  }
+  this->Is3D = this->Reader->Is3DComputeParameters(
+    this->DataExtent, this->DataOrigin, this->DataSpacing);
+  const char* outputTypeName = this->Is3D ? "vtkImageData" : "vtkStructuredGrid";
+
+  if (!output || !output->IsA(outputTypeName))
+  {
+    vtkDataSet* newOutput = nullptr;
+    if (this->Is3D)
+    {
+      newOutput = vtkImageData::New();
+    }
+    else
+    {
+      newOutput = vtkStructuredGrid::New();
+    }
+    info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
+    newOutput->Delete();
+  }
+  std::cout << "RequestDataObject" << std::endl;
+  return 1;
 }
