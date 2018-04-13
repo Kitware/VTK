@@ -38,6 +38,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestPolyhedronConvexity.cxx
   TestQuadraticPolygon.cxx
   TestRect.cxx
+  TestSelectionExpression.cxx
   TestSelectionSubtract.cxx
   TestSortFieldData.cxx
   TestTable.cxx
