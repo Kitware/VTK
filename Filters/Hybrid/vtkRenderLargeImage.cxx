@@ -240,7 +240,7 @@ void vtkRenderLargeImage::RequestData(
   viewAngle = cam->GetViewAngle();
   parallelScale = cam->GetParallelScale();
 
-  cam->SetViewAngle(atan(tan(viewAngle*vtkMath::Pi()/360.0)/this->Magnification)
+  cam->SetViewAngle(2.0*atan(tan(0.5*viewAngle*vtkMath::Pi()/360.0)/this->Magnification)
                     * 360.0 / vtkMath::Pi());
   cam->SetParallelScale(parallelScale/this->Magnification);
 
