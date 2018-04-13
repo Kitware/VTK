@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkPConnectivityFilter.h"
 
+#include "vtkBoundingBox.h"
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
 #include "vtkDataSet.h"
@@ -23,6 +24,8 @@
 #include "vtkInformationVector.h"
 #include "vtkKdTreePointLocator.h"
 #include "vtkMath.h"
+#include "vtkMPICommunicator.h"
+#include "vtkMPIController.h"
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -30,6 +33,7 @@
 #include "vtkThreshold.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkWeakPointer.h"
 
 #include <algorithm>
 #include <map>
@@ -37,11 +41,246 @@
 #include <set>
 #include <vector>
 
+class vtkPConnectivityFilter::vtkInternals
+{
+public:
+  /**
+   * MPI controller for ranks with data.
+   */
+  vtkWeakPointer<vtkMPIController> SubController;
+
+  /**
+   * Output from the results of the local connectivity operation.
+   */
+  vtkWeakPointer<vtkPointSet> Output;
+
+
+  vtkInternals() {}
+  ~vtkInternals()
+  {
+  }
+
+  /**
+   * Have all ranks with data exchange their bounding boxes.
+   */
+  void ExchangeBounds(std::vector< double > & allBounds)
+  {
+    //Inflate the bounds a bit to deal with floating point precision.
+    double bounds[6];
+    this->Output->GetBounds(bounds);
+    vtkBoundingBox myBoundingBox(bounds);
+    myBoundingBox.Inflate();
+    myBoundingBox.GetBounds(bounds);
+    allBounds.resize(6*this->SubController->GetNumberOfProcesses());
+    this->SubController->AllGather(bounds, &allBounds[0], 6);
+  }
+
+  /**
+   * Determine this rank's neighbors from the bounding box information.
+   */
+  void FindMyNeighbors(const std::vector<double> & allBounds, std::vector<int> & myNeighbors)
+  {
+    myNeighbors.clear();
+
+    double bounds[6];
+    this->Output->GetBounds(bounds);
+    vtkBoundingBox myBoundingBox(bounds);
+    myBoundingBox.Inflate();
+    myBoundingBox.GetBounds(bounds);
+
+    // Identify neighboring ranks.
+    int myRank = this->SubController->GetLocalProcessId();
+    for (int p = 0; p < this->SubController->GetNumberOfProcesses(); ++p)
+    {
+      if (p == myRank)
+      {
+        continue;
+      }
+
+      vtkBoundingBox potentialNeighborBoundingBox(&allBounds[6*p]);
+      if (myBoundingBox.Intersects(potentialNeighborBoundingBox))
+      {
+        myNeighbors.push_back(p);
+      }
+    }
+  }
+
+  /**
+   * Get points and region ids to send to neighbors.
+   */
+  void GatherPointsAndRegionIds(const std::vector< double > & allBounds,
+                                const std::vector< int > & regionStarts,
+                                std::map< int, std::vector< double > > & pointsForMyNeighbors,
+                                std::map< int, std::vector< vtkIdType > > & regionIdsForMyNeighbors)
+  {
+    // For all neighbors, gather up points and region IDs that they will
+    // potentially need. These are local points that fall within the bounding
+    // box of the neighbors.
+    int myRank = this->SubController->GetLocalProcessId();
+    vtkPoints* outputPoints = this->Output->GetPoints();
+    vtkPointData* outputPD = this->Output->GetPointData();
+    vtkIdTypeArray* pointRegionIds =
+    vtkIdTypeArray::SafeDownCast(outputPD->GetArray("RegionId"));
+    for (int p = 0; p < this->SubController->GetNumberOfProcesses(); ++p)
+    {
+      pointsForMyNeighbors[p] = std::vector<double>();
+      regionIdsForMyNeighbors[p] = std::vector<vtkIdType>();
+      vtkBoundingBox neighborBB(&allBounds[6*p]);
+      for (vtkIdType id = 0; id < this->Output->GetNumberOfPoints(); ++id)
+      {
+        double pt[3];
+        outputPoints->GetPoint(id, pt);
+
+        if (neighborBB.ContainsPoint(pt))
+        {
+          auto & sendPoints = pointsForMyNeighbors[p];
+          sendPoints.insert(sendPoints.end(), pt, pt+3);
+
+          vtkIdType regionId = pointRegionIds->GetTypedComponent(id, 0);
+          auto & sendRegionIds = regionIdsForMyNeighbors[p];
+          sendRegionIds.push_back(regionId + regionStarts[myRank]);
+        }
+      }
+    }
+  }
+
+  /**
+   * Exchange number of points going to each neighbor.
+   */
+  void ExchangeNumberOfPointsToSend(const std::vector< int > & myNeighbors,
+                                    const std::map< int, std::vector< vtkIdType > > & regionIdsForMyNeighbors,
+                                    std::map< int, int > & sendLengths,
+                                    std::map< int, int > & recvLengths)
+  {
+    const int PCF_SIZE_EXCHANGE_TAG = 194727;
+    recvLengths.clear();
+
+    std::vector< vtkMPICommunicator::Request > recvRequests(myNeighbors.size());
+
+    int requestIdx = 0;
+    for (auto nbrIter = myNeighbors.begin(); nbrIter != myNeighbors.end(); ++nbrIter)
+    {
+      int fromRank = *nbrIter;
+      this->SubController->NoBlockReceive(&recvLengths[fromRank], 1, fromRank,
+                                 PCF_SIZE_EXCHANGE_TAG, recvRequests[requestIdx++]);
+    }
+
+    std::map< int, vtkMPICommunicator::Request > sendRequests;
+
+    // Send number of points neighbors should expect to receive.
+    for (auto nbrIter = myNeighbors.begin(); nbrIter != myNeighbors.end(); ++nbrIter)
+    {
+      int toRank = *nbrIter;
+      sendLengths[toRank] = static_cast<int>(regionIdsForMyNeighbors.at(toRank).size());
+      this->SubController->NoBlockSend(&sendLengths[toRank], 1, toRank,
+                              PCF_SIZE_EXCHANGE_TAG, sendRequests[toRank]);
+    }
+
+    this->SubController->WaitAll(requestIdx, &recvRequests[0]);
+  }
+
+  /**
+   * Send and receive points to/from neighbors.
+   */
+  void SendReceivePoints(const std::map< int, int > & sendLengths,
+                         const std::map< int, std::vector< double > > pointsForMyNeighbors,
+                         const std::map< int, int > & recvLengths,
+                         std::map< int, std::vector< double > > & pointsFromMyNeighbors)
+  {
+    const int PCF_POINTS_TAG = 194728;
+    pointsFromMyNeighbors.clear();
+
+    std::map< int, vtkMPICommunicator::Request > sendRequests;
+    std::vector< vtkMPICommunicator::Request > recvRequests(recvLengths.size());
+
+    // Receive neighbors' points.
+    int requestIdx = 0;
+    for (auto iter = recvLengths.begin(); iter != recvLengths.end(); ++iter)
+    {
+      int fromRank = iter->first;
+      int numFromRank = iter->second;
+      if (numFromRank > 0)
+      {
+        pointsFromMyNeighbors[fromRank].resize(3*numFromRank);
+        this->SubController->NoBlockReceive(&pointsFromMyNeighbors[fromRank][0],
+                                            3*numFromRank, fromRank, PCF_POINTS_TAG,
+                                            recvRequests[requestIdx++]);
+      }
+    }
+
+    // Send points to neighbors
+    for (auto nbrIter = sendLengths.begin(); nbrIter != sendLengths.end(); ++nbrIter)
+    {
+      vtkIdType toRank = nbrIter->first;
+      vtkIdType numToRank = nbrIter->second;
+      if (numToRank > 0)
+      {
+        this->SubController->NoBlockSend(&pointsForMyNeighbors.at(toRank)[0],
+                                        3*numToRank, toRank,
+                                        PCF_POINTS_TAG, sendRequests[toRank]);
+      }
+    }
+
+    this->SubController->WaitAll(requestIdx, &recvRequests[0]);
+  }
+
+  /**
+   * Send and receive RegionIds to/from neighbors.
+   */
+  void SendReceiveRegionIds(const std::map< int, int > & sendLengths,
+                            const std::map< int, std::vector< vtkIdType > > & regionIdsForMyNeighbors,
+                            const std::map< int, int > & recvLengths,
+                            std::map< int, std::vector< vtkIdType > > & regionIdsFromMyNeighbors)
+  {
+    const int PCF_REGIONIDS_TAG = 194729;
+    regionIdsFromMyNeighbors.clear();
+
+    std::map< int, vtkMPICommunicator::Request > sendRequests;
+    std::vector< vtkMPICommunicator::Request > recvRequests(recvLengths.size());
+
+    // Receive region point IDs
+    int requestIdx = 0;
+    for (auto iter = recvLengths.begin(); iter != recvLengths.end(); ++iter)
+    {
+      int fromRank = iter->first;
+      int numFromRank = iter->second;
+      if (numFromRank > 0)
+      {
+        regionIdsFromMyNeighbors[fromRank].resize(numFromRank);
+        this->SubController->NoBlockReceive(&regionIdsFromMyNeighbors[fromRank][0],
+                                            numFromRank, fromRank, PCF_REGIONIDS_TAG,
+                                            recvRequests[requestIdx++]);
+      }
+    }
+
+    // Send region point IDs
+    for (auto nbrIter = sendLengths.begin(); nbrIter != sendLengths.end(); ++nbrIter)
+    {
+      vtkIdType toRank = nbrIter->first;
+      vtkIdType numToRank = nbrIter->second;
+      if (numToRank > 0)
+      {
+        this->SubController->NoBlockSend(&regionIdsForMyNeighbors.at(toRank)[0],
+                                         numToRank, toRank, PCF_REGIONIDS_TAG,
+                                         sendRequests[toRank]);
+      }
+    }
+
+    this->SubController->WaitAll(requestIdx, &recvRequests[0]);
+  }
+};
+
 vtkStandardNewMacro(vtkPConnectivityFilter);
 
-vtkPConnectivityFilter::vtkPConnectivityFilter() = default;
+vtkPConnectivityFilter::vtkPConnectivityFilter()
+{
+  this->Internals = new vtkInternals;
+}
 
-vtkPConnectivityFilter::~vtkPConnectivityFilter() = default;
+vtkPConnectivityFilter::~vtkPConnectivityFilter()
+{
+  delete this->Internals;
+}
 
 int vtkPConnectivityFilter::RequestData(
   vtkInformation *request,
@@ -57,11 +296,6 @@ int vtkPConnectivityFilter::RequestData(
     return 1;
   }
 
-  vtkMultiProcessController* controller =
-    vtkMultiProcessController::GetGlobalController();
-  int numRanks = controller->GetNumberOfProcesses();
-  int myRank = controller->GetLocalProcessId();
-
   // Get the input
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
@@ -71,13 +305,19 @@ int vtkPConnectivityFilter::RequestData(
   vtkPointSet* input = vtkPointSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  vtkMultiProcessController* globalController =
+    vtkMultiProcessController::GetGlobalController();
+
   // Check how many ranks have data. If it is only one, running the superclass
   // RequestData is sufficient as no global data exchange and RegionId
   // relabeling is needed. It is worth checking to avoid issuing an
   // unnecessary warning when a dataset resides entirely on one process.
   int hasCells = input->GetNumberOfCells() > 0 ? 1 : 0;
   int ranksWithCells = 0;
-  controller->AllReduce(&hasCells, &ranksWithCells, 1, vtkCommunicator::SUM_OP);
+  globalController->AllReduce(&hasCells, &ranksWithCells, 1, vtkCommunicator::SUM_OP);
+
+  int numRanks = globalController->GetNumberOfProcesses();
+  int myRank = globalController->GetLocalProcessId();
 
   // Compute local connectivity. If we are running in parallel, we need the full
   // connectivity first, and will handle the extraction mode later.
@@ -106,22 +346,28 @@ int vtkPConnectivityFilter::RequestData(
     return this->Superclass::RequestData(request, inputVector, outputVector);
   }
 
+  // Creates a SubController.
+  vtkSmartPointer<vtkMPIController> subController;
+  subController.TakeReference(
+    vtkMPIController::SafeDownCast(globalController)->PartitionController(hasCells, 0));
+
+  this->Internals->SubController = subController;
+
+  // From here on we deal only with the SubController
+  numRanks = subController->GetNumberOfProcesses();
+  myRank = subController->GetLocalProcessId();
+
   // Get the info objects
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // Get the output
   vtkPointSet *output = vtkPointSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  this->Internals->Output = output;
 
-  // Check that we have at least one ghost level. If we don't have any ghost
-  // points, we say that we have ghost points so other ranks can proceed.
-  bool hasGhostPoints = output->GetNumberOfPoints() == 0 ||
-    (output->GetNumberOfPoints() > 0 && output->GetPointGhostArray());
-
-  // Check that all ranks succeeded in local connectivity and
-  // have ghost cells.
+  // Check that all ranks succeeded in local connectivity.
   int globalSuccess = 0;
-  controller->AllReduce(&success, &globalSuccess, 1, vtkCommunicator::MIN_OP);
+  subController->AllReduce(&success, &globalSuccess, 1, vtkCommunicator::MIN_OP);
 
   if (!globalSuccess)
   {
@@ -129,91 +375,53 @@ int vtkPConnectivityFilter::RequestData(
     return 0;
   }
 
-  if (!hasGhostPoints)
-  {
-    vtkWarningMacro("At least one ghost level is required to run this filter in "
-      "parallel, but no ghost cells are available. Results may not be correct.");
-  }
-
   // Exchange number of regions. We assume the RegionIDs are contiguous.
   int numRegions = this->GetNumberOfExtractedRegions();
   std::vector<int> regionCounts(numRanks, 0);
   std::vector<int> regionStarts(numRanks + 1, 0);
-  controller->AllGather(&numRegions, &regionCounts[0], 1);
+  subController->AllGather(&numRegions, &regionCounts[0], 1);
 
   // Compute starting region Ids on each rank
   std::partial_sum(regionCounts.begin(), regionCounts.end(),
     regionStarts.begin() + 1);
 
-  vtkPoints* outputPoints = output->GetPoints();
   vtkPointData* outputPD = output->GetPointData();
-  vtkCellData* outputCD = output->GetCellData();
-  vtkIdTypeArray* cellRegionIds =
-    vtkIdTypeArray::SafeDownCast(outputCD->GetArray("RegionId"));
   vtkIdTypeArray* pointRegionIds =
     vtkIdTypeArray::SafeDownCast(outputPD->GetArray("RegionId"));
 
-  // Gather up ghost points in the dataset and send them to all the other ranks.
-  vtkUnsignedCharArray* pointGhostArray = output->GetPointGhostArray();
+  // Exchange bounding boxes of the data on each rank. These are used to
+  // determine neighboring ranks and to minimize the number of points sent
+  // to neighboring processors.
+  std::vector<double> allBounds;
+  this->Internals->ExchangeBounds(allBounds);
 
-  // Extract ghost points and their regions.
-  vtkSmartPointer<vtkDataArray> ghostPoints;
-  ghostPoints.TakeReference(outputPoints->GetData()->NewInstance());
-  ghostPoints->SetNumberOfComponents(outputPoints->GetData()->GetNumberOfComponents());
-  vtkSmartPointer<vtkIdTypeArray> ghostRegionIds =
-    vtkSmartPointer<vtkIdTypeArray>::New();
-  for (vtkIdType i = 0; i < output->GetNumberOfPoints(); ++i)
-  {
-    if (pointGhostArray && pointGhostArray->GetTypedComponent(i, 0) &
-        vtkDataSetAttributes::DUPLICATEPOINT)
-    {
-      ghostPoints->InsertNextTuple(i, outputPoints->GetData());
+  // Identify neighboring ranks.
+  std::vector<int> myNeighbors;
+  this->Internals->FindMyNeighbors(allBounds, myNeighbors);
 
-      // Add the region id starting value for this rank so it is in terms of the
-      // global region numbering.
-      vtkIdType regionId = pointRegionIds->GetTypedComponent(i, 0);
-      ghostRegionIds->InsertNextValue(regionId + regionStarts[myRank]);
-    }
-  }
+  // Create a map from neighbor to data set boundary points and region IDs
+  std::map< int, std::vector< double > > pointsForMyNeighbors;
+  std::map< int, std::vector< vtkIdType > > regionIdsForMyNeighbors;
+  this->Internals->GatherPointsAndRegionIds(allBounds, regionStarts,
+                                            pointsForMyNeighbors,
+                                            regionIdsForMyNeighbors);
 
-  // Gather up number of point tuples on each rank
-  std::vector<vtkIdType> remotePointLengths(numRanks, 0);
-  vtkIdType localPointsLength = ghostPoints->GetNumberOfValues();
-  controller->AllGather(&localPointsLength, &remotePointLengths[0], 1);
+  std::map< int, int > sendLengths;
+  std::map< int, int > recvLengths;
+  this->Internals->ExchangeNumberOfPointsToSend(myNeighbors, regionIdsForMyNeighbors,
+                                                sendLengths, recvLengths);
 
-  std::vector<vtkIdType> remotePointOffsets(numRanks+1, 0);
-  std::partial_sum(remotePointLengths.begin(), remotePointLengths.end(),
-    remotePointOffsets.begin() + 1);
+  std::map< int, std::vector< double > > pointsFromMyNeighbors;
+  this->Internals->SendReceivePoints(sendLengths, pointsForMyNeighbors,
+                                     recvLengths, pointsFromMyNeighbors);
 
-  // Gather points
-  vtkSmartPointer<vtkDataArray> remotePointData;
-  remotePointData.TakeReference(ghostPoints->NewInstance());
-  remotePointData->SetNumberOfComponents(3);
-  remotePointData->SetNumberOfTuples(remotePointOffsets[numRanks] / 3);
+  std::map< int, std::vector< vtkIdType > > regionIdsFromMyNeighbors;
+  this->Internals->SendReceiveRegionIds(sendLengths, regionIdsForMyNeighbors,
+                                        recvLengths, regionIdsFromMyNeighbors);
 
-  controller->AllGatherV(ghostPoints, remotePointData,
-                         &remotePointLengths[0], &remotePointOffsets[0]);
-
-  // The remote point lengths and offsets account for the point data being
-  // stored as 3-tuples. Divide by 3 in preparation for distributing 1-tuple
-  // point region ids.
-  for (int i = 0; i < numRanks; ++i)
-  {
-    remotePointLengths[i] /= 3;
-    remotePointOffsets[i+1] /= 3;
-  }
-
-  // Gather the RegionIds associated with the ghost points.
-  vtkSmartPointer<vtkIdTypeArray> remoteRegionIds =
-    vtkSmartPointer<vtkIdTypeArray>::New();
-  remoteRegionIds->SetNumberOfComponents(1);
-  remoteRegionIds->SetNumberOfTuples(remotePointOffsets[numRanks]);
-  remoteRegionIds->FillValue(-1); // Invalid region id
-
-  controller->AllGatherV(ghostRegionIds, remoteRegionIds,
-                         &remotePointLengths[0], &remotePointOffsets[0]);
-
-  ghostRegionIds = nullptr;
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
   // Links from local region ids to remote region ids. Vector index is local
   // region id, and the set contains linked remote ids.
@@ -222,9 +430,7 @@ int vtkPConnectivityFilter::RequestData(
 
   if (output->GetNumberOfPoints() > 0)
   {
-    // Now resolve the remote ghost points to local points if possible.
-    // TODO - use a surface filter on the output to reduce the number of points
-    // in the point locator.
+    // Now resolve the points from our neighbors to local points if possible.
     vtkNew<vtkKdTreePointLocator> localPointLocator;
     localPointLocator->SetDataSet(output);
     localPointLocator->BuildLocator();
@@ -237,14 +443,16 @@ int vtkPConnectivityFilter::RequestData(
         continue;
       }
 
-      for (vtkIdType remoteIdx = remotePointOffsets[rank];
-           remoteIdx < remotePointOffsets[rank+1]; ++remoteIdx)
+      for (size_t ptId = 0; ptId < pointsFromMyNeighbors[rank].size()/3; ++ptId)
       {
         double x[3];
-        remotePointData->GetTuple(remoteIdx, x);
+        x[0] = pointsFromMyNeighbors[rank][3*ptId + 0];
+        x[1] = pointsFromMyNeighbors[rank][3*ptId + 1];
+        x[2] = pointsFromMyNeighbors[rank][3*ptId + 2];
 
         vtkIdType localId = localPointLocator->FindClosestPoint(x);
         // Skip local ghost points as we do not need ghost-ghost links.
+        vtkUnsignedCharArray* pointGhostArray = output->GetPointGhostArray();
         if (pointGhostArray && pointGhostArray->GetTypedComponent(localId, 0) &
             vtkDataSetAttributes::DUPLICATEPOINT)
         {
@@ -265,7 +473,7 @@ int vtkPConnectivityFilter::RequestData(
         vtkIdType localRegionId = localRegionIds->GetTypedComponent(localId, 0) +
           regionStarts[myRank];
 
-        vtkIdType remoteRegionId = remoteRegionIds->GetTypedComponent(remoteIdx, 0);
+        vtkIdType remoteRegionId = regionIdsFromMyNeighbors[rank][ptId];
 
         if (links[localRegionId].count(remoteRegionId) == 0)
         {
@@ -275,8 +483,6 @@ int vtkPConnectivityFilter::RequestData(
       }
     }
   }
-
-  remoteRegionIds = nullptr;
 
   // Set up storage for gathering all links from all processors. This is an
   // interleaved vector containing one regionId and its connected regionId.
@@ -296,7 +502,7 @@ int vtkPConnectivityFilter::RequestData(
   vtkIdType localNumLinks = static_cast<vtkIdType>(localLinks.size());
   std::vector< vtkIdType > linkCounts(numRanks, -1);
   std::vector< vtkIdType > linkStarts(numRanks + 1, 0);
-  controller->AllGather(&localNumLinks, &linkCounts[0], 1);
+  subController->AllGather(&localNumLinks, &linkCounts[0], 1);
 
   // Compute starting region IDs on each rank
   for (int i = 0; i < numRanks; ++i)
@@ -306,7 +512,7 @@ int vtkPConnectivityFilter::RequestData(
 
   std::vector< vtkIdType > allLinks(linkStarts[numRanks]);
 
-  controller->AllGatherV(&localLinks[0], &allLinks[0],
+  subController->AllGatherV(&localLinks[0], &allLinks[0],
                          static_cast<vtkIdType>(localLinks.size()),
                          &linkCounts[0], &linkStarts[0]);
 
@@ -389,6 +595,9 @@ int vtkPConnectivityFilter::RequestData(
   }
 
   // Relabel the points and cells according to the contiguous renumbering.
+  vtkCellData* outputCD = output->GetCellData();
+  vtkIdTypeArray* cellRegionIds =
+    vtkIdTypeArray::SafeDownCast(outputCD->GetArray("RegionId"));
   for (vtkIdType i = 0; i < output->GetNumberOfCells(); ++i)
   {
     // Offset the cellRegionId by the starting region id on this rank.
@@ -417,7 +626,7 @@ int vtkPConnectivityFilter::RequestData(
 
   // AllReduce to sum up the number of cells in each region on each process.
   std::vector< vtkIdType > globalRegionSizes(numContiguousLabels, 0);
-  controller->AllReduce(&localRegionSizes[0], &globalRegionSizes[0],
+  subController->AllReduce(&localRegionSizes[0], &globalRegionSizes[0],
     numContiguousLabels, vtkCommunicator::SUM_OP);
 
   // Store the region sizes
@@ -459,7 +668,7 @@ int vtkPConnectivityFilter::RequestData(
 
       // AllReduce to find the global minDist2.
       double globalMinDist2 = VTK_DOUBLE_MAX;
-      controller->AllReduce(&minDist2, &globalMinDist2, 1,
+      subController->AllReduce(&minDist2, &globalMinDist2, 1,
         vtkCommunicator::MIN_OP);
 
       int minDist2Rank = 0;
@@ -472,12 +681,12 @@ int vtkPConnectivityFilter::RequestData(
 
       // Broadcast the rank of who has the minimum distance
       int globalMinDist2Rank = 0;
-      controller->AllReduce(&minDist2Rank, &globalMinDist2Rank, 1,
+      subController->AllReduce(&minDist2Rank, &globalMinDist2Rank, 1,
         vtkCommunicator::MAX_OP);
 
       // Get the id of the region nearest the point and use that in the
       // threshold filter below.
-      controller->Broadcast(&minDist2Region, 1, globalMinDist2Rank);
+      subController->Broadcast(&minDist2Region, 1, globalMinDist2Rank);
       threshold = minDist2Region;
     }
 
