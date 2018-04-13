@@ -1592,26 +1592,14 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
   }
 }
 
+// If MSAA is enabled, don't write to gl_FragDepth unless we absolutely have
+// to. See VTK issue 16899.
 void vtkOpenGLPolyDataMapper::ReplaceShaderDepth(
-    std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *, vtkActor *)
+    std::map<vtkShader::Type, vtkShader *> ,
+    vtkRenderer *,
+    vtkActor *)
 {
-  // If MSAA is enabled, don't write to gl_FragDepth unless we absolutely have
-  // to. See VTK issue 16899.
-#if GL_ES_VERSION_3_0 != 1
-  bool multisampling = glIsEnabled(GL_MULTISAMPLE) == GL_TRUE;
-#else
-  bool multisampling = false;
-#endif
-
-  if (!multisampling)
-  {
-    std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
-    vtkShaderProgram::Substitute(FSSource,
-                                 "//VTK::Depth::Impl",
-                                 "gl_FragDepth = gl_FragCoord.z;");
-    shaders[vtkShader::Fragment]->SetSource(FSSource);
-  }
+  // noop by default
 }
 
 void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
