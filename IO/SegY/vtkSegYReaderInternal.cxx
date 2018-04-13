@@ -130,26 +130,44 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
   int fileSize = vtkSegYIOUtils::Instance()->getFileSize(this->In);
   int crosslineFirst, crosslineSecond, inlineFirst, inlineSecond,
     inlineNumber, crosslineNumber;
+  float xCoordFirst, yCoordFirst, xCoordSecond, yCoordSecond;
+  int xCoord, yCoord;
+  short coordMultiplier;
   int prevTraceStartPos = traceStartPos;
   int crosslineCount = 0;
   if (traceStartPos + 240 < fileSize)
   {
-    this->TraceReader->ReadInlineCrossline(
-      traceStartPos, this->In, this->FormatCode, &inlineFirst, &crosslineFirst);
+    this->TraceReader->ReadInlineCrossline
+      (traceStartPos, this->In, this->FormatCode,
+       &inlineFirst, &crosslineFirst,
+       &xCoord, &yCoord, &coordMultiplier);
+    float coordinateMultiplier = (coordMultiplier < 0)
+      ? 1.0 / (-coordMultiplier)
+      : coordMultiplier;
+    xCoordFirst = xCoord * coordinateMultiplier;
+    yCoordFirst = yCoord * coordinateMultiplier;
     ++crosslineCount;
   }
   int traceSize = traceStartPos - prevTraceStartPos;
   if (traceStartPos + 240 < fileSize)
   {
-    this->TraceReader->ReadInlineCrossline(
-      traceStartPos, this->In, this->FormatCode, &inlineNumber, &crosslineSecond);
+    this->TraceReader->ReadInlineCrossline
+      (traceStartPos, this->In, this->FormatCode,
+       &inlineNumber, &crosslineSecond,
+       &xCoord, &yCoord, &coordMultiplier);
+    float coordinateMultiplier = (coordMultiplier < 0)
+      ? 1.0 / (-coordMultiplier)
+      : coordMultiplier;
+    yCoordSecond = yCoord * coordinateMultiplier;
     ++crosslineCount;
   }
-  float yStep = crosslineSecond - crosslineFirst;
+  float yStep = yCoordSecond - yCoordFirst;
   while(inlineFirst == inlineNumber && traceStartPos + 240 < fileSize)
   {
-    this->TraceReader->ReadInlineCrossline(
-      traceStartPos, this->In, this->FormatCode, &inlineNumber, &crosslineNumber);
+    this->TraceReader->ReadInlineCrossline
+      (traceStartPos, this->In, this->FormatCode,
+       &inlineNumber, &crosslineNumber,
+       &xCoord, &yCoord, &coordMultiplier);
     ++crosslineCount;
   }
   if (traceStartPos + 240 < fileSize)
@@ -170,7 +188,11 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
     return false;
   }
   inlineSecond = inlineNumber;
-  float xStep = inlineSecond - inlineFirst;
+  float coordinateMultiplier = (coordMultiplier < 0)
+    ? 1.0 / (-coordMultiplier)
+    : coordMultiplier;
+  xCoordSecond = xCoord * coordinateMultiplier;
+  float xStep = xCoordSecond - xCoordFirst;
   auto e = {0, inlineCount - 1,
             0, crosslineCount - 1,
             0, this->SampleCountPerTrace - 1};
@@ -179,8 +201,8 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
   // The samples are uniformly placed at sample interval depths
   // Dividing by 1000.0 to convert from microseconds to milliseconds.
   float zStep = this->SampleInterval / 1000.0;
-  std::array<double, 3> o = {static_cast<double>(inlineFirst),
-                             static_cast<double>(crosslineFirst),
+  std::array<double, 3> o = {static_cast<double>(xCoordFirst),
+                             static_cast<double>(yCoordFirst),
                              - zStep * (this->SampleCountPerTrace - 1)};
   std::copy(o.begin(), o.end(), origin);
   auto s = {xStep, yStep, zStep};
@@ -213,7 +235,7 @@ void vtkSegYReaderInternal::ExportData3D(vtkImageData* imageData,
       {
         vtkSegYTrace* trace = this->Traces[i * dims[1] + j];
         scalars->SetValue(k * dims[1] * dims[0] + j * dims[0] + i,
-                          trace->data[k]);
+                          trace->Data[k]);
       }
     }
   }
@@ -237,7 +259,7 @@ void vtkSegYReaderInternal::AddScalars(vtkStructuredGrid* grid)
   {
     for (unsigned int i = 0; i < this->Traces.size(); i++)
     {
-      outScalars->InsertValue(j++, this->Traces[i]->data[k]);
+      outScalars->InsertValue(j++, this->Traces[i]->Data[k]);
     }
   }
 
@@ -263,8 +285,8 @@ void vtkSegYReaderInternal::ExportData2D(vtkStructuredGrid* grid)
       float coordinateMultiplier = (trace->CoordinateMultiplier < 0)
         ? 1.0 / (-trace->CoordinateMultiplier)
         : trace->CoordinateMultiplier;
-      float x = trace->xCoordinate * coordinateMultiplier;
-      float y = trace->yCoordinate * coordinateMultiplier;
+      float x = trace->XCoordinate * coordinateMultiplier;
+      float y = trace->YCoordinate * coordinateMultiplier;
 
       // The samples are uniformly placed at sample interval depths
       // Dividing by 1000.0 to convert from microseconds to milliseconds.

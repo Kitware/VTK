@@ -28,12 +28,12 @@
 class vtkSegYTrace
 {
 public:
-  float xCoordinate;
-  float yCoordinate;
+  int XCoordinate;
+  int YCoordinate;
   short CoordinateMultiplier;
-  std::vector<float> data;
-  int inlineNumber;
-  int crosslineNumber;
+  std::vector<float> Data;
+  int InlineNumber;
+  int CrosslineNumber;
   short SampleInterval;
 };
 
@@ -60,7 +60,8 @@ public:
   void ReadInlineCrossline(int& startPos,
                            std::ifstream& in,
                            int formatCode,
-                           int* inlineNumber, int* crosslineNumber);
+                           int* inlineNumber, int* crosslineNumber,
+                           int* xCoord, int* yCoord, short* coordMultiplier);
 
   int GetTraceSize(int numSamples, int formatCode);
 };
