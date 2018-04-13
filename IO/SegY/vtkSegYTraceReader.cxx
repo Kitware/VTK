@@ -101,12 +101,12 @@ void vtkSegYTraceReader::ReadTrace(int& startPos,
     startPos + traceHeaderBytesPos.CrosslineNumber, in);
   int numSamples = vtkSegYIOUtils::Instance()->readShortInteger(
     startPos + traceHeaderBytesPos.NumberSamples, in);
+  trace->CoordinateMultiplier = vtkSegYIOUtils::Instance()->readShortInteger(
+    startPos + traceHeaderBytesPos.CoordinateMultiplier, in);
   trace->XCoordinate = vtkSegYIOUtils::Instance()->readLongInteger(
     startPos + this->XCoordinate, in);
   trace->YCoordinate = vtkSegYIOUtils::Instance()->readLongInteger(
     startPos + this->YCoordinate, in);
-  trace->CoordinateMultiplier = vtkSegYIOUtils::Instance()->readShortInteger(
-    startPos + traceHeaderBytesPos.CoordinateMultiplier, in);
   trace->SampleInterval = vtkSegYIOUtils::Instance()->readShortInteger(
     startPos + traceHeaderBytesPos.SampleInterval, in);
 
