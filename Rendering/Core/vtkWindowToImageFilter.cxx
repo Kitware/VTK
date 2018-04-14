@@ -357,7 +357,7 @@ void vtkWindowToImageFilter::RequestData(
     cams[i] = aren->GetActiveCamera();
     cams[i]->Register(this);
     cams[i]->GetWindowCenter(windowCenters+i*2);
-    viewAngles[i] = cams[i]->GetViewAngle();
+    viewAngles[i] = vtkMath::RadiansFromDegrees(cams[i]->GetViewAngle());
     parallelScale[i] = cams[i]->GetParallelScale();
     cam = cams[i]->NewInstance();
     cam->ShallowCopy(cams[i]);
@@ -462,9 +462,8 @@ void vtkWindowToImageFilter::RequestData(
           deltay = 2.0*deltay/(visVP[3] - visVP[1]);
         }
         cam->SetWindowCenter(windowCenters[i*2]+deltax,windowCenters[i*2+1]+deltay);
-        //cam->SetViewAngle(atan(tan(viewAngles[i]*vtkMath::Pi()/360.0)*mag)  //FIXME
-        cam->SetViewAngle(asin(sin(viewAngles[i]*vtkMath::Pi()/360.0)*mag)
-                          * 360.0 / vtkMath::Pi());
+        double angle = 2.0*atan(tan(viewAngles[i]/2.0)*mag);
+        cam->SetViewAngle(vtkMath::DegreesFromRadians(angle));
         cam->SetParallelScale(parallelScale[i]*mag);
       }
 
