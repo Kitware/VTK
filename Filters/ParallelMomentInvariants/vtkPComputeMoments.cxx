@@ -266,7 +266,7 @@ bool vtkPComputeMoments::CenterStencil(double center[3], vtkDataSet* field, vtkI
  * @param nameOfPointData: the name of the array in the point data of which the momens are computed.
  */
 void vtkPComputeMoments::ComputeOrigRes(int dimension, int order, int fieldRank, size_t radiusIndex,
-  vtkImageData* field, vtkImageData* grid, vtkImageData* output, std::string nameOfPointData)
+  vtkImageData* field, vtkImageData* grid, vtkImageData* output, std::string vtkNotUsed(nameOfPointData))
 {
 
   double radius = this->Radii.at(radiusIndex);
@@ -288,7 +288,7 @@ void vtkPComputeMoments::ComputeOrigRes(int dimension, int order, int fieldRank,
 
   // get all bounds in array procId * 6 + boundIndex. last row contains the global bounds
   double allBounds[6 * numProcs + 6];
-  for (size_t p = 0; p < numProcs; ++p)
+  for (int p = 0; p < numProcs; ++p)
   {
     this->Controller->Send(bounds, 6, p, MY_RETURN_VALUE_MESSAGE);
     this->Controller->Receive(allBounds + p * 6, 6, p, MY_RETURN_VALUE_MESSAGE);
@@ -298,7 +298,7 @@ void vtkPComputeMoments::ComputeOrigRes(int dimension, int order, int fieldRank,
     allBounds[6 * numProcs + 2 * d] = allBounds[2 * d];
     allBounds[6 * numProcs + 2 * d + 1] = allBounds[2 * d + 1];
   }
-  for (size_t p = 1; p < numProcs; ++p)
+  for (int p = 1; p < numProcs; ++p)
   {
     for (size_t d = 0; d < 3; ++d)
     {
@@ -404,13 +404,13 @@ void vtkPComputeMoments::ComputeOrigRes(int dimension, int order, int fieldRank,
   // only to the nodes that we share centers with
   // then, compute the partly moments on each node, return them home, and add them up in their home
   // node
-  for (size_t p = 0; p < numProcs; ++p)
+  for (int p = 0; p < numProcs; ++p)
   {
     if (myBoundaryCenters.at(p).size() > 0)
     {
       int numMyBoundaryCenters = myBoundaryCenters.at(p).size();
       double myBoundaryCentersArray[numMyBoundaryCenters * 3];
-      for (size_t mc = 0; mc < numMyBoundaryCenters; ++mc)
+      for (int mc = 0; mc < numMyBoundaryCenters; ++mc)
       {
         for (size_t d = 0; d < 3; ++d)
         {
@@ -453,7 +453,7 @@ void vtkPComputeMoments::ComputeOrigRes(int dimension, int order, int fieldRank,
           myBoundaryCentersArray, numMyBoundaryCenters * 3, p, MY_RETURN_VALUE_MESSAGE);
       }
       std::vector<std::vector<double> > foreignBoundaryCenters(numForeignBoundaryCenters);
-      for (size_t fc = 0; fc < numForeignBoundaryCenters; ++fc)
+      for (int fc = 0; fc < numForeignBoundaryCenters; ++fc)
       {
         foreignBoundaryCenters.at(fc) = std::vector<double>(3);
         for (size_t d = 0; d < static_cast<size_t>(dimension); ++d)
@@ -469,7 +469,7 @@ void vtkPComputeMoments::ComputeOrigRes(int dimension, int order, int fieldRank,
 
       // compute the moments of the foreign centers
       std::vector<std::vector<vtkMomentsTensor> > foreignBoundaryMoments(numForeignBoundaryCenters);
-      for (size_t fc = 0; fc < numForeignBoundaryCenters; ++fc)
+      for (int fc = 0; fc < numForeignBoundaryCenters; ++fc)
       {
         foreignBoundaryMoments.at(fc) = std::vector<vtkMomentsTensor>(order + 1);
         for (int o = 0; o < order + 1; o++)
@@ -510,7 +510,7 @@ void vtkPComputeMoments::ComputeOrigRes(int dimension, int order, int fieldRank,
 
       // send the partly moments back home
       double foreignBoundaryMomentsArray[numForeignBoundaryCenters * this->NumberOfBasisFunctions];
-      for (size_t fc = 0; fc < numForeignBoundaryCenters; ++fc)
+      for (int fc = 0; fc < numForeignBoundaryCenters; ++fc)
       {
         size_t index = 0;
         for (int o = 0; o < order + 1; o++)
@@ -551,7 +551,7 @@ void vtkPComputeMoments::ComputeOrigRes(int dimension, int order, int fieldRank,
         this->Controller->Send(foreignBoundaryMomentsArray,
           numForeignBoundaryCenters * this->NumberOfBasisFunctions, p, MY_RETURN_VALUE_MESSAGE);
       }
-      for (size_t mc = 0; mc < numMyBoundaryCenters; ++mc)
+      for (int mc = 0; mc < numMyBoundaryCenters; ++mc)
       {
         for (size_t i = 0; i < NumberOfBasisFunctions; ++i)
         {
