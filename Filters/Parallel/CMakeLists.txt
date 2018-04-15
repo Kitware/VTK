@@ -12,7 +12,6 @@ set(Module_SRCS
   vtkExtractUserDefinedPiece.cxx
   vtkPassThroughFilter.cxx
   vtkPCellDataToPointData.cxx
-  vtkPConnectivityFilter.cxx
   vtkPeriodicFilter.cxx
   vtkPExtractDataArraysOverTime.cxx
   vtkPExtractSelectedArraysOverTime.cxx

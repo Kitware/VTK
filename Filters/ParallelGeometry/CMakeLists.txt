@@ -1,6 +1,7 @@
 include(vtkObjectFactory)
 
 set(Module_SRCS
+  vtkPConnectivityFilter.cxx
   vtkPDataSetGhostGenerator.cxx
   vtkPStructuredGridConnectivity.cxx
   vtkPStructuredGridGhostDataGenerator.cxx
