@@ -696,7 +696,7 @@ void vtkMomentsHelper::BuildStencil(vtkImageData* stencil,
  * @return 0 if the stencil lies completely outside the field
  */
 bool vtkMomentsHelper::CenterStencil(double center[3], vtkDataSet* source, vtkImageData* stencil,
-  int numberOfIntegrationSteps, std::string nameOfPointData)
+  int numberOfIntegrationSteps, std::string vtkNotUsed(nameOfPointData))
 {
   // put the center to the point where the moments shall be calculated
   if (numberOfIntegrationSteps == 1)
