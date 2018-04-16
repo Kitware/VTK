@@ -184,15 +184,15 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
     --crosslineCount;
   }
   int inlineCount = (fileSize - FIRST_TRACE_START_POS) / traceSize / crosslineCount;
+  auto e = {
+    0, inlineCount - 1,
+    0, crosslineCount - 1,
+    0, this->SampleCountPerTrace - 1,
+  };
+  std::copy(e.begin(), e.end(), extent);
   if (traceStartPos + 240 >= fileSize)
   {
     // this is a 2D dataset
-    auto e = {
-      0, crosslineCount - 1,
-      0, this->SampleCountPerTrace - 1,
-      0, inlineCount - 1,
-    };
-    std::copy(e.begin(), e.end(), extent);
     return false;
   }
   inlineSecond = inlineNumber;
@@ -202,10 +202,6 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
   coordSecondX[2] = 0;
   vtkMath::Subtract(coordFirst, coordSecondX, d);
   float xStep = vtkMath::Norm(d);
-  auto e = {0, inlineCount - 1,
-            0, crosslineCount - 1,
-            0, this->SampleCountPerTrace - 1};
-  std::copy(e.begin(), e.end(), extent);
 
   // The samples are uniformly placed at sample interval depths
   // Dividing by 1000.0 to convert from microseconds to milliseconds.
@@ -283,7 +279,7 @@ void vtkSegYReaderInternal::ExportData2D(vtkStructuredGrid* grid)
   {
     return;
   }
-  grid->SetDimensions(this->Traces.size(), this->SampleCountPerTrace, 1);
+  grid->SetDimensions(1, this->Traces.size(), this->SampleCountPerTrace);
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 
   for (int k = 0; k < this->SampleCountPerTrace; k++)
