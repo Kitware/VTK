@@ -254,7 +254,7 @@ void GetPointsInsideBounds(vtkMPIController* controller,
     }
   }
 
-  // local sending/receipt is just a pointer assignement
+  // local sending/receipt is just a pointer assignment
   dataToReceive[rank] = dataToSend[rank];
   dataToSend[rank] = nullptr;
   if (receiveSize[rank] > 0)
