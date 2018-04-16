@@ -42,10 +42,10 @@
 // applied when converting between formats.
 #define INVERT_ROWS 0
 
-vtkStandardNewMacro(vtkGDALRasterConverter)
+vtkStandardNewMacro(vtkGDALRasterConverter);
 
-  //----------------------------------------------------------------------------
-  class vtkGDALRasterConverter::vtkGDALRasterConverterInternal
+//----------------------------------------------------------------------------
+class vtkGDALRasterConverter::vtkGDALRasterConverterInternal
 {
 public:
   GDALDataType ToGDALDataType(int vtkDataType);
@@ -213,7 +213,7 @@ void vtkGDALRasterConverter::vtkGDALRasterConverterInternal::FindDataRange(
   int ySize = band->GetDataset()->GetRasterYSize();
   VTK_TYPE* buffer = new VTK_TYPE[xSize * ySize];
   GDALDataType gdalDataType = band->GetRasterDataType();
-  band->RasterIO(
+  CPLErr err = band->RasterIO(
     GF_Read, 0, 0, xSize, ySize, buffer, xSize, ySize, gdalDataType, 0, 0);
 
   *minValue = VTK_DOUBLE_MAX;
@@ -480,6 +480,8 @@ vtkUniformGrid* vtkGDALRasterConverter::CreateVTKUniformGrid(
       array = vtkDataArray::CreateDataArray(VTK_TYPE_FLOAT64);
       this->Internal->CopyToVTK<vtkTypeFloat64>(dataset, array, image);
       break;
+    default:
+      break;
   }
 
   if (!array)
@@ -639,6 +641,8 @@ bool vtkGDALRasterConverter::FindDataRange(GDALDataset* dataset,
 
     case GDT_Float64:
       this->Internal->FindDataRange<vtkTypeFloat64>(band, minValue, maxValue);
+      break;
+    default:
       break;
   }
 

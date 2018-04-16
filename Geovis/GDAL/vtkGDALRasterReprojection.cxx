@@ -24,10 +24,9 @@
 #include <gdalwarper.h>
 #include <ogr_spatialref.h>
 
-vtkStandardNewMacro(vtkGDALRasterReprojection)
-
-  //----------------------------------------------------------------------------
-  vtkGDALRasterReprojection::vtkGDALRasterReprojection()
+vtkStandardNewMacro(vtkGDALRasterReprojection);
+//----------------------------------------------------------------------------
+vtkGDALRasterReprojection::vtkGDALRasterReprojection()
 {
   this->MaxError = 0.0;
   this->ResamplingAlgorithm = 0;

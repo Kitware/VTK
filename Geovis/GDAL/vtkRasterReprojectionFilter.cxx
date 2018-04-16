@@ -29,7 +29,6 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUniformGrid.h"
-#include "vtkXMLImageDataWriter.h"
 
 // GDAL includes
 #undef LT_OBJDIR // fixes compiler warning (collision w/vtkIOStream.h)
@@ -226,17 +225,17 @@ int vtkRasterReprojectionFilter::RequestData(
   // Done with output GDAL dataset
   GDALClose(outputGDAL);
 
-  // Write image to file
-  if (this->Debug)
-  {
-    const char* outputFilename = "computed.vti";
-    vtkNew<vtkXMLImageDataWriter> writer;
-    writer->SetFileName(outputFilename);
-    writer->SetInputData(reprojectedImage);
-    writer->SetDataModeToAscii();
-    writer->Write();
-    std::cout << "Wrote " << outputFilename << std::endl;
-  }
+//  // Write image to file
+//  if (this->Debug)
+//  {
+//    const char* outputFilename = "computed.vti";
+//    vtkNew<vtkXMLImageDataWriter> writer;
+//    writer->SetFileName(outputFilename);
+//    writer->SetInputData(reprojectedImage);
+//    writer->SetDataModeToAscii();
+//    writer->Write();
+//    std::cout << "Wrote " << outputFilename << std::endl;
+//  }
 
   // Update pipeline output instance
   vtkUniformGrid* output = vtkUniformGrid::GetData(outInfo);
