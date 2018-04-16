@@ -49,9 +49,13 @@ w.SetInputConnection(hBin.GetOutputPort())
 extBin = vtk.vtkExtractHierarchicalBins()
 extBin.SetInputConnection(hBin.GetOutputPort())
 extBin.SetBinningFilter(hBin)
+extBin.SetLevel(1000)
+extBin.Update() #check clamping on level number
+extBin.SetBin(1000000000) # check clamping of bin number
 #extBin.SetLevel(0)
 extBin.SetLevel(-1)
 extBin.SetBin(binNum)
+extBin.Update()
 
 subMapper = vtk.vtkPointGaussianMapper()
 subMapper.SetInputConnection(extBin.GetOutputPort())

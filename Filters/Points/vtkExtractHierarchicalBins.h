@@ -65,8 +65,11 @@ public:
    * Specify the level to extract. If non-negative, with a negative bin
    * number, then all points at this level are extracted and sent to the
    * output. If negative, then the points from the specified bin are sent to
-   * the output. If both the level and bin number are negative values, then the
-   * input is sent to the output. By default the 0th level is extracted.
+   * the output. If both the level and bin number are negative values, then
+   * the input is sent to the output. By default the 0th level is
+   * extracted. Note that requesting a level greater than the associated
+   * vtkHierarchicalBinningFilter will clamp the level to the maximum
+   * possible level of the binning filter.
    */
   vtkSetMacro(Level,int);
   vtkGetMacro(Level,int);
@@ -77,8 +80,10 @@ public:
    * Specify the bin number to extract. If a non-negative value, then the
    * points from the bin number specified are extracted. If negative, then
    * entire levels of points are extacted (assuming the Level is
-   * non-negative). Note that the bin tree is flattened, a particular
-   * bin number may refer to a bin on any level.
+   * non-negative). Note that the bin tree is flattened, a particular bin
+   * number may refer to a bin on any level. Note that requesting a bin
+   * greater than the associated vtkHierarchicalBinningFilter will clamp the
+   * bin to the maximum possible bin of the binning filter.
    */
   vtkSetMacro(Bin,int);
   vtkGetMacro(Bin,int);
