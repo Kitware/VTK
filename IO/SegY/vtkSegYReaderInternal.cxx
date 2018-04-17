@@ -246,32 +246,6 @@ void vtkSegYReaderInternal::ExportData3D(vtkImageData* imageData,
   }
 }
 
-
-//-----------------------------------------------------------------------------
-void vtkSegYReaderInternal::AddScalars(vtkStructuredGrid* grid)
-{
-  vtkSmartPointer<vtkFloatArray> outScalars =
-    vtkSmartPointer<vtkFloatArray>::New();
-  outScalars->SetName("trace");
-  outScalars->SetNumberOfComponents(1);
-
-  int crosslineCount = this->Traces.size();
-
-  outScalars->Allocate(crosslineCount * this->SampleCountPerTrace);
-
-  int j = 0;
-  for (int k = 0; k < this->SampleCountPerTrace; k++)
-  {
-    for (unsigned int i = 0; i < this->Traces.size(); i++)
-    {
-      outScalars->InsertValue(j++, this->Traces[i]->Data[k]);
-    }
-  }
-
-  grid->GetPointData()->SetScalars(outScalars);
-  grid->GetPointData()->SetActiveScalars("trace");
-}
-
 //-----------------------------------------------------------------------------
 void vtkSegYReaderInternal::ExportData2D(vtkStructuredGrid* grid)
 {
@@ -279,13 +253,21 @@ void vtkSegYReaderInternal::ExportData2D(vtkStructuredGrid* grid)
   {
     return;
   }
-  grid->SetDimensions(this->Traces.size(), 1, this->SampleCountPerTrace);
+  int crosslineCount = this->Traces.size();
+  grid->SetDimensions(crosslineCount, 1, this->SampleCountPerTrace);
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 
+  vtkSmartPointer<vtkFloatArray> outScalars =
+    vtkSmartPointer<vtkFloatArray>::New();
+  outScalars->SetName("trace");
+  outScalars->SetNumberOfComponents(1);
+  outScalars->Allocate(crosslineCount * this->SampleCountPerTrace);
+
   int sign = this->VerticalCRS == 0 ? -1 : 1;
+  int j = 0;
   for (int k = 0; k < this->SampleCountPerTrace; k++)
   {
-    for (unsigned int i = 0; i < this->Traces.size(); i++)
+    for (unsigned int i = 0; i < crosslineCount; i++)
     {
       auto trace = this->Traces[i];
       double coordinateMultiplier = decodeMultiplier(trace->CoordinateMultiplier);
@@ -296,9 +278,11 @@ void vtkSegYReaderInternal::ExportData2D(vtkStructuredGrid* grid)
       // Dividing by 1000.0 to convert from microseconds to milliseconds.
       float z = sign * k * (trace->SampleInterval / 1000.0);
       points->InsertNextPoint(x, y, z);
+
+      outScalars->InsertValue(j++, trace->Data[k]);
     }
   }
 
   grid->SetPoints(points);
-  this->AddScalars(grid);
+  grid->GetPointData()->SetScalars(outScalars);
 }

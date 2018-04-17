@@ -99,41 +99,40 @@ int vtkSegYReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
+  this->Reader->SetVerticalCRS(this->VerticalCRS);
+  switch (this->XYCoordMode)
+  {
+  case VTK_SEGY_SOURCE:
+    {
+      this->Reader->SetXYCoordBytePositions(72, 76);
+      break;
+    }
+  case VTK_SEGY_CDP:
+    {
+      this->Reader->SetXYCoordBytePositions(180, 184);
+      break;
+    }
+  case VTK_SEGY_CUSTOM:
+    {
+      this->Reader->SetXYCoordBytePositions(this->XCoordByte - 1,
+                                            this->YCoordByte - 1);
+      break;
+    }
+  default:
+    {
+      vtkErrorMacro(<< "Unknown value for XYCoordMode " << this->XYCoordMode);
+      return 1;
+    }
+  }
+  this->Reader->LoadTraces();
   if (this->Is3D)
   {
-    this->Reader->LoadTraces();
     this->Reader->ExportData3D(vtkImageData::SafeDownCast(output),
                                this->DataExtent, this->DataOrigin, this->DataSpacing);
   }
   else
   {
-    switch (this->XYCoordMode)
-    {
-    case VTK_SEGY_SOURCE:
-      {
-        this->Reader->SetXYCoordBytePositions(72, 76);
-        break;
-      }
-    case VTK_SEGY_CDP:
-      {
-        this->Reader->SetXYCoordBytePositions(180, 184);
-        break;
-      }
-    case VTK_SEGY_CUSTOM:
-      {
-        this->Reader->SetXYCoordBytePositions(this->XCoordByte - 1,
-                                              this->YCoordByte - 1);
-        break;
-      }
-    default:
-      {
-        vtkErrorMacro(<< "Unknown value for XYCoordMode " << this->XYCoordMode);
-        return 1;
-      }
-    }
     vtkStructuredGrid* grid = vtkStructuredGrid::SafeDownCast(output);
-    this->Reader->SetVerticalCRS(this->VerticalCRS);
-    this->Reader->LoadTraces();
     this->Reader->ExportData2D(grid);
     grid->Squeeze();
   }

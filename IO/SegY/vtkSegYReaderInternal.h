@@ -43,7 +43,6 @@ public:
   void ExportData3D(vtkImageData*, int* extent, double* origin, double* spacing);
   void ExportData2D(vtkStructuredGrid*);
 
-  void AddScalars(vtkStructuredGrid*);
   void SetXYCoordBytePositions(int x, int y);
   void SetVerticalCRS(int);
 
