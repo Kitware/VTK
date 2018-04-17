@@ -19,6 +19,7 @@ set(Module_SRCS
   vtkExtractSelectedRows.cxx
   vtkExtractSelectedThresholds.cxx
   vtkExtractSelection.cxx
+  vtkExtractSelection2.cxx
   vtkExtractTemporalFieldData.cxx
   vtkExtractTensorComponents.cxx
   vtkExtractTimeSteps.cxx
