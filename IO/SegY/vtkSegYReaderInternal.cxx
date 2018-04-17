@@ -138,7 +138,7 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
   int fileSize = vtkSegYIOUtils::Instance()->getFileSize(this->In);
   int crosslineFirst, crosslineSecond, inlineFirst, inlineSecond,
     inlineNumber, crosslineNumber;
-  double coordFirst[3], coordSecondY[3], coordSecondX[3], d[3];
+  double coordFirst[3], coordSecondX[3], coordSecondY[3], d[3];
   int xCoord, yCoord;
   short coordMultiplier;
   int prevTraceStartPos = traceStartPos;
@@ -163,13 +163,13 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
        &inlineNumber, &crosslineSecond,
        &xCoord, &yCoord, &coordMultiplier);
     double coordinateMultiplier = decodeMultiplier(coordMultiplier);
-    coordSecondY[0] = xCoord * coordinateMultiplier;
-    coordSecondY[1] = yCoord * coordinateMultiplier;
-    coordSecondY[2] = 0;
+    coordSecondX[0] = xCoord * coordinateMultiplier;
+    coordSecondX[1] = yCoord * coordinateMultiplier;
+    coordSecondX[2] = 0;
     ++crosslineCount;
   }
-  vtkMath::Subtract(coordFirst, coordSecondY, d);
-  float yStep = vtkMath::Norm(d);
+  vtkMath::Subtract(coordFirst, coordSecondX, d);
+  float xStep = vtkMath::Norm(d);
   while(inlineFirst == inlineNumber && traceStartPos + 240 < fileSize)
   {
     this->TraceReader->ReadInlineCrossline
@@ -185,8 +185,8 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
   }
   int inlineCount = (fileSize - FIRST_TRACE_START_POS) / traceSize / crosslineCount;
   auto e = {
-    0, inlineCount - 1,
     0, crosslineCount - 1,
+    0, inlineCount - 1,
     0, this->SampleCountPerTrace - 1,
   };
   std::copy(e.begin(), e.end(), extent);
@@ -197,11 +197,11 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
   }
   inlineSecond = inlineNumber;
   double coordinateMultiplier = decodeMultiplier(coordMultiplier);
-  coordSecondX[0] = xCoord * coordinateMultiplier;
-  coordSecondX[1] = yCoord * coordinateMultiplier;
-  coordSecondX[2] = 0;
-  vtkMath::Subtract(coordFirst, coordSecondX, d);
-  float xStep = vtkMath::Norm(d);
+  coordSecondY[0] = xCoord * coordinateMultiplier;
+  coordSecondY[1] = yCoord * coordinateMultiplier;
+  coordSecondY[2] = 0;
+  vtkMath::Subtract(coordFirst, coordSecondY, d);
+  float yStep = vtkMath::Norm(d);
 
   // The samples are uniformly placed at sample interval depths
   // Dividing by 1000.0 to convert from microseconds to milliseconds.
@@ -238,7 +238,7 @@ void vtkSegYReaderInternal::ExportData3D(vtkImageData* imageData,
     {
       for (int i = 0; i < dims[0]; ++i)
       {
-        vtkSegYTrace* trace = this->Traces[i * dims[1] + j];
+        vtkSegYTrace* trace = this->Traces[j * dims[0] + i];
         scalars->SetValue(k * dims[1] * dims[0] + j * dims[0] + i,
                           trace->Data[k]);
       }
@@ -279,9 +279,10 @@ void vtkSegYReaderInternal::ExportData2D(vtkStructuredGrid* grid)
   {
     return;
   }
-  grid->SetDimensions(1, this->Traces.size(), this->SampleCountPerTrace);
+  grid->SetDimensions(this->Traces.size(), 1, this->SampleCountPerTrace);
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 
+  int sign = this->VerticalCRS == 0 ? -1 : 1;
   for (int k = 0; k < this->SampleCountPerTrace; k++)
   {
     for (unsigned int i = 0; i < this->Traces.size(); i++)
@@ -293,7 +294,6 @@ void vtkSegYReaderInternal::ExportData2D(vtkStructuredGrid* grid)
 
       // The samples are uniformly placed at sample interval depths
       // Dividing by 1000.0 to convert from microseconds to milliseconds.
-      int sign = this->VerticalCRS == 0 ? -1 : 1;
       float z = sign * k * (trace->SampleInterval / 1000.0);
       points->InsertNextPoint(x, y, z);
     }

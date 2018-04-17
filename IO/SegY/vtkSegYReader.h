@@ -24,6 +24,11 @@
 class vtkImageData;
 class vtkSegYReaderInternal;
 
+/**
+ * Reader for SegY data. We create a vtkStructuredGrid for a 2.5D data
+ * and an vtkImageData for a 3D data. The structure of the data is created
+ * in the following order: crossline number, inline number, depth
+ */
 class VTKIOSEGY_EXPORT vtkSegYReader : public vtkDataSetAlgorithm
 {
 public:
