@@ -302,7 +302,7 @@ int vtkPConnectivityFilter::RequestData(
   {
     return 0;
   }
-  vtkPointSet* input = vtkPointSet::SafeDownCast(
+  vtkDataSet* input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkMultiProcessController* globalController =
