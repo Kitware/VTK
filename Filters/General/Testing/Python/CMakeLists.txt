@@ -9,8 +9,10 @@ vtk_add_test_python(
   TestDeformPointSet.py
   TestDiscreteFlyingEdges2D.py
   TestDiscreteFlyingEdges3D.py
+  TestDiscreteFlyingEdgesClipper2D.py
   TestDiscreteMarchingCubes.py
   TestDiscreteMarchingCubesAdjacentScalars.py
+  TestFEDiscreteClipper2D.py
   TestGraphLayoutFilter.py
   TestMultiBlockFromTimeSeries.py
   TestPointConnectivityFilter.py

@@ -386,4 +386,3 @@ void vtkSelectEnclosedPoints::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 }
-

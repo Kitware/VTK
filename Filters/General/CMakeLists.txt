@@ -30,6 +30,7 @@ set(Module_SRCS
   vtkDicer.cxx
   vtkDiscreteFlyingEdges2D.cxx
   vtkDiscreteFlyingEdges3D.cxx
+  vtkDiscreteFlyingEdgesClipper2D.cxx
   vtkDiscreteMarchingCubes.cxx
   vtkEdgePoints.cxx
   vtkExtractSelectedFrustum.cxx
