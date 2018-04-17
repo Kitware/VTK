@@ -68,9 +68,6 @@ int TestSegY3DReader(int argc, char* argv[])
   ren->AddActor(actor);
   ren->ResetCamera();
 
-  //ren->GetActiveCamera()->Elevation(90);
-  //ren->GetActiveCamera()->Zoom(5);
-
   // interact with data
   renWin->Render();
 

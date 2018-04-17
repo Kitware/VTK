@@ -43,6 +43,7 @@ vtkSegYReader::vtkSegYReader()
   this->DataExtent[1] = this->DataExtent[3] = this->DataExtent[5] = 0;
 
   this->XYCoordMode = VTK_SEGY_SOURCE;
+  this->StructuredGrid = 0;
   this->XCoordByte = 73;
   this->YCoordByte = 77;
 
@@ -125,15 +126,15 @@ int vtkSegYReader::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
   this->Reader->LoadTraces();
-  if (this->Is3D)
+  if (this->Is3D && ! this->StructuredGrid)
   {
-    this->Reader->ExportData3D(vtkImageData::SafeDownCast(output),
-                               this->DataExtent, this->DataOrigin, this->DataSpacing);
+    this->Reader->ExportData(vtkImageData::SafeDownCast(output),
+                             this->DataExtent, this->DataOrigin, this->DataSpacing);
   }
   else
   {
     vtkStructuredGrid* grid = vtkStructuredGrid::SafeDownCast(output);
-    this->Reader->ExportData2D(grid);
+    this->Reader->ExportData(grid, this->DataExtent);
     grid->Squeeze();
   }
   this->Reader->In.close();
@@ -158,7 +159,7 @@ int vtkSegYReader::RequestInformation(vtkInformation * vtkNotUsed(request),
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                this->DataExtent, 6);
   std::cout << std::endl;
-  if (this->Is3D)
+  if (this->Is3D && ! this->StructuredGrid)
   {
     std::cout << "DataOrigin: ";
     std::copy(this->DataOrigin, this->DataOrigin + 3, std::ostream_iterator<double>(std::cout, " "));
@@ -175,7 +176,8 @@ int vtkSegYReader::RequestInformation(vtkInformation * vtkNotUsed(request),
 int vtkSegYReader::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
-  const char* outputTypeName = this->Is3D ? "vtkImageData" : "vtkStructuredGrid";
+  const char* outputTypeName =
+    (this->Is3D  && ! this->StructuredGrid) ? "vtkImageData" : "vtkStructuredGrid";
   info->Set(vtkDataObject::DATA_TYPE_NAME(), outputTypeName);
   std::cout << "FillOutputPortInformation" << std::endl;
   return 1;
@@ -210,7 +212,7 @@ int vtkSegYReader::RequestDataObject(
   if (!output || !output->IsA(outputTypeName))
   {
     vtkDataSet* newOutput = nullptr;
-    if (this->Is3D)
+    if (this->Is3D && ! this->StructuredGrid)
     {
       newOutput = vtkImageData::New();
     }

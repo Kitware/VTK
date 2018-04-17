@@ -24,7 +24,6 @@
 #include "vtkSegYBinaryHeaderBytesPositions.h"
 #include "vtkSegYIOUtils.h"
 #include "vtkSegYTraceReader.h"
-#include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
 
 #include <algorithm>
@@ -219,8 +218,8 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
 
 
 //-----------------------------------------------------------------------------
-void vtkSegYReaderInternal::ExportData3D(vtkImageData* imageData,
-                                 int* extent, double* origin, double* spacing)
+void vtkSegYReaderInternal::ExportData(vtkImageData* imageData,
+                                       int* extent, double* origin, double* spacing)
 {
   imageData->SetExtent(extent);
   imageData->SetOrigin(origin);
@@ -232,57 +231,59 @@ void vtkSegYReaderInternal::ExportData3D(vtkImageData* imageData,
   scalars->SetNumberOfTuples(dims[0] * dims[1] * dims[2]);
   scalars->SetName("trace");
   imageData->GetPointData()->SetScalars(scalars);
-  for (int k = 0; k < this->SampleCountPerTrace; ++k)
+  int id = 0;
+  for (int k = 0; k < dims[2]; ++k)
   {
     for (int j = 0; j < dims[1]; ++j)
     {
       for (int i = 0; i < dims[0]; ++i)
       {
         vtkSegYTrace* trace = this->Traces[j * dims[0] + i];
-        scalars->SetValue(k * dims[1] * dims[0] + j * dims[0] + i,
-                          trace->Data[k]);
+        scalars->SetValue(id++, trace->Data[k]);
       }
     }
   }
 }
 
 //-----------------------------------------------------------------------------
-void vtkSegYReaderInternal::ExportData2D(vtkStructuredGrid* grid)
+void vtkSegYReaderInternal::ExportData(vtkStructuredGrid* grid, int* extent)
 {
   if (!grid)
   {
     return;
   }
-  int crosslineCount = this->Traces.size();
-  grid->SetDimensions(crosslineCount, 1, this->SampleCountPerTrace);
-  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+  grid->SetExtent(extent);
+  int* dims = grid->GetDimensions();
+  vtkNew<vtkPoints> points;
 
-  vtkSmartPointer<vtkFloatArray> outScalars =
-    vtkSmartPointer<vtkFloatArray>::New();
-  outScalars->SetName("trace");
-  outScalars->SetNumberOfComponents(1);
-  outScalars->Allocate(crosslineCount * this->SampleCountPerTrace);
+  vtkNew<vtkFloatArray> scalars;
+  scalars->SetName("trace");
+  scalars->SetNumberOfComponents(1);
+  scalars->Allocate(dims[0] * dims[1] * dims[2]);
 
   int sign = this->VerticalCRS == 0 ? -1 : 1;
-  int j = 0;
-  for (int k = 0; k < this->SampleCountPerTrace; k++)
+  int id = 0;
+  for (int k = 0; k < dims[2]; ++k)
   {
-    for (unsigned int i = 0; i < crosslineCount; i++)
+    for (int j = 0; j < dims[1]; ++j)
     {
-      auto trace = this->Traces[i];
-      double coordinateMultiplier = decodeMultiplier(trace->CoordinateMultiplier);
-      float x = trace->XCoordinate * coordinateMultiplier;
-      float y = trace->YCoordinate * coordinateMultiplier;
+      for (int i = 0; i < dims[0]; ++i)
+      {
+        auto trace = this->Traces[j * dims[0] + i];
+        double coordinateMultiplier = decodeMultiplier(trace->CoordinateMultiplier);
+        float x = trace->XCoordinate * coordinateMultiplier;
+        float y = trace->YCoordinate * coordinateMultiplier;
 
-      // The samples are uniformly placed at sample interval depths
-      // Dividing by 1000.0 to convert from microseconds to milliseconds.
-      float z = sign * k * (trace->SampleInterval / 1000.0);
-      points->InsertNextPoint(x, y, z);
+        // The samples are uniformly placed at sample interval depths
+        // Dividing by 1000.0 to convert from microseconds to milliseconds.
+        float z = sign * k * (trace->SampleInterval / 1000.0);
+        points->InsertNextPoint(x, y, z);
 
-      outScalars->InsertValue(j++, trace->Data[k]);
+        scalars->InsertValue(id++, trace->Data[k]);
+      }
     }
   }
 
   grid->SetPoints(points);
-  grid->GetPointData()->SetScalars(outScalars);
+  grid->GetPointData()->SetScalars(scalars);
 }

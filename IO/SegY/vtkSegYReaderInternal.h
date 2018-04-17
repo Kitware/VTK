@@ -40,8 +40,8 @@ public:
   bool Is3DComputeParameters(int* extent, double* origin, double* spacing);
   void LoadTraces();
 
-  void ExportData3D(vtkImageData*, int* extent, double* origin, double* spacing);
-  void ExportData2D(vtkStructuredGrid*);
+  void ExportData(vtkImageData*, int* extent, double* origin, double* spacing);
+  void ExportData(vtkStructuredGrid*, int* extent);
 
   void SetXYCoordBytePositions(int x, int y);
   void SetVerticalCRS(int);

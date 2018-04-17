@@ -25,9 +25,13 @@ class vtkImageData;
 class vtkSegYReaderInternal;
 
 /**
- * Reader for SegY data. We create a vtkStructuredGrid for a 2.5D data
- * and an vtkImageData for a 3D data. The structure of the data is created
- * in the following order: crossline number, inline number, depth
+ * @class vtkSegYReader
+ * @brief Reads SegY data files.
+ *
+ * vtkSegYReader read the SegY data format. We create a
+ * vtkStructuredGrid for a 2.5D data and an vtkImageData for a 3D
+ * data. The structure of the data is created in the following order:
+ * crossline number, inline number, depth
  */
 class VTKIOSEGY_EXPORT vtkSegYReader : public vtkDataSetAlgorithm
 {
@@ -60,7 +64,6 @@ public:
    */
   vtkSetClampMacro(XYCoordMode, int, VTK_SEGY_SOURCE, VTK_SEGY_CUSTOM);
   vtkGetMacro(XYCoordMode, int);
-  vtkBooleanMacro(XYCoordMode, int);
   void SetXYCoordModeToSource();
   void SetXYCoordModeToCDP();
   void SetXYCoordModeToCustom();
@@ -100,6 +103,19 @@ public:
   vtkGetMacro(VerticalCRS, int);
   //@}
 
+  //@{
+  /**
+   * Specify if we create a vtkStructuredGrid even if the data is
+   * 3D. Note this consumes more memory but it shows the precise
+   * location of the data. It may be useful if we want to show several
+   * datasets in the same window.  The default value is false
+   * which means that we create a vtkImageData for a SegY 3D dataset.
+   */
+  vtkSetMacro(StructuredGrid, int);
+  vtkGetMacro(StructuredGrid, int);
+  vtkBooleanMacro(StructuredGrid, int);
+  //@}
+
 protected:
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
@@ -122,6 +138,7 @@ protected:
   int DataExtent[6];
 
   int XYCoordMode;
+  int StructuredGrid;
 
   // Custom XY coordinate byte positions
   int XCoordByte;
