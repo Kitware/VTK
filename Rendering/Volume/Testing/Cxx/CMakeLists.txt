@@ -3,40 +3,25 @@ set (VolumeCxxTests
   TestFinalColorWindowLevel.cxx
   TestFixedPointRayCastLightComponents.cxx
   TestGPURayCastAdditive.cxx
-  TestGPURayCastCompositeBinaryMask.cxx
-  TestGPURayCastCompositeMaskBlend.cxx
-  TestGPURayCastCompositeMask.cxx
-  TestGPURayCastCompositeToMIP.cxx
-  TestGPURayCastCropping.cxx
-  TestGPURayCastDataTypesMinIP.cxx
-  TestGPURayCastDataTypesMIP.cxx
-  TestGPURayCastFourComponentsComposite.cxx
-  TestGPURayCastFourComponentsCompositeStreaming.cxx
-  TestGPURayCastFourComponentsMinIP.cxx
-  TestGPURayCastFourComponentsMIP.cxx
-  TestGPURayCastMapperBenchmark.cxx
-  TestGPURayCastMIPBinaryMask.cxx
-  TestGPURayCastMIPToComposite.cxx
-  TestGPURayCastNearestDataTypesMIP.cxx
-  TestGPURayCastPerspectiveParallel.cxx
-  TestGPURayCastVolumeOrientation.cxx
-  TestGPURayCastVolumeUpdate.cxx
-  TestGPUVolumeRayCastMapper.cxx
-  TestMinIntensityRendering.cxx
-  TestProjectedTetrahedra.cxx
-  TestSmartVolumeMapper.cxx
-  TestSmartVolumeMapperWindowLevel.cxx
-  TestGPURayCastCompositeBinaryMask1.cxx
   TestGPURayCastAverageIP.cxx
   TestGPURayCastBlendModes.cxx
   TestGPURayCastCameraInside.cxx
   TestGPURayCastCameraInsideClipping.cxx
+  TestGPURayCastCameraInsideNonUniformScaleTransform.cxx
   TestGPURayCastCameraInsideSmallSpacing.cxx
   TestGPURayCastCameraInsideTransformation.cxx
   TestGPURayCastCellData.cxx
   TestGPURayCastClipping.cxx
   TestGPURayCastClippingPolyData.cxx
   TestGPURayCastClippingUserTransform.cxx
+  TestGPURayCastCompositeBinaryMask.cxx
+  TestGPURayCastCompositeBinaryMask1.cxx
+  TestGPURayCastCompositeMask.cxx
+  TestGPURayCastCompositeMaskBlend.cxx
+  TestGPURayCastCompositeToMIP.cxx
+  TestGPURayCastCropping.cxx
+  TestGPURayCastDataTypesMIP.cxx
+  TestGPURayCastDataTypesMinIP.cxx
   TestGPURayCastDependentComponentsLightParameters.cxx
   TestGPURayCastDepthPeeling.cxx
   TestGPURayCastDepthPeelingBlendModes.cxx
@@ -46,7 +31,11 @@ set (VolumeCxxTests
   TestGPURayCastDepthPeelingTransparentPolyData.cxx
   TestGPURayCastFourComponentsAdditive.cxx
   TestGPURayCastFourComponentsAverage.cxx
+  TestGPURayCastFourComponentsComposite.cxx
+  TestGPURayCastFourComponentsCompositeStreaming.cxx
   TestGPURayCastFourComponentsDependentGradient.cxx
+  TestGPURayCastFourComponentsMIP.cxx
+  TestGPURayCastFourComponentsMinIP.cxx
   TestGPURayCastGradientOpacity.cxx
   TestGPURayCastGradientOpacityLight.cxx
   TestGPURayCastImageSampleXY.cxx
@@ -56,11 +45,16 @@ set (VolumeCxxTests
   TestGPURayCastJittering.cxx
   TestGPURayCastJitteringCustom.cxx
   TestGPURayCastLargeColorTransferFunction.cxx
+  TestGPURayCastMIPBinaryMask.cxx
+  TestGPURayCastMIPToComposite.cxx
+  TestGPURayCastMapperBenchmark.cxx
   TestGPURayCastMapperSampleDistance.cxx
   TestGPURayCastMultiVolumeAddRemove.cxx
   TestGPURayCastMultiVolumeCellData.cxx
   TestGPURayCastMultiVolumeOverlapping.cxx
   TestGPURayCastMultiVolumeTransfer2D.cxx
+  TestGPURayCastNearestDataTypesMIP.cxx
+  TestGPURayCastPerspectiveParallel.cxx
   TestGPURayCastPositionalLights.cxx
   TestGPURayCastReleaseResources.cxx
   TestGPURayCastRenderDepthToImage.cxx
@@ -79,15 +73,22 @@ set (VolumeCxxTests
   TestGPURayCastUserShader2.cxx
   TestGPURayCastVolumeDepthPass.cxx
   TestGPURayCastVolumeLightKit.cxx
+  TestGPURayCastVolumeOrientation.cxx
   TestGPURayCastVolumePicking.cxx
   TestGPURayCastVolumePlane.cxx
   TestGPURayCastVolumePolyData.cxx
   TestGPURayCastVolumeRotation.cxx
   TestGPURayCastVolumeScale.cxx
+  TestGPURayCastVolumeUpdate.cxx
+  TestGPUVolumeRayCastMapper.cxx
+  TestMinIntensityRendering.cxx
   TestMultiBlockMapper.cxx
+  TestProjectedTetrahedra.cxx
   TestProjectedTetrahedraOffscreen.cxx
   TestProjectedTetrahedraTransform.cxx
   TestRemoveVolumeNonCurrentContext.cxx
+  TestSmartVolumeMapper.cxx
+  TestSmartVolumeMapperWindowLevel.cxx
   )
 
 set(test_shader_files
