@@ -195,23 +195,35 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "vtkExtractArraysOverTime"
 
   # warnings from some Eigen headers:
-  "[Ee]igen/src/.* note: \\(skipping"
-  "[Ee]igen/src/.* note: expanded from macro"
-  "[Ee]igen/src/.* note: implicit copy constructor for"
-  "[Ee]igen/src/.* note: in expansion of macro"
-  "[Ee]igen/src/.* note: in implicit copy constructor for"
-  "[Ee]igen/src/.* note: in implicit move constructor for"
-  "[Ee]igen/src/.* note: in instantiation of member function"
-  "[Ee]igen/src/.* note: previous declaration is here"
-  "[Ee]igen/src/.* note: shadowed declaration is here"
-  "[Ee]igen/src/.* warning: cast from"
-  "[Ee]igen/src/.* warning: 'm_maxThreads' was marked unused but was used"
-  "[Ee]igen/src/.* warning: declaration of '.*' shadows"
-  "[Ee]igen/src/.* warning: declaration shadows a typedef in"
-  "[Ee]igen/src/.* warning: definition of implicit copy constructor for"
-  "[Ee]igen/src/.* warning: enum constant in boolean context"
-  "note: in instantiation of member function 'vtkeigen::"
-  "note: in instantiation of function template specialization 'vtkeigen::"
+  #
+  # Eigin has so many warnings using individual suppresions
+  # does not work. So many will be suppressed that it exceeds
+  # the limit ctest will show making it difficult to see
+  # the specifics of an unsuppressed warning unless you have
+  # access to the raw build logs. So we suppress everything
+  # that has eigin in the path. The old suppresions are left
+  # commented below should they be needed.
+  "[Ee]igen/src/.* note:"
+  "[Ee]igen/src/.* warning:"
+  "vtkeigen::"
+
+  # "[Ee]igen/src/.* note: \\(skipping"
+  # "[Ee]igen/src/.* note: expanded from macro"
+  # "[Ee]igen/src/.* note: implicit copy constructor for"
+  # "[Ee]igen/src/.* note: in expansion of macro"
+  # "[Ee]igen/src/.* note: in implicit copy constructor for"
+  # "[Ee]igen/src/.* note: in implicit move constructor for"
+  # "[Ee]igen/src/.* note: in instantiation of member function"
+  # "[Ee]igen/src/.* note: previous declaration is here"
+  # "[Ee]igen/src/.* note: shadowed declaration is here"
+  # "[Ee]igen/src/.* warning: cast from"
+  # "[Ee]igen/src/.* warning: 'm_maxThreads' was marked unused but was used"
+  # "[Ee]igen/src/.* warning: declaration of '.*' shadows"
+  # "[Ee]igen/src/.* warning: declaration shadows a typedef in"
+  # "[Ee]igen/src/.* warning: definition of implicit copy constructor for"
+  # "[Ee]igen/src/.* warning: enum constant in boolean context"
+  # "note: in instantiation of member function 'vtkeigen::"
+  # "note: in instantiation of function template specialization 'vtkeigen::"
 
   # nested from an eigen macro
   "include/assert.h.* note: expanded from macro 'assert'"
