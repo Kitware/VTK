@@ -2124,7 +2124,7 @@ int vtkIntersectionPolyDataFilter::TriangleTriangleIntersection(
     if (val1 == 1 ||
         (t > (0-tolerance) && t < (1+tolerance)))
     {
-         if (t < 1+tolerance && t > 1-tolerance)
+         if (t < 1+tolerance && t >= 1-tolerance)
          {
            ts1 = index1;
          }
@@ -2136,7 +2136,7 @@ int vtkIntersectionPolyDataFilter::TriangleTriangleIntersection(
     if (val2 == 1 ||
         (t > (0-tolerance) && t < (1+tolerance)))
     {
-        if (t < 1+tolerance && t > 1-tolerance)
+        if (t < 1+tolerance && t >= 1-tolerance)
         {
           ts2 = index2;
         }
