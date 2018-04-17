@@ -126,6 +126,7 @@ int vtkSegYReader::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
   this->Reader->LoadTraces();
+  this->UpdateProgress(0.5);
   if (this->Is3D && ! this->StructuredGrid)
   {
     this->Reader->ExportData(vtkImageData::SafeDownCast(output),
