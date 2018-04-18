@@ -18,8 +18,9 @@
  * arranged as a rectilinear grid.
  *
  *
- * An hypertree grid is a dataset containing a rectilinear grid of root nodes,
- * each of which can be refined as a vtkHyperTree grid. This organization of the
+ * A hypertree grid is a dataset containing a rectilinear grid of root nodes,
+ * each of which can be refined as a vtkHyperTree grid. Each root node
+ * corresponds to a cell of the rectilinear grid. This organization of the
  * root nodes allows for the definition of tree-based AMR grids that do not have
  * uniform geometry.
  * Some filters can be applied on this dataset: contour, outline, geometry.
@@ -93,7 +94,7 @@ public:
 
   //@{
   /**
-   * Set/Get sizes of this rectilinear grid dataset
+   * Set/Get the number of local cells in each direction for the underlying rectilinear grid dataset.
    */
   void SetGridSize( unsigned int[3] );
   void SetGridSize( unsigned int, unsigned int, unsigned int );
@@ -102,7 +103,8 @@ public:
 
   //@{
   /**
-   * Set/Get extent of this rectilinear grid dataset.
+   * Set/Get extent of the underlying rectilinear grid dataset. This is the local extent
+   * and is with respect to the points.
    */
   void SetGridExtent(int extent[6]);
   void SetGridExtent(int, int, int, int, int, int );
