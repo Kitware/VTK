@@ -510,11 +510,11 @@ void vtkOpenGLRenderer::Clear(void)
   {
     if (this->IsPicking)
     {
-      ostate->glClearColor(0.0,0.0,0.0,0.0);
+      ostate->vtkglClearColor(0.0,0.0,0.0,0.0);
     }
     else
     {
-      ostate->glClearColor(static_cast<GLclampf>(this->Background[0]),
+      ostate->vtkglClearColor(static_cast<GLclampf>(this->Background[0]),
         static_cast<GLclampf>(this->Background[1]), static_cast<GLclampf>(this->Background[2]),
         static_cast<GLclampf>(this->BackgroundAlpha));
     }
@@ -523,14 +523,14 @@ void vtkOpenGLRenderer::Clear(void)
 
   if (!this->GetPreserveDepthBuffer())
   {
-    ostate->glClearDepth(static_cast<GLclampf>(1.0));
+    ostate->vtkglClearDepth(static_cast<GLclampf>(1.0));
     clear_mask |= GL_DEPTH_BUFFER_BIT;
-    ostate->glDepthMask(GL_TRUE);
+    ostate->vtkglDepthMask(GL_TRUE);
   }
 
   vtkDebugMacro(<< "glClear\n");
-  ostate->glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-  ostate->glClear(clear_mask);
+  ostate->vtkglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  ostate->vtkglClear(clear_mask);
 
   // If gradient background is turned on, draw it now.
   if (!this->IsPicking && !this->Transparent() &&
@@ -612,11 +612,11 @@ void vtkOpenGLRenderer::Clear(void)
       polydata->GetPointData()->SetScalars(colors);
     }
 
-    ostate->glDisable(GL_DEPTH_TEST);
+    ostate->vtkglDisable(GL_DEPTH_TEST);
     actor->RenderOverlay(this);
   }
 
-  ostate->glEnable(GL_DEPTH_TEST);
+  ostate->vtkglEnable(GL_DEPTH_TEST);
 
   vtkOpenGLCheckErrorMacro("failed after Clear");
 }
@@ -724,7 +724,7 @@ void vtkOpenGLRenderer::DevicePickRender()
   bool msaaWasEnabled = false;
   if (this->RenderWindow->GetMultiSamples() > 0 && ostate->GetEnumState(GL_MULTISAMPLE))
   {
-    ostate->glDisable(GL_MULTISAMPLE);
+    ostate->vtkglDisable(GL_MULTISAMPLE);
     msaaWasEnabled = true;
   }
 #endif
@@ -740,7 +740,7 @@ void vtkOpenGLRenderer::DevicePickRender()
 #if GL_ES_VERSION_3_0 != 1
   if (msaaWasEnabled)
   {
-    ostate->glEnable(GL_MULTISAMPLE);
+    ostate->vtkglEnable(GL_MULTISAMPLE);
   }
 #endif
 

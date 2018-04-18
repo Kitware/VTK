@@ -278,7 +278,7 @@ vtkOpenVRModel *vtkOpenVRRenderWindow::FindOrLoadRenderModel(
 void vtkOpenVRRenderWindow::RenderModels()
 {
   vtkOpenGLState *ostate = this->GetState();
-  ostate->glEnable(GL_DEPTH_TEST);
+  ostate->vtkglEnable(GL_DEPTH_TEST);
 
   // for each device
   for (uint32_t unTrackedDevice = vr::k_unTrackedDeviceIndex_Hmd + 1;
@@ -480,7 +480,7 @@ void vtkOpenVRRenderWindow::StereoMidpoint()
   // render the left eye models
   this->RenderModels();
 
-  this->GetState()->glDisable( GL_MULTISAMPLE );
+  this->GetState()->vtkglDisable( GL_MULTISAMPLE );
 
   if ( this->HMD && this->SwapBuffers ) // picking does not swap and we don't show it
   {
@@ -513,7 +513,7 @@ void  vtkOpenVRRenderWindow::StereoRenderComplete()
     cam->ApplyEyePose(this, false, -1.0);
   }
 
-  this->GetState()->glDisable( GL_MULTISAMPLE );
+  this->GetState()->vtkglDisable( GL_MULTISAMPLE );
 
   // for now as fast as possible
   if ( this->HMD && this->SwapBuffers) // picking does not swap and we don't show it

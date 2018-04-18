@@ -120,7 +120,7 @@ void vtkOpenGLContextDevice3D::Begin(vtkViewport* vtkNotUsed(viewport))
 void vtkOpenGLContextDevice3D::SetMatrices(vtkShaderProgram *prog)
 {
   vtkOpenGLState *ostate = this->RenderWindow->GetState();
-  ostate->glDisable(GL_SCISSOR_TEST);
+  ostate->vtkglDisable(GL_SCISSOR_TEST);
   prog->SetUniformMatrix("WCDCMatrix",
     this->Device2D->GetProjectionMatrix());
 
@@ -615,7 +615,7 @@ void vtkOpenGLContextDevice3D::SetClipping(const vtkRecti &rect)
   }
 
   vtkOpenGLState *ostate = this->RenderWindow->GetState();
-  ostate->glScissor(vp[0], vp[1], vp[2], vp[3]);
+  ostate->vtkglScissor(vp[0], vp[1], vp[2], vp[3]);
 }
 
 void vtkOpenGLContextDevice3D::EnableClipping(bool enable)
@@ -651,13 +651,13 @@ void vtkOpenGLContextDevice3D::DisableClippingPlane(int i)
 void vtkOpenGLContextDevice3D::EnableDepthBuffer()
 {
   vtkOpenGLState *ostate = this->RenderWindow->GetState();
-  ostate->glEnable(GL_DEPTH_TEST);
+  ostate->vtkglEnable(GL_DEPTH_TEST);
 }
 
 void vtkOpenGLContextDevice3D::DisableDepthBuffer()
 {
   vtkOpenGLState *ostate = this->RenderWindow->GetState();
-  ostate->glDisable(GL_DEPTH_TEST);
+  ostate->vtkglDisable(GL_DEPTH_TEST);
 }
 
 void vtkOpenGLContextDevice3D::PrintSelf(ostream &os, vtkIndent indent)

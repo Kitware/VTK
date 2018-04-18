@@ -22,6 +22,7 @@
 #include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLState.h"
+#include "vtk_glew.h"
 
 // to be able to dump intermediate passes into png files for debugging.
 // only for vtkImageProcessingPass developers.
@@ -166,11 +167,11 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState *s,
 
   fbo->AddDepthAttachment(fbo->GetBothMode());
   fbo->StartNonOrtho(newWidth,newHeight);
-  ostate->glViewport(0, 0, newWidth, newHeight);
-  ostate->glScissor(0, 0, newWidth, newHeight);
+  ostate->vtkglViewport(0, 0, newWidth, newHeight);
+  ostate->vtkglScissor(0, 0, newWidth, newHeight);
 
   // 2. Delegate render in FBO
-  ostate->glEnable(GL_DEPTH_TEST);
+  ostate->vtkglEnable(GL_DEPTH_TEST);
   this->DelegatePass->Render(&s2);
   this->NumberOfRenderedProps+=
     this->DelegatePass->GetNumberOfRenderedProps();

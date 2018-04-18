@@ -400,15 +400,15 @@ vtkOpenGLRenderWindow *vtkOpenGLFramebufferObject::GetContext()
 void vtkOpenGLFramebufferObject::InitializeViewport(int width, int height)
 {
   vtkOpenGLState *ostate = this->Context->GetState();
-  ostate->glDisable(GL_BLEND);
-  ostate->glDisable(GL_DEPTH_TEST);
-  ostate->glDisable(GL_SCISSOR_TEST);
+  ostate->vtkglDisable(GL_BLEND);
+  ostate->vtkglDisable(GL_DEPTH_TEST);
+  ostate->vtkglDisable(GL_SCISSOR_TEST);
 
   // Viewport transformation for 1:1 'pixel=texel=data' mapping.
   // Note this is not enough for 1:1 mapping, because depending on the
   // primitive displayed (point,line,polygon), the rasterization rules
   // are different.
-  ostate->glViewport(0, 0, width, height);
+  ostate->vtkglViewport(0, 0, width, height);
 
   vtkOpenGLStaticCheckErrorMacro("failed after InitializeViewport");
 }

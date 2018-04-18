@@ -166,7 +166,7 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
     // Left Eye
     if (win->GetMultiSamples() && !ren->GetSelector())
     {
-      ostate->glEnable( GL_MULTISAMPLE );
+      ostate->vtkglEnable( GL_MULTISAMPLE );
     }
 
     // adjust for left eye position
@@ -180,7 +180,7 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
     // right eye
     if (win->GetMultiSamples() && !ren->GetSelector())
     {
-      ostate->glEnable( GL_MULTISAMPLE );
+      ostate->vtkglEnable( GL_MULTISAMPLE );
     }
 
     if (!ren->GetSelector())
@@ -192,8 +192,8 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
     }
   }
 
-  ostate->glViewport(0, 0, renSize[0], renSize[1] );
-  ostate->glScissor(0, 0, renSize[0], renSize[1] );
+  ostate->vtkglViewport(0, 0, renSize[0], renSize[1] );
+  ostate->vtkglScissor(0, 0, renSize[0], renSize[1] );
     ren->Clear();
   if ((ren->GetRenderWindow())->GetErase() && ren->GetErase()
       && !ren->GetIsPicking())

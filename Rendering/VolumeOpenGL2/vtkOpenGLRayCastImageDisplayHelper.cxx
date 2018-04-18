@@ -155,7 +155,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 
   // Don't write into the Zbuffer - just use it for comparisons
   vtkOpenGLState *ostate = ctx->GetState();
-  ostate->glDepthMask( 0 );
+  ostate->vtkglDepthMask( 0 );
 
   this->TextureObject->SetMinificationFilter(vtkTextureObject::Linear);
   this->TextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
@@ -242,7 +242,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
     ctx->GetShaderCache()->ReadyShaderProgram(this->ShaderProgram->Program);
   }
 
-  ostate->glEnable(GL_BLEND);
+  ostate->vtkglEnable(GL_BLEND);
 
   // backup current GL blend state
   vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
@@ -250,7 +250,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   if (this->PreMultipliedColors)
   {
     // make the blend function correct for textures premultiplied by alpha.
-    ostate->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    ostate->vtkglBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
   }
 
   // bind and activate this texture

@@ -278,8 +278,8 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
     glFinish();
 #endif
 
-    ostate->glDisable(GL_BLEND);
-    ostate->glDisable(GL_DEPTH_TEST);
+    ostate->vtkglDisable(GL_BLEND);
+    ostate->vtkglDisable(GL_DEPTH_TEST);
 
     this->FrameBufferObject->RenderQuad(0,w-1,0,h-1,
       this->BlurProgram->Program, this->BlurProgram->VAO);

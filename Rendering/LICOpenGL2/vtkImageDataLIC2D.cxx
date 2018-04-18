@@ -455,8 +455,8 @@ int vtkImageDataLIC2D::RequestData(
     drawFbo->CheckFrameBufferStatus(GL_FRAMEBUFFER);
     drawFbo->InitializeViewport(magVectorSize[0], magVectorSize[1]);
 
-    this->Context->GetState()->glClearColor(0.0, 0.0, 0.0, 0.0);
-    this->Context->GetState()->glClear(GL_COLOR_BUFFER_BIT);
+    this->Context->GetState()->vtkglClearColor(0.0, 0.0, 0.0, 0.0);
+    this->Context->GetState()->vtkglClear(GL_COLOR_BUFFER_BIT);
 
     float tcoords[] = {
       0.0f, 0.0f,

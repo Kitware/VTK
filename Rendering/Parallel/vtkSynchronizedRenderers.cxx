@@ -690,13 +690,13 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToViewport(vtkRenderer* ren)
 
   vtkOpenGLState *ostate =
     static_cast<vtkOpenGLRenderWindow *>(ren->GetVTKWindow())->GetState();
-  ostate->glEnable(GL_SCISSOR_TEST);
-  ostate->glViewport(
+  ostate->vtkglEnable(GL_SCISSOR_TEST);
+  ostate->vtkglViewport(
     static_cast<GLint>(viewport[0]*window_size[0]),
     static_cast<GLint>(viewport[1]*window_size[1]),
     static_cast<GLsizei>((viewport[2]-viewport[0])*window_size[0]),
     static_cast<GLsizei>((viewport[3]-viewport[1])*window_size[1]));
-  ostate->glScissor(
+  ostate->vtkglScissor(
     static_cast<GLint>(viewport[0]*window_size[0]),
     static_cast<GLint>(viewport[1]*window_size[1]),
     static_cast<GLsizei>((viewport[2]-viewport[0])*window_size[0]),
@@ -721,15 +721,15 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer(vtkRenderer *ren)
   vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
 
   // framebuffers have their color premultiplied by alpha.
-  ostate->glEnable(GL_BLEND);
-  ostate->glBlendFuncSeparate(GL_ONE,GL_ONE_MINUS_SRC_ALPHA,
+  ostate->vtkglEnable(GL_BLEND);
+  ostate->vtkglBlendFuncSeparate(GL_ONE,GL_ONE_MINUS_SRC_ALPHA,
     GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
 
   // always draw the entire image on the entire viewport
   vtkOpenGLState::ScopedglViewport vsaver(ostate);
   int renSize[2];
   ren->GetTiledSize(renSize, renSize + 1);
-  ostate->glViewport(0, 0, renSize[0], renSize[1]);
+  ostate->vtkglViewport(0, 0, renSize[0], renSize[1]);
 
   renWin->DrawPixels(this->GetWidth(), this->GetHeight(),
     this->Data->GetNumberOfComponents(), VTK_UNSIGNED_CHAR,

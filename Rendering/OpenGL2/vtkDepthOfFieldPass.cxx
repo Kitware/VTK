@@ -183,8 +183,8 @@ void vtkDepthOfFieldPass::Render(const vtkRenderState *s)
     return;
   }
 
-  renWin->GetState()->glDisable(GL_BLEND);
-  renWin->GetState()->glDisable(GL_DEPTH_TEST);
+  renWin->GetState()->vtkglDisable(GL_BLEND);
+  renWin->GetState()->vtkglDisable(GL_DEPTH_TEST);
 
   this->Pass1->Activate();
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

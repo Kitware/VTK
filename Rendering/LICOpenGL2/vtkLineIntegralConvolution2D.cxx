@@ -290,8 +290,8 @@ public:
 
     // clear the parts of the screen which we will modify
     // initially mask all fragments
-    ostate->glClearColor(0.0, 1.0, 0.0, 0.0);
-    ostate->glEnable(GL_SCISSOR_TEST);
+    ostate->vtkglClearColor(0.0, 1.0, 0.0, 0.0);
+    ostate->vtkglEnable(GL_SCISSOR_TEST);
     size_t nBlocks = extents.size();
     for (size_t e=0; e<nBlocks; ++e)
     {
@@ -307,10 +307,10 @@ public:
       unsigned int extSize[2];
       ext.Size(extSize);
 
-      ostate->glScissor(ext[0], ext[2], extSize[0], extSize[1]);
-      ostate->glClear(GL_COLOR_BUFFER_BIT);
+      ostate->vtkglScissor(ext[0], ext[2], extSize[0], extSize[1]);
+      ostate->vtkglClear(GL_COLOR_BUFFER_BIT);
     }
-    ostate->glDisable(GL_SCISSOR_TEST);
+    ostate->vtkglDisable(GL_SCISSOR_TEST);
     // detach
     // detach
     fbo->RemoveTexColorAttachments(GL_DRAW_FRAMEBUFFER, num);
@@ -334,8 +334,8 @@ public:
 
     // clear the parts of the screen which we will modify
     // initially mask all fragments
-    ostate->glClearColor(0.0, 1.0, 0.0, 0.0);
-    ostate->glEnable(GL_SCISSOR_TEST);
+    ostate->vtkglClearColor(0.0, 1.0, 0.0, 0.0);
+    ostate->vtkglEnable(GL_SCISSOR_TEST);
     size_t nBlocks = extents.size();
     for (size_t e=0; e<nBlocks; ++e)
     {
@@ -351,10 +351,10 @@ public:
       unsigned int extSize[2];
       ext.Size(extSize);
 
-      ostate->glScissor(ext[0], ext[2], extSize[0], extSize[1]);
-      ostate->glClear(GL_COLOR_BUFFER_BIT);
+      ostate->vtkglScissor(ext[0], ext[2], extSize[0], extSize[1]);
+      ostate->vtkglClear(GL_COLOR_BUFFER_BIT);
     }
-    ostate->glDisable(GL_SCISSOR_TEST);
+    ostate->vtkglDisable(GL_SCISSOR_TEST);
     // detach
     fbo->RemoveTexColorAttachments(GL_DRAW_FRAMEBUFFER, 1);
     fbo->DeactivateDrawBuffers();
@@ -1548,9 +1548,9 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     this->VTShader->Program->SetUniformi("texVectors", bufs.GetVectorTextureUnit());
     vtkOpenGLCheckErrorMacro("failed");
     // essential to initialize the entire buffer
-    ostate->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    ostate->vtkglClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     vtkOpenGLCheckErrorMacro("failed");
-    ostate->glClear(GL_COLOR_BUFFER_BIT);
+    ostate->vtkglClear(GL_COLOR_BUFFER_BIT);
     vtkOpenGLCheckErrorMacro("failed");
     size_t nVectorExtents = vectorExtents.size();
     for (size_t q=0; q<nVectorExtents; ++q)

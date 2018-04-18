@@ -42,17 +42,17 @@ void vtkOpenGLProperty::Render(vtkActor *anActor, vtkRenderer *ren)
     static_cast<vtkOpenGLRenderer *>(ren)->GetState();
   if (! this->BackfaceCulling && ! this->FrontfaceCulling)
   {
-    ostate->glDisable (GL_CULL_FACE);
+    ostate->vtkglDisable (GL_CULL_FACE);
   }
   else if (this->BackfaceCulling)
   {
-    ostate->glCullFace (GL_BACK);
-    ostate->glEnable (GL_CULL_FACE);
+    ostate->vtkglCullFace (GL_BACK);
+    ostate->vtkglEnable (GL_CULL_FACE);
   }
   else //if both front & back culling on, will fall into backface culling
   { //if you really want both front and back, use the Actor's visibility flag
-    ostate->glCullFace (GL_FRONT);
-    ostate->glEnable (GL_CULL_FACE);
+    ostate->vtkglCullFace (GL_FRONT);
+    ostate->vtkglEnable (GL_CULL_FACE);
   }
 
   this->RenderTextures(anActor, ren);
@@ -83,7 +83,7 @@ void vtkOpenGLProperty::PostRender(vtkActor *actor, vtkRenderer *renderer)
   if (this->BackfaceCulling || this->FrontfaceCulling)
   {
     static_cast<vtkOpenGLRenderer *>(renderer)
-      ->GetState()->glDisable(GL_CULL_FACE);
+      ->GetState()->vtkglDisable(GL_CULL_FACE);
   }
 
   // deactivate any textures.

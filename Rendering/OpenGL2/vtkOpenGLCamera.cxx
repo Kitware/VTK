@@ -59,17 +59,17 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
   ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft+1);
 
-  ostate->glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
-  ostate->glEnable(GL_SCISSOR_TEST);
+  ostate->vtkglViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
+  ostate->vtkglEnable(GL_SCISSOR_TEST);
   if (this->UseScissor)
   {
-    ostate->glScissor(this->ScissorRect.GetX(),this->ScissorRect.GetY(),
+    ostate->vtkglScissor(this->ScissorRect.GetX(),this->ScissorRect.GetY(),
               this->ScissorRect.GetWidth(), this->ScissorRect.GetHeight());
     this->UseScissor = false;
   }
   else
   {
-    ostate->glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
+    ostate->vtkglScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
   }
 
   if ((ren->GetRenderWindow())->GetErase() && ren->GetErase()
@@ -92,17 +92,17 @@ void vtkOpenGLCamera::UpdateViewport(vtkRenderer *ren)
   int usize, vsize;
   ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft+1);
 
-  ostate->glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
-  ostate->glEnable(GL_SCISSOR_TEST);
+  ostate->vtkglViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
+  ostate->vtkglEnable(GL_SCISSOR_TEST);
   if (this->UseScissor)
   {
-    ostate->glScissor(this->ScissorRect.GetX(),this->ScissorRect.GetY(),
+    ostate->vtkglScissor(this->ScissorRect.GetX(),this->ScissorRect.GetY(),
               this->ScissorRect.GetWidth(), this->ScissorRect.GetHeight());
     this->UseScissor = false;
   }
   else
   {
-    ostate->glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
+    ostate->vtkglScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
   }
 
   vtkOpenGLCheckErrorMacro("failed after UpdateViewport");

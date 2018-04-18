@@ -153,9 +153,9 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
       {
         glDrawBuffer(GL_BACK_LEFT);
       }
-      ostate->glDisable(GL_DEPTH_TEST);
-      ostate->glDisable(GL_STENCIL_TEST);
-      ostate->glDisable(GL_BLEND);
+      ostate->vtkglDisable(GL_DEPTH_TEST);
+      ostate->vtkglDisable(GL_STENCIL_TEST);
+      ostate->vtkglDisable(GL_BLEND);
 
       this->Texture->CopyToFrameBuffer(x,y,x,y,x,y,
         this->Context->GetSize()[0],

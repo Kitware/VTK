@@ -837,7 +837,7 @@ void vtkOpenGLPointGaussianMapperHelper::RenderPieceDraw(vtkRenderer* ren, vtkAc
     vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
     if (this->Owner->GetEmissive() != 0)
     {
-      ostate->glBlendFunc( GL_SRC_ALPHA, GL_ONE);  // additive for emissive sources
+      ostate->vtkglBlendFunc( GL_SRC_ALPHA, GL_ONE);  // additive for emissive sources
     }
     // First we do the triangles or points, update the shader, set uniforms, etc.
     this->UpdateShaders(this->Primitives[PrimitiveTris], ren, actor);

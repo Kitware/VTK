@@ -577,17 +577,17 @@ void vtkValuePass::BeginPass(vtkRenderer* ren)
     static_cast<vtkOpenGLRenderer*>(ren)->GetState();
 
   // Clear buffers
-  ostate->glClearDepth(1.0);
+  ostate->vtkglClearDepth(1.0);
   if (this->RenderingMode == vtkValuePass::FLOATING_POINT)
   {
-    ostate->glClearColor(vtkMath::Nan(),vtkMath::Nan(),vtkMath::Nan(),0.0);
+    ostate->vtkglClearColor(vtkMath::Nan(),vtkMath::Nan(),vtkMath::Nan(),0.0);
   }
   else
   {
-    ostate->glClearColor(0.0, 0.0, 0.0, 0.0);
+    ostate->vtkglClearColor(0.0, 0.0, 0.0, 0.0);
   }
 
-  ostate->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  ostate->vtkglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 //------------------------------------------------------------------------------

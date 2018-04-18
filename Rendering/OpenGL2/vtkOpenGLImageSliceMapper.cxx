@@ -722,10 +722,10 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
   vtkOpenGLState *ostate = renWin->GetState();
 
   // Whether to write to the depth buffer and color buffer
-  ostate->glDepthMask(this->DepthEnable ? GL_TRUE : GL_FALSE); // supported in all
+  ostate->vtkglDepthMask(this->DepthEnable ? GL_TRUE : GL_FALSE); // supported in all
   if (!this->ColorEnable && !this->MatteEnable)
   {
-    ostate->glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // supported in all
+    ostate->vtkglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // supported in all
   }
 
   // color and lighting related items
@@ -772,10 +772,10 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
   }
 
   // Set the masks back again
-  ostate->glDepthMask(GL_TRUE);
+  ostate->vtkglDepthMask(GL_TRUE);
   if (!this->ColorEnable && !this->MatteEnable)
   {
-    ostate->glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    ostate->vtkglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   }
 
   this->Timer->StopTimer();

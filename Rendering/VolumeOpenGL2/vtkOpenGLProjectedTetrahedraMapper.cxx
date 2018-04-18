@@ -669,12 +669,12 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
 
   vtkOpenGLState *ostate =
     static_cast<vtkOpenGLRenderWindow *>(renderer->GetRenderWindow())->GetState();
-  ostate->glDepthMask(GL_FALSE);
+  ostate->vtkglDepthMask(GL_FALSE);
 
-  ostate->glDisable(GL_CULL_FACE);
+  ostate->vtkglDisable(GL_CULL_FACE);
   vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
 
-  ostate->glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+  ostate->vtkglBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
     GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
   float unit_distance = volume->GetProperty()->GetScalarOpacityUnitDistance();
@@ -1101,7 +1101,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
   // Restore the blend function.
   vtkOpenGLCheckErrorMacro("failed at glPopAttrib");
 
-  ostate->glDepthMask(GL_TRUE);
+  ostate->vtkglDepthMask(GL_TRUE);
 
   vtkOpenGLCheckErrorMacro("failed after ProjectTetrahedra");
   this->GLSafeUpdateProgress(1.0, window);

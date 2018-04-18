@@ -227,12 +227,12 @@ int vtkOpenVRMenuRepresentation::RenderOverlay(vtkViewport *v)
   vtkOpenGLState *ostate = renWin->GetState();
 
   // always draw over the rest
-  ostate->glDepthFunc(GL_ALWAYS);
+  ostate->vtkglDepthFunc(GL_ALWAYS);
   for (auto &menu : this->Menus)
   {
     menu->TextActor->RenderOpaqueGeometry(v);
   }
-  ostate->glDepthFunc(GL_LEQUAL);
+  ostate->vtkglDepthFunc(GL_LEQUAL);
 
   return static_cast<int>(this->Menus.size());
 }

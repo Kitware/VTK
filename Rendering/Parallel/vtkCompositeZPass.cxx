@@ -399,10 +399,10 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 #endif
 
       // Apply TO on quad with special zcomposite fragment shader.
-      ostate->glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
-      ostate->glEnable(GL_DEPTH_TEST);
-      ostate->glDepthMask(GL_TRUE);
-      ostate->glDepthFunc(GL_LEQUAL);
+      ostate->vtkglColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
+      ostate->vtkglEnable(GL_DEPTH_TEST);
+      ostate->vtkglDepthMask(GL_TRUE);
+      ostate->vtkglDepthFunc(GL_LEQUAL);
 
       context->GetShaderCache()->ReadyShaderProgram(this->Program->Program);
       this->ZTexture->Activate();
@@ -656,10 +656,10 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
                                 this->PBO);
 
     // TO to FB: apply TO on quad with special zcomposite fragment shader.
-    ostate->glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
-    ostate->glEnable(GL_DEPTH_TEST);
-    ostate->glDepthMask(GL_TRUE);
-    ostate->glDepthFunc(GL_ALWAYS);
+    ostate->vtkglColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
+    ostate->vtkglEnable(GL_DEPTH_TEST);
+    ostate->vtkglDepthMask(GL_TRUE);
+    ostate->vtkglDepthFunc(GL_ALWAYS);
 
     if(this->Program==nullptr)
     {

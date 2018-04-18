@@ -61,7 +61,6 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include <array>      // for ivar
-#include "vtk_glew.h" // for gl types
 
 class vtkOpenGLRenderWindow;
 
@@ -74,42 +73,51 @@ public:
   // the current value prior to making the OpenGL call. This can reduce
   // the burden on the driver.
   //
-  void glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
-  void glClearDepth(double depth);
-  void glDepthFunc(GLenum val);
-  void glDepthMask(GLboolean flag);
-  void glColorMask(GLboolean r, GLboolean g, GLboolean b, GLboolean a);
-  void glViewport(GLint x, GLint y, GLsizei width, GLsizei height);
-  void glScissor(GLint x, GLint y, GLsizei width, GLsizei height);
-  void glEnable(GLenum cap);
-  void glDisable(GLenum cap);
-  void glBlendFunc(GLenum sfactor, GLenum dfactor) {
-    this->glBlendFuncSeparate(sfactor, dfactor, sfactor, dfactor);
+  void vtkglClearColor(float red, float green, float blue, float alpha);
+  void vtkglClearDepth(double depth);
+  void vtkglDepthFunc(unsigned int val);
+  void vtkglDepthMask(unsigned char flag);
+  void vtkglColorMask(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+  void vtkglViewport(int x, int y, int width, int height);
+  void vtkglScissor(int x, int y, int width, int height);
+  void vtkglEnable(unsigned int cap);
+  void vtkglDisable(unsigned int cap);
+  void vtkglBlendFunc(unsigned int sfactor, unsigned int dfactor) {
+    this->vtkglBlendFuncSeparate(sfactor, dfactor, sfactor, dfactor);
   }
-  void glBlendFuncSeparate(GLenum sfactorRGB, GLenum dfactorRGB,
-    GLenum sfactorAlpha, GLenum dfactorAlpha);
-  void glBlendEquation(GLenum val);
-  void glCullFace(GLenum val);
+  void vtkglBlendFuncSeparate(unsigned int sfactorRGB, unsigned int dfactorRGB,
+    unsigned int sfactorAlpha, unsigned int dfactorAlpha);
+  void vtkglBlendEquation(unsigned int val);
+  void vtkglCullFace(unsigned int val);
   //@}
 
   //@{
   // OpenGL functions that we provide an API for even though they may
   // not hold any state.
-  void glClear(GLbitfield mask);
+  void vtkglClear(unsigned int mask);
   //@}
 
 
   //@{
   // Get methods that can be used to query state
-  GLenum GetCullFace() { return this->CurrentState.CullFaceMode; }
-  bool GetEnumState(GLenum name);
-  void GetBlendFuncState(int *);
-  void GetClearColor(GLclampf *);
-  bool GetDepthMask();
+  // if the state is not cached they fall through
+  // and call the underlying opengl functions
+  void vtkglGetBooleanv(unsigned int pname, unsigned char *params);
+  void vtkglGetIntegerv(unsigned int pname, int *params);
+  void vtkglGetDoublev(unsigned int pname, double *params);
+  void vtkglGetFloatv(unsigned int pname, float *params);
   //@}
 
+  // convenience to get all 4 values at once
+  void GetBlendFuncState(int *);
+
+  // convenience to return a bool
+  // as opposed to a unsigned char
+  bool GetEnumState(unsigned int name);
+
+
   // convenience method to set a enum (glEnable/glDisable)
-  void SetEnumState(GLenum name, bool value);
+  void SetEnumState(unsigned int name, bool value);
 
   // superclass for Scoped subclasses
   template <typename T>
@@ -128,32 +136,34 @@ public:
 
   // Scoped classes you can use to save state
   class VTKRENDERINGOPENGL2_EXPORT ScopedglDepthMask
-    : public ScopedValue<GLboolean> {
+    : public ScopedValue<unsigned char> {
     public: ScopedglDepthMask(vtkOpenGLState *state); };
   class VTKRENDERINGOPENGL2_EXPORT ScopedglClearColor
-    : public ScopedValue<std::array<GLclampf, 4> > {
+    : public ScopedValue<std::array<float, 4> > {
     public: ScopedglClearColor(vtkOpenGLState *state); };
   class VTKRENDERINGOPENGL2_EXPORT ScopedglColorMask
-    : public ScopedValue<std::array<GLboolean, 4> > {
+    : public ScopedValue<std::array<unsigned char, 4> > {
     public: ScopedglColorMask(vtkOpenGLState *state); };
   class VTKRENDERINGOPENGL2_EXPORT ScopedglScissor
-    : public ScopedValue<std::array<GLint, 4> > {
+    : public ScopedValue<std::array<int, 4> > {
     public: ScopedglScissor(vtkOpenGLState *state); };
   class VTKRENDERINGOPENGL2_EXPORT ScopedglViewport
-    : public ScopedValue<std::array<GLint, 4> > {
+    : public ScopedValue<std::array<int, 4> > {
     public: ScopedglViewport(vtkOpenGLState *state); };
   class VTKRENDERINGOPENGL2_EXPORT ScopedglBlendFuncSeparate
-    : public ScopedValue<std::array<GLenum, 4> > {
+    : public ScopedValue<std::array<unsigned int, 4> > {
     public: ScopedglBlendFuncSeparate(vtkOpenGLState *state); };
 
   class ScopedglEnableDisable
   {
     public:
-      ScopedglEnableDisable(vtkOpenGLState *state, GLenum name)
+      ScopedglEnableDisable(vtkOpenGLState *state, unsigned int name)
       {
         this->State = state;
         this->Name = name;
-        this->Value = this->State->GetEnumState(name);
+        unsigned char val;
+        this->State->vtkglGetBooleanv(name, &val);
+        this->Value = val == 1;
       }
       ~ScopedglEnableDisable() // restore value
       {
@@ -161,7 +171,7 @@ public:
       }
     protected:
       vtkOpenGLState *State;
-      GLenum Name;
+      unsigned int Name;
       bool Value;
   };
 
@@ -170,25 +180,25 @@ public:
   void Initialize(vtkOpenGLRenderWindow *);
 
 protected:
-  void BlendFuncSeparate(std::array<GLenum, 4> val);
-  void ClearColor(std::array<GLclampf, 4> val);
-  void ColorMask(std::array<GLboolean, 4> val);
-  void Scissor(std::array<GLint, 4> val);
-  void Viewport(std::array<GLint, 4> val);
+  void BlendFuncSeparate(std::array<unsigned int, 4> val);
+  void ClearColor(std::array<float, 4> val);
+  void ColorMask(std::array<unsigned char, 4> val);
+  void Scissor(std::array<int, 4> val);
+  void Viewport(std::array<int, 4> val);
 
   class VTKRENDERINGOPENGL2_EXPORT GLState
   {
     public:
       double ClearDepth;
-      GLboolean DepthMask;
-      GLenum DepthFunc;
-      GLenum BlendEquation;
-      GLenum CullFaceMode;
-      std::array<GLclampf, 4> ClearColor;
-      std::array<GLboolean, 4> ColorMask;
-      std::array<GLint, 4> Viewport;
-      std::array<GLint, 4> Scissor;
-      std::array<GLenum, 4> BlendFunc;
+      unsigned char DepthMask;
+      unsigned int DepthFunc;
+      unsigned int BlendEquation;
+      unsigned int CullFaceMode;
+      std::array<float, 4> ClearColor;
+      std::array<unsigned char, 4> ColorMask;
+      std::array<int, 4> Viewport;
+      std::array<int, 4> Scissor;
+      std::array<unsigned int, 4> BlendFunc;
       bool DepthTest;
       bool CullFace;
       bool ScissorTest;

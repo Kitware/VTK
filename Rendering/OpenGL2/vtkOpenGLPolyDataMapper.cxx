@@ -2334,7 +2334,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
   if (selector &&
       selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
-    static_cast<vtkOpenGLRenderer *>(ren)->GetState()->glDepthMask(GL_FALSE);
+    static_cast<vtkOpenGLRenderer *>(ren)->GetState()->vtkglDepthMask(GL_FALSE);
   }
   if (selector && this->PopulateSelectionSettings)
   {
@@ -2447,7 +2447,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren,
   if (selector &&
       selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
-    static_cast<vtkOpenGLRenderer *>(ren)->GetState()->glDepthMask(GL_TRUE);
+    static_cast<vtkOpenGLRenderer *>(ren)->GetState()->vtkglDepthMask(GL_TRUE);
   }
   if (selector && this->PopulateSelectionSettings)
   {

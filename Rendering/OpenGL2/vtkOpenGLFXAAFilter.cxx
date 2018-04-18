@@ -225,8 +225,8 @@ void vtkOpenGLFXAAFilter::Prepare()
   this->BlendState = ostate->GetEnumState(GL_BLEND);
   this->DepthTestState = ostate->GetEnumState(GL_DEPTH_TEST);
 
-  ostate->glDisable(GL_BLEND);
-  ostate->glDisable(GL_DEPTH_TEST);
+  ostate->vtkglDisable(GL_BLEND);
+  ostate->vtkglDisable(GL_DEPTH_TEST);
 
   vtkOpenGLCheckErrorMacro("Error after saving GL state.");
 }
@@ -379,11 +379,11 @@ void vtkOpenGLFXAAFilter::Finalize()
   vtkOpenGLState *ostate = this->Renderer->GetState();
   if (this->BlendState)
   {
-    ostate->glEnable(GL_BLEND);
+    ostate->vtkglEnable(GL_BLEND);
   }
   if (this->DepthTestState)
   {
-    ostate->glEnable(GL_DEPTH_TEST);
+    ostate->vtkglEnable(GL_DEPTH_TEST);
   }
 
   vtkOpenGLCheckErrorMacro("Error after restoring GL state.");

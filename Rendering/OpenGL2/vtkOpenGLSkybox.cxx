@@ -123,7 +123,7 @@ void vtkOpenGLSkybox::Render(vtkRenderer *ren, vtkMapper *mapper)
   this->OpenGLActor->SetPosition(ren->GetActiveCamera()->GetPosition());
 
   // get opacity
-  static_cast<vtkOpenGLRenderer*>(ren)->GetState()->glDepthMask(GL_TRUE);
+  static_cast<vtkOpenGLRenderer*>(ren)->GetState()->vtkglDepthMask(GL_TRUE);
 
   // send a render to the mapper; update pipeline
   mapper->Render(ren, this->OpenGLActor);
