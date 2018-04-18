@@ -200,8 +200,7 @@ namespace vtkosp {
                               osp::vec4f *PointColors,
                               int numPointValueTextureCoords,
                               float *pointValueTextureCoords,
-                              OSPModel oModel,
-                              OSPRenderer oRenderer
+                              OSPModel oModel
                               )
   {
     OSPGeometry ospMesh = ospNewGeometry("spheres");
@@ -214,7 +213,6 @@ namespace vtkosp {
     }
     float *mdata = new float[width*indexArray.size()];
     int *idata = (int*)mdata;
-    static_assert(sizeof(float) == sizeof(int), "int and float must be same size");
     for (size_t i = 0; i < indexArray.size(); i++)
     {
       mdata[i*width+0] = static_cast<float>(vertices[indexArray[i]].x);
@@ -296,11 +294,10 @@ namespace vtkosp {
     else if (vColorTextureMap && _hastm)
     {
       osp::Texture2D *t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(vColorTextureMap);
-      OSPMaterial ospMaterial = ospNewMaterial(oRenderer,"OBJMaterial");
-      ospSetObject(ospMaterial, "map_Kd", ((OSPTexture2D)(t2d)));
+      ospSetObject(actorMaterial, "map_Kd", ((OSPTexture2D)(t2d)));
       ospCommit(t2d);
-      ospCommit(ospMaterial);
-      ospSetMaterial(ospMesh, ospMaterial);
+      ospCommit(actorMaterial);
+      ospSetMaterial(ospMesh, actorMaterial);
     }
     else if (numCellMaterials)
     {
@@ -347,8 +344,7 @@ namespace vtkosp {
                                 osp::vec4f *PointColors,
                                 int numPointValueTextureCoords,
                                 float *pointValueTextureCoords,
-                                OSPModel oModel,
-                                OSPRenderer oRenderer
+                                OSPModel oModel
                                 )
   {
     OSPGeometry ospMesh = ospNewGeometry("cylinders");
@@ -456,11 +452,10 @@ namespace vtkosp {
     else if (vColorTextureMap && _hastm)
     {
       osp::Texture2D *t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(vColorTextureMap);
-      OSPMaterial ospMaterial = ospNewMaterial(oRenderer,"OBJMaterial");
-      ospSetObject(ospMaterial, "map_Kd", ((OSPTexture2D)(t2d)));
+      ospSetObject(actorMaterial, "map_Kd", ((OSPTexture2D)(t2d)));
       ospCommit(t2d);
-      ospCommit(ospMaterial);
-      ospSetMaterial(ospMesh, ospMaterial);
+      ospCommit(actorMaterial);
+      ospSetMaterial(ospMesh, actorMaterial);
     }
     else if (numCellMaterials)
     {
@@ -506,8 +501,7 @@ namespace vtkosp {
                                 osp::vec4f *PointColors,
                                 int numPointValueTextureCoords,
                                 float *pointValueTextureCoords,
-                                OSPModel oModel,
-                                OSPRenderer oRenderer
+                                OSPModel oModel
                                 )
   {
     OSPGeometry ospMesh = ospNewGeometry("trianglemesh");
@@ -580,12 +574,12 @@ namespace vtkosp {
     }
     else if (vColorTextureMap && _hastm)
     {
+      //Note: this will only have an affect on OBJMaterials
       osp::Texture2D *t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(vColorTextureMap);
-      OSPMaterial ospMaterial = ospNewMaterial(oRenderer,"OBJMaterial");
-      ospSetObject(ospMaterial, "map_Kd", ((OSPTexture2D)(t2d)));
+      ospSetObject(actorMaterial, "map_Kd", ((OSPTexture2D)(t2d)));
       ospCommit(t2d);
-      ospCommit(ospMaterial);
-      ospSetMaterial(ospMesh, ospMaterial);
+      ospCommit(actorMaterial);
+      ospSetMaterial(ospMesh, actorMaterial);
     }
     else if (numCellMaterials)
     {
@@ -999,7 +993,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                     numCellMaterials, cellMaterials,
                                     numPointColors, pointColors,
                                     numPointValueTextureCoords, pointValueTextureCoords,
-                                    oModel, oRenderer
+                                    oModel
                                     ));
   }
 
@@ -1021,7 +1015,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                       numCellMaterials, cellMaterials,
                                       numPointColors, pointColors,
                                       numPointValueTextureCoords, pointValueTextureCoords,
-                                      oModel, oRenderer
+                                      oModel
                                       ));
     }
     else
@@ -1037,7 +1031,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                         numCellMaterials, cellMaterials,
                                         numPointColors, pointColors,
                                         numPointValueTextureCoords, pointValueTextureCoords,
-                                        oModel, oRenderer
+                                        oModel
                                         ));
     }
   }
@@ -1061,7 +1055,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                         numCellMaterials, cellMaterials,
                                         numPointColors, pointColors,
                                         numPointValueTextureCoords, pointValueTextureCoords,
-                                        oModel, oRenderer
+                                        oModel
                                         ));
         break;
       }
@@ -1078,7 +1072,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                           numCellMaterials, cellMaterials,
                                           numPointColors, pointColors,
                                           numPointValueTextureCoords, pointValueTextureCoords,
-                                          oModel, oRenderer
+                                          oModel
                                           ));
         break;
       }
@@ -1113,8 +1107,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                             numCellMaterials, cellMaterials,
                                             numPointColors, pointColors,
                                             0, pointValueTextureCoords,
-                                            oModel,
-                                            oRenderer
+                                            oModel
                                             ));
         }
 
@@ -1141,7 +1134,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                           numCellMaterials, cellMaterials,
                                           numPointColors, pointColors,
                                           numPointValueTextureCoords, pointValueTextureCoords,
-                                          oModel, oRenderer
+                                          oModel
                                           ));
         delete[] normals;
       }
@@ -1166,7 +1159,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                         numCellMaterials, cellMaterials,
                                         numPointColors, pointColors,
                                         numPointValueTextureCoords, pointValueTextureCoords,
-                                        oModel, oRenderer
+                                        oModel
                                         ));
         break;
       }
@@ -1183,7 +1176,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                           numCellMaterials, cellMaterials,
                                           numPointColors, pointColors,
                                           numPointValueTextureCoords, pointValueTextureCoords,
-                                          oModel, oRenderer
+                                          oModel
                                           ));
         break;
       }
@@ -1218,7 +1211,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                             numCellMaterials, cellMaterials,
                                             numPointColors, pointColors,
                                             0, pointValueTextureCoords,
-                                            oModel, oRenderer
+                                            oModel
                                             ));
         }
         osp::vec3f *normals = nullptr;
@@ -1244,7 +1237,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
                                           numCellMaterials, cellMaterials,
                                           numPointColors, pointColors,
                                           numPointValueTextureCoords, pointValueTextureCoords,
-                                          oModel, oRenderer
+                                          oModel
                                           ));
         delete[] normals;
       }
