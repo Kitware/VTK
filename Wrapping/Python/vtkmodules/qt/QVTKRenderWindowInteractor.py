@@ -396,16 +396,12 @@ class QVTKRenderWindowInteractor(QVTKRWIBaseClass):
             # pixel ratio.
             return 1.
 
-    def _setEventInformation(self, x, y, ctrl, shift, key, repeat=0, keysum=None):
-        if False:
-            # Original behavior
-            self._Iren.SetEventInformationFlipY(x, y, ctrl, shift, key, repeat, keysum)
-        else:
-            # Fixed
-            scale = self._getPixelRatio()
-            self._Iren.SetEventInformation(int(round(x*scale)),
-                                           int(round((self.height()-y-1)*scale)),
-                                           ctrl, shift, key, repeat, keysum)
+    def _setEventInformation(self, x, y, ctrl, shift,
+                             key, repeat=0, keysum=None):
+        scale = self._getPixelRatio()
+        self._Iren.SetEventInformation(int(round(x*scale)),
+                                       int(round((self.height()-y-1)*scale)),
+                                       ctrl, shift, key, repeat, keysum)
 
     def enterEvent(self, ev):
         ctrl, shift = self._GetCtrlShift(ev)
