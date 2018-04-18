@@ -1791,13 +1791,13 @@ void vtkHyperTreeGrid::CopyStructure( vtkDataSet* ds )
 //----------------------------------------------------------------------------
 void vtkHyperTreeGrid::SetGridSize( unsigned int dim[3] )
 {
-  this->SetGridExtent( 0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1 );
+  this->SetGridExtent( 0, dim[0], 0, dim[1], 0, dim[2] );
 }
 
 //----------------------------------------------------------------------------
 void vtkHyperTreeGrid::SetGridSize( unsigned int i, unsigned int j, unsigned int k )
 {
-  this->SetGridExtent( 0, i-1, 0, j-1, 0, k-1 );
+  this->SetGridExtent( 0, i, 0, j, 0, k );
 }
 
 //----------------------------------------------------------------------------
@@ -1817,9 +1817,9 @@ void vtkHyperTreeGrid::SetGridExtent( int extent[6] )
     return;
   }
 
-  this->GridSize[0] = extent[1] - extent[0] + 1;
-  this->GridSize[1] = extent[3] - extent[2] + 1;
-  this->GridSize[2] = extent[5] - extent[4] + 1;
+  this->GridSize[0] = this->Extent[1] - this->Extent[0];
+  this->GridSize[1] = this->Extent[3] - this->Extent[2];
+  this->GridSize[2] = this->Extent[5] - this->Extent[4];
 
   this->Modified();
 }
@@ -1949,9 +1949,25 @@ void vtkHyperTreeGrid::ComputeBounds()
 //-----------------------------------------------------------------------------
 vtkIdType vtkHyperTreeGrid::GetNumberOfTrees()
 {
-  return this->MaterialMaskIndex ?
-    this->MaterialMaskIndex->GetNumberOfTuples() :
-    this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
+  if (this->MaterialMaskIndex)
+  {
+    return this->MaterialMaskIndex->GetNumberOfTuples();
+  }
+  vtkIdType numberOfTrees = 1;
+  unsigned int numberOfNonZeroDirections = 0;
+  for ( int i = 0; i < 3; ++i )
+  {
+    if ( this->GridSize[i] > 0 )
+    {
+      numberOfTrees *= this->GridSize[i];
+      numberOfNonZeroDirections++;
+    }
+  }
+  if ( this->Dimension != numberOfNonZeroDirections )
+  {
+    vtkWarningMacro("Incompatible Dimension and GridSize");
+  }
+  return numberOfTrees;
 }
 
 //-----------------------------------------------------------------------------
