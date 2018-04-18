@@ -18,6 +18,7 @@
 #include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataSet.h"
+#include "vtkFrustumSelector.h"
 #include "vtkGraph.h"
 #include "vtkHierarchicalBoxDataIterator.h"
 #include "vtkIdTypeArray.h"
@@ -27,6 +28,7 @@
 #include "vtkPoints.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
+#include "vtkSelectionOperator.h"
 #include "vtkSignedCharArray.h"
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
@@ -258,24 +260,129 @@ int vtkExtractSelection2::RequestData(
   }
 }
 
-vtkSignedCharArray* vtkExtractSelection2::ComputePointsInside(vtkDataObject* block,
+//----------------------------------------------------------------------------
+vtkSelectionOperator* vtkExtractSelection2::GetOperatorForNode(vtkSelectionNode* node)
+{
+  vtkSelectionOperator* op = nullptr;
+  int seltype = node->GetContentType();
+  switch (seltype)
+  {
+  case vtkSelectionNode::GLOBALIDS:
+  case vtkSelectionNode::PEDIGREEIDS:
+  case vtkSelectionNode::VALUES:
+  case vtkSelectionNode::INDICES:
+    break;
+
+  case vtkSelectionNode::FRUSTUM:
+    op = vtkFrustumSelector::New();
+    break;
+
+  case vtkSelectionNode::LOCATIONS:
+    break;
+
+  case vtkSelectionNode::THRESHOLDS:
+    break;
+
+  case vtkSelectionNode::BLOCKS:
+    break;
+
+  case vtkSelectionNode::USER:
+      vtkErrorMacro("User-supplied, application-specific selections are not supported.");
+      return nullptr;
+
+  default:
+      vtkErrorMacro("Unrecognized CONTENT_TYPE: " << seltype);
+      return nullptr;
+  }
+  op->Initialize(node);
+  return op;
+}
+
+//----------------------------------------------------------------------------
+vtkSignedCharArray* vtkExtractSelection2::ComputePointsInside(vtkDataSet* data,
                                                               vtkIdType flatIndex,
                                                               vtkIdType level,
                                                               vtkIdType hbIndex,
                                                               vtkSelection* selection)
 {
-  return nullptr;
+  vtkIdType numPts = data->GetNumberOfPoints();
+  std::vector<vtkSmartPointer<vtkSignedCharArray>> arrays;
+  for (unsigned int n = 0; n < selection->GetNumberOfNodes(); n++)
+  {
+    auto inSelection = vtkSmartPointer<vtkSignedCharArray>::New();
+    arrays.push_back(inSelection);
+    inSelection->SetNumberOfTuples(numPts);
+
+    vtkSelectionNode* node = selection->GetNode(n);
+    vtkInformation* nodeProperties = node->GetProperties();
+
+    if (nodeProperties->Has(vtkSelectionNode::COMPOSITE_INDEX()) &&
+        nodeProperties->Get(vtkSelectionNode::COMPOSITE_INDEX()) != flatIndex)
+    {
+      inSelection->FillValue(0);
+    }
+    else if ((nodeProperties->Has(vtkSelectionNode::HIERARCHICAL_LEVEL()) &&
+        nodeProperties->Has(vtkSelectionNode::HIERARCHICAL_INDEX())) &&
+        (nodeProperties->Get(vtkSelectionNode::HIERARCHICAL_LEVEL()) != level ||
+        nodeProperties->Get(vtkSelectionNode::HIERARCHICAL_INDEX()) != hbIndex))
+    {
+      inSelection->FillValue(0);
+    }
+    else
+    {
+      auto op = vtkSmartPointer<vtkSelectionOperator>::Take(this->GetOperatorForNode(node));
+      op->ComputePointsInside(data, inSelection);
+    }
+  }
+  // TODO combine selection arrays via expression -- temporarily returns the selection
+  // for the first node
+  arrays[0]->Register(this);
+  return arrays[0];
 }
 
-vtkSignedCharArray* vtkExtractSelection2::ComputeCellsInside(vtkDataObject* block,
+//----------------------------------------------------------------------------
+vtkSignedCharArray* vtkExtractSelection2::ComputeCellsInside(vtkDataSet* data,
                                                               vtkIdType flatIndex,
                                                               vtkIdType level,
                                                               vtkIdType hbIndex,
                                                               vtkSelection* selection)
 {
-  return nullptr;
+  vtkIdType numCells = data->GetNumberOfCells();
+  std::vector<vtkSmartPointer<vtkSignedCharArray>> arrays;
+  for (unsigned int n = 0; n < selection->GetNumberOfNodes(); n++)
+  {
+    auto inSelection = vtkSmartPointer<vtkSignedCharArray>::New();
+    arrays.push_back(inSelection);
+    inSelection->SetNumberOfTuples(numCells);
+
+    vtkSelectionNode* node = selection->GetNode(n);
+    vtkInformation* nodeProperties = node->GetProperties();
+
+    if (nodeProperties->Has(vtkSelectionNode::COMPOSITE_INDEX()) &&
+        nodeProperties->Get(vtkSelectionNode::COMPOSITE_INDEX()) != flatIndex)
+    {
+      inSelection->FillValue(0);
+    }
+    else if ((nodeProperties->Has(vtkSelectionNode::HIERARCHICAL_LEVEL()) &&
+        nodeProperties->Has(vtkSelectionNode::HIERARCHICAL_INDEX())) &&
+        (nodeProperties->Get(vtkSelectionNode::HIERARCHICAL_LEVEL()) != level ||
+        nodeProperties->Get(vtkSelectionNode::HIERARCHICAL_INDEX()) != hbIndex))
+    {
+      inSelection->FillValue(0);
+    }
+    else
+    {
+      auto op = vtkSmartPointer<vtkSelectionOperator>::Take(this->GetOperatorForNode(node));
+      op->ComputeCellsInside(data, inSelection);
+    }
+  }
+  // TODO combine selection arrays via expression -- temporarily returns the selection
+  // for the first node
+  arrays[0]->Register(this);
+  return arrays[0];
 }
 
+//----------------------------------------------------------------------------
 vtkDataObject* vtkExtractSelection2::ExtractFromBlock(vtkDataObject* block,
                                             vtkIdType flatIndex,
                                             vtkIdType level,

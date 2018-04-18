@@ -23,6 +23,7 @@
 #include "vtkPlane.h"
 #include "vtkPlanes.h"
 #include "vtkPoints.h"
+#include "vtkSelectionNode.h"
 #include "vtkSignedCharArray.h"
 #include "vtkSMPTools.h"
 #include "vtkVoxel.h"
@@ -572,6 +573,20 @@ void vtkFrustumSelector::CreateFrustum(double verts[32])
 
   this->Frustum->SetPoints(points);
   this->Frustum->SetNormals(norms);
+}
+//--------------------------------------------------------------------------
+void vtkFrustumSelector::Initialize(vtkSelectionNode* node)
+{
+  if (node && node->GetContentType() == vtkSelectionNode::FRUSTUM)
+  {
+    vtkDoubleArray *corners = vtkArrayDownCast<vtkDoubleArray>(
+      node->GetSelectionList());
+    this->CreateFrustum(corners->GetPointer(0));
+  }
+  else
+  {
+    vtkErrorMacro("Wrong type of selection node used to initialize vtkFrustumSelector");
+  }
 }
 
 //--------------------------------------------------------------------------

@@ -70,6 +70,7 @@ set(Module_SRCS
   vtkReflectionFilter.cxx
   vtkRotationFilter.cxx
   vtkSampleImplicitFunctionFilter.cxx
+  vtkSelectionOperator.cxx
   vtkShrinkFilter.cxx
   vtkShrinkPolyData.cxx
   vtkSpatialRepresentationFilter.cxx

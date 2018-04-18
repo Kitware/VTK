@@ -36,6 +36,8 @@
 
 class vtkSignedCharArray;
 class vtkSelection;
+class vtkSelectionNode;
+class vtkSelectionOperator;
 class vtkUnstructuredGrid;
 
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelection2 : public vtkDataObjectAlgorithm
@@ -86,16 +88,17 @@ protected:
   // If the selection types are mismatched the boolean parameter will be set to false, otherwise
   // it will be true after the function returns.
   vtkDataObject::AttributeTypes GetAttributeTypeOfSelection(vtkSelection* sel, bool& sane);
-vtkSignedCharArray* ComputePointsInside(vtkDataObject* block,
-                                        vtkIdType flatIndex,
-                                        vtkIdType level,
-                                        vtkIdType hbIndex,
-                                        vtkSelection* selection);
-vtkSignedCharArray* ComputeCellsInside(vtkDataObject* block,
-                                       vtkIdType flatIndex,
-                                       vtkIdType level,
-                                       vtkIdType hbIndex,
-                                       vtkSelection* selection);
+  vtkSelectionOperator* GetOperatorForNode(vtkSelectionNode* node);
+  vtkSignedCharArray* ComputePointsInside(vtkDataSet* data,
+                                          vtkIdType flatIndex,
+                                          vtkIdType level,
+                                          vtkIdType hbIndex,
+                                          vtkSelection* selection);
+  vtkSignedCharArray* ComputeCellsInside(vtkDataSet* data,
+                                         vtkIdType flatIndex,
+                                         vtkIdType level,
+                                         vtkIdType hbIndex,
+                                         vtkSelection* selection);
 
   vtkDataObject* ExtractFromBlock(vtkDataObject* block,
                                   vtkIdType flatIndex,

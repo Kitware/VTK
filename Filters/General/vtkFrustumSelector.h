@@ -22,7 +22,7 @@
 #define vtkFrustumSelector_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
-#include "vtkObject.h"
+#include "vtkSelectionOperator.h"
 
 #include "vtkSmartPointer.h" // for smart pointer
 
@@ -30,7 +30,7 @@ class vtkDataSet;
 class vtkPlanes;
 class vtkSignedCharArray;
 
-class VTKFILTERSGENERAL_EXPORT vtkFrustumSelector : public vtkObject
+class VTKFILTERSGENERAL_EXPORT vtkFrustumSelector : public vtkSelectionOperator
 {
 public:
   static vtkFrustumSelector *New();
@@ -61,8 +61,10 @@ public:
    */
   void CreateFrustum(double vertices[32]);
 
-  void ComputePointsInside(vtkDataSet* input, vtkSignedCharArray* pointsInside);
-  void ComputeCellsInside(vtkDataSet* input, vtkSignedCharArray* cellsInside);
+  void Initialize(vtkSelectionNode* node) override;
+
+  void ComputePointsInside(vtkDataSet* input, vtkSignedCharArray* pointsInside) override;
+  void ComputeCellsInside(vtkDataSet* input, vtkSignedCharArray* cellsInside) override;
 
   int OverallBoundsTest(double bounds[6]);
 
