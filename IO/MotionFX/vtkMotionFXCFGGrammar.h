@@ -22,7 +22,9 @@
 #include <vtk_pegtl.h>
 
 // for debugging
-// #include <vtkpegtl/include/tao/pegtl/contrib/tracer.hpp>
+#if MOTIONFX_DEBUG_GRAMMAR
+#include <vtkpegtl/include/tao/pegtl/contrib/tracer.hpp>
+#endif
 
 namespace MotionFX
 {
@@ -99,11 +101,18 @@ struct Value : sor<StringValue, DoubleValue> {};
 
 struct ParameterName : identifier {};
 struct Statement : seq<ParameterName, WS_Required, Value> {};
+struct StatementOther : seq<ParameterName, WS_Required, plus<not_one<'}','{',';'>>> {};
 
 struct Motion : seq<TAO_PEGTL_STRING("motion"), WS, one<'{'>, WS, list<Statement, WS>, WS, one<'}'>> {};
 struct Motions : seq<TAO_PEGTL_STRING("motions"), WS, one<'{'>, WS, list<Motion, WS>, WS, one<'}'>> {};
 
-struct Lines : sor<Comment, space, Motions> {};
+struct OtherNonNested : seq<identifier, WS, one<'{'>, WS, list<StatementOther, WS>, WS, one<'}'>> {};
+
+struct OtherNested : seq<identifier, WS, one<'{'>, WS,
+                      list<sor<OtherNonNested, StatementOther>, WS>,
+                      WS, one<'}'>> {};
+
+struct Lines : sor<Comment, space, Motions, OtherNonNested, OtherNested> {};
 
 struct Grammar : star<Lines> {};
 

@@ -35,8 +35,9 @@
 #include "vtkVectorOperators.h"
 #include <vtksys/SystemTools.hxx>
 
-// grammar
-#include "vtkMotionFXCFGGrammar.h"
+// Set to 1 to generate debugging trace if grammar match fails.
+#define MOTIONFX_DEBUG_GRAMMAR 0
+#include "vtkMotionFXCFGGrammar.h" // grammar
 
 #include <fstream>
 #include <map>
@@ -624,12 +625,12 @@ struct PositionFileMotion : public Motion
     }
 
     vtkSmartPointer<vtkTransform> compute_transform(
-      double time, const vtkVector3d& initial_centerOfMass, bool isOrientation) const
+      double time, const vtkVector3d& initialCenterOfMass, bool isOrient) const
     {
       auto transform = vtkSmartPointer<vtkTransform>::New();
       transform->PostMultiply(); // default is PreMultiply.
 
-      if (isOrientation == false)
+      if (isOrient == false)
       {
         // theta = omega * t
         vtkVector3d theta = this->angular_velocities * time;
@@ -639,8 +640,8 @@ struct PositionFileMotion : public Motion
         theta[1] = vtkMath::DegreesFromRadians(theta[1]);
         theta[2] = vtkMath::DegreesFromRadians(theta[2]);
 
-        // change origin to initial_centerOfMass.
-        transform->Translate((initial_centerOfMass * -1.0).GetData());
+        // change origin to initialCenterOfMass.
+        transform->Translate((initialCenterOfMass * -1.0).GetData());
 
         // rotate about the center-of-mass
         transform->RotateY(theta[1]);
@@ -648,12 +649,12 @@ struct PositionFileMotion : public Motion
         transform->RotateZ(theta[2]);
 
         // reset origin
-        transform->Translate(initial_centerOfMass.GetData());
+        transform->Translate(initialCenterOfMass.GetData());
       }
       else
       {
-        // change origin to initial_centerOfMass.
-        transform->Translate((initial_centerOfMass * -1.0).GetData());
+        // change origin to initialCenterOfMass.
+        transform->Translate((initialCenterOfMass * -1.0).GetData());
 
         // rotate about axis defined the direction cosines by the angle
         // specified.
@@ -661,7 +662,7 @@ struct PositionFileMotion : public Motion
           vtkMath::DegreesFromRadians(this->rotation), this->direction_cosines.GetData());
 
         // reset origin.
-        transform->Translate(initial_centerOfMass.GetData());
+        transform->Translate(initialCenterOfMass.GetData());
       }
 
       // translate to the new center.
@@ -1041,9 +1042,10 @@ public:
     tao::pegtl::parse<MotionFX::CFG::Grammar, Actions::CFG::action>(in, state);
     if (this->Motions.size() == 0)
     {
-      //      tao::pegtl::read_input<> in2(filename);
-      //      tao::pegtl::parse<MotionFX::cfg::grammar, tao::pegtl::nothing,
-      //      tao::pegtl::tracer>(in2);
+#if MOTIONFX_DEBUG_GRAMMAR
+      tao::pegtl::read_input<> in2(filename);
+      tao::pegtl::parse<MotionFX::CFG::Grammar, tao::pegtl::nothing, tao::pegtl::tracer>(in2);
+#endif
       return false;
     }
 
