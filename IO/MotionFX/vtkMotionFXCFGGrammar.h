@@ -94,10 +94,9 @@ struct Tuple : seq<one<'"'>, plus<pad<Number, space>>, one<'"'> > {};
 struct WS_Required : sor<Comment, eol, plus<space>> {};
 struct WS : star<WS_Required> {};
 
-struct FileName : sor<list<list<identifier, one<'.'> >, one<'/'>>> {};
-struct StringValue : sor<FileName, identifier> {};
+struct StringValue : plus<sor<alnum, one<'.','_','-','/'>>> {};
 struct DoubleValue : sor<Number, Tuple> {};
-struct Value : sor<StringValue, DoubleValue> {};
+struct Value : sor<DoubleValue, StringValue> {};
 
 struct ParameterName : identifier {};
 struct Statement : seq<ParameterName, WS_Required, Value> {};
