@@ -130,7 +130,7 @@ bool vtkSegYReaderInternal::ReadHeader()
 
 //-----------------------------------------------------------------------------
 bool vtkSegYReaderInternal::Is3DComputeParameters(
-  int* extent, double* origin, double* spacing)
+  int* extent, double* origin, double* spacing, int* spacingSign)
 {
   this->ReadHeader();
   int traceStartPos = FIRST_TRACE_START_POS;
@@ -167,7 +167,8 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
     coordSecondX[2] = 0;
     ++crosslineCount;
   }
-  vtkMath::Subtract(coordFirst, coordSecondX, d);
+  vtkMath::Subtract(coordSecondX, coordFirst, d);
+  spacingSign[0] = d[0] >= 0 ? 1 : -1;
   float xStep = vtkMath::Norm(d);
   while(inlineFirst == inlineNumber && traceStartPos + 240 < fileSize)
   {
@@ -199,7 +200,9 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
   coordSecondY[0] = xCoord * coordinateMultiplier;
   coordSecondY[1] = yCoord * coordinateMultiplier;
   coordSecondY[2] = 0;
-  vtkMath::Subtract(coordFirst, coordSecondY, d);
+  vtkMath::Subtract(coordSecondY, coordFirst, d);
+  spacingSign[1] = d[1] >= 0 ? 1 : -1;
+  spacingSign[2] = (this->VerticalCRS == 0 ? -1 : 1); // goes
   float yStep = vtkMath::Norm(d);
 
   // The samples are uniformly placed at sample interval depths
@@ -218,8 +221,9 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
 
 
 //-----------------------------------------------------------------------------
-void vtkSegYReaderInternal::ExportData(vtkImageData* imageData,
-                                       int* extent, double* origin, double* spacing)
+void vtkSegYReaderInternal::ExportData(
+  vtkImageData* imageData,
+  int* extent, double* origin, double* spacing, int* spacingSign)
 {
   imageData->SetExtent(extent);
   imageData->SetOrigin(origin);
@@ -232,14 +236,18 @@ void vtkSegYReaderInternal::ExportData(vtkImageData* imageData,
   scalars->SetName("trace");
   imageData->GetPointData()->SetScalars(scalars);
   int id = 0;
+  int destK, destJ, destI;
   for (int k = 0; k < dims[2]; ++k)
   {
+    destK = (spacingSign[2] > 0 ? k : dims[2] - k - 1);
     for (int j = 0; j < dims[1]; ++j)
     {
+      destJ = (spacingSign[1] > 0 ? j : dims[1] - j - 1);
       for (int i = 0; i < dims[0]; ++i)
       {
-        vtkSegYTrace* trace = this->Traces[j * dims[0] + i];
-        scalars->SetValue(id++, trace->Data[k]);
+        destI = (spacingSign[0] > 0 ? i : dims[0] - i - 1);
+        vtkSegYTrace* trace = this->Traces[destJ * dims[0] + destI];
+        scalars->SetValue(id++, trace->Data[destK]);
       }
     }
   }

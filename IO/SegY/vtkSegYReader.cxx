@@ -37,10 +37,10 @@ vtkSegYReader::vtkSegYReader()
   this->Reader = new vtkSegYReaderInternal();
   this->FileName = nullptr;
   this->Is3D = false;
-  this->DataOrigin[0] = this->DataOrigin[1] = this->DataOrigin[2] = 0.0;
-  this->DataSpacing[0] = this->DataSpacing[1] = this->DataSpacing[2] = 1.0;
-  this->DataExtent[0] = this->DataExtent[2] = this->DataExtent[4] = 0;
-  this->DataExtent[1] = this->DataExtent[3] = this->DataExtent[5] = 0;
+  std::fill(this->DataOrigin, this->DataOrigin + 3, 0.0);
+  std::fill(this->DataSpacing, this->DataSpacing + 3, 1.0);
+  std::fill(this->DataSpacingSign, this->DataSpacingSign + 3, 1);
+  std::fill(this->DataExtent, this->DataExtent + 6, 0);
 
   this->XYCoordMode = VTK_SEGY_SOURCE;
   this->StructuredGrid = 0;
@@ -129,8 +129,9 @@ int vtkSegYReader::RequestData(vtkInformation* vtkNotUsed(request),
   this->UpdateProgress(0.5);
   if (this->Is3D && ! this->StructuredGrid)
   {
-    this->Reader->ExportData(vtkImageData::SafeDownCast(output),
-                             this->DataExtent, this->DataOrigin, this->DataSpacing);
+    this->Reader->ExportData(
+      vtkImageData::SafeDownCast(output), this->DataExtent,
+      this->DataOrigin, this->DataSpacing, this->DataSpacingSign);
   }
   else
   {
@@ -166,6 +167,8 @@ int vtkSegYReader::RequestInformation(vtkInformation * vtkNotUsed(request),
     std::copy(this->DataOrigin, this->DataOrigin + 3, std::ostream_iterator<double>(std::cout, " "));
     std::cout << "\nDataSpacing: ";
     std::copy(this->DataSpacing, this->DataSpacing + 3, std::ostream_iterator<double>(std::cout, " "));
+    std::cout << "\nDataSpacingSign: ";
+    std::copy(this->DataSpacingSign, this->DataSpacingSign + 3, std::ostream_iterator<int>(std::cout, " "));
     std::cout << std::endl;
     outInfo->Set(vtkDataObject::ORIGIN(), this->DataOrigin, 3);
     outInfo->Set(vtkDataObject::SPACING(), this->DataSpacing, 3);
@@ -207,7 +210,7 @@ int vtkSegYReader::RequestDataObject(
     return 0;
   }
   this->Is3D = this->Reader->Is3DComputeParameters(
-    this->DataExtent, this->DataOrigin, this->DataSpacing);
+    this->DataExtent, this->DataOrigin, this->DataSpacing, this->DataSpacingSign);
   const char* outputTypeName = this->Is3D ? "vtkImageData" : "vtkStructuredGrid";
 
   if (!output || !output->IsA(outputTypeName))

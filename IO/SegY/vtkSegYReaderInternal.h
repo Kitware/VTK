@@ -37,10 +37,11 @@ public:
 public:
   bool LoadFromFile(std::string path);
 
-  bool Is3DComputeParameters(int* extent, double* origin, double* spacing);
+  bool Is3DComputeParameters(int* extent, double* origin, double* spacing, int* spacingSign);
   void LoadTraces();
 
-  void ExportData(vtkImageData*, int* extent, double* origin, double* spacing);
+  void ExportData(vtkImageData*, int* extent,
+                  double* origin, double* spacing, int* spacingSign);
   void ExportData(vtkStructuredGrid*, int* extent);
 
   void SetXYCoordBytePositions(int x, int y);

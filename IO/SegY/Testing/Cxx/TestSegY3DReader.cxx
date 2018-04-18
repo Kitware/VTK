@@ -67,6 +67,7 @@ int TestSegY3DReader(int argc, char* argv[])
 
   ren->AddActor(actor);
   ren->ResetCamera();
+  ren->GetActiveCamera()->Azimuth(180);
 
   // interact with data
   renWin->Render();
