@@ -19,6 +19,7 @@ set(Module_SRCS
   vtkMedicalImageReader2.cxx
   vtkMetaImageReader.cxx
   vtkMetaImageWriter.cxx
+  vtkMRCReader.cxx
   vtkNIFTIImageHeader.cxx
   vtkNIFTIImageReader.cxx
   vtkNIFTIImageWriter.cxx
@@ -33,7 +34,6 @@ set(Module_SRCS
   vtkTIFFWriter.cxx
   vtkVolume16Reader.cxx
   vtkVolumeReader.cxx
-  vtkMRCReader.cxx
   )
 
 vtk_module_library(vtkIOImage ${Module_SRCS})
