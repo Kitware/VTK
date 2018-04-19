@@ -38,29 +38,29 @@ class vtkVolumeStateRAII
       this->BlendEnabled = ostate->GetEnumState(GL_BLEND);
 
       this->CullFaceEnabled = ostate->GetEnumState(GL_CULL_FACE);
-      this->CullFaceMode = ostate->GetCullFace();
+      ostate->vtkglGetIntegerv(GL_CULL_FACE_MODE, &this->CullFaceMode);
 
       GLboolean depthMaskWrite = GL_TRUE;
-      glGetBooleanv(GL_DEPTH_WRITEMASK, &depthMaskWrite);
+      ostate->vtkglGetBooleanv(GL_DEPTH_WRITEMASK, &depthMaskWrite);
       this->DepthMaskEnabled = (depthMaskWrite == GL_TRUE);
 
       // Enable depth_sampler test
-      ostate->glEnable(GL_DEPTH_TEST);
+      ostate->vtkglEnable(GL_DEPTH_TEST);
 
       // Set the over blending function
       // NOTE: It is important to choose GL_ONE vs GL_SRC_ALPHA as our colors
       // will be premultiplied by the alpha value (doing front to back blending)
-      ostate->glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+      ostate->vtkglBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
 
-      ostate->glEnable(GL_BLEND);
+      ostate->vtkglEnable(GL_BLEND);
 
       // Enable cull face and set cull face mode
-      ostate->glCullFace(GL_BACK);
+      ostate->vtkglCullFace(GL_BACK);
 
-      ostate->glEnable(GL_CULL_FACE);
+      ostate->vtkglEnable(GL_CULL_FACE);
 
       // Disable depth mask writing
-      ostate->glDepthMask(GL_FALSE);
+      ostate->vtkglDepthMask(GL_FALSE);
     }
 
     ~vtkVolumeStateRAII()
@@ -74,23 +74,23 @@ class vtkVolumeStateRAII
         return;
       }
 
-      this->State->glCullFace(this->CullFaceMode);
+      this->State->vtkglCullFace(this->CullFaceMode);
       this->State->SetEnumState(GL_CULL_FACE, this->CullFaceEnabled);
-      this->State->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      this->State->vtkglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
       // this does not actuallyrestore the state always
       // but a test failsif I change it so either the original
       // test was wrong or it is itended
       if (this->BlendEnabled)
       {
-        this->State->glDisable(GL_BLEND);
+        this->State->vtkglDisable(GL_BLEND);
       }
 
       this->State->SetEnumState(GL_DEPTH_TEST, this->DepthTestEnabled);
 
       if (this->DepthMaskEnabled)
       {
-        this->State->glDepthMask(GL_TRUE);
+        this->State->vtkglDepthMask(GL_TRUE);
       }
     }
 

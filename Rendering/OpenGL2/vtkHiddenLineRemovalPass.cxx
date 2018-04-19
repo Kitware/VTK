@@ -98,14 +98,14 @@ void vtkHiddenLineRemovalPass::Render(const vtkRenderState *s)
   // Draw the wireframe props as surfaces into the depth buffer only:
   annotate("Rendering wireframe prop surfaces.");
   this->SetRepresentation(wireframeProps, VTK_SURFACE);
-  ostate->glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+  ostate->vtkglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
   this->RenderProps(wireframeProps, vp);
   vtkOpenGLStaticCheckErrorMacro("Error after wireframe surface rendering.");
 
   // Now draw the wireframes as normal:
   annotate("Rendering wireframes.");
   this->SetRepresentation(wireframeProps, VTK_WIREFRAME);
-  ostate->glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  ostate->vtkglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   this->NumberOfRenderedProps = this->RenderProps(wireframeProps, vp);
   vtkOpenGLStaticCheckErrorMacro("Error after wireframe rendering.");
 

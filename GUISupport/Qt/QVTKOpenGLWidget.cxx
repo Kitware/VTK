@@ -34,6 +34,7 @@
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLState.h"
 
 // #define DEBUG_QVTKOPENGL_WIDGET
 #ifdef DEBUG_QVTKOPENGL_WIDGET
@@ -368,6 +369,10 @@ void QVTKOpenGLWidget::recreateFBO()
   this->DoVTKRenderInPaintGL = true;
 
   // Clear to ensure that an uninitialized framebuffer is never displayed.
+  vtkOpenGLState *ostate = this->RenderWindow->GetState();
+  // have to keep vtk state up to date as well
+  ostate->vtkglDisable(GL_SCISSOR_TEST);
+  ostate->vtkglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   f->glDisable(GL_SCISSOR_TEST);
   f->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   f->glClear(GL_COLOR_BUFFER_BIT);
@@ -465,12 +470,15 @@ void QVTKOpenGLWidget::paintGL()
     QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_2_Core>();
   if (f)
   {
+    vtkOpenGLState *ostate = this->RenderWindow->GetState();
+
     f->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->defaultFramebufferObject());
     f->glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
     f->glBindFramebuffer(GL_READ_FRAMEBUFFER, this->FBO->handle());
     f->glReadBuffer(GL_COLOR_ATTACHMENT0);
     f->glDisable(GL_SCISSOR_TEST); // Scissor affects glBindFramebuffer.
+    ostate->vtkglDisable(GL_SCISSOR_TEST); // Scissor affects glBindFramebuffer.
     f->glBlitFramebuffer(0, 0, this->RenderWindow->GetSize()[0], this->RenderWindow->GetSize()[1],
       0, 0, this->RenderWindow->GetSize()[0], this->RenderWindow->GetSize()[1], GL_COLOR_BUFFER_BIT,
       GL_NEAREST);

@@ -205,11 +205,11 @@ void vtkSurfaceLICInterface::PrepareForGeometry()
   // clear internal color and depth buffers
   // the LIC'er requires *all* fragments in the vector
   // texture to be initialized to 0
-  ostate->glDisable(GL_BLEND);
-  ostate->glEnable(GL_DEPTH_TEST);
-  ostate->glDisable(GL_SCISSOR_TEST);
-  ostate->glClearColor(0.0, 0.0, 0.0, 0.0);
-  ostate->glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+  ostate->vtkglDisable(GL_BLEND);
+  ostate->vtkglEnable(GL_DEPTH_TEST);
+  ostate->vtkglDisable(GL_SCISSOR_TEST);
+  ostate->vtkglClearColor(0.0, 0.0, 0.0, 0.0);
+  ostate->vtkglClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 }
 
 void vtkSurfaceLICInterface::CompletedGeometry()
@@ -514,8 +514,8 @@ void vtkSurfaceLICInterface::CombineColorsAndLIC()
   vtkCheckFrameBufferStatusMacro(GL_FRAMEBUFFER);
 
   // clear the parts of the screen which we will modify
-  ostate->glEnable(GL_SCISSOR_TEST);
-  ostate->glClearColor(0.0, 0.0, 0.0, 0.0);
+  ostate->vtkglEnable(GL_SCISSOR_TEST);
+  ostate->vtkglClearColor(0.0, 0.0, 0.0, 0.0);
   size_t nBlocks = this->Internals->BlockExts.size();
   for (size_t e=0; e<nBlocks; ++e)
   {
@@ -526,10 +526,10 @@ void vtkSurfaceLICInterface::CombineColorsAndLIC()
     unsigned int extSize[2];
     ext.Size(extSize);
 
-    ostate->glScissor(ext[0], ext[2], extSize[0], extSize[1]);
-    ostate->glClear(GL_COLOR_BUFFER_BIT);
+    ostate->vtkglScissor(ext[0], ext[2], extSize[0], extSize[1]);
+    ostate->vtkglClear(GL_COLOR_BUFFER_BIT);
   }
-  ostate->glDisable(GL_SCISSOR_TEST);
+  ostate->vtkglDisable(GL_SCISSOR_TEST);
 
   this->Internals->VectorImage->Activate();
   this->Internals->GeometryImage->Activate();
@@ -679,15 +679,15 @@ void vtkSurfaceLICInterface::CopyToScreen()
   glDrawBuffer(this->PrevDrawBuf);
 
 
-  ostate->glDisable(GL_BLEND);
-  ostate->glDisable(GL_SCISSOR_TEST);
-  ostate->glEnable(GL_DEPTH_TEST);
+  ostate->vtkglDisable(GL_BLEND);
+  ostate->vtkglDisable(GL_SCISSOR_TEST);
+  ostate->vtkglEnable(GL_DEPTH_TEST);
 
   // Viewport transformation for 1:1 'pixel=texel=data' mapping.
   // Note this is not enough for 1:1 mapping, because depending on the
   // primitive displayed (point,line,polygon), the rasterization rules
   // are different.
-  ostate->glViewport(0, 0, this->Internals->Viewsize[0],
+  ostate->vtkglViewport(0, 0, this->Internals->Viewsize[0],
         this->Internals->Viewsize[1]);
 
   this->Internals->DepthImage->Activate();

@@ -153,7 +153,7 @@ void vtkPointFillPass::Render(const vtkRenderState *s)
     return;
   }
 
-  renWin->GetState()->glDisable(GL_BLEND);
+  renWin->GetState()->vtkglDisable(GL_BLEND);
 //  glDisable(GL_DEPTH_TEST);
 
   this->Pass1->Activate();

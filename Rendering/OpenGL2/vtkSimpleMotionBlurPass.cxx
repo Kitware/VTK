@@ -231,17 +231,17 @@ void vtkSimpleMotionBlurPass::Render(const vtkRenderState *s)
     this->FrameBufferObject->GetBothMode(), 0,
     this->AccumulationTexture[this->ActiveAccumulationTexture]);
 
-  ostate->glViewport(0, 0,
+  ostate->vtkglViewport(0, 0,
     this->ViewportWidth, this->ViewportHeight);
-  ostate->glScissor(0, 0,
+  ostate->vtkglScissor(0, 0,
     this->ViewportWidth, this->ViewportHeight);
 
   // clear the accumulator on 0
   if (this->CurrentSubFrame == 0)
   {
-    ostate->glClearColor(0.0,0.0,0.0,0.0);
-    ostate->glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    ostate->glClear(GL_COLOR_BUFFER_BIT);
+    ostate->vtkglClearColor(0.0,0.0,0.0,0.0);
+    ostate->vtkglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    ostate->vtkglClear(GL_COLOR_BUFFER_BIT);
   }
 
   this->ColorTexture->Activate();
@@ -250,13 +250,13 @@ void vtkSimpleMotionBlurPass::Render(const vtkRenderState *s)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   this->BlendProgram->Program->SetUniformi("source",sourceId);
   this->BlendProgram->Program->SetUniformf("blendScale",1.0/this->SubFrames);
-  ostate->glDisable(GL_DEPTH_TEST);
+  ostate->vtkglDisable(GL_DEPTH_TEST);
 
   // save off current state of src / dst blend functions
   // local scope for bfsaver
   {
     vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
-    ostate->glBlendFunc( GL_ONE, GL_ONE);
+    ostate->vtkglBlendFunc( GL_ONE, GL_ONE);
     this->FrameBufferObject->RenderQuad(
       0, this->ViewportWidth - 1,
       0, this->ViewportHeight - 1,
@@ -289,9 +289,9 @@ void vtkSimpleMotionBlurPass::Render(const vtkRenderState *s)
   this->FrameBufferObject->Bind(
     this->FrameBufferObject->GetReadMode());
 
-  ostate->glViewport(this->ViewportX, this->ViewportY,
+  ostate->vtkglViewport(this->ViewportX, this->ViewportY,
     this->ViewportWidth, this->ViewportHeight);
-  ostate->glScissor(this->ViewportX, this->ViewportY,
+  ostate->vtkglScissor(this->ViewportX, this->ViewportY,
     this->ViewportWidth, this->ViewportHeight);
 
   glBlitFramebuffer(

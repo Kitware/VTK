@@ -1381,10 +1381,10 @@ int vtkPSurfaceLICComposite::Gather(
   this->FBO->InitializeViewport(winExtSize[0], winExtSize[1]);
 
   vtkOpenGLState *ostate = this->Context->GetState();
-  ostate->glEnable(GL_DEPTH_TEST);
-  ostate->glDisable(GL_SCISSOR_TEST);
-  ostate->glClearColor(0.0, 0.0, 0.0, 0.0);
-  ostate->glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+  ostate->vtkglEnable(GL_DEPTH_TEST);
+  ostate->vtkglDisable(GL_SCISSOR_TEST);
+  ostate->vtkglClearColor(0.0, 0.0, 0.0, 0.0);
+  ostate->vtkglClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
   this->Context->GetShaderCache()->ReadyShaderProgram(
     this->CompositeShader->Program);

@@ -264,7 +264,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
   {
     // Disable the scissor test during the shadow map pass.
     vtkOpenGLState::ScopedglEnableDisable ssaver(ostate, GL_SCISSOR_TEST);
-    ostate->glDisable(GL_SCISSOR_TEST);
+    ostate->vtkglDisable(GL_SCISSOR_TEST);
 
     // Shadow mapping requires:
     // 1. at least one spotlight, not front light
@@ -504,10 +504,10 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
             static_cast<int>(this->Resolution));
 
 //          glColorMask(GL_TRUE,GL_FALSE,GL_FALSE,GL_FALSE);
-          ostate->glDepthMask(GL_TRUE);
+          ostate->vtkglDepthMask(GL_TRUE);
           //glClear(GL_DEPTH_BUFFER_BIT);
 
-          ostate->glEnable(GL_DEPTH_TEST);
+          ostate->vtkglEnable(GL_DEPTH_TEST);
           this->OpaqueSequence->Render(&s2);
 
           this->NumberOfRenderedProps+=
@@ -540,9 +540,9 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
       r->SetActiveCamera(realCamera);
       realCamera->UnRegister(this);
 
-      ostate->glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
-      ostate->glEnable(GL_DEPTH_TEST);
-      ostate->glDepthFunc(GL_LEQUAL);
+      ostate->vtkglColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+      ostate->vtkglEnable(GL_DEPTH_TEST);
+      ostate->vtkglDepthFunc(GL_LEQUAL);
 
       r->SetAutomaticLightCreation(autoLight);
 

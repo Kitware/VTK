@@ -341,12 +341,12 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
     {
       vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
 
-      ostate->glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+      ostate->vtkglColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
 
       // per-fragment operations
-      ostate->glDisable(GL_DEPTH_TEST);
-      ostate->glDisable(GL_BLEND);
-      ostate->glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA,
+      ostate->vtkglDisable(GL_DEPTH_TEST);
+      ostate->vtkglDisable(GL_BLEND);
+      ostate->vtkglBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA,
                           GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
       glPixelStorei(GL_UNPACK_ALIGNMENT,1);// client to server
@@ -398,7 +398,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
         }
         if(!blendingEnabled && procIndex<(numProcs-1))
         {
-          ostate->glEnable(GL_BLEND);
+          ostate->vtkglEnable(GL_BLEND);
           blendingEnabled=true;
         }
         to->Activate();

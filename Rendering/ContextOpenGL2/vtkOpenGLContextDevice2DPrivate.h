@@ -310,8 +310,8 @@ public:
     {
       this->SavedStencilTest = ostate->GetEnumState(GL_STENCIL_TEST);
       this->SavedBlend = ostate->GetEnumState(GL_BLEND);
-      ostate->GetClearColor(this->SavedClearColor);
-      glGetIntegerv(GL_DRAW_BUFFER, &this->SavedDrawBuffer);
+      ostate->vtkglGetFloatv(GL_COLOR_CLEAR_VALUE, this->SavedClearColor);
+      ostate->vtkglGetIntegerv(GL_DRAW_BUFFER, &this->SavedDrawBuffer);
     }
   }
 
@@ -329,7 +329,7 @@ public:
         glDrawBuffer(this->SavedDrawBuffer);
       }
 
-      ostate->glClearColor(this->SavedClearColor[0],
+      ostate->vtkglClearColor(this->SavedClearColor[0],
                      this->SavedClearColor[1],
                      this->SavedClearColor[2],
                      this->SavedClearColor[3]);

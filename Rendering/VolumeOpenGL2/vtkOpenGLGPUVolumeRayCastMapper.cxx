@@ -1733,9 +1733,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BeginImageSample(
       static_cast<unsigned int>(this->NumImageSampleDrawBuffers));
 
     this->ImageSampleFBO->GetContext()->GetState()
-      ->glClearColor(0.0, 0.0, 0.0, 0.0);
+      ->vtkglClearColor(0.0, 0.0, 0.0, 0.0);
     this->ImageSampleFBO->GetContext()->GetState()
-      ->glClear(GL_COLOR_BUFFER_BIT);
+      ->vtkglClear(GL_COLOR_BUFFER_BIT);
   }
 }
 
@@ -1755,7 +1755,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::InitializeImageSampleFBO(
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
 
   // Set FBO viewport
-  win->GetState()->glViewport(this->WindowLowerLeft[0], this->WindowLowerLeft[1],
+  win->GetState()->vtkglViewport(this->WindowLowerLeft[0], this->WindowLowerLeft[1],
     this->WindowSize[0], this->WindowSize[1]);
 
   if (!this->ImageSampleFBO)
@@ -1890,15 +1890,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::EndImageSample(
       this->WindowSize + 1,
       this->WindowLowerLeft,
       this->WindowLowerLeft + 1);
-    ostate->glViewport(this->WindowLowerLeft[0],
+    ostate->vtkglViewport(this->WindowLowerLeft[0],
       this->WindowLowerLeft[1],
       this->WindowSize[0],
       this->WindowSize[1]);
 
     // Bind objects and draw
-    ostate->glEnable(GL_BLEND);
-    ostate->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    ostate->glDisable(GL_DEPTH_TEST);
+    ostate->vtkglEnable(GL_BLEND);
+    ostate->vtkglBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    ostate->vtkglDisable(GL_DEPTH_TEST);
 
     for (size_t i = 0; i < this->NumImageSampleDrawBuffers; i++)
     {
@@ -2047,8 +2047,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupRenderToTexture(
 
     this->FBO->CheckFrameBufferStatus(GL_FRAMEBUFFER);
 
-    this->FBO->GetContext()->GetState()->glClearColor(1.0, 1.0, 1.0, 0.0);
-    this->FBO->GetContext()->GetState()->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    this->FBO->GetContext()->GetState()->vtkglClearColor(1.0, 1.0, 1.0, 0.0);
+    this->FBO->GetContext()->GetState()->vtkglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   }
 }
 
@@ -2142,9 +2142,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupDepthPass(
   this->ContourMapper->SetInputConnection(this->ContourFilter->GetOutputPort());
 
   vtkOpenGLState *ostate = this->DPFBO->GetContext()->GetState();
-  ostate->glClearColor(0.0, 0.0, 0.0, 0.0);
-  ostate->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  ostate->glEnable(GL_DEPTH_TEST);
+  ostate->vtkglClearColor(0.0, 0.0, 0.0, 0.0);
+  ostate->vtkglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  ostate->vtkglEnable(GL_DEPTH_TEST);
 }
 
 //----------------------------------------------------------------------------
@@ -2166,7 +2166,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ExitDepthPass(
 
   this->DPDepthBufferTextureObject->Deactivate();
   this->DPColorTextureObject->Deactivate();
-  this->DPFBO->GetContext()->GetState()->glDisable(GL_DEPTH_TEST);
+  this->DPFBO->GetContext()->GetState()->vtkglDisable(GL_DEPTH_TEST);
 }
 
 //----------------------------------------------------------------------------
@@ -3530,7 +3530,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderWithDepthPass(
       // FBOs (RenderToTexure, etc.).  The viewport should (ideally) not be set
       // within the mapper, because it could cause issues when vtkOpenGLRenderPass
       // instances modify it too (this is a workaround for that).
-      renWin->GetState()->glViewport(this->WindowLowerLeft[0],
+      renWin->GetState()->vtkglViewport(this->WindowLowerLeft[0],
                  this->WindowLowerLeft[1],
                  this->WindowSize[0],
                  this->WindowSize[1]);

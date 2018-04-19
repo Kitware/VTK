@@ -142,9 +142,9 @@ void vtkOpenGLImageAlgorithmHelper::Execute(
   fbo->ActivateDrawBuffer(0);
 
   fbo->StartNonOrtho(outDims[0], outDims[1]);
-  ostate->glViewport(0, 0, outDims[0], outDims[1]);
-  ostate->glScissor(0, 0, outDims[0], outDims[1]);
-  ostate->glDisable(GL_DEPTH_TEST);
+  ostate->vtkglViewport(0, 0, outDims[0], outDims[1]);
+  ostate->vtkglScissor(0, 0, outDims[0], outDims[1]);
+  ostate->vtkglDisable(GL_DEPTH_TEST);
 
   vtkShaderProgram *prog =
     this->RenderWindow->GetShaderCache()->ReadyShaderProgram(

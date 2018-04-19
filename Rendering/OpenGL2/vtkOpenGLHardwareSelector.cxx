@@ -77,11 +77,11 @@ void vtkOpenGLHardwareSelector::PreCapturePass(int pass)
 
 #ifdef GL_MULTISAMPLE
   this->OriginalMultisample = ostate->GetEnumState(GL_MULTISAMPLE);
-  ostate->glDisable(GL_MULTISAMPLE);
+  ostate->vtkglDisable(GL_MULTISAMPLE);
 #endif
 
   this->OriginalBlending = ostate->GetEnumState(GL_BLEND);
-  ostate->glDisable(GL_BLEND);
+  ostate->vtkglDisable(GL_BLEND);
 }
 
 //----------------------------------------------------------------------------
@@ -113,11 +113,11 @@ void vtkOpenGLHardwareSelector::BeginSelection()
     // Disable multisample, and blending before writing the zbuffer
 #ifdef GL_MULTISAMPLE
     vtkOpenGLState::ScopedglEnableDisable msaver(ostate, GL_MULTISAMPLE);
-    ostate->glDisable(GL_MULTISAMPLE);
+    ostate->vtkglDisable(GL_MULTISAMPLE);
 #endif
 
     vtkOpenGLState::ScopedglEnableDisable bsaver(ostate, GL_BLEND);
-    ostate->glDisable(GL_BLEND);
+    ostate->vtkglDisable(GL_BLEND);
 
     rwin->Render();
     this->Renderer->PreserveDepthBufferOn();

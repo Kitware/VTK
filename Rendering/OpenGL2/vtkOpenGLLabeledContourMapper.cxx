@@ -127,12 +127,12 @@ bool vtkOpenGLLabeledContourMapper::ApplyStencil(vtkRenderer *ren,
     vtkOpenGLState::ScopedglDepthMask dmsaver(ostate);
 
     // Enable rendering into the stencil buffer:
-    ostate->glEnable(GL_STENCIL_TEST);
+    ostate->vtkglEnable(GL_STENCIL_TEST);
     glStencilMask(0xFF);
     glClearStencil(0);
-    ostate->glClear(GL_STENCIL_BUFFER_BIT);
-    ostate->glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    ostate->glDepthMask(GL_FALSE);
+    ostate->vtkglClear(GL_STENCIL_BUFFER_BIT);
+    ostate->vtkglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    ostate->vtkglDepthMask(GL_FALSE);
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
 
@@ -179,7 +179,7 @@ bool vtkOpenGLLabeledContourMapper::ApplyStencil(vtkRenderer *ren,
 bool vtkOpenGLLabeledContourMapper::RemoveStencil(vtkRenderer *ren)
 {
   static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow())
-    ->GetState()->glDisable(GL_STENCIL_TEST);
+    ->GetState()->vtkglDisable(GL_STENCIL_TEST);
   vtkOpenGLCheckErrorMacro("failed after RemoveStencil()");
   return this->Superclass::RemoveStencil(ren);
 }

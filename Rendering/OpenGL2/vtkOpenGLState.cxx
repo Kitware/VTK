@@ -19,7 +19,7 @@
 #include "vtkRenderer.h"
 
 
-// If you define NO_CACHE then all state->gl* calls
+// If you define NO_CACHE then all state->vtkgl* calls
 // will get passed down to OpenGL regardless of the current
 // state. This basically bypasses the caching mechanism
 // and is useful for tesing
@@ -29,7 +29,7 @@ vtkOpenGLState::ScopedglDepthMask::ScopedglDepthMask(vtkOpenGLState *s)
 {
   this->State = s;
   this->Value = this->State->CurrentState.DepthMask;
-  this->Method = &vtkOpenGLState::glDepthMask;
+  this->Method = &vtkOpenGLState::vtkglDepthMask;
 }
 
 vtkOpenGLState::ScopedglColorMask::ScopedglColorMask(vtkOpenGLState *s)
@@ -69,10 +69,10 @@ vtkOpenGLState::ScopedglBlendFuncSeparate::ScopedglBlendFuncSeparate(vtkOpenGLSt
 
 void vtkOpenGLState::ColorMask(std::array<GLboolean, 4> val)
 {
-  this->glColorMask(val[0], val[1], val[2], val[3]);
+  this->vtkglColorMask(val[0], val[1], val[2], val[3]);
 }
 
-void vtkOpenGLState::glColorMask(
+void vtkOpenGLState::vtkglColorMask(
   GLboolean r, GLboolean g, GLboolean b, GLboolean a
   )
 {
@@ -93,10 +93,10 @@ void vtkOpenGLState::glColorMask(
 
 void vtkOpenGLState::ClearColor(std::array<GLclampf, 4> val)
 {
-  this->glClearColor(val[0], val[1], val[2], val[3]);
+  this->vtkglClearColor(val[0], val[1], val[2], val[3]);
 }
 
-void vtkOpenGLState::glClearColor(
+void vtkOpenGLState::vtkglClearColor(
   GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha
   )
 {
@@ -115,7 +115,7 @@ void vtkOpenGLState::glClearColor(
   }
 }
 
-void vtkOpenGLState::glClearDepth(double val)
+void vtkOpenGLState::vtkglClearDepth(double val)
 {
 #ifndef NO_CACHE
   if (this->CurrentState.ClearDepth != val)
@@ -130,7 +130,7 @@ void vtkOpenGLState::glClearDepth(double val)
   }
 }
 
-void vtkOpenGLState::glDepthFunc(GLenum val)
+void vtkOpenGLState::vtkglDepthFunc(GLenum val)
 {
 #ifndef NO_CACHE
   if (this->CurrentState.DepthFunc != val)
@@ -141,7 +141,7 @@ void vtkOpenGLState::glDepthFunc(GLenum val)
   }
 }
 
-void vtkOpenGLState::glDepthMask(GLboolean val)
+void vtkOpenGLState::vtkglDepthMask(GLboolean val)
 {
 #ifndef NO_CACHE
   if (this->CurrentState.DepthMask != val)
@@ -154,10 +154,10 @@ void vtkOpenGLState::glDepthMask(GLboolean val)
 
 void vtkOpenGLState::BlendFuncSeparate(std::array<GLenum, 4> val)
 {
-  this->glBlendFuncSeparate(val[0], val[1], val[2], val[3]);
+  this->vtkglBlendFuncSeparate(val[0], val[1], val[2], val[3]);
 }
 
-void vtkOpenGLState::glBlendFuncSeparate(
+void vtkOpenGLState::vtkglBlendFuncSeparate(
   GLenum val1, GLenum val2,
   GLenum val3, GLenum val4
   )
@@ -177,7 +177,7 @@ void vtkOpenGLState::glBlendFuncSeparate(
   }
 }
 
-void vtkOpenGLState::glBlendEquation(GLenum val)
+void vtkOpenGLState::vtkglBlendEquation(GLenum val)
 {
 #ifndef NO_CACHE
   if (this->CurrentState.BlendEquation != val)
@@ -188,7 +188,7 @@ void vtkOpenGLState::glBlendEquation(GLenum val)
   }
 }
 
-void vtkOpenGLState::glCullFace(GLenum val)
+void vtkOpenGLState::vtkglCullFace(GLenum val)
 {
 #ifndef NO_CACHE
   if (this->CurrentState.CullFaceMode != val)
@@ -201,10 +201,10 @@ void vtkOpenGLState::glCullFace(GLenum val)
 
 void vtkOpenGLState::Viewport(std::array<GLint, 4> val)
 {
-  this->glViewport(val[0], val[1], val[2], val[3]);
+  this->vtkglViewport(val[0], val[1], val[2], val[3]);
 }
 
-void vtkOpenGLState::glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
+void vtkOpenGLState::vtkglViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
 #ifndef NO_CACHE
   if (this->CurrentState.Viewport[0] != x ||
@@ -223,10 +223,10 @@ void vtkOpenGLState::glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 
 void vtkOpenGLState::Scissor(std::array<GLint, 4> val)
 {
-  this->glScissor(val[0], val[1], val[2], val[3]);
+  this->vtkglScissor(val[0], val[1], val[2], val[3]);
 }
 
-void vtkOpenGLState::glScissor(GLint x, GLint y, GLsizei width, GLsizei height)
+void vtkOpenGLState::vtkglScissor(GLint x, GLint y, GLsizei width, GLsizei height)
 {
 #ifndef NO_CACHE
   if (this->CurrentState.Scissor[0] != x ||
@@ -315,9 +315,108 @@ void vtkOpenGLState::SetEnumState(GLenum cap, bool val)
   }
 }
 
-void vtkOpenGLState::glEnable(GLenum cap)
+void vtkOpenGLState::vtkglEnable(GLenum cap)
 {
   this->SetEnumState(cap, true);
+}
+
+// return cached value if we have it
+// otherwise forward to opengl
+void vtkOpenGLState::vtkglGetBooleanv(GLenum pname, GLboolean *params)
+{
+  switch (pname)
+  {
+    case GL_DEPTH_WRITEMASK:
+      *params = this->CurrentState.DepthMask;
+      break;
+    case GL_COLOR_WRITEMASK:
+      params[0] = this->CurrentState.ColorMask[0];
+      params[1] = this->CurrentState.ColorMask[1];
+      params[2] = this->CurrentState.ColorMask[2];
+      params[3] = this->CurrentState.ColorMask[3];
+      break;
+    case GL_BLEND:
+      *params = this->CurrentState.Blend;
+      break;
+    case GL_DEPTH_TEST:
+      *params = this->CurrentState.DepthTest;
+      break;
+    case GL_CULL_FACE:
+      *params = this->CurrentState.CullFace;
+      break;
+#ifdef GL_MULTISAMPLE
+    case GL_MULTISAMPLE:
+      *params = this->CurrentState.MultiSample;
+      break;
+#endif
+    case GL_SCISSOR_TEST:
+      *params = this->CurrentState.ScissorTest;
+      break;
+    case GL_STENCIL_TEST:
+      *params = this->CurrentState.StencilTest;
+      break;
+    default:
+      ::glGetBooleanv(pname, params);
+  }
+}
+
+void vtkOpenGLState::vtkglGetIntegerv(GLenum pname, GLint *params)
+{
+  switch (pname)
+  {
+    case GL_VIEWPORT:
+      params[0] = this->CurrentState.Viewport[0];
+      params[1] = this->CurrentState.Viewport[1];
+      params[2] = this->CurrentState.Viewport[2];
+      params[3] = this->CurrentState.Viewport[3];
+      break;
+    case GL_SCISSOR_BOX:
+      params[0] = this->CurrentState.Scissor[0];
+      params[1] = this->CurrentState.Scissor[1];
+      params[2] = this->CurrentState.Scissor[2];
+      params[3] = this->CurrentState.Scissor[3];
+      break;
+    case GL_CULL_FACE_MODE:
+      *params = this->CurrentState.CullFaceMode;
+      break;
+    case GL_DEPTH_FUNC:
+      *params = this->CurrentState.DepthFunc;
+      break;
+    case GL_BLEND_SRC_RGB:
+      *params = this->CurrentState.BlendFunc[0];
+      break;
+    case GL_BLEND_SRC_ALPHA:
+      *params = this->CurrentState.BlendFunc[2];
+      break;
+    case GL_BLEND_DST_RGB:
+      *params = this->CurrentState.BlendFunc[1];
+      break;
+    case GL_BLEND_DST_ALPHA:
+      *params = this->CurrentState.BlendFunc[3];
+      break;
+    default:
+      ::glGetIntegerv(pname, params);
+  }
+}
+
+void vtkOpenGLState::vtkglGetDoublev(GLenum pname, GLdouble *params)
+{
+  ::glGetDoublev(pname, params);
+}
+
+void vtkOpenGLState::vtkglGetFloatv(GLenum pname, GLfloat *params)
+{
+  switch (pname)
+  {
+    case GL_COLOR_CLEAR_VALUE:
+      params[0] = this->CurrentState.ClearColor[0];
+      params[1] = this->CurrentState.ClearColor[1];
+      params[2] = this->CurrentState.ClearColor[2];
+      params[3] = this->CurrentState.ClearColor[3];
+      break;
+    default:
+      ::glGetFloatv(pname, params);
+  }
 }
 
 void vtkOpenGLState::GetBlendFuncState(int *v)
@@ -326,19 +425,6 @@ void vtkOpenGLState::GetBlendFuncState(int *v)
   v[1] = this->CurrentState.BlendFunc[1];
   v[2] = this->CurrentState.BlendFunc[2];
   v[3] = this->CurrentState.BlendFunc[3];
-}
-
-void vtkOpenGLState::GetClearColor(GLclampf *v)
-{
-  v[0] = this->CurrentState.ClearColor[0];
-  v[1] = this->CurrentState.ClearColor[1];
-  v[2] = this->CurrentState.ClearColor[2];
-  v[3] = this->CurrentState.ClearColor[3];
-}
-
-bool vtkOpenGLState::GetDepthMask()
-{
-  return this->CurrentState.DepthMask == GL_TRUE;
 }
 
 bool vtkOpenGLState::GetEnumState(GLenum cap)
@@ -365,7 +451,7 @@ bool vtkOpenGLState::GetEnumState(GLenum cap)
   return false;
 }
 
-void vtkOpenGLState::glDisable(GLenum cap)
+void vtkOpenGLState::vtkglDisable(GLenum cap)
 {
   this->SetEnumState(cap, false);
 }
@@ -442,7 +528,7 @@ void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow *)
   this->CurrentState.CullFaceMode = GL_BACK;
 }
 
-void vtkOpenGLState::glClear(GLbitfield val)
+void vtkOpenGLState::vtkglClear(GLbitfield val)
 {
   ::glClear(val);
 }

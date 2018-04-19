@@ -64,7 +64,7 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
   bool opaque = (this->GetIsOpaque() != 0);
   if (opaque)
   {
-    ostate->glDepthMask(GL_TRUE);
+    ostate->vtkglDepthMask(GL_TRUE);
   }
   else
   {
@@ -72,7 +72,7 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
     bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != nullptr);
     if (picking)
     {
-      ostate->glDepthMask(GL_TRUE);
+      ostate->vtkglDepthMask(GL_TRUE);
     }
     else
     {
@@ -84,10 +84,10 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
         switch (maskoverride)
         {
           case 0:
-            ostate->glDepthMask(GL_FALSE);
+            ostate->vtkglDepthMask(GL_FALSE);
             break;
           case 1:
-            ostate->glDepthMask(GL_TRUE);
+            ostate->vtkglDepthMask(GL_TRUE);
             break;
           default:
             // Do nothing.
@@ -96,7 +96,7 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
       }
       else
       {
-        ostate->glDepthMask(GL_FALSE); // transparency with alpha blending
+        ostate->vtkglDepthMask(GL_FALSE); // transparency with alpha blending
       }
     }
   }
@@ -106,7 +106,7 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
 
   if (!opaque)
   {
-    ostate->glDepthMask(GL_TRUE);
+    ostate->vtkglDepthMask(GL_TRUE);
   }
 
   vtkOpenGLCheckErrorMacro("failed after Render");

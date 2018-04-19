@@ -626,14 +626,14 @@ bool vtkEDLShading::EDLCompose(const vtkRenderState *,
   //  DRAW CONTEXT - prepare blitting
   //
   // Prepare blitting
-  ostate->glClearColor(1., 1., 1., 1.);
-  ostate->glClearDepth(1.0);
-  ostate->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  ostate->vtkglClearColor(1., 1., 1., 1.);
+  ostate->vtkglClearDepth(1.0);
+  ostate->vtkglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   // IMPORTANT since we enable depth writing hereafter
-  ostate->glDisable(GL_BLEND);
-  ostate->glEnable(GL_DEPTH_TEST);
+  ostate->vtkglDisable(GL_BLEND);
+  ostate->vtkglEnable(GL_DEPTH_TEST);
   // IMPORTANT : so that depth information is propagated
-  ostate->glDisable(GL_SCISSOR_TEST);
+  ostate->vtkglDisable(GL_SCISSOR_TEST);
 
   int blitSize[2] = { this->W - 1 - 2 * this->ExtraPixels,
                       this->H - 1 - 2 * this->ExtraPixels };

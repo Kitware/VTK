@@ -158,9 +158,9 @@ void vtkFramebufferPass::Render(const vtkRenderState *s)
   this->FrameBufferObject->Bind(
     this->FrameBufferObject->GetReadMode());
 
-  ostate->glViewport(this->ViewportX, this->ViewportY,
+  ostate->vtkglViewport(this->ViewportX, this->ViewportY,
     this->ViewportWidth, this->ViewportHeight);
-  ostate->glScissor(this->ViewportX, this->ViewportY,
+  ostate->vtkglScissor(this->ViewportX, this->ViewportY,
     this->ViewportWidth, this->ViewportHeight);
 
   glBlitFramebuffer(

@@ -1883,7 +1883,7 @@ void vtkTextureObject::CopyToFrameBuffer(
     static_cast<double>(srcYmax+0.5)/this->Height);
 
   vtkOpenGLState::ScopedglViewport vsaver(this->Context->GetState());
-  this->Context->GetState()->glViewport(
+  this->Context->GetState()->vtkglViewport(
     dstXmin, dstYmin, dstXmax - dstXmin + 1, dstYmax - dstYmin + 1);
 
   float tcoords[] = {

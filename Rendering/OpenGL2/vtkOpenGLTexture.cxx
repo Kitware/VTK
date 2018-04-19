@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkOpenGLTexture.h"
 #include "vtkTextureObject.h"
+#include "vtkOpenGLState.h"
 
 #include "vtkOpenGLHelper.h"
 
@@ -24,7 +25,6 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLState.h"
 #include "vtkPointData.h"
 #include "vtkRenderWindow.h"
 #include "vtkOpenGLRenderWindow.h"
@@ -387,7 +387,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     ostate->GetBlendFuncState(this->PrevBlendParams);
 
     // make the blend function correct for textures premultiplied by alpha.
-    ostate->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    ostate->vtkglBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
   }
 
   vtkOpenGLCheckErrorMacro("failed after Load");
@@ -403,7 +403,7 @@ void vtkOpenGLTexture::PostRender(vtkRenderer *ren)
     vtkOpenGLRenderWindow* renWin =
       static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
     // restore the blend function
-    renWin->GetState()->glBlendFuncSeparate(
+    renWin->GetState()->vtkglBlendFuncSeparate(
       this->PrevBlendParams[0], this->PrevBlendParams[1],
       this->PrevBlendParams[2], this->PrevBlendParams[3]);
   }

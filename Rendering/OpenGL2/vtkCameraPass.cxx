@@ -129,9 +129,9 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   vtkOpenGLState::ScopedglScissor ssaver(ostate);
   vtkOpenGLState::ScopedglEnableDisable stsaver(ostate, GL_SCISSOR_TEST);
 
-  ostate->glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
-  ostate->glEnable( GL_SCISSOR_TEST );
-  ostate->glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
+  ostate->vtkglViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
+  ostate->vtkglEnable( GL_SCISSOR_TEST );
+  ostate->vtkglScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
 
   if ((ren->GetRenderWindow())->GetErase() && ren->GetErase()
       && !ren->GetIsPicking())

@@ -50,9 +50,9 @@ void vtkClearRGBPass::Render(const vtkRenderState *s)
 
   vtkOpenGLState *ostate =
     static_cast<vtkOpenGLRenderer*>(s->GetRenderer())->GetState();
-  ostate->glClearColor( static_cast<GLclampf>(this->Background[0]),
+  ostate->vtkglClearColor( static_cast<GLclampf>(this->Background[0]),
                 static_cast<GLclampf>(this->Background[1]),
                 static_cast<GLclampf>(this->Background[2]),
                 static_cast<GLclampf>(0.0));
-  ostate->glClear(GL_COLOR_BUFFER_BIT);
+  ostate->vtkglClear(GL_COLOR_BUFFER_BIT);
 }
