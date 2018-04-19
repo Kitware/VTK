@@ -48,6 +48,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
+   * Define the number of worker threads to use.
+   * Initialize() needs to be called after changing the thread count.
+   */
+  void SetMaxThreads(vtkTypeUInt32);
+  vtkGetMacro(MaxThreads, vtkTypeUInt32);
+
+  /**
    * Re-initializes the encoder. This will abort any on going encoding threads
    * and clear internal data-structures.
    */
@@ -91,9 +98,16 @@ public:
    */
   const char* EncodeAsBase64Jpg(vtkImageData* img, int quality=50);
 
+  /**
+   * This method will wait for any running thread to terminate.
+   */
+  void Finalize();
+
 protected:
   vtkDataEncoder();
   ~vtkDataEncoder() override;
+
+  vtkTypeUInt32 MaxThreads;
 
 private:
   vtkDataEncoder(const vtkDataEncoder&) = delete;
