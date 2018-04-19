@@ -49,7 +49,7 @@ print('Write time', t1 - t0)
 print('Wait time', t2 - t1)
 print('Total time', t2 - t0)
 
-if t1 - t0 > (t2 - t0) / 5.0: # less than 1/5 of the total time
+if t1 - t0 > t2 - t1: # The write time should be smaller than the wait time
     print('Calling Write should be like a NoOp and therefore should be fast')
     sys.exit(1)
 
@@ -58,4 +58,4 @@ if t1 - t0 > (t2 - t0) / 5.0: # less than 1/5 of the total time
 # ...TODO
 
 print("All good...")
-sys.exit(0)
+# sys.exit(0)
