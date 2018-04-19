@@ -1258,14 +1258,15 @@ int CoplanarTrianglesIntersect(double p1[2], double q1[2], double r1[2],
 
 }
 
-// Determine whether or not triangle (p1,q1,r1) intersects triangle (p2,q2,r2).
-// This method is adapted from Olivier Devillers, Philippe Guigue. Faster
-// Triangle-Triangle Intersection Tests. RR-4488, IN-RIA. 2002. <inria-00072100>
+// Determine whether or not triangle (p1, q1, r1) intersects triangle
+// (p2, q2, r2). This method is adapted from Olivier Devillers, Philippe Guigue.
+// Faster Triangle-Triangle Intersection Tests. RR-4488, IN-RIA. 2002.
+// <inria-00072100>
 int vtkTriangle::TrianglesIntersect(double p1[3], double q1[3], double r1[3],
                                     double p2[3], double q2[3], double r2[3])
 {
-  // Triangle T1 = (p1,q1,r1) and lies in plane Pi1
-  // Triangle T2 = (p2,q2,r2) and lies in plane Pi2
+  // Triangle T1 = (p1, q1, r1) and lies in plane Pi1
+  // Triangle T2 = (p2, q2, r2) and lies in plane Pi2
 
   // First, we determine whether T1 intersects Pi2
   double det1[3] = { Determinant( p2, q2, r2, p1 ),
@@ -1278,7 +1279,7 @@ int vtkTriangle::TrianglesIntersect(double p1[3], double q1[3], double r1[3],
     // The triangles are coplanar. We pick the Cartesian principal plane that
     // maximizes their projected area and perform the query in 2-D.
     double v1[3], v2[3];
-    for (int i=0;i<3;i++)
+    for (int i = 0; i < 3; i++)
     {
       v1[i] = q1[i] - p1[i];
       v2[i] = r1[i] - p1[i];
@@ -1287,7 +1288,7 @@ int vtkTriangle::TrianglesIntersect(double p1[3], double q1[3], double r1[3],
     vtkMath::Cross( v1, v2, normal );
 
     int index = 0;
-    for (int i=1;i<3;i++)
+    for (int i = 1; i < 3; i++)
     {
       if (std::abs( normal[index] ) < std::abs( normal[i] ))
       {
@@ -1297,14 +1298,8 @@ int vtkTriangle::TrianglesIntersect(double p1[3], double q1[3], double r1[3],
 
     if (index == 0)
     {
-      double p1_[2] = { p1[1], p1[2] };
-      double q1_[2] = { q1[1], q1[2] };
-      double r1_[2] = { r1[1], r1[2] };
-      double p2_[2] = { p2[1], p2[2] };
-      double q2_[2] = { q2[1], q2[2] };
-      double r2_[2] = { r2[1], r2[2] };
-
-      return CoplanarTrianglesIntersect(p1_, q1_, r1_, p2_, q2_, r2_);
+      return CoplanarTrianglesIntersect(&p1[1], &q1[1], &r1[1],
+                                        &p2[1], &q2[1], &r2[1]);
     }
     else if (index == 1)
     {
@@ -1324,13 +1319,13 @@ int vtkTriangle::TrianglesIntersect(double p1[3], double q1[3], double r1[3],
   }
 
   bool degenerate = false;
-  double* points[3] = {p1,q1,r1};
-  for (int i=0;i<3;i++)
+  double* points[3] = {p1, q1, r1};
+  for (int i = 0; i < 3; i++)
   {
     if (std::abs( det1[i] ) < eps)
     {
       degenerate = true;
-      if (vtkTriangle::PointInTriangle(points[i], p2,q2,r2, eps))
+      if (vtkTriangle::PointInTriangle(points[i], p2, q2, r2, eps))
       {
         return 1;
       }
