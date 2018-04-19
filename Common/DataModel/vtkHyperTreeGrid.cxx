@@ -1954,19 +1954,28 @@ vtkIdType vtkHyperTreeGrid::GetNumberOfTrees()
     return this->MaterialMaskIndex->GetNumberOfTuples();
   }
   vtkIdType numberOfTrees = 1;
-  unsigned int numberOfNonZeroDirections = 0;
+  //unsigned int numberOfNonZeroDirections = 0;
   for ( int i = 0; i < 3; ++i )
   {
     if ( this->GridSize[i] > 0 )
     {
       numberOfTrees *= this->GridSize[i];
-      numberOfNonZeroDirections++;
+      //numberOfNonZeroDirections++;
+    }
+    else if ( this->Extent[2*i+1] < this->Extent[2*i] )
+    {
+      numberOfTrees = 0;
     }
   }
-  if ( this->Dimension != numberOfNonZeroDirections )
-  {
-    vtkWarningMacro("Incompatible Dimension and GridSize");
-  }
+
+  // Below should be uncommented out when the HTG is fixed to make sure that
+  // the redundant variables are consistent. Even better, we should get rid of
+  // the redundant variables but for now we'll just settle for commenting out
+  // the warning that should never come about but does.
+  // if ( this->Dimension != numberOfNonZeroDirections )
+  // {
+  //   vtkWarningMacro("Incompatible Dimension and GridSize");
+  // }
   return numberOfTrees;
 }
 
