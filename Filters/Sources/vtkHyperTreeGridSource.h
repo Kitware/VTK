@@ -261,9 +261,11 @@ protected:
                     vtkDataObject* ) override;
 
   /**
-   * Initialize grid from descriptor string when it is to be used
+   * Initialize grid from descriptor string when it is to be used. The extent
+   * is used to determine what parts of *Descriptor* to use if the grid is
+   * partitioned.
    */
-  int InitializeFromStringDescriptor();
+  int InitializeFromStringDescriptor(int* extent);
 
   /**
    * Initialize grid from bit array descriptors when it is to be used
