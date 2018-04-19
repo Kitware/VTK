@@ -15,6 +15,7 @@
 #include "vtkRasterReprojectionFilter.h"
 
 // VTK includes
+#include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataObject.h"
 #include "vtkGDAL.h"
@@ -31,13 +32,12 @@
 #include "vtkUniformGrid.h"
 
 // GDAL includes
-#undef LT_OBJDIR // fixes compiler warning (collision w/vtkIOStream.h)
 #include <gdal_priv.h>
 
 // STL includes
 #include <algorithm>
 
-vtkStandardNewMacro(vtkRasterReprojectionFilter)
+vtkStandardNewMacro(vtkRasterReprojectionFilter);
 
 //----------------------------------------------------------------------------
 class vtkRasterReprojectionFilter::vtkRasterReprojectionFilterInternal
@@ -83,6 +83,9 @@ vtkRasterReprojectionFilter::vtkRasterReprojectionFilter()
   this->NoDataValue = vtkMath::Nan();
   this->MaxError = 0.0;
   this->ResamplingAlgorithm = 0;
+
+  // Enable all the drivers.
+  GDALAllRegister();
 }
 
 //----------------------------------------------------------------------------
@@ -171,19 +174,20 @@ int vtkRasterReprojectionFilter::RequestData(
   GDALDataset* inputGDAL = this->Internal->GDALConverter->CreateGDALDataset(
     inImageData, this->InputProjection);
 
-#ifndef NDEBUG
-  std::string tifFileName = "inputGDAL.tif";
-  this->Internal->GDALConverter->WriteTifFile(inputGDAL, tifFileName.c_str());
-  std::cout << "Wrote " << tifFileName << std::endl;
+  if (this->Debug)
+  {
+    std::string tifFileName = "inputGDAL.tif";
+    this->Internal->GDALConverter->WriteTifFile(inputGDAL, tifFileName.c_str());
+    std::cout << "Wrote " << tifFileName << std::endl;
 
-  double minValue, maxValue;
-  this->Internal->GDALConverter->FindDataRange(
-    inputGDAL, 1, &minValue, &maxValue);
-  std::cout << "Min: " << minValue << "  Max: " << maxValue << std::endl;
-#endif
+    double minValue, maxValue;
+    this->Internal->GDALConverter->FindDataRange(
+      inputGDAL, 1, &minValue, &maxValue);
+    std::cout << "Min: " << minValue << "  Max: " << maxValue << std::endl;
+  }
 
   // Construct GDAL dataset for output image
-  vtkDataArray* array = inImageData->GetPointData()->GetScalars();
+  vtkDataArray* array = inImageData->GetCellData()->GetScalars();
   int vtkDataType = array->GetDataType();
   int rasterCount = array->GetNumberOfComponents();
   GDALDataset* outputGDAL =
@@ -224,18 +228,6 @@ int vtkRasterReprojectionFilter::RequestData(
 
   // Done with output GDAL dataset
   GDALClose(outputGDAL);
-
-//  // Write image to file
-//  if (this->Debug)
-//  {
-//    const char* outputFilename = "computed.vti";
-//    vtkNew<vtkXMLImageDataWriter> writer;
-//    writer->SetFileName(outputFilename);
-//    writer->SetInputData(reprojectedImage);
-//    writer->SetDataModeToAscii();
-//    writer->Write();
-//    std::cout << "Wrote " << outputFilename << std::endl;
-//  }
 
   // Update pipeline output instance
   vtkUniformGrid* output = vtkUniformGrid::GetData(outInfo);

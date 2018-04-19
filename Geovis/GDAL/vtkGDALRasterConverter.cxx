@@ -16,6 +16,7 @@
 #include "vtkGDALRasterConverter.h"
 
 // VTK includes
+#include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayIteratorMacro.h"
 #include "vtkDoubleArray.h"
@@ -27,13 +28,9 @@
 #include "vtkPointData.h"
 #include "vtkUniformGrid.h"
 
-// GDAL includes
-#undef LT_OBJDIR // fixes compiler warning (collision w/vtkIOStream.h)
+#include <cpl_string.h>
 #include <gdal_priv.h>
 #include <ogr_spatialref.h>
-
-// STL includes
-#include <iostream>
 #include <sstream>
 
 // Preprocessor directive enable/disable row inversion (y-flip)
@@ -104,8 +101,8 @@ void vtkGDALRasterConverter::vtkGDALRasterConverterInternal::CopyToVTK(
   // Initialize array storage
   int stride = dataset->GetRasterCount();
   array->SetNumberOfComponents(stride);
-  int xSize = dataset->GetRasterXSize();
-  int ySize = dataset->GetRasterYSize();
+  int xSize = dataset->GetRasterXSize() - 1;
+  int ySize = dataset->GetRasterYSize() - 1;
   int numElements = xSize * ySize;
   array->SetNumberOfTuples(numElements);
 
@@ -140,8 +137,8 @@ void vtkGDALRasterConverter::vtkGDALRasterConverterInternal::CopyToVTK(
         if (hasNoDataValue &&
             (static_cast<double>(buffer[index]) == noDataValue))
         {
-          // std::cout << "Blank Point at col, row: " << col << ", " << row <<
-          // std::endl;
+          std::cout << "Blank Point at col, row: " << col << ", " << row
+                    << std::endl;
           uniformGridData->BlankPoint(col, row, 0);
         }
         index++;
@@ -344,8 +341,8 @@ bool vtkGDALRasterConverter::CopyToGDAL(vtkImageData* input,
 {
   // Check that both images have the same dimensions
   int* inputDimensions = input->GetDimensions();
-  if (output->GetRasterXSize() != inputDimensions[0] ||
-      output->GetRasterYSize() != inputDimensions[1])
+  if (output->GetRasterXSize() != inputDimensions[0] - 1 ||
+      output->GetRasterYSize() != inputDimensions[1] - 1)
   {
     vtkErrorMacro(<< "Image dimensions do not match.");
     return false;
@@ -374,7 +371,7 @@ bool vtkGDALRasterConverter::CopyToGDAL(vtkImageData* input,
   } // if (noDataArray)
 
   // Copy scalars to gdal bands
-  array = input->GetPointData()->GetScalars();
+  array = input->GetCellData()->GetScalars();
   switch (array->GetDataType())
   {
     vtkDataArrayIteratorMacro(
@@ -392,11 +389,11 @@ GDALDataset* vtkGDALRasterConverter::CreateGDALDataset(
   const char* mapProjection)
 {
   int* dimensions = imageData->GetDimensions();
-  vtkDataArray* array = imageData->GetPointData()->GetScalars();
+  vtkDataArray* array = imageData->GetCellData()->GetScalars();
   int vtkDataType = array->GetDataType();
   int rasterCount = array->GetNumberOfComponents();
   GDALDataset* dataset = this->CreateGDALDataset(
-    dimensions[0], dimensions[1], vtkDataType, rasterCount);
+    dimensions[0] - 1, dimensions[1] - 1, vtkDataType, rasterCount);
   this->CopyToGDAL(imageData, dataset);
   this->SetGDALProjection(dataset, mapProjection);
   this->SetGDALGeoTransform(
@@ -489,7 +486,7 @@ vtkUniformGrid* vtkGDALRasterConverter::CreateVTKUniformGrid(
     return NULL;
   }
 
-  image->GetPointData()->SetScalars(array);
+  image->GetCellData()->SetScalars(array);
   array->Delete();
 
   return image;
@@ -501,7 +498,7 @@ GDALDataset* vtkGDALRasterConverter::CreateGDALDataset(int xDim,
                                                        int vtkDataType,
                                                        int numberOfBands)
 {
-  GDALDriver* driver = static_cast<GDALDriver*>(GDALGetDriverByName("MEM"));
+  GDALDriver* driver = GetGDALDriverManager()->GetDriverByName("MEM");
   GDALDataType gdalType = this->Internal->ToGDALDataType(vtkDataType);
   GDALDataset* dataset =
     driver->Create("", xDim, yDim, numberOfBands, gdalType, NULL);
@@ -594,8 +591,16 @@ void vtkGDALRasterConverter::CopyNoDataValues(GDALDataset* src,
 void vtkGDALRasterConverter::WriteTifFile(GDALDataset* dataset,
                                           const char* filename)
 {
+  const char* fmt = "GTiff";
+  GDALDriver* driver = GetGDALDriverManager()->GetDriverByName(fmt);
+  if (driver == nullptr)
+  {
+    vtkErrorMacro(<< "Cannot write GTiff file. GDALDriver is a nullptr");
+    std::cout << "Cannot write GTiff file." << std::endl;
+    return;
+  }
+
   // Copy dataset to GTiFF driver, which creates file
-  GDALDriver* driver = static_cast<GDALDriver*>(GDALGetDriverByName("GTiff"));
   GDALDataset* copy =
     driver->CreateCopy(filename, dataset, false, NULL, NULL, NULL);
   GDALClose(copy);

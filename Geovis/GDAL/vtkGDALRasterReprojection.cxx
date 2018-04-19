@@ -17,8 +17,7 @@
 // VTK Includes
 #include "vtkObjectFactory.h"
 
-// GDAL Includes
-#undef LT_OBJDIR // fixes compiler warning (collision w/vtkIOStream.h)
+// GDAL includes
 #include <gdal_alg.h>
 #include <gdal_priv.h>
 #include <gdalwarper.h>
@@ -81,6 +80,10 @@ bool vtkGDALRasterReprojection::SuggestOutputDimensions(GDALDataset* dataset,
   void* transformer = GDALCreateGenImgProjTransformer(
     dataset, inputWKT, NULL, outputWKT, useGCPs, maxError, order);
   CPLFree(outputWKT);
+  if (transformer == nullptr)
+  {
+    vtkErrorMacro(<< "SuggestOutputDimensions: " << CPLGetLastErrorMsg());
+  }
 
   // Estimate transform coefficients and output image dimensions
   CPLErr err = GDALSuggestedWarpOutput(dataset,
@@ -146,6 +149,11 @@ bool vtkGDALRasterReprojection::Reproject(GDALDataset* input,
                                     false,
                                     0.0,
                                     1);
+  if (warpOptions->pTransformerArg == nullptr)
+  {
+    std::cerr << "Could not create transformer " << GDALGetProjectionRef(input)
+              << " " << GDALGetProjectionRef(output) << std::endl;
+  }
   warpOptions->pfnTransformer = GDALGenImgProjTransform;
 
   // Set multithreaded option, even though it does not seem to work
