@@ -35,8 +35,6 @@ public:
   ~vtkSegYReaderInternal();
 
 public:
-  bool LoadFromFile(std::string path);
-
   bool Is3DComputeParameters(int* extent, double* origin, double* spacing, int* spacingSign);
   void LoadTraces();
 

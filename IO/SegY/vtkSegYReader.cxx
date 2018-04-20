@@ -129,8 +129,9 @@ int vtkSegYReader::RequestData(vtkInformation* vtkNotUsed(request),
   this->UpdateProgress(0.5);
   if (this->Is3D && ! this->StructuredGrid)
   {
+    vtkImageData* imageData = vtkImageData::SafeDownCast(output);
     this->Reader->ExportData(
-      vtkImageData::SafeDownCast(output), this->DataExtent,
+      imageData, this->DataExtent,
       this->DataOrigin, this->DataSpacing, this->DataSpacingSign);
   }
   else
@@ -140,7 +141,6 @@ int vtkSegYReader::RequestData(vtkInformation* vtkNotUsed(request),
     grid->Squeeze();
   }
   this->Reader->In.close();
-  std::cout << "RequestData" << std::endl;
   return 1;
 }
 
@@ -156,34 +156,13 @@ int vtkSegYReader::RequestInformation(vtkInformation * vtkNotUsed(request),
     return 0;
   }
 
-  std::cout << "DataExtent: ";
-  std::copy(this->DataExtent, this->DataExtent + 6, std::ostream_iterator<int>(std::cout, " "));
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                this->DataExtent, 6);
-  std::cout << std::endl;
   if (this->Is3D && ! this->StructuredGrid)
   {
-    std::cout << "DataOrigin: ";
-    std::copy(this->DataOrigin, this->DataOrigin + 3, std::ostream_iterator<double>(std::cout, " "));
-    std::cout << "\nDataSpacing: ";
-    std::copy(this->DataSpacing, this->DataSpacing + 3, std::ostream_iterator<double>(std::cout, " "));
-    std::cout << "\nDataSpacingSign: ";
-    std::copy(this->DataSpacingSign, this->DataSpacingSign + 3, std::ostream_iterator<int>(std::cout, " "));
-    std::cout << std::endl;
     outInfo->Set(vtkDataObject::ORIGIN(), this->DataOrigin, 3);
     outInfo->Set(vtkDataObject::SPACING(), this->DataSpacing, 3);
   }
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkSegYReader::FillOutputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
-{
-  const char* outputTypeName =
-    (this->Is3D  && ! this->StructuredGrid) ? "vtkImageData" : "vtkStructuredGrid";
-  info->Set(vtkDataObject::DATA_TYPE_NAME(), outputTypeName);
-  std::cout << "FillOutputPortInformation" << std::endl;
   return 1;
 }
 
@@ -203,15 +182,23 @@ int vtkSegYReader::RequestDataObject(
     return 0;
   }
 
-  this->Reader->In.open(this->FileName, std::ifstream::binary);
+  if (this->Reader->In.is_open())
+  {
+    this->Reader->In.seekg(0, this->Reader->In.beg);
+  }
+  else
+  {
+    this->Reader->In.open(this->FileName, std::ifstream::binary);
+  }
   if (!this->Reader->In)
   {
-    std::cerr << "File not found:" << this->FileName << std::endl;
+    vtkErrorMacro("File not found:" << this->FileName);
     return 0;
   }
   this->Is3D = this->Reader->Is3DComputeParameters(
     this->DataExtent, this->DataOrigin, this->DataSpacing, this->DataSpacingSign);
-  const char* outputTypeName = this->Is3D ? "vtkImageData" : "vtkStructuredGrid";
+  const char* outputTypeName = (this->Is3D && ! this->StructuredGrid) ?
+    "vtkImageData" : "vtkStructuredGrid";
 
   if (!output || !output->IsA(outputTypeName))
   {
@@ -227,6 +214,5 @@ int vtkSegYReader::RequestDataObject(
     info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
     newOutput->Delete();
   }
-  std::cout << "RequestDataObject" << std::endl;
   return 1;
 }
