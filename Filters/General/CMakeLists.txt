@@ -35,7 +35,6 @@ set(Module_SRCS
   vtkEdgePoints.cxx
   vtkExtractSelectedFrustum.cxx
   vtkExtractSelectionBase.cxx
-  vtkFrustumSelector.cxx
   vtkGradientFilter.cxx
   vtkGraphLayoutFilter.cxx
   vtkGraphToPoints.cxx
@@ -70,7 +69,6 @@ set(Module_SRCS
   vtkReflectionFilter.cxx
   vtkRotationFilter.cxx
   vtkSampleImplicitFunctionFilter.cxx
-  vtkSelectionOperator.cxx
   vtkShrinkFilter.cxx
   vtkShrinkPolyData.cxx
   vtkSpatialRepresentationFilter.cxx

@@ -25,9 +25,11 @@ set(Module_SRCS
   vtkExtractTimeSteps.cxx
   vtkExtractUnstructuredGrid.cxx
   vtkExtractVectorComponents.cxx
+  vtkFrustumSelector.cxx
   vtkHierarchicalDataExtractDataSets.cxx
   vtkHierarchicalDataExtractLevel.cxx
   vtkProbeSelectedLocations.cxx
+  vtkSelectionOperator.cxx
   )
 
 if (NOT VTK_LEGACY_REMOVE)
