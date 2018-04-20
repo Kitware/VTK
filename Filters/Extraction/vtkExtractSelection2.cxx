@@ -33,12 +33,15 @@
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <map>
+
 vtkStandardNewMacro(vtkExtractSelection2);
 
 //----------------------------------------------------------------------------
 vtkExtractSelection2::vtkExtractSelection2()
   : PreserveTopology(false)
 {
+  this->SetNumberOfInputPorts(2);
 }
 
 //----------------------------------------------------------------------------
@@ -299,18 +302,19 @@ vtkSelectionOperator* vtkExtractSelection2::GetOperatorForNode(vtkSelectionNode*
 }
 
 //----------------------------------------------------------------------------
-vtkSignedCharArray* vtkExtractSelection2::ComputePointsInside(vtkDataSet* data,
+vtkSmartPointer<vtkSignedCharArray> vtkExtractSelection2::ComputePointsInside(vtkDataSet* data,
                                                               vtkIdType flatIndex,
                                                               vtkIdType level,
                                                               vtkIdType hbIndex,
                                                               vtkSelection* selection)
 {
   vtkIdType numPts = data->GetNumberOfPoints();
-  std::vector<vtkSmartPointer<vtkSignedCharArray>> arrays;
+  std::map<std::string, vtkSmartPointer<vtkSignedCharArray>> arrays;
+
   for (unsigned int n = 0; n < selection->GetNumberOfNodes(); n++)
   {
     auto inSelection = vtkSmartPointer<vtkSignedCharArray>::New();
-    arrays.push_back(inSelection);
+    arrays[selection->GetNodeNameAtIndex(n)] = inSelection;
     inSelection->SetNumberOfTuples(numPts);
 
     vtkSelectionNode* node = selection->GetNode(n);
@@ -334,25 +338,23 @@ vtkSignedCharArray* vtkExtractSelection2::ComputePointsInside(vtkDataSet* data,
       op->ComputePointsInside(data, inSelection);
     }
   }
-  // TODO combine selection arrays via expression -- temporarily returns the selection
-  // for the first node
-  arrays[0]->Register(this);
-  return arrays[0];
+  return selection->Evaluate(arrays);
 }
 
 //----------------------------------------------------------------------------
-vtkSignedCharArray* vtkExtractSelection2::ComputeCellsInside(vtkDataSet* data,
+vtkSmartPointer<vtkSignedCharArray> vtkExtractSelection2::ComputeCellsInside(vtkDataSet* data,
                                                               vtkIdType flatIndex,
                                                               vtkIdType level,
                                                               vtkIdType hbIndex,
                                                               vtkSelection* selection)
 {
   vtkIdType numCells = data->GetNumberOfCells();
-  std::vector<vtkSmartPointer<vtkSignedCharArray>> arrays;
+  std::map<std::string, vtkSmartPointer<vtkSignedCharArray>> arrays;
+
   for (unsigned int n = 0; n < selection->GetNumberOfNodes(); n++)
   {
     auto inSelection = vtkSmartPointer<vtkSignedCharArray>::New();
-    arrays.push_back(inSelection);
+    arrays[selection->GetNodeNameAtIndex(n)] = inSelection;
     inSelection->SetNumberOfTuples(numCells);
 
     vtkSelectionNode* node = selection->GetNode(n);
@@ -376,10 +378,7 @@ vtkSignedCharArray* vtkExtractSelection2::ComputeCellsInside(vtkDataSet* data,
       op->ComputeCellsInside(data, inSelection);
     }
   }
-  // TODO combine selection arrays via expression -- temporarily returns the selection
-  // for the first node
-  arrays[0]->Register(this);
-  return arrays[0];
+  return selection->Evaluate(arrays);
 }
 
 //----------------------------------------------------------------------------

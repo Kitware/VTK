@@ -34,6 +34,8 @@
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
 
+#include "vtkSmartPointer.h" // for smart pointer
+
 class vtkSignedCharArray;
 class vtkSelection;
 class vtkSelectionNode;
@@ -89,16 +91,16 @@ protected:
   // it will be true after the function returns.
   vtkDataObject::AttributeTypes GetAttributeTypeOfSelection(vtkSelection* sel, bool& sane);
   vtkSelectionOperator* GetOperatorForNode(vtkSelectionNode* node);
-  vtkSignedCharArray* ComputePointsInside(vtkDataSet* data,
-                                          vtkIdType flatIndex,
-                                          vtkIdType level,
-                                          vtkIdType hbIndex,
-                                          vtkSelection* selection);
-  vtkSignedCharArray* ComputeCellsInside(vtkDataSet* data,
-                                         vtkIdType flatIndex,
-                                         vtkIdType level,
-                                         vtkIdType hbIndex,
-                                         vtkSelection* selection);
+  vtkSmartPointer<vtkSignedCharArray> ComputePointsInside(vtkDataSet* data,
+                                                          vtkIdType flatIndex,
+                                                          vtkIdType level,
+                                                          vtkIdType hbIndex,
+                                                          vtkSelection* selection);
+  vtkSmartPointer<vtkSignedCharArray> ComputeCellsInside(vtkDataSet* data,
+                                                         vtkIdType flatIndex,
+                                                         vtkIdType level,
+                                                         vtkIdType hbIndex,
+                                                         vtkSelection* selection);
 
   vtkDataObject* ExtractFromBlock(vtkDataObject* block,
                                   vtkIdType flatIndex,
