@@ -698,7 +698,7 @@ vtkDiscreteClipperAlgorithm():DyadCases(nullptr),EdgeMetaData(nullptr),Scalars(n
       numVerts = *vertCase++;
       for (v=0; v < numVerts; ++v) //just loop over all vertices
       {
-        if ( vertCase[v] >= 0 && vertCase[v] <= 3 ) //pixel points
+        if ( vertCase[v] <= 3 ) //pixel points
         {
           this->VertUses[dCase][vertCase[v]] = 1;
         }
@@ -1093,7 +1093,9 @@ GenerateOutput(T* rowPtr, vtkIdType row)
     // advance into undefined memory etc.
     if ( i != xL )
     {
-      // Update new pixel ids
+      // Advance dyads along pixel row and get the case of the next pixel
+      dPtr0++; dPtr0x++; dPtr1++; dPtr1x++;
+      dCase = GetDyadCase(*dPtr0,*dPtr0x,*dPtr1,*dPtr1x);
       this->AdvancePixelIds(dCase,ids);
     }
 
@@ -1131,9 +1133,6 @@ GenerateOutput(T* rowPtr, vtkIdType row)
       }
     }//if anything to be generated
 
-    // advance dyads along pixel row and get the case of the next pixel
-    dPtr0++; dPtr0x++; dPtr1++; dPtr1x++;
-    dCase = GetDyadCase(*dPtr0,*dPtr0x,*dPtr1,*dPtr1x);
   } //for all non-trimmed pixels along this x-edge
 }
 
