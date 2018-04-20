@@ -153,6 +153,10 @@ int TestGPURayCastTransfer2D(int argc, char* argv[])
 
   renWin->Render();
 
+  // Simulate modification of 2D transfer function to test for shader issues
+  tf2d->Modified();
+  renWin->Render();
+
   int retVal = vtkTesting::Test(argc, argv, renWin, 90);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
