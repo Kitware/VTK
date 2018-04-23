@@ -27,7 +27,6 @@
 #include <iostream>
 #include <set>
 #include <sstream>
-#include <utility>
 #include <vector>
 
 // Work-around CMake dependency scanning limitation.  This must
@@ -3254,7 +3253,7 @@ std::string SystemTools::CollapseFullPath(const std::string& in_path,
 
   SystemTools::CheckTranslationPath(newPath);
 #ifdef _WIN32
-  newPath = SystemTools::GetActualCaseForPath(newPath);
+  newPath = SystemTools::GetActualCaseForPathCached(newPath);
   SystemTools::ConvertToUnixSlashes(newPath);
 #endif
   // Return the reconstructed path.
@@ -3342,17 +3341,22 @@ std::string SystemTools::RelativePath(const std::string& local,
 }
 
 #ifdef _WIN32
-static std::pair<std::string, bool> GetCasePathName(std::string const& pathIn)
+static std::string GetCasePathName(std::string const& pathIn)
 {
   std::string casePath;
+
+  // First check if the file is relative. We don't fix relative paths since the
+  // real case depends on the root directory and the given path fragment may
+  // have meaning elsewhere in the project.
+  if (!SystemTools::FileIsFullPath(pathIn)) {
+    // This looks unnecessary, but it allows for the return value optimization
+    // since all return paths return the same local variable.
+    casePath = pathIn;
+    return casePath;
+  }
+
   std::vector<std::string> path_components;
   SystemTools::SplitPath(pathIn, path_components);
-  if (path_components[0].empty()) // First component always exists.
-  {
-    // Relative paths cannot be converted.
-    casePath = pathIn;
-    return std::make_pair(casePath, false);
-  }
 
   // Start with root component.
   std::vector<std::string>::size_type idx = 0;
@@ -3403,7 +3407,7 @@ static std::pair<std::string, bool> GetCasePathName(std::string const& pathIn)
 
     casePath += path_components[idx];
   }
-  return std::make_pair(casePath, converting);
+  return casePath;
 }
 #endif
 
@@ -3412,22 +3416,27 @@ std::string SystemTools::GetActualCaseForPath(const std::string& p)
 #ifndef _WIN32
   return p;
 #else
+  return GetCasePathName(p);
+#endif
+}
+
+#ifdef _WIN32
+std::string SystemTools::GetActualCaseForPathCached(std::string const& p)
+{
   // Check to see if actual case has already been called
   // for this path, and the result is stored in the PathCaseMap
   SystemToolsPathCaseMap::iterator i = SystemTools::PathCaseMap->find(p);
   if (i != SystemTools::PathCaseMap->end()) {
     return i->second;
   }
-  std::pair<std::string, bool> casePath = GetCasePathName(p);
-  if (casePath.first.size() > MAX_PATH) {
-    return casePath.first;
+  std::string casePath = GetCasePathName(p);
+  if (casePath.size() > MAX_PATH) {
+    return casePath;
   }
-  if (casePath.second) {
-    (*SystemTools::PathCaseMap)[p] = casePath.first;
-  }
-  return casePath.first;
-#endif
+  (*SystemTools::PathCaseMap)[p] = casePath;
+  return casePath;
 }
+#endif
 
 const char* SystemTools::SplitPathRootComponent(const std::string& p,
                                                 std::string* root)
