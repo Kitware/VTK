@@ -1174,8 +1174,11 @@ int CoplanarTrianglesIntersect(double p1[2], double q1[2], double r1[2],
           }
           else
           {
-            // The paper has an error here.
-            if (Orientation( p1, p2, r1 ) == Clockwise) // Test V.a
+             // The paper has an error here.
+            // Paper: if (Orientation( r2, p2, r1 ) == Clockwise) // Test V.a
+            // Fix 1: if (Orientation( p1, p2, r1 ) == Clockwise) // Test V.a
+            // Fix 2:
+            if (Orientation( p2, q1, r1 ) == Clockwise) // Test V.a
             {
               return 0;
             }
@@ -1289,7 +1292,7 @@ int vtkTriangle::TrianglesIntersect(double p1[3], double q1[3], double r1[3],
     int index = 0;
     for (int i=1;i<3;i++)
     {
-      if (std::abs( normal[index] ) > std::abs( normal[i] ))
+      if (std::abs( normal[index] ) < std::abs( normal[i] ))
       {
         index = i;
       }
