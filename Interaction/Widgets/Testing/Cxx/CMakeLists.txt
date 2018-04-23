@@ -48,6 +48,7 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests tests
   TestPickingManagerSeedWidget2.cxx
   TestPlaybackWidget.cxx
   TestPointHandleRepresentation3D.cxx
+  TestPolylineWidget.cxx
   TestProgrammaticPlacement.cxx
   TestProgressBarWidget.cxx
   TestProp3DButtonRepresentation.cxx,NO_VALID

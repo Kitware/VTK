@@ -25,7 +25,7 @@
 
 vtkStandardNewMacro(vtkInteractorEventRecorder);
 
-float vtkInteractorEventRecorder::StreamVersion = 1.0f;
+float vtkInteractorEventRecorder::StreamVersion = 1.1f;
 
 //----------------------------------------------------------------------------
 vtkInteractorEventRecorder::vtkInteractorEventRecorder()
@@ -203,7 +203,7 @@ void vtkInteractorEventRecorder::Play()
 
     // Read events and invoke them on the object in question
     char event[128], keySym[64];
-    int pos[2], ctrlKey, shiftKey, keyCode, repeatCount;
+    int pos[2], ctrlKey, shiftKey, altKey, keyCode, repeatCount;
     float stream_version = 0.0f, tempf;
     std::string line;
 
@@ -239,14 +239,22 @@ void vtkInteractorEventRecorder::Play()
         unsigned long ievent = vtkCommand::GetEventIdFromString(event);
         if (ievent != vtkCommand::NoEvent)
         {
-          if (stream_version >= 1.1)
-          {
-            // We could grab the time info here
-          }
           iss >> pos[0];
           iss >> pos[1];
-          iss >> ctrlKey;
-          iss >> shiftKey;
+          if (stream_version >= 1.1)
+          {
+            int m;
+            iss >> m;
+            shiftKey = (m & ModifierKey::ShiftKey) ? 1 : 0;
+            ctrlKey = (m & ModifierKey::ControlKey) ? 1 : 0;
+            altKey = (m & ModifierKey::AltKey) ? 1 : 0;
+          }
+          else
+          {
+            iss >> ctrlKey;
+            iss >> shiftKey;
+            altKey = 0;
+          }
           iss >> keyCode;
           iss >> repeatCount;
           iss >> keySym;
@@ -254,6 +262,7 @@ void vtkInteractorEventRecorder::Play()
           this->Interactor->SetEventPosition(pos);
           this->Interactor->SetControlKey(ctrlKey);
           this->Interactor->SetShiftKey(shiftKey);
+          this->Interactor->SetAltKey(altKey);
           this->Interactor->SetKeyCode(static_cast<char>(keyCode));
           this->Interactor->SetRepeatCount(repeatCount);
           this->Interactor->SetKeySym(keySym);
@@ -387,9 +396,21 @@ void vtkInteractorEventRecorder::ProcessEvents(vtkObject* object,
         }
         else
         {
+          int m = 0;
+          if (rwi->GetShiftKey())
+          {
+            m |= ModifierKey::ShiftKey;
+          }
+          if (rwi->GetControlKey())
+          {
+            m |= ModifierKey::ControlKey;
+          }
+          if (rwi->GetAltKey())
+          {
+            m |= ModifierKey::AltKey;
+          }
           self->WriteEvent(vtkCommand::GetStringFromEventId(event),
-                           rwi->GetEventPosition(), rwi->GetControlKey(),
-                           rwi->GetShiftKey(), rwi->GetKeyCode(),
+                           rwi->GetEventPosition(), m, rwi->GetKeyCode(),
                            rwi->GetRepeatCount(), rwi->GetKeySym());
         }
     }
@@ -398,14 +419,11 @@ void vtkInteractorEventRecorder::ProcessEvents(vtkObject* object,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorEventRecorder::WriteEvent(const char* event, int pos[2],
-                                            int ctrlKey, int shiftKey,
-                                            int keyCode, int repeatCount,
-                                            char* keySym)
+void vtkInteractorEventRecorder::WriteEvent(const char* event, int pos[2], int modifiers,
+                                            int keyCode, int repeatCount, char* keySym)
 {
   *this->OutputStream << event << " " << pos[0] << " " << pos[1] << " "
-                      << ctrlKey << " " << shiftKey << " "
-                      << keyCode << " " << repeatCount << " ";
+                      << modifiers << " " << keyCode << " " << repeatCount << " ";
   if ( keySym )
   {
     *this->OutputStream << keySym << "\n";

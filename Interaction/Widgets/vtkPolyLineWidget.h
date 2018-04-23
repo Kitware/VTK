@@ -19,6 +19,16 @@
  * vtkPolyLineWidget is the vtkAbstractWidget subclass for
  * vtkPolyLineRepresentation which manages the interactions with
  * vtkPolyLineRepresentation. This is based on vtkPolyLineWidget.
+ *
+ * This widget allows the creation of a polyline interactively by adding or removing points
+ * based on mouse position and a modifier key.
+ *
+ * - ctrl+click inserts a new point on the selected line
+ * - shift+click deletes the selected point
+ * - alt+click adds a new point anywhere depending on last selected point.
+ *   If the first point is selected, the new point is added at the beginning,
+ *   else it is added at the end.
+ *
  * @sa
  * vtkPolyLineRepresentation, vtkPolyLineWidget
 */
