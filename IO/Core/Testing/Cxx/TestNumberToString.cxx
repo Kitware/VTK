@@ -95,7 +95,7 @@ int TestConvert(const unsigned int samples)
 
     // Now convert numbers to strings. Read the strings as floats and doubles
     // and compare the results with the original values.
-    vtkNumberToString<T> convert;
+    vtkNumberToString convert;
     {
       vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =
         vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
@@ -144,7 +144,7 @@ int TestConvert(const unsigned int samples)
 template <typename T>
 int ConvertNumericLimitsValue(const char* t, T)
 {
-  vtkNumberToString<T> convert;
+  vtkNumberToString convert;
   int status = EXIT_SUCCESS;
   {
     T value = std::numeric_limits<T>::max();

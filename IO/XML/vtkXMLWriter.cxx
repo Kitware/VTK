@@ -1857,8 +1857,8 @@ template <class T>
 int vtkXMLWriterWriteVectorAttribute(ostream& os, const char* name,
                                      int length, T* data)
 {
+  vtkNumberToString convert;
   os << " " << name << "=\"";
-  vtkNumberToString<T> convert;
   if (length)
   {
     os << convert(data[0]);
@@ -2170,7 +2170,7 @@ bool vtkXMLWriter::WriteInformation(vtkInformation *info, vtkIndent indent)
 template <class T>
 inline ostream& vtkXMLWriteAsciiValue(ostream& os, const T& value)
 {
-  vtkNumberToString<T> convert;
+  vtkNumberToString convert;
   os << convert(value);
   return os;
 }

@@ -15,31 +15,34 @@
 #include "vtkNumberToString.h"
 
 #include "vtk_doubleconversion.h"
-#include VTK_DOUBLECONVERSION_HEADER(double - conversion.h)
+#include VTK_DOUBLECONVERSION_HEADER(double-conversion.h)
 
 #include <sstream>
 
-//----------------------------------------------------------------------------
-std::string vtkNumberToStringImplementation(double val)
+namespace
+{
+template <typename TagT>
+inline ostream& ToString(ostream& stream, const TagT& tag)
 {
   char buf[256];
   const double_conversion::DoubleToStringConverter& converter =
     double_conversion::DoubleToStringConverter::EcmaScriptConverter();
   double_conversion::StringBuilder builder(buf, sizeof(buf));
   builder.Reset();
-  converter.ToShortest(val, &builder);
-  return std::string(builder.Finalize());
+  converter.ToShortest(tag.Ref, &builder);
+  stream << builder.Finalize();
+  return stream;
+}
 }
 
 //----------------------------------------------------------------------------
-std::string vtkNumberToStringImplementation(float val)
+ostream& operator<<(ostream& stream, const vtkNumberToString::TagDouble& tag)
 {
-  char buf[256];
-  const double_conversion::DoubleToStringConverter& converter =
-    double_conversion::DoubleToStringConverter::EcmaScriptConverter();
+  return ToString(stream, tag);
+}
 
-  double_conversion::StringBuilder builder(buf, sizeof(buf));
-  builder.Reset();
-  converter.ToShortestSingle(val, &builder);
-  return std::string(builder.Finalize());
+//----------------------------------------------------------------------------
+ostream& operator<<(ostream& stream, const vtkNumberToString::TagFloat& tag)
+{
+  return ToString(stream, tag);
 }
