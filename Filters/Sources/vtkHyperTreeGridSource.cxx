@@ -312,14 +312,16 @@ int vtkHyperTreeGridSource::RequestInformation( vtkInformation*,
   origin[2] = this->ZCoordinates->GetTuple1( 0 );
   outInfo->Set( vtkDataObject::ORIGIN(), origin, 3 );
 
-  int extent[6];
-  extent[0] = 0;
-  extent[1] = this->GridSize[0] - 1;
-  extent[2] = 0;
-  extent[3] = this->GridSize[1] - 1;
-  extent[4] = 0;
-  extent[5] = this->GridSize[2] - 1;
-  outInfo->Set( vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6 );
+  int wholeExtent[6];
+  wholeExtent[0] = 0;
+  wholeExtent[1] = this->GridSize[0];
+  wholeExtent[2] = 0;
+  wholeExtent[3] = this->GridSize[1];
+  wholeExtent[4] = 0;
+  wholeExtent[5] = this->GridSize[2];
+  outInfo->Set( vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent, 6 );
+
+  outInfo->Set(CAN_PRODUCE_SUB_EXTENT(), 1);
 
   return 1;
 }
@@ -337,7 +339,11 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
     return 0;
   }
 
+  vtkInformation* outInfo = outputVector->GetInformationObject( 0 );
+  int* extent = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+
   output->Initialize();
+  output->SetGridExtent(extent);
 
   vtkPointData* outData = output->GetPointData();
 
@@ -354,7 +360,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
       this->BlockSize *= this->BranchFactor;
     }
 
-    if ( ! this->DescriptorBits && ! this->InitializeFromStringDescriptor() )
+    if ( ! this->DescriptorBits && ! this->InitializeFromStringDescriptor(extent) )
     {
       return 0;
     }
@@ -378,10 +384,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
     {
       // Set 1D grid size depending on orientation
       unsigned int axis = this->Orientation;
-      unsigned int gs[] = { 1, 1, 1 };
       unsigned n = this->GridSize[axis];
-      gs[axis] = n;
-      output->SetGridSize( gs );
 
       // Create null coordinate array for non-existent dimensions
       ++ n;
@@ -423,12 +426,6 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
       break;
     case 2:
     {
-      // Set grid size depending on orientation
-      unsigned int n[3];
-      memcpy( n, this->GridSize, 3 * sizeof( unsigned int ) );
-      n[this->Orientation] = 1;
-      output->SetGridSize( n );
-
       // Create null coordinate array for non-existent dimension
       vtkNew<vtkDoubleArray> zeros;
       zeros->SetNumberOfValues( 2 );
@@ -478,36 +475,33 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
       break;
     case 3:
     {
-      // Set grid size
-      output->SetGridSize( this->GridSize );
-
       // Create x-coordinates array
       vtkNew<vtkDoubleArray> coordsx;
-      unsigned int nx = this->GridSize[0] + 1;
+      unsigned int nx = extent[1] - extent[0] + 1;
       coordsx->SetNumberOfValues( nx );
       for ( unsigned int i = 0; i < nx; ++ i )
       {
-        double coord = this->Origin[0] + this->GridScale[0] * static_cast<double>( i );
+        double coord = this->Origin[0] + this->GridScale[0] * static_cast<double>( i+extent[0] );
         coordsx->SetValue( i, coord );
       } // i
 
       // Create y-coordinates array
       vtkNew<vtkDoubleArray> coordsy;
-      unsigned int ny = this->GridSize[1] + 1;
+      unsigned int ny = extent[3] - extent[2] + 1;
       coordsy->SetNumberOfValues( ny );
       for ( unsigned int i = 0; i < ny; ++ i )
       {
-        double coord = this->Origin[1] + this->GridScale[1] * static_cast<double>( i );
+        double coord = this->Origin[1] + this->GridScale[1] * static_cast<double>( i+extent[2] );
         coordsy->SetValue( i, coord );
       } // i
 
       // Create z-coordinates array
       vtkNew<vtkDoubleArray> coordsz;
-      unsigned int nz = this->GridSize[2] + 1;
+      unsigned int nz = extent[5] - extent[4] + 1;
       coordsz->SetNumberOfValues( nz );
       for ( unsigned int i = 0; i < nz; ++ i )
       {
-        double coord = this->Origin[2] + this->GridScale[2] * static_cast<double>( i );
+        double coord = this->Origin[2] + this->GridScale[2] * static_cast<double>( i+extent[4] );
         coordsz->SetValue( i, coord );
       } // i
 
@@ -572,7 +566,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   {
     vtkErrorMacro("HyperTreeGrid generation failed.");
     output->Initialize();
-    return 1;
+    return 0;
   }
 
   return 1;
@@ -664,8 +658,9 @@ void vtkHyperTreeGridSource::InitTreeFromDescriptor( vtkHyperTreeGrid* output,
     this->SubdivideFromBitsDescriptor( output, cursor, 0, treeIdx, 0, idx, 0 );
   }
 }
+
 //-----------------------------------------------------------------------------
-int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
+int vtkHyperTreeGridSource::InitializeFromStringDescriptor(int* extent)
 {
   size_t descLen = strlen( this->Descriptor );
 
@@ -685,16 +680,47 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   unsigned int nTotal = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
 
   // Parse string descriptor and material mask if used
-  unsigned int nRefined = 0;
-  unsigned int nLeaves = 0;
-  unsigned int nNextLevel = nTotal;
+  unsigned int nRefinedLocal = 0;
+  unsigned int nLeavesLocal = 0;
+  unsigned int nNextLevelLocal = 0;
   bool rootLevel = true;
   std::ostringstream descriptor;
   std::ostringstream mask;
 
-  // Reset parsed level containers:
+  // Reset parsed level containers
   this->LevelDescriptors.clear();
   this->LevelMaterialMasks.clear();
+
+  // keep track of which global tree we're in
+  std::vector<bool> localTree(nTotal, false);
+  for (int k=0;k<static_cast<int>(this->GridSize[2]);k++)
+  {
+    if (k >= extent[4] && k < extent[5])
+    {
+      for (int j=0;j<static_cast<int>(this->GridSize[1]);j++)
+      {
+        if (j >= extent[2] && j < extent[3])
+        {
+          for (int i=0;i<static_cast<int>(this->GridSize[0]);i++)
+          {
+            if (i >= extent[0] && i < extent[1])
+            {
+              localTree[i+j*this->GridSize[0]+k*this->GridSize[0]*GridSize[1]] = true;
+              nNextLevelLocal++;
+            }
+          }
+        }
+      }
+    }
+  }
+  std::vector<int> currentLevelTreeIndices(nTotal);
+  for (unsigned int i=0; i < nTotal; i++)
+  {
+    currentLevelTreeIndices[i] = i;
+  }
+  std::vector<int> nextLevelTreeIndices;
+  int counter = 0;
+  bool ownsTree;
 
   for ( size_t i = 0; i < descLen; ++ i )
   {
@@ -720,6 +746,9 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
                         "descriptor and material mask.");
           return 0;
         }
+        counter = 0;
+        currentLevelTreeIndices = nextLevelTreeIndices;
+        nextLevelTreeIndices.clear();
 
         // Store descriptor and material mask for current level
         this->LevelDescriptors.push_back( descriptor.str() );
@@ -731,72 +760,80 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
           rootLevel = false;
 
           // Verify that total number of root cells is consistent with descriptor
-          if ( nRefined + nLeaves != nTotal )
+          if ( nRefinedLocal + nLeavesLocal != nNextLevelLocal )
           {
             vtkErrorMacro(<<"String "
                           << this->Descriptor
                           << " describes "
-                          << nRefined + nLeaves
-                          << " root cells != "
-                          << nTotal);
+                          << nRefinedLocal + nLeavesLocal
+                          << " local root cells != "
+                          << nNextLevelLocal);
             return 0;
           }
         } // if ( rootLevel )
-        else
+        else if ( descriptor.str().size() != nNextLevelLocal )
         {
           // Verify that level descriptor cardinality matches expected value
-          if ( descriptor.str().size() != nNextLevel )
-          {
-            vtkErrorMacro(<<"String level descriptor "
-                          << descriptor.str().c_str()
-                          << " has cardinality "
-                          << descriptor.str().size()
-                          << " which is not expected value of "
-                          << nNextLevel);
+          vtkErrorMacro(<<"String level descriptor "
+                        << descriptor.str().c_str()
+                        << " has cardinality "
+                        << descriptor.str().size()
+                        << " which is not expected value of "
+                        << nNextLevelLocal);
 
-            return 0;
-          }
-        } // else
+          return 0;
+        } // else if
 
         // Predict next level descriptor cardinality
-        nNextLevel = nRefined * this->BlockSize;
+        nNextLevelLocal = nRefinedLocal * this->BlockSize;
 
         // Reset per level values
         descriptor.str( "" );
         mask.str( "" );
-        nRefined = 0;
-        nLeaves = 0;
+        nRefinedLocal = 0;
+        nLeavesLocal = 0;
         break; // case '|'
 
       case '1':
       case 'R':
+        nextLevelTreeIndices.insert(nextLevelTreeIndices.end(), this->BlockSize, currentLevelTreeIndices[counter]);
         //  Refined cell, verify mask consistency if needed
         if ( this->UseMaterialMask && m == '0' )
         {
           vtkErrorMacro(<<"A refined branch must contain material.");
           return 0;
         }
-        // Refined cell, update branch counter
-        ++ nRefined;
 
         // Append characters to per level descriptor and material mask if used
-        descriptor << c;
-        if ( this->UseMaterialMask )
+        ownsTree = localTree[currentLevelTreeIndices[counter]];
+        counter++;
+        if (ownsTree)
         {
-          mask << m;
+          // Refined cell, update branch counter
+          ++ nRefinedLocal;
+          descriptor << c;
+          if ( this->UseMaterialMask )
+          {
+            mask << m;
+          }
         }
         break; // case 'R'
 
       case '0':
       case '.':
-        // Leaf cell, update leaf counter
-        ++ nLeaves;
 
         // Append characters to per level descriptor and material mask if used
-        descriptor << c;
-        if ( this->UseMaterialMask )
+        ownsTree = localTree[currentLevelTreeIndices[counter]];
+        counter++;
+        if (ownsTree)
         {
-          mask << m;
+          // Leaf cell, update leaf counter
+          ++ nLeavesLocal;
+          descriptor << c;
+          if ( this->UseMaterialMask )
+          {
+            mask << m;
+          }
         }
         break; // case '.'
 
@@ -811,14 +848,14 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   } // c
 
   // Verify and append last level string
-  if ( descriptor.str().size() != nNextLevel )
+  if ( descriptor.str().size() != nNextLevelLocal )
   {
     vtkErrorMacro(<<"String level descriptor "
                   << descriptor.str().c_str()
                   << " has cardinality "
                   << descriptor.str().size()
                   << " which is not expected value of "
-                  << nNextLevel);
+                  << nNextLevelLocal);
 
     return 0;
   }
