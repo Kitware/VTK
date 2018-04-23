@@ -11,5 +11,6 @@ vtk_module(vtkFiltersParallelMomentInvariants
     vtkParallelMPI
   PRIVATE_DEPENDS
     vtkeigen
+  EXCLUDE_FROM_ALL
   )
 endif()
