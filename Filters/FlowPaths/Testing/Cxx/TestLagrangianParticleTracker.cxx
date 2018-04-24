@@ -228,22 +228,24 @@ int TestLagrangianParticleTracker(int, char*[])
   tracker->AdaptiveStepReintegrationOn();
   tracker->UseParticlePathsRenderingThresholdOn();
   tracker->SetParticlePathsRenderingPointsThreshold(100);
-  tracker->CreateOutOfDomainParticleOn();
   tracker->Update();
   tracker->SetInputConnection(ugFlow->GetOutputPort());
   tracker->SetMaximumNumberOfSteps(30);
   tracker->SetCellLengthComputationMode(
     vtkLagrangianParticleTracker::STEP_CUR_CELL_DIV_THEO);
   tracker->Update();
+  tracker->SetMaximumNumberOfSteps(-1);
+  tracker->SetMaximumIntegrationTime(10.0);
+  tracker->Update();
   tracker->SetInputData(waveletImg);
   tracker->SetSourceData(seedPD);
   tracker->SetMaximumNumberOfSteps(300);
+  tracker->SetMaximumIntegrationTime(-1.0);
   tracker->SetSurfaceConnection(groupSurface->GetOutputPort());
   tracker->SetCellLengthComputationMode(
     vtkLagrangianParticleTracker::STEP_LAST_CELL_VEL_DIR);
   tracker->AdaptiveStepReintegrationOff();
   tracker->UseParticlePathsRenderingThresholdOff();
-  tracker->CreateOutOfDomainParticleOff();
   tracker->Update();
   if (tracker->GetStepFactor() != 0.1)
   {
@@ -262,7 +264,12 @@ int TestLagrangianParticleTracker(int, char*[])
   }
   if (tracker->GetMaximumNumberOfSteps() != 300)
   {
-    std::cerr << "Incorrect StepFactorMax" << std::endl;
+    std::cerr << "Incorrect MaximumNumberOfSteps" << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (tracker->GetMaximumIntegrationTime() != -1.0)
+  {
+    std::cerr << "Incorrect MaximumIntegrationTime" << std::endl;
     return EXIT_FAILURE;
   }
   if (tracker->GetCellLengthComputationMode() != vtkLagrangianParticleTracker::STEP_LAST_CELL_VEL_DIR)
@@ -283,11 +290,6 @@ int TestLagrangianParticleTracker(int, char*[])
   if (tracker->GetParticlePathsRenderingPointsThreshold() != 100)
   {
     std::cerr << "Incorrect ParticlePathsRenderingThreshold" << std::endl;
-    return EXIT_FAILURE;
-  }
-  if (tracker->GetCreateOutOfDomainParticle())
-  {
-    std::cerr << "Incorrect CreateOutOfDomainParticle" << std::endl;
     return EXIT_FAILURE;
   }
   tracker->Print(cout);

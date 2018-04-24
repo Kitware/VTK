@@ -127,6 +127,7 @@ public:
   //@{
   /**
    * Set/Get the integration model.
+   * Default is vtkLagrangianMatidaIntegrationModel
    */
   void SetIntegrationModel(vtkLagrangianBasicIntegrationModel* integrationModel);
   vtkGetObjectMacro(IntegrationModel, vtkLagrangianBasicIntegrationModel);
@@ -135,6 +136,7 @@ public:
   //@{
   /**
    * Set/Get the integrator.
+   * Default is vtkRungeKutta2
    */
   void SetIntegrator(vtkInitialValueProblemSolver* integrator);
   vtkGetObjectMacro(Integrator, vtkInitialValueProblemSolver);
@@ -174,6 +176,7 @@ public:
    * Compute cell length using the particle velocity
    * and the divergence theorem, not supported
    * with vtkVoxel, fallback to STEP_CUR_CELL_LENGTH
+   * Default is STEP_LAST_CELL_LENGTH.
    */
   vtkSetMacro(CellLengthComputationMode, int);
   vtkGetMacro(CellLengthComputationMode, int);
@@ -181,7 +184,7 @@ public:
 
   //@{
   /**
-   * Set/Get the integration step factor.
+   * Set/Get the integration step factor. Default is 1.0.
    */
   vtkSetMacro(StepFactor, double);
   vtkGetMacro(StepFactor, double);
@@ -189,7 +192,7 @@ public:
 
   //@{
   /**
-   * Set/Get the integration step factor min.
+   * Set/Get the integration step factor min. Default is 0.5.
    */
   vtkSetMacro(StepFactorMin, double);
   vtkGetMacro(StepFactorMin, double);
@@ -197,7 +200,7 @@ public:
 
   //@{
   /**
-   * Set/Get the integration step factor max.
+   * Set/Get the integration step factor max. Default is 1.5.
    */
   vtkSetMacro(StepFactorMax, double);
   vtkGetMacro(StepFactorMax, double);
@@ -205,7 +208,7 @@ public:
 
   //@{
   /**
-   * Set/Get the maximum number of steps.
+   * Set/Get the maximum number of steps. -1 means no limit. Default is 100.
    */
   vtkSetMacro(MaximumNumberOfSteps, int);
   vtkGetMacro(MaximumNumberOfSteps, int);
@@ -213,9 +216,19 @@ public:
 
   //@{
   /**
+   * Set/Get the maximum integration time. A negative value means no limit.
+   * Default is -1.
+   */
+  vtkSetMacro(MaximumIntegrationTime, double);
+  vtkGetMacro(MaximumIntegrationTime, double);
+  //@}
+
+  //@{
+  /**
    * Set/Get the Adaptive Step Reintegration feature.
    * it checks the step size after the integration
    * and if it is too big will retry with a smaller step
+   * Default is false.
    */
   vtkSetMacro(AdaptiveStepReintegration, bool);
   vtkGetMacro(AdaptiveStepReintegration, bool);
@@ -224,7 +237,10 @@ public:
 
   //@{
   /**
-   * Set/Get the Optional Paths Rendering feature
+   * Set/Get the Optional Paths Rendering feature,
+   * it allows to not show the particle paths
+   * if there is too many points.
+   * Default is false.
    */
   vtkSetMacro(UseParticlePathsRenderingThreshold, bool);
   vtkGetMacro(UseParticlePathsRenderingThreshold, bool);
@@ -233,19 +249,13 @@ public:
 
   //@{
   /**
-   * Set/Get the Optional Paths Rendering feature
+   * Set/Get the Optional Paths Rendering threshold,
+   * ie the maximum number of points to show in the particle
+   * path if the option is activated.
+   * Default is 100
    */
   vtkSetMacro(ParticlePathsRenderingPointsThreshold, int);
   vtkGetMacro(ParticlePathsRenderingPointsThreshold, int);
-  //@}
-
-  //@{
-  /**
-   * Set/Get the Creation of particle initially outside of the domain
-   */
-  vtkSetMacro(CreateOutOfDomainParticle, bool);
-  vtkGetMacro(CreateOutOfDomainParticle, bool);
-  vtkBooleanMacro(CreateOutOfDomainParticle, bool);
   //@}
 
   //@{
@@ -387,11 +397,11 @@ protected:
   double StepFactorMin;
   double StepFactorMax;
   int MaximumNumberOfSteps;
+  double MaximumIntegrationTime;
   bool AdaptiveStepReintegration;
   bool UseParticlePathsRenderingThreshold;
   bool GeneratePolyVertexInteractionOutput;
   int ParticlePathsRenderingPointsThreshold;
-  bool CreateOutOfDomainParticle;
   vtkIdType ParticleCounter;
 
   // internal parameters use for step computation
