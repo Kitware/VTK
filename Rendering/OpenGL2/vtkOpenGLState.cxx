@@ -399,10 +399,17 @@ void vtkOpenGLState::vtkglGetIntegerv(GLenum pname, GLint *params)
   }
 }
 
-void vtkOpenGLState::vtkglGetDoublev(GLenum pname, GLdouble *params)
+#if GL_ES_VERSION_3_0 == 1
+void vtkOpenGLState::vtkglGetDoublev(GLenum pname, double *)
+{
+  vtkGenericWarningMacro("glGetDouble not supported on OpenGL ES, requested: " << pname);
+}
+#else
+void vtkOpenGLState::vtkglGetDoublev(GLenum pname, double *params)
 {
   ::glGetDoublev(pname, params);
 }
+#endif
 
 void vtkOpenGLState::vtkglGetFloatv(GLenum pname, GLfloat *params)
 {
