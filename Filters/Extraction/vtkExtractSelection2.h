@@ -91,16 +91,11 @@ protected:
   // it will be true after the function returns.
   vtkDataObject::AttributeTypes GetAttributeTypeOfSelection(vtkSelection* sel, bool& sane);
   vtkSelectionOperator* GetOperatorForNode(vtkSelectionNode* node);
-  vtkSmartPointer<vtkSignedCharArray> ComputePointsInside(vtkDataSet* data,
-                                                          vtkIdType flatIndex,
-                                                          vtkIdType level,
-                                                          vtkIdType hbIndex,
-                                                          vtkSelection* selection);
-  vtkSmartPointer<vtkSignedCharArray> ComputeCellsInside(vtkDataSet* data,
-                                                         vtkIdType flatIndex,
-                                                         vtkIdType level,
-                                                         vtkIdType hbIndex,
-                                                         vtkSelection* selection);
+  vtkSmartPointer<vtkSignedCharArray> ComputeSelectedElements(vtkDataObject* data,
+                                                              vtkIdType flatIndex,
+                                                              vtkIdType level,
+                                                              vtkIdType hbIndex,
+                                                              vtkSelection* selection);
 
   vtkDataObject* ExtractFromBlock(vtkDataObject* block,
                                   vtkIdType flatIndex,
@@ -119,6 +114,10 @@ protected:
                              bool extractWithContainingCells);
 
   vtkTypeBool PreserveTopology;
+private:
+  vtkExtractSelection2(const vtkExtractSelection2&) = delete;
+  void operator=(const vtkExtractSelection2&) = delete;
+
 };
 
 #endif

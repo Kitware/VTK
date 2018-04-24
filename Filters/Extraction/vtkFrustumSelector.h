@@ -21,7 +21,7 @@
 #ifndef vtkFrustumSelector_h
 #define vtkFrustumSelector_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
+#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkSelectionOperator.h"
 
 #include "vtkSmartPointer.h" // for smart pointer
@@ -30,11 +30,11 @@ class vtkDataSet;
 class vtkPlanes;
 class vtkSignedCharArray;
 
-class VTKFILTERSGENERAL_EXPORT vtkFrustumSelector : public vtkSelectionOperator
+class VTKFILTERSEXTRACTION_EXPORT vtkFrustumSelector : public vtkSelectionOperator
 {
 public:
   static vtkFrustumSelector *New();
-  vtkTypeMacro(vtkFrustumSelector, vtkObject);
+  vtkTypeMacro(vtkFrustumSelector, vtkSelectionOperator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -62,9 +62,12 @@ public:
   void CreateFrustum(double vertices[32]);
 
   void Initialize(vtkSelectionNode* node) override;
+  void Finalize() override;
 
-  void ComputePointsInside(vtkDataSet* input, vtkSignedCharArray* pointsInside) override;
-  void ComputeCellsInside(vtkDataSet* input, vtkSignedCharArray* cellsInside) override;
+  void ComputeSelectedElements(vtkDataObject* input, vtkSignedCharArray* elementInside) override;
+
+  void ComputeSelectedPoints(vtkDataSet* input, vtkSignedCharArray* pointsInside);
+  void ComputeSelectedCells(vtkDataSet* input, vtkSignedCharArray* cellsInside);
 
   int OverallBoundsTest(double bounds[6]);
 
@@ -73,6 +76,7 @@ protected:
   ~vtkFrustumSelector() override;
 
   vtkSmartPointer<vtkPlanes> Frustum;
+  vtkSmartPointer<vtkSelectionNode> Node;
 
 private:
   vtkFrustumSelector(const vtkFrustumSelector&) = delete;

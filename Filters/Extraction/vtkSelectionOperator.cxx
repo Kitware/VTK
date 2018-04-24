@@ -28,18 +28,3 @@ void vtkSelectionOperator::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
 }
-
-//----------------------------------------------------------------------------
-void vtkSelectionOperator::ComputePointsInside(vtkDataSet*, vtkSignedCharArray*)
-{
-}
-
-//----------------------------------------------------------------------------
-void vtkSelectionOperator::ComputeCellsInside(vtkDataSet*, vtkSignedCharArray*)
-{
-}
-
-//----------------------------------------------------------------------------
-void vtkSelectionOperator::ComputeRowsInside(vtkTable*, vtkSignedCharArray*)
-{
-}

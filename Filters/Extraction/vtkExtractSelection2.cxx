@@ -302,13 +302,16 @@ vtkSelectionOperator* vtkExtractSelection2::GetOperatorForNode(vtkSelectionNode*
 }
 
 //----------------------------------------------------------------------------
-vtkSmartPointer<vtkSignedCharArray> vtkExtractSelection2::ComputePointsInside(vtkDataSet* data,
+vtkSmartPointer<vtkSignedCharArray> vtkExtractSelection2::ComputeSelectedElements(vtkDataObject* data,
                                                               vtkIdType flatIndex,
                                                               vtkIdType level,
                                                               vtkIdType hbIndex,
                                                               vtkSelection* selection)
 {
-  vtkIdType numPts = data->GetNumberOfPoints();
+  bool typeIsConsistent;
+  vtkDataObject::AttributeTypes type = this->GetAttributeTypeOfSelection(selection, typeIsConsistent);
+  vtkIdType numPts = data->GetNumberOfElements(type);
+
   std::map<std::string, vtkSmartPointer<vtkSignedCharArray>> arrays;
 
   for (unsigned int n = 0; n < selection->GetNumberOfNodes(); n++)
@@ -335,51 +338,12 @@ vtkSmartPointer<vtkSignedCharArray> vtkExtractSelection2::ComputePointsInside(vt
     else
     {
       auto op = vtkSmartPointer<vtkSelectionOperator>::Take(this->GetOperatorForNode(node));
-      op->ComputePointsInside(data, inSelection);
+      op->ComputeSelectedElements(data, inSelection);
     }
   }
   return selection->Evaluate(arrays);
 }
 
-//----------------------------------------------------------------------------
-vtkSmartPointer<vtkSignedCharArray> vtkExtractSelection2::ComputeCellsInside(vtkDataSet* data,
-                                                              vtkIdType flatIndex,
-                                                              vtkIdType level,
-                                                              vtkIdType hbIndex,
-                                                              vtkSelection* selection)
-{
-  vtkIdType numCells = data->GetNumberOfCells();
-  std::map<std::string, vtkSmartPointer<vtkSignedCharArray>> arrays;
-
-  for (unsigned int n = 0; n < selection->GetNumberOfNodes(); n++)
-  {
-    auto inSelection = vtkSmartPointer<vtkSignedCharArray>::New();
-    arrays[selection->GetNodeNameAtIndex(n)] = inSelection;
-    inSelection->SetNumberOfTuples(numCells);
-
-    vtkSelectionNode* node = selection->GetNode(n);
-    vtkInformation* nodeProperties = node->GetProperties();
-
-    if (nodeProperties->Has(vtkSelectionNode::COMPOSITE_INDEX()) &&
-        nodeProperties->Get(vtkSelectionNode::COMPOSITE_INDEX()) != flatIndex)
-    {
-      inSelection->FillValue(0);
-    }
-    else if ((nodeProperties->Has(vtkSelectionNode::HIERARCHICAL_LEVEL()) &&
-        nodeProperties->Has(vtkSelectionNode::HIERARCHICAL_INDEX())) &&
-        (nodeProperties->Get(vtkSelectionNode::HIERARCHICAL_LEVEL()) != level ||
-        nodeProperties->Get(vtkSelectionNode::HIERARCHICAL_INDEX()) != hbIndex))
-    {
-      inSelection->FillValue(0);
-    }
-    else
-    {
-      auto op = vtkSmartPointer<vtkSelectionOperator>::Take(this->GetOperatorForNode(node));
-      op->ComputeCellsInside(data, inSelection);
-    }
-  }
-  return selection->Evaluate(arrays);
-}
 
 //----------------------------------------------------------------------------
 vtkDataObject* vtkExtractSelection2::ExtractFromBlock(vtkDataObject* block,
@@ -396,50 +360,36 @@ vtkDataObject* vtkExtractSelection2::ExtractFromBlock(vtkDataObject* block,
   {
     return nullptr;
   }
+  auto insidednessArray = this->ComputeSelectedElements(block, flatIndex, level, hbIndex, selection);
+  if (this->PreserveTopology)
+  {
+    auto output = block->NewInstance();
+    output->ShallowCopy(block);
+    output->GetAttributesAsFieldData(type)->AddArray(insidednessArray);
+    return output;
+  }
   if (type == vtkDataObject::POINT)
   {
     vtkDataSet* input = vtkDataSet::SafeDownCast(block);
     if (!input)
     {
-      vtkErrorMacro("Point-based selection requested but input is not a vtkDataSet");
+      return nullptr;
     }
-    auto insidednessArray = this->ComputePointsInside(input, flatIndex, level, hbIndex, selection);
-    if (this->PreserveTopology)
-    {
-      auto output = input->NewInstance();
-      output->ShallowCopy(input);
-      output->GetPointData()->AddArray(insidednessArray);
-      return output;
-    }
-    else
-    {
-      bool withCells = true; // TODO
-      auto output = vtkUnstructuredGrid::New();
-      this->ExtractSelectedPoints(input, output, insidednessArray, withCells);
-      return output;
-    }
+    bool withCells = true; // TODO
+    auto output = vtkUnstructuredGrid::New();
+    this->ExtractSelectedPoints(input, output, insidednessArray, withCells);
+    return output;
   }
   else if (type == vtkDataObject::CELL)
   {
     vtkDataSet* input = vtkDataSet::SafeDownCast(block);
     if (!input)
     {
-      vtkErrorMacro("Cell-based selection requested but input is not a vtkDataSet");
+      return nullptr;
     }
-    auto insidednessArray = this->ComputeCellsInside(input, flatIndex, level, hbIndex, selection);
-    if (this->PreserveTopology)
-    {
-      auto output = input->NewInstance();
-      output->ShallowCopy(input);
-      output->GetCellData()->AddArray(insidednessArray);
-      return output;
-    }
-    else
-    {
-      auto output = vtkUnstructuredGrid::New();
-      this->ExtractSelectedCells(input, output, insidednessArray);
-      return output;
-    }
+    auto output = vtkUnstructuredGrid::New();
+    this->ExtractSelectedCells(input, output, insidednessArray);
+    return output;
   }
   else if (type == vtkDataObject::ROW)
   {

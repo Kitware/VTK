@@ -19,6 +19,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
 #include "vtkNew.h"
 #include "vtkPlane.h"
 #include "vtkPlanes.h"
@@ -574,14 +575,17 @@ void vtkFrustumSelector::CreateFrustum(double verts[32])
   this->Frustum->SetPoints(points);
   this->Frustum->SetNormals(norms);
 }
+
 //--------------------------------------------------------------------------
 void vtkFrustumSelector::Initialize(vtkSelectionNode* node)
 {
+  // sanity checks
   if (node && node->GetContentType() == vtkSelectionNode::FRUSTUM)
   {
     vtkDoubleArray *corners = vtkArrayDownCast<vtkDoubleArray>(
       node->GetSelectionList());
     this->CreateFrustum(corners->GetPointer(0));
+    this->Node = node;
   }
   else
   {
@@ -590,7 +594,40 @@ void vtkFrustumSelector::Initialize(vtkSelectionNode* node)
 }
 
 //--------------------------------------------------------------------------
-void vtkFrustumSelector::ComputePointsInside(vtkDataSet* input, vtkSignedCharArray* pointInArray)
+void vtkFrustumSelector::Finalize()
+{
+  this->Node = nullptr;
+}
+
+//--------------------------------------------------------------------------
+void vtkFrustumSelector::ComputeSelectedElements(vtkDataObject* input, vtkSignedCharArray* elementSelected)
+{
+  vtkDataSet* inputDS = vtkDataSet::SafeDownCast(input);
+  // frustum selection only supports datasets
+  // if we don't have a selection node, the frustum is uninitialized...
+  if (!inputDS || !this->Node)
+  {
+    vtkErrorMacro("Frustum selection only supports inputs of type vtkDataSet");
+    elementSelected->FillValue(0);
+  }
+  auto fieldType = this->Node->GetProperties()->Get(vtkSelectionNode::FIELD_TYPE());
+  if (fieldType == vtkSelectionNode::POINT)
+  {
+    this->ComputeSelectedPoints(inputDS, elementSelected);
+  }
+  else if (fieldType == vtkSelectionNode::CELL)
+  {
+    this->ComputeSelectedCells(inputDS, elementSelected);
+  }
+  else
+  {
+    vtkErrorMacro("Frustum selection only supports POINT and CELL association types");
+    elementSelected->FillValue(0);
+  }
+}
+
+//--------------------------------------------------------------------------
+void vtkFrustumSelector::ComputeSelectedPoints(vtkDataSet* input, vtkSignedCharArray* pointSelected)
 {
   vtkIdType numPts = input->GetNumberOfPoints();
   if (numPts == 0)
@@ -604,24 +641,24 @@ void vtkFrustumSelector::ComputePointsInside(vtkDataSet* input, vtkSignedCharArr
   double x[3];
   input->GetPoint(0, x);
 
-  vtkSMPTools::For(0, numPts, [input,this,&pointInArray](vtkIdType begin, vtkIdType end) {
+  vtkSMPTools::For(0, numPts, [input,this,&pointSelected](vtkIdType begin, vtkIdType end) {
     double x[3];
     for (vtkIdType ptId = begin; ptId < end; ++ptId)
     {
       input->GetPoint(ptId, x);
       if ((this->Frustum->EvaluateFunction(x)) < 0.0)
       {
-        pointInArray->SetValue(ptId, 1);
+        pointSelected->SetValue(ptId, 1);
       }
       else
       {
-        pointInArray->SetValue(ptId, 0);
+        pointSelected->SetValue(ptId, 0);
       }
     }
   });
 }
 //--------------------------------------------------------------------------
-void vtkFrustumSelector::ComputeCellsInside(vtkDataSet* input, vtkSignedCharArray* cellsInside)
+void vtkFrustumSelector::ComputeSelectedCells(vtkDataSet* input, vtkSignedCharArray* cellSelected)
 {
   vtkIdType numCells = input->GetNumberOfCells();
 
@@ -637,7 +674,7 @@ void vtkFrustumSelector::ComputeCellsInside(vtkDataSet* input, vtkSignedCharArra
   input->GetCellBounds(0, bounds);
   input->GetCell(0, cell);
 
-  ComputeCellsInFrustumFunctor functor(this->Frustum, input, cellsInside);
+  ComputeCellsInFrustumFunctor functor(this->Frustum, input, cellSelected);
   vtkSMPTools::For(0, numCells, functor);
 }
 
