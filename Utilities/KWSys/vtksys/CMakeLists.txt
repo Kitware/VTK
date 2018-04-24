@@ -196,6 +196,11 @@ IF(KWSYS_STANDALONE)
   ENDIF()
 ENDIF()
 
+# Choose default shared/static build if not specified.
+IF(NOT DEFINED KWSYS_BUILD_SHARED)
+  SET(KWSYS_BUILD_SHARED ${BUILD_SHARED_LIBS})
+ENDIF()
+
 # Include helper macros.
 INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/kwsysPlatformTests.cmake)
 INCLUDE(CheckTypeSize)
@@ -437,11 +442,6 @@ IF(KWSYS_NAMESPACE MATCHES "^kwsys$")
   SET(KWSYS_NAME_IS_KWSYS 1)
 ELSE()
   SET(KWSYS_NAME_IS_KWSYS 0)
-ENDIF()
-
-# Choose default shared/static build if not specified.
-IF(KWSYS_BUILD_SHARED MATCHES "^KWSYS_BUILD_SHARED$")
-  SET(KWSYS_BUILD_SHARED ${BUILD_SHARED_LIBS})
 ENDIF()
 
 IF(KWSYS_BUILD_SHARED)
