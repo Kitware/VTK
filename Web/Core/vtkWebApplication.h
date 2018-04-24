@@ -69,6 +69,15 @@ public:
 
   //@{
   /**
+   * Set the number of worker threads to use for image encoding.  Calling this
+   * method with a number greater than 32 or less than zero will have no effect.
+   */
+  void SetNumberOfEncoderThreads(vtkTypeUInt32);
+  vtkTypeUInt32 GetNumberOfEncoderThreads();
+  //@}
+
+  //@{
+  /**
    * Render a view and obtain the rendered image.
    */
   vtkUnsignedCharArray* StillRender(vtkRenderWindow* view, int quality = 100);

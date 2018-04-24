@@ -33,7 +33,7 @@
 
 #include <vtksys/SystemTools.hxx>
 
-#define MAX_NUMBER_OF_THREADS_IN_POOL 3
+#define MAX_NUMBER_OF_THREADS_IN_POOL 32
 //****************************************************************************
 namespace
 {
@@ -370,6 +370,8 @@ class vtkDataEncoder::vtkInternals
 {
 private:
   std::map<vtkTypeUInt32, vtkSmartPointer<vtkUnsignedCharArray> > ClonedOutputs;
+  std::vector<int> RunningThreadIds;
+
 public:
   vtkNew<vtkMultiThreader> Threader;
   vtkSharedData SharedData;
@@ -385,14 +387,24 @@ public:
   void TerminateAllWorkers()
   {
     // request and wait for all threads to close.
-    this->SharedData.RequestAndWaitForWorkersToEnd();
+    if (!this->RunningThreadIds.empty())
+    {
+      this->SharedData.RequestAndWaitForWorkersToEnd();
+    }
+
+    // Stop threads
+    while (!this->RunningThreadIds.empty())
+    {
+      this->Threader->TerminateThread(this->RunningThreadIds.back());
+      this->RunningThreadIds.pop_back();
+    }
   }
 
-  void SpawnWorkers()
+  void SpawnWorkers(vtkTypeUInt32 numberOfThreads)
   {
-    for (int cc=0; cc < MAX_NUMBER_OF_THREADS_IN_POOL; cc++)
+    for (vtkTypeUInt32 cc=0; cc < numberOfThreads; cc++)
     {
-      this->Threader->SpawnThread(&Worker, &this->SharedData);
+      this->RunningThreadIds.push_back(this->Threader->SpawnThread(&Worker, &this->SharedData));
     }
   }
 
@@ -434,7 +446,8 @@ vtkStandardNewMacro(vtkDataEncoder);
 vtkDataEncoder::vtkDataEncoder() :
   Internals(new vtkInternals())
 {
-  this->Internals->SpawnWorkers();
+  this->MaxThreads = 3;
+  this->Initialize();
 }
 
 //----------------------------------------------------------------------------
@@ -446,10 +459,19 @@ vtkDataEncoder::~vtkDataEncoder()
 }
 
 //----------------------------------------------------------------------------
+void vtkDataEncoder::SetMaxThreads(vtkTypeUInt32 maxThreads)
+{
+  if (maxThreads < MAX_NUMBER_OF_THREADS_IN_POOL && maxThreads > 0)
+  {
+    this->MaxThreads = maxThreads;
+  }
+}
+
+//----------------------------------------------------------------------------
 void vtkDataEncoder::Initialize()
 {
   this->Internals->TerminateAllWorkers();
-  this->Internals->SpawnWorkers();
+  this->Internals->SpawnWorkers(this->MaxThreads);
 }
 
 //----------------------------------------------------------------------------
@@ -516,4 +538,10 @@ void vtkDataEncoder::Flush(vtkTypeUInt32 key)
 void vtkDataEncoder::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//----------------------------------------------------------------------------
+void vtkDataEncoder::Finalize()
+{
+  this->Internals->TerminateAllWorkers();
 }

@@ -130,6 +130,19 @@ vtkWebApplication::~vtkWebApplication()
 }
 
 //----------------------------------------------------------------------------
+void vtkWebApplication::SetNumberOfEncoderThreads(vtkTypeUInt32 numThreads)
+{
+  this->Internals->Encoder->SetMaxThreads(numThreads);
+  this->Internals->Encoder->Initialize();
+}
+
+//----------------------------------------------------------------------------
+vtkTypeUInt32 vtkWebApplication::GetNumberOfEncoderThreads()
+{
+  return this->Internals->Encoder->GetMaxThreads();
+}
+
+//----------------------------------------------------------------------------
 bool vtkWebApplication::GetHasImagesBeingProcessed(vtkRenderWindow* view)
 {
   const vtkInternals::ImageCacheValueType& value = this->Internals->ImageCache[view];
