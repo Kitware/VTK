@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-// This test draws a square usinng 4 triangles defined by 9 points and
+// This test draws a square using 4 triangles defined by 9 points and
 // an edge-flag array which allows to hide internal edges.
 
 #include "vtkActor.h"

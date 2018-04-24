@@ -71,7 +71,7 @@ public:
    * through which the request was made and the resulting modified
    * time.  Note that unlike ProcessRequest the request information
    * object may be nullptr for this method.  It also does not contain a
-   * request identifcation key because the request is known from the
+   * request identification key because the request is known from the
    * method name.
    */
   virtual int

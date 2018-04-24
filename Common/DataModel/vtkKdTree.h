@@ -209,7 +209,7 @@ public:
   //@}
 
   /**
-   * Get the number of data sets included in spatial paritioning
+   * Get the number of data sets included in spatial partitioning
    */
   int GetNumberOfDataSets();
 

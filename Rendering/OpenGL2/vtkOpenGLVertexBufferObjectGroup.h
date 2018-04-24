@@ -148,7 +148,7 @@ public:
   void AppendDataArray(const char *attribute, vtkDataArray *da, int destType);
 
   /**
-   * using the data arays in this group
+   * using the data arrays in this group
    * build all the VBOs, once this has been called the
    * reference to the data arrays will be freed.
    */

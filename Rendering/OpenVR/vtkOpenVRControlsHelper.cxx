@@ -266,7 +266,7 @@ void vtkOpenVRControlsHelper::UpdateRepresentation(vtkEventDataDevice3D *ed)
     double* controllerUpWC = tr->TransformDoubleVector(0.0, 1.0, 0.0);
 
     //Compute scale factor. It reaches its max value when the control button
-    //  faces the camera. This results in tooltips poping from the controller.
+    //  faces the camera. This results in tooltips popping from the controller.
     double dotFactor = -vtkMath::Dot(controllerUpWC, frameForward);
 
     //minimize scaling of the TextActor. ~MultiSampling

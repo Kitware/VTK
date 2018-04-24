@@ -391,7 +391,7 @@ int vtkGaussianSplatter::RequestData(
 
   vtkDebugMacro(<< "Splatted " << totalNumPts << " points");
 
-  // Update self and release memeory
+  // Update self and release memory
   //
   delete [] this->Visited;
 

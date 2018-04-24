@@ -219,7 +219,7 @@ vtkFinitePlaneRepresentation::vtkFinitePlaneRepresentation()
   this->V2Actor->SetProperty(this->V2HandleProperty);
   this->OriginActor->SetProperty(this->OriginHandleProperty);
 
-  // Internal data memebers for performance
+  // Internal data members for performance
   this->TransformRotation = vtkTransform::New();
 }
 

@@ -368,7 +368,7 @@ int vtkSocketCommunicator::ReceiveVoidArray(void *data, vtkIdType length,
     if (this->TagMessageLength < maxReceive)
     {
       // words_received in this packet is exactly equal to maxReceive, then it
-      // means that the sender is sending atleast one more packet for this
+      // means that the sender is sending at least one more packet for this
       // message. Otherwise, we have received all the packets for this message
       // and we no longer need to iterate.
       ret = 1;

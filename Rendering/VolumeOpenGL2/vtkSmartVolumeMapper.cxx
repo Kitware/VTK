@@ -116,7 +116,7 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   this->RayCastMapper->AddObserver(vtkCommand::VolumeMapperComputeGradientsProgressEvent, cb);
 
   // And the GPU mapper's events
-  // Commented out because too many events are being forwwarded
+  // Commented out because too many events are being forwarded
   // put back in after that is fixed
   /***
   this->GPUMapper->AddObserver(vtkCommand::VolumeMapperRenderStartEvent, cb);
@@ -125,7 +125,7 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   ***/
 
   // And the low res GPU mapper's events
-  // Commented out because too many events are being forwwarded
+  // Commented out because too many events are being forwarded
   // put back in after that is fixed
   /***
   this->GPULowResMapper->AddObserver(vtkCommand::VolumeMapperRenderStartEvent, cb);

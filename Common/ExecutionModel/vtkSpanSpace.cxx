@@ -288,7 +288,7 @@ void vtkSpanSpace::Initialize()
 //-----------------------------------------------------------------------------
 // Construct the scalar tree / span space from the dataset
 // provided. Checks build times and modified time from input and
-// reconstructs the tree if necessaery.
+// reconstructs the tree if necessary.
 void vtkSpanSpace::BuildTree()
 {
   vtkIdType numCells;

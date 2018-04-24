@@ -425,7 +425,7 @@ float *vtkLICRandomNoise2D::GeneratePerlin(
 }
 
 /**
-Load a predefiined texture that has been "pickled" in a string.
+Load a predefined texture that has been "pickled" in a string.
 This texture is 200x200 pixles, has a Gaussian distribution, and
 intensities ranging between 0 and 206. This is the texture that
 is used when GenerateNoiseTexture is disabled.

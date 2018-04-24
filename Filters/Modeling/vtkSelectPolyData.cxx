@@ -435,7 +435,7 @@ int vtkSelectPolyData::RequestData(
     nextFront->Reset();
   } //while still advancing
 
-  // Now may have to invert fill value depending on what we wan to extract
+  // Now may have to invert fill value depending on what we want to extract
   if ( this->SelectionMode == VTK_INSIDE_SMALLEST_REGION )
   {
     for (i=0; i < numCells; i++)

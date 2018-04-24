@@ -248,7 +248,7 @@ int vtkPCANormalEstimation::RequestData(
        this->NormalOrientation, this->OrientationPoint, this->FlipNormals));
   }
 
-  // Orient the normals in a consistent fashion (if requested). This requires a traveral
+  // Orient the normals in a consistent fashion (if requested). This requires a traversal
   // across the point cloud, traversing neighbors that are in close proximity.
   if ( this->NormalOrientation == vtkPCANormalEstimation::GRAPH_TRAVERSAL )
   {

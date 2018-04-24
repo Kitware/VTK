@@ -156,7 +156,7 @@ public:
 
   //@{
   /**
-   * Toogle the visibility of the handle on and off
+   * Toggle the visibility of the handle on and off
    */
   vtkSetMacro( HandleVisibility, vtkTypeBool );
   vtkGetMacro( HandleVisibility, vtkTypeBool );

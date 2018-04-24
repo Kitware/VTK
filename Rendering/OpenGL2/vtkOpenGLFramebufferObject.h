@@ -425,7 +425,7 @@ public:
 
   /**
    * Download data from the read color attachment of the currently
-   * bound FBO into the retruned PBO. The PBO must be free'd when
+   * bound FBO into the returned PBO. The PBO must be free'd when
    * you are finished with it. The number of components in the
    * PBO is the same as in the name of the specific download function.
    * When downloading a single color channel, the channel must be
@@ -447,7 +447,7 @@ public:
   /**
    * Download data from the depth attachment of the currently
    * bound FBO. The returned PBO must be Delete'd by the caller.
-   * The retruned PBO has one component.
+   * The returned PBO has one component.
    */
   vtkPixelBufferObject *DownloadDepth(
         int extent[4],

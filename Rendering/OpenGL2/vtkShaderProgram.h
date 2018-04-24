@@ -258,7 +258,7 @@ public:
   // maps of std::string are super slow when calling find
   // with a string literal or const char * as find
   // forces construction/copy/destruction of a
-  // std::sting copy of the const char *
+  // std::string copy of the const char *
   // In spite of the doubters this can really be a
   // huge CPU hog.
   struct cmp_str

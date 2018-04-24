@@ -201,7 +201,7 @@ void main()
   gl_FragData[0] = vec4(fragColorRGB, geomColor.a);
 
   // if further stages, move to hsl space for contrast
-  // enhancement. encoding valididty saves moving a texture to the cpu
+  // enhancement. encoding validity saves moving a texture to the cpu
   vec3 fragColorHSL = RGBToHSL(fragColorRGB);
   gl_FragData[1] = vec4(fragColorHSL, valid);
 }

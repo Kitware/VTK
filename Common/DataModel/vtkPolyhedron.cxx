@@ -1359,7 +1359,7 @@ the *unwanted* triangulation instead of the desired one because it prioritizes t
 inner angles close to 60 degrees, even though it then ends with a triangle with a very large
 internal angle (up to 180 degrees).
 
-Therefore the preffered approach is to triangulate a polygon using a fan triangulation that gives the smallest
+Therefore the preferred approach is to triangulate a polygon using a fan triangulation that gives the smallest
 range of internal angles. This approach will always choose to triangulate starting at (6) in the
 example given above. If (6) is moved out-of-plane as it were (see TestPolyhedron5.cxx) then the
 tetrahedralization gives a face triangulation that includes the edge (1)-(4), but triangulates the face

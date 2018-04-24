@@ -151,7 +151,7 @@ void vtkOpenGLVertexBufferObjectGroup::CacheDataArray(
   // if a different array is already setup for this attribute
   // clear it out. Remember that UsedArrays is cleared
   // after upload. So if there is another array here
-  // it means the same attrribute has been set twice.
+  // it means the same attribute has been set twice.
   // so we delete the prior setting, last one wins.
   if (diter != this->UsedDataArrays.end() &&
       (diter->second.size() != 1 || diter->second[0] != da))

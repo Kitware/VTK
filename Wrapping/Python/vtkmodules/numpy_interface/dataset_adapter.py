@@ -174,7 +174,7 @@ class VTKArrayMetaClass(type):
     def __new__(mcs, name, parent, attr):
         """We overwrite numerical/comparison operators because we might need
         to reshape one of the arrays to perform the operation without
-        broadcast errors. For instace:
+        broadcast errors. For instance:
 
         An array G of shape (n,3) resulted from computing the
         gradient on a scalar array S of shape (n,) cannot be added together without

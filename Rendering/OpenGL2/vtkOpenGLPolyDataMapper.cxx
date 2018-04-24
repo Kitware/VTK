@@ -1392,7 +1392,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
     }
 
     // OK we have no point or cell normals, so compute something
-    // we have a forumla for wireframe
+    // we have a formula for wireframe
     if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
     {
       // generate a normal for lines, it will be perpendicular to the line
@@ -2900,7 +2900,7 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
 
 // on some apple systems gl_PrimitiveID does not work
 // correctly.  So we have to make sure there are no
-// shared vertices and build an aray that maps verts
+// shared vertices and build an array that maps verts
 // to their cell id
 vtkPolyData *vtkOpenGLPolyDataMapper::HandleAppleBug(
   vtkPolyData *poly,

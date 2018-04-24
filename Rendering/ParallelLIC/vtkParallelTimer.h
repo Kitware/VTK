@@ -24,8 +24,8 @@
  *  The log works as an event stack. EventStart pushes the
  *  event identifier and its start time onto the stack. EventEnd
  *  pops the most recent event time and identifier computes the
- *  ellapsed time and adds an entry to the log recording the
- *  event, it's start and end times, and its ellapsed time.
+ *  elapsed time and adds an entry to the log recording the
+ *  event, it's start and end times, and its elapsed time.
  *  EndEventSynch includes a barrier before the measurement.
  *
  *  The log class implements the singleton pattern so that it
@@ -109,8 +109,8 @@ public:
    * The log works as an event stack. EventStart pushes the
    * event identifier and its start time onto the stack. EventEnd
    * pops the most recent event time and identifier computes the
-   * ellapsed time and adds an entry to the log recording the
-   * event, it's start and end times, and its ellapsed time.
+   * elapsed time and adds an entry to the log recording the
+   * event, it's start and end times, and its elapsed time.
    * EndEventSynch includes a barrier before the measurement.
    */
   void StartEvent(const char *event);

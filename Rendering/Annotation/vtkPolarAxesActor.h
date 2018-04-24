@@ -734,7 +734,7 @@ protected:
 
   /**
    * Set Range and PolarAxis members value to build axis ticks
-   * this fonction doesn't actually build PolarAxis ticks, it set the DeltaRangeMajor and DeltaMajor
+   * this function doesn't actually build PolarAxis ticks, it set the DeltaRangeMajor and DeltaMajor
    * attributes
    * then PolarAxis itself is in charge of ticks drawing
    */

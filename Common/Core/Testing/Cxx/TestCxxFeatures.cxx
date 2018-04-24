@@ -295,7 +295,7 @@ int TestNonTypeTemplate()
 
 //----------------------------------------------------------------------------
 
-/* Test mixed type and non-type template arguments in a non-trival way.  */
+/* Test mixed type and non-type template arguments in a non-trivial way.  */
 
 #if !(defined(__BORLANDC__) && (__BORLANDC__ < 0x660))
 // Borland does not support this fancy array template.

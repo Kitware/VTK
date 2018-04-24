@@ -77,7 +77,7 @@ public:
   /**
    * Step size.
    * Specify the step size as a unit of the cell length of the input vector
-   * field. Cell lengthh is the length of the diagonal of a cell.
+   * field. Cell length is the length of the diagonal of a cell.
    * Initial value is 1.0.
    * class invariant: StepSize>0.0.
    * In term of visual quality, the smaller the better.

@@ -1192,7 +1192,7 @@ void vtkICF::SeededExecute(
   outData->GetExtent(outExt);
 
   // Indexing will go from 0 to maxIdX, and the lower limit if "extent" will
-  // be subracted from outExt.  If outExt was the same as extent, then nullptr
+  // be subtracted from outExt.  If outExt was the same as extent, then nullptr
   // is returned, else outExt is returned.
   int maxIdx[3];
   int *outLimits = vtkICF::ZeroBaseExtent(extent, outExt, maxIdx);
@@ -1277,7 +1277,7 @@ void vtkICF::SeedlessExecute(
   outData->GetExtent(outExt);
 
   // Indexing will go from 0 to maxIdX, and the lower limit if "extent" will
-  // be subracted from outExt.  If outExt was the same as extent, then nullptr
+  // be subtracted from outExt.  If outExt was the same as extent, then nullptr
   // is returned, else outExt is returned.
   int maxIdx[3];
   int *outLimits = vtkICF::ZeroBaseExtent(extent, outExt, maxIdx);

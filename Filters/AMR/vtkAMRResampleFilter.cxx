@@ -220,7 +220,7 @@ bool vtkAMRResampleFilter::FoundDonor(
 {
   assert( "pre: donor grid is nullptr" && (donorGrid != nullptr) );
   double gbounds[6];
-  // Lets do a trival spatial check
+  // Lets do a trivial spatial check
   this->NumberOfBlocksTested++;
   donorGrid->GetBounds(gbounds);
   if ((q[0] < gbounds[0]) || (q[0] > gbounds[1]) ||

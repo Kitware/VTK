@@ -203,7 +203,7 @@ public:
   vtkVector2i                NextActivePlot;
 
   vtkNew<vtkChartXYZ> BigChart3D;
-  vtkNew<vtkAxis>     TestAxis;   // Used to get ranges/numer of ticks
+  vtkNew<vtkAxis>     TestAxis;   // Used to get ranges/number of ticks
   vtkSmartPointer<vtkTooltipItem> TooltipItem;
   vtkSmartPointer<vtkStringArray> IndexedLabelsArray;
 };

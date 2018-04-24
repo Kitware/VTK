@@ -166,7 +166,7 @@ int PyVTKObject_Traverse(PyObject *o, visitproc visit, void *arg)
 //--------------------------------------------------------------------
 PyObject *PyVTKObject_New(PyTypeObject *tp, PyObject *args, PyObject *kwds)
 {
-  // If type was sublassed within python, then skip arg checks and
+  // If type was subclassed within python, then skip arg checks and
   // simply create a new object.
   if ((tp->tp_flags & Py_TPFLAGS_HEAPTYPE) == 0)
   {

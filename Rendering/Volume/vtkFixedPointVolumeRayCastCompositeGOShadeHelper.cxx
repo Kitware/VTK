@@ -954,7 +954,7 @@ void vtkFixedPointVolumeRayCastCompositeGOShadeHelper::GenerateImage( int thread
         }
       }
     }
-    // Indepedent components (more than one)
+    // Independent components (more than one)
     else if ( vol->GetProperty()->GetIndependentComponents() )
     {
       switch ( scalarType )

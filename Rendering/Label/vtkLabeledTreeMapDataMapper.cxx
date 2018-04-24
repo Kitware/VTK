@@ -536,7 +536,7 @@ void vtkLabeledTreeMapDataMapper::LabelTree(vtkTree *tree,
       // results == 2 from AnalyseLabel means that the label can't be
       // displayed due to reasons other than size - well in this
       // case we can't display due to the level limit we
-      // also have to deactive the maks for this level
+      // also have to deactivate the mask for this level
       this->LabelMasks[level][0] = -1.0;
       results = 2;
     }

@@ -193,7 +193,7 @@ void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
           }
           else
           {
-            // Copy verbatum
+            // Copy verbatim
             for ( idxC = 0; idxC < numC; ++idxC )
             {
               *outPtr = *in1Ptr;

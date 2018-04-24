@@ -73,7 +73,7 @@ public class vtkAbstractJoglComponent<T extends java.awt.Component> extends vtkA
     this.uiComponent.addMouseWheelListener(forwarder);
     this.uiComponent.addKeyListener(forwarder);
 
-    // Make sure when VTK internaly request a Render, the Render get
+    // Make sure when VTK internally request a Render, the Render get
     // properly triggered
     renderWindowToUse.AddObserver("WindowFrameEvent", this, "Render");
     renderWindowToUse.GetInteractor().AddObserver("RenderEvent", this, "Render");

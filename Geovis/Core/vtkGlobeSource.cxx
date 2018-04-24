@@ -337,7 +337,7 @@ int vtkGlobeSource::RequestData(
   }
 
 
-  // Update ourselves and release memeory
+  // Update ourselves and release memory
   //
   newPoints->Squeeze();
   output->SetPoints(newPoints);

@@ -69,7 +69,7 @@ double vtkTriangle::ComputeArea()
 
 //----------------------------------------------------------------------------
 // Create a new cell and copy this triangle's information into the cell.
-// Returns a poiner to the new cell created.
+// Returns a pointer to the new cell created.
 int vtkTriangle::EvaluatePosition(double x[3], double* closestPoint,
                                  int& subId, double pcoords[3],
                                  double& dist2, double *weights)
@@ -1014,7 +1014,7 @@ int CoplanarTrianglesIntersect(double p1[2], double q1[2], double r1[2],
                                double p2[2], double q2[2], double r2[2])
 {
   // Determine whether or not triangle T1 = (p1,q1,r1) intersects triangle
-  // T2 = (p2,q2,r2), assumming that they are coplanar. This method is adapted
+  // T2 = (p2,q2,r2), assuming that they are coplanar. This method is adapted
   // from Olivier Devillers, Philippe Guigue. Faster Triangle-Triangle
   // Intersection Tests. RR-4488, IN-RIA. 2002. <inria-00072100>
 

@@ -20,7 +20,7 @@
  * vtkDataArrayDispatcher is a class that allows calling a functor based
  * on the data type of the vtkDataArray subclass. This is a wrapper
  * around the vtkTemplateMacro (VTK_TT) to allow easier implementation and
- * readibility, while at the same time the ability to use statefull functors.
+ * readability, while at the same time the ability to use statefull functors.
  *
  * Note: By default the return type is void.
  * Note: The functor parameter must be of type vtkDataArrayDispatcherPointer

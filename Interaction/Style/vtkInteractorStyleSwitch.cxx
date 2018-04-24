@@ -167,7 +167,7 @@ void vtkInteractorStyleSwitch::OnChar()
 }
 
 //----------------------------------------------------------------------------
-// this will do nothing if the CurrentStyle matchs
+// this will do nothing if the CurrentStyle matches
 // JoystickOrTrackball and CameraOrActor
 // It should! If the this->Interactor was changed (using SetInteractor()),
 // and the currentstyle should not change.

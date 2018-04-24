@@ -42,7 +42,7 @@ public:
   static void Clamp(int ext[6], const int wholeExt[]);
 
   /**
-   * Returns true if \c ext is fits within \c wholeExt with atleast 1 dimension
+   * Returns true if \c ext is fits within \c wholeExt with at least 1 dimension
    * smaller than the \c wholeExt.
    */
   static bool StrictlySmaller(const int ext[6], const int wholeExt[6]);

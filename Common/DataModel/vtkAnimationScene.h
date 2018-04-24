@@ -21,7 +21,7 @@
  * animates with time, while vtkAnimationScene represents scene or setup
  * for the animation, which consists of individual cues or other scenes.
  *
- * A scene can be played in real time mode, or as a seqence of frames
+ * A scene can be played in real time mode, or as a sequence of frames
  * 1/frame rate apart in time.
  * @sa
  * vtkAnimationCue

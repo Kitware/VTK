@@ -731,7 +731,7 @@ void vtkImageMarchingCubes::IncrementLocatorZ()
 // (1,1,1)->(0,1,1): 6,  (0,1,1)->(0,0,1): 7,
 // (0,0,0)->(0,0,1): 8,  (1,0,0)->(1,0,1): 9,
 // (0,1,0)->(0,1,1): 10, (1,1,0)->(1,1,1): 11.
-// Shared edges are computed internaly. (no error checking)
+// Shared edges are computed internally. (no error checking)
 void vtkImageMarchingCubes::AddLocatorPoint(int cellX, int cellY, int edge,
                                             vtkIdType ptId)
 {

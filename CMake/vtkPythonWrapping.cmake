@@ -228,7 +228,7 @@ endfunction()
 
 #------------------------------------------------------------------------------
 # create init header for all python wrapped modules.
-# this uses VTK_PYTHON_WRAPPED global property which is filled with every pyhton
+# this uses VTK_PYTHON_WRAPPED global property which is filled with every python
 # module.
 # Usage: vtk_write_python_modules_header_for_wrapped_modules(
 #           <filename> <out_variable>)

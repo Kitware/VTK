@@ -40,7 +40,7 @@
  *
  *
  * See Graphics/Testing/Cxx/TestReebGraph.cxx for an example of concrete
- * implemetnation.
+ * implementation.
 */
 
 #ifndef vtkReebGraphSimplificationMetric_h

@@ -91,7 +91,7 @@ void vtkOpenGLImageAlgorithmHelper::Execute(
     }
   }
 
-  // no 1d or 2D supprt yet
+  // no 1D or 2D support yet
   if (dimensions < 3)
   {
     vtkErrorMacro("no 1D or 2D processing support yet");

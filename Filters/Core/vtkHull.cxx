@@ -146,7 +146,7 @@ int vtkHull::AddPlane( double plane[3] )
 }
 
 // Set a specific plane - this plane should already have been added with
-// AddPlane, and the return value then used to modifiy the plane normal
+// AddPlane, and the return value then used to modify the plane normal
 // with this method.
 void vtkHull::SetPlane( int i, double A, double B, double C )
 {

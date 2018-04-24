@@ -47,7 +47,7 @@ struct vtkInterpolationWeights : public vtkInterpolationInfo
   int LastY;
   int LastZ;
 
-  // partial copy contstructor from superclass
+  // partial copy constructor from superclass
   vtkInterpolationWeights(const vtkInterpolationInfo &info) :
     vtkInterpolationInfo(info), Workspace(nullptr) {}
 };

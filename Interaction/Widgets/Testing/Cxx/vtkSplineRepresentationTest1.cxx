@@ -68,7 +68,7 @@ int vtkSplineRepresentationTest1(int , char * [] )
   int numHandles = node1->GetNumberOfHandles();
   if (numHandles != 10)
   {
-    std::cerr << "Error in Setting numer of Handles to 10, got " << numHandles << std::endl;
+    std::cerr << "Error in Setting number of Handles to 10, got " << numHandles << std::endl;
     return EXIT_FAILURE;
   }
   node1->SetNumberOfHandles(-1);

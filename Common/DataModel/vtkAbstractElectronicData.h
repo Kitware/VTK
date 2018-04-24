@@ -64,14 +64,14 @@ public:
    */
   vtkImageData * GetLUMO() {return this->GetMO(this->GetLUMOOrbitalNumber());}
 
-  // Descripition:
+  // Description:
   // Returns the orbital number of the Highest Occupied Molecular Orbital.
   vtkIdType GetHOMOOrbitalNumber()
   {
     return static_cast<vtkIdType>((this->GetNumberOfElectrons() / 2 ) - 1);
   }
 
-  // Descripition:
+  // Description:
   // Returns the orbital number of the Lowest Unoccupied Molecular Orbital.
   vtkIdType GetLUMOOrbitalNumber()
   {

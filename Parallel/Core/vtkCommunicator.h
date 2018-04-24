@@ -1270,7 +1270,7 @@ public:
   //@{
   /**
    * Some helper functions when dealing with heap tree - based
-   * algorthims - we don't need a function for getting the right
+   * algorithms - we don't need a function for getting the right
    * processor since it is 1 + theLeftProcessor
    */
   static int GetParentProcessor(int pid);
@@ -1310,7 +1310,7 @@ protected:
    * GatherV collects arrays in the process with id \c destProcessId.
    * Each process (including the destination) sends its sendArray to
    * the destination process.  The destination process receives the
-   * arrays and stores them in rank order in recvArrays.  The \c recvArays is an
+   * arrays and stores them in rank order in recvArrays.  The \c recvArrays is an
    * array containing  \c NumberOfProcesses elements. The \c recvArray allocates
    * and manages memory for \c recvArrays.
    */
