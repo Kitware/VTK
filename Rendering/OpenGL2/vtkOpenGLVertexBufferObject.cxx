@@ -248,16 +248,16 @@ void vtkAppendVBOWorker<destType>::operator() (DataArray *array)
   }
 
   destType *VBOit =
-    reinterpret_cast<destType *>(&this->VBO->PackedVBO[this->Offset]);
+    reinterpret_cast<destType *>(&this->VBO->GetPackedVBO()[this->Offset]);
 
   // Accessor for the data array
   vtkDataArrayAccessor<DataArray> data(array);
 
   // compute extra padding required
   int bytesNeeded =
-    this->VBO->DataTypeSize*this->VBO->NumberOfComponents;
+    this->VBO->GetDataTypeSize() * this->VBO->GetNumberOfComponents();
   int extraComponents =
-    ((4 - (bytesNeeded % 4)) % 4)/this->VBO->DataTypeSize;
+    ((4 - (bytesNeeded % 4)) % 4) / this->VBO->GetDataTypeSize();
 
   // If not shift & scale
   if(!this->VBO->GetCoordShiftAndScaleEnabled())
