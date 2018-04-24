@@ -847,7 +847,6 @@ protected:
   static int __ConvexSubRegions(int *ids, int len, vtkKdNode *tree, vtkKdNode **nodes);
   static int FoundId(vtkIntArray *idArray, int id);
 
-  void NewParitioningRequest(int req);
   void SetInputDataInfo(int i,
        int dims[3], double origin[3], double spacing[3]);
   int CheckInputDataInfo(int i,
