@@ -43,17 +43,30 @@ public:
   {
     Cube,
     Sphere,
+    Floor,
   };
   vtkGetMacro(Projection, int);
   vtkSetMacro(Projection, int);
   void SetProjectionToCube() { this->SetProjection(vtkSkybox::Cube); }
   void SetProjectionToSphere() {this->SetProjection(vtkSkybox::Sphere); }
+  void SetProjectionToFloor() {this->SetProjection(vtkSkybox::Floor); }
+
+  /**
+   * Set/Get the plane equation for the floor.
+   */
+  vtkSetVector4Macro(FloorPlane, float);
+  vtkGetVector4Macro(FloorPlane, float);
+
+  vtkSetVector3Macro(FloorRight, float);
+  vtkGetVector3Macro(FloorRight, float);
 
 protected:
   vtkSkybox();
   ~vtkSkybox() override;
 
   int Projection;
+  float FloorPlane[4];
+  float FloorRight[3];
 
 private:
   vtkSkybox(const vtkSkybox&) = delete;
