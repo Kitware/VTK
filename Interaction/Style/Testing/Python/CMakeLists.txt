@@ -13,4 +13,7 @@ if(VTK_CAN_DO_ONSCREEN AND NOT VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
     TestStyleTrackballCamera.py,NO_RT
     TestStyleUser.py
     )
+
+  set_tests_properties(vtkInteractionStylePython-TestStyleRubberBandZoomPerspective
+                       PROPERTIES RUN_SERIAL ON)
 endif()
