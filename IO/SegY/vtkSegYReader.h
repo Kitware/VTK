@@ -28,11 +28,12 @@ class vtkSegYReaderInternal;
  * @class vtkSegYReader
  * @brief Reads SegY data files.
  *
- * vtkSegYReader reads SegY data files. We create a
- * vtkStructuredGrid for 2.5D SegY data and an vtkImageData for a 3D SegY
- * data. If we set the StructuredGrid option we create a vtkStructuredGrid
- * for 3D data to show the exact position for each point. The axes for
- * the data are: crossline, inline, depth
+ * vtkSegYReader reads SegY data files. We create a vtkStructuredGrid
+ * for 2.5D SegY and 3D data. If we set the StructuredGrid option to 0
+ * we create a vtkImageData for 3D data. This saves memory and may
+ * speed-up certain algorithms, but the position and the shape of the
+ * data may not be correct. The axes for the data are: crossline,
+ * inline, depth
  */
 class VTKIOSEGY_EXPORT vtkSegYReader : public vtkDataSetAlgorithm
 {
@@ -108,9 +109,9 @@ public:
   /**
    * Specify if we create a vtkStructuredGrid even when the data is
    * 3D. Note this consumes more memory but it shows the precise
-   * location for each point. This may be useful if we want to show several
-   * datasets in the same window.  The default value is false
-   * which means that we create a vtkImageData for a SegY 3D dataset.
+   * location for each point and the correct shape of the data. The
+   * default value is true.  If we set this option to false we we
+   * create a vtkImageData for the SegY 3D dataset.
    */
   vtkSetMacro(StructuredGrid, int);
   vtkGetMacro(StructuredGrid, int);

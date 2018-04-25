@@ -43,7 +43,7 @@ vtkSegYReader::vtkSegYReader()
   std::fill(this->DataExtent, this->DataExtent + 6, 0);
 
   this->XYCoordMode = VTK_SEGY_SOURCE;
-  this->StructuredGrid = 0;
+  this->StructuredGrid = 1;
   this->XCoordByte = 73;
   this->YCoordByte = 77;
 
