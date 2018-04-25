@@ -34,7 +34,7 @@
 #include "vtkSplitColumnComponents.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
-#include "vtkUnsignedCharArray.h"
+#include "vtkCharArray.h"
 #include "vtkWeakPointer.h"
 
 #include <algorithm>
@@ -49,10 +49,10 @@ namespace
 struct ClearInvalidElementsWorker
 {
 private:
-  vtkUnsignedCharArray* MaskArray;
+  vtkCharArray* MaskArray;
 
 public:
-  ClearInvalidElementsWorker(vtkUnsignedCharArray* maskArray)
+  ClearInvalidElementsWorker(vtkCharArray* maskArray)
     : MaskArray(maskArray)
   {
   }
@@ -130,7 +130,7 @@ public:
   {
   public:
     vtkSmartPointer<vtkTable> Output;
-    vtkSmartPointer<vtkUnsignedCharArray> ValidMaskArray;
+    vtkSmartPointer<vtkCharArray> ValidMaskArray;
     vtkSmartPointer<vtkDoubleArray> PointCoordinatesArray;
     bool UsingGlobalIDs;
     vtkValue()
@@ -161,7 +161,7 @@ private:
   // For all arrays in dsa, for any element that's not valid (i.e. has value 1
   // in validArray), we initialize that element to 0 (rather than having some
   // garbage value).
-  void RemoveInvalidPoints(vtkUnsignedCharArray* validArray, vtkDataSetAttributes* dsa)
+  void RemoveInvalidPoints(vtkCharArray* validArray, vtkDataSetAttributes* dsa)
   {
     ClearInvalidElementsWorker worker(validArray);
     using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
@@ -637,12 +637,12 @@ vtkExtractDataArraysOverTime::vtkInternal::GetOutput(
     // This happens when we are looking at a location which is not contained
     // by a cell or at a cell or point id that is destroyed.
     // It is used in the parallel subclass as well.
-    vtkUnsignedCharArray* validPts = vtkUnsignedCharArray::New();
+    vtkCharArray* validPts = vtkCharArray::New();
     validPts->SetName("vtkValidPointMask");
     validPts->SetNumberOfComponents(1);
     validPts->SetNumberOfTuples(this->NumberOfTimeSteps);
     std::fill_n(validPts->WritePointer(0, this->NumberOfTimeSteps), this->NumberOfTimeSteps,
-      static_cast<unsigned char>(0));
+      static_cast<char>(0));
     value.ValidMaskArray.TakeReference(validPts);
     value.UsingGlobalIDs = using_gid;
     iter = this->OutputGrids.insert(MapType::value_type(key, value)).first;
