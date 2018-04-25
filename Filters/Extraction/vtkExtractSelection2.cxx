@@ -277,6 +277,7 @@ int vtkExtractSelection2::RequestData(
       this->ExtractFromBlock(input, -1, -1, -1, selection));
     output->ShallowCopy(outputDO);
   }
+  return 1;
 }
 
 //----------------------------------------------------------------------------
