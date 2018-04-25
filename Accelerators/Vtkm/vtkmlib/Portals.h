@@ -51,9 +51,9 @@ public:
 
   VTKM_SUPPRESS_EXEC_WARNINGS
   VTKM_EXEC
-  ValueType Get(vtkm::Id index) const;
+  inline ValueType Get(vtkm::Id index) const;
 
-  void Set(vtkm::Id index, const ValueType& value) const;
+  inline void Set(vtkm::Id index, const ValueType& value) const;
 
   typedef vtkm::cont::internal::IteratorFromArrayPortal<vtkArrayPortal>
       IteratorType;
@@ -90,13 +90,6 @@ public:
 
   vtkPointsPortal(vtkPoints* points, vtkm::Id size);
 
-  /// Copy constructor for any other vtkArrayPortal with an iterator
-  /// type that can be copied to this iterator type. This allows us to do any
-  /// type casting that the iterators do (like the non-const to const cast).
-  ///
-  template <typename OtherType>
-  vtkPointsPortal(const vtkPointsPortal<OtherType>& src);
-
   vtkm::Id GetNumberOfValues() const
   {
     return this->Size;
@@ -104,9 +97,9 @@ public:
 
   VTKM_SUPPRESS_EXEC_WARNINGS
   VTKM_EXEC
-  ValueType Get(vtkm::Id index) const;
+  inline ValueType Get(vtkm::Id index) const;
 
-  void Set(vtkm::Id index, const ValueType& value) const;
+  inline void Set(vtkm::Id index, const ValueType& value) const;
 
   typedef vtkm::cont::internal::IteratorFromArrayPortal<vtkPointsPortal>
       IteratorType;

@@ -112,20 +112,6 @@ vtkPointsPortal<Type>::vtkPointsPortal(vtkPoints* points, vtkm::Id size)
 }
 
 //------------------------------------------------------------------------------
-/// Copy constructor for any other vtkArrayPortal with an iterator
-/// type that can be copied to this iterator type. This allows us to do any
-/// type casting that the iterators do (like the non-const to const cast).
-///
-template <typename Type>
-template <typename OtherType>
-vtkPointsPortal<Type>::vtkPointsPortal(const vtkPointsPortal<OtherType>& src)
-  : Points(src.GetVtkData()),
-    Array(static_cast<ComponentType*>(src.GetVtkData()->GetVoidPointer(0))),
-    Size(src.GetNumberOfValues())
-{
-}
-
-//------------------------------------------------------------------------------
 template <typename Type>
 typename vtkPointsPortal<Type>::ValueType
 vtkPointsPortal<Type>::Get(vtkm::Id index) const
