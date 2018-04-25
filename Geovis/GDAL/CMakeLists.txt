@@ -7,5 +7,6 @@ set(Module_SRCS
   vtkRasterReprojectionFilter.cxx
   )
 
+include_directories(${GDAL_INCLUDE_DIRS})
 vtk_module_library(vtkGeovisGDAL ${Module_SRCS})
 vtk_module_link_libraries(vtkGeovisGDAL LINK_PRIVATE ${GDAL_LIBRARY})
