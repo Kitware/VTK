@@ -5863,6 +5863,16 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
 
   vtkFoamLabelVectorVector::CellType cellFaces;
 
+  vtkSmartPointer<vtkIdTypeArray> arrayId;
+  if (cellList)
+  {
+    // create array holding cell id only on zone mesh
+    arrayId = vtkSmartPointer<vtkIdTypeArray>::New();
+    arrayId->SetName("CellId");
+    arrayId->SetNumberOfTuples(nCells);
+    internalMesh->GetCellData()->AddArray(arrayId);
+  }
+
   for (vtkIdType cellI = 0; cellI < nCells; cellI++)
   {
     vtkIdType cellId;
@@ -5882,6 +5892,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
             cellPoints->GetPointer(0));
         continue;
       }
+      arrayId->SetValue(cellI, cellId);
     }
 
     cellsFaces->GetCell(cellId, cellFaces);
@@ -9034,6 +9045,30 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet *output,
     lagrangianMesh = this->MakeLagrangianMesh();
   }
 
+  if (this->InternalMesh && this->Parent->CopyDataToCellZones && this->CellZoneMesh)
+  {
+    for (unsigned int i = 0; i < this->CellZoneMesh->GetNumberOfBlocks(); i++)
+    {
+      vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(this->CellZoneMesh->GetBlock(i));
+      vtkIdTypeArray* idArray = vtkIdTypeArray::SafeDownCast(ug->GetCellData()->GetArray("CellId"));
+
+      // allocate arrays, cellId array will be removed
+      ug->GetCellData()->CopyAllocate(this->InternalMesh->GetCellData(), ug->GetNumberOfCells());
+
+      // copy tuples
+      for (vtkIdType j = 0; j < ug->GetNumberOfCells(); j++)
+      {
+        ug->GetCellData()->CopyData(this->InternalMesh->GetCellData(), idArray->GetValue(j), j);
+      }
+
+      // we need to add the id array because it has been previously removed
+      ug->GetCellData()->AddArray(idArray);
+
+      // copy points data
+      ug->GetPointData()->ShallowCopy(this->InternalMesh->GetPointData());
+    }
+  }
+
   // Add Internal Mesh to final output only if selected for display
   if (this->InternalMesh != nullptr)
   {
@@ -9189,6 +9224,7 @@ vtkOpenFOAMReader::vtkOpenFOAMReader()
   this->Use64BitFloats = true;
   this->Use64BitLabelsOld = false;
   this->Use64BitFloatsOld = true;
+  this->CopyDataToCellZones = false;
 }
 
 //-----------------------------------------------------------------------------
