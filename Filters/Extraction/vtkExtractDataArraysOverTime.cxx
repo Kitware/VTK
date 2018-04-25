@@ -597,6 +597,10 @@ vtkExtractDataArraysOverTime::vtkInternal::GetOutput(
 
     vtkDataSetAttributes* rowData = output->GetRowData();
     rowData->CopyAllocate(inDSA, this->NumberOfTimeSteps);
+    // since CopyAllocate only allocates memory, but doesn't change the number
+    // of tuples in each of the arrays, we need to do this explicitly.
+    // see (paraview/paraview#18090).
+    rowData->SetNumberOfTuples(this->NumberOfTimeSteps);
 
     // Add an array to hold the time at each step
     vtkDoubleArray* timeArray = this->TimeArray;
