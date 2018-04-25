@@ -33,13 +33,19 @@ writer.SetMaxThreads(2)
 writer.Initialize()
 
 # Write all files
+wroteFiles = []
 t0 = time.time()
 for i in range(10):
     for fileName in fileNames:
         filePath = '%s/%s-%s' % (VTK_TEMP_DIR, i, fileName)
-        print('write:', filePath)
+        wroteFiles.append(filePath)
         writer.EncodeAndWrite(image, filePath)
 t1 = time.time()
+
+# Try to put the print outside the write loop
+# to see if that remove time on mum for the dashboard
+for filePath in wroteFiles:
+    print('write: %s' % filePath)
 
 # Wait for the work to be done
 writer.Finalize()
@@ -49,7 +55,8 @@ print('Write time', t1 - t0)
 print('Wait time', t2 - t1)
 print('Total time', t2 - t0)
 
-if t1 - t0 > t2 - t1: # The write time should be smaller than the wait time
+# Add 10ms tolerance...
+if (0.01 + t1 - t0) > t2 - t1: # The write time should be smaller than the wait time
     print('Calling Write should be like a NoOp and therefore should be fast')
     sys.exit(1)
 
