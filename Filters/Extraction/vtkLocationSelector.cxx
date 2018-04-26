@@ -182,17 +182,13 @@ void vtkLocationSelector::Finalize()
 }
 
 //----------------------------------------------------------------------------
-void vtkLocationSelector::ComputeSelectedElements(
+bool vtkLocationSelector::ComputeSelectedElements(
   vtkDataObject* input, vtkSignedCharArray* elementInside)
 {
   assert(input != nullptr && elementInside != nullptr);
-
   vtkDataSet* ds = vtkDataSet::SafeDownCast(input);
-  if (this->Internals == nullptr || ds == nullptr ||
-    this->Internals->Execute(ds, elementInside) == false)
-  {
-    elementInside->FillValue(0);
-  }
+  return (this->Internals != nullptr && ds != nullptr) ? this->Internals->Execute(ds, elementInside)
+                                                       : false;
 }
 
 //----------------------------------------------------------------------------

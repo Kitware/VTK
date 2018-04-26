@@ -507,15 +507,11 @@ void vtkValueSelector::Finalize()
 }
 
 //----------------------------------------------------------------------------
-void vtkValueSelector::ComputeSelectedElements(
+bool vtkValueSelector::ComputeSelectedElements(
   vtkDataObject* input, vtkSignedCharArray* elementInside)
 {
   assert(input != nullptr && elementInside != nullptr);
-
-  if (this->Internals == nullptr || !this->Internals->Execute(input, elementInside))
-  {
-    elementInside->FillValue(0);
-  }
+  return this->Internals ? this->Internals->Execute(input, elementInside) : false;
 }
 
 //----------------------------------------------------------------------------
