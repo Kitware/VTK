@@ -1,31 +1,32 @@
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
-#include <vtkImageData.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkUnstructuredGridWriter.h>
-#include <vtkXMLDataSetWriter.h>
-#include <vtkPolyDataWriter.h>
-#include <vtkPoints.h>
-#include <vtkPointData.h>
-#include <vtkCellData.h>
-#include <vtkIdTypeArray.h>
-#include <vtkDoubleArray.h>
-#include <vtkCell.h>
-#include <vtkDataSetMapper.h>
 #include <vtkActor.h>
-#include <vtkProperty.h>
-#include <vtkRenderer.h>
 #include <vtkCamera.h>
+#include <vtkCell.h>
+#include <vtkCellData.h>
+#include <vtkDataSetMapper.h>
+#include <vtkDoubleArray.h>
+#include <vtkExtractSelection2.h>
+#include <vtkIdList.h>
+#include <vtkIdTypeArray.h>
+#include <vtkImageData.h>
+#include <vtkInformation.h>
+#include <vtkNew.h>
+#include <vtkPointData.h>
+#include <vtkPoints.h>
+#include <vtkPolyDataWriter.h>
+#include <vtkProperty.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkIdList.h>
-#include <vtkNew.h>
-
-#include <vtkInformation.h>
+#include <vtkRenderer.h>
 #include <vtkSelection.h>
 #include <vtkSelectionNode.h>
-#include <vtkExtractSelection2.h>
+#include <vtkUnstructuredGrid.h>
+#include <vtkUnstructuredGridWriter.h>
+#include <vtkVector.h>
+#include <vtkXMLDataSetWriter.h>
+
 #define XCELLS  15
 #define YCELLS  15
 #define ZCELLS  15
@@ -264,9 +265,11 @@ int TestExtractionExpression(int argc, char *argv[])
   vtkNew<vtkSelectionNode> sel1;
   vtkNew<vtkSelectionNode> sel2;
   vtkNew<vtkSelectionNode> sel3;
+  vtkNew<vtkSelectionNode> sel4;
   selection->AddNode(sel1);
   selection->AddNode(sel2);
   selection->AddNode(sel3);
+  selection->AddNode(sel4);
 
   vtkNew<vtkExtractSelection2> ext;
   ext->SetInputData(0, sampleData);
@@ -317,6 +320,18 @@ int TestExtractionExpression(int argc, char *argv[])
   ids->SetNumberOfTuples(20);
   std::iota(ids->GetPointer(0), ids->GetPointer(0) + 20, 0);
   sel3->SetSelectionList(ids);
+
+  // add location based selection
+  sel4->SetContentType(vtkSelectionNode::LOCATIONS);
+  sel4->SetFieldType(vtkSelectionNode::CELL);
+  vtkNew<vtkDoubleArray> locations;
+  locations->SetNumberOfComponents(3);
+  locations->SetNumberOfTuples(XCELLS);
+
+  double index = 0.5;
+  std::generate_n(reinterpret_cast<vtkVector3d*>(locations->GetPointer(0)),
+    locations->GetNumberOfTuples(), [&]() { return vtkVector3d(index++); });
+  sel4->SetSelectionList(locations);
 
   ext->Update();
   auto extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());

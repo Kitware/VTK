@@ -24,6 +24,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLocationSelector.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkSelection.h"
@@ -300,6 +301,7 @@ vtkSelectionOperator* vtkExtractSelection2::GetOperatorForNode(vtkSelectionNode*
     break;
 
   case vtkSelectionNode::LOCATIONS:
+    op = vtkLocationSelector::New();
     break;
 
   case vtkSelectionNode::THRESHOLDS:
