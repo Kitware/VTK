@@ -42,13 +42,32 @@ class VTKACCELERATORSVTKM_EXPORT vtkmCellSetExplicitAOS : public CellSet
 {
 public:
   vtkmCellSetExplicitAOS(const std::string& name = std::string())
-    : CellSet(name), Shapes(), Connectivity(), IndexOffsets(),
-      ReverseConnectivityBuilt(false),RConn(), RNumIndices(), RIndexOffsets(),
-      NumberOfPoints(0)
+    : CellSet(name)
+    , Shapes()
+    , Connectivity()
+    , IndexOffsets()
+    , ReverseConnectivityBuilt(false)
+    , RConn()
+    , RNumIndices()
+    , RIndexOffsets()
+    , NumberOfPoints(0)
   {
   }
 
   virtual ~vtkmCellSetExplicitAOS()
+  {
+  }
+
+  vtkmCellSetExplicitAOS(const vtkmCellSetExplicitAOS& src)
+    : CellSet(src)
+    , Shapes(src.Shapes)
+    , Connectivity(src.Connectivity)
+    , IndexOffsets(src.IndexOffsets)
+    , ReverseConnectivityBuilt(src.ReverseConnectivityBuilt)
+    , RConn(src.RConn)
+    , RNumIndices(src.RNumIndices)
+    , RIndexOffsets(src.RIndexOffsets)
+    , NumberOfPoints(src.NumberOfPoints)
   {
   }
 

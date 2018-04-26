@@ -47,29 +47,42 @@ class VTKACCELERATORSVTKM_EXPORT vtkmCellSetSingleType : public CellSet
 
 public:
   vtkmCellSetSingleType()
-    : CellSet((std::string())),
-      NumberOfCells(0),
-      NumberOfPoints(0),
-      CellTypeAsId(CellShapeTagEmpty::Id),
-      Connectivity(),
-      ReverseConnectivityBuilt(false),
-      RConn(),
-      RNumIndices(),
-      RIndexOffsets()
+    : CellSet((std::string()))
+    , NumberOfCells(0)
+    , NumberOfPoints(0)
+    , CellTypeAsId(CellShapeTagEmpty::Id)
+    , Connectivity()
+    , ReverseConnectivityBuilt(false)
+    , RConn()
+    , RNumIndices()
+    , RIndexOffsets()
   {
   }
 
   template <typename CellShapeTag>
   vtkmCellSetSingleType(CellShapeTag, const std::string& name)
-    : CellSet(name),
-      NumberOfCells(0),
-      NumberOfPoints(0),
-      CellTypeAsId(CellShapeTag::Id),
-      Connectivity(),
-      ReverseConnectivityBuilt(false),
-      RConn(),
-      RNumIndices(),
-      RIndexOffsets()
+    : CellSet(name)
+    , NumberOfCells(0)
+    , NumberOfPoints(0)
+    , CellTypeAsId(CellShapeTag::Id)
+    , Connectivity()
+    , ReverseConnectivityBuilt(false)
+    , RConn()
+    , RNumIndices()
+    , RIndexOffsets()
+  {
+  }
+
+  vtkmCellSetSingleType(const vtkmCellSetSingleType& src)
+    : CellSet(src)
+    , NumberOfCells(src.NumberOfCells)
+    , NumberOfPoints(src.NumberOfPoints)
+    , CellTypeAsId(src.CellTypeAsId)
+    , Connectivity(src.Connectivity)
+    , ReverseConnectivityBuilt(src.ReverseConnectivityBuilt)
+    , RConn(src.RConn)
+    , RNumIndices(src.RNumIndices)
+    , RIndexOffsets(src.RIndexOffsets)
   {
   }
 
