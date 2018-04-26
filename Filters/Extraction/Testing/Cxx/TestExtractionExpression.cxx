@@ -263,8 +263,11 @@ int TestExtractionExpression(int argc, char *argv[])
   vtkNew<vtkSelection> selection;
   vtkNew<vtkSelectionNode> sel1;
   vtkNew<vtkSelectionNode> sel2;
+  vtkNew<vtkSelectionNode> sel3;
   selection->AddNode(sel1);
   selection->AddNode(sel2);
+  selection->AddNode(sel3);
+
   vtkNew<vtkExtractSelection2> ext;
   ext->SetInputData(0, sampleData);
   ext->SetInputData(1, selection);
@@ -305,6 +308,15 @@ int TestExtractionExpression(int argc, char *argv[])
   frustcorners2->SetTuple4(6,  9.4,  8.9,  3.1, 0.0);
   frustcorners2->SetTuple4(7,  9.4,  8.9, 0.1, 0.0);
   sel2->SetSelectionList(frustcorners2);
+
+  // add id based selection.
+  sel3->SetContentType(vtkSelectionNode::INDICES);
+  sel3->SetFieldType(vtkSelectionNode::CELL);
+
+  vtkNew<vtkIdTypeArray> ids;
+  ids->SetNumberOfTuples(20);
+  std::iota(ids->GetPointer(0), ids->GetPointer(0) + 20, 0);
+  sel3->SetSelectionList(ids);
 
   ext->Update();
   auto extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());

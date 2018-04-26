@@ -32,6 +32,7 @@
 #include "vtkSignedCharArray.h"
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkValueSelector.h"
 
 #include <map>
 
@@ -291,6 +292,7 @@ vtkSelectionOperator* vtkExtractSelection2::GetOperatorForNode(vtkSelectionNode*
   case vtkSelectionNode::PEDIGREEIDS:
   case vtkSelectionNode::VALUES:
   case vtkSelectionNode::INDICES:
+    op = vtkValueSelector::New();
     break;
 
   case vtkSelectionNode::FRUSTUM:
