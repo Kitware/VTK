@@ -1,0 +1,13 @@
+vtk_module(vtkGeovisGDAL
+  TEST_DEPENDS
+    vtkGeovisCore
+    vtkImagingStatistics
+    vtkInteractionImage
+    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkTestingCore
+    vtkTestingRendering
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkIOGDAL
+  )
