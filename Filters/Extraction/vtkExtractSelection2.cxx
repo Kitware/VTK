@@ -338,7 +338,11 @@ vtkSmartPointer<vtkSignedCharArray> vtkExtractSelection2::ComputeSelectedElement
     else
     {
       auto op = vtkSmartPointer<vtkSelectionOperator>::Take(this->GetOperatorForNode(node));
-      op->ComputeSelectedElements(data, inSelection);
+      if (!op->ComputeSelectedElements(data, inSelection))
+      {
+        // operator cannot evaluate input
+        inSelection->FillValue(0);
+      }
     }
   }
   return selection->Evaluate(arrays);

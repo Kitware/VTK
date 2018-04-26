@@ -58,8 +58,11 @@ class VTKFILTERSEXTRACTION_EXPORT vtkSelectionOperator : public vtkObject
    * What type of elements are operated over is determined by the vtkSelectionNode's
    * field association.  The array passed in should have the correct number of elements
    * for that field type or it will be resized.
+   *
+   * Returns true for successful completion.  The operator should only return false
+   * when it cannot operate on the inputs.
    */
-  virtual void ComputeSelectedElements(vtkDataObject* input, vtkSignedCharArray* elementInside) = 0;
+  virtual bool ComputeSelectedElements(vtkDataObject* input, vtkSignedCharArray* elementInside) = 0;
 
 protected:
   vtkSelectionOperator();

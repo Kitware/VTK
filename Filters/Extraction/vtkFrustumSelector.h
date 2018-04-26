@@ -64,7 +64,7 @@ public:
   void Initialize(vtkSelectionNode* node) override;
   void Finalize() override;
 
-  void ComputeSelectedElements(vtkDataObject* input, vtkSignedCharArray* elementInside) override;
+  bool ComputeSelectedElements(vtkDataObject* input, vtkSignedCharArray* elementInside) override;
 
   void ComputeSelectedPoints(vtkDataSet* input, vtkSignedCharArray* pointsInside);
   void ComputeSelectedCells(vtkDataSet* input, vtkSignedCharArray* cellsInside);

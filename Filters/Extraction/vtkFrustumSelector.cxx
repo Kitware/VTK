@@ -600,7 +600,7 @@ void vtkFrustumSelector::Finalize()
 }
 
 //--------------------------------------------------------------------------
-void vtkFrustumSelector::ComputeSelectedElements(vtkDataObject* input, vtkSignedCharArray* elementSelected)
+bool vtkFrustumSelector::ComputeSelectedElements(vtkDataObject* input, vtkSignedCharArray* elementSelected)
 {
   vtkDataSet* inputDS = vtkDataSet::SafeDownCast(input);
   // frustum selection only supports datasets
@@ -608,7 +608,7 @@ void vtkFrustumSelector::ComputeSelectedElements(vtkDataObject* input, vtkSigned
   if (!inputDS || !this->Node)
   {
     vtkErrorMacro("Frustum selection only supports inputs of type vtkDataSet");
-    elementSelected->FillValue(0);
+    return false;
   }
   auto fieldType = this->Node->GetProperties()->Get(vtkSelectionNode::FIELD_TYPE());
   if (fieldType == vtkSelectionNode::POINT)
@@ -622,8 +622,9 @@ void vtkFrustumSelector::ComputeSelectedElements(vtkDataObject* input, vtkSigned
   else
   {
     vtkErrorMacro("Frustum selection only supports POINT and CELL association types");
-    elementSelected->FillValue(0);
+    return false;
   }
+  return true;
 }
 
 //--------------------------------------------------------------------------
