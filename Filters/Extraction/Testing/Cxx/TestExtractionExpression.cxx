@@ -266,10 +266,12 @@ int TestExtractionExpression(int argc, char *argv[])
   vtkNew<vtkSelectionNode> sel2;
   vtkNew<vtkSelectionNode> sel3;
   vtkNew<vtkSelectionNode> sel4;
+  vtkNew<vtkSelectionNode> sel5;
   selection->AddNode(sel1);
   selection->AddNode(sel2);
   selection->AddNode(sel3);
   selection->AddNode(sel4);
+  selection->AddNode(sel5);
 
   vtkNew<vtkExtractSelection2> ext;
   ext->SetInputData(0, sampleData);
@@ -332,6 +334,19 @@ int TestExtractionExpression(int argc, char *argv[])
   std::generate_n(reinterpret_cast<vtkVector3d*>(locations->GetPointer(0)),
     locations->GetNumberOfTuples(), [&]() { return vtkVector3d(index++); });
   sel4->SetSelectionList(locations);
+
+
+  // add threshold-based selection
+  sel5->SetContentType(vtkSelectionNode::THRESHOLDS);
+  sel5->SetFieldType(vtkSelectionNode::CELL);
+  vtkNew<vtkIdTypeArray> thresholds;
+  thresholds->SetName("Cell Count");
+  thresholds->SetNumberOfComponents(2);
+  thresholds->SetNumberOfTuples(2);
+  thresholds->SetTuple2(0, 3350, 4000);
+  thresholds->SetTuple2(1, 2000, 2010);
+  sel5->SetSelectionList(thresholds);
+
 
   ext->Update();
   auto extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());

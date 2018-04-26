@@ -293,6 +293,7 @@ vtkSelectionOperator* vtkExtractSelection2::GetOperatorForNode(vtkSelectionNode*
   case vtkSelectionNode::PEDIGREEIDS:
   case vtkSelectionNode::VALUES:
   case vtkSelectionNode::INDICES:
+  case vtkSelectionNode::THRESHOLDS:
     op = vtkValueSelector::New();
     break;
 
@@ -302,9 +303,6 @@ vtkSelectionOperator* vtkExtractSelection2::GetOperatorForNode(vtkSelectionNode*
 
   case vtkSelectionNode::LOCATIONS:
     op = vtkLocationSelector::New();
-    break;
-
-  case vtkSelectionNode::THRESHOLDS:
     break;
 
   case vtkSelectionNode::BLOCKS:
