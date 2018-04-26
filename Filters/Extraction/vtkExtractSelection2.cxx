@@ -158,14 +158,30 @@ vtkDataObject::AttributeTypes vtkExtractSelection2::GetAttributeTypeOfSelection(
     }
     else if (fieldType == vtkSelectionNode::POINT)
     {
-      if (result == vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES)
+      int withCells = nodeProperties->Get(vtkSelectionNode::CONTAINING_CELLS());
+      if (withCells)
       {
-        result = vtkDataObject::POINT;
+        if (result == vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES)
+        {
+          result = vtkDataObject::CELL;
+        }
+        else if (result != vtkDataObject::CELL)
+        {
+          vtkErrorMacro("Selection contains mismatched attribute types!");
+          sane = false;
+        }
       }
-      else if (result != vtkDataObject::POINT)
+      else
       {
-        vtkErrorMacro("Selection contains mismatched attribute types!");
-        sane = false;
+        if (result == vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES)
+        {
+          result = vtkDataObject::POINT;
+        }
+        else if (result != vtkDataObject::POINT)
+        {
+          vtkErrorMacro("Selection contains mismatched attribute types!");
+          sane = false;
+        }
       }
     }
     else if (fieldType == vtkSelectionNode::ROW)
@@ -302,6 +318,43 @@ vtkSelectionOperator* vtkExtractSelection2::GetOperatorForNode(vtkSelectionNode*
 }
 
 //----------------------------------------------------------------------------
+void vtkExtractSelection2::ComputeCellsContainingSelectedPoints(
+    vtkDataObject* data, vtkSignedCharArray* selectedPoints, vtkSignedCharArray* selectedCells)
+{
+  vtkDataSet* dataset = vtkDataSet::SafeDownCast(data);
+  // TODO not 100% sure about this part... does this type of selection apply to non-datasets?
+  if (!dataset)
+  {
+    selectedCells->FillValue(0);
+    return;
+  }
+
+  vtkIdType numCells = dataset->GetNumberOfCells();
+
+  //run through cells and accept those with any point inside
+  for (vtkIdType cellId = 0; cellId < numCells; ++cellId)
+  {
+    vtkCell* cell = dataset->GetCell(cellId);
+    vtkIdList* cellPts = cell->GetPointIds();
+    vtkIdType numCellPts = cell->GetNumberOfPoints();
+
+    signed char selectedPointFound = 0;
+    for (vtkIdType i = 0; i < numCellPts; ++i)
+    {
+      vtkIdType ptId = cellPts->GetId(i);
+      signed char isInside;
+      selectedPoints->GetTypedTuple(ptId, &isInside);
+      if ( isInside )
+      {
+        selectedPointFound = 1;
+        break;
+      }
+    }
+    selectedCells->SetValue(cellId, selectedPointFound);
+  }
+}
+
+//----------------------------------------------------------------------------
 vtkSmartPointer<vtkSignedCharArray> vtkExtractSelection2::ComputeSelectedElements(vtkDataObject* data,
                                                               vtkIdType flatIndex,
                                                               vtkIdType level,
@@ -338,10 +391,28 @@ vtkSmartPointer<vtkSignedCharArray> vtkExtractSelection2::ComputeSelectedElement
     else
     {
       auto op = vtkSmartPointer<vtkSelectionOperator>::Take(this->GetOperatorForNode(node));
-      if (!op->ComputeSelectedElements(data, inSelection))
+      if (nodeProperties->Get(vtkSelectionNode::FIELD_TYPE()) == vtkSelectionNode::POINT &&
+          nodeProperties->Get(vtkSelectionNode::CONTAINING_CELLS()) == 1)
       {
-        // operator cannot evaluate input
-        inSelection->FillValue(0);
+        vtkNew<vtkSignedCharArray> pointSelection;
+        pointSelection->SetNumberOfTuples(data->GetNumberOfElements(vtkDataObject::POINT));
+        if (!op->ComputeSelectedElements(data, pointSelection))
+        {
+          // skip selecting cells if no points were selected due to error
+          inSelection->FillValue(0);
+        }
+        else
+        {
+          this->ComputeCellsContainingSelectedPoints(data, pointSelection, inSelection);
+        }
+      }
+      else
+      {
+        if (!op->ComputeSelectedElements(data, inSelection))
+        {
+          // operator cannot evaluate input
+          inSelection->FillValue(0);
+        }
       }
     }
   }
@@ -379,9 +450,8 @@ vtkDataObject* vtkExtractSelection2::ExtractFromBlock(vtkDataObject* block,
     {
       return nullptr;
     }
-    bool withCells = true; // TODO
     auto output = vtkUnstructuredGrid::New();
-    this->ExtractSelectedPoints(input, output, insidednessArray, withCells);
+    this->ExtractSelectedPoints(input, output, insidednessArray);
     return output;
   }
   else if (type == vtkDataObject::CELL)
@@ -490,7 +560,7 @@ void vtkExtractSelection2::ExtractSelectedCells(vtkDataSet* input, vtkUnstructur
 }
 
 //----------------------------------------------------------------------------
-void vtkExtractSelection2::ExtractSelectedPoints(vtkDataSet* input, vtkUnstructuredGrid* output, vtkSignedCharArray* pointInside, bool extractWithContainingCells)
+void vtkExtractSelection2::ExtractSelectedPoints(vtkDataSet* input, vtkUnstructuredGrid* output, vtkSignedCharArray* pointInside)
 {
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
@@ -538,77 +608,12 @@ void vtkExtractSelection2::ExtractSelectedPoints(vtkDataSet* input, vtkUnstructu
     }
   }
 
-  if (extractWithContainingCells)
+  //produce a new vtk_vertex cell for each accepted point
+  for (vtkIdType ptId = 0; ptId < newPts->GetNumberOfPoints(); ++ptId)
   {
-    outputCD->SetCopyGlobalIds(1);
-    outputCD->CopyFieldOff("vtkOriginalCellIds");
-    outputCD->CopyAllocate(cd);
-
-    vtkNew<vtkIdTypeArray> originalCellIds;
-    originalCellIds->SetNumberOfComponents(1);
-    originalCellIds->SetName("vtkOriginalCellIds");
-    outputCD->AddArray(originalCellIds);
-
-    //run through cells and accept those with any point inside
-    for (vtkIdType cellId = 0; cellId < numCells; ++cellId)
-    {
-      vtkCell* cell = input->GetCell(cellId);
-      vtkIdList* cellPts = cell->GetPointIds();
-      vtkIdType numCellPts = cell->GetNumberOfPoints();
-      newCellPts->Reset();
-
-      bool isect = false;
-      for (vtkIdType i = 0; i < numCellPts; ++i)
-      {
-        vtkIdType ptId = cellPts->GetId(i);
-        signed char isInside;
-        pointInside->GetTypedTuple(ptId, &isInside);
-        if ( isInside )
-        {
-          isect = true;
-          break;
-        }
-      }
-      if (isect)
-      {
-        for (vtkIdType i = 0; i < numCellPts; ++i)
-        {
-          vtkIdType ptId = cellPts->GetId(i);
-          vtkIdType newPointId = pointMap[ptId];
-          if (newPointId < 0)
-          {
-            //we haven't encountered it before, add it and remember
-            input->GetPoint(ptId,x);
-            newPointId = newPts->InsertNextPoint(x);
-            outputPD->CopyData(pd,ptId,newPointId);
-            originalPointIds->InsertNextValue(ptId);
-            pointMap[ptId] = newPointId;
-          }
-          newCellPts->InsertId(i,newPointId);
-        }
-        // special handling for polyhedron cells
-        if (vtkUnstructuredGrid::SafeDownCast(input) &&
-            cell->GetCellType() == VTK_POLYHEDRON)
-        {
-          newCellPts->Reset();
-          vtkUnstructuredGrid::SafeDownCast(input)->GetFaceStream(cellId, newCellPts);
-          vtkUnstructuredGrid::ConvertFaceStreamPointIds(newCellPts, &pointMap[0]);
-        }
-        vtkIdType newCellId = output->InsertNextCell(cell->GetCellType(),newCellPts);
-        outputCD->CopyData(cd,cellId,newCellId);
-        originalCellIds->InsertNextValue(cellId);
-      }
-    }
-  }
-  else
-  {
-    //produce a new vtk_vertex cell for each accepted point
-    for (vtkIdType ptId = 0; ptId < newPts->GetNumberOfPoints(); ++ptId)
-    {
-      newCellPts->Reset();
-      newCellPts->InsertId(0, ptId);
-      output->InsertNextCell(VTK_VERTEX, newCellPts);
-    }
+    newCellPts->Reset();
+    newCellPts->InsertId(0, ptId);
+    output->InsertNextCell(VTK_VERTEX, newCellPts);
   }
   output->SetPoints(newPts);
 }

@@ -91,6 +91,11 @@ protected:
   // it will be true after the function returns.
   vtkDataObject::AttributeTypes GetAttributeTypeOfSelection(vtkSelection* sel, bool& sane);
   vtkSelectionOperator* GetOperatorForNode(vtkSelectionNode* node);
+
+  void ComputeCellsContainingSelectedPoints(vtkDataObject* data,
+                                            vtkSignedCharArray* selectedPoints,
+                                            vtkSignedCharArray* selectedCells);
+
   vtkSmartPointer<vtkSignedCharArray> ComputeSelectedElements(vtkDataObject* data,
                                                               vtkIdType flatIndex,
                                                               vtkIdType level,
@@ -110,8 +115,7 @@ protected:
                             vtkSignedCharArray* cellInside);
   void ExtractSelectedPoints(vtkDataSet* input,
                              vtkUnstructuredGrid* output,
-                             vtkSignedCharArray* pointInside,
-                             bool extractWithContainingCells);
+                             vtkSignedCharArray* pointInside);
 
   vtkTypeBool PreserveTopology;
 private:
