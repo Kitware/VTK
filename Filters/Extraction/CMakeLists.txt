@@ -31,6 +31,7 @@ set(Module_SRCS
   vtkProbeSelectedLocations.cxx
   vtkSelectionOperator.cxx
   vtkValueSelector.cxx
+  vtkLocationSelector.cxx
   )
 
 if (NOT VTK_LEGACY_REMOVE)
