@@ -331,6 +331,7 @@ int TestExtraction(int argc, char *argv[])
   sel->Initialize();
   sel->GetProperties()->Set(
     vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::GLOBALIDS);
+  sel->SetFieldType(vtkSelectionNode::CELL);
   cellIds = vtkIdTypeArray::New();
   cellIds->SetNumberOfComponents(1);
   cellIds->SetNumberOfTuples(5);
@@ -467,6 +468,7 @@ int TestExtraction(int argc, char *argv[])
   ext->PreserveTopologyOff();
   sel->GetProperties()->Set(
     vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::INDICES);
+  sel->SetFieldType(vtkSelectionNode::CELL);
   cellIds = vtkIdTypeArray::New();
   cellIds->SetNumberOfComponents(1);
   cellIds->SetNumberOfTuples(5);
@@ -601,6 +603,7 @@ int TestExtraction(int argc, char *argv[])
   ext->PreserveTopologyOff();
   sel->GetProperties()->Set(
     vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::VALUES);
+  sel->SetFieldType(vtkSelectionNode::CELL);
   cellIds = vtkIdTypeArray::New();
   cellIds->SetName("Reverse Cell Ids");
   cellIds->SetNumberOfComponents(1);
@@ -737,6 +740,7 @@ int TestExtraction(int argc, char *argv[])
   ext->PreserveTopologyOff();
   sel->GetProperties()->Set(
     vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::THRESHOLDS);
+  sel->SetFieldType(vtkSelectionNode::CELL);
   vtkDoubleArray *cellThresh = vtkDoubleArray::New();
   cellThresh->SetNumberOfComponents(1);
   cellThresh->SetNumberOfTuples(2);
@@ -863,6 +867,7 @@ int TestExtraction(int argc, char *argv[])
   ext->PreserveTopologyOff();
   sel->GetProperties()->Set(
     vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::LOCATIONS);
+  sel->SetFieldType(vtkSelectionNode::CELL);
   vtkDoubleArray *cellLocs = vtkDoubleArray::New();
   cellLocs->SetNumberOfComponents(3);
   cellLocs->SetNumberOfTuples(4);
@@ -991,6 +996,7 @@ int TestExtraction(int argc, char *argv[])
   ext->PreserveTopologyOff();
   sel->GetProperties()->Set(
     vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::FRUSTUM);
+  sel->SetFieldType(vtkSelectionNode::CELL);
   vtkDoubleArray *frustcorners = vtkDoubleArray::New();
   frustcorners->SetNumberOfComponents(4);
   frustcorners->SetNumberOfTuples(8);
