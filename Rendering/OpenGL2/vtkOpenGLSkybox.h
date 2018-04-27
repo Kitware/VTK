@@ -48,6 +48,9 @@ protected:
   ~vtkOpenGLSkybox() override;
 
   int LastProjection;
+  float LastCameraPosition[3];
+
+  void UpdateUniforms(vtkObject*, unsigned long, void*);
 
   vtkNew<vtkOpenGLPolyDataMapper> CubeMapper;
   vtkNew<vtkOpenGLActor> OpenGLActor;
