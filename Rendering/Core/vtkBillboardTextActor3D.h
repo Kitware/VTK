@@ -23,6 +23,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"
 #include "vtkNew.h" // For.... vtkNew!
+#include "vtkSmartPointer.h" // For.... vtkSmartPointer!
 
 class vtkActor;
 class vtkImageData;
@@ -111,6 +112,8 @@ protected:
 
   bool InputIsValid();
 
+  void UpdateInternals(vtkRenderer *ren);
+
   bool TextureIsStale(vtkRenderer *ren);
   void GenerateTexture(vtkRenderer *ren);
 
@@ -134,6 +137,9 @@ protected:
   // Cached metadata to determine if things need rebuildin'
   int RenderedDPI;
   vtkTimeStamp InputMTime;
+
+  // We cache this so we can recompute the bounds between renders, if needed.
+  vtkSmartPointer<vtkRenderer> RenderedRenderer;
 
   // Rendering stuffies
   vtkNew<vtkTextRenderer> TextRenderer;
