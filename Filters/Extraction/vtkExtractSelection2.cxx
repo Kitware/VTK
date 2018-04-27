@@ -275,7 +275,7 @@ public:
   }
 };
 
-class MaoOfSelectionEvaluators : public std::map<std::string, std::shared_ptr<SelectionEvaluator> >
+class MapOfSelectionEvaluators : public std::map<std::string, std::shared_ptr<SelectionEvaluator> >
 {
 public:
   vtkSmartPointer<vtkSignedCharArray> ComputeSelectedElements(vtkSelection* selection,
@@ -344,7 +344,7 @@ int vtkExtractSelection2::RequestDataObject(
   if (this->PreserveTopology)
   {
     // when PreserveTopology is ON, we're preserve input data type.
-    if (outputDO == nullptr || !outputDO - IsA(inputDO->GetClassName()))
+    if (outputDO == nullptr || !outputDO->IsA(inputDO->GetClassName()))
     {
       outputDO = inputDO->NewInstance();
       outInfo->Set(vtkDataObject::DATA_OBJECT(), outputDO);
@@ -409,7 +409,7 @@ vtkDataObject::AttributeTypes vtkExtractSelection2::GetAttributeTypeOfSelection(
       node->GetProperties()->Get(vtkSelectionNode::CONTAINING_CELLS()))
     {
       // we're really selecting cells, not points.
-      nodeFieldType == vtkSelectionNode::CELL;
+      nodeFieldType = vtkSelectionNode::CELL;
     }
 
     if (n != 0 && fieldType != nodeFieldType)
@@ -462,7 +462,7 @@ int vtkExtractSelection2::RequestData(
 
   // create operators for each of vtkSelectionNode instances and initialize
   // them.
-  MaoOfSelectionEvaluators operators;
+  MapOfSelectionEvaluators operators;
   for (unsigned int cc = 0, max = selection->GetNumberOfNodes(); cc < max; ++cc)
   {
     auto node = selection->GetNode(cc);
