@@ -566,6 +566,7 @@ vtkSmartPointer<vtkDataObject> vtkExtractSelection2::ExtractElements(
   {
     auto output = block->NewInstance();
     output->ShallowCopy(block);
+    insidednessArray->SetName("vtkInsidedness");
     output->GetAttributesAsFieldData(type)->AddArray(insidednessArray);
     return vtkSmartPointer<vtkDataObject>::Take(output);
   }
