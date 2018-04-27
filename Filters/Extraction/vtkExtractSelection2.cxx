@@ -62,6 +62,11 @@ public:
   virtual vtkSmartPointer<vtkSignedCharArray> ComputeSelectedElements(vtkDataObject* block,
     unsigned int compositeIndex, unsigned int amrLevel, unsigned int amrIndex) = 0;
 
+  vtkSelectionNode* GetNode()
+  {
+    return this->Node;
+  }
+
 protected:
   // Subclasses can call this to check if the block should be skipped.
   bool SkipBlock(unsigned int compositeIndex, unsigned int amrLevel, unsigned int amrIndex)
@@ -275,6 +280,15 @@ public:
   }
 };
 
+void InvertSelection(vtkSignedCharArray* array)
+{
+  const int n = array->GetNumberOfTuples();
+  for (int i = 0; i < n; ++i)
+  {
+    array->SetValue(i, array->GetValue(i) * -1 + 1);
+  }
+}
+
 class MapOfSelectionEvaluators : public std::map<std::string, std::shared_ptr<SelectionEvaluator> >
 {
 public:
@@ -286,6 +300,12 @@ public:
     {
       arrays[pair.first] =
         pair.second->ComputeSelectedElements(block, compositeIndex, amrLevel, amrIndex);
+      auto node = pair.second->GetNode();
+      if (node->GetProperties()->Has(vtkSelectionNode::INVERSE()) &&
+          node->GetProperties()->Get(vtkSelectionNode::INVERSE()))
+      {
+        InvertSelection(arrays[pair.first]);
+      }
     }
     return selection->Evaluate(arrays);
   }
