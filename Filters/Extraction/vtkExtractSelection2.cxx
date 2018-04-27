@@ -443,6 +443,7 @@ vtkDataObject* vtkExtractSelection2::ExtractFromBlock(vtkDataObject* block,
   {
     auto output = block->NewInstance();
     output->ShallowCopy(block);
+    insidednessArray->SetName("vtkInsidedness");
     output->GetAttributesAsFieldData(type)->AddArray(insidednessArray);
     return output;
   }
