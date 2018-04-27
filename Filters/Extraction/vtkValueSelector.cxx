@@ -473,7 +473,7 @@ void vtkValueSelector::Initialize(vtkSelectionNode* node)
 
       case vtkSelectionNode::VALUES:
       case vtkSelectionNode::THRESHOLDS:
-        if (selectionList->GetName() == nullptr || selectionList->GetName() == '\0')
+        if (selectionList->GetName() == nullptr || selectionList->GetName()[0] == '\0')
         {
           // if selectionList has no name, we're selected scalars (this is old
           // behavior, and we're preserving it).
