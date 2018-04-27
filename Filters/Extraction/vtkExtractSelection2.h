@@ -34,7 +34,8 @@
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
 
-#include "vtkSmartPointer.h" // for smart pointer
+#include "vtkSelectionNode.h" // for vtkSelectionNode::SelectionContent
+#include "vtkSmartPointer.h"  // for smart pointer
 
 class vtkSignedCharArray;
 class vtkSelection;
@@ -64,9 +65,9 @@ public:
    * output into an unstructured grid, but instead to produce a vtkInsidedness
    * array and add it to the input dataset. Default value is false(0).
    */
-  vtkSetMacro(PreserveTopology, vtkTypeBool);
-  vtkGetMacro(PreserveTopology, vtkTypeBool);
-  vtkBooleanMacro(PreserveTopology, vtkTypeBool);
+  vtkSetMacro(PreserveTopology, bool);
+  vtkGetMacro(PreserveTopology, bool);
+  vtkBooleanMacro(PreserveTopology, bool);
   //@}
 
 protected:
@@ -90,23 +91,16 @@ protected:
   // If the selection types are mismatched the boolean parameter will be set to false, otherwise
   // it will be true after the function returns.
   vtkDataObject::AttributeTypes GetAttributeTypeOfSelection(vtkSelection* sel, bool& sane);
-  vtkSelectionOperator* GetOperatorForNode(vtkSelectionNode* node);
 
-  void ComputeCellsContainingSelectedPoints(vtkDataObject* data,
-                                            vtkSignedCharArray* selectedPoints,
-                                            vtkSignedCharArray* selectedCells);
+  /**
+   * Creates a new vtkSelectionOperator for the given content type.
+   * May return null if not supported.
+   */
+  virtual vtkSmartPointer<vtkSelectionOperator> NewSelectionOperator(
+    vtkSelectionNode::SelectionContent type);
 
-  vtkSmartPointer<vtkSignedCharArray> ComputeSelectedElements(vtkDataObject* data,
-                                                              vtkIdType flatIndex,
-                                                              vtkIdType level,
-                                                              vtkIdType hbIndex,
-                                                              vtkSelection* selection);
-
-  vtkDataObject* ExtractFromBlock(vtkDataObject* block,
-                                  vtkIdType flatIndex,
-                                  vtkIdType level,
-                                  vtkIdType hbIndex,
-                                  vtkSelection* selection);
+  vtkSmartPointer<vtkDataObject> ExtractElements(vtkDataObject* block,
+    vtkDataObject::AttributeTypes elementType, vtkSignedCharArray* insidednessArray);
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
@@ -117,7 +111,8 @@ protected:
                              vtkUnstructuredGrid* output,
                              vtkSignedCharArray* pointInside);
 
-  vtkTypeBool PreserveTopology;
+  bool PreserveTopology;
+
 private:
   vtkExtractSelection2(const vtkExtractSelection2&) = delete;
   void operator=(const vtkExtractSelection2&) = delete;

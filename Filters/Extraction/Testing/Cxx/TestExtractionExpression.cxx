@@ -281,8 +281,8 @@ int TestExtractionExpression(int argc, char *argv[])
   ext->PreserveTopologyOff();
 
   sel1->Initialize();
-  sel1->GetProperties()->Set(
-    vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::FRUSTUM);
+  sel1->SetContentType(vtkSelectionNode::FRUSTUM);
+  sel1->SetFieldType(vtkSelectionNode::CELL);
 
   vtkNew<vtkDoubleArray> frustcorners;
   frustcorners->SetNumberOfComponents(4);
@@ -299,8 +299,8 @@ int TestExtractionExpression(int argc, char *argv[])
   sel1->SetSelectionList(frustcorners);
 
   sel2->Initialize();
-  sel2->GetProperties()->Set(
-    vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::FRUSTUM);
+  sel2->SetContentType(vtkSelectionNode::FRUSTUM);
+  sel2->SetFieldType(vtkSelectionNode::CELL);
 
   vtkNew<vtkDoubleArray> frustcorners2;
   frustcorners2->SetNumberOfComponents(4);
