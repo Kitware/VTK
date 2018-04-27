@@ -27,6 +27,8 @@
 #include <vtkVector.h>
 #include <vtkXMLDataSetWriter.h>
 
+#include <numeric>
+
 #define XCELLS  15
 #define YCELLS  15
 #define ZCELLS  15
