@@ -32,6 +32,28 @@
 namespace
 {
 
+struct ThresholdSelectionListReshaper
+{
+  // If the input selection list for a threshold has one component we need
+  // to reshape it into an array with two component tuples (ranges) so it
+  // is interpreted correctly later.
+  template<typename SelectionListArrayType>
+  void operator()(SelectionListArrayType* originalList, SelectionListArrayType* fixedList)
+  {
+    assert(originalList->GetNumberOfComponents() == 1);
+    assert(fixedList->GetNumberOfComponents() == 2);
+
+    vtkDataArrayAccessor<SelectionListArrayType> originalAccessor(originalList);
+    vtkDataArrayAccessor<SelectionListArrayType> fixedAccessor(fixedList);
+
+    for (vtkIdType i = 0; i < fixedList->GetNumberOfTuples(); ++i)
+    {
+      fixedAccessor.Set(i, 0, originalAccessor.Get(2 * i, 0));
+      fixedAccessor.Set(i, 1, originalAccessor.Get(2 * i + 1, 0));
+    }
+  }
+};
+
 //----------------------------------------------------------------------------
 // This is used for the cases where the SelectionList is a 1-component array,
 // implying that the values are exact matches.
@@ -443,7 +465,7 @@ void vtkValueSelector::Initialize(vtkSelectionNode* node)
 
   try
   {
-    auto selectionList = node->GetSelectionList();
+    vtkSmartPointer<vtkAbstractArray> selectionList = node->GetSelectionList();
     if (!selectionList || selectionList->GetNumberOfTuples() == 0)
     {
       // empty selection list, nothing to do.
@@ -471,8 +493,34 @@ void vtkValueSelector::Initialize(vtkSelectionNode* node)
           new vtkInternals(selectionList, assoc, vtkDataSetAttributes::PEDIGREEIDS, component_no));
         break;
 
-      case vtkSelectionNode::VALUES:
       case vtkSelectionNode::THRESHOLDS:
+          if (selectionList->GetNumberOfComponents() == 1)
+          {
+#ifndef VTK_LEGACY_SILENT
+            vtkWarningMacro("Warning: range selections should use two-component arrays to specify the"
+                " range.  Using single component arrays with a tuple for the low and high ends of the"
+                " range is legacy behavior and may be removed in future releases.");
+#endif
+            auto selList = vtkDataArray::SafeDownCast(selectionList.GetPointer());
+            if (selList)
+            {
+              selectionList = vtkSmartPointer<vtkAbstractArray>::NewInstance(selList);
+              selectionList->SetNumberOfComponents(2);
+              selectionList->SetNumberOfTuples(selList->GetNumberOfTuples()/2);
+              selectionList->SetName(selList->GetName());
+
+              ThresholdSelectionListReshaper reshaper;
+
+              if (!vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::AllTypes>::Execute(
+                    selList, vtkDataArray::SafeDownCast(selectionList), reshaper))
+              {
+                // should never happen, we create an array with the same type
+                vtkErrorMacro("Mismatch in selection list fixup code");
+                break;
+              }
+            }
+          }
+      case vtkSelectionNode::VALUES:
         if (selectionList->GetName() == nullptr || selectionList->GetName()[0] == '\0')
         {
           // if selectionList has no name, we're selected scalars (this is old
