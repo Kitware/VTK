@@ -540,6 +540,40 @@ const char* vtkGDALVectorReader::GetLayerProjection(int layerIndex)
 }
 
 // -----------------------------------------------------------------------------
+const char* vtkGDALVectorReader::GetLayerProjectionAsProj4(int layerIndex)
+{
+  if ( layerIndex < 0 )
+  {
+    vtkErrorMacro(<< "Layer index cannot be negative");
+    return nullptr;
+  }
+  vtkGDALVectorReader::Internal* p = this->Implementation;
+  if (!p->Source)
+  {
+    return nullptr;
+  }
+  int layerCount = p->Source->GetLayerCount();
+  if ( layerIndex >= layerCount)
+  {
+    vtkErrorMacro(<< "Layer index " << layerIndex <<
+                  " exceeds number of layers in dataset: " << layerCount);
+    return nullptr;
+  }
+  OGRLayer* layer = p->Source->GetLayer(layerIndex);
+  if (!layer)
+  {
+    return nullptr;
+  }
+  if (!layer->GetSpatialRef())
+  {
+    return nullptr;
+  }
+  char *projStr;
+  layer->GetSpatialRef()->exportToProj4(&projStr);
+  return projStr;
+}
+
+// -----------------------------------------------------------------------------
 std::map<int, std::string> vtkGDALVectorReader::GetLayersProjection()
 {
   return this->LayersProjection;
