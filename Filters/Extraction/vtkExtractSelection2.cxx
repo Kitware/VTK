@@ -396,67 +396,35 @@ int vtkExtractSelection2::RequestDataObject(
 //----------------------------------------------------------------------------
 vtkDataObject::AttributeTypes vtkExtractSelection2::GetAttributeTypeOfSelection(vtkSelection* sel, bool& sane)
 {
-  vtkDataObject::AttributeTypes result = vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES;
   sane = true;
+  int fieldType = -1;
   for (unsigned int n = 0; n < sel->GetNumberOfNodes(); n++)
   {
     vtkSelectionNode* node = sel->GetNode(n);
-    vtkInformation* nodeProperties = node->GetProperties();
-    int fieldType = nodeProperties->Get(vtkSelectionNode::FIELD_TYPE());
-    if (fieldType == vtkSelectionNode::CELL)
+
+    int nodeFieldType = node->GetFieldType();
+
+    if (nodeFieldType == vtkSelectionNode::POINT &&
+      node->GetProperties()->Has(vtkSelectionNode::CONTAINING_CELLS()) &&
+      node->GetProperties()->Get(vtkSelectionNode::CONTAINING_CELLS()))
     {
-      if (result == vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES)
-      {
-        result = vtkDataObject::CELL;
-      }
-      else if (result != vtkDataObject::CELL)
-      {
-        vtkErrorMacro("Selection contains mismatched attribute types!");
-        sane = false;
-      }
+      // we're really selecting cells, not points.
+      nodeFieldType == vtkSelectionNode::CELL;
     }
-    else if (fieldType == vtkSelectionNode::POINT)
+
+    if (n != 0 && fieldType != nodeFieldType)
     {
-      int withCells = nodeProperties->Get(vtkSelectionNode::CONTAINING_CELLS());
-      if (withCells)
-      {
-        if (result == vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES)
-        {
-          result = vtkDataObject::CELL;
-        }
-        else if (result != vtkDataObject::CELL)
-        {
-          vtkErrorMacro("Selection contains mismatched attribute types!");
-          sane = false;
-        }
-      }
-      else
-      {
-        if (result == vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES)
-        {
-          result = vtkDataObject::POINT;
-        }
-        else if (result != vtkDataObject::POINT)
-        {
-          vtkErrorMacro("Selection contains mismatched attribute types!");
-          sane = false;
-        }
-      }
+      sane = false;
+      vtkErrorMacro("Selection contains mismatched attribute types!");
+      return vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES;
     }
-    else if (fieldType == vtkSelectionNode::ROW)
-    {
-      if (result == vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES)
-      {
-        result = vtkDataObject::ROW;
-      }
-      else if (result != vtkDataObject::ROW)
-      {
-        vtkErrorMacro("Selection contains mismatched attribute types!");
-        sane = false;
-      }
-    }
+
+    fieldType = nodeFieldType;
   }
-  return result;
+
+  return fieldType == -1 ? vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES
+                         : static_cast<vtkDataObject::AttributeTypes>(
+                             vtkSelectionNode::ConvertSelectionFieldToAttributeType(fieldType));
 }
 
 //----------------------------------------------------------------------------
@@ -486,7 +454,7 @@ int vtkExtractSelection2::RequestData(
   // if they are not consistent.
   bool sane;
   const auto assoc = this->GetAttributeTypeOfSelection(selection, sane);
-  if (!sane)
+  if (!sane || assoc == vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES)
   {
     vtkErrorMacro("Selection has selection nodes with inconsistent field types.");
     return 0;
