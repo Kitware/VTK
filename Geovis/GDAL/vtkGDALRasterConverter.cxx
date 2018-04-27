@@ -228,8 +228,8 @@ void vtkGDALRasterConverter::vtkGDALRasterConverterInternal::FindDataRange(
 // Copy vtkDataArray contents to GDAL raster bands
 template<class Iterator, typename VTK_TYPE>
 void StaticCopyToGDAL(Iterator begin,
-                      Iterator end,
-                      VTK_TYPE typeVar,
+                      Iterator,
+                      VTK_TYPE,
                       vtkDataArray* vtkData,
                       GDALDataset* gdalData)
 {
@@ -308,6 +308,11 @@ void StaticCopyToGDAL(Iterator begin,
     GDALDataType gdalDataType = band->GetRasterDataType();
     CPLErr err = band->RasterIO(
       GF_Write, 0, 0, xSize, ySize, buffer, xSize, ySize, gdalDataType, 0, 0);
+    if (err == CE_Failure)
+    {
+      std::cerr << "ERROR writing to GDALDataSet: " <<
+        CPLGetLastErrorMsg() << std::endl;
+    }
   }
 
   delete gdalColorTable;
