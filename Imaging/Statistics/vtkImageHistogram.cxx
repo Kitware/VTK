@@ -277,6 +277,7 @@ struct vtkImageHistogramThreadStruct
   vtkInformation *Request;
   vtkInformationVector **InputsInfo;
   vtkInformationVector *OutputsInfo;
+  int *UpdateExtent;
 };
 
 //----------------------------------------------------------------------------
@@ -289,45 +290,20 @@ VTK_THREAD_RETURN_TYPE vtkImageHistogramThreadedExecute(void *arg)
   vtkImageHistogramThreadStruct *ts =
     static_cast<vtkImageHistogramThreadStruct *>(ti->UserData);
 
-  int extent[6] = { 0, -1, 0, -1, 0, -1 };
+  // execute the actual method with appropriate extent
+  // first find out how many pieces extent can be split into.
+  int splitExt[6];
+  int total = ts->Algorithm->SplitExtent(
+    splitExt, ts->UpdateExtent, ti->ThreadID, ti->NumberOfThreads);
 
-  bool foundConnection = false;
-  int numPorts = ts->Algorithm->GetNumberOfInputPorts();
-  for (int inPort = 0; inPort < numPorts; ++inPort)
+  if (ti->ThreadID < total &&
+      splitExt[1] >= splitExt[0] &&
+      splitExt[3] >= splitExt[2] &&
+      splitExt[5] >= splitExt[4])
   {
-    int numConnections = ts->Algorithm->GetNumberOfInputConnections(inPort);
-    if (numConnections)
-    {
-      vtkInformation *inInfo =
-        ts->InputsInfo[inPort]->GetInformationObject(0);
-      vtkImageData *inData = vtkImageData::SafeDownCast(
-        inInfo->Get(vtkDataObject::DATA_OBJECT()));
-      if (inData)
-      {
-        inData->GetExtent(extent);
-        foundConnection = true;
-        break;
-      }
-    }
-  }
-
-  if (foundConnection)
-  {
-    // execute the actual method with appropriate extent
-    // first find out how many pieces extent can be split into.
-    int splitExt[6];
-    int total = ts->Algorithm->SplitExtent(
-      splitExt, extent, ti->ThreadID, ti->NumberOfThreads);
-
-    if (ti->ThreadID < total &&
-        splitExt[1] >= splitExt[0] &&
-        splitExt[3] >= splitExt[2] &&
-        splitExt[5] >= splitExt[4])
-    {
-      ts->Algorithm->ThreadedRequestData(
-        ts->Request, ts->InputsInfo, ts->OutputsInfo, nullptr, nullptr,
-        splitExt, ti->ThreadID);
-    }
+    ts->Algorithm->ThreadedRequestData(
+      ts->Request, ts->InputsInfo, ts->OutputsInfo, nullptr, nullptr,
+      splitExt, ti->ThreadID);
   }
 
   return VTK_THREAD_RETURN_VALUE;
@@ -603,17 +579,12 @@ public:
   vtkImageHistogramFunctor(
     vtkImageHistogramThreadStruct *pipelineInfo,
     vtkImageHistogramSMPThreadLocal *threadLocal,
-    const int extent[6],
     vtkIdType pieces,
     vtkIdTypeArray *histogram,
     vtkIdType *total)
     : PipelineInfo(pipelineInfo), ThreadLocal(threadLocal),
       NumberOfPieces(pieces), Histogram(histogram), Total(total)
   {
-    for (int i = 0; i < 6; i++)
-    {
-      this->Extent[i] = extent[i];
-    }
   }
 
   void Initialize() {}
@@ -623,7 +594,6 @@ public:
 private:
   vtkImageHistogramThreadStruct *PipelineInfo;
   vtkImageHistogramSMPThreadLocal *ThreadLocal;
-  int Extent[6];
   vtkIdType NumberOfPieces;
   vtkIdTypeArray *Histogram;
   vtkIdType *Total;
@@ -636,7 +606,7 @@ void vtkImageHistogramFunctor::operator()(vtkIdType begin, vtkIdType end)
 
   ts->Algorithm->SMPRequestData(
     ts->Request, ts->InputsInfo, ts->OutputsInfo, nullptr, nullptr,
-    begin, end, this->NumberOfPieces, this->Extent);
+    begin, end, this->NumberOfPieces, ts->UpdateExtent);
 }
 
 // Called by vtkSMPTools once the multi-threading has finished.
@@ -756,12 +726,20 @@ int vtkImageHistogram::RequestData(
     }
   }
 
+  // get the input extent
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkImageData *inData = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  int extent[6];
+  inData->GetExtent(extent);
+
   // setup the threads structure
   vtkImageHistogramThreadStruct ts;
   ts.Algorithm = this;
   ts.Request = request;
   ts.InputsInfo = inputVector;
   ts.OutputsInfo = outputVector;
+  ts.UpdateExtent = extent;
 
   // allocate the output data
   this->PrepareImageData(inputVector, outputVector);
@@ -782,18 +760,14 @@ int vtkImageHistogram::RequestData(
   if (this->EnableSMP)
   {
     // code for vtkSMPTools
-    vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-    vtkImageData *inData = vtkImageData::SafeDownCast(
-      inInfo->Get(vtkDataObject::DATA_OBJECT()));
-    int extent[6];
-    inData->GetExtent(extent);
+    vtkIdType n = vtkSMPTools::GetEstimatedNumberOfThreads();
 
     // do a dummy execution of SplitExtent to compute the number of pieces
-    vtkIdType pieces = this->SplitExtent(nullptr, extent, 0, this->NumberOfThreads);
+    vtkIdType pieces = this->SplitExtent(nullptr, extent, 0, n);
 
     // create the thread-local object and the functor
     vtkImageHistogramSMPThreadLocal tlocal;
-    vtkImageHistogramFunctor functor(&ts, &tlocal, extent, pieces,
+    vtkImageHistogramFunctor functor(&ts, &tlocal, pieces,
                                      this->Histogram, &this->Total);
     this->SMPThreadData = &tlocal;
     bool debug = this->Debug;
@@ -805,7 +779,10 @@ int vtkImageHistogram::RequestData(
   else
   {
     // code for vtkMultiThreader
-    int n = this->NumberOfThreads;
+    vtkIdType n = this->NumberOfThreads;
+
+    // do a dummy execution of SplitExtent to compute the number of pieces
+    n = this->SplitExtent(nullptr, extent, 0, n);
     this->ThreadData = new vtkImageHistogramThreadData[n];
     this->Threader->SetNumberOfThreads(n);
     this->Threader->SetSingleMethod(vtkImageHistogramThreadedExecute, &ts);

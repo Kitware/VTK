@@ -26,6 +26,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkSMPTools.h"
 
+#include <vector>
+
 // If SMP backend is Sequential then fall back to vtkMultiThreader,
 // else enable the newer vtkSMPTools code path by default.
 #ifdef VTK_SMP_Sequential
@@ -111,6 +113,7 @@ struct vtkImageThreadStruct
   vtkInformationVector *OutputsInfo;
   vtkImageData   ***Inputs;
   vtkImageData   **Outputs;
+  int *UpdateExtent;
 };
 
 //----------------------------------------------------------------------------
@@ -359,7 +362,7 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
 static VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *arg )
 {
   vtkImageThreadStruct *str;
-  int ext[6], splitExt[6], total;
+  int splitExt[6], total;
   int threadId, threadCount;
 
   threadId = static_cast<vtkMultiThreader::ThreadInfo *>(arg)->ThreadID;
@@ -368,56 +371,10 @@ static VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *ar
   str = static_cast<vtkImageThreadStruct *>
     (static_cast<vtkMultiThreader::ThreadInfo *>(arg)->UserData);
 
-  // if we have an output
-  if (str->Filter->GetNumberOfOutputPorts())
-  {
-    // which output port did the request come from
-    int outputPort =
-      str->Request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
-
-    // if output port is negative then that means this filter is calling the
-    // update directly, for now an error
-    if (outputPort == -1)
-    {
-      return VTK_THREAD_RETURN_VALUE;
-    }
-
-    // get the update extent from the output port
-    vtkInformation *outInfo =
-      str->OutputsInfo->GetInformationObject(outputPort);
-    int updateExtent[6];
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                 updateExtent);
-    memcpy(ext,updateExtent, sizeof(int)*6);
-  }
-  else
-  {
-    // if there is no output, then use UE from input, use the first input
-    int inPort;
-    bool found = false;
-    for (inPort = 0; inPort < str->Filter->GetNumberOfInputPorts(); ++inPort)
-    {
-      if (str->Filter->GetNumberOfInputConnections(inPort))
-      {
-        int updateExtent[6];
-        str->InputsInfo[inPort]
-          ->GetInformationObject(0)
-          ->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                updateExtent);
-        memcpy(ext,updateExtent, sizeof(int)*6);
-        found = true;
-        break;
-      }
-    }
-    if (!found)
-    {
-      return VTK_THREAD_RETURN_VALUE;
-    }
-  }
-
   // execute the actual method with appropriate extent
   // first find out how many pieces extent can be split into.
-  total = str->Filter->SplitExtent(splitExt, ext, threadId, threadCount);
+  total = str->Filter->SplitExtent(splitExt, str->UpdateExtent,
+                                   threadId, threadCount);
 
   if (threadId < total)
   {
@@ -433,12 +390,6 @@ static VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *ar
                                      str->Inputs, str->Outputs,
                                      splitExt, threadId);
   }
-  // else
-  //   {
-  //   otherwise don't use this thread. Sometimes the threads don't
-  //   break up very well and it is just as efficient to leave a
-  //   few threads idle.
-  //   }
 
   return VTK_THREAD_RETURN_VALUE;
 }
@@ -598,80 +549,87 @@ int vtkThreadedImageAlgorithm::RequestData(
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  // setup the thread structure
-  vtkImageThreadStruct str;
-  str.Filter = this;
-  str.Request = request;
-  str.InputsInfo = inputVector;
-  str.OutputsInfo = outputVector;
-  str.Inputs = nullptr;
-  str.Outputs = nullptr;
-
-  // create an array for input data objects
+  // count the total number of inputs, outputs
   int numInputPorts = this->GetNumberOfInputPorts();
+  int numOutputPorts = this->GetNumberOfOutputPorts();
+  int numDataObjects = numOutputPorts;
+  for (int i = 0; i < numInputPorts; i++)
+  {
+    numDataObjects += inputVector[i]->GetNumberOfInformationObjects();
+  }
+
+  // ThreadedRequestData() needs to be given the inputs and outputs
+  // as raw pointers, but we use std::vector for memory allocation
+  vtkImageData ***inputs = nullptr;
+  vtkImageData **outputs = nullptr;
+  std::vector<vtkImageData *> connections(numDataObjects);
+  std::vector<vtkImageData **> ports(numInputPorts);
+  size_t offset = 0;
+
+  // set pointers to the lists of data objects and input ports
   if (numInputPorts)
   {
-    str.Inputs = new vtkImageData ** [numInputPorts];
+    inputs = &ports[0];
     for (int i = 0; i < numInputPorts; i++)
     {
-      int numConnections = inputVector[i]->GetNumberOfInformationObjects();
-      str.Inputs[i] = new vtkImageData * [numConnections];
+      inputs[i] = &connections[offset];
+      offset += inputVector[i]->GetNumberOfInformationObjects();
     }
   }
 
-  // create an array for output data objects
-  int numOutputPorts = this->GetNumberOfOutputPorts();
+  // set pointer to the list of output data objects
   if (numOutputPorts)
   {
-    str.Outputs = new vtkImageData * [numOutputPorts];
+    outputs = &connections[offset];
   }
 
   // allocate the output data and call CopyAttributeData
-  this->PrepareImageData(inputVector, outputVector, str.Inputs, str.Outputs);
+  this->PrepareImageData(inputVector, outputVector, inputs, outputs);
 
-  if (this->EnableSMP)
+  // need bytes per voxel to compute block size
+  int bytesPerVoxel = 1;
+
+  // get the update extent from the output, if there is an output
+  int updateExtent[6] = { 0, -1, 0, -1, 0, -1 };
+  if (numOutputPorts)
   {
-    // SMP is enabled, use vtkSMPTools to thread the filter
-    int updateExtent[6] = { 0, -1, 0, -1, 0, -1 };
-
-    // need bytes per voxel to compute block size
-    int bytesPerVoxel = 1;
-
-    // get the update extent from the output, if there is an output
-    if (numOutputPorts)
+    vtkImageData *outData = outputs[0];
+    if (outData)
     {
-      vtkImageData *outData = str.Outputs[0];
-      if (outData)
-      {
-        bytesPerVoxel = (outData->GetScalarSize() *
-                         outData->GetNumberOfScalarComponents());
-        outData->GetExtent(updateExtent);
-      }
+      bytesPerVoxel = (outData->GetScalarSize() *
+                       outData->GetNumberOfScalarComponents());
+      outData->GetExtent(updateExtent);
     }
-    else
+  }
+  else
+  {
+    // if no output, get update extent from the first input
+    for (int inPort = 0; inPort < numInputPorts; inPort++)
     {
-      // if no output, get update extent from the first input
-      for (int inPort = 0; inPort < numInputPorts; inPort++)
+      if (this->GetNumberOfInputConnections(inPort))
       {
-        if (this->GetNumberOfInputConnections(inPort))
+        vtkImageData *inData = inputs[inPort][0];
+        if (inData)
         {
-          vtkImageData *inData = str.Inputs[inPort][0];
-          if (inData)
-          {
-            bytesPerVoxel = (inData->GetScalarSize() *
-                             inData->GetNumberOfScalarComponents());
-            inData->GetExtent(updateExtent);
-            break;
-          }
+          bytesPerVoxel = (inData->GetScalarSize() *
+                           inData->GetNumberOfScalarComponents());
+          inData->GetExtent(updateExtent);
+          break;
         }
       }
     }
+  }
 
-    // verify that there is an extent for execution
-    if (updateExtent[0] <= updateExtent[1] &&
-        updateExtent[2] <= updateExtent[3] &&
-        updateExtent[4] <= updateExtent[5])
+  // verify that there is an extent for execution
+  if (updateExtent[0] <= updateExtent[1] &&
+      updateExtent[2] <= updateExtent[3] &&
+      updateExtent[4] <= updateExtent[5])
+  {
+    if (this->EnableSMP)
     {
+      // SMP is enabled, use vtkSMPTools to thread the filter
+      vtkIdType pieces = vtkSMPTools::GetEstimatedNumberOfThreads();
+
       // compute a reasonable number of pieces, this will be a multiple of
       // the number of available threads and relative to the data size
       vtkTypeInt64 bytesize = (
@@ -680,7 +638,7 @@ int vtkThreadedImageAlgorithm::RequestData(
         static_cast<vtkTypeInt64>(updateExtent[5] - updateExtent[4] + 1)*
         bytesPerVoxel);
       vtkTypeInt64 bytesPerPiece = this->DesiredBytesPerPiece;
-      vtkIdType pieces = vtkSMPTools::GetEstimatedNumberOfThreads();
+
       if (bytesPerPiece > 0 && bytesPerPiece < bytesize)
       {
         vtkTypeInt64 b = pieces*bytesPerPiece;
@@ -696,32 +654,38 @@ int vtkThreadedImageAlgorithm::RequestData(
 
       vtkThreadedImageAlgorithmFunctor functor(
         this, request, inputVector, outputVector,
-        str.Inputs, str.Outputs, updateExtent, pieces);
+        inputs, outputs, updateExtent, pieces);
 
       vtkSMPTools::For(0, pieces, functor);
 
       this->Debug = debug;
     }
-  }
-  else
-  {
-    // if SMP is not enabled, use the vtkMultiThreader
-    this->Threader->SetNumberOfThreads(this->NumberOfThreads);
-    this->Threader->SetSingleMethod(vtkThreadedImageAlgorithmThreadedExecute, &str);
-    // always shut off debugging to avoid threading problems with GetMacros
-    bool debug = this->Debug;
-    this->Debug = false;
-    this->Threader->SingleMethodExecute();
-    this->Debug = debug;
-  }
+    else
+    {
+      // if SMP is not enabled, use the vtkMultiThreader
+      vtkImageThreadStruct str;
+      str.Filter = this;
+      str.Request = request;
+      str.InputsInfo = inputVector;
+      str.OutputsInfo = outputVector;
+      str.Inputs = inputs;
+      str.Outputs = outputs;
+      str.UpdateExtent = updateExtent;
 
-  // free up the arrays
-  for (int i = 0; i < numInputPorts; i++)
-  {
-    delete [] str.Inputs[i];
+      // do a dummy execution of SplitExtent to compute the number of pieces
+      int subExtent[6];
+      vtkIdType pieces = this->SplitExtent(subExtent, updateExtent, 0,
+                                           this->NumberOfThreads);
+      this->Threader->SetNumberOfThreads(pieces);
+      this->Threader->SetSingleMethod(vtkThreadedImageAlgorithmThreadedExecute,
+                                      &str);
+      // always shut off debugging to avoid threading problems with GetMacros
+      bool debug = this->Debug;
+      this->Debug = false;
+      this->Threader->SingleMethodExecute();
+      this->Debug = debug;
+    }
   }
-  delete [] str.Inputs;
-  delete [] str.Outputs;
 
   return 1;
 }
