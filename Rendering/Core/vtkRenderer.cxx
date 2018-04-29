@@ -1077,7 +1077,7 @@ void vtkRenderer::ResetCameraClippingRange()
 // (i.e., vector defined from camera position to focal point). Note: if
 // the view plane is parallel to the view up axis, the view up axis will
 // be reset to one of the three coordinate axes.
-void vtkRenderer::ResetCamera(double bounds[6])
+void vtkRenderer::ResetCamera(const double bounds[6])
 {
   double center[3];
   double distance;
@@ -1098,15 +1098,16 @@ void vtkRenderer::ResetCamera(double bounds[6])
   // the view angle to become very small and cause bad depth sorting.
   this->ActiveCamera->SetViewAngle(30.0);
 
-  this->ExpandBounds(bounds, this->ActiveCamera->GetModelTransformMatrix());
+  double expandedBounds[6] = { bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5] };
+  this->ExpandBounds(expandedBounds, this->ActiveCamera->GetModelTransformMatrix());
 
-  center[0] = (bounds[0] + bounds[1]) / 2.0;
-  center[1] = (bounds[2] + bounds[3]) / 2.0;
-  center[2] = (bounds[4] + bounds[5]) / 2.0;
+  center[0] = (expandedBounds[0] + expandedBounds[1]) / 2.0;
+  center[1] = (expandedBounds[2] + expandedBounds[3]) / 2.0;
+  center[2] = (expandedBounds[4] + expandedBounds[5]) / 2.0;
 
-  double w1 = bounds[1] - bounds[0];
-  double w2 = bounds[3] - bounds[2];
-  double w3 = bounds[5] - bounds[4];
+  double w1 = expandedBounds[1] - expandedBounds[0];
+  double w2 = expandedBounds[3] - expandedBounds[2];
+  double w3 = expandedBounds[5] - expandedBounds[4];
   w1 *= w1;
   w2 *= w2;
   w3 *= w3;
@@ -1170,7 +1171,7 @@ void vtkRenderer::ResetCamera(double bounds[6])
   this->ActiveCamera->SetPosition(
     center[0] + distance * vn[0], center[1] + distance * vn[1], center[2] + distance * vn[2]);
 
-  this->ResetCameraClippingRange(bounds);
+  this->ResetCameraClippingRange(expandedBounds);
 
   // setup default parallel scale
   this->ActiveCamera->SetParallelScale(parallelScale);
@@ -1193,7 +1194,7 @@ void vtkRenderer::ResetCamera(
 }
 
 // Reset the camera clipping range to include this entire bounding box
-void vtkRenderer::ResetCameraClippingRange(double bounds[6])
+void vtkRenderer::ResetCameraClippingRange(const double bounds[6])
 {
   double vn[3], position[3], a, b, c, d;
   double range[2], dist;
@@ -1212,17 +1213,18 @@ void vtkRenderer::ResetCameraClippingRange(double bounds[6])
     return;
   }
 
+  double expandedBounds[6] = { bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5] };
   if (!this->ActiveCamera->GetUseOffAxisProjection())
   {
     this->ActiveCamera->GetViewPlaneNormal(vn);
     this->ActiveCamera->GetPosition(position);
-    this->ExpandBounds(bounds, this->ActiveCamera->GetModelTransformMatrix());
+    this->ExpandBounds(expandedBounds, this->ActiveCamera->GetModelTransformMatrix());
   }
   else
   {
     this->ActiveCamera->GetEyePosition(position);
     this->ActiveCamera->GetEyePlaneNormal(vn);
-    this->ExpandBounds(bounds, this->ActiveCamera->GetModelViewTransformMatrix());
+    this->ExpandBounds(expandedBounds, this->ActiveCamera->GetModelViewTransformMatrix());
   }
 
   a = -vn[0];
@@ -1231,7 +1233,7 @@ void vtkRenderer::ResetCameraClippingRange(double bounds[6])
   d = -(a * position[0] + b * position[1] + c * position[2]);
 
   // Set the max near clipping plane and the min far clipping plane
-  range[0] = a * bounds[0] + b * bounds[2] + c * bounds[4] + d;
+  range[0] = a * expandedBounds[0] + b * expandedBounds[2] + c * expandedBounds[4] + d;
   range[1] = 1e-18;
 
   // Find the closest / farthest bounding box vertex
@@ -1241,7 +1243,7 @@ void vtkRenderer::ResetCameraClippingRange(double bounds[6])
     {
       for (i = 0; i < 2; i++)
       {
-        dist = a * bounds[i] + b * bounds[2 + j] + c * bounds[4 + k] + d;
+        dist = a * expandedBounds[i] + b * expandedBounds[2 + j] + c * expandedBounds[4 + k] + d;
         range[0] = (dist < range[0]) ? (dist) : (range[0]);
         range[1] = (dist > range[1]) ? (dist) : (range[1]);
       }

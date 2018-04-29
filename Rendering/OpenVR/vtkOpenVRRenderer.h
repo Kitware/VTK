@@ -47,11 +47,11 @@ public:
    * (xmin,xmax, ymin,ymax, zmin,zmax). Camera will reposition itself so
    * that its focal point is the center of the bounding box, and adjust its
    * distance and position to preserve its initial view plane normal
-   * (i.e., vector defined from camera position to focal point). Note: is
+   * (i.e., vector defined from camera position to focal point). Note: if
    * the view plane is parallel to the view up axis, the view up axis will
    * be reset to one of the three coordinate axes.
    */
-  void ResetCamera(double bounds[6]) override;
+  void ResetCamera(const double bounds[6]) override;
 
   /**
    * Alternative version of ResetCamera(bounds[6]);
@@ -64,11 +64,8 @@ public:
   //@{
   /**
    * Reset the camera clipping range based on a bounding box.
-   * This method is called from ResetCameraClippingRange()
-   * If Deering frustrum is used then the bounds get expanded
-   * by the camera's modelview matrix.
    */
-  void ResetCameraClippingRange(double bounds[6]) override;
+  void ResetCameraClippingRange(const double bounds[6]) override;
   //@}
 
   /**

@@ -160,7 +160,7 @@ void vtkOpenVRRenderer::ResetCamera()
 // (i.e., vector defined from camera position to focal point). Note: if
 // the view plane is parallel to the view up axis, the view up axis will
 // be reset to one of the three coordinate axes.
-void vtkOpenVRRenderer::ResetCamera(double bounds[6])
+void vtkOpenVRRenderer::ResetCamera(const double bounds[6])
 {
   double center[3];
   double distance;
@@ -181,15 +181,16 @@ void vtkOpenVRRenderer::ResetCamera(double bounds[6])
   // the view angle to become very small and cause bad depth sorting.
   this->ActiveCamera->SetViewAngle(110.0);
 
-  this->ExpandBounds(bounds, this->ActiveCamera->GetModelTransformMatrix());
+  double expandedBounds[6] = { bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5] };
+  this->ExpandBounds(expandedBounds, this->ActiveCamera->GetModelTransformMatrix());
 
-  center[0] = (bounds[0] + bounds[1]) / 2.0;
-  center[1] = (bounds[2] + bounds[3]) / 2.0;
-  center[2] = (bounds[4] + bounds[5]) / 2.0;
+  center[0] = (expandedBounds[0] + expandedBounds[1]) / 2.0;
+  center[1] = (expandedBounds[2] + expandedBounds[3]) / 2.0;
+  center[2] = (expandedBounds[4] + expandedBounds[5]) / 2.0;
 
-  double w1 = bounds[1] - bounds[0];
-  double w2 = bounds[3] - bounds[2];
-  double w3 = bounds[5] - bounds[4];
+  double w1 = expandedBounds[1] - expandedBounds[0];
+  double w2 = expandedBounds[3] - expandedBounds[2];
+  double w3 = expandedBounds[5] - expandedBounds[4];
   w1 *= w1;
   w2 *= w2;
   w3 *= w3;
@@ -281,7 +282,7 @@ void vtkOpenVRRenderer::ResetCamera(
 }
 
 // Reset the camera clipping range to include this entire bounding box
-void vtkOpenVRRenderer::ResetCameraClippingRange(double bounds[6])
+void vtkOpenVRRenderer::ResetCameraClippingRange(const double bounds[6])
 {
   double range[2];
   int i, j, k;
@@ -299,7 +300,8 @@ void vtkOpenVRRenderer::ResetCameraClippingRange(double bounds[6])
     return;
   }
 
-  this->ExpandBounds(bounds, this->ActiveCamera->GetModelTransformMatrix());
+  double expandedBounds[6] = { bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5] };
+  this->ExpandBounds(expandedBounds, this->ActiveCamera->GetModelTransformMatrix());
 
   double trans[3];
   vtkOpenVRRenderWindow* win = static_cast<vtkOpenVRRenderWindow*>(this->GetRenderWindow());
@@ -316,9 +318,9 @@ void vtkOpenVRRenderer::ResetCameraClippingRange(double bounds[6])
     {
       for (i = 0; i < 2; i++)
       {
-        double fard = sqrt((bounds[i] - trans[0]) * (bounds[i] - trans[0]) +
-          (bounds[2 + j] - trans[1]) * (bounds[2 + j] - trans[1]) +
-          (bounds[4 + k] - trans[2]) * (bounds[4 + k] - trans[2]));
+        double fard = sqrt((expandedBounds[i] - trans[0]) * (expandedBounds[i] - trans[0]) +
+          (expandedBounds[2 + j] - trans[1]) * (expandedBounds[2 + j] - trans[1]) +
+          (expandedBounds[4 + k] - trans[2]) * (expandedBounds[4 + k] - trans[2]));
         range[1] = (fard > range[1]) ? fard : range[1];
       }
     }
