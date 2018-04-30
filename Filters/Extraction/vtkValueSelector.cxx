@@ -34,12 +34,21 @@ namespace
 
 struct ThresholdSelectionListReshaper
 {
+protected:
+  vtkDataArray* FixedArray;
+public:
+  ThresholdSelectionListReshaper(vtkDataArray* toFill)
+    : FixedArray(toFill)
+  {
+  }
   // If the input selection list for a threshold has one component we need
   // to reshape it into an array with two component tuples (ranges) so it
   // is interpreted correctly later.
   template<typename SelectionListArrayType>
-  void operator()(SelectionListArrayType* originalList, SelectionListArrayType* fixedList)
+  void operator()(SelectionListArrayType* originalList)
   {
+    // created with NewInstance from the originalList, we know it is the same type
+    auto fixedList = SelectionListArrayType::FastDownCast(this->FixedArray);
     assert(originalList->GetNumberOfComponents() == 1);
     assert(fixedList->GetNumberOfComponents() == 2);
 
@@ -224,7 +233,6 @@ struct ArrayValueRangeFunctor
   {
     assert(selList->GetNumberOfComponents() == 2);
 
-    using ValueType = typename vtkDataArrayAccessor<SelectionListArrayType>::APIType;
     vtkDataArrayAccessor<SelectionListArrayType> rangeAccessor(selList);
 
     const vtkIdType numValues = this->InsidenessArray->GetNumberOfTuples();
@@ -334,7 +342,7 @@ private:
 
   bool Execute(vtkAbstractArray* darray, vtkSignedCharArray* insidenessArray)
   {
-    if (auto sarray = vtkStringArray::SafeDownCast(darray))
+    if (vtkStringArray::SafeDownCast(darray))
     {
       // this will be added later, if needed.
       vtkGenericWarningMacro(<< darray->GetClassName()
@@ -509,10 +517,10 @@ void vtkValueSelector::Initialize(vtkSelectionNode* node)
               selectionList->SetNumberOfTuples(selList->GetNumberOfTuples()/2);
               selectionList->SetName(selList->GetName());
 
-              ThresholdSelectionListReshaper reshaper;
+              ThresholdSelectionListReshaper reshaper(vtkDataArray::SafeDownCast(selectionList));
 
-              if (!vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::AllTypes>::Execute(
-                    selList, vtkDataArray::SafeDownCast(selectionList), reshaper))
+              if (!vtkArrayDispatch::Dispatch::Execute(
+                    selList, reshaper))
               {
                 // should never happen, we create an array with the same type
                 vtkErrorMacro("Mismatch in selection list fixup code");
@@ -520,6 +528,7 @@ void vtkValueSelector::Initialize(vtkSelectionNode* node)
               }
             }
           }
+          VTK_FALLTHROUGH;
       case vtkSelectionNode::VALUES:
         if (selectionList->GetName() == nullptr || selectionList->GetName()[0] == '\0')
         {

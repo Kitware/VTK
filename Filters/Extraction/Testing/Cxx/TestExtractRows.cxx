@@ -13,7 +13,6 @@
 
 =========================================================================*/
 
-//#include "vtkDelimitedTextReader.h"
 #include "vtkExtractSelection2.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -25,8 +24,10 @@
 #define ROWS 15
 #define COLUMNS 4
 
-int TestExtractRows(int argc, char** argv)
+int TestExtractRows(int argc, char* argv[])
 {
+  (void)argc;
+  (void)argv;
   vtkNew<vtkTable> table;
 
   const char *name[] = { "foo", "bar", "baz", "foobar" };

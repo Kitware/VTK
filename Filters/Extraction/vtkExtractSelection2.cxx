@@ -39,6 +39,7 @@
 #include "vtkValueSelector.h"
 
 #include <map>
+#include <memory>
 #include <set>
 
 namespace
@@ -73,7 +74,7 @@ protected:
   {
     auto propertes = this->Node->GetProperties();
     if (propertes->Has(vtkSelectionNode::COMPOSITE_INDEX()) &&
-      propertes->Get(vtkSelectionNode::COMPOSITE_INDEX()) != compositeIndex)
+      static_cast<unsigned int>(propertes->Get(vtkSelectionNode::COMPOSITE_INDEX())) != compositeIndex)
     {
       return true;
     }
@@ -373,7 +374,7 @@ int vtkExtractSelection2::RequestDataObject(
     return 1;
   }
 
-  if (vtkCompositeDataSet* inputCD = vtkCompositeDataSet::SafeDownCast(inputDO))
+  if (vtkCompositeDataSet::SafeDownCast(inputDO))
   {
     // For any composite dataset, we're create a vtkMultiBlockDataSet as output;
     if (vtkMultiBlockDataSet::SafeDownCast(outputDO) == nullptr)
@@ -385,7 +386,7 @@ int vtkExtractSelection2::RequestDataObject(
     return 1;
   }
 
-  if (vtkTable* inputT = vtkTable::SafeDownCast(inputDO))
+  if (vtkTable::SafeDownCast(inputDO))
   {
     // vtkTable input stays as vtkTable.
     if (vtkTable::SafeDownCast(outputDO) == nullptr)
@@ -397,7 +398,7 @@ int vtkExtractSelection2::RequestDataObject(
     return 1;
   }
 
-  if (vtkDataSet* inputDS = vtkDataSet::SafeDownCast(inputDO))
+  if (vtkDataSet::SafeDownCast(inputDO))
   {
     // vtkDataSet becomes a vtkUnstructuredGrid.
     if (vtkUnstructuredGrid::SafeDownCast(outputDO) == nullptr)
@@ -449,7 +450,7 @@ vtkDataObject::AttributeTypes vtkExtractSelection2::GetAttributeTypeOfSelection(
 
 //----------------------------------------------------------------------------
 int vtkExtractSelection2::RequestData(
-  vtkInformation* request,
+  vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector ,
   vtkInformationVector* outputVector)
 {
@@ -713,12 +714,9 @@ void vtkExtractSelection2::ExtractSelectedCells(vtkDataSet* input, vtkUnstructur
 void vtkExtractSelection2::ExtractSelectedPoints(vtkDataSet* input, vtkUnstructuredGrid* output, vtkSignedCharArray* pointInside)
 {
   vtkIdType numPts = input->GetNumberOfPoints();
-  vtkIdType numCells = input->GetNumberOfCells();
 
   vtkPointData *pd = input->GetPointData();
-  vtkCellData *cd = input->GetCellData();
   vtkPointData *outputPD = output->GetPointData();
-  vtkCellData *outputCD = output->GetCellData();
 
   vtkNew<vtkPoints> newPts;
   newPts->Allocate(numPts/4,numPts);

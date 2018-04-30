@@ -123,7 +123,7 @@ int TestSelectionExpression(int, char* [])
     auto b = get(arrays["B"], cc);
     auto c = get(arrays["C"], cc);
     auto d = get(arrays["D"], cc);
-    return a && b || (c && d);
+    return (a && b) || (c && d);
   });
 
   Validate(expr, "(A & B) | (C | (D & E) ) | (C & D)", arrays_ptrs, [&](vtkIdType cc) {

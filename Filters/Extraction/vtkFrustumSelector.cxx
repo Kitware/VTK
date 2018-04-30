@@ -639,8 +639,8 @@ void vtkFrustumSelector::ComputeSelectedPoints(vtkDataSet* input, vtkSignedCharA
   // Hacky PrepareForMultithreadedAccess()
   // call everything we will call on the data object on the main thread first
   // so that it can build its caching structures
-  double x[3];
-  input->GetPoint(0, x);
+  double xx[3];
+  input->GetPoint(0, xx);
 
   vtkSMPTools::For(0, numPts, [input,this,&pointSelected](vtkIdType begin, vtkIdType end) {
     double x[3];

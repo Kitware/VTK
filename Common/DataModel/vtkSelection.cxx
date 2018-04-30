@@ -37,6 +37,7 @@
 #include <cctype>
 #include <iterator>
 #include <map>
+#include <memory>
 #include <sstream>
 #include <vector>
 
@@ -54,8 +55,8 @@ public:
 
 class NodeVariable : public Node
 {
-  std::string Name;
   vtkSignedCharArray* Data;
+  std::string Name;
 
 public:
   NodeVariable(vtkSignedCharArray* data, const std::string& name)
@@ -620,7 +621,7 @@ vtkSmartPointer<vtkSignedCharArray> vtkSelection::Evaluate(
   std::map<std::string, vtkSignedCharArray*> values_map;
 
   vtkIdType numVals = -1;
-  int cc = 0;
+  unsigned int cc = 0;
   const vtkInternals& internals = (*this->Internals);
   for (const auto& apair : internals.Items)
   {

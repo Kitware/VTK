@@ -25,6 +25,8 @@
 
 #include "vtkSelectionOperator.h"
 
+#include <memory> // unique_ptr
+
 class VTKFILTERSEXTRACTION_EXPORT vtkLocationSelector : public vtkSelectionOperator
 {
 public:
