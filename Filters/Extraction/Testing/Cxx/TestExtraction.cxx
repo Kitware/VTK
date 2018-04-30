@@ -23,32 +23,33 @@
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
+#include <vtkActor.h>
+#include <vtkCamera.h>
+#include <vtkCell.h>
+#include <vtkCellData.h>
+#include <vtkDataSetMapper.h>
+#include <vtkDoubleArray.h>
+#include <vtkIdList.h>
+#include <vtkIdTypeArray.h>
 #include <vtkImageData.h>
+#include <vtkInteractorStyleRubberBandPick.h>
+#include <vtkPointData.h>
+#include <vtkPoints.h>
+#include <vtkPolyDataWriter.h>
+#include <vtkProperty.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
+#include <vtkThreshold.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkUnstructuredGridWriter.h>
 #include <vtkXMLDataSetWriter.h>
-#include <vtkPolyDataWriter.h>
-#include <vtkPoints.h>
-#include <vtkPointData.h>
-#include <vtkCellData.h>
-#include <vtkIdTypeArray.h>
-#include <vtkDoubleArray.h>
-#include <vtkCell.h>
-#include <vtkDataSetMapper.h>
-#include <vtkActor.h>
-#include <vtkProperty.h>
-#include <vtkRenderer.h>
-#include <vtkCamera.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkInteractorStyleRubberBandPick.h>
-#include <vtkIdList.h>
-#include <vtkThreshold.h>
 
 #include <vtkInformation.h>
 #include <vtkSelection.h>
 #include <vtkSelectionNode.h>
 #include <vtkExtractSelection.h>
+#include <vtkExtractSelection2.h>
 
 #define XCELLS 3
 #define YCELLS 3
@@ -57,6 +58,8 @@
 static vtkRenderer *renderer = nullptr;
 static vtkImageData *sampleData = nullptr;
 static int DrawSampleData = 0;
+
+namespace {
 
 enum {COLORBYCELL, COLORBYPOINT};
 
@@ -114,6 +117,7 @@ void showMe(vtkDataSet *result, int X, int Y, int CellOrPoint, vtkDataArray *arr
   }
 }
 
+template<typename ExtractionFilter>
 int TestExtraction(int argc, char *argv[])
 {
   int DoWrite = 0;
@@ -314,7 +318,7 @@ int TestExtraction(int argc, char *argv[])
   vtkSelection *selection = vtkSelection::New();
   vtkSelectionNode *sel = vtkSelectionNode::New();
   selection->AddNode(sel);
-  vtkExtractSelection *ext = vtkExtractSelection::New();
+  ExtractionFilter *ext = ExtractionFilter::New();
   ext->SetInputData(0, sampleData);
   ext->SetInputData(1, selection);
   ext->PreserveTopologyOff();
@@ -1168,4 +1172,11 @@ int TestExtraction(int argc, char *argv[])
   rwi->Delete();
 
   return !retVal;
+}
+
+}
+
+int TestExtraction(int argc, char *argv[])
+{
+  return TestExtraction<vtkExtractSelection>(argc, argv) || TestExtraction<vtkExtractSelection2>(argc, argv);
 }
