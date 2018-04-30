@@ -614,7 +614,10 @@ vtkSmartPointer<vtkDataObject> vtkExtractSelection2::ExtractElements(
   }
   else if (type == vtkDataObject::ROW)
   {
-    // TODO
+    vtkTable* input = vtkTable::SafeDownCast(block);
+    vtkTable* output = vtkTable::New();
+    this->ExtractSelectedRows(input, output, insidednessArray);
+    return vtkSmartPointer<vtkTable>::Take(output);
   }
   else
   {
@@ -763,6 +766,29 @@ void vtkExtractSelection2::ExtractSelectedPoints(vtkDataSet* input, vtkUnstructu
     output->InsertNextCell(VTK_VERTEX, newCellPts);
   }
   output->SetPoints(newPts);
+}
+
+//----------------------------------------------------------------------------
+void vtkExtractSelection2::ExtractSelectedRows(vtkTable* input, vtkTable* output, vtkSignedCharArray* rowsInside)
+{
+  const vtkIdType numRows = input->GetNumberOfRows();
+  vtkNew<vtkIdTypeArray> originalRowIds;
+  originalRowIds->SetName("vtkOriginalRowIds");
+
+  output->GetRowData()->CopyFieldOff("vtkOriginalRowIds");
+  output->GetRowData()->CopyStructure(input->GetRowData());
+
+  for (vtkIdType rowId = 0; rowId < numRows; ++rowId)
+  {
+    signed char isInside;
+    rowsInside->GetTypedTuple(rowId, &isInside);
+    if (isInside)
+    {
+      output->InsertNextRow(input->GetRow(rowId));
+      originalRowIds->InsertNextValue(rowId);
+    }
+  }
+  output->AddColumn(originalRowIds);
 }
 
 //----------------------------------------------------------------------------

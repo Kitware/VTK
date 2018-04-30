@@ -42,6 +42,7 @@ class vtkSelection;
 class vtkSelectionNode;
 class vtkSelectionOperator;
 class vtkUnstructuredGrid;
+class vtkTable;
 
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelection2 : public vtkDataObjectAlgorithm
 {
@@ -110,6 +111,9 @@ protected:
   void ExtractSelectedPoints(vtkDataSet* input,
                              vtkUnstructuredGrid* output,
                              vtkSignedCharArray* pointInside);
+void ExtractSelectedRows(vtkTable* input,
+                         vtkTable* output,
+                         vtkSignedCharArray* rowsInside);
 
   bool PreserveTopology;
 
