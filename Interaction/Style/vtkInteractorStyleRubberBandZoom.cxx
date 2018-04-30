@@ -136,30 +136,31 @@ void vtkInteractorStyleRubberBandZoom::OnMouseMove()
 
   unsigned char *pixels = tmpPixelArray->GetPointer(0);
 
-  int min[2], max[2];
-  min[0] = startPosition[0] <= endPosition[0] ? startPosition[0] : endPosition[0];
-  min[1] = startPosition[1] <= endPosition[1] ? startPosition[1] : endPosition[1];
-  max[0] = endPosition[0] > startPosition[0] ? endPosition[0] : startPosition[0];
-  max[1] = endPosition[1] > startPosition[1] ? endPosition[1] : startPosition[1];
+  int minX = startPosition[0] <= endPosition[0] ? startPosition[0] : endPosition[0];
+  int minY = startPosition[1] <= endPosition[1] ? startPosition[1] : endPosition[1];
+  int maxX = endPosition[0] > startPosition[0] ? endPosition[0] : startPosition[0];
+  int maxY = endPosition[1] > startPosition[1] ? endPosition[1] : startPosition[1];
 
   int i;
-  for (i = min[0]; i <= max[0]; i++)
+  // Draw horizontal box lines
+  for (i = minX; i <= maxX; i++)
   {
-    pixels[3*(min[1]*size[0]+i)] = 255 ^ pixels[3*(min[1]*size[0]+i)];
-    pixels[3*(min[1]*size[0]+i)+1] = 255 ^ pixels[3*(min[1]*size[0]+i)+1];
-    pixels[3*(min[1]*size[0]+i)+2] = 255 ^ pixels[3*(min[1]*size[0]+i)+2];
-    pixels[3*(max[1]*size[0]+i)] = 255 ^ pixels[3*(max[1]*size[0]+i)];
-    pixels[3*(max[1]*size[0]+i)+1] = 255 ^ pixels[3*(max[1]*size[0]+i)+1];
-    pixels[3*(max[1]*size[0]+i)+2] = 255 ^ pixels[3*(max[1]*size[0]+i)+2];
+    pixels[3*(minY*size[0]+i)] = 255 ^ pixels[3*(minY*size[0]+i)];
+    pixels[3*(minY*size[0]+i)+1] = 255 ^ pixels[3*(minY*size[0]+i)+1];
+    pixels[3*(minY*size[0]+i)+2] = 255 ^ pixels[3*(minY*size[0]+i)+2];
+    pixels[3*(maxY*size[0]+i)] = 255 ^ pixels[3*(maxY*size[0]+i)];
+    pixels[3*(maxY*size[0]+i)+1] = 255 ^ pixels[3*(maxY*size[0]+i)+1];
+    pixels[3*(maxY*size[0]+i)+2] = 255 ^ pixels[3*(maxY*size[0]+i)+2];
   }
-  for (i = min[1]+1; i < max[1]; i++)
+  // Draw vertical box lines
+  for (i = minY+1; i < maxY; i++)
   {
-    pixels[3*(i*size[0]+min[0])] = 255 ^ pixels[3*(i*size[0]+min[0])];
-    pixels[3*(i*size[0]+min[0])+1] = 255 ^ pixels[3*(i*size[0]+min[0])+1];
-    pixels[3*(i*size[0]+min[0])+2] = 255 ^ pixels[3*(i*size[0]+min[0])+2];
-    pixels[3*(i*size[0]+max[0])] = 255 ^ pixels[3*(i*size[0]+max[0])];
-    pixels[3*(i*size[0]+max[0])+1] = 255 ^ pixels[3*(i*size[0]+max[0])+1];
-    pixels[3*(i*size[0]+max[0])+2] = 255 ^ pixels[3*(i*size[0]+max[0])+2];
+    pixels[3*(i*size[0]+minX)] = 255 ^ pixels[3*(i*size[0]+minX)];
+    pixels[3*(i*size[0]+minX)+1] = 255 ^ pixels[3*(i*size[0]+minX)+1];
+    pixels[3*(i*size[0]+minX)+2] = 255 ^ pixels[3*(i*size[0]+minX)+2];
+    pixels[3*(i*size[0]+maxX)] = 255 ^ pixels[3*(i*size[0]+maxX)];
+    pixels[3*(i*size[0]+maxX)+1] = 255 ^ pixels[3*(i*size[0]+maxX)+1];
+    pixels[3*(i*size[0]+maxX)+2] = 255 ^ pixels[3*(i*size[0]+maxX)+2];
   }
 
   this->Interactor->GetRenderWindow()->SetPixelData(0, 0, size[0]-1, size[1]-1, pixels, 1);
