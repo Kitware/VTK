@@ -91,8 +91,8 @@ public:
    * Bring the algorithm's outputs up-to-date.  Returns 1 for success
    * and 0 for failure.
    */
-  virtual int Update();
-  virtual int Update(int port);
+  virtual vtkTypeBool Update();
+  virtual vtkTypeBool Update(int port);
   //@}
 
   //@{

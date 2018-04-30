@@ -251,8 +251,8 @@ protected:
    */
   void Update(int port) override;
   void Update() override;
-  int Update(int port, vtkInformationVector *requests) override;
-  int Update(vtkInformation *requests) override;
+  vtkTypeBool Update(int port, vtkInformationVector *requests) override;
+  vtkTypeBool Update(vtkInformation *requests) override;
   //@}
 
   /**

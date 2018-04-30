@@ -383,19 +383,19 @@ int vtkStreamingDemandDrivenPipeline
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline::Update()
+vtkTypeBool vtkStreamingDemandDrivenPipeline::Update()
 {
   return this->Superclass::Update();
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline::Update(int port)
+vtkTypeBool vtkStreamingDemandDrivenPipeline::Update(int port)
 {
   return this->Update(port, nullptr);
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline::Update(int port,
+vtkTypeBool vtkStreamingDemandDrivenPipeline::Update(int port,
                                              vtkInformationVector* requests)
 {
   if(!this->UpdateInformation())

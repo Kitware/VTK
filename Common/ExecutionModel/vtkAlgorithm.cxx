@@ -1488,7 +1488,7 @@ void vtkAlgorithm::Update(int port)
 }
 
 //----------------------------------------------------------------------------
-int vtkAlgorithm::Update(int port, vtkInformationVector* requests)
+vtkTypeBool vtkAlgorithm::Update(int port, vtkInformationVector* requests)
 {
   vtkStreamingDemandDrivenPipeline* sddp =
     vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
@@ -1503,7 +1503,7 @@ int vtkAlgorithm::Update(int port, vtkInformationVector* requests)
 }
 
 //----------------------------------------------------------------------------
-int vtkAlgorithm::Update(vtkInformation* requests)
+vtkTypeBool vtkAlgorithm::Update(vtkInformation* requests)
 {
   vtkNew<vtkInformationVector> reqs;
   reqs->SetInformationObject(0, requests);

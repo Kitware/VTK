@@ -588,14 +588,14 @@ public:
    * Available requests include UPDATE_PIECE_NUMBER(), UPDATE_NUMBER_OF_PIECES()
    * UPDATE_EXTENT() etc etc.
    */
-  virtual int Update(int port, vtkInformationVector* requests);
+  virtual vtkTypeBool Update(int port, vtkInformationVector* requests);
 
   /**
    * Convenience method to update an algorithm after passing requests
    * to its first output port. See documentation for
    * Update(int port, vtkInformationVector* requests) for details.
    */
-  virtual int Update(vtkInformation* requests);
+  virtual vtkTypeBool Update(vtkInformation* requests);
 
   /**
    * Convenience method to update an algorithm after passing requests
