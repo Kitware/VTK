@@ -22,6 +22,8 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkVectorOperators.h"
 
+#include <algorithm>
+
 namespace impl
 {
 template <class T>
@@ -136,31 +138,59 @@ void vtkInteractorStyleRubberBandZoom::OnMouseMove()
 
   unsigned char *pixels = tmpPixelArray->GetPointer(0);
 
-  int minX = startPosition[0] <= endPosition[0] ? startPosition[0] : endPosition[0];
-  int minY = startPosition[1] <= endPosition[1] ? startPosition[1] : endPosition[1];
-  int maxX = endPosition[0] > startPosition[0] ? endPosition[0] : startPosition[0];
-  int maxY = endPosition[1] > startPosition[1] ? endPosition[1] : startPosition[1];
+  int minX = std::min(startPosition[0], endPosition[0]);
+  int minY = std::min(startPosition[1], endPosition[1]);
+  int maxX = std::max(startPosition[0], endPosition[0]);
+  int maxY = std::max(startPosition[1], endPosition[1]);
 
-  int i;
-  // Draw horizontal box lines
-  for (i = minX; i <= maxX; i++)
+  int clampedMinX = std::max(minX, 0);
+  int clampedMaxX = std::min(maxX, size[0]-1);
+  int clampedMinY = std::max(minY, 0);
+  int clampedMaxY = std::min(maxY, size[1]-1);
+
+  // Draw zoom box
+  // Draw bottom horizontal line
+  if (minY >= 0 && minY < size[1])
   {
-    pixels[3*(minY*size[0]+i)] = 255 ^ pixels[3*(minY*size[0]+i)];
-    pixels[3*(minY*size[0]+i)+1] = 255 ^ pixels[3*(minY*size[0]+i)+1];
-    pixels[3*(minY*size[0]+i)+2] = 255 ^ pixels[3*(minY*size[0]+i)+2];
-    pixels[3*(maxY*size[0]+i)] = 255 ^ pixels[3*(maxY*size[0]+i)];
-    pixels[3*(maxY*size[0]+i)+1] = 255 ^ pixels[3*(maxY*size[0]+i)+1];
-    pixels[3*(maxY*size[0]+i)+2] = 255 ^ pixels[3*(maxY*size[0]+i)+2];
+    for (int i = clampedMinX; i < clampedMaxX; ++i)
+    {
+      pixels[3*(minY*size[0]+i)] = 255 ^ pixels[3*(minY*size[0]+i)];
+      pixels[3*(minY*size[0]+i)+1] = 255 ^ pixels[3*(minY*size[0]+i)+1];
+      pixels[3*(minY*size[0]+i)+2] = 255 ^ pixels[3*(minY*size[0]+i)+2];
+    }
   }
-  // Draw vertical box lines
-  for (i = minY+1; i < maxY; i++)
+
+  // Draw top horizontal line
+  if (maxY >= 0 && maxY < size[1])
   {
-    pixels[3*(i*size[0]+minX)] = 255 ^ pixels[3*(i*size[0]+minX)];
-    pixels[3*(i*size[0]+minX)+1] = 255 ^ pixels[3*(i*size[0]+minX)+1];
-    pixels[3*(i*size[0]+minX)+2] = 255 ^ pixels[3*(i*size[0]+minX)+2];
-    pixels[3*(i*size[0]+maxX)] = 255 ^ pixels[3*(i*size[0]+maxX)];
-    pixels[3*(i*size[0]+maxX)+1] = 255 ^ pixels[3*(i*size[0]+maxX)+1];
-    pixels[3*(i*size[0]+maxX)+2] = 255 ^ pixels[3*(i*size[0]+maxX)+2];
+    for (int i = clampedMinX; i < clampedMaxX; ++i)
+    {
+      pixels[3*(maxY*size[0]+i)] = 255 ^ pixels[3*(maxY*size[0]+i)];
+      pixels[3*(maxY*size[0]+i)+1] = 255 ^ pixels[3*(maxY*size[0]+i)+1];
+      pixels[3*(maxY*size[0]+i)+2] = 255 ^ pixels[3*(maxY*size[0]+i)+2];
+    }
+  }
+
+  // Draw left vertical line
+  if (minX >= 0 && minX < size[0])
+  {
+    for (int i = clampedMinY; i < clampedMaxY; ++i)
+    {
+      pixels[3*(i*size[0]+minX)] = 255 ^ pixels[3*(i*size[0]+minX)];
+      pixels[3*(i*size[0]+minX)+1] = 255 ^ pixels[3*(i*size[0]+minX)+1];
+      pixels[3*(i*size[0]+minX)+2] = 255 ^ pixels[3*(i*size[0]+minX)+2];
+    }
+  }
+
+  // Draw right vertical line
+  if (maxX >= 0 && maxX < size[0])
+  {
+    for (int i = clampedMinY; i < clampedMaxY; ++i)
+    {
+      pixels[3*(i*size[0]+maxX)] = 255 ^ pixels[3*(i*size[0]+maxX)];
+      pixels[3*(i*size[0]+maxX)+1] = 255 ^ pixels[3*(i*size[0]+maxX)+1];
+      pixels[3*(i*size[0]+maxX)+2] = 255 ^ pixels[3*(i*size[0]+maxX)+2];
+    }
   }
 
   this->Interactor->GetRenderWindow()->SetPixelData(0, 0, size[0]-1, size[1]-1, pixels, 1);
