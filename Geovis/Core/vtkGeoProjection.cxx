@@ -109,6 +109,7 @@ vtkGeoProjection::vtkGeoProjection()
   this->CentralMeridian = 0.;
   this->Projection = nullptr;
   this->ProjectionMTime = 0;
+  this->PROJ4String = nullptr;
   this->SetPROJ4String("");
   this->Internals = new vtkInternals();
 }
