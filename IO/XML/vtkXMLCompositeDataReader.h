@@ -95,13 +95,23 @@ protected:
   // Create a default executive.
   vtkExecutive* CreateDefaultExecutive() override;
 
+  // Find the path to this file in case the internal files are
+  // specified as relative paths.
+  std::string GetFilePath();
+
+  std::string GetFileNameFromXML(vtkXMLDataElement *xmlElem,
+                                 const std::string &filePath);
+
   vtkXMLReader* GetReaderOfType(const char* type);
+  vtkXMLReader* GetReaderForFile(const std::string &filename);
 
   int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
                                  vtkInformationVector*) override;
 
-
+  void SyncDataArraySelections(vtkXMLReader *accum,
+                               vtkXMLDataElement *xmlElem,
+                               const std::string &filePath);
 
   // Adds a child data object to the composite parent. childXML is the XML for
   // the child data object need to obtain certain meta-data about the child.

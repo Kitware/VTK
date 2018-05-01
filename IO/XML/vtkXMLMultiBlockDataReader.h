@@ -67,6 +67,7 @@ protected:
 
   virtual int FillMetaData(vtkCompositeDataSet* metadata,
                            vtkXMLDataElement* element,
+                           const std::string &filePath,
                            unsigned int& dataSetIndex);
 
 private:
