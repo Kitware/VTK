@@ -550,6 +550,7 @@ const char* vtkGDALVectorReader::GetLayerProjectionAsProj4(int layerIndex)
   vtkGDALVectorReader::Internal* p = this->Implementation;
   if (!p->Source)
   {
+    vtkErrorMacro(<< "Source dataset not provided");
     return nullptr;
   }
   int layerCount = p->Source->GetLayerCount();
@@ -562,15 +563,20 @@ const char* vtkGDALVectorReader::GetLayerProjectionAsProj4(int layerIndex)
   OGRLayer* layer = p->Source->GetLayer(layerIndex);
   if (!layer)
   {
+    vtkErrorMacro(<< "Cannot access the GDAL dataset layer at index " <<
+                  layerIndex);
     return nullptr;
   }
   if (!layer->GetSpatialRef())
   {
+    vtkErrorMacro(<< "Cannot access the spatial ref object.");
     return nullptr;
   }
   char *projStr;
   layer->GetSpatialRef()->exportToProj4(&projStr);
-  return projStr;
+  std::string returnStr = std::string(projStr);
+  CPLFree(projStr);
+  return returnStr.c_str();
 }
 
 // -----------------------------------------------------------------------------
