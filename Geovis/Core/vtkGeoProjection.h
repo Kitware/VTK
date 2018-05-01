@@ -134,6 +134,19 @@ public:
    */
   void ClearOptionalParameters();
 
+  //@{
+  /**
+   * Set/Get/Clear projection string in PROJ.4 format.
+   * This is a special case alternative to setting the projection name and
+   * specifying parameters.
+   *
+   * \note If the PROJ4String is not empty, it supercedes the other parameters
+   * and is used explicitly to instantiate the `projPJ` projection object.
+   */
+  vtkSetStringMacro(PROJ4String);
+  vtkGetStringMacro(PROJ4String);
+  //@}
+
 protected:
   vtkGeoProjection();
   ~vtkGeoProjection() override;
@@ -150,6 +163,7 @@ protected:
   double CentralMeridian;
   projPJ Projection;
   vtkMTimeType ProjectionMTime;
+  char* PROJ4String;
 
 private:
   vtkGeoProjection( const vtkGeoProjection& ) = delete;
