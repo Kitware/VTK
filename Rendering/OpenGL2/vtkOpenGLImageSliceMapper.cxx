@@ -466,6 +466,10 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
       polyTCoords->Modified();
     }
   }
+  else // no polygon to render
+  {
+    return;
+  }
 
   if (textured)
   {
@@ -596,6 +600,10 @@ void vtkOpenGLImageSliceMapper::RenderBackground(
       dx0 = dx1;
       dy0 = dy1;
     }
+  }
+  else // no polygon to render
+  {
+    return;
   }
 
   polyPoints->GetData()->Modified();
