@@ -38,6 +38,7 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <vtkm/cont/ArrayHandle.h>
+#include <vtkm/cont/CoordinateSystem.hxx>
 #include <vtkm/cont/Field.h>
 
 namespace tovtkm {

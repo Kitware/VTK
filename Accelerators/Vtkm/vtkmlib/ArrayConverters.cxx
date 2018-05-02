@@ -19,7 +19,7 @@
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/cont/ArrayHandle.h>
-#include <vtkm/cont/CoordinateSystem.h>
+#include <vtkm/cont/CoordinateSystem.hxx>
 #include <vtkm/cont/DataSet.h>
 
 #include "vtkCellData.h"
@@ -285,8 +285,12 @@ struct ArrayConverter
 
   ArrayConverter() : Data(nullptr) {}
 
+  // CastAndCall always passes a const array handle. Just shallow copy to a
+  // local array handle by taking by value.
+
+  // default version just performs a deep copy.
   template <typename T, typename S>
-  void operator()(const vtkm::cont::ArrayHandle<T, S>& handle) const
+  void operator()(vtkm::cont::ArrayHandle<T, S> handle) const
   {
     using vtkm::cont::ArrayHandle;
     using vtkm::cont::ArrayPortalToIterators;
@@ -320,8 +324,7 @@ struct ArrayConverter
 
   template <typename T>
   void operator()(
-      const vtkm::cont::ArrayHandle<T,
-                                    vtkm::cont::StorageTagBasic>& handle) const
+    vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagBasic> handle) const
   {
     // we can steal this array!
     using Traits = tovtkm::vtkPortalTraits<T>;
@@ -334,37 +337,41 @@ struct ArrayConverter
     array->SetNumberOfComponents(Traits::NUM_COMPONENTS);
 
     handle.SyncControlArray();
-    ValueType* stolenMemory = reinterpret_cast<ValueType*>(
-        handle.Internals->ControlArray.StealArray());
+    ValueType* stolenMemory = reinterpret_cast<ValueType*>(handle.GetStorage().StealArray());
 
     //VTK-m allocations are all aligned
-    array->SetVoidArray(stolenMemory, size, 0,
-                        vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE);
+    array->SetVoidArray(
+      stolenMemory, size, 0, vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED);
+    array->SetArrayFreeFunction(handle.GetStorage().GetDeleteFunction());
 
     this->Data = array;
   }
 
   template <typename T>
   void operator()(
-      const vtkm::cont::ArrayHandle<T, tovtkm::vtkAOSArrayContainerTag>& handle)
-      const
+    vtkm::cont::ArrayHandle<T, tovtkm::vtkAOSArrayContainerTag> handle) const
   {
     // we can grab the already allocated vtk memory
-    this->Data = handle.Internals->ControlArray.VTKArray();
+    this->Data = handle.GetStorage().VTKArray();
     this->Data->Register(nullptr);
   }
 
   template <typename T>
   void operator()(
-      const vtkm::cont::ArrayHandle<T, tovtkm::vtkSOAArrayContainerTag>& handle)
-      const
+    vtkm::cont::ArrayHandle<T, tovtkm::vtkSOAArrayContainerTag> handle) const
   {
     // we can grab the already allocated vtk memory
-    this->Data = handle.Internals->ControlArray.VTKArray();
+    this->Data = handle.GetStorage().VTKArray();
     this->Data->Register(nullptr);
   }
 };
-}
+} // anonymous namespace
+
+// Though the following conversion routines take const-ref parameters as input,
+// the underlying storage will be stolen, whenever possible, instead of
+// performing a full copy.
+// Therefore, these routines should be treated as "moves" and the state of the
+// input is undeterminisitic.
 
 vtkDataArray* Convert(const vtkm::cont::Field& input)
 {

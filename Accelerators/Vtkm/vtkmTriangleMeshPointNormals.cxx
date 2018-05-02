@@ -81,35 +81,32 @@ int vtkmTriangleMeshPointNormals::RequestData(
     return 0;
   }
 
-  // convert the input dataset to a vtkm::cont::DataSet
-  vtkm::cont::DataSet in = tovtkm::Convert(input);
-  if (in.GetNumberOfCoordinateSystems() <= 0 || in.GetNumberOfCellSets() <= 0)
+  try
   {
-    vtkErrorMacro(<< "Could not convert vtk dataset to vtkm dataset");
-    return 0;
+    // convert the input dataset to a vtkm::cont::DataSet
+    auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::None);
+
+    vtkm::filter::PolicyBase<InputFilterPolicy> policy;
+    vtkm::filter::SurfaceNormals filter;
+    filter.SetGenerateCellNormals(false);
+    filter.SetNormalizeCellNormals(false);
+    filter.SetGeneratePointNormals(true);
+    filter.SetPointNormalsName("Normals");
+    auto result = filter.Execute(in, policy);
+
+    if (!fromvtkm::Convert(result, output, input))
+    {
+      vtkErrorMacro(<< "Unable to convert VTKm DataSet back to VTK");
+      return 0;
+    }
   }
-
-  vtkm::filter::PolicyBase<InputFilterPolicy> policy;
-
-  vtkm::filter::SurfaceNormals filter;
-  filter.SetGenerateCellNormals(false);
-  filter.SetNormalizeCellNormals(false);
-  filter.SetGeneratePointNormals(true);
-  filter.SetPointNormalsName("Normals");
-  auto result = filter.Execute(in, policy);
-
-  if (!result.IsFieldValid())
+  catch (const vtkm::cont::Error& e)
   {
-    vtkWarningMacro(<< "VTKm SurfaceNormals algorithm failed to run."
-                    << "Falling back to vtkTriangleMeshPointNormals.");
+    vtkWarningMacro(<< "VTK-m error: " << e.GetMessage()
+                    << "Falling back to vtkTriangleMeshPointNormals");
     return this->Superclass::RequestData(request, inputVector, outputVector);
   }
 
-  if (!fromvtkm::Convert(result.GetDataSet(), output, input))
-  {
-    vtkErrorMacro(<< "Unable to convert VTKm DataSet back to VTK");
-    return 0;
-  }
   vtkSmartPointer<vtkDataArray> pointNormals = output->GetPointData()->GetArray("Normals");
 
   output->GetPointData()->CopyNormalsOff();

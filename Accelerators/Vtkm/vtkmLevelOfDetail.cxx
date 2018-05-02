@@ -131,62 +131,37 @@ int vtkmLevelOfDetail::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (!input || input->GetNumberOfPoints() == 0)
   {
-    // Fail gracefully on empty inputs
+    // empty output for empty inputs
     return 1;
   }
 
-  // convert the input dataset to a vtkm::cont::DataSet
-  vtkm::cont::DataSet in = tovtkm::Convert(input,
-                                           tovtkm::FieldsFlag::PointsAndCells);
-  const bool dataSetValid =
-      in.GetNumberOfCoordinateSystems() > 0 && in.GetNumberOfCellSets() > 0;
-  if (!dataSetValid)
+  try
   {
-    vtkErrorMacro(<< "Unable convert dataset over to VTK-m for input.");
+    // convert the input dataset to a vtkm::cont::DataSet
+    auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
+
+    vtkmInputFilterPolicy policy;
+    vtkm::filter::VertexClustering filter;
+    filter.SetNumberOfDivisions(vtkm::make_Vec(this->NumberOfDivisions[0],
+                                              this->NumberOfDivisions[1],
+                                              this->NumberOfDivisions[2]));
+
+    auto result = filter.Execute(in, policy);
+
+    // convert back the dataset to VTK
+    if (!fromvtkm::Convert(result, output, input))
+    {
+      vtkErrorMacro(<< "Unable to convert VTKm DataSet back to VTK");
+      return 0;
+    }
+  }
+  catch (const vtkm::cont::Error& e)
+  {
+    vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
     return 0;
   }
 
-  vtkm::filter::VertexClustering filter;
-
-  filter.SetNumberOfDivisions(vtkm::make_Vec(this->NumberOfDivisions[0],
-                                             this->NumberOfDivisions[1],
-                                             this->NumberOfDivisions[2]));
-
-  vtkmInputFilterPolicy policy;
-  vtkm::filter::Result result = filter.Execute(in, policy);
-
-  // currently we can't convert point based scalar arrays over to the new output
-  // as the algorithm doesn't cache any of the interpolation data
-  //
-  // This shouldn't be hard, the question that we need answered is should
-  // we average the point field like we average the coordinates, or should
-  // we just take a random value. See VTKM issue #161. The mapping below is a
-  // no-op until this is resolved.
-  bool convertedDataSet = false;
-  if (result.IsDataSetValid())
-  {
-    // Map fields:
-    vtkm::Id numFields = static_cast<vtkm::Id>(in.GetNumberOfFields());
-    for (vtkm::Id fieldIdx = 0; fieldIdx < numFields; ++fieldIdx)
-    {
-      const vtkm::cont::Field &field = in.GetField(fieldIdx);
-      try
-      {
-        filter.MapFieldOntoOutput(result, field, policy);
-      }
-      catch (vtkm::cont::Error &e)
-      {
-        vtkWarningMacro(<< "Unable to use VTKm to convert field( "
-                        << field.GetName() << " ) to the LevelOfDetail"
-                        << " output: " << e.what());
-      }
-    }
-
-    // convert back the dataset to VTK
-    convertedDataSet = fromvtkm::Convert(result.GetDataSet(), output, input);
-  }
-
-  return static_cast<int>(convertedDataSet);
+  return 1;
 }
 
 //------------------------------------------------------------------------------
