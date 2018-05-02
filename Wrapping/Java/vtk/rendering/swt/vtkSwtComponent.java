@@ -1,7 +1,8 @@
 package vtk.rendering.swt;
 
-import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.widgets.Composite;
+
+import com.jogamp.opengl.swt.GLCanvas;
 
 import vtk.vtkRenderWindow;
 import vtk.rendering.vtkAbstractComponent;
