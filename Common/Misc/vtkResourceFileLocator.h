@@ -84,7 +84,7 @@ public:
    * Returns the name of the library providing the symbol. For example, if you
    * want to locate where the VTK libraries located call
    * `GetLibraryPathForSymbolUnix("GetVTKVersion")` on Unixes and
-   * `GetLibraryPathForSymbolUnix(GetVTKVersion)` on Window. Alternatively, you
+   * `GetLibraryPathForSymbolWin32(GetVTKVersion)` on Windows. Alternatively, you
    * can simply use the `vtkGetLibraryPathForSymbol(GetVTKVersion)` macro
    * that makes the appropriate call as per the current platform.
    */
@@ -105,7 +105,7 @@ private:
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #define vtkGetLibraryPathForSymbol(function)                                                       \
-  vtkResourceFileLocator::GetLibraryPathForSymbolWin32(&function)
+  vtkResourceFileLocator::GetLibraryPathForSymbolWin32(reinterpret_cast<const void*>(&function))
 #else
 #define vtkGetLibraryPathForSymbol(function)                                                       \
   vtkResourceFileLocator::GetLibraryPathForSymbolUnix(#function)
