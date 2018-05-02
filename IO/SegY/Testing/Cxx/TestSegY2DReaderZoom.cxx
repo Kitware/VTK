@@ -12,11 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME Test of vtkSegY2DReader
+// .NAME Test of vtkSegYReader
 // .SECTION Description
 //
 
-#include "vtkSegY2DReader.h"
+#include "vtkSegYReader.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
@@ -49,7 +49,7 @@ int TestSegY2DReaderZoom(int argc, char* argv[])
   char* fname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineA.sgy");
 
-  vtkNew<vtkSegY2DReader> reader;
+  vtkNew<vtkSegYReader> reader;
   vtkNew<vtkDataSetMapper> mapper;
   vtkNew<vtkActor> actor;
 
@@ -60,7 +60,7 @@ int TestSegY2DReaderZoom(int argc, char* argv[])
   int retVal = 0;
 
   double range[2];
-  vtkStructuredGrid* output = reader->GetOutput();
+  vtkDataSet* output = reader->GetOutput();
 
   output->GetScalarRange(range);
 

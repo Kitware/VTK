@@ -90,57 +90,85 @@ void vtkSegYTraceReader::PrintTraceHeader(std::ifstream& in, int startPos)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkSegYTraceReader::ReadTrace(int& startPos,
-  std::ifstream& in,
-  int formatCode,
-  vtkSegYTrace* trace)
+void vtkSegYTraceReader::ReadTrace(int& startPos,
+                                   std::ifstream& in,
+                                   int formatCode,
+                                   vtkSegYTrace* trace)
 {
-  int fileSize = vtkSegYIOUtils::Instance()->getFileSize(in);
-
-  if (startPos + 240 >= fileSize)
-  {
-    return false;
-  }
-
-  // PrintTraceHeader(in, startPos);
-  trace->crosslineNumber = vtkSegYIOUtils::Instance()->readLongInteger(
-    startPos + traceHeaderBytesPos.CrosslineNumber, in);
-  trace->inlineNumber = vtkSegYIOUtils::Instance()->readLongInteger(
+  trace->InlineNumber = vtkSegYIOUtils::Instance()->readLongInteger(
     startPos + traceHeaderBytesPos.InlineNumber, in);
+  trace->CrosslineNumber = vtkSegYIOUtils::Instance()->readLongInteger(
+    startPos + traceHeaderBytesPos.CrosslineNumber, in);
   int numSamples = vtkSegYIOUtils::Instance()->readShortInteger(
     startPos + traceHeaderBytesPos.NumberSamples, in);
-  trace->xCoordinate = vtkSegYIOUtils::Instance()->readLongInteger(
-    startPos + this->XCoordinate, in);
-  trace->yCoordinate = vtkSegYIOUtils::Instance()->readLongInteger(
-    startPos + this->YCoordinate, in);
   trace->CoordinateMultiplier = vtkSegYIOUtils::Instance()->readShortInteger(
     startPos + traceHeaderBytesPos.CoordinateMultiplier, in);
+  trace->XCoordinate = vtkSegYIOUtils::Instance()->readLongInteger(
+    startPos + this->XCoordinate, in);
+  trace->YCoordinate = vtkSegYIOUtils::Instance()->readLongInteger(
+    startPos + this->YCoordinate, in);
   trace->SampleInterval = vtkSegYIOUtils::Instance()->readShortInteger(
     startPos + traceHeaderBytesPos.SampleInterval, in);
 
   in.seekg(startPos + 240, in.beg);
-  for (int i = 0; i < numSamples; i++)
+  float value;
+  switch (formatCode)
   {
-    float value;
-    switch (formatCode)
+  case 1:
+    for (int i = 0; i < numSamples; i++)
     {
-      case 1:
-        value = vtkSegYIOUtils::Instance()->readIBMFloat(in);
-        break;
-      case 5:
-        value = vtkSegYIOUtils::Instance()->readFloat(in);
-        break;
-      default:
-        std::cerr << "Data sample format code " << formatCode
-                  << " not supported." << std::endl;
-        value = 0;
+      value = vtkSegYIOUtils::Instance()->readIBMFloat(in);
+      trace->Data.push_back(value);
     }
-    trace->data.push_back(value);
+    break;
+  case 5:
+    for (int i = 0; i < numSamples; i++)
+    {
+      value = vtkSegYIOUtils::Instance()->readFloat(in);
+      trace->Data.push_back(value);
+    }
+    break;
+  case 8:
+    for (int i = 0; i < numSamples; i++)
+    {
+      value = vtkSegYIOUtils::Instance()->readChar(in);
+      trace->Data.push_back(value);
+    }
+    break;
+  default:
+    std::cerr << "Data sample format code " << formatCode
+              << " not supported." << std::endl;
+    value = 0;
   }
 
-  startPos += 240 + GetTraceSize(numSamples, formatCode);
-  return true;
+  startPos += 240 + this->GetTraceSize(numSamples, formatCode);
 }
+
+
+//-----------------------------------------------------------------------------
+void vtkSegYTraceReader::ReadInlineCrossline(
+  int& startPos,
+  std::ifstream& in,
+  int formatCode,
+  int* inlineNumber, int* crosslineNumber,
+  int* xCoord, int* yCoord, short* coordMultiplier)
+{
+  *inlineNumber = vtkSegYIOUtils::Instance()->readLongInteger(
+    startPos + traceHeaderBytesPos.InlineNumber, in);
+  *crosslineNumber = vtkSegYIOUtils::Instance()->readLongInteger(
+    startPos + traceHeaderBytesPos.CrosslineNumber, in);
+  int numSamples = vtkSegYIOUtils::Instance()->readShortInteger(
+    startPos + traceHeaderBytesPos.NumberSamples, in);
+
+  *xCoord = vtkSegYIOUtils::Instance()->readLongInteger(
+    startPos + this->XCoordinate, in);
+  *yCoord = vtkSegYIOUtils::Instance()->readLongInteger(
+    startPos + this->YCoordinate, in);
+  *coordMultiplier = vtkSegYIOUtils::Instance()->readShortInteger(
+    startPos + traceHeaderBytesPos.CoordinateMultiplier, in);
+  startPos += 240 + this->GetTraceSize(numSamples, formatCode);
+}
+
 
 //-----------------------------------------------------------------------------
 int vtkSegYTraceReader::GetTraceSize(int numSamples, int formatCode)

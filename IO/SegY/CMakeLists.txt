@@ -1,11 +1,10 @@
 set(Module_SRCS
-  vtkSegY2DReader.cxx
-  vtkSegY3DReader.cxx
+  vtkSegYReader.cxx
   )
 
 set (Module_PRIVATE_SRCS
   vtkSegYIOUtils.cxx
-  vtkSegYReader.cxx
+  vtkSegYReaderInternal.cxx
   vtkSegYTraceReader.cxx
   )
 

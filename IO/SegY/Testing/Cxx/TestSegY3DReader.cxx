@@ -31,7 +31,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkTestUtilities.h"
 
-int TestSegY2DReader(int argc, char* argv[])
+int TestSegY3DReader(int argc, char* argv[])
 {
   // Basic visualisation.
   vtkNew<vtkRenderWindow> renWin;
@@ -42,46 +42,32 @@ int TestSegY2DReader(int argc, char* argv[])
   iren->SetRenderWindow(renWin);
 
   // Read file name.
-  char* fname[5];
-  fname[0] =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineA.sgy");
-  fname[1] =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineB.sgy");
-  fname[2] =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineC.sgy");
-  fname[3] =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineD.sgy");
-  fname[4] =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineE.sgy");
+  char* fname;
+  fname =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/waha8.sgy");
 
   vtkNew<vtkColorTransferFunction> lut;
-  lut->AddRGBPoint(-6.4, 0.23, 0.30, 0.75);
+  lut->AddRGBPoint(-127, 0.23, 0.30, 0.75);
   lut->AddRGBPoint(0.0, 0.86, 0.86, 0.86);
-  lut->AddRGBPoint(6.6, 0.70, 0.02, 0.15);
+  lut->AddRGBPoint(126, 0.70, 0.02, 0.15);
 
-  vtkNew<vtkSegYReader> reader[5];
-  vtkNew<vtkDataSetMapper> mapper[5];
-  vtkNew<vtkActor> actor[5];
+  vtkNew<vtkSegYReader> reader;
+  vtkNew<vtkDataSetMapper> mapper;
+  vtkNew<vtkActor> actor;
 
-  for (int i = 0; i < 5; ++i)
-  {
-    reader[i]->SetFileName(fname[i]);
-    reader[i]->Update();
-    delete[] fname[i];
+  reader->SetFileName(fname);
+  reader->Update();
+  delete[] fname;
 
-    mapper[i]->SetInputConnection(reader[i]->GetOutputPort());
-    mapper[i]->SetLookupTable(lut);
-    mapper[i]->SetColorModeToMapScalars();
+  mapper->SetInputConnection(reader->GetOutputPort());
+  mapper->SetLookupTable(lut);
+  mapper->SetColorModeToMapScalars();
 
-    actor[i]->SetMapper(mapper[i]);
+  actor->SetMapper(mapper);
 
-    ren->AddActor(actor[i]);
-    ren->ResetCamera();
-  }
-
-  ren->GetActiveCamera()->Azimuth(50);
-  ren->GetActiveCamera()->Roll(50);
-  ren->GetActiveCamera()->Zoom(1.2);
+  ren->AddActor(actor);
+  ren->ResetCamera();
+  ren->GetActiveCamera()->Azimuth(180);
 
   // interact with data
   renWin->Render();

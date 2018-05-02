@@ -22,7 +22,7 @@
 //----------------------------------------------------------------------------
 vtkSegYIOUtils::vtkSegYIOUtils()
 {
-  isBigEndian = checkIfBigEndian();
+  this->IsBigEndian = checkIfBigEndian();
 }
 
 //----------------------------------------------------------------------------
@@ -39,7 +39,7 @@ int vtkSegYIOUtils::readShortInteger(int pos, std::ifstream& in)
   char buffer[2];
   in.read(buffer, sizeof(buffer));
 
-  if (!isBigEndian)
+  if (!this->IsBigEndian)
   {
     swap(buffer, buffer + 1);
   }
@@ -56,7 +56,7 @@ int vtkSegYIOUtils::readLongInteger(int pos, std::ifstream& in)
   char buffer[4];
   in.read(buffer, sizeof(buffer));
 
-  if (!isBigEndian)
+  if (!this->IsBigEndian)
   {
     swap(buffer, buffer + 3);
     swap(buffer + 1, buffer + 2);
@@ -73,7 +73,7 @@ int vtkSegYIOUtils::readLongInteger(std::ifstream& in)
   char buffer[4];
   in.read(buffer, sizeof(buffer));
 
-  if (!isBigEndian)
+  if (!this->IsBigEndian)
   {
     swap(buffer, buffer + 3);
     swap(buffer + 1, buffer + 2);
@@ -90,7 +90,7 @@ float vtkSegYIOUtils::readFloat(std::ifstream& in)
   char buffer[4];
   in.read(buffer, sizeof(buffer));
 
-  if (!isBigEndian)
+  if (!this->IsBigEndian)
   {
     swap(buffer, buffer + 3);
     swap(buffer + 1, buffer + 2);
@@ -107,7 +107,7 @@ float vtkSegYIOUtils::readIBMFloat(std::ifstream& in)
   char buffer[4];
   in.read(buffer, sizeof(buffer));
 
-  if (!isBigEndian)
+  if (!this->IsBigEndian)
   {
     swap(buffer, buffer + 3);
     swap(buffer + 1, buffer + 2);
