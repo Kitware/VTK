@@ -7,7 +7,7 @@ shopt -s dotglob
 readonly name="doubleconversion"
 readonly ownership="double-conversion Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
-readonly repo="https://gitlab.kitware.com/utkarsh.ayachit/double-conversion.git"
+readonly repo="https://gitlab.kitware.com/third-party/double-conversion.git"
 readonly tag="for/vtk"
 readonly paths="
 AUTHORS
