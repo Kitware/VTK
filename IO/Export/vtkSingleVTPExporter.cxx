@@ -495,7 +495,7 @@ void vtkSingleVTPExporter::WriteVTP(
         case 1:
           for (int j = 0; j < inpts; ++j)
           {
-            double *tmp = itc->GetTuple(j);
+            double *tmp = is->GetTuple(j);
             oscalars->InsertNextTuple4(
               col[0]*tmp[0],
               col[1]*tmp[0],
@@ -506,7 +506,7 @@ void vtkSingleVTPExporter::WriteVTP(
         case 2:
           for (int j = 0; j < inpts; ++j)
           {
-            double *tmp = itc->GetTuple(j);
+            double *tmp = is->GetTuple(j);
             oscalars->InsertNextTuple4(
               col[0]*tmp[0],
               col[1]*tmp[0],
@@ -517,7 +517,7 @@ void vtkSingleVTPExporter::WriteVTP(
         case 3:
           for (int j = 0; j < inpts; ++j)
           {
-            double *tmp = itc->GetTuple(j);
+            double *tmp = is->GetTuple(j);
             oscalars->InsertNextTuple4(
               col[0]*tmp[0],
               col[1]*tmp[1],
@@ -528,7 +528,7 @@ void vtkSingleVTPExporter::WriteVTP(
         case 4:
           for (int j = 0; j < inpts; ++j)
           {
-            double *tmp = itc->GetTuple(j);
+            double *tmp = is->GetTuple(j);
             oscalars->InsertNextTuple4(
               col[0]*tmp[0],
               col[1]*tmp[1],
