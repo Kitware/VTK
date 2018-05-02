@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include "vtkExtractSelection2.h"
+#include "vtkExtractSelection.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkNew.h"
@@ -45,7 +45,7 @@ int TestExtractRows(int argc, char* argv[])
     table->AddColumn(col);
   }
 
-  vtkNew<vtkExtractSelection2> extractionFilter;
+  vtkNew<vtkExtractSelection> extractionFilter;
   extractionFilter->PreserveTopologyOff();
   vtkNew<vtkSelection> selection;
   vtkNew<vtkSelectionNode> node;

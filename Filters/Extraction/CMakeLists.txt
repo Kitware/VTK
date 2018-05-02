@@ -19,7 +19,6 @@ set(Module_SRCS
   vtkExtractSelectedRows.cxx
   vtkExtractSelectedThresholds.cxx
   vtkExtractSelection.cxx
-  vtkExtractSelection2.cxx
   vtkExtractTemporalFieldData.cxx
   vtkExtractTensorComponents.cxx
   vtkExtractTimeSteps.cxx
@@ -36,7 +35,8 @@ set(Module_SRCS
 
 if (NOT VTK_LEGACY_REMOVE)
   list(APPEND Module_SRCS
-    vtkExtractArraysOverTime.cxx)
+    vtkExtractArraysOverTime.cxx
+    vtkExtractSelectionLegacy.cxx)
 endif()
 
 vtk_module_library(vtkFiltersExtraction ${Module_SRCS})

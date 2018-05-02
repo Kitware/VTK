@@ -7,7 +7,7 @@
 #include <vtkCellData.h>
 #include <vtkDataSetMapper.h>
 #include <vtkDoubleArray.h>
-#include <vtkExtractSelection2.h>
+#include <vtkExtractSelection.h>
 #include <vtkIdList.h>
 #include <vtkIdTypeArray.h>
 #include <vtkImageData.h>
@@ -275,7 +275,7 @@ int TestExtractionExpression(int argc, char *argv[])
   selection->AddNode(sel4);
   selection->AddNode(sel5);
 
-  vtkNew<vtkExtractSelection2> ext;
+  vtkNew<vtkExtractSelection> ext;
   ext->SetInputData(0, sampleData);
   ext->SetInputData(1, selection);
   ext->PreserveTopologyOff();
