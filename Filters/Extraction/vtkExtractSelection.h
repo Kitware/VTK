@@ -19,13 +19,11 @@
  * vtkExtractSelection extracts some subset of cells and points from
  * its input dataset. The dataset is given on its first input port.
  * The subset is described by the contents of the vtkSelection on its
- * second input port. Depending on the content of the vtkSelection,
- * this will use either a vtkExtractSelectedIds, vtkExtractSelectedFrustum
- * vtkExtractSelectedLocations or a vtkExtractSelectedThreshold to perform
- * the extraction.
+ * second input port.  Depending on the contents of the vtkSelection
+ * this will create various vtkSelectionOperators to identify the
+ * selected elements.
  * @sa
- * vtkSelection vtkExtractSelectedIds vtkExtractSelectedFrustum
- * vtkExtractSelectedLocations vtkExtractSelectedThresholds
+ * vtkSelection vtkSelectionOperator vtkSelectionNode
 */
 
 #ifndef vtkExtractSelection_h
@@ -62,9 +60,9 @@ public:
 
   //@{
   /**
-   * This flag tells the extraction filter not to convert the selected
-   * output into an unstructured grid, but instead to produce a vtkInsidedness
-   * array and add it to the input dataset. Default value is false(0).
+   * This flag tells the extraction filter not to extract a subset of the
+   * data, but instead to produce a vtkInsidedness array and add it to the
+   * input dataset. Default value is false(0).
    */
   vtkSetMacro(PreserveTopology, bool);
   vtkGetMacro(PreserveTopology, bool);
@@ -125,20 +123,40 @@ protected:
   virtual vtkSmartPointer<vtkSelectionOperator> NewSelectionOperator(
     vtkSelectionNode::SelectionContent type);
 
+  /**
+   * Given a non-composite input data object (either a block of a larger composite
+   * or the whole input), along with the element type being extracted and the
+   * computed insidedness array this method either copies the input and adds the
+   * insidedness array (if PreserveTopology is on) or returns a new data object
+   * containing only the elements to be extracted.
+   */
   vtkSmartPointer<vtkDataObject> ExtractElements(vtkDataObject* block,
     vtkDataObject::AttributeTypes elementType, vtkSignedCharArray* insidednessArray);
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
+  /**
+   * Given a vtkDataSet and an array of which cells to extract, this populates
+   * the given vtkUnstruturedGrid with the selected cells.
+   */
   void ExtractSelectedCells(vtkDataSet* input,
                             vtkUnstructuredGrid* output,
                             vtkSignedCharArray* cellInside);
+  /**
+   * Given a vtkDataSet and an array of which points to extract, the populates
+   * the given vtkUnstructuredGrid with the selected points and a cell of type vertex
+   * for each point.
+   */
   void ExtractSelectedPoints(vtkDataSet* input,
                              vtkUnstructuredGrid* output,
                              vtkSignedCharArray* pointInside);
-void ExtractSelectedRows(vtkTable* input,
-                         vtkTable* output,
-                         vtkSignedCharArray* rowsInside);
+  /**
+   * Given an input vtkTable and an array of which rows to extract, this populates
+   * the output table with the selected rows.
+   */
+  void ExtractSelectedRows(vtkTable* input,
+                           vtkTable* output,
+                           vtkSignedCharArray* rowsInside);
 
   bool PreserveTopology;
 

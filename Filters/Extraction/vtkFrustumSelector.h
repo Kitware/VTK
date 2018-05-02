@@ -14,7 +14,10 @@
 =========================================================================*/
 /**
  * @class   vtkFrustumSelector.h
- * @brief   Computes the portion of a dataset which lies within a selection frustum
+ *
+ * vtkFrustumSelector is a vtkSelectionOperator that selects elements based
+ * on whether they are inside or intersect a frustum of interest.  This handles
+ * the vtkSelectionNode::FRUSTUM selection type.
  *
  */
 
@@ -66,7 +69,15 @@ public:
 
   bool ComputeSelectedElements(vtkDataObject* input, vtkSignedCharArray* elementInside) override;
 
+  /**
+   * Computes which points in the dataset are inside the frustum and populates the pointsInside
+   * array with 1 for inside and 0 for outside.
+   */
   void ComputeSelectedPoints(vtkDataSet* input, vtkSignedCharArray* pointsInside);
+  /**
+   * Computes which cells in the dataset are inside or intersect the frustum and populates
+   * the cellsInside array with 1 for inside/intersecting and 0 for outside.
+   */
   void ComputeSelectedCells(vtkDataSet* input, vtkSignedCharArray* cellsInside);
 
   int OverallBoundsTest(double bounds[6]);
