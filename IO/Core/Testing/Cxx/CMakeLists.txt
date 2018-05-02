@@ -6,5 +6,6 @@ vtk_add_test_cxx(vtkIOCoreCxxTests tests
   TestCompressLZ4.cxx
   TestCompressZLib.cxx
   TestCompressLZMA.cxx
+  TestNumberToString.cxx
   )
 vtk_test_cxx_executable(vtkIOCoreCxxTests tests)

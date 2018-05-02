@@ -54,12 +54,12 @@
 #define vtkXMLDataHeaderPrivate_DoNotInclude
 #include "vtkXMLDataHeaderPrivate.h"
 #undef vtkXMLDataHeaderPrivate_DoNotInclude
+#include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
+#include "vtkInformationStringKey.h"
+#include "vtkNumberToString.h"
+#include "vtkQuadratureSchemeDefinition.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLReaderVersion.h"
-#include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
-#include "vtkQuadratureSchemeDefinition.h"
-#include "vtkInformationStringKey.h"
-
 #include <memory>
 
 #include <cassert>
@@ -1857,13 +1857,14 @@ template <class T>
 int vtkXMLWriterWriteVectorAttribute(ostream& os, const char* name,
                                      int length, T* data)
 {
+  vtkNumberToString convert;
   os << " " << name << "=\"";
   if (length)
   {
-    os << data[0];
+    os << convert(data[0]);
     for (int i = 1; i < length; ++i)
     {
-      os << " " << data[i];
+      os << " " << convert(data[i]);
     }
   }
   os << "\"";
@@ -2169,7 +2170,8 @@ bool vtkXMLWriter::WriteInformation(vtkInformation *info, vtkIndent indent)
 template <class T>
 inline ostream& vtkXMLWriteAsciiValue(ostream& os, const T& value)
 {
-  os << value;
+  vtkNumberToString convert;
+  os << convert(value);
   return os;
 }
 

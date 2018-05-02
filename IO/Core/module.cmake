@@ -16,4 +16,5 @@ vtk_module(vtkIOCore
     vtksys
     vtkutf8
     vtkzlib
+    vtkdoubleconversion
   )
