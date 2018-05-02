@@ -92,6 +92,11 @@ bool vtkGDALRasterReprojection::SuggestOutputDimensions(GDALDataset* dataset,
                                        geoTransform,
                                        nPixels,
                                        nLines);
+  if (err == CE_Failure)
+  {
+    vtkErrorMacro(<< "GDALSuggestedWarpOutput failed with message: "
+                  << CPLGetLastErrorMsg());
+  }
   GDALDestroyGenImgProjTransformer(transformer);
   // std::cout << "Output image: " << *nPixels << " by " << *nLines <<
   // std::endl;
@@ -172,6 +177,12 @@ bool vtkGDALRasterReprojection::Reproject(GDALDataset* input,
                                   progressFcn,
                                   progressArg,
                                   warpOptions);
+  if (err == CE_Failure)
+  {
+    vtkErrorMacro(<< "GDALReprojectImage failed with message: "
+                  << CPLGetLastErrorMsg());
+    return false;
+  }
   // std::cout << "warp returned: " << err << std::endl;
 
   return true;

@@ -115,6 +115,12 @@ void vtkGDALRasterConverter::vtkGDALRasterConverterInternal::CopyToVTK(
     GDALDataType gdalDataType = band->GetRasterDataType();
     CPLErr err = band->RasterIO(
       GF_Read, 0, 0, xSize, ySize, buffer, xSize, ySize, gdalDataType, 0, 0);
+    if (err == CE_Failure)
+    {
+      std::cerr << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n"
+                << CPLGetLastErrorMsg() << std::endl;
+      return;
+    }
 
     int hasNoDataValue = 0;
     double noDataValue = band->GetNoDataValue(&hasNoDataValue);
@@ -212,6 +218,12 @@ void vtkGDALRasterConverter::vtkGDALRasterConverterInternal::FindDataRange(
   GDALDataType gdalDataType = band->GetRasterDataType();
   CPLErr err = band->RasterIO(
     GF_Read, 0, 0, xSize, ySize, buffer, xSize, ySize, gdalDataType, 0, 0);
+  if (err == CE_Failure)
+  {
+    std::cerr << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n"
+              << CPLGetLastErrorMsg() << std::endl;
+    return;
+  }
 
   *minValue = VTK_DOUBLE_MAX;
   *maxValue = VTK_DOUBLE_MIN;
@@ -310,8 +322,9 @@ void StaticCopyToGDAL(Iterator begin,
       GF_Write, 0, 0, xSize, ySize, buffer, xSize, ySize, gdalDataType, 0, 0);
     if (err == CE_Failure)
     {
-      std::cerr << "ERROR writing to GDALDataSet: " <<
-        CPLGetLastErrorMsg() << std::endl;
+      std::cerr << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n"
+                << CPLGetLastErrorMsg() << std::endl;
+      return;
     }
   }
 
