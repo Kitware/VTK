@@ -1,3 +1,6 @@
+set(TestAxes2_ARGS
+  -E 0
+  )
 set(TestChartUnicode_ARGS
   DATA{../Data/Fonts/DejaVuSans.ttf}
   -E 25
@@ -42,6 +45,7 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestControlPointsItemEvents.cxx,NO_DATA,NO_VALID
   TestAreaPlot.cxx
   TestAxes.cxx
+  TestAxes2.cxx
   TestBagPlot.cxx
   TestBarGraph.cxx
   TestBarGraphHorizontal.cxx
