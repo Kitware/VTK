@@ -362,6 +362,9 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   # which matches ctests regex as well
   "bootstrap class path not set in conjunction with -source"
   "1 warning"
+
+  # 3-rd party warnings from double-conversion
+  "vtkdoubleconversion.*unused function"
   )
 
 IF(APPLE)
