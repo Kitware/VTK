@@ -110,7 +110,7 @@ public:
    * Specify if we create a vtkStructuredGrid even when the data is
    * 3D. Note this consumes more memory but it shows the precise
    * location for each point and the correct shape of the data. The
-   * default value is true.  If we set this option to false we we
+   * default value is true.  If we set this option to false we
    * create a vtkImageData for the SegY 3D dataset.
    */
   vtkSetMacro(StructuredGrid, int);
