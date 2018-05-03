@@ -57,7 +57,12 @@ vtkPythonAlgorithm::vtkPythonAlgorithm()
 
 vtkPythonAlgorithm::~vtkPythonAlgorithm()
 {
-  Py_XDECREF(this->Object);
+  // we check if Python is still initialized since the Python interpreter may
+  // have been finalized before the VTK object is released.
+  if (Py_IsInitialized())
+  {
+    Py_XDECREF(this->Object);
+  }
 }
 
 // This macro gets the method passed in as the parameter method
