@@ -95,19 +95,8 @@ bool vtkSegYReaderInternal::ReadHeader()
     this->BinaryHeaderBytesPos->SampleInterval, this->In);
   this->FormatCode = vtkSegYIOUtils::Instance()->readShortInteger(
     this->BinaryHeaderBytesPos->FormatCode, this->In);
-  this->In.seekg(this->BinaryHeaderBytesPos->MajorVersion, this->In.beg);
-  unsigned char majorVersion = vtkSegYIOUtils::Instance()->readUChar(this->In);
-  unsigned char minorVersion = vtkSegYIOUtils::Instance()->readUChar(this->In);
   this->SampleCountPerTrace = vtkSegYIOUtils::Instance()->readShortInteger(
     this->BinaryHeaderBytesPos->NumSamplesPerTrace, this->In);
-  short tracesPerEnsemble = vtkSegYIOUtils::Instance()->readShortInteger(
-    this->BinaryHeaderBytesPos->NumberTracesPerEnsemble, this->In);
-  short ensembleType = vtkSegYIOUtils::Instance()->readShortInteger(
-    this->BinaryHeaderBytesPos->EnsembleType, this->In);
-  short measurementSystem = vtkSegYIOUtils::Instance()->readShortInteger(
-    this->BinaryHeaderBytesPos->MeasurementSystem, this->In);
-  int byteOrderingDetection = vtkSegYIOUtils::Instance()->readLongInteger(
-    this->BinaryHeaderBytesPos->ByteOrderingDetection, this->In);
   return true;
 }
 
@@ -118,7 +107,7 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
   this->ReadHeader();
   int traceStartPos = FIRST_TRACE_START_POS;
   int fileSize = vtkSegYIOUtils::Instance()->getFileSize(this->In);
-  int crosslineFirst, crosslineSecond, inlineFirst, inlineSecond,
+  int crosslineFirst, crosslineSecond, inlineFirst,
     inlineNumber, crosslineNumber;
   double coordFirst[3], coordSecondX[3], coordSecondY[3], d[3];
   int xCoord, yCoord;
@@ -178,7 +167,6 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
     // this is a 2D dataset
     return false;
   }
-  inlineSecond = inlineNumber;
   double coordinateMultiplier = decodeMultiplier(coordMultiplier);
   coordSecondY[0] = coordinateMultiplier * xCoord;
   coordSecondY[1] = coordinateMultiplier * yCoord;
