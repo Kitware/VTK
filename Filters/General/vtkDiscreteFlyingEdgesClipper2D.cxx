@@ -1037,7 +1037,7 @@ ClassifyYEdges(T* inPtr0, vtkIdType row)
 
     // advance the pointers along pixel rows
     dPtr0++; dPtr0x++; dPtr1++; dPtr1x++;
-    inPtr0++; inPtr0x++; inPtr1++; inPtr1x++;
+    inPtr0x++; inPtr1x++;
   }//for all pixels along this x-edge
 }
 
