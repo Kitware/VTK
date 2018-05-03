@@ -15,14 +15,13 @@
 #include "vtkInteractorStyleRubberBandZoom.h"
 
 #include "vtkCamera.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVectorOperators.h"
-
-#include <algorithm>
 
 namespace impl
 {
@@ -138,15 +137,15 @@ void vtkInteractorStyleRubberBandZoom::OnMouseMove()
 
   unsigned char *pixels = tmpPixelArray->GetPointer(0);
 
-  int minX = std::min(startPosition[0], endPosition[0]);
-  int minY = std::min(startPosition[1], endPosition[1]);
-  int maxX = std::max(startPosition[0], endPosition[0]);
-  int maxY = std::max(startPosition[1], endPosition[1]);
+  int minX = vtkMath::Min(startPosition[0], endPosition[0]);
+  int minY = vtkMath::Min(startPosition[1], endPosition[1]);
+  int maxX = vtkMath::Max(startPosition[0], endPosition[0]);
+  int maxY = vtkMath::Max(startPosition[1], endPosition[1]);
 
-  int clampedMinX = std::max(minX, 0);
-  int clampedMaxX = std::min(maxX, size[0]-1);
-  int clampedMinY = std::max(minY, 0);
-  int clampedMaxY = std::min(maxY, size[1]-1);
+  int clampedMinX = vtkMath::Max(minX, 0);
+  int clampedMaxX = vtkMath::Min(maxX, size[0]-1);
+  int clampedMinY = vtkMath::Max(minY, 0);
+  int clampedMaxY = vtkMath::Min(maxY, size[1]-1);
 
   // Draw zoom box
   // Draw bottom horizontal line
