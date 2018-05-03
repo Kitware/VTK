@@ -241,7 +241,7 @@ int vtkRasterReprojectionFilter::RequestData(
 int vtkRasterReprojectionFilter::RequestUpdateExtent(
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformationVector* vtkNotUsed(outputVector))
 {
   // Set input extent to values saved in last RequestInformation() call
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
