@@ -115,49 +115,28 @@ int vtkmExternalFaces::RequestData(vtkInformation* vtkNotUsed(request),
   vtkUnstructuredGrid* output =
     vtkUnstructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  // convert the input dataset to a vtkm::cont::DataSet
-  vtkm::cont::DataSet in = tovtkm::Convert(input,
-                                           tovtkm::FieldsFlag::PointsAndCells);
-  if (in.GetNumberOfCoordinateSystems() <= 0 || in.GetNumberOfCellSets() <= 0)
+  try
   {
-    vtkErrorMacro(<< "Could not convert vtk dataset to vtkm dataset");
-    return 0;
-  }
+    // convert the input dataset to a vtkm::cont::DataSet
+    auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
 
-  vtkmInputFilterPolicy policy;
+    // apply the filter
+    vtkmInputFilterPolicy policy;
+    vtkm::filter::ExternalFaces filter;
+    filter.SetCompactPoints(this->CompactPoints);
+    filter.SetPassPolyData(true);
+    auto result = filter.Execute(in, policy);
 
-  // apply the filter
-  vtkm::filter::ExternalFaces filter;
-  filter.SetCompactPoints(this->CompactPoints);
-  filter.SetPassPolyData(true);
-  vtkm::filter::Result result = filter.Execute(in, policy);
-  if (!result.IsDataSetValid())
-  {
-    vtkErrorMacro(<< "VTKm ExternalFaces algorithm failed to run");
-    return 0;
-  }
-
-  // map fields
-  vtkm::Id numFields = static_cast<vtkm::Id>(in.GetNumberOfFields());
-  for (vtkm::Id fieldIdx = 0; fieldIdx < numFields; ++fieldIdx)
-  {
-    const vtkm::cont::Field& field = in.GetField(fieldIdx);
-    try
+    // convert back to vtkDataSet (vtkUnstructuredGrid)
+    if (!fromvtkm::Convert(result, output, input))
     {
-      filter.MapFieldOntoOutput(result, field, policy);
-    }
-    catch (vtkm::cont::Error& e)
-    {
-      vtkWarningMacro(<< "Unable to use VTKm to convert field( "
-                      << field.GetName() << " ) to the ExternalFaces"
-                      << " output: " << e.what());
+      vtkErrorMacro(<< "Unable to convert VTKm DataSet back to VTK");
+      return 0;
     }
   }
-
-  // convert back to vtkDataSet (vtkUnstructuredGrid)
-  if (!fromvtkm::Convert(result.GetDataSet(), output, input))
+  catch (const vtkm::cont::Error& e)
   {
-    vtkErrorMacro(<< "Unable to convert VTKm DataSet back to VTK");
+    vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
     return 0;
   }
 

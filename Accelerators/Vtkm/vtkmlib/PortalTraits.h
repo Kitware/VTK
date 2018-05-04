@@ -31,7 +31,7 @@ struct vtkPortalTraits
 {
   using ComponentType = typename std::remove_const<T>::type;
   using Type = ComponentType;
-  static VTKM_CONSTEXPR vtkm::IdComponent NUM_COMPONENTS =  1;
+  static constexpr vtkm::IdComponent NUM_COMPONENTS =  1;
 
   static inline
   void SetComponent(Type& t, vtkm::IdComponent, const ComponentType& v)
@@ -49,7 +49,7 @@ struct vtkPortalTraits< vtkm::Vec<T,N> >
 {
   using ComponentType = typename std::remove_const<T>::type;
   using Type = vtkm::Vec<T,N>;
-  static VTKM_CONSTEXPR vtkm::IdComponent NUM_COMPONENTS =  N;
+  static constexpr vtkm::IdComponent NUM_COMPONENTS =  N;
 
   static inline
   void SetComponent(Type& t, vtkm::IdComponent i, const ComponentType& v)
@@ -71,7 +71,7 @@ struct vtkPortalTraits< const vtkm::Vec<T,N> >
 {
   using ComponentType = typename std::remove_const<T>::type;
   using Type = vtkm::Vec<T,N>;
-  static VTKM_CONSTEXPR vtkm::IdComponent NUM_COMPONENTS =  N;
+  static constexpr vtkm::IdComponent NUM_COMPONENTS =  N;
 
   static inline
   void SetComponent(Type& t, vtkm::IdComponent i, const ComponentType& v)
@@ -93,7 +93,7 @@ struct vtkPortalTraits<vtkm::Vec< vtkm::Vec<T,N>, M> >
 {
   using ComponentType = typename std::remove_const<T>::type;
   using Type = vtkm::Vec< vtkm::Vec<T,N>, M>;
-  static VTKM_CONSTEXPR vtkm::IdComponent NUM_COMPONENTS =  N*M;
+  static constexpr vtkm::IdComponent NUM_COMPONENTS =  N*M;
 
   static inline
   void SetComponent(Type& t, vtkm::IdComponent i, const ComponentType& v)
@@ -119,7 +119,7 @@ struct vtkPortalTraits< const vtkm::Vec< vtkm::Vec<T,N>, M> >
 {
   using ComponentType = typename std::remove_const<T>::type;
   using Type = vtkm::Vec< vtkm::Vec<T,N>, M>;
-  static VTKM_CONSTEXPR vtkm::IdComponent NUM_COMPONENTS =  N*M;
+  static constexpr vtkm::IdComponent NUM_COMPONENTS =  N*M;
 
   static inline
   void SetComponent(Type& t, vtkm::IdComponent i, const ComponentType& v)

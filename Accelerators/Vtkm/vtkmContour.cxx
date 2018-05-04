@@ -67,106 +67,77 @@ int vtkmContour::RequestData(vtkInformation* request,
   vtkPolyData* output =
       vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  // Find the scalar array:
+  int association = this->GetInputArrayAssociation(0, inputVector);
+  vtkDataArray *inputArray = this->GetInputArrayToProcess(0, inputVector);
+  if (association != vtkDataObject::FIELD_ASSOCIATION_POINTS ||
+      inputArray == nullptr || inputArray->GetName() == nullptr ||
+      inputArray->GetName()[0] == '\0')
+  {
+    vtkErrorMacro("Invalid scalar array; array missing or not a point array.");
+    return 0;
+  }
+
   const int numContours = this->GetNumberOfContours();
   if(numContours == 0)
   {
     return 1;
   }
 
-  vtkm::filter::MarchingCubes filter;
-
-  // set local variables
-  filter.SetGenerateNormals(this->GetComputeNormals() != 0);
-
-  filter.SetNumberOfIsoValues(numContours);
-  for(int i = 0; i < numContours; ++i)
+  try
   {
-    filter.SetIsoValue(i, this->GetValue(i));
-  }
+    vtkm::filter::MarchingCubes filter;
+    filter.SetActiveField(inputArray->GetName(), vtkm::cont::Field::ASSOC_POINTS);
+    filter.SetGenerateNormals(this->GetComputeNormals() != 0);
+    filter.SetNumberOfIsoValues(numContours);
+    for(int i = 0; i < numContours; ++i)
+    {
+      filter.SetIsoValue(i, this->GetValue(i));
+    }
 
-  // convert the input dataset to a vtkm::cont::DataSet
-  vtkm::cont::DataSet in;
-  if (this->ComputeScalars)
-  {
-    in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
-  }
-  else
-  {
-    in = tovtkm::Convert(input, tovtkm::FieldsFlag::None);
-  }
+    // convert the input dataset to a vtkm::cont::DataSet
+    vtkm::cont::DataSet in;
+    if (this->ComputeScalars)
+    {
+      in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
+    }
+    else
+    {
+      in = tovtkm::Convert(input, tovtkm::FieldsFlag::None);
+      // explicitly convert just the field we need
+      auto inField = tovtkm::Convert(inputArray, association);
+      in.AddField(inField);
+      // don't pass this field
+      filter.SetFieldsToPass(
+        vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::MODE_NONE));
+    }
 
-  // we need to map the given property to the data set
-  int association = this->GetInputArrayAssociation(0, inputVector);
-  vtkDataArray* inputArray = this->GetInputArrayToProcess(0, inputVector);
-  vtkm::cont::Field inField = tovtkm::Convert(inputArray, association);
-
-  const bool dataSetValid =
-      in.GetNumberOfCoordinateSystems() > 0 && in.GetNumberOfCellSets() > 0;
-  const bool fieldValid =
-      (inField.GetAssociation() != vtkm::cont::Field::ASSOC_ANY) &&
-      (inField.GetName() != std::string());
-
-
-  if (!dataSetValid)
-  {
-    vtkWarningMacro(<< "Will not be able to use VTKm dataset type is unknown");
-  }
-  if (!fieldValid)
-  {
-    vtkWarningMacro(<< "Will not be able to use VTKm field type is unknown");
-  }
-
-  vtkm::filter::Result result;
-  bool convertedDataSet = false;
-  if (dataSetValid && fieldValid)
-  {
+    vtkm::cont::DataSet result;
     vtkmInputFilterPolicy policy;
-    result = filter.Execute(in, inField, policy);
-
-    if (!result.IsDataSetValid())
-    {
-      vtkWarningMacro(<< "VTKm contour algorithm was failed to run. \n"
-                      << "Falling back to serial implementation.");
-      return this->Superclass::RequestData(request, inputVector, outputVector);
-    }
-
-    vtkm::Id numFields = static_cast<vtkm::Id>(in.GetNumberOfFields());
-    for (vtkm::Id fieldIdx = 0; fieldIdx < numFields; ++fieldIdx)
-    {
-      const vtkm::cont::Field &field = in.GetField(fieldIdx);
-      try
-      {
-        filter.MapFieldOntoOutput(result, field, policy);
-      }
-      catch (vtkm::cont::Error &e)
-      {
-        vtkWarningMacro(<< "Unable to use VTKm to convert field( "
-                        << field.GetName() << " ) to the MarchingCubes"
-                        << " output: " << e.what());
-      }
-    }
+    result = filter.Execute(in, policy);
 
     // convert back the dataset to VTK
-    convertedDataSet = fromvtkm::Convert(result.GetDataSet(), output, input);
-
-    if (!convertedDataSet)
+    if (!fromvtkm::Convert(result, output, input))
     {
       vtkWarningMacro(<< "Unable to convert VTKm DataSet back to VTK.\n"
                       << "Falling back to serial implementation.");
       return this->Superclass::RequestData(request, inputVector, outputVector);
     }
 
+    if (this->ComputeScalars)
+    {
+      output->GetPointData()->SetActiveScalars(inputArray->GetName());
+    }
+    if (this->ComputeNormals)
+    {
+      output->GetPointData()->SetActiveAttribute(
+            filter.GetNormalArrayName().c_str(), vtkDataSetAttributes::NORMALS);
+    }
   }
-
-  if (this->ComputeScalars)
+  catch (const vtkm::cont::Error& e)
   {
-    output->GetPointData()->SetActiveScalars(inputArray->GetName());
-  }
-
-  if (this->ComputeNormals)
-  {
-    output->GetPointData()->SetActiveAttribute(
-          filter.GetNormalArrayName().c_str(), vtkDataSetAttributes::NORMALS);
+    vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+    return 0;
   }
 
   // we got this far, everything is good
