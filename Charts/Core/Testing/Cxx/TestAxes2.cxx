@@ -23,6 +23,7 @@
 #include "vtkStringArray.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkTextProperty.h"
 
 #include <vector>
 
@@ -33,28 +34,28 @@ int TestAxes2(int , char * [])
 
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
-  view->GetRenderWindow()->SetSize(100, 100);
+  view->GetRenderWindow()->SetSize(200, 200);
 
   vtkNew<vtkAxis> axisVertical;
 
   int i =0;
   axisVertical->LogScaleOn();
-  axisVertical->SetPoint1(vtkVector2f(90, 8));
-  axisVertical->SetPoint2(vtkVector2f(90, 92));
+  axisVertical->SetPoint1(vtkVector2f(180, 16));
+  axisVertical->SetPoint2(vtkVector2f(180, 184));
   axisVertical->SetPosition(vtkAxis::LEFT);
 
   // Exercise some of the API in the axis API.
 
   axisVertical->SetNotation(vtkAxis::SCIENTIFIC_NOTATION);
   axisVertical->SetPosition(vtkAxis::LEFT);
-  axisVertical->SetPrecision(6);
+  axisVertical->SetPrecision(0);
   axisVertical->SetRange(0.1, 1000000.);
   axisVertical->SetRangeLabelsVisible(true);
-  // axisVertical->SetRangeLabelFormat("%3.1f");
+  axisVertical->GetLabelProperties()->SetFontSize(24);
 
   view->GetScene()->AddItem(axisVertical);
 
-    axisVertical->Update();
+  axisVertical->Update();
 
 
   // Let's create a few axes, and place them on the scene.

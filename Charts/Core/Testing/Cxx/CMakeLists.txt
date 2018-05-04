@@ -1,6 +1,3 @@
-set(TestAxes2_ARGS
-  -E 0
-  )
 set(TestChartUnicode_ARGS
   DATA{../Data/Fonts/DejaVuSans.ttf}
   -E 25
