@@ -211,7 +211,6 @@ vtkSmartPointer<vtkDataObject> vtkExtractSelectedArraysOverTime::Extract(
     return input;
   }
   filter->SetPreserveTopology(0);
-  filter->SetUseProbeForLocations(1);
   filter->SetInputData(0, input);
   filter->SetInputData(1, selInput);
 

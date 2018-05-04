@@ -24,14 +24,19 @@ set(Module_SRCS
   vtkExtractTimeSteps.cxx
   vtkExtractUnstructuredGrid.cxx
   vtkExtractVectorComponents.cxx
+  vtkFrustumSelector.cxx
   vtkHierarchicalDataExtractDataSets.cxx
   vtkHierarchicalDataExtractLevel.cxx
   vtkProbeSelectedLocations.cxx
+  vtkSelectionOperator.cxx
+  vtkValueSelector.cxx
+  vtkLocationSelector.cxx
   )
 
 if (NOT VTK_LEGACY_REMOVE)
   list(APPEND Module_SRCS
-    vtkExtractArraysOverTime.cxx)
+    vtkExtractArraysOverTime.cxx
+    vtkExtractSelectionLegacy.cxx)
 endif()
 
 vtk_module_library(vtkFiltersExtraction ${Module_SRCS})
