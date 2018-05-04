@@ -291,6 +291,16 @@ public:
 
   //@{
   /**
+   * If true, data of the internal mesh are copied to the cell zones.
+   * Default is false.
+   */
+  vtkGetMacro(CopyDataToCellZones, bool)
+  vtkSetMacro(CopyDataToCellZones, bool)
+  vtkBooleanMacro(CopyDataToCellZones, bool)
+  //@}
+
+  //@{
+  /**
    * If true, floats are expected to be 64-bit, rather than 32. Note that
    * vtkFloatArrays may still be used in the output if this is true. This flag
    * is only used to ensure that binary data is correctly parsed.
@@ -345,6 +355,9 @@ protected:
   // Note that vtkFloatArrays may still be used -- this just tells the reader how to
   // parse the binary data.
   bool Use64BitFloats;
+
+  // The data of internal mesh are copied to cell zones
+  bool CopyDataToCellZones;
 
   char *FileName;
   vtkCharArray *CasePath;
