@@ -96,7 +96,7 @@ public:
    * sequence with a seed.
    */
   void Initialize(vtkTypeUInt32 seed) override
-  {this->InitializeNewSequence(seed);}
+  {this->InitializeSequence(0,seed);}
 
   /**
    * Initialize a new Mersenne Twister sequence, given a) a <seed> and b) a

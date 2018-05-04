@@ -14,8 +14,10 @@
 #include "vtkRandomPool.h"
 #include "vtkDataArray.h"
 #include "vtkMersenneTwister.h"
+#include "vtkMinimalStandardRandomSequence.h"
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
+#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkSMPTools.h"
 
@@ -125,7 +127,7 @@ struct PopulateDAComponent
 // ----------------------------------------------------------------------------
 vtkRandomPool::vtkRandomPool()
 {
-  this->Sequence = vtkMersenneTwister::New();
+  this->Sequence = vtkMinimalStandardRandomSequence::New();
   this->Size = 0;
   this->NumberOfComponents = 1;
   this->ChunkSize = 10000;
@@ -236,6 +238,7 @@ struct vtkRandomPoolInfo
     {
       this->Sequencer[i] = ranSeq->NewInstance();
       assert(this->Sequencer[i] != nullptr);
+      this->Sequencer[i]->Initialize(static_cast<vtkTypeUInt32>(i));
     }
   }
 
