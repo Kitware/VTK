@@ -144,7 +144,7 @@ vtkExtractEnclosedPoints::vtkExtractEnclosedPoints()
   this->SetNumberOfInputPorts(2);
 
   this->CheckSurface = false;
-  this->Tolerance = 0.0001;
+  this->Tolerance = 0.001;
 }
 
 //----------------------------------------------------------------------------

@@ -351,6 +351,17 @@ IsInsideSurface(double x[3], vtkPolyData *surface, double bds[6],
     return 0;
   }
 
+  // Shortly we are going to start firing rays. It's important that the rays
+  // are long enough to go from the test point all the way through the
+  // enclosing surface. So compute a vector from the test point to the center
+  // of the surface, and then add in the length (diagonal of bounding box) of
+  // the surface.
+  double offset[3], totalLength;
+  offset[0] = x[0] - ((bds[0]+bds[1]) / 2.0);
+  offset[1] = x[1] - ((bds[2]+bds[3]) / 2.0);
+  offset[2] = x[2] - ((bds[4]+bds[5]) / 2.0);
+  totalLength = length + vtkMath::Norm(offset);
+
   //  Perform in/out by shooting random rays. Multiple rays are fired
   //  to improve accuracy of the result.
   //
@@ -368,7 +379,6 @@ IsInsideSurface(double x[3], vtkPolyData *surface, double bds[6],
   int i, numInts, iterNumber, deltaVotes, subId;
   vtkIdType idx, numCells;
   double tol = tolerance * length;
-  //  IntersectionCounter counter(tol, length);
 
   for (deltaVotes = 0, iterNumber = 1;
        (iterNumber < VTK_MAX_ITER) && (abs(deltaVotes) < VTK_VOTE_THRESHOLD);
@@ -399,7 +409,7 @@ IsInsideSurface(double x[3], vtkPolyData *surface, double bds[6],
     // be long enough.)
     for (i=0; i<3; i++)
     {
-      xray[i] = x[i] + (length/rayMag)*ray[i];
+      xray[i] = x[i] + 2.0*totalLength*(ray[i]/rayMag);
     }
 
     // Retrieve the candidate cells from the locator to limit the
