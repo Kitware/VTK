@@ -70,16 +70,16 @@ public:
   //@}
 
 
-#ifndef VTK_LEGACY_REMOVE
   //@{
   /**
    * These functions is provided for compile-time compatibility with the old
    * vtkExtractSelection which is now renamed to vtkExtractSelectionLegacy and deprecated.
    * These functions do not have any effect on the behavior or vtkExtractSelection.
    */
-  VTK_LEGACY(void SetShowBounds(vtkTypeBool));
-  VTK_LEGACY(vtkTypeBool GetShowBounds());
-  VTK_LEGACY(vtkBooleanMacro(ShowBounds,vtkTypeBool));
+  VTK_LEGACY(void SetShowBounds(bool));
+  VTK_LEGACY(bool GetShowBounds());
+  VTK_LEGACY(void ShowBoundsOn());
+  VTK_LEGACY(void ShowBoundsOff());
   //@}
 
   //@{
@@ -88,11 +88,11 @@ public:
    * vtkExtractSelection which is now renamed to vtkExtractSelectionLegacy and deprecated.
    * These functions do not have any effect on the behavior or vtkExtractSelection.
    */
-  VTK_LEGACY(void SetUseProbeForLocations(vtkTypeBool));
-  VTK_LEGACY(vtkTypeBool GetUseProbeForLocations());
-  VTK_LEGACY(vtkBooleanMacro(UseProbeForLocations, vtkTypeBool));
+  VTK_LEGACY(void SetUseProbeForLocations(bool));
+  VTK_LEGACY(bool GetUseProbeForLocations());
+  VTK_LEGACY(void UseProbeForLocationsOn());
+  VTK_LEGACY(void UseProbeForLocationsOff());
   //@}
-#endif
 
 protected:
   vtkExtractSelection();
