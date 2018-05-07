@@ -35,8 +35,8 @@
 
 /*!
 
-\note The ex_create_int() is an internal function called by
-ex_create(). The user should call ex_create() and not ex_create_int().
+\note The ex_create_par_int() is an internal function called by
+ex_create_par(). The user should call ex_create_par() and not ex_create_par_int().
 
 The function ex_create() creates a new exodus file and returns an ID
 that can subsequently be used to refer to the file.
@@ -129,7 +129,7 @@ declared with
 \param io_ws            The word size in bytes (4 or 8) of the floating point
                         data as they are to be stored in the exodus file.
 
-\param run_version (internally generated) used to verify compatability of libary
+\param run_version (internally generated) used to verify compatibility of library
 and include files.
 
 The following code segment creates an exodus file called \file{test.exo}:
@@ -159,6 +159,11 @@ exoid = ex_create ("test.exo"       \comment{filename path}
 
 static int warning_output = 0;
 
+/* NOTE: Do *not* call `ex_create_par_int()` directly.  The public API
+ *       function name is `ex_create_par()` which is a wrapper that calls
+ *       `ex_create_par_int` with an additional argument to make sure
+ *       library and include file are consistent
+ */
 int ex_create_par_int(const char *path, int cmode, int *comp_ws, int *io_ws, MPI_Comm comm,
                       MPI_Info info, int run_version)
 {

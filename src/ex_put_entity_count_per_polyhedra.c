@@ -49,7 +49,7 @@
  * (nsided/nfaced) in this element block to the database.
  * \param  exoid                exodus file id
  * \param  blk_type             type of block (face, or element)
- * \param  blk_id               block identifer
+ * \param  blk_id               block identifier
  * \param  entity_counts        entity_per_polyhedra count array
  */
 

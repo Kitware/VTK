@@ -60,6 +60,8 @@
  * \param   exoid                   exodus file id
  * \param   blk_type                block type
  * \param   blk_id                  block id
+ * \param   start_entity            the starting index (1-based) of the attribute to be written
+ * \param   num_entity              the number of entities to write attributes
  * \param   attrib                  array of attributes
  */
 

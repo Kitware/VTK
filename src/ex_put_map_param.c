@@ -275,12 +275,22 @@ int ex_put_map_param(int exoid, int num_node_maps, int num_elem_maps)
         invalid_ids[i] = EX_INVALID_ID;
       }
       if (num_node_maps > 0) {
-        status = nc_put_var_int(exoid, var_nm_id, invalid_ids);
-        assert(status == NC_NOERR);
+        if ((status = nc_put_var_int(exoid, var_nm_id, invalid_ids)) != NC_NOERR) {
+          snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to output node map ids in file id %d",
+                   exoid);
+          ex_err(__func__, errmsg, status);
+          free(invalid_ids);
+          EX_FUNC_LEAVE(EX_FATAL);
+        }
       }
       if (num_elem_maps > 0) {
-        status = nc_put_var_int(exoid, var_em_id, invalid_ids);
-        assert(status == NC_NOERR);
+        if ((status = nc_put_var_int(exoid, var_em_id, invalid_ids)) != NC_NOERR) {
+          snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to output element map ids in file id %d",
+                   exoid);
+          ex_err(__func__, errmsg, status);
+          free(invalid_ids);
+          EX_FUNC_LEAVE(EX_FATAL);
+        }
       }
       free(invalid_ids);
     }
