@@ -53,6 +53,7 @@ set(Module_SRCS
   vtkQuadricClustering.cxx
   vtkQuadricDecimation.cxx
   vtkRearrangeFields.cxx
+  vtkRemoveDuplicatePolys.cxx
   vtkResampleToImage.cxx
   vtkResampleWithDataSet.cxx
   vtkReverseSense.cxx
