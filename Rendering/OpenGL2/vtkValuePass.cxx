@@ -524,7 +524,7 @@ void vtkValuePass::RenderOpaqueGeometry(const vtkRenderState *s)
     vtkDataArray* dataArray = this->GetCurrentArray(mapper, this->PassState);
     if (!dataArray)
     {
-      vtkErrorMacro("Invalid data array from GetScalars()!");
+      // this is OK, happens on internal nodes of multiblock for example
       continue;
     }
 
@@ -1071,12 +1071,6 @@ vtkDataArray* vtkValuePass::GetCurrentArray(vtkMapper* mapper,
     {
       abstractArray->Delete();
     }
-  }
-
-  if (!abstractArray)
-  {
-    vtkErrorMacro("Scalar array " << arrayPar->ArrayName << " with Id = "
-      << arrayPar->ArrayId << " not found.");
   }
 
   vtkDataArray* dataArray = vtkArrayDownCast<vtkDataArray>(abstractArray);
