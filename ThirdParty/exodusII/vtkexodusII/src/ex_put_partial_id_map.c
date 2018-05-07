@@ -70,13 +70,13 @@
 int ex_put_partial_id_map(int exoid, ex_entity_type map_type, int64_t start_entity_num,
                           int64_t num_entities, const void_int *map)
 {
-  int         dimid, mapid, status, dims[1];
+  int         dimid = 0, mapid = 0, status, dims[1];
   int         map_int_type;
   size_t      start[1], count[1];
   char        errmsg[MAX_ERR_LENGTH];
-  const char *tname;
-  const char *dnumentries;
-  const char *vmap;
+  const char *tname       = NULL;
+  const char *dnumentries = NULL;
+  const char *vmap        = NULL;
 
   EX_FUNC_ENTER();
   ex_check_valid_file_id(exoid, __func__);
@@ -142,6 +142,7 @@ int ex_put_partial_id_map(int exoid, ex_entity_type map_type, int64_t start_enti
     }
 
     /* create a variable array in which to store the id map  */
+
     dims[0] = dimid;
 
     /* Check type to be used for maps... */

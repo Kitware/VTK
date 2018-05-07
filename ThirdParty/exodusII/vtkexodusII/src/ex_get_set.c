@@ -51,7 +51,7 @@
  */
 
 int ex_get_set(int exoid, ex_entity_type set_type, ex_entity_id set_id, void_int *set_entry_list,
-               void_int *set_extra_list) /* NULL if dont want to retrieve data */
+               void_int *set_extra_list) /* NULL if don't want to retrieve data */
 {
 
   int   dimid, entry_list_id, extra_list_id, status;

@@ -176,7 +176,7 @@ int ex_get_init_ext(int exoid, ex_init_params *info)
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  /* Edge and face blocks are also optional (for backwards compatability) */
+  /* Edge and face blocks are also optional (for backwards compatibility) */
   if (ex_get_dim_value(exoid, "edge blocks", DIM_NUM_ED_BLK, dimid, &info->num_edge_blk) !=
       EX_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);

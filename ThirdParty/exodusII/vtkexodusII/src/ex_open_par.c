@@ -63,13 +63,16 @@
 #include <string.h>
 /*!
 
-The function ex_open() opens an existing exodus file and returns
+\note The ex_open_par_int() is an internal function called by
+ex_open_par(). The user should call ex_open_par() and not ex_open_par_int().
+
+The function ex_open_par() opens an existing exodus file and returns
 an ID that can subsequently be used to refer to the file, the word
 size of the floating point values stored in the file, and the version
 of the exodus database (returned as a ``float'', regardless of the
 compute or I/O word size). Multiple files may be ``open'' simultaneously.
 
-\return In case of an error, ex_open() returns a negative
+\return In case of an error, ex_open_par() returns a negative
 number. Possible causes of errors include:
   -  The specified file does not exist.
   -  The mode specified is something other than the predefined constant
@@ -108,8 +111,8 @@ returned.
 
 \param[out] version  Returned exodus database version number.
 
-The following opens an exodus file named \file{test.exo} for read
-only, using default settings for compute and I/O word sizes:
+The following opens an exodus file named \file{test.exo} for parallel
+read only, using default settings for compute and I/O word sizes:
 
 ~~~{.c}
 int CPU_word_size,IO_word_size, exoid;
@@ -119,11 +122,13 @@ CPU_word_size = sizeof(float);   \co{float or double}
 IO_word_size = 0;                \co{use what is stored in file}
 
 \comment{open exodus files}
-exoid = ex_open ("test.exo",     \co{filename path}
-                 EX_READ,        \co{access mode = READ}
-                 &CPU_word_size, \co{CPU word size}
-                 &IO_word_size,  \co{IO word size}
-                 &version);      \co{ExodusII library version}
+exoid = ex_open_par ("test.exo",     \co{filename path}
+                     EX_READ,        \co{access mode = READ}
+                     &CPU_word_size, \co{CPU word size}
+                     &IO_word_size,  \co{IO word size}
+                     &version,       \co{ExodusII library version
+                     MPI_COMM_WORLD,
+                     MPI_INFO_NULL);}
 ~~~
  */
 
@@ -138,6 +143,11 @@ struct ncvar /* variable */
   int     natts;
 };
 
+/* NOTE: Do *not* call `ex_open_par_int()` directly.  The public API
+ *       function name is `ex_open_par()` which is a wrapper that
+ *       calls `ex_open_par_int` with an additional argument to make
+ *       sure library and include file are consistent
+ */
 int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float *version,
                     MPI_Comm comm, MPI_Info info, int run_version)
 {
@@ -281,7 +291,11 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
 #endif
     }
 
-    snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to open %s of type %d read only", path, type);
+    snprintf(errmsg, MAX_ERR_LENGTH,
+             "ERROR: failed to open %s of type %d for reading. Either the "
+             "file does not exist, or there is a permission or file format "
+             "issue.",
+             path, type);
     ex_err(__func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);
   }
