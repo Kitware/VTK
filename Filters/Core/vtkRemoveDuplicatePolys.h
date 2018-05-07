@@ -31,8 +31,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-//class VTKFILTERSCORE_EXPORT vtkRemoveDuplicatePolys : public vtkPolyDataAlgorithm
-class vtkRemoveDuplicatePolys : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT vtkRemoveDuplicatePolys : public vtkPolyDataAlgorithm
 {
 public:
   static vtkRemoveDuplicatePolys *New();
