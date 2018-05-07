@@ -569,7 +569,6 @@ vtkSmartPointer<vtkSelectionOperator> vtkExtractSelection::NewSelectionOperator(
 
     case vtkSelectionNode::BLOCKS:
       return nullptr;
-      break;
 
     case vtkSelectionNode::USER:
       return nullptr;
