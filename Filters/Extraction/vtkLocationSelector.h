@@ -40,7 +40,7 @@ public:
 
 protected:
   vtkLocationSelector();
-  ~vtkLocationSelector();
+  ~vtkLocationSelector() override;
 
 private:
   vtkLocationSelector(const vtkLocationSelector&) = delete;

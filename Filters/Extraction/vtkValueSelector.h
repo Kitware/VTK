@@ -57,7 +57,7 @@ public:
 
 protected:
   vtkValueSelector();
-  ~vtkValueSelector();
+  ~vtkValueSelector() override;
 
 private:
   vtkValueSelector(const vtkValueSelector&) = delete;
