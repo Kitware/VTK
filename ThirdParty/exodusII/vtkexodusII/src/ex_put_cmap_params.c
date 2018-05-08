@@ -98,7 +98,7 @@ int ex_put_cmap_params(int exoid, void_int *node_cmap_ids, void_int *node_cmap_n
   /*-----------------------------Execution begins-----------------------------*/
 
   /*
-  ** with the new database format, this function sould only
+  ** with the new database format, this function should only
   ** be used for writing a parallel file
   */
   /* Get the file type */
