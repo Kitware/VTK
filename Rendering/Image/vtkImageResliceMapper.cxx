@@ -996,7 +996,8 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
   {
     // tell reslice to use a double-thickness border,
     // since the polygon geometry will dictate the actual size
-    reslice->SetBorder(2);
+    reslice->SetBorder(true);
+    reslice->SetBorderThickness(1.0);
   }
 }
 
