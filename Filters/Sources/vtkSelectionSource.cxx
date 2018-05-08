@@ -494,6 +494,7 @@ int vtkSelectionSource::RequestData(
   if (this->ContentType == vtkSelectionNode::BLOCKS)
   {
     oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), this->ContentType);
+    oProperties->Set(vtkSelectionNode::FIELD_TYPE(), this->FieldType);
     vtkUnsignedIntArray* selectionList = vtkUnsignedIntArray::New();
     selectionList->SetNumberOfComponents(1);
     selectionList->SetNumberOfTuples(
