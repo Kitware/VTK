@@ -79,7 +79,7 @@ void vtkSegYReaderInternal::SetVerticalCRS(int v)
 void vtkSegYReaderInternal::LoadTraces()
 {
   int traceStartPos = FIRST_TRACE_START_POS;
-  int fileSize = vtkSegYIOUtils::Instance()->getFileSize(this->In);
+  std::streamoff fileSize = vtkSegYIOUtils::Instance()->getFileSize(this->In);
   while (traceStartPos + 240 < fileSize)
   {
     vtkSegYTrace* pTrace = new vtkSegYTrace();
@@ -106,7 +106,7 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
 {
   this->ReadHeader();
   int traceStartPos = FIRST_TRACE_START_POS;
-  int fileSize = vtkSegYIOUtils::Instance()->getFileSize(this->In);
+  std::streamoff fileSize = vtkSegYIOUtils::Instance()->getFileSize(this->In);
   int crosslineFirst, crosslineSecond, inlineFirst = 0,
     inlineNumber = 0, crosslineNumber;
   double coordFirst[3], coordSecondX[3], coordSecondY[3], d[3];
