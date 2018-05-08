@@ -755,10 +755,11 @@ struct obj_stats
 {
   int64_t *         id_vals;
   int *             stat_vals;
-  long              num;
+  size_t            num;
   int               exoid;
-  int               valid_ids;
-  int               valid_stat;
+  char              valid_ids;
+  char              valid_stat;
+  char              sequential;
   struct obj_stats *next;
 };
 

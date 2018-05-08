@@ -66,16 +66,6 @@
  * This routine is designed to read the Exodus II V 2.0 side set side
  * definition  and return a ExodusI style side set node definition.
  */
-static void set_count(int exoid, void_int *cnt, size_t ndx, size_t val)
-{
-  if (ex_int64_status(exoid) & EX_BULK_INT64_API) {
-    ((int64_t *)cnt)[ndx] = val;
-  }
-  else {
-    ((int *)cnt)[ndx] = val;
-  }
-}
-
 static int check_valid_side(size_t side_num, size_t max_sides, char *topology, int exoid)
 {
   char errmsg[MAX_ERR_LENGTH];
@@ -111,8 +101,8 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
   void_int *elem_blk_ids       = NULL;
   void_int *connect            = NULL;
   void_int *ss_elem_ndx        = NULL;
-  void_int *ss_elem_node_ndx   = NULL;
-  void_int *ss_parm_ndx        = NULL;
+  int64_t  *ss_elem_node_ndx   = NULL;
+  int64_t  *ss_parm_ndx        = NULL;
   void_int *side_set_elem_list = NULL;
   void_int *side_set_side_list = NULL;
   size_t    elem_ctr, node_ctr, elem_num_pos;
@@ -457,7 +447,7 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
   }
 
   /* Allocate space for the ss element to element block parameter index array */
-  if (!(ss_parm_ndx = malloc(tot_num_ss_elem * int_size))) {
+  if (!(ss_parm_ndx = malloc(tot_num_ss_elem * sizeof(int64_t)))) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to allocate space for side set elem parms "
              "index for file id %d",
@@ -468,7 +458,7 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
   }
 
   /* Allocate space for the ss element to node list index array */
-  if (!(ss_elem_node_ndx = malloc(tot_num_ss_elem * int_size))) {
+  if (!(ss_elem_node_ndx = malloc(tot_num_ss_elem * sizeof(int64_t)))) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to allocate space for side set elem to node "
              "index for file id %d",
@@ -518,15 +508,8 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
       err_stat = EX_FATAL;
       goto cleanup;
     }
-
-    if (int_size == sizeof(int64_t)) {
-      ((int64_t *)ss_parm_ndx)[i]      = j;        /* assign parameter block index */
-      ((int64_t *)ss_elem_node_ndx)[i] = node_ctr; /* assign node list index */
-    }
-    else {
-      ((int *)ss_parm_ndx)[i]      = j;        /* assign parameter block index */
-      ((int *)ss_elem_node_ndx)[i] = node_ctr; /* assign node list index */
-    }
+    ss_parm_ndx[i]      = j;        /* assign parameter block index */
+    ss_elem_node_ndx[i] = elem_blk_parms[j].num_nodes_per_side[side - 1];
 
     /* Update node_ctr (which points to next node in chain */
     node_ctr += elem_blk_parms[j].num_nodes_per_side[side - 1];
@@ -543,6 +526,26 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
       err_stat = EX_WARN;
     }
   }
+  /* At this point, the `ss_elem_node_ndx` only contains the nodes per face.  We now compute the exclusive scan
+   * to determine where the nodes will be put in the list for each face
+   */
+  if (ex_int64_status(exoid) & EX_BULK_INT64_API) {
+    for (i = 0; i < tot_num_ss_elem; i++) {
+      ((int64_t *)side_set_node_cnt_list)[i] = ss_elem_node_ndx[i];
+    }
+  }
+  else {
+    for (i = 0; i < tot_num_ss_elem; i++) {
+      ((int *)side_set_node_cnt_list)[i] = (int)ss_elem_node_ndx[i];
+    }
+  }
+
+  int64_t sum = 0;
+  for (i = 0; i < tot_num_ss_elem; i++) {
+    int64_t cnt = ss_elem_node_ndx[i];
+    ss_elem_node_ndx[i] = sum;
+    sum += cnt;
+  }
 
   /* All setup, ready to go ... */
 
@@ -555,13 +558,13 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
       elem_ndx = ((int64_t *)ss_elem_ndx)[j];
       elem     = ((int64_t *)side_set_elem_list)[elem_ndx];
       side     = ((int64_t *)side_set_side_list)[elem_ndx];
-      parm_ndx = ((int64_t *)ss_parm_ndx)[elem_ndx];
+      parm_ndx = ss_parm_ndx[elem_ndx];
     }
     else {
       elem_ndx = ((int *)ss_elem_ndx)[j];
       elem     = ((int *)side_set_elem_list)[elem_ndx];
       side     = ((int *)side_set_side_list)[elem_ndx];
-      parm_ndx = ((int *)ss_parm_ndx)[elem_ndx];
+      parm_ndx = ss_parm_ndx[elem_ndx];
     }
 
     if (elem > elem_ctr) {
@@ -620,20 +623,13 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
     num_nodes_per_elem = elem_blk_parms[parm_ndx].num_nodes_per_elem;
     connect_offset     = num_nodes_per_elem * elem_num_pos;
     side_num           = side - 1;
-
-    if (int_size == sizeof(int64_t)) {
-      node_pos = ((int64_t *)ss_elem_node_ndx)[elem_ndx];
-    }
-    else {
-      node_pos = ((int *)ss_elem_node_ndx)[elem_ndx];
-    }
+    node_pos = ss_elem_node_ndx[elem_ndx];
 
     switch (elem_blk_parms[parm_ndx].elem_type_val) {
     case EX_EL_CIRCLE:
     case EX_EL_SPHERE: { /* Note: no side-node lookup table is used for this
                             simple case */
       get_nodes(exoid, side_set_node_list, node_pos, connect, connect_offset);
-      set_count(exoid, side_set_node_cnt_list, elem_ndx, 1); /* 1 node object */
       break;
     }
     case EX_EL_TRUSS:
@@ -642,7 +638,6 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
       for (i = 0; i < num_nodes_per_elem; i++) {
         get_nodes(exoid, side_set_node_list, node_pos + i, connect, connect_offset + i);
       }
-      set_count(exoid, side_set_node_cnt_list, elem_ndx, num_nodes_per_elem);
       break;
     }
     case EX_EL_TRIANGLE: {
@@ -655,12 +650,10 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
                   connect_offset + tri_table[side_num][0] - 1);
         get_nodes(exoid, side_set_node_list, node_pos + 1, connect,
                   connect_offset + tri_table[side_num][1] - 1);
-        set_count(exoid, side_set_node_cnt_list, elem_ndx, 2); /* 2 node object */
         if (num_nodes_per_elem > 3)                            /* 6-node TRI  */
         {
           get_nodes(exoid, side_set_node_list, node_pos + 2, connect,
                     connect_offset + tri_table[side_num][2] - 1);
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, 3); /* 3 node object */
         }
       }
       else if (ndim == 3) { /* 3d TRIs */
@@ -672,18 +665,15 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
                   connect_offset + tri3_table[side_num][0] - 1);
         get_nodes(exoid, side_set_node_list, node_pos + 1, connect,
                   connect_offset + tri3_table[side_num][1] - 1);
-        set_count(exoid, side_set_node_cnt_list, elem_ndx, 2); /* 2 node object */
         if (side_num + 1 <= 2)                                 /* 3, 4, 6, 7-node face */
         {
           if (num_nodes_per_elem == 3) /* 3-node face */
           {
-            set_count(exoid, side_set_node_cnt_list, elem_ndx, 3); /* 3 node object */
             get_nodes(exoid, side_set_node_list, node_pos + 2, connect,
                       connect_offset + tri3_table[side_num][2] - 1);
           }
           else if (num_nodes_per_elem == 4) /* 4-node face */
           {
-            set_count(exoid, side_set_node_cnt_list, elem_ndx, 4); /* 4 node object */
             get_nodes(exoid, side_set_node_list, node_pos + 2, connect,
                       connect_offset + tri3_table[side_num][2] - 1);
             get_nodes(exoid, side_set_node_list, node_pos + 2, connect,
@@ -691,7 +681,6 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
           }
           else if (num_nodes_per_elem == 6) /* 6-node face */
           {
-            set_count(exoid, side_set_node_cnt_list, elem_ndx, 6); /* 6 node object */
             get_nodes(exoid, side_set_node_list, node_pos + 2, connect,
                       connect_offset + tri3_table[side_num][2] - 1);
             get_nodes(exoid, side_set_node_list, node_pos + 3, connect,
@@ -703,7 +692,6 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
           }
           else if (num_nodes_per_elem == 7) /* 7-node face */
           {
-            set_count(exoid, side_set_node_cnt_list, elem_ndx, 7); /* 7 node object */
             get_nodes(exoid, side_set_node_list, node_pos + 2, connect,
                       connect_offset + tri3_table[side_num][2] - 1);
             get_nodes(exoid, side_set_node_list, node_pos + 3, connect,
@@ -728,7 +716,6 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
         {
           if (num_nodes_per_elem > 3) /* 3-node edge */
           {
-            set_count(exoid, side_set_node_cnt_list, elem_ndx, 3); /* 3 node object */
             get_nodes(exoid, side_set_node_list, node_pos + 2, connect,
                       connect_offset + tri3_table[side_num][2] - 1);
           }
@@ -745,9 +732,7 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
                 connect_offset + quad_table[side_num][0] - 1);
       get_nodes(exoid, side_set_node_list, node_pos + 1, connect,
                 connect_offset + quad_table[side_num][1] - 1);
-      set_count(exoid, side_set_node_cnt_list, elem_ndx, 2); /* 2 node object */
       if (num_nodes_per_elem > 5) {
-        set_count(exoid, side_set_node_cnt_list, elem_ndx, 3); /* 3 node object */
         get_nodes(exoid, side_set_node_list, node_pos + 2, connect,
                   connect_offset + quad_table[side_num][2] - 1);
       }
@@ -762,10 +747,8 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
                 connect_offset + shell_table[side_num][0] - 1);
       get_nodes(exoid, side_set_node_list, node_pos + 1, connect,
                 connect_offset + shell_table[side_num][1] - 1);
-      set_count(exoid, side_set_node_cnt_list, elem_ndx, 2);     /* 2 node object */
       if (num_nodes_per_elem > 2) {                              /*** KLUGE for 2D shells ***/
         if (side_num + 1 <= 2) {                                 /* 4-node face */
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, 4); /* 4 node object */
           get_nodes(exoid, side_set_node_list, node_pos + 2, connect,
                     connect_offset + shell_table[side_num][2] - 1);
           get_nodes(exoid, side_set_node_list, node_pos + 3, connect,
@@ -774,7 +757,6 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
       }
       if (num_nodes_per_elem == 8) {
         if (side_num + 1 <= 2) {                                 /* 8-node face */
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, 8); /* 8 node object */
           get_nodes(exoid, side_set_node_list, node_pos + 4, connect,
                     connect_offset + shell_table[side_num][4] - 1);
           get_nodes(exoid, side_set_node_list, node_pos + 5, connect,
@@ -785,14 +767,12 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
                     connect_offset + shell_table[side_num][7] - 1);
         }
         else {
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, 3); /* 3 node edge */
           get_nodes(exoid, side_set_node_list, node_pos + 2, connect,
                     connect_offset + shell_table[side_num][2] - 1);
         }
       }
       if (num_nodes_per_elem == 9) {
         if (side_num + 1 <= 2) {                                 /* 9-node face */
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, 9); /* 9 node object */
           get_nodes(exoid, side_set_node_list, node_pos + 4, connect,
                     connect_offset + shell_table[side_num][4] - 1);
           get_nodes(exoid, side_set_node_list, node_pos + 5, connect,
@@ -805,7 +785,6 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
                     connect_offset + shell_table[side_num][8] - 1);
         }
         else {
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, 3); /* 3 node edge */
           get_nodes(exoid, side_set_node_list, node_pos + 2, connect,
                     connect_offset + shell_table[side_num][2] - 1);
         }
@@ -823,14 +802,11 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
                 connect_offset + tetra_table[side_num][1] - 1);
       get_nodes(exoid, side_set_node_list, node_pos + 2, connect,
                 connect_offset + tetra_table[side_num][2] - 1);
-      set_count(exoid, side_set_node_cnt_list, elem_ndx, 3); /* 3 node object */
       if (num_nodes_per_elem == 8) {
-        set_count(exoid, side_set_node_cnt_list, elem_ndx, 4); /* 4 node object */
         get_nodes(exoid, side_set_node_list, node_pos + 3, connect,
                   connect_offset + tetra_table[side_num][3] - 1);
       }
       else if (num_nodes_per_elem > 8) {
-        set_count(exoid, side_set_node_cnt_list, elem_ndx, 6); /* 6 node object */
         get_nodes(exoid, side_set_node_list, node_pos + 3, connect,
                   connect_offset + tetra_table[side_num][3] - 1);
         get_nodes(exoid, side_set_node_list, node_pos + 4, connect,
@@ -856,13 +832,11 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
 
         if (side_num == 3 || side_num == 4) {
           /* This is one of the triangular faces */
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, 3); /* 3 node side */
           assert(node_off == 3);
         }
         else {
           get_nodes(exoid, side_set_node_list, node_pos++, connect,
                     connect_offset + wedge6_table[side_num][node_off++] - 1);
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, 4); /* 4 node side */
           assert(node_off == 4);
         }
       }
@@ -883,7 +857,6 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
 
         if (side_num == 3 || side_num == 4) {
           /* This is one of the triangular faces */
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, 6); /* 6 node side */
           assert(node_off == 6);
         }
         else {
@@ -891,7 +864,6 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
                     connect_offset + wedge15_table[side_num][node_off++] - 1);
           get_nodes(exoid, side_set_node_list, node_pos++, connect,
                     connect_offset + wedge15_table[side_num][node_off++] - 1);
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, 8); /* 8 node side */
           assert(node_off == 8);
         }
       }
@@ -911,7 +883,6 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
                   connect_offset + wedge12_table[side_num][node_off++] - 1);
         get_nodes(exoid, side_set_node_list, node_pos++, connect,
                   connect_offset + wedge12_table[side_num][node_off++] - 1);
-        set_count(exoid, side_set_node_cnt_list, elem_ndx, 6); /* 6 node side */
         assert(node_off == 6);
       }
 
@@ -933,7 +904,6 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
 
         if (side_num == 3 || side_num == 4) {
           /* This is one of the triangular faces */
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, 7); /* 7 node side */
           assert(node_off == 7);
         }
         else {
@@ -941,7 +911,6 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
                     connect_offset + wedge20_table[side_num][node_off++] - 1);
           get_nodes(exoid, side_set_node_list, node_pos++, connect,
                     connect_offset + wedge20_table[side_num][node_off++] - 1);
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, 9); /* 9 node side */
           assert(node_off == 9);
         }
       }
@@ -963,14 +932,12 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
 
         if (side_num == 3 || side_num == 4) {
           /* This is one of the triangular faces */
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, 7); /* 7 node side */
         }
         else {
           get_nodes(exoid, side_set_node_list, node_pos++, connect,
                     connect_offset + wedge21_table[side_num][node_off++] - 1);
           get_nodes(exoid, side_set_node_list, node_pos++, connect,
                     connect_offset + wedge21_table[side_num][node_off++] - 1);
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, 9); /* 9 node side */
         }
       }
       else if (num_nodes_per_elem == 18) {
@@ -991,7 +958,6 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
                   connect_offset + wedge18_table[side_num][node_off++] - 1);
 
         if (side_num == 3 || side_num == 4) {
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, 6); /* 6 node side */
           assert(node_off == 6);
         }
         else {
@@ -1001,7 +967,6 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
                     connect_offset + wedge18_table[side_num][node_off++] - 1);
           get_nodes(exoid, side_set_node_list, node_pos++, connect,
                     connect_offset + wedge18_table[side_num][node_off++] - 1);
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, 9); /* 9 node side */
           assert(node_off == 9);
         }
       }
@@ -1028,12 +993,10 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
                 connect_offset + pyramid_table[side_num][2] - 1);
 
       if (pyramid_table[side_num][3] == 0) {                   /* degenerate side? */
-        set_count(exoid, side_set_node_cnt_list, elem_ndx, 3); /* 3 node side */
       }
       else {
         get_nodes(exoid, side_set_node_list, node_pos++, connect,
                   connect_offset + pyramid_table[side_num][3] - 1);
-        set_count(exoid, side_set_node_cnt_list, elem_ndx, 4); /* 4 node side */
       }
 
       if (num_nodes_per_elem > 5) {
@@ -1046,9 +1009,6 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
                   connect_offset + pyramid_table[side_num][6] - 1);
 
         if (side_num == 4) {
-          int face_node_count = num_nodes_per_elem >= 14 ? 9 : 8;
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, face_node_count);
-
           /* Get the last mid-edge node if this is quad face topology */
           get_nodes(exoid, side_set_node_list, node_pos++, connect,
                     connect_offset + pyramid_table[side_num][7] - 1);
@@ -1061,9 +1021,6 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
         }
         else {
           /* Triangular faces... */
-          int face_node_count = num_nodes_per_elem >= 18 ? 7 : 6;
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, face_node_count);
-
           if (num_nodes_per_elem >= 18) {
             /* Get the mid-face node for the tri */
             get_nodes(exoid, side_set_node_list, node_pos++, connect,
@@ -1097,10 +1054,8 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
                     connect_offset + hex16_table[side_num][6] - 1);
           get_nodes(exoid, side_set_node_list, node_pos++, connect,
                     connect_offset + hex16_table[side_num][7] - 1);
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, 8); /* 8 node object */
         }
         else {
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, 6); /* 6 node object */
         }
       }
       else {
@@ -1112,10 +1067,8 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
                   connect_offset + hex_table[side_num][2] - 1);
         get_nodes(exoid, side_set_node_list, node_pos + 3, connect,
                   connect_offset + hex_table[side_num][3] - 1);
-        set_count(exoid, side_set_node_cnt_list, elem_ndx, 4); /* 4 node object */
         if (num_nodes_per_elem > 12)                           /* more nodes than HEXSHELL */
         {
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, 8); /* 8 node object */
           get_nodes(exoid, side_set_node_list, node_pos + 4, connect,
                     connect_offset + hex_table[side_num][4] - 1);
           get_nodes(exoid, side_set_node_list, node_pos + 5, connect,
@@ -1127,7 +1080,6 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
         }
         if (num_nodes_per_elem == 27) /* 27-node brick */
         {
-          set_count(exoid, side_set_node_cnt_list, elem_ndx, 9); /* 9 node object */
           get_nodes(exoid, side_set_node_list, node_pos + 8, connect,
                     connect_offset + hex_table[side_num][8] - 1);
         }

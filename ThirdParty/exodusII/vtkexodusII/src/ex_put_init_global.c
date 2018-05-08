@@ -192,7 +192,7 @@ int ex_put_init_global(int exoid, int64_t num_nodes_g, int64_t num_elems_g, int6
                "ERROR: failed to put variable definition for \"%s\" into file ID %d",
                VAR_NS_NODE_CNT_GLOBAL, exoid);
       ex_err(__func__, errmsg, status);
-      /* Leave define mode before returing */
+      /* Leave define mode before returning */
       ex_leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);
@@ -208,7 +208,7 @@ int ex_put_init_global(int exoid, int64_t num_nodes_g, int64_t num_elems_g, int6
                "ERROR: failed to put variable definition for \"%s\" into file ID %d",
                VAR_NS_DF_CNT_GLOBAL, exoid);
       ex_err(__func__, errmsg, status);
-      /* Leave define mode before returing */
+      /* Leave define mode before returning */
       ex_leavedef(exoid, __func__);
 
       EX_FUNC_LEAVE(EX_FATAL);

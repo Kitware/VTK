@@ -40,7 +40,7 @@
  *   input parameters:
  *       int     idexo                   exodus file id
  *       int     blk_type                type of block (edge, face, or element)
- *       int     blk_id                  block identifer
+ *       int     blk_id                  block identifier
  *       char*   entry_descrip           string describing shape of entries in
  *the block
  *       int     num_entries_this_blk    number of entries(records) in the block
@@ -62,7 +62,7 @@
  * writes the parameters used to describe an element/face/edge block
  * \param   exoid                   exodus file id
  * \param   blk_type                type of block (edge, face, or element)
- * \param   blk_id                  block identifer
+ * \param   blk_id                  block identifier
  * \param   entry_descrip           string describing shape of entries in the
  * block
  * \param   num_entries_this_blk    number of entries(records) in the block
