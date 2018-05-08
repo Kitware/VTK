@@ -5581,7 +5581,7 @@ void vtkBoxClipDataSet::ClipBox1D(vtkPoints *newPoints,
         // necessary.
         if (locator->InsertUniquePoint(x, p_id))
         {
-          this->InterpolateEdge(outPD, p_id, v_id[0], v_id[0], t);
+          this->InterpolateEdge(outPD, p_id, v_id[0], v_id[1], t);
         }
 
         // Add the clipped line to the output.
@@ -5801,8 +5801,8 @@ void vtkBoxClipDataSet::ClipBoxInOut1D(vtkPoints *newPoints,
         // necessary.
         if (locator->InsertUniquePoint(x, p_id))
         {
-          this->InterpolateEdge(outPD[0], p_id, v_id[0], v_id[0], t);
-          this->InterpolateEdge(outPD[1], p_id, v_id[0], v_id[0], t);
+          this->InterpolateEdge(outPD[0], p_id, v_id[0], v_id[1], t);
+          this->InterpolateEdge(outPD[1], p_id, v_id[0], v_id[1], t);
         }
 
         // Add the clipped line to the output.
@@ -6021,7 +6021,7 @@ void vtkBoxClipDataSet::ClipHexahedron1D(vtkPoints *newPoints,
         // necessary.
         if (locator->InsertUniquePoint(x, p_id))
         {
-          this->InterpolateEdge(outPD, p_id, v_id[0], v_id[0], t);
+          this->InterpolateEdge(outPD, p_id, v_id[0], v_id[1], t);
         }
 
         // Add the clipped line to the output.
@@ -6221,8 +6221,8 @@ void vtkBoxClipDataSet::ClipHexahedronInOut1D(vtkPoints *newPoints,
         // necessary.
         if (locator->InsertUniquePoint(x, p_id))
         {
-          this->InterpolateEdge(outPD[0], p_id, v_id[0], v_id[0], t);
-          this->InterpolateEdge(outPD[1], p_id, v_id[0], v_id[0], t);
+          this->InterpolateEdge(outPD[0], p_id, v_id[0], v_id[1], t);
+          this->InterpolateEdge(outPD[1], p_id, v_id[0], v_id[1], t);
         }
 
         // Add the clipped line to the output.
