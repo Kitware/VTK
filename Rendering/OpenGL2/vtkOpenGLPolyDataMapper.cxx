@@ -1535,12 +1535,9 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPrimID(
   }
   else
   {
-    if (this->HaveCellNormals || this->HaveCellScalars || this->HavePickScalars)
-    {
-      vtkShaderProgram::Substitute(GSSource,
-        "//VTK::PrimID::Impl",
-        "gl_PrimitiveID = gl_PrimitiveIDIn;");
-    }
+    vtkShaderProgram::Substitute(GSSource,
+      "//VTK::PrimID::Impl",
+      "gl_PrimitiveID = gl_PrimitiveIDIn;");
   }
   shaders[vtkShader::Vertex]->SetSource(VSSource);
   shaders[vtkShader::Geometry]->SetSource(GSSource);
