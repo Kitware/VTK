@@ -38,7 +38,6 @@ int TestAxes2(int , char * [])
 
   vtkNew<vtkAxis> axisVertical;
 
-  int i =0;
   axisVertical->LogScaleOn();
   axisVertical->SetPoint1(vtkVector2f(180, 16));
   axisVertical->SetPoint2(vtkVector2f(180, 184));
