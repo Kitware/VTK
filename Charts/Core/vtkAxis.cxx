@@ -1431,6 +1431,26 @@ vtkStdString vtkAxis::GenerateSimpleLabel(double val)
     }
   }
 
+  # if defined(_WIN32) || defined(__WIN32__)
+  // Hacky fix for the Precision = 0 bug on MSVC compilers
+  if (Precision == 0)
+  {
+    vtksys::RegularExpression regExp2("[+-]?[0-9]+\\.[0-9]+");
+    if (regExp2.find(result))
+    {
+      vtkStdString tmp(result);
+      int val = vtkMath::Round(stof(regExp2.match(0)));
+      result = std::to_string(val);
+      vtkStdString::iterator it = tmp.begin();
+      for (int i=0; i<regExp2.end()-regExp2.start(); ++i)
+      {
+        it = tmp.erase(it);
+      }
+      result.append(tmp);
+    }
+  }
+  #endif
+
   return result;
 }
 
