@@ -42,6 +42,18 @@
 #include <string>
 #include <vector>
 
+namespace
+{
+  // since certain compilers don't support std::to_string yet
+  template <typename T>
+  std::string convert_to_string(const T& val)
+  {
+    std::ostringstream str;
+    str << val;
+    return str.str();
+  }
+}
+
 //============================================================================
 namespace parser
 {
@@ -392,10 +404,10 @@ std::string vtkSelection::AddNode(vtkSelectionNode* node)
   }
 
   static vtkAtomicUInt64 counter = 0;
-  std::string name = std::string("node") + std::to_string(++counter);
+  std::string name = std::string("node") + convert_to_string(++counter);
   while (internals.Items.find(name) != internals.Items.end())
   {
-    name = std::string("node") + std::to_string(++counter);
+    name = std::string("node") + convert_to_string(++counter);
   }
 
   this->SetNode(name, node);

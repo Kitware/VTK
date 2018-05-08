@@ -27,10 +27,10 @@ set(Module_SRCS
   vtkFrustumSelector.cxx
   vtkHierarchicalDataExtractDataSets.cxx
   vtkHierarchicalDataExtractLevel.cxx
+  vtkLocationSelector.cxx
   vtkProbeSelectedLocations.cxx
   vtkSelectionOperator.cxx
   vtkValueSelector.cxx
-  vtkLocationSelector.cxx
   )
 
 if (NOT VTK_LEGACY_REMOVE)
