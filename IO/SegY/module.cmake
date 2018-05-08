@@ -1,4 +1,6 @@
 vtk_module(vtkIOSegY
+  GROUPS
+    StandAlone
   TEST_DEPENDS
     vtkInteractionStyle
     vtkRenderingOpenGL2
