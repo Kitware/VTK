@@ -33,7 +33,7 @@ vtkSegYIOUtils* vtkSegYIOUtils::Instance()
 }
 
 //----------------------------------------------------------------------------
-int vtkSegYIOUtils::readShortInteger(int pos, std::ifstream& in)
+short vtkSegYIOUtils::readShortInteger(int pos, std::ifstream& in)
 {
   in.seekg(pos, in.beg);
   char buffer[2];
@@ -140,7 +140,7 @@ float vtkSegYIOUtils::readIBMFloat(std::ifstream& in)
     // Value is 0
     return 0.0f;
   }
-  float num = (1 - 2 * sign) * fraction * pow(16.0, double(exponent - 64.0));
+  float num = (1 - 2 * sign) * fraction * powf(16.0, double(exponent - 64.0));
   return num;
 }
 
@@ -169,7 +169,7 @@ void vtkSegYIOUtils::swap(char* a, char* b)
 }
 
 //----------------------------------------------------------------------------
-int vtkSegYIOUtils::getFileSize(std::ifstream& in)
+std::streamoff vtkSegYIOUtils::getFileSize(std::ifstream& in)
 {
   in.seekg(0, in.end);
   return in.tellg();
