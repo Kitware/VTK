@@ -50,10 +50,6 @@
 #include <vtkSelectionNode.h>
 #include <vtkExtractSelection.h>
 
-#ifndef VTK_LEGACY_REMOVE
-#include <vtkExtractSelectionLegacy.h>
-#endif
-
 #define XCELLS 3
 #define YCELLS 3
 #define ZCELLS 3
@@ -1181,9 +1177,5 @@ int TestExtraction(int argc, char *argv[])
 
 int TestExtraction(int argc, char *argv[])
 {
-  return TestExtraction<vtkExtractSelection>(argc, argv)
-#ifndef VTK_LEGACY_REMOVE
-    || TestExtraction<vtkExtractSelectionLegacy>(argc, argv)
-#endif
-    ;
+  return TestExtraction<vtkExtractSelection>(argc, argv);
 }
