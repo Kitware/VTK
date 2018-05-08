@@ -16,23 +16,16 @@
 #include "vtkAxis.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
-#include "vtkDoubleArray.h"
 #include "vtkNew.h"
-#include "vtkSmartPointer.h"
-#include "vtkVector.h"
-#include "vtkStringArray.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTextProperty.h"
-
-#include <vector>
 
 //----------------------------------------------------------------------------
 int TestAxes2(int , char * [])
 {
   int status = EXIT_SUCCESS;
 
-  // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(200, 200);
 
@@ -43,24 +36,19 @@ int TestAxes2(int , char * [])
   axisVertical->SetPoint2(vtkVector2f(180, 184));
   axisVertical->SetPosition(vtkAxis::LEFT);
 
-  // Exercise some of the API in the axis API.
-
   axisVertical->SetNotation(vtkAxis::SCIENTIFIC_NOTATION);
   axisVertical->SetPosition(vtkAxis::LEFT);
   axisVertical->SetPrecision(0);
   axisVertical->SetRange(0.1, 1000000.);
   axisVertical->SetRangeLabelsVisible(true);
+  //  We need a larger than normal font size to ensure that AllowShift = 1
+  //  doesn't let tests that shouldn't pass pass.
   axisVertical->GetLabelProperties()->SetFontSize(24);
 
   view->GetScene()->AddItem(axisVertical);
 
   axisVertical->Update();
 
-
-  // Let's create a few axes, and place them on the scene.
-
-  // Finally render the scene and compare the image to a reference image, or
-  // start the main interactor loop if the test is interactive.
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();

@@ -1431,7 +1431,7 @@ vtkStdString vtkAxis::GenerateSimpleLabel(double val)
     }
   }
 
-  # if defined(_WIN32) || defined(__WIN32__)
+  # if defined(_WIN32)
   // Hacky fix for the Precision = 0 bug on MSVC compilers
   if (Precision == 0)
   {
@@ -1442,7 +1442,7 @@ vtkStdString vtkAxis::GenerateSimpleLabel(double val)
       int val = vtkMath::Round(stof(regExp2.match(0)));
       result = std::to_string(val);
       vtkStdString::iterator it = tmp.begin();
-      for (int i=0; i<regExp2.end()-regExp2.start(); ++i)
+      for (int i = 0; i < regExp2.end() - regExp2.start(); ++i)
       {
         it = tmp.erase(it);
       }
