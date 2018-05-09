@@ -37,7 +37,7 @@
 extern "C" {
 #endif
 
-#include "vtk_libproj4_mangle.h"
+#include "vtk_libproj_mangle.h"
 
 /* Try to update this every version! */
 #define PJ_VERSION 492

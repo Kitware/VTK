@@ -43,7 +43,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "vtk_libproj4_mangle.h"
+#include "vtk_libproj_mangle.h"
 
 #ifdef __cplusplus
 #define C_NAMESPACE extern "C"

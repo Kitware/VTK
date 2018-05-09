@@ -227,7 +227,7 @@ if(WIN32 AND BUILD_SHARED_LIBS)
 endif(WIN32 AND BUILD_SHARED_LIBS)
 
 # Core targets configuration
-set(PROJ_CORE_TARGET vtkproj4)
+set(PROJ_CORE_TARGET vtkproj)
 proj_target_output_name(${PROJ_CORE_TARGET} PROJ_CORE_TARGET_OUTPUT_NAME)
 
 vtk_add_library( ${PROJ_CORE_TARGET}

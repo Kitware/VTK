@@ -4,7 +4,7 @@ set -e
 set -x
 shopt -s dotglob
 
-readonly name="libproj4"
+readonly name="libproj"
 readonly ownership="Proj Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/proj.git"
@@ -32,4 +32,3 @@ extract_source () {
 }
 
 . "${BASH_SOURCE%/*}/../update-common.sh"
-

@@ -24,7 +24,7 @@ vtk_module(vtkGeovisCore
     vtkInteractionWidgets
     vtkRenderingCore
     vtkViewsCore
-    vtklibproj4
+    vtklibproj
   PRIVATE_DEPENDS
     vtkCommonSystem
     vtkFiltersCore

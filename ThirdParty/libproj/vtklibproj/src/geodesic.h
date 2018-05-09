@@ -119,7 +119,7 @@
 #if !defined(GEODESIC_H)
 #define GEODESIC_H 1
 
-#include "vtk_libproj4_mangle.h"
+#include "vtk_libproj_mangle.h"
 
 /**
  * The major version of the geodesic library.  (This tracks the version of

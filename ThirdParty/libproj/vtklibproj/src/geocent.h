@@ -92,7 +92,7 @@
 extern "C" {
 #endif
 
-#include "vtk_libproj4_mangle.h"
+#include "vtk_libproj_mangle.h"
 
 typedef struct 
 {

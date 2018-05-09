@@ -1,11 +1,11 @@
-#ifndef vtk_libproj4_mangle_h
-#define vtk_libproj4_mangle_h
+#ifndef vtk_libproj_mangle_h
+#define vtk_libproj_mangle_h
 
 /*
 
-This header file mangles all symbols exported from the libproj4 library.
-It is included in all files while building the libproj4 library.  Due to
-namespace pollution, no libproj4 headers should be included in .h files in
+This header file mangles all symbols exported from the libproj library.
+It is included in all files while building the libproj library.  Due to
+namespace pollution, no libproj headers should be included in .h files in
 VTK.
 
 The following command was used to obtain the symbol list:
