@@ -68,6 +68,15 @@ public:
   vtkGetVectorMacro(Center,double,3);
   //@}
 
+  /**
+   * Quick evaluation of the sphere equation ((x-x0)^2 + (y-y0)^2 + (z-z0)^2) - R^2.
+   */
+  static double Evaluate(double center[3], double R, double x[3])
+  {return (x[0]-center[0])*(x[0]-center[0]) +
+      (x[1]-center[1])*(x[1]-center[1]) +
+      (x[2]-center[2])*(x[2]-center[2]) - R*R;
+  }
+
   //@{
   /**
    * Create a bounding sphere from a set of points. The set of points is
@@ -111,5 +120,3 @@ private:
 };
 
 #endif
-
-

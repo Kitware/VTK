@@ -59,6 +59,7 @@ set(Module_SRCS
   vtkSimpleElevationFilter.cxx
   vtkSmoothPolyDataFilter.cxx
   vtkSphereTreeFilter.cxx
+  vtkStaticCleanPolyData.cxx
   vtkStripper.cxx
   vtkStructuredGridOutlineFilter.cxx
   vtkSynchronizedTemplates2D.cxx
@@ -74,6 +75,7 @@ set(Module_SRCS
   vtkUnstructuredGridQuadricDecimation.cxx
   vtkVectorDot.cxx
   vtkVectorNorm.cxx
+  vtkVoronoi2D.cxx
   vtkWindowedSincPolyDataFilter.cxx
 
   vtkCutter.cxx

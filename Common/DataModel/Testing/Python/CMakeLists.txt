@@ -9,6 +9,7 @@ vtk_add_test_python(
   TestQuadricClustering.py
   TestStaticPointLocator.py,NO_DATA,NO_VALID
   TestStaticPointLocator2.py,NO_DATA,NO_VALID
+  TestStaticPointLocator2D.py,NO_DATA,NO_VALID
   TestStructuredGrid.py
   TestTemplates.py,NO_DATA,NO_VALID
   headBone.py

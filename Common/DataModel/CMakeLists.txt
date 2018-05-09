@@ -165,11 +165,13 @@ set(Module_SRCS
   vtkSmoothErrorMetric.cxx
   vtkSortFieldData.cxx
   vtkSphere.cxx
+  vtkSpheres.cxx
   vtkSpline.cxx
   vtkStaticCellLinks.cxx
   vtkStaticCellLinksTemplate.txx
   vtkStaticCellLocator.cxx
   vtkStaticPointLocator.cxx
+  vtkStaticPointLocator2D.cxx
   vtkStructuredData.cxx
   vtkStructuredExtent.cxx
   vtkStructuredGrid.cxx

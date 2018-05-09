@@ -30,8 +30,18 @@
 class VTKCOMMONCORE_EXPORT vtkIdList : public vtkObject
 {
 public:
+  //@{
+  /**
+   * Standard methods for instantiation, type information, and printing.
+   */
   static vtkIdList *New();
+  vtkTypeMacro(vtkIdList,vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
+  /**
+   * Release memory and restore to unallocated state.
+   */
   void Initialize();
 
   /**
@@ -40,9 +50,6 @@ public:
    * strategy is not used.
    */
   int Allocate(const vtkIdType sz, const int strategy=0);
-
-  vtkTypeMacro(vtkIdList,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return the number of id's in the list.
@@ -90,6 +97,12 @@ public:
   vtkIdType InsertUniqueId(const vtkIdType vtkid);
 
   /**
+   * Sort the ids in the list in ascending id order. This method uses
+   * vtkSMPTools::Sort() so it can be sped up if built properly.
+   */
+  void Sort();
+
+  /**
    * Get a pointer to a particular data index.
    */
   vtkIdType *GetPointer(const vtkIdType i) {return this->Ids + i;};
@@ -109,7 +122,7 @@ public:
   void SetArray(vtkIdType *array, vtkIdType size);
 
   /**
-   * Reset to an empty state.
+   * Reset to an empty state but retain previously allocated memory.
    */
   void Reset() {this->NumberOfIds = 0;};
 
@@ -146,8 +159,10 @@ public:
    */
   vtkIdType *Resize(const vtkIdType sz);
 
-  // This method should become legacy
-  void IntersectWith(vtkIdList& otherIds) {
+  /**
+   * Intersect one id list with another. This method should become legacy.
+   */
+    void IntersectWith(vtkIdList& otherIds) {
     this->IntersectWith(&otherIds); };
 
 protected:

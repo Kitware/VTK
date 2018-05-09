@@ -234,20 +234,31 @@ public:
 
   //@{
   /**
-   * Define
+   * Define the method to project the input 3D points into a 2D plane for
+   * triangulation. When the VTK_DELAUNAY_XY_PLANE is set, the z-coordinate
+   * is simply ignored. When VTK_SET_TRANSFORM_PLANE is set, then a transform
+   * must be supplied and the points are transformed using it. Finally, if
+   * VTK_BEST_FITTING_PLANE is set, then the filter computes a best fitting
+   * plane and projects the points onto it.
    */
   vtkSetClampMacro(ProjectionPlaneMode,int,
                    VTK_DELAUNAY_XY_PLANE,VTK_BEST_FITTING_PLANE);
   vtkGetMacro(ProjectionPlaneMode,int);
   //@}
 
+  /**
+   * This method computes the best fit plane to a set of points represented
+   * by a vtkPointSet. The method constructs a transform and returns it on
+   * successful completion (null otherwise). The user is responsible for
+   * deleting the transform instance.
+   */
+  static vtkAbstractTransform* ComputeBestFittingPlane(vtkPointSet *input);
+
 protected:
   vtkDelaunay2D();
   ~vtkDelaunay2D() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-
-  vtkAbstractTransform * ComputeBestFittingPlane(vtkPointSet *input);
 
   double Alpha;
   double Tolerance;

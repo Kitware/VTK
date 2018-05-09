@@ -19,11 +19,12 @@
  * vtkPlanes computes the implicit function and function gradient for a set
  * of planes. The planes must define a convex space.
  *
- * The function value is the closest first order distance of a point to the
- * convex region defined by the planes. The function gradient is the plane
- * normal at the function value.  Note that the normals must point outside of
- * the convex region. Thus, a negative function value means that a point is
- * inside the convex region.
+ * The function value is the intersection (i.e., maximum value) obtained by
+ * evaluating the each of the supplied planes. Hence the value is the maximum
+ * distance of a point to the convex region defined by the planes. The
+ * function gradient is the plane normal at the function value.  Note that
+ * the normals must point outside of the convex region. Thus, a negative
+ * function value means that a point is inside the convex region.
  *
  * There are several methods to define the set of planes. The most general is
  * to supply an instance of vtkPoints and an instance of vtkDataArray. (The
@@ -32,7 +33,7 @@
  * the view frustrum of a camera, and 2) provide a bounding box.
  *
  * @sa
- * vtkCamera
+ * vtkImplicitBoolean vtkSpheres vtkFrustrumSource vtkCamera
 */
 
 #ifndef vtkPlanes_h
@@ -48,13 +49,20 @@ class vtkDataArray;
 class VTKCOMMONDATAMODEL_EXPORT vtkPlanes : public vtkImplicitFunction
 {
 public:
+  //@{
+  /**
+   * Standard methods for instantiation, type information, and printing.
+   */
   static vtkPlanes *New();
   vtkTypeMacro(vtkPlanes,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
+
 
   //@{
   /**
-   * Evaluate plane equations. Return smallest absolute value.
+   * Evaluate plane equations. Return largest value (i.e., an intersection
+   * operation between all planes).
    */
   using vtkImplicitFunction::EvaluateFunction;
   double EvaluateFunction(double x[3]) override;
@@ -137,5 +145,3 @@ private:
 };
 
 #endif
-
-
