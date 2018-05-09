@@ -64,7 +64,7 @@ public:
    */
   vtkTypeBool Update() override;
   vtkTypeBool Update(int port) override;
-  virtual int UpdateWholeExtent();
+  virtual vtkTypeBool UpdateWholeExtent();
   //@}
 
   /**

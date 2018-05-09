@@ -442,7 +442,7 @@ vtkTypeBool vtkStreamingDemandDrivenPipeline::Update(int port,
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline::UpdateWholeExtent()
+vtkTypeBool vtkStreamingDemandDrivenPipeline::UpdateWholeExtent()
 {
   this->UpdateInformation();
   // if we have an output then set the UE to WE for it
