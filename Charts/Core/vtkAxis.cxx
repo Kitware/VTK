@@ -1433,14 +1433,14 @@ vtkStdString vtkAxis::GenerateSimpleLabel(double val)
 
   # if defined(_WIN32)
   // Hacky fix for the Precision = 0 bug on MSVC compilers
-  if (Precision == 0)
+  if (this->Precision == 0 && this->Notation == SCIENTIFIC_NOTATION)
   {
     vtksys::RegularExpression regExp2("[+-]?[0-9]+\\.[0-9]+");
     if (regExp2.find(result))
     {
       vtkStdString tmp(result);
-      int val = vtkMath::Round(stof(regExp2.match(0)));
-      result = std::to_string(val);
+      int num = vtkMath::Round(stof(regExp2.match(0)));
+      result = std::to_string(num);
       vtkStdString::iterator it = tmp.begin();
       for (int i = 0; i < regExp2.end() - regExp2.start(); ++i)
       {
