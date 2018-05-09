@@ -134,13 +134,13 @@ float vtkSegYIOUtils::readIBMFloat(std::ifstream& in)
   long* longbuffer = reinterpret_cast<long*>(buffer);
   int sign = longbuffer[0] >> 31 & 0x01;
   int exponent = longbuffer[0] >> 24 & 0x7F;
-  float fraction = (longbuffer[0] & 0x00ffffff) / float(pow(2.0, 24));
+  float fraction = (longbuffer[0] & 0x00ffffff) / powf(2.0f, 24.0f);
   if (fraction == 0.0f)
   {
     // Value is 0
     return 0.0f;
   }
-  float num = (1 - 2 * sign) * fraction * powf(16.0, double(exponent - 64.0));
+  float num = (1 - 2 * sign) * fraction * powf(16.0f, exponent - 64.0f);
   return num;
 }
 

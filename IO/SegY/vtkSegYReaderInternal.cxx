@@ -109,9 +109,12 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
   std::streamoff fileSize = vtkSegYIOUtils::Instance()->getFileSize(this->In);
   int crosslineFirst, crosslineSecond, inlineFirst = 0,
     inlineNumber = 0, crosslineNumber;
-  double coordFirst[3], coordSecondX[3], coordSecondY[3], d[3];
-  int xCoord, yCoord;
-  short coordMultiplier;
+  double coordFirst[3] = {0},
+    coordSecondX[3] = {0},
+    coordSecondY[3] = {0},
+    d[3];
+  int xCoord = 0, yCoord = 0;
+  short coordMultiplier = 0;
   int prevTraceStartPos = traceStartPos;
   int crosslineCount = 0;
   if (traceStartPos + 240 < fileSize)
