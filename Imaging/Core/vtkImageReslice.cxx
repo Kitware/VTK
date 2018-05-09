@@ -93,6 +93,7 @@ vtkImageReslice::vtkImageReslice()
   this->Wrap = 0; // don't wrap
   this->Mirror = 0; // don't mirror
   this->Border = 1; // apply a border
+  this->BorderThickness = 0.5;
   this->InterpolationMode = VTK_RESLICE_NEAREST; // no interpolation
 
   this->SlabMode = VTK_IMAGE_SLAB_MEAN;
@@ -231,6 +232,7 @@ void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Wrap: " << (this->Wrap ? "On\n":"Off\n");
   os << indent << "Mirror: " << (this->Mirror ? "On\n":"Off\n");
   os << indent << "Border: " << (this->Border ? "On\n":"Off\n");
+  os << indent << "BorderThickness: " << this->BorderThickness << "\n";
   os << indent << "InterpolationMode: "
      << this->GetInterpolationModeAsString() << "\n";
   os << indent << "SlabMode: " << this->GetSlabModeAsString() << "\n";
@@ -1212,7 +1214,7 @@ int vtkImageReslice::RequestInformation(
   // (or at least very large) tolerance for wrap and mirror
   static double mintol = VTK_INTERPOLATE_FLOOR_TOL;
   static double maxtol = 2.0*VTK_INT_MAX;
-  double tol = 0.5*this->Border;
+  double tol = (this->Border ? this->BorderThickness : 0.0);
   tol = ((borderMode == VTK_IMAGE_BORDER_CLAMP) ? tol : maxtol);
   tol = ((tol > mintol) ? tol : mintol);
   interpolator->SetTolerance(tol);

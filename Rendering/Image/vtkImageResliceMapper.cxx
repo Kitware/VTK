@@ -984,7 +984,9 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
   reslice->SetOutputSpacing(spacing);
   reslice->SetOutputOrigin(origin);
 
-  if ((this->SliceFacesCamera && this->InternalResampleToScreenPixels) ||
+  if ((this->SliceFacesCamera &&
+       this->InternalResampleToScreenPixels &&
+       !this->SeparateWindowLevelOperation) ||
       this->SlabThickness > 0)
   {
     // if slice follows camera, use reslice to set the border
@@ -994,7 +996,8 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer *ren)
   {
     // tell reslice to use a double-thickness border,
     // since the polygon geometry will dictate the actual size
-    reslice->SetBorder(2);
+    reslice->SetBorder(true);
+    reslice->SetBorderThickness(1.0);
   }
 }
 

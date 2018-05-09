@@ -229,6 +229,15 @@ public:
 
   //@{
   /**
+   * Set the border thickness for BorderOn() (default: 0.5).
+   * See SetBorder() for more information.
+   */
+  //@{
+  vtkSetMacro(BorderThickness, double);
+  vtkGetMacro(BorderThickness, double);
+  //@}
+
+  /**
    * Set interpolation mode (default: nearest neighbor).
    */
   vtkSetClampMacro(InterpolationMode, int,
@@ -505,6 +514,7 @@ protected:
   double SlabSliceSpacingFraction;
   double ScalarShift;
   double ScalarScale;
+  double BorderThickness;
   double BackgroundColor[4];
   double OutputOrigin[3];
   double OutputSpacing[3];
