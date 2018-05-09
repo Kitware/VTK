@@ -42,6 +42,7 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestControlPointsItemEvents.cxx,NO_DATA,NO_VALID
   TestAreaPlot.cxx
   TestAxes.cxx
+  TestAxes2.cxx
   TestBagPlot.cxx
   TestBarGraph.cxx
   TestBarGraphHorizontal.cxx
