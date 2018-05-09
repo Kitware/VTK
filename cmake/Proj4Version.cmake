@@ -39,7 +39,9 @@ macro(proj_version)
       "${${PROJECT_INTERN_NAME}_VERSION_MAJOR}_${${PROJECT_INTERN_NAME}_VERSION_MINOR}")
   endif()
 
+  if (FALSE) # XXX(kitware): Hide configure noise.
   message(STATUS "")
+  endif ()
   boost_report_value(${PROJECT_INTERN_NAME}_VERSION)
   if(WIN32)
     boost_report_value(${PROJECT_INTERN_NAME}_ABI_VERSION)

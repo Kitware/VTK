@@ -240,6 +240,7 @@ endmacro()
 #
 
 function (colormsg)
+  return () # XXX(kitware): Hide configure noise.
   string (ASCII 27 _escape)
   set(WHITE "29")
   set(GRAY "30")
@@ -295,6 +296,7 @@ endfunction()
 #
 
 function(boost_report_value NAME)
+  return () # XXX(kitware): Hide configure noise.
   string(LENGTH "${NAME}" varlen)
   # LOG
   #message(STATUS "boost_report_value: NAME=${NAME} (${varlen})")

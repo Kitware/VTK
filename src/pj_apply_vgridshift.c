@@ -151,7 +151,11 @@ int pj_apply_vgridshift( PJ *defn, const char *listname,
                 + cvs[grid_ix + 1 + (grid_iy+1) * ct->lim.lam] 
                 * (grid_x) * (grid_y);
 
-            if( value == -88.88880f ) /* nodata? */
+            /* nodata?  */
+            /* GTX official nodata value if  -88.88880f, but some grids also */
+            /* use other  big values for nodata (e.g naptrans2008.gtx has */
+            /* nodata values like -2147479936), so test them too */
+            if( value > 1000 || value < -1000 || value == -88.88880f )
                 value = HUGE_VAL;
             else
             {

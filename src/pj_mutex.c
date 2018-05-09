@@ -29,7 +29,7 @@
 /* projects.h and windows.h conflict - avoid this! */
 
 #if defined(MUTEX_pthread) && !defined(_XOPEN_SOURCE)
-// For pthread_mutexattr_settype
+/* For pthread_mutexattr_settype */
 #define _XOPEN_SOURCE 500
 #endif
 
@@ -43,7 +43,9 @@
 
 /* on win32 we always use win32 mutexes, even if pthreads are available */
 #if defined(_WIN32) && !defined(MUTEX_stub)
+#ifndef MUTEX_win32
 #  define MUTEX_win32
+#endif
 #  undef  MUTEX_pthread
 #endif
 
@@ -86,7 +88,7 @@ void pj_cleanup_lock()
 {
 }
 
-#endif // def MUTEX_stub
+#endif /* def MUTEX_stub */
 
 /************************************************************************/
 /* ==================================================================== */
@@ -154,7 +156,7 @@ void pj_cleanup_lock()
 {
 }
 
-#endif // def MUTEX_pthread
+#endif /* def MUTEX_pthread */
 
 /************************************************************************/
 /* ==================================================================== */
@@ -219,4 +221,4 @@ void pj_cleanup_lock()
     }
 }
 
-#endif // def MUTEX_win32
+#endif /* def MUTEX_win32 */

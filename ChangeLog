@@ -1,3 +1,6 @@
+2015-12-13: jswhit <https://github.com/jswhit>
+	* : Add inverse hammer transform (pull request #329).
+
 2015-09-10 sisyphus <https://github.com/sisyphus>
 	* : Rename PVALUE in pj_param.cto prevent Windows variable name clash
 

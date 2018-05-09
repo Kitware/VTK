@@ -56,8 +56,8 @@ pj_gauss_ini(double e, double phi0, double *chi, double *rc) {
 	EN->C = sqrt(1. + es * cphi * cphi / (1. - es));
 	*chi = asin(sphi / EN->C);
 	EN->ratexp = 0.5 * EN->C * e;
-	EN->K = tan(.5 * *chi + FORTPI) / (
-		pow(tan(.5 * phi0 + FORTPI), EN->C) *
+	EN->K = tan(.5 * *chi + M_FORTPI) / (
+		pow(tan(.5 * phi0 + M_FORTPI), EN->C) *
 		srat(EN->e * sphi, EN->ratexp)  );
 	return ((void *)en);
 }
@@ -67,8 +67,8 @@ pj_gauss(projCtx ctx, LP elp, const void *en) {
 	(void) ctx;
 
 	slp.phi = 2. * atan( EN->K *
-		pow(tan(.5 * elp.phi + FORTPI), EN->C) *
-		srat(EN->e * sin(elp.phi), EN->ratexp) ) - HALFPI;
+		pow(tan(.5 * elp.phi + M_FORTPI), EN->C) *
+		srat(EN->e * sin(elp.phi), EN->ratexp) ) - M_HALFPI;
 	slp.lam = EN->C * (elp.lam);
 	return(slp);
 }
@@ -79,10 +79,10 @@ pj_inv_gauss(projCtx ctx, LP slp, const void *en) {
 	int i;
 
 	elp.lam = slp.lam / EN->C;
-	num = pow(tan(.5 * slp.phi + FORTPI)/EN->K, 1./EN->C);
+	num = pow(tan(.5 * slp.phi + M_FORTPI)/EN->K, 1./EN->C);
 	for (i = MAX_ITER; i; --i) {
 		elp.phi = 2. * atan(num * srat(EN->e * sin(slp.phi), -.5 * EN->e))
-			- HALFPI;
+			- M_HALFPI;
 		if (fabs(elp.phi - slp.phi) < DEL_TOL) break;
 			slp.phi = elp.phi;
 	}	
