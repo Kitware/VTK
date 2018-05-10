@@ -41,12 +41,13 @@ vtkm::cont::DataSet Convert(vtkImageData *input, FieldsFlag fields)
   input->GetDimensions(vdims);
 
   vtkm::Vec<vtkm::FloatDefault, 3> origin(
-    (static_cast<double>(extent[0]) * vspacing[0]) + vorigin[0],
-    (static_cast<double>(extent[2]) * vspacing[1]) + vorigin[1],
-    (static_cast<double>(extent[4]) * vspacing[2]) + vorigin[2]);
-  vtkm::Vec<vtkm::FloatDefault, 3> spacing(vspacing[0],
-                                           vspacing[1],
-                                           vspacing[2]);
+    static_cast<vtkm::FloatDefault>((static_cast<double>(extent[0]) * vspacing[0]) + vorigin[0]),
+    static_cast<vtkm::FloatDefault>((static_cast<double>(extent[2]) * vspacing[1]) + vorigin[1]),
+    static_cast<vtkm::FloatDefault>((static_cast<double>(extent[4]) * vspacing[2]) + vorigin[2]));
+  vtkm::Vec<vtkm::FloatDefault, 3> spacing(
+    static_cast<vtkm::FloatDefault>(vspacing[0]),
+    static_cast<vtkm::FloatDefault>(vspacing[1]),
+    static_cast<vtkm::FloatDefault>(vspacing[2]));
   vtkm::Id3 dims(vdims[0], vdims[1], vdims[2]);
 
   vtkm::cont::DataSet dataset =
