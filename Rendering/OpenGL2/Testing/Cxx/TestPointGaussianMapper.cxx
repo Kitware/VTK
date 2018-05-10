@@ -30,6 +30,7 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkLookupTable.h"
 #include "vtkProperty.h"
 #include "vtkPointGaussianMapper.h"
 #include "vtkRenderer.h"
@@ -121,6 +122,16 @@ int TestPointGaussianMapper(int argc, char *argv[])
   mapper->SetInterpolateScalarsBeforeMapping(0);
   mapper->SetScaleArray("RandomPointVectors");
   mapper->SetScaleArrayComponent(3);
+
+  // Note that LookupTable is 4x faster than
+  // ColorTransferFunction. So if you have a choice
+  // Usa a lut instead.
+  //
+  // vtkNew<vtkLookupTable> lut;
+  // lut->SetHueRange(0.1,0.2);
+  // lut->SetSaturationRange(1.0,0.5);
+  // lut->SetValueRange(0.8,1.0);
+  // mapper->SetLookupTable(lut);
 
   vtkNew<vtkColorTransferFunction> ctf;
   ctf->AddHSVPoint(0.0,0.1,1.0,0.8);
