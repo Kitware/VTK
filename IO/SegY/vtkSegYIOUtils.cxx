@@ -17,6 +17,7 @@
 
 #include <cmath>
 #include <cstring>
+#include <cstdint>
 #include <sys/types.h>
 
 //----------------------------------------------------------------------------
