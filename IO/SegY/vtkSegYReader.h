@@ -42,7 +42,7 @@ public:
   vtkTypeMacro(vtkSegYReader, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkSegYReader();
-  ~vtkSegYReader();
+  ~vtkSegYReader() override;
 
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);

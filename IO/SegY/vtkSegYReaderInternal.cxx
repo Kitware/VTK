@@ -182,9 +182,9 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
   // The samples are uniformly placed at sample interval depths
   // Dividing by 1000.0 to convert from microseconds to milliseconds.
   float zStep = this->SampleInterval / 1000.0;
-  std::array<double, 3> o = {coordFirst[0],
-                             coordFirst[1],
-                             - zStep * (this->SampleCountPerTrace - 1)};
+  std::array<double, 3> o = {{coordFirst[0],
+                              coordFirst[1],
+                              - zStep * (this->SampleCountPerTrace - 1)}};
   std::copy(o.begin(), o.end(), origin);
   auto s = {xStep, yStep, zStep};
   std::copy(s.begin(), s.end(), spacing);
