@@ -269,7 +269,7 @@ int vtkAxesActor::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkAxesActor::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkAxesActor::HasTranslucentPolygonalGeometry()
 {
   int result = 0;
 

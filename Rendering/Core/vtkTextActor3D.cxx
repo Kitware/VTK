@@ -216,7 +216,7 @@ int vtkTextActor3D::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkTextActor3D::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkTextActor3D::HasTranslucentPolygonalGeometry()
 {
   this->UpdateImageActor();
   return this->ImageActor->HasTranslucentPolygonalGeometry();

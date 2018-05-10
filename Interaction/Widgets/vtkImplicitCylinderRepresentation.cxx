@@ -558,7 +558,7 @@ int vtkImplicitCylinderRepresentation::RenderTranslucentPolygonalGeometry(
 }
 
 //-----------------------------------------------------------------------------
-int vtkImplicitCylinderRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkImplicitCylinderRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result=0;
   result |= this->OutlineActor->HasTranslucentPolygonalGeometry();

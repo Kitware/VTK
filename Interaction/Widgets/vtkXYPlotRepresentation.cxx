@@ -149,7 +149,7 @@ int vtkXYPlotRepresentation::RenderTranslucentPolygonalGeometry( vtkViewport* w 
 }
 
 //-------------------------------------------------------------------------
-int vtkXYPlotRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkXYPlotRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = this->Superclass::HasTranslucentPolygonalGeometry();
   if ( this->XYPlotActor )

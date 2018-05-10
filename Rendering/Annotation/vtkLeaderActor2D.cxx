@@ -660,7 +660,7 @@ int vtkLeaderActor2D::RenderOverlay(vtkViewport *viewport)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkLeaderActor2D::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkLeaderActor2D::HasTranslucentPolygonalGeometry()
 {
   return 0;
 }

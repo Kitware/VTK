@@ -41,7 +41,7 @@ public:
   virtual void RenderOverlay(vtkViewport*, vtkActor2D*) {}
   virtual void RenderOpaqueGeometry(vtkViewport*, vtkActor2D*) {}
   virtual void RenderTranslucentPolygonalGeometry(vtkViewport*, vtkActor2D*) {}
-  virtual int HasTranslucentPolygonalGeometry() { return 0; }
+  virtual vtkTypeBool HasTranslucentPolygonalGeometry() { return 0; }
 
 protected:
   vtkMapper2D() {}

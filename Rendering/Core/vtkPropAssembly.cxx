@@ -109,7 +109,7 @@ int vtkPropAssembly::RenderTranslucentPolygonalGeometry(vtkViewport *ren)
 
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkPropAssembly::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkPropAssembly::HasTranslucentPolygonalGeometry()
 {
   vtkProp *prop;
   vtkAssemblyPath *path;

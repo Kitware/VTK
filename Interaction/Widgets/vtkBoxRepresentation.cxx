@@ -1524,7 +1524,7 @@ int vtkBoxRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *v)
 }
 
 //----------------------------------------------------------------------------
-int vtkBoxRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkBoxRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result=0;
   this->BuildRepresentation();

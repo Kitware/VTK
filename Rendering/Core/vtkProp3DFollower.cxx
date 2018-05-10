@@ -210,7 +210,7 @@ void vtkProp3DFollower::ReleaseGraphicsResources(vtkWindow *w)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkProp3DFollower::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkProp3DFollower::HasTranslucentPolygonalGeometry()
 {
   if ( this->Device )
   {

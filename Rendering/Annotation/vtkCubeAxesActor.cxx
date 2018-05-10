@@ -577,7 +577,7 @@ int vtkCubeAxesActor::RenderOverlay(vtkViewport *viewport)
 }
 
 // --------------------------------------------------------------------------
-int vtkCubeAxesActor::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkCubeAxesActor::HasTranslucentPolygonalGeometry()
 {
   if ((this->NumberOfAxesX > 0 &&
        this->XAxes[0]->HasTranslucentPolygonalGeometry()) ||

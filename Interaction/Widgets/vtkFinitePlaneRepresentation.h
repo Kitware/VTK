@@ -141,7 +141,7 @@ public:
   void ReleaseGraphicsResources(vtkWindow*) override;
   int  RenderOpaqueGeometry(vtkViewport*) override;
   int  RenderTranslucentPolygonalGeometry(vtkViewport*) override;
-  int  HasTranslucentPolygonalGeometry() override;
+  vtkTypeBool HasTranslucentPolygonalGeometry() override;
   //@}
 
   vtkSetClampMacro(InteractionState, int, Outside, Pushing);

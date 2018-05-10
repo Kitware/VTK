@@ -277,7 +277,7 @@ int vtkCaptionRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *w)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkCaptionRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkCaptionRepresentation::HasTranslucentPolygonalGeometry()
 {
   this->BuildRepresentation();
   int result = this->Superclass::HasTranslucentPolygonalGeometry();

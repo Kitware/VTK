@@ -113,7 +113,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderVolumetricGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
-  int HasTranslucentPolygonalGeometry() override;
+  vtkTypeBool HasTranslucentPolygonalGeometry() override;
   //@}
 
   /*

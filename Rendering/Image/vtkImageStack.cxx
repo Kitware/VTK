@@ -242,7 +242,7 @@ double *vtkImageStack::GetBounds()
 
 //----------------------------------------------------------------------------
 // Does this prop have some translucent polygonal geometry?
-int vtkImageStack::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkImageStack::HasTranslucentPolygonalGeometry()
 {
   vtkCollectionSimpleIterator pit;
   this->Images->InitTraversal(pit);

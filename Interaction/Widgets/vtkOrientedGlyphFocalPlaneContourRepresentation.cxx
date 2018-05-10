@@ -901,7 +901,7 @@ int vtkOrientedGlyphFocalPlaneContourRepresentation::RenderTranslucentPolygonalG
 }
 
 //-----------------------------------------------------------------------------
-int vtkOrientedGlyphFocalPlaneContourRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkOrientedGlyphFocalPlaneContourRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = this->LinesActor->HasTranslucentPolygonalGeometry();
   if ( this->Actor->GetVisibility() )

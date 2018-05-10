@@ -737,7 +737,7 @@ int vtkFinitePlaneRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport
 }
 
 //----------------------------------------------------------------------------
-int vtkFinitePlaneRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkFinitePlaneRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = 0;
   this->BuildRepresentation();

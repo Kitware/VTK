@@ -151,7 +151,7 @@ public:
   void GetActors(vtkPropCollection *pc) override;
   void ReleaseGraphicsResources(vtkWindow*) override;
   int RenderOverlay(vtkViewport*) override;
-  int HasTranslucentPolygonalGeometry() override;
+  vtkTypeBool HasTranslucentPolygonalGeometry() override;
   //@}
 
 protected:

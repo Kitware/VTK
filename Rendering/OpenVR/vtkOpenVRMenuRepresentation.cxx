@@ -238,7 +238,7 @@ int vtkOpenVRMenuRepresentation::RenderOverlay(vtkViewport *v)
 }
 
 //-----------------------------------------------------------------------------
-int vtkOpenVRMenuRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkOpenVRMenuRepresentation::HasTranslucentPolygonalGeometry()
 {
   return 0;
 }

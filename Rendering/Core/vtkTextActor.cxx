@@ -504,7 +504,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkTextActor::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkTextActor::HasTranslucentPolygonalGeometry()
 {
   return 0;
 }

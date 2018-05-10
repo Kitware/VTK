@@ -233,7 +233,7 @@ int vtkPlaybackRepresentation::RenderTranslucentPolygonalGeometry(
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkPlaybackRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkPlaybackRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = this->Superclass::HasTranslucentPolygonalGeometry();
   result |= this->Actor->HasTranslucentPolygonalGeometry();

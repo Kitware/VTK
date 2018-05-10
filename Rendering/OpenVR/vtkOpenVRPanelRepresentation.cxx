@@ -472,7 +472,7 @@ int vtkOpenVRPanelRepresentation::RenderTranslucentPolygonalGeometry(
 }
 
 //-----------------------------------------------------------------------------
-int vtkOpenVRPanelRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkOpenVRPanelRepresentation::HasTranslucentPolygonalGeometry()
 {
   if (!this->GetVisibility())
   {

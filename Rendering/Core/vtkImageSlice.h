@@ -139,7 +139,7 @@ public:
    * Internal method, should only be used by rendering.
    * This method will always return 0 unless ForceTranslucent is On.
    */
-  int HasTranslucentPolygonalGeometry() override;
+  vtkTypeBool HasTranslucentPolygonalGeometry() override;
 
   /**
    * This causes the image and its mapper to be rendered. Note that a side

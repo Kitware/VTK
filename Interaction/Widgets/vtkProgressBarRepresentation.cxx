@@ -231,7 +231,7 @@ int vtkProgressBarRepresentation::RenderTranslucentPolygonalGeometry(
 }
 
 //-----------------------------------------------------------------------------
-int vtkProgressBarRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkProgressBarRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = this->Superclass::HasTranslucentPolygonalGeometry();
   if (this->DrawBackground)

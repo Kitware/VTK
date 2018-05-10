@@ -71,7 +71,7 @@ class VTKRENDERINGCORE_EXPORT vtkFollower : public vtkActor
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  int HasTranslucentPolygonalGeometry() override;
+  vtkTypeBool HasTranslucentPolygonalGeometry() override;
 
   /**
    * Release any graphics resources associated with this vtkProp3DFollower.

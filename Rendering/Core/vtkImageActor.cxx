@@ -472,7 +472,7 @@ int vtkImageActor::GetWholeZMax()
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkImageActor::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkImageActor::HasTranslucentPolygonalGeometry()
 {
   if (this->ForceOpaque)
   {

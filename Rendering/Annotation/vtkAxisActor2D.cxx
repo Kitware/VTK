@@ -208,7 +208,7 @@ int vtkAxisActor2D::RenderOverlay(vtkViewport *viewport)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkAxisActor2D::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkAxisActor2D::HasTranslucentPolygonalGeometry()
 {
   return 0;
 }

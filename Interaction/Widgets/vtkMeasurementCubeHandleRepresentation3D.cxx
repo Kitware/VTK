@@ -749,7 +749,7 @@ int vtkMeasurementCubeHandleRepresentation3D::RenderTranslucentPolygonalGeometry
 }
 
 //-----------------------------------------------------------------------------
-int vtkMeasurementCubeHandleRepresentation3D::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkMeasurementCubeHandleRepresentation3D::HasTranslucentPolygonalGeometry()
 {
   int result=0;
   this->BuildRepresentation();

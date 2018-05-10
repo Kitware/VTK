@@ -736,7 +736,7 @@ int vtkCurveRepresentation::RenderOverlay(vtkViewport* win)
 }
 
 //----------------------------------------------------------------------------
-int vtkCurveRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkCurveRepresentation::HasTranslucentPolygonalGeometry()
 {
   this->BuildRepresentation();
   int count = 0;

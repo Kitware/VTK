@@ -178,7 +178,7 @@ int vtkActor2D::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
 }
 
 //-----------------------------------------------------------------------------
-int vtkActor2D::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkActor2D::HasTranslucentPolygonalGeometry()
 {
   int result;
   if(this->Mapper)

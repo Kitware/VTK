@@ -785,7 +785,7 @@ int vtkImplicitPlaneRepresentation::RenderTranslucentPolygonalGeometry(
 }
 
 //-----------------------------------------------------------------------------
-int vtkImplicitPlaneRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkImplicitPlaneRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result=0;
   if ( this->DrawOutline )

@@ -534,7 +534,7 @@ int vtkSphereHandleRepresentation
 }
 
 //-----------------------------------------------------------------------------
-int vtkSphereHandleRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkSphereHandleRepresentation::HasTranslucentPolygonalGeometry()
 {
   return 0; //this->Actor->HasTranslucentPolygonalGeometry();
 }

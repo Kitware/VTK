@@ -121,7 +121,7 @@ public:
   int RenderOverlay(vtkViewport *viewport) override;
   int RenderOpaqueGeometry(vtkViewport *viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
-  int HasTranslucentPolygonalGeometry() override;
+  vtkTypeBool HasTranslucentPolygonalGeometry() override;
   //@}
 
 protected:

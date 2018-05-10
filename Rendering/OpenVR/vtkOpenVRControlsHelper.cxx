@@ -444,7 +444,7 @@ int vtkOpenVRControlsHelper::RenderTranslucentPolygonalGeometry(
 }
 
 //-----------------------------------------------------------------------------
-int vtkOpenVRControlsHelper::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkOpenVRControlsHelper::HasTranslucentPolygonalGeometry()
 {
   if (!this->GetVisibility())
   {

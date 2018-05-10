@@ -968,7 +968,7 @@ int vtkLineRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *v)
 }
 
 //----------------------------------------------------------------------------
-int vtkLineRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkLineRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result=0;
   this->BuildRepresentation();

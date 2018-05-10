@@ -210,7 +210,7 @@ public:
   void ReleaseGraphicsResources(vtkWindow *) override;
   int RenderOpaqueGeometry(vtkViewport *viewport) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
-  int HasTranslucentPolygonalGeometry() override;
+  vtkTypeBool HasTranslucentPolygonalGeometry() override;
   //@}
 
   void Highlight(int highlight) override;

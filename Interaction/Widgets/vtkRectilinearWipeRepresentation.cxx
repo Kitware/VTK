@@ -432,7 +432,7 @@ int vtkRectilinearWipeRepresentation::RenderTranslucentPolygonalGeometry(
 }
 
 //-----------------------------------------------------------------------------
-int vtkRectilinearWipeRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkRectilinearWipeRepresentation::HasTranslucentPolygonalGeometry()
 {
   return this->WipeActor->HasTranslucentPolygonalGeometry();
 }

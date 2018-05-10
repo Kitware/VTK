@@ -303,7 +303,7 @@ void vtkBillboardTextActor3D::ForceTranslucentOff()
 }
 
 //------------------------------------------------------------------------------
-int vtkBillboardTextActor3D::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkBillboardTextActor3D::HasTranslucentPolygonalGeometry()
 {
   return this->QuadActor->HasTranslucentPolygonalGeometry();
 }

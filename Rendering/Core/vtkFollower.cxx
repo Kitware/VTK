@@ -231,7 +231,7 @@ void vtkFollower::ReleaseGraphicsResources(vtkWindow *w)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkFollower::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkFollower::HasTranslucentPolygonalGeometry()
 {
   if ( ! this->Mapper )
   {
