@@ -142,7 +142,7 @@ public:
    * The tolerance for geometric tests in the filter
    */
   vtkGetMacro(Tolerance, double);
-  vtkSetMacro(Tolerance, double);
+  vtkSetClampMacro(Tolerance, double, 0.0, VTK_DOUBLE_MAX);
   //@}
 
   //@{
