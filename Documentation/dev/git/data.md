@@ -117,10 +117,10 @@ Copy the data file into your local source tree.
 
     During configuration CMake will display a message such as:
 
-        Linked Some/Module/Testing/Data/Baseline/MyTest.png.md5 to ExternalData MD5/...
+        Linked Some/Module/Testing/Data/Baseline/MyTest.png.sha512 to ExternalData SHA512/...
 
     This means that CMake converted the file into a data object referenced
-    by a "content link" named like the original file but with a `.md5`
+    by a "content link" named like the original file but with a `.sha512`
     extension.  CMake also [renamed the original file](#externaldata).
 
 3.  Build
@@ -146,15 +146,15 @@ Continue to [create the topic](develop.md#create-a-topic) and edit other
 files as necessary.  Add the content link and commit it along with the
 other changes:
 
-    $ git add Some/Module/Testing/Data/Baseline/MyTest.png.md5
+    $ git add Some/Module/Testing/Data/Baseline/MyTest.png.sha512
     $ git add Some/Module/Testing/Data/CMakeLists.txt
     $ git commit
 
 The local `pre-commit` hook will display a message such as:
 
-    Some/Module/Testing/Data/Baseline/MyTest.png.md5: Added content to Git at refs/data/MD5/...
-    Some/Module/Testing/Data/Baseline/MyTest.png.md5: Added content to local store at .ExternalData/MD5/...
-    Content link Some/Module/Testing/Data/Baseline/MyTest.png.md5 -> .ExternalData/MD5/...
+    Some/Module/Testing/Data/Baseline/MyTest.png.sha512: Added content to Git at refs/data/SHA512/...
+    Some/Module/Testing/Data/Baseline/MyTest.png.sha512: Added content to local store at .ExternalData/SHA512/...
+    Content link Some/Module/Testing/Data/Baseline/MyTest.png.sha512 -> .ExternalData/SHA512/...
 
 This means that the pre-commit hook recognized that the content link
 references a new data object and [prepared it for upload](#pre-commit).
@@ -193,9 +193,9 @@ your build tree the `VTKData` target must be built.  One may build the
 target directly, e.g. `make VTKData`, to obtain the data without a
 complete build.  The output will be something like
 
-    -- Fetching ".../ExternalData/MD5/..."
+    -- Fetching ".../ExternalData/SHA512/..."
     -- [download 100% complete]
-    -- Downloaded object: "VTK-build/ExternalData/Objects/MD5/..."
+    -- Downloaded object: "VTK-build/ExternalData/Objects/SHA512/..."
 
 The downloaded files appear in `VTK-build/ExternalData` by default.
 
@@ -231,22 +231,22 @@ discuss details of the workflow implementation.
 
 While [CMake runs](#run-cmake) the [ExternalData][] module evaluates
 [DATA{} references](#add-test).  VTK [sets](/CMake/vtkExternalData.cmake)
-the `ExternalData_LINK_CONTENT` option to `MD5` to enable automatic
+the `ExternalData_LINK_CONTENT` option to `SHA512` to enable automatic
 conversion of raw data files into content links.  When the module detects
 a real data file in the source tree it performs the following
 transformation as specified in the module documentation:
 
-* Compute the MD5 hash of the file
-* Store the `${hash}` in a file with the original name plus `.md5`
-* Rename the original file to `.ExternalData_MD5_${hash}`
+* Compute the SHA512 hash of the file
+* Store the `${hash}` in a file with the original name plus `.sha512`
+* Rename the original file to `.ExternalData_SHA512_${hash}`
 
 The real data now sit in a file that we [tell Git to ignore](/.gitignore).
 For example:
 
-    $ cat Some/Module/Testing/Data/Baseline/.ExternalData_MD5_477e602800c18624d9bc7a32fa706b97 |md5sum
-    477e602800c18624d9bc7a32fa706b97  -
-    $ cat Some/Module/Testing/Data/Baseline/MyTest.png.md5
-    477e602800c18624d9bc7a32fa706b97
+    $ cat Some/Module/Testing/Data/Baseline/.ExternalData_SHA512_477e6028* |sha512sum
+    477e6028...  -
+    $ cat Some/Module/Testing/Data/Baseline/MyTest.png.sha512
+    477e6028...
 
 #### Recover Data File ####
 
@@ -254,26 +254,26 @@ To recover the original file after running CMake but before committing,
 undo the operation:
 
     $ cd Some/Module/Testing/Data/Baseline
-    $ mv .ExternalData_MD5_$(cat MyTest.png.md5) MyTest.png
+    $ mv .ExternalData_SHA512_$(cat MyTest.png.sha512) MyTest.png
 
 ### pre-commit ###
 
 While [committing](#commit) a new or modified content link the
 [pre-commit](/Utilities/Scripts/pre-commit) hook moves the real data
-object from the `.ExternalData_MD5_${hash}` file left by the
+object from the `.ExternalData_SHA512_${hash}` file left by the
 [ExternalData][] module to a local object repository stored in a
 `.ExternalData` directory at the top of the source tree.
 
 The hook also uses Git plumbing commands to store the data object
 as a blob in the local Git repository.  The blob is not referenced
-by the new commit but instead by `refs/data/MD5/${hash}`.
+by the new commit but instead by `refs/data/SHA512/${hash}`.
 This keeps the blob alive in the local repository but does not add
 it to the project history.  For example:
 
     $ git for-each-ref --format="%(refname)" refs/data
-    refs/data/MD5/477e602800c18624d9bc7a32fa706b97
-    $ git cat-file blob refs/data/MD5/477e602800c18624d9bc7a32fa706b97 | md5sum
-    477e602800c18624d9bc7a32fa706b97  -
+    refs/data/SHA512/477e6028...
+    $ git cat-file blob refs/data/SHA512/477e6028... | sha512sum
+    477e6028...  -
 
 ### git gitlab-push ###
 
@@ -288,8 +288,8 @@ The script pushes the matching data objects to your VTK GitLab fork.
 For example:
 
     $ git gitlab-push --dry-run --no-topic
-    *       refs/data/MD5/477e602800c18624d9bc7a32fa706b97:refs/data/MD5/477e602800c18624d9bc7a32fa706b97   [new branch]
-    Pushed refs/data/MD5/477e602800c18624d9bc7a32fa706b97 and removed local ref.
+    *       refs/data/SHA512/477e6028...:refs/data/SHA512/477e6028...   [new branch]
+    Pushed refs/data/SHA512/477e6028... and removed local ref.
 
 A GitLab webhook that triggers whenever a topic branch is pushed checks
 for `refs/data/` in your VTK GitLab fork, fetches them, erases the refs
@@ -299,9 +299,9 @@ from your fork, and uploads them to a location that we
 To verify that the data has been uploaded as expected, you may direct
 a web browser to the location where ExternalData has uploaded the files.
 For VTK, that location is currently
-`http://www.vtk.org/files/ExternalData/MD5/XXXX` where `XXXX` is the
-complete MD5 hash stored in the content link file (e.g., the text in
-`MyTest.png.md5`).
+`http://www.vtk.org/files/ExternalData/SHA512/XXXX` where `XXXX` is the
+complete SHA512 hash stored in the content link file (e.g., the text in
+`MyTest.png.sha512`).
 
 ### Publishing Data for an External Branch ###
 
@@ -314,8 +314,8 @@ The workflow for adding data to an external branch of VTK is the same
 as the above through the [commit](#commit) step, but diverges at the
 [push](#push) step because one will push to a separate repository.
 Our ExternalData infrastructure intentionally hides the real data files
-from Git so only the content links (`.md5` files) will be pushed.
-The real data objects will still be left in the `.ExternalData/MD5`
+from Git so only the content links (`.sha512` files) will be pushed.
+The real data objects will still be left in the `.ExternalData/SHA512`
 directory at the top of the VTK source tree by the
 [pre-commit](#pre-commit) hook.
 
@@ -330,7 +330,7 @@ In this example we assume the files are published on a [Github Pages][]
 `gh-pages` branch in `username`'s fork of VTK.
 
 Within the `gh-pages` branch the files are placed at
-`ExternalData/MD5/$md5sum` where `$md5sum` is the MD5 hash of the content
+`ExternalData/SHA512/$sha512sum` where `$sha512sum` is the SHA512 hash of the content
 (these are the same names they have in the `.ExternalData` directory in
 the original source tree).
 
