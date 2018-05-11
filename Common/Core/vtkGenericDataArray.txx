@@ -380,7 +380,7 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
-int vtkGenericDataArray<DerivedT, ValueTypeT>
+vtkTypeBool vtkGenericDataArray<DerivedT, ValueTypeT>
 ::Allocate(vtkIdType size, vtkIdType vtkNotUsed(ext))
 {
   // Allocator must updated this->Size and this->MaxId properly.

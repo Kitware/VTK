@@ -166,7 +166,7 @@ public:
    * Allocate memory for this array. Delete old storage only if necessary.
    * Note that ext is no longer used.
    */
-  int Allocate( vtkIdType sz, vtkIdType ext=1000 ) override;
+  vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext=1000 ) override;
 
   /**
    * Get the data at a particular index.
