@@ -166,7 +166,7 @@ protected:
   vtkIdType MaximumNumberOfPoints;
   vtkTypeBool GenerateVertices; //generate polydata verts
   vtkTypeBool SingleVertexPerCell;
-  vtkTypeBool RandomModeType; // choose the random sampling mode
+  int RandomModeType; // choose the random sampling mode
   vtkTypeBool ProportionalMaximumNumberOfPoints;
   int OutputPointsPrecision;
 
