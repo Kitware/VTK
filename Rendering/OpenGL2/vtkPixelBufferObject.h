@@ -260,7 +260,7 @@ public:
     { this->Bind(UNPACKED_BUFFER); }
 
   /**
-   * Inactivate the buffer.
+   * Deactivate the buffer.
    */
   void UnBind();
 
@@ -349,7 +349,7 @@ public:
 
   /**
    * Returns if the context supports the required extensions.
-   * Extension will be loaded when the conetxt is set.
+   * Extension will be loaded when the context is set.
    */
   static bool IsSupported(vtkRenderWindow* renWin);
 

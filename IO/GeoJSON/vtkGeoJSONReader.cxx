@@ -452,7 +452,7 @@ int vtkGeoJSONReader::RequestData(vtkInformation* vtkNotUsed(request),
   // Get the output
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  // Parse either string input of file, depeding on mode
+  // Parse either string input of file, depending on mode
   Json::Value root;
   int parseResult = 0;
   if (this->StringInputMode)

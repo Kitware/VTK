@@ -564,7 +564,7 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
     // loop over all cells.
     //
     // This is going to have a problem if the input has 2D and 3D cells.
-    // I am fixing a bug where cell data is scrambled becauses with
+    // I am fixing a bug where cell data is scrambled because with
     // vtkPolyData output, verts and lines have lower cell ids than triangles.
     for (iter=0; iter < numContours && !abortExecute; iter++)
     {

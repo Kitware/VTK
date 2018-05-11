@@ -294,7 +294,7 @@ void vtkAMRResampleFilter::CopyData(
     vtkDataArray *srcArray    = src->GetArray( arrayIdx );
     assert( "pre: target array is nullptr!" && (targetArray != nullptr) );
     assert( "pre: source array is nullptr!" && (srcArray != nullptr) );
-    assert( "pre: targer/source array number of components mismatch!" &&
+    assert( "pre: target/source array number of components mismatch!" &&
             (targetArray->GetNumberOfComponents()==
              srcArray->GetNumberOfComponents() ) );
     assert( "pre: target/source array names mismatch!" &&

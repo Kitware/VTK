@@ -705,7 +705,7 @@ int vtkCheckerboardSplatter::RequestData(
   vtkDataArray *inNormals = input->GetPointData()->GetNormals();
 
   // Okay actually execute the algorithm. Manage all the crazy template
-  // stuff. Note that the output types are currently limitied to
+  // stuff. Note that the output types are currently limited to
   // (float,double) to manage precision. The point type is also limited
   // to real types but could be easily extended to other types.
   void *ptsPtr = points->GetVoidPointer(0);

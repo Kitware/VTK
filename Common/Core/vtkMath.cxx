@@ -475,7 +475,7 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size)
 }
 
 //----------------------------------------------------------------------------
-// Factor linear equations Ax = b using LU decompostion A = LU where L is
+// Factor linear equations Ax = b using LU decomposition A = LU where L is
 // lower triangular matrix and U is upper triangular matrix. Input is
 // square matrix A, integer array of pivot indices index[0->n-1], and size
 // of square matrix n. Output factorization LU is in matrix A. If error is
@@ -581,7 +581,7 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
 }
 
 //----------------------------------------------------------------------------
-// Solve linear equations Ax = b using LU decompostion A = LU where L is
+// Solve linear equations Ax = b using LU decomposition A = LU where L is
 // lower triangular matrix and U is upper triangular matrix. Input is
 // factored matrix A=LU, integer array of pivot indices index[0->n-1],
 // load vector x[0->n-1], and size of square matrix n. Note that A=LU and
@@ -1270,7 +1270,7 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size,
 
 
 
-// Factor linear equations Ax = b using LU decompostion A = LU where L is
+// Factor linear equations Ax = b using LU decomposition A = LU where L is
 // lower triangular matrix and U is upper triangular matrix. Input is
 // square matrix A, integer array of pivot indices index[0->n-1], and size
 // of square matrix n. Output factorization LU is in matrix A. If error is

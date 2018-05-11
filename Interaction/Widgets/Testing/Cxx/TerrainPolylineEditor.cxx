@@ -186,7 +186,7 @@ int TerrainPolylineEditor(int argc, char * argv[])
     << "\tThe projection mode may optionally be specified. [0-Simple,1-NonOccluded\n"
     << ",2-Hug]. (defaults to Hug)\n"
     << "\tA height offset may be specified. Defaults to 0.0\n"
-    << "\tIf a polydata is specified, an initial contour is constucted from\n"
+    << "\tIf a polydata is specified, an initial contour is constructed from\n"
     << "the points in the polydata. The polydata is expected to be a polyline\n"
     << "(one cell and two or more points on that cell)."
     << std::endl;

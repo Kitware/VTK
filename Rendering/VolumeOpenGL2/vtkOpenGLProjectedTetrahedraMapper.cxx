@@ -679,7 +679,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
 
   float unit_distance = volume->GetProperty()->GetScalarOpacityUnitDistance();
 
-  // build the VBO and IBOs,  we so these in chuncks as based on
+  // build the VBO and IBOs, we do these in chunks as based on
   // the settings of the VisibilitySort tclass
   this->VBO->SetStride(6*sizeof(float));
 

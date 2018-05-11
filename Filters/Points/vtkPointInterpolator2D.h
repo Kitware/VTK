@@ -28,7 +28,7 @@
  * this filter presumes that P lies on a plane z=0.0, thus z-coordinates
  * are set accordingly during the interpolation process.
  *
- * The optional boolen flag InterpolateZ is provided for convenience. In
+ * The optional boolean flag InterpolateZ is provided for convenience. In
  * effect it turns the source z coordinates into an additional array that is
  * interpolated onto the output data. For example, if the source is a x-y-z
  * LIDAR point cloud, then z can be interpolated onto the output dataset as a

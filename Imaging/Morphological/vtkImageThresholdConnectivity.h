@@ -68,7 +68,7 @@ public:
   void ThresholdByLower(double thresh);
 
   /**
-   * Values within this range will be filled, where the range inludes
+   * Values within this range will be filled, where the range includes
    * values that are exactly equal to the lower and upper thresholds.
    */
   void ThresholdBetween(double lower, double upper);

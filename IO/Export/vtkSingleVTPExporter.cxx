@@ -264,7 +264,7 @@ void vtkSingleVTPExporter::ProcessTriangle(
   }
 
   // Step 3, neither of the above worked so instead
-  // subdivide the triangel into 4 and recurse
+  // subdivide the triangle into 4 and recurse
   // add 3 points and interpolated data for them
   vtkIdType nptids[3];
   for (int i = 0; i < 3; i++)
@@ -292,7 +292,7 @@ void vtkSingleVTPExporter::ProcessTriangle(
 }
 
 // for an input polydata with texture coordinates handle any
-// triangels with repeating textures. Basically calls
+// triangles with repeating textures. Basically calls
 // process triangle for each input triangle.
 vtkPolyData *vtkSingleVTPExporter::FixTextureCoordinates(vtkPolyData *ipd)
 {

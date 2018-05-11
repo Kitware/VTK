@@ -182,7 +182,7 @@ protected:
   double    HeightTolerance;
   vtkIdType MaximumNumberOfLines;
 
-  //Bookeeping arrays
+  //Bookkeeping arrays
   int          Dimensions[3];
   int          Extent[6];
   double       Origin[3];

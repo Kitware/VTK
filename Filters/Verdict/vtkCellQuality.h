@@ -219,7 +219,7 @@ public:
   /**
    * Set/Get the return value for unsupported geometry. Unsupported geometry
    * are geometries that are not supported by this filter currently, future
-   * implementation might include support for them. The defalut value for
+   * implementation might include support for them. The default value for
    * UnsupportedGeometry is -1.
    */
   vtkSetMacro(UnsupportedGeometry, double);

@@ -260,7 +260,7 @@ public:
   void TriggerRMI(int remoteProcessId, void *arg, int argLength, int tag);
 
   /**
-   * A conveniance method.  Called on process 0 to break "ProcessRMIs" loop
+   * A convenience method.  Called on process 0 to break "ProcessRMIs" loop
    * on all other processes.
    */
   void TriggerBreakRMIs();

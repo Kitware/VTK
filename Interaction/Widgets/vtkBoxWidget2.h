@@ -33,7 +33,7 @@
  * the event that it handles.
  *
  * To use this widget, you generally pair it with a vtkBoxRepresentation
- * (or a subclass). Variuos options are available in the representation for
+ * (or a subclass). Various options are available in the representation for
  * controlling how the widget appears, and how the widget functions.
  *
  * @par Event Bindings:

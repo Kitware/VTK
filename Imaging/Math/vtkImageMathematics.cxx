@@ -158,7 +158,7 @@ void vtkImageMathematicsExecute1(vtkImageMathematics *self,
       }
       for (idxR = 0; idxR < rowLength; idxR++)
       {
-        // Pixel operaton
+        // Pixel operation
         switch (op)
         {
           case VTK_INVERT:

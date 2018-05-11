@@ -19,7 +19,7 @@
  * The vtkAxesTransformRepresentation is a representation for the
  * vtkAxesTransformWidget. This representation consists of a origin sphere
  * with three tubed axes with cones at the end of the axes. In addition an
- * optional lable provides delta values of motion. Note that this particular
+ * optional label provides delta values of motion. Note that this particular
  * widget draws its representation in 3D space, so the widget can be
  * occluded.
  * @sa

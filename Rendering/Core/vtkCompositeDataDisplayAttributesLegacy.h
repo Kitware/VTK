@@ -56,7 +56,7 @@ public:
   //@}
 
   /**
-   * Returns true if the block with the given flat_index has a visiblity
+   * Returns true if the block with the given flat_index has a visibility
    * set.
    */
   bool HasBlockVisibility(unsigned int flat_index) const;
@@ -88,7 +88,7 @@ public:
   //@}
 
   /**
-   * Returns true if the block with the given flat_index has a visiblity
+   * Returns true if the block with the given flat_index has a visibility
    * set.
    */
   bool HasBlockPickability(unsigned int flat_index) const;

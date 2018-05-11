@@ -33,7 +33,7 @@
 //-------------------------------------------------------------------------
 int TestTemporalFractal(int argc, char *argv[])
 {
-  // we have to use a compsite pipeline
+  // we have to use a composite pipeline
   vtkCompositeDataPipeline* prototype = vtkCompositeDataPipeline::New();
   vtkAlgorithm::SetDefaultExecutivePrototype(prototype);
   prototype->Delete();

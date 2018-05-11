@@ -3,7 +3,7 @@ import vtk
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-# This Script test the euclidean to polar by coverting 2D vectors
+# This Script test the euclidean to polar by converting 2D vectors
 # from a gradient into polar, which is converted into HSV, and then to RGB.
 # Image pipeline
 gauss = vtk.vtkImageGaussianSource()

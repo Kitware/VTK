@@ -61,7 +61,7 @@ struct Row
       Delimiter, Number, Delimiter, Number, Delimiter, Number, star<space>> {};
 
 struct Grammar : star<Row> {};
-} // namepsace LegacyPositionFile
+} // namespace LegacyPositionFile
 
 //-----------------------------------------------------------------------------
 // rules for parsing a position file in orientations formation.

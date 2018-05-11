@@ -670,7 +670,7 @@ protected:
   void ResetPartsCache();
 private:
 
-  //Helper templated methods to optimze reading. We cast the entire buffer
+  //Helper templated methods to optimize reading. We cast the entire buffer
   //to a given type instead of casting each element to improve performance
   template<typename T>
   void FillDeletionArray(T* buffer, vtkUnsignedCharArray* arr, const vtkIdType& start, const vtkIdType& numCells,

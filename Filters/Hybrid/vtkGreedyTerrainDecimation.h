@@ -211,7 +211,7 @@ protected:
   vtkIdType      MaximumNumberOfTriangles;
   double         Length;
 
-  //Bookeeping arrays
+  //Bookkeeping arrays
   vtkPriorityQueue                          *TerrainError; //errors for each pt in height field
   vtkGreedyTerrainDecimationTerrainInfoType *TerrainInfo;  //owning triangle for each pt
   vtkGreedyTerrainDecimationPointInfoType   *PointInfo;    //map mesh pt id to input pt id

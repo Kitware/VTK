@@ -388,7 +388,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
 
   // Check to see whether we have to rebuild everything
   // If the viewport has changed we may - or may not need
-  // to rebuild, it depends on if the projected coords chage
+  // to rebuild, it depends on if the projected coords change
   int viewport_size_has_changed = 0;
   if (viewport->GetMTime() > this->BuildTime ||
       (viewport->GetVTKWindow() &&

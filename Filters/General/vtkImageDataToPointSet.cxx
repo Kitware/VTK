@@ -94,7 +94,7 @@ int vtkImageDataToPointSet::CopyStructure(vtkStructuredGrid *outData,
 
   if (pointId != points->GetNumberOfPoints())
   {
-    vtkErrorMacro(<< "Somehow misscounted points");
+    vtkErrorMacro(<< "Somehow miscounted points");
     return 0;
   }
 

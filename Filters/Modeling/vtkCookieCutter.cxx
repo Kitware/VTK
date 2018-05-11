@@ -874,7 +874,7 @@ namespace {
 
     // Insert "INSIDE" or "ON" edge segments into polydata (polylines) and
     // build adjacency information. We are using vtkPolyData because it does
-    // everythig we want, although there is a lot of allocation / deallocation
+    // everything we want, although there is a lot of allocation / deallocation
     // going on which is a potential area of speed improvement.
     vtkNew<vtkPoints> pDataPts;
     pDataPts->SetNumberOfPoints(numPts);

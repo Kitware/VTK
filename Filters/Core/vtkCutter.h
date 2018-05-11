@@ -188,7 +188,7 @@ public:
    * For most applications, the default order is fine (and faster).
 
    * Sort by cell is going to have a problem if the input has 2D and 3D cells.
-   * Cell data will be scrambled becauses with
+   * Cell data will be scrambled because with
    * vtkPolyData output, verts and lines have lower cell ids than triangles.
    */
   vtkSetClampMacro(SortBy,int,VTK_SORT_BY_VALUE,VTK_SORT_BY_CELL);
