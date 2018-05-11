@@ -75,7 +75,7 @@ void vtkBridgeCellIterator::Begin()
 //-----------------------------------------------------------------------------
 // Description:
 // Is there no cell at iterator position? (exit condition).
-int vtkBridgeCellIterator::IsAtEnd()
+vtkTypeBool vtkBridgeCellIterator::IsAtEnd()
 {
   int result=1;
 

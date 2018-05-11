@@ -77,7 +77,7 @@ void vtkBridgeCellIteratorOnCellList::Begin()
 //-----------------------------------------------------------------------------
 // Description:
 // Is there no cell at iterator position? (exit condition).
-int vtkBridgeCellIteratorOnCellList::IsAtEnd()
+vtkTypeBool vtkBridgeCellIteratorOnCellList::IsAtEnd()
 {
   return this->Id>=this->Cells->GetNumberOfIds();
 }

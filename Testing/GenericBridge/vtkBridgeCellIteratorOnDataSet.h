@@ -45,7 +45,7 @@ public:
   /**
    * Is there no cell at iterator position? (exit condition).
    */
-  int IsAtEnd() override;
+  vtkTypeBool IsAtEnd() override;
 
   /**
    * Cell at current position

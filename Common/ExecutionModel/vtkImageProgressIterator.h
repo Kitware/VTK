@@ -54,7 +54,7 @@ public:
    * Overridden from vtkImageIterator to check AbortExecute on the
    * filter (vtkAlgorithm).
    */
-  int IsAtEnd();
+  vtkTypeBool IsAtEnd();
 
 protected:
   vtkAlgorithm     *Algorithm;

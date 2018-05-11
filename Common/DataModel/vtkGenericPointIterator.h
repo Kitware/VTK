@@ -55,7 +55,7 @@ public:
   /**
    * Is the iterator at the end of traversal?
    */
-  virtual int IsAtEnd() = 0;
+  virtual vtkTypeBool IsAtEnd() = 0;
 
   /**
    * Move the iterator to the next position in the list.

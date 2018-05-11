@@ -76,7 +76,7 @@ public:
   /**
    * Test if the end of the extent has been reached
    */
-  int IsAtEnd()
+  vtkTypeBool IsAtEnd()
   {
     return (this->Pointer >= this->EndPointer);
   }

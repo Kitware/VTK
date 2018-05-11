@@ -55,7 +55,7 @@ public:
   /**
    * Is there no cell at iterator position? (exit condition).
    */
-  int IsAtEnd() override;
+  vtkTypeBool IsAtEnd() override;
 
   /**
    * Create an empty cell.

@@ -63,7 +63,7 @@ void vtkBridgePointIteratorOne::Begin()
 //-----------------------------------------------------------------------------
 // Description:
 // Is there no point at iterator position? (exit condition).
-int vtkBridgePointIteratorOne::IsAtEnd()
+vtkTypeBool vtkBridgePointIteratorOne::IsAtEnd()
 {
   return this->cIsAtEnd;
 }

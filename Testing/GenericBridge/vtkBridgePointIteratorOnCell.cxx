@@ -70,7 +70,7 @@ void vtkBridgePointIteratorOnCell::Begin()
 //-----------------------------------------------------------------------------
 // Description:
 // Is there no point at iterator position? (exit condition).
-int vtkBridgePointIteratorOnCell::IsAtEnd()
+vtkTypeBool vtkBridgePointIteratorOnCell::IsAtEnd()
 {
   return (this->PtIds==nullptr)||(this->Cursor>=this->PtIds->GetNumberOfIds());
 }
