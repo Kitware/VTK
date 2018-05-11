@@ -150,7 +150,7 @@ protected:
   /**
    * Filters particles by their location. If FilterLocation is ON, this
    * method returns whether or not the particle with the supplied xyz
-   * coordiantes flass within the bouning box spefixied by the user using
+   * coordinates class within the bounding box specified by the user using
    * the SetMinLocation & SetMaxLocation.
    */
   bool CheckLocation( const double x, const double y, const double z );
