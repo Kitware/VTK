@@ -310,7 +310,7 @@ unsigned char *vtkBitArray::ResizeAndExtend(vtkIdType sz)
 }
 
 //----------------------------------------------------------------------------
-int vtkBitArray::Resize(vtkIdType sz)
+vtkTypeBool vtkBitArray::Resize(vtkIdType sz)
 {
   unsigned char *newArray;
   vtkIdType newSize = sz*this->NumberOfComponents;

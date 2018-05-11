@@ -302,7 +302,7 @@ public:
    * Requesting an array size of 0 will free all memory.
    * Returns 1 if resizing succeeded and 0 otherwise.
    */
-  virtual int Resize(vtkIdType numTuples) = 0;
+  virtual vtkTypeBool Resize(vtkIdType numTuples) = 0;
 
   //@{
   /**

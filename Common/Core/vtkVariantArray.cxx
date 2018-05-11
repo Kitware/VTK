@@ -537,7 +537,7 @@ void vtkVariantArray::Squeeze()
 }
 
 //----------------------------------------------------------------------------
-int vtkVariantArray::Resize(vtkIdType sz)
+vtkTypeBool vtkVariantArray::Resize(vtkIdType sz)
 {
   vtkVariant* newArray;
   vtkIdType newSize = sz * this->GetNumberOfComponents();

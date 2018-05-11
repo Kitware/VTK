@@ -168,7 +168,7 @@ public:
   /**
    * Resize the array while conserving the data.
    */
-  int Resize(vtkIdType numTuples) override;
+  vtkTypeBool Resize(vtkIdType numTuples) override;
 
   /**
    * Get the data at a particular index.

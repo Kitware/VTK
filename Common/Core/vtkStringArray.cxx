@@ -404,7 +404,7 @@ vtkStdString * vtkStringArray::ResizeAndExtend(vtkIdType sz)
 }
 
 //-----------------------------------------------------------------------------
-int vtkStringArray::Resize(vtkIdType sz)
+vtkTypeBool vtkStringArray::Resize(vtkIdType sz)
 {
   vtkStdString * newArray;
   vtkIdType newSize = sz;

@@ -67,7 +67,7 @@ public:
     vtkIdType id1, vtkAbstractArray* source1,
     vtkIdType id2, vtkAbstractArray* source2, double t) override;
   void Squeeze() override;
-  int Resize(vtkIdType numTuples) override;
+  vtkTypeBool Resize(vtkIdType numTuples) override;
   void SetVoidArray(void *array, vtkIdType size, int save) override;
   void SetVoidArray(void *array, vtkIdType size, int save,
                     int deleteMethod) override;

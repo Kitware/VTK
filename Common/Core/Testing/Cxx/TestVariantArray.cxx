@@ -138,7 +138,7 @@ int TestVariantArray(int, char*[])
   // * void Initialize();
   // * void SetNumberOfTuples(vtkIdType number);
   // * void Squeeze();
-  // * int Resize(vtkIdType numTuples);
+  // * vtkTypeBool Resize(vtkIdType numTuples);
   // * void SetNumberOfValues(vtkIdType number);
   // * void SetVoidArray(void *arr, vtkIdType size, int save);
   // * void SetArray(vtkVariant* arr, vtkIdType size, int save);

@@ -421,7 +421,7 @@ vtkTypeBool vtkGenericDataArray<DerivedT, ValueTypeT>
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
-int vtkGenericDataArray<DerivedT, ValueTypeT>::Resize(vtkIdType numTuples)
+vtkTypeBool vtkGenericDataArray<DerivedT, ValueTypeT>::Resize(vtkIdType numTuples)
 {
   int numComps = this->GetNumberOfComponents();
   vtkIdType curNumTuples = this->Size / (numComps> 0? numComps : 1);

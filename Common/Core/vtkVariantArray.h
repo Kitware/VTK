@@ -187,7 +187,7 @@ public:
    * Resize the array while conserving the data.  Returns 1 if
    * resizing succeeded and 0 otherwise.
    */
-  int Resize(vtkIdType numTuples) override;
+  vtkTypeBool Resize(vtkIdType numTuples) override;
 
   //@{
   /**

@@ -295,7 +295,7 @@ void vtkUnicodeStringArray::Squeeze()
   this->DataChanged();
 }
 
-int vtkUnicodeStringArray::Resize(vtkIdType numTuples)
+vtkTypeBool vtkUnicodeStringArray::Resize(vtkIdType numTuples)
 {
   this->Internal->Storage.resize(numTuples);
   this->DataChanged();

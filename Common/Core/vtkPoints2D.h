@@ -182,7 +182,7 @@ public:
    * Resize the internal array while conserving the data.  Returns 1 if
    * resizing succeeded and 0 otherwise.
    */
-  int Resize(vtkIdType numPoints);
+  vtkTypeBool Resize(vtkIdType numPoints);
 
   /**
    * Given a list of pt ids, return an array of points.
@@ -230,7 +230,7 @@ inline void vtkPoints2D::SetNumberOfPoints(vtkIdType numPoints)
   this->Modified();
 }
 
-inline int vtkPoints2D::Resize(vtkIdType numPoints)
+inline vtkTypeBool vtkPoints2D::Resize(vtkIdType numPoints)
 {
   this->Data->SetNumberOfComponents(2);
   this->Modified();

@@ -84,7 +84,7 @@ public:
   /**
    * Resize the array while conserving the data.
    */
-  int Resize(vtkIdType numTuples) override;
+  vtkTypeBool Resize(vtkIdType numTuples) override;
 
   /**
    * Set the tuple at the ith location using the jth tuple in the source array.
