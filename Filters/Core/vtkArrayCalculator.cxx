@@ -427,18 +427,34 @@ int vtkArrayCalculator::RequestData(
   // Save array pointers to avoid looking them up for each tuple.
   std::vector<vtkDataArray*> scalarArrays(this->NumberOfScalarArrays);
   std::vector<vtkDataArray*> vectorArrays(this->NumberOfVectorArrays);
+  std::vector<int> scalarArrayIndicies(this->NumberOfScalarArrays);
+  std::vector<int> vectorArrayIndicies(this->NumberOfVectorArrays);
+
   for (int cc=0; cc < this->NumberOfScalarArrays; cc++)
   {
-    if (this->FunctionParser->GetScalarVariableNeeded(cc))
+    int idx = this->FunctionParser->GetScalarVariableIndex(
+      this->ScalarVariableNames[cc]);
+    if (idx >= 0)
     {
-      scalarArrays[cc] = inFD->GetArray(this->ScalarArrayNames[cc]);
+      if (this->FunctionParser->GetScalarVariableNeeded(idx))
+      {
+        scalarArrays[cc] = inFD->GetArray(this->ScalarArrayNames[cc]);
+        scalarArrayIndicies[cc] = idx;
+      }
     }
   }
+
   for (int cc=0; cc < this->NumberOfVectorArrays; cc++)
   {
-    if (this->FunctionParser->GetVectorVariableNeeded(cc))
+    int idx = this->FunctionParser->GetVectorVariableIndex(
+      this->VectorVariableNames[cc]);
+    if (idx >= 0)
     {
-      vectorArrays[cc] = inFD->GetArray(this->VectorArrayNames[cc]);
+      if (this->FunctionParser->GetVectorVariableNeeded(idx))
+      {
+        vectorArrays[cc] = inFD->GetArray(this->VectorArrayNames[cc]);
+        vectorArrayIndicies[cc] = idx;
+      }
     }
   }
 
@@ -449,16 +465,16 @@ int vtkArrayCalculator::RequestData(
       if ((currentArray = scalarArrays[j]))
       {
         this->FunctionParser->
-          SetScalarVariableValue(
-            j, currentArray->GetComponent(i, this->SelectedScalarComponents[j]));
+          SetScalarVariableValue(scalarArrayIndicies[j],
+            currentArray->GetComponent(i, this->SelectedScalarComponents[j]));
       }
     }
     for (j = 0; j < this->NumberOfVectorArrays; j++)
     {
       if ((currentArray = vectorArrays[j]))
       {
-        this->FunctionParser->SetVectorVariableValue(
-            j, currentArray->GetComponent(i, this->SelectedVectorComponents[j][0]),
+        this->FunctionParser->SetVectorVariableValue(vectorArrayIndicies[j],
+            currentArray->GetComponent(i, this->SelectedVectorComponents[j][0]),
             currentArray->GetComponent(
               i, this->SelectedVectorComponents[j][1]),
             currentArray->GetComponent(i, this->SelectedVectorComponents[j][2]));

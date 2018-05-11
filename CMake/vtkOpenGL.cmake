@@ -146,6 +146,12 @@ if(VTK_CAN_DO_ONSCREEN)
   endif()
 endif()
 
+# windows  opengl delayed loading option
+if(WIN32)
+  option(VTK_USE_OPENGL_DELAYED_LOAD "Use delayed loading for the opengl dll" FALSE)
+  mark_as_advanced(VTK_USE_OPENGL_DELAYED_LOAD)
+endif()
+
 # Function to link a VTK target to the necessary OpenGL libraries.
 function(vtk_opengl_link target)
   if(VTK_OPENGL_HAS_OSMESA)
@@ -156,5 +162,9 @@ function(vtk_opengl_link target)
   endif()
   if(VTK_CAN_DO_ONSCREEN)
     vtk_module_link_libraries(${target} LINK_PRIVATE ${OPENGL_LIBRARIES})
+  endif()
+  if (VTK_USE_OPENGL_DELAYED_LOAD)
+    vtk_module_link_libraries(${target} LINK_PRIVATE delayimp.lib)
+    set_property(TARGET ${target} APPEND_STRING PROPERTY LINK_FLAGS "/DELAYLOAD:opengl32.dll")
   endif()
 endfunction()

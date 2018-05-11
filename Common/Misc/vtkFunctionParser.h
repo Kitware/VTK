@@ -235,10 +235,20 @@ public:
     { return static_cast<int>(this->ScalarVariableNames.size()); }
 
   /**
+   * Get scalar variable index or -1 if not found
+   */
+  int GetScalarVariableIndex(const char *name);
+
+  /**
    * Get the number of vector variables.
    */
   int GetNumberOfVectorVariables()
     { return static_cast<int>(this->VectorVariableNames.size()); }
+
+  /**
+   * Get scalar variable index or -1 if not found
+   */
+  int GetVectorVariableIndex(const char *name);
 
   /**
    * Get the ith scalar variable name.
