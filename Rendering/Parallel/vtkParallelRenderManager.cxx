@@ -617,7 +617,7 @@ void vtkParallelRenderManager::StartRender()
       }
     }
 
-    int hasActiveCamera=ren->IsActiveCameraCreated();
+    vtkTypeBool hasActiveCamera=ren->IsActiveCameraCreated();
     vtkCamera *cam = ren->GetActiveCamera();
     if(!hasActiveCamera)
     {

@@ -578,7 +578,7 @@ public:
    * automatically created by the renderer. It returns 0 if the
    * ActiveCamera does not yet exist.
    */
-  int IsActiveCameraCreated()
+  vtkTypeBool IsActiveCameraCreated()
     { return (this->ActiveCamera != nullptr); }
 
 

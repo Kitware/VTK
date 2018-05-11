@@ -730,7 +730,7 @@ inline OTTetra::TetraClassification OTTetra::DetermineType()
 
 //------------------------------------------------------------------------
 // Determine whether the point is used by a specified tetra.
-inline static int IsAPoint(OTTetra *t, vtkIdType id)
+inline static vtkTypeBool IsAPoint(OTTetra *t, vtkIdType id)
 {
   if ( id == t->Points[0]->InsertionId || id == t->Points[1]->InsertionId ||
        id == t->Points[2]->InsertionId || id == t->Points[3]->InsertionId )

@@ -111,7 +111,7 @@ public:
    * Returns 1 if the solver uses adaptive stepsize control,
    * 0 otherwise
    */
-  virtual int IsAdaptive() { return this->Adaptive; }
+  virtual vtkTypeBool IsAdaptive() { return this->Adaptive; }
 
   enum ErrorCodes
   {
@@ -131,7 +131,7 @@ protected:
   double* Vals;
   double* Derivs;
   int Initialized;
-  int Adaptive;
+  vtkTypeBool Adaptive;
 
 private:
   vtkInitialValueProblemSolver(const vtkInitialValueProblemSolver&) = delete;

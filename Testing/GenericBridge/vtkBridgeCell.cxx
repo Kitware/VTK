@@ -202,7 +202,7 @@ int vtkBridgeCell::GetAttributeOrder(vtkGenericAttribute *vtkNotUsed(a))
 // Does the attribute `a' have no higher-order interpolation for the cell?
 // \pre a_exists: a!=0
 // \post definition: result==(GetAttributeOrder()==1)
-int vtkBridgeCell::IsAttributeLinear(vtkGenericAttribute *a)
+vtkTypeBool vtkBridgeCell::IsAttributeLinear(vtkGenericAttribute *a)
 {
   (void)a; // The attribute order is the order of the geometry.
   int result=this->IsGeometryLinear();

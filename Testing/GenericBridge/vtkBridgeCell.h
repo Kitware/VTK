@@ -88,7 +88,7 @@ public:
    * \pre a_exists: a!=0
    * \post definition: result==(GetAttributeOrder()==1)
    */
-  int IsAttributeLinear(vtkGenericAttribute *a);
+  vtkTypeBool IsAttributeLinear(vtkGenericAttribute *a);
 
   /**
    * Is the cell primary (i.e. not composite) ?

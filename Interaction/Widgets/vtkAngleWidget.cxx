@@ -358,7 +358,7 @@ void vtkAngleWidget::SetEnabled(int enabling)
 }
 
 //----------------------------------------------------------------------
-int vtkAngleWidget::IsAngleValid()
+vtkTypeBool vtkAngleWidget::IsAngleValid()
 {
   if ( this->WidgetState == vtkAngleWidget::Manipulate ||
        (this->WidgetState == vtkAngleWidget::Define && this->CurrentHandle == 2) )

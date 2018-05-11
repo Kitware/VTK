@@ -125,7 +125,7 @@ public:
    * A flag indicates whether the angle is valid. The angle value only becomes
    * valid after two of the three points are placed.
    */
-  int IsAngleValid();
+  vtkTypeBool IsAngleValid();
 
   /**
    * Methods to change the whether the widget responds to interaction.
