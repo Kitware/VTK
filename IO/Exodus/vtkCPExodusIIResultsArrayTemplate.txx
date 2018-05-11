@@ -275,7 +275,7 @@ template <class Scalar> vtkTypeBool vtkCPExodusIIResultsArrayTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> int vtkCPExodusIIResultsArrayTemplate<Scalar>
+template <class Scalar> vtkTypeBool vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::Resize(vtkIdType)
 {
   vtkErrorMacro("Read only container.")
