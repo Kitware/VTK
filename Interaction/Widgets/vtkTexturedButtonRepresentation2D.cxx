@@ -334,8 +334,7 @@ RenderOverlay(vtkViewport *viewport)
 }
 
 //-----------------------------------------------------------------------------
-int vtkTexturedButtonRepresentation2D::
-HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkTexturedButtonRepresentation2D::HasTranslucentPolygonalGeometry()
 {
   this->BuildRepresentation();
 

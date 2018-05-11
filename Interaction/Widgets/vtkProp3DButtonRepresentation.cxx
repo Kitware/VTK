@@ -349,8 +349,7 @@ RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
   }
 }
 //-----------------------------------------------------------------------------
-int vtkProp3DButtonRepresentation::
-HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkProp3DButtonRepresentation::HasTranslucentPolygonalGeometry()
 {
   this->BuildRepresentation();
 
