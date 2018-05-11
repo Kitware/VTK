@@ -16,6 +16,7 @@ ExternalData_stage_linked_content() {
   # Identify the hash algorithm used.
   case "$file" in
     *.md5) algo=MD5 ; base="${file/.md5}" ; validate="^[0-9a-fA-F]{32}$" ;;
+    *.sha512) algo=SHA512 ; base="${file/.sha512}" ; validate="^[0-9a-fA-F]{128}$" ;;
     *) die "$file: invalid content link (unrecognized extension)" ;;
   esac
 
@@ -62,7 +63,7 @@ ExternalData_stage_linked_content() {
 
 ExternalData_non_content_link() {
   # Reject simultaneous raw file and content link.
-  files=$(git ls-files -- "$file.md5")
+  files=$(git ls-files -- "$file.md5" "$file.sha512")
   if test -n "$files"; then
     die "$file: file may not coexist with $files"
   fi
@@ -89,7 +90,7 @@ ExternalData_STORE=".ExternalData"
 # Process content links created by/for the CMake ExternalData module.
 git diff-index --cached HEAD --diff-filter=AM |
 while read src_mode dst_mode src_obj dst_obj status file; do
-  if echo "$dst_mode $file" | egrep_q '^100644 .*\.(md5)$'; then
+  if echo "$dst_mode $file" | egrep_q '^100644 .*\.(md5|sha512)$'; then
     ExternalData_stage_linked_content
   else
     ExternalData_non_content_link
