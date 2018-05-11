@@ -48,6 +48,8 @@ public:
       : Ref(ref)
     {
     }
+private:
+    void operator=(const TagDouble&) = delete;
   };
 
   struct TagFloat
@@ -57,6 +59,8 @@ public:
       : Ref(ref)
     {
     }
+private:
+    void operator=(const TagFloat&) = delete;
   };
 
   template <typename T>
