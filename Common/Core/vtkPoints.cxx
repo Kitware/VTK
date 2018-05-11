@@ -115,7 +115,7 @@ vtkMTimeType vtkPoints::GetMTime()
   return doTime;
 }
 
-int vtkPoints::Allocate(vtkIdType sz, vtkIdType ext)
+vtkTypeBool vtkPoints::Allocate(vtkIdType sz, vtkIdType ext)
 {
   int numComp = this->Data->GetNumberOfComponents();
   return this->Data->Allocate(sz * numComp, ext * numComp);

@@ -122,7 +122,7 @@ vtkVariantArray::~vtkVariantArray()
 //
 
 //----------------------------------------------------------------------------
-int vtkVariantArray::Allocate(vtkIdType sz, vtkIdType)
+vtkTypeBool vtkVariantArray::Allocate(vtkIdType sz, vtkIdType)
 {
   if(sz > this->Size)
   {

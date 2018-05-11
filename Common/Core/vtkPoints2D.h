@@ -44,7 +44,7 @@ public:
   /**
    * Allocate initial memory size. ext is no longer used.
    */
-  virtual int Allocate(vtkIdType sz, vtkIdType ext = 1000);
+  virtual vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext = 1000);
 
   /**
    * Return object to instantiated state.

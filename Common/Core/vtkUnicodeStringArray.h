@@ -44,7 +44,7 @@ public:
   vtkTypeMacro(vtkUnicodeStringArray,vtkAbstractArray);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  int Allocate(vtkIdType sz, vtkIdType ext=1000) override;
+  vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext=1000) override;
   void Initialize() override;
   int GetDataType() override;
   int GetDataTypeSize() override;

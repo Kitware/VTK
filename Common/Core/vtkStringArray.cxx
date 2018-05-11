@@ -165,7 +165,7 @@ void vtkStringArray::SetArrayFreeFunction(void (*callback)(void *))
 //-----------------------------------------------------------------------------
 // Allocate memory for this array. Delete old storage only if necessary.
 
-int vtkStringArray::Allocate(vtkIdType sz, vtkIdType)
+vtkTypeBool vtkStringArray::Allocate(vtkIdType sz, vtkIdType)
 {
   if(sz > this->Size)
   {

@@ -31,7 +31,7 @@ vtkVoidArray::~vtkVoidArray()
 }
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkVoidArray::Allocate(vtkIdType sz, vtkIdType vtkNotUsed(ext))
+vtkTypeBool vtkVoidArray::Allocate(vtkIdType sz, vtkIdType vtkNotUsed(ext))
 {
   if ( sz > this->Size || this->Array != nullptr )
   {

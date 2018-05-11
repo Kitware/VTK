@@ -131,7 +131,7 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskData : public vtkObject
    * Allocate enough memory in each array for sz elements. ext is not
    * used.
    */
-  virtual int Allocate(vtkIdType sz, vtkIdType ext=1000);
+  virtual vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext=1000);
 
   /**
    * Reset each array.
