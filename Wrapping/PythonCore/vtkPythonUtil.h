@@ -96,6 +96,8 @@ public:
    * if necessary.  This function also passes ownership of the reference
    * to the PyObject.
    * Special behaviour: NULL is converted to Py_None.
+   *
+   * **Return value: New reference.**
    */
   static PyObject *GetObjectFromPointer(vtkObjectBase *ptr);
 
@@ -122,6 +124,8 @@ public:
    * Find the PyObject for a VTK object, return nullptr if not found.
    * If the object is found, then it is returned as a new reference.
    * Special behavior: If "ptr" is nullptr, then Py_None is returned.
+   *
+   * **Return value: New reference.**
    */
   static PyObject *FindObject(vtkObjectBase *ptr);
 
