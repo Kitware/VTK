@@ -96,6 +96,7 @@ vtkPythonAlgorithm::~vtkPythonAlgorithm()
     return failValue;                                        \
   }
 
+/// Return value: New reference.
 static PyObject* VTKToPython(vtkObjectBase* obj)
 {
   return vtkPythonUtil::GetObjectFromPointer(obj);
