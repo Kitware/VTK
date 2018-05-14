@@ -55,6 +55,7 @@ vtkSegYReader::vtkSegYReader()
 vtkSegYReader::~vtkSegYReader()
 {
   delete this->Reader;
+  delete[] this->FileName;
 }
 
 //-----------------------------------------------------------------------------
