@@ -82,7 +82,7 @@ void vtkPassArrays::AddArray(int fieldType, const char* name)
 {
   if(!name)
   {
-    vtkErrorMacro("name cannont be null.");
+    vtkErrorMacro("name cannot be null.");
     return;
   }
   std::string n=name;
