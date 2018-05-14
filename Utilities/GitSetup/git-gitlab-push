@@ -81,12 +81,13 @@ data_report_and_remove() {
 data_refs() {
 	git rev-list "$@" |
 	git diff-tree --no-commit-id --root -c -r --diff-filter=AM --stdin |
-	egrep '\.(md5)$' |
+	egrep '\.(md5|sha512)$' |
 	#     read :srcmode dstmode srcobj dstobj status file
 	while read  _       _       _      obj    _      file; do
 		# Identify the hash algorithm used.
 		case "$file" in
 			*.md5) algo=MD5 ; validate="^[0-9a-fA-F]{32}$" ;;
+			*.sha512) algo=SHA512 ; validate="^[0-9a-fA-F]{128}$" ;;
 			*) continue ;;
 		esac
 

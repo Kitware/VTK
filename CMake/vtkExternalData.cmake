@@ -66,7 +66,7 @@ endif()
 
 # Tell ExternalData commands to transform raw files to content links.
 # TODO: Condition this feature on presence of our pre-commit hook.
-set(ExternalData_LINK_CONTENT MD5)
+set(ExternalData_LINK_CONTENT SHA512)
 
 # Match series of the form <base>.<ext>, <base>_<n>.<ext> such that <base> may
 # end in a (test) number that is not part of any series numbering.
