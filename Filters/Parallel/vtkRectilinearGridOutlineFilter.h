@@ -39,7 +39,6 @@ protected:
   vtkRectilinearGridOutlineFilter() {}
   ~vtkRectilinearGridOutlineFilter() override {}
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:

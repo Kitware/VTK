@@ -117,7 +117,7 @@ int TestPDALReader_@VTK_PDAL_READER_POSTFIX@(int argc, char **argv)
   vtkCamera *camera=renderer->GetActiveCamera();
   camera->Elevation(@VTK_PDAL_READER_ELEVATION@);
 
-  int retVal = vtkRegressionTestImage (renderWindow);
+  int retVal = vtkRegressionTestImageThreshold (renderWindow, 0.2);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindowInteractor->Start ();

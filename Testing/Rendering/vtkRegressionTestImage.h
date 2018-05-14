@@ -32,8 +32,11 @@ private:
   void operator=(const vtkRegressionTester&) = delete;
 };
 
+// 0.15 threshold is arbitrary but found to
+// allow most graphics system variances to pass
+// when they should and fail when they should
 #define vtkRegressionTestImage(rw) \
-vtkTesting::Test(argc, argv, rw, 10)
+vtkTesting::Test(argc, argv, rw, 0.15)
 
 #define vtkRegressionTestImageThreshold(rw, t) \
 vtkTesting::Test(argc, argv, rw, t)

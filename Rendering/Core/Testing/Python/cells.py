@@ -654,13 +654,14 @@ class cells(vtk.test.Testing.vtkTest):
 
         if hasattr(vtk, 'vtkRIBLight'):
             aRIBLight = vtk.vtkRIBLight()
+            aRIBLight.SetIntensity(0.7)
 
         ren.AddLight(aRIBLight)
         aLight = vtk.vtkLight()
 
         aLight.PositionalOn()
         aLight.SetConeAngle(10.0)
-        aLight.SetIntensity(20.0)
+        aLight.SetIntensity(0.7)
         ren.AddLight(aLight)
 
         ren.ResetCamera()
@@ -748,7 +749,7 @@ class cells(vtk.test.Testing.vtkTest):
         renWin.Render()
 
         img_file = "cells.png"
-        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtk.test.Testing.compareImage(iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file))
         vtk.test.Testing.interact()
 
 if __name__ == "__main__":

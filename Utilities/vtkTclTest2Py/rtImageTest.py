@@ -126,10 +126,10 @@ if rtTester.IsValidImageSpecified() != 0:
     if "renWin" in local_variables_dict:
         rtTester.SetRenderWindow(renWin)
         if threshold == -1:
-            threshold = 10
+            threshold = 0.15
     else:
         if threshold == -1:
-            threshold = 5
+            threshold = 0.15
 
         if "viewer" in local_variables_dict:
             rtTester.SetRenderWindow(viewer.GetRenderWindow())

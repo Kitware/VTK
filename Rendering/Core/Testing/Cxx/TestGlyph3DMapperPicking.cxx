@@ -261,7 +261,7 @@ int TestGlyph3DMapperPicking(int argc, char* argv[])
   renderer->ResetCamera();
 
   renWin->Render();
-  areaPicker->AreaPick(51,78,82,273,renderer);
+  areaPicker->AreaPick(53,78,82,273,renderer);
   cbc->Execute(nullptr, 0, nullptr);
   renWin->Render();
 

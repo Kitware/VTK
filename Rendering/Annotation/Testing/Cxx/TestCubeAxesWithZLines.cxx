@@ -116,7 +116,7 @@ int TestCubeAxesWithZLines( int argc, char * argv [] )
   ren2->AddViewProp(axes2);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImageThreshold( renWin, 0.2 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
