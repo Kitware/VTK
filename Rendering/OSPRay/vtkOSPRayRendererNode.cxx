@@ -424,6 +424,7 @@ vtkOSPRayRendererNode::vtkOSPRayRendererNode()
 {
   this->Buffer = nullptr;
   this->ZBuffer = nullptr;
+  this->ODepthBuffer = nullptr;
   this->OModel = nullptr;
   this->ORenderer = nullptr;
   this->NumActors = 0;
@@ -443,6 +444,7 @@ vtkOSPRayRendererNode::~vtkOSPRayRendererNode()
 {
   delete[] this->Buffer;
   delete[] this->ZBuffer;
+  delete[] this->ODepthBuffer;
   if (this->OModel)
   {
     ospRelease((OSPModel)this->OModel);
@@ -1009,7 +1011,8 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       this->ZBuffer = new float[this->Size[0]*this->Size[1]];
       if (this->CompositeOnGL)
       {
-        ODepthBuffer = new float[this->Size[0] * this->Size[1]];
+        delete[] this->ODepthBuffer;
+        this->ODepthBuffer = new float[this->Size[0] * this->Size[1]];
       }
     }
     else if (this->Accumulate)
@@ -1181,7 +1184,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       OSPTexture2D glDepthTex = ospray::opengl::getOSPDepthTextureFromOpenGLPerspective
         (fovy, aspect, zNear, zFar,
          (osp::vec3f&)cameraDir, (osp::vec3f&)cameraUp,
-         this->GetZBuffer(), ODepthBuffer, viewportWidth, viewportHeight);
+         this->GetZBuffer(), this->ODepthBuffer, viewportWidth, viewportHeight);
 
       ospSetObject(oRenderer, "maxDepthTexture", glDepthTex);
     }
