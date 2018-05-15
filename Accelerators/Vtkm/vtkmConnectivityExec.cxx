@@ -64,13 +64,9 @@ typename ConnectivityVTKAOS<Device>::IndicesType
 ConnectivityVTKAOS<Device>::GetIndices(vtkm::Id index) const
 {
   vtkm::Id offset = this->IndexOffsets.Get(index);
-  vtkm::IdComponent length = this->Connectivity.Get(offset);
+  auto length = static_cast<vtkm::IdComponent>(this->Connectivity.Get(offset));
   return IndicesType(this->Connectivity, length, offset + 1);
 }
-
-
-
-
 
 //------------------------------------------------------------------------------
 template <typename Device>

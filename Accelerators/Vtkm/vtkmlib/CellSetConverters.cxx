@@ -244,7 +244,7 @@ struct CellInfoCopyWorklet : public vtkm::worklet::WorkletMapPointToCell
     this->ConnArray->SetValue(index++, numPointsPerCell);
     for (vtkIdType j = 0; j < numPointsPerCell; ++j)
     {
-      this->ConnArray->SetValue(index++, indices[j]);
+      this->ConnArray->SetValue(index++, indices[static_cast<vtkm::IdComponent>(j)]);
     }
 
     // only update member variable once per iteration to improve locality
@@ -279,7 +279,8 @@ struct CellConnCopyWorklet : public vtkm::worklet::WorkletMapPointToCell
     this->ConnArray->SetValue(index++, numPointsPerCell);
     for (vtkIdType j = 0; j < numPointsPerCell; ++j)
     {
-      this->ConnArray->SetValue(index++, static_cast<vtkm::Id>(indices[j]));
+      this->ConnArray->SetValue(
+        index++, static_cast<vtkm::Id>(indices[static_cast<vtkm::IdComponent>(j)]));
     }
     // only update member variable once per iteration to improve locality
     *this->ConnIndex += 1 + numPointsPerCell;

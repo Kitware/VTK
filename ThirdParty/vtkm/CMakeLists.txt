@@ -42,6 +42,18 @@ set(VTKm_INSTALL_CONFIG_DIR "${VTK_INSTALL_PACKAGE_DIR}/vtkm")
 set(VTKm_CUSTOM_LIBRARY_SUFFIX "${lib_suffix}")
 set(VTKm_NO_ASSERT "ON") #helps improve performance in debug mode
 
+# VTK-m uses stricter warning checks resulting in more warnings when VTK-m
+# is enabled.
+# Disable VTK-m warning flags and just rely on VTK's warning flags.
+set(VTKm_ENABLE_DEVELOPER_FLAGS OFF CACHE BOOL "Disabled when building as part of VTK" FORCE)
+
+# Workaround cmake issue #7519 which causes the c++11 flag set for VTK-m using
+# target_compile_features to not work.
+if (VTKm_ENABLE_CUDA AND CMAKE_VERSION VERSION_LESS 3.11)
+  set(CMAKE_CUDA_STANDARD 11)
+  set(CMAKE_CUDA_STANDARD_REQUIRED True)
+endif()
+
 # These need to be explicitly set as the wrapping code doesn't properly handle
 # grabbing include directories from dependent interface libraries
 set(vtkVTKm

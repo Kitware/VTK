@@ -38,7 +38,7 @@ void ProcessFields(vtkDataSet *input, vtkm::cont::DataSet &dataset,
   if ((fields & tovtkm::FieldsFlag::Points) != tovtkm::FieldsFlag::None)
   {
     vtkPointData* pd = input->GetPointData();
-    for (vtkIdType i = 0; i < pd->GetNumberOfArrays(); i++)
+    for (int i = 0; i < pd->GetNumberOfArrays(); i++)
     {
       vtkDataArray* array = pd->GetArray(i);
       if (array == nullptr)
@@ -55,7 +55,7 @@ void ProcessFields(vtkDataSet *input, vtkm::cont::DataSet &dataset,
   if ((fields & tovtkm::FieldsFlag::Cells) != tovtkm::FieldsFlag::None)
   {
     vtkCellData* cd = input->GetCellData();
-    for (vtkIdType i = 0; i < cd->GetNumberOfArrays(); i++)
+    for (int i = 0; i < cd->GetNumberOfArrays(); i++)
     {
       vtkDataArray* array = cd->GetArray(i);
       if (array == nullptr)

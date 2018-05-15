@@ -20,14 +20,6 @@ include(module.cmake)
 vtk_module_dep_includes(vtkVTKm)
 list(APPEND CMAKE_MODULE_PATH "${VTK_SOURCE_DIR}/ThirdParty/vtkm/vtk-m/CMake")
 
-if(VTKm_ENABLE_TBB)
-  vtkm_configure_component_TBB()
-endif()
-
-if(VTKm_ENABLE_CUDA)
-  vtkm_configure_component_CUDA()
-endif()
-
 set(lib_srcs
   vtkmlib/PolyDataConverter.cxx
   vtkmlib/UnstructuredGridConverter.cxx
@@ -142,103 +134,47 @@ if(vtkm_pool_size EQUAL 0)
 endif()
 set_property(GLOBAL APPEND PROPERTY JOB_POOLS vtkm_pool=${vtkm_pool_size})
 
-#we are building with CUDA support
-if(VTKm_ENABLE_CUDA)
+if(TARGET vtkm::cuda)
+  #we are building with CUDA support
+  cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
+  enable_language(CUDA)
 
-  #need to find cudadevrt
-  find_library(CUDA_cudadevrt_LIBRARY cudadevrt
-               PATHS ${CUDA_TOOLKIT_TARGET_DIR}
-               PATH_SUFFIXES "x64" "lib64" "libx64"
-               )
-
-  ########
-  ## cache and clear the CUDA_NVCC_FLAGS so that they aren't passed to
-  ## the linker. FINDCUDA has some problems properly unquoting CUDA_NVCC_FLAGS
-  ## when "generate-code arch..." is used, so we instead patch the options
-  ##
-  ########
-  set(compile_options)
-  foreach(f ${CUDA_NVCC_FLAGS})
-    if(f MATCHES "generate-code ")
-      string(REPLACE "generate-code " "generate-code=" f "${f}")
-    endif()
-    list(APPEND compile_options ${f})
-  endforeach()
-
-  if(BUILD_SHARED_LIBS AND NOT WIN32)
-    list(APPEND compile_options -Xcompiler=${CMAKE_CXX_COMPILE_OPTIONS_VISIBILITY}hidden)
-    list(APPEND compile_options -Xcompiler=-fPIC)
-    #nvcc doesn't like the macros in VTK and generates hundreds of warnings
-    #that are false positives
-    list(APPEND compile_options --disable-warnings)
+  # Workaround cmake issue #7519 which causes the c++11 flag set for VTK-m using
+  # target_compile_features to not work.
+  if (CMAKE_VERSION VERSION_LESS 3.11)
+    set(CMAKE_CUDA_STANDARD 11)
+    set(CMAKE_CUDA_STANDARD_REQUIRED True)
   endif()
 
-  set(seperable_state ${CUDA_SEPARABLE_COMPILATION})
-  set(cache_flag_state ${CUDA_NVCC_FLAGS})
+  get_target_property(arch_flags vtkm::cuda VTKm_CUDA_Architecture_Flags)
+  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} ${arch_flags}")
 
+  # Temporarily suppress "has address taken but no possible call to it" warnings,
+  # until we figure out its implications.
+  # We are diabling all warnings as nvlink has no known way to suppress
+  # individual warning types.
+  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xnvlink -w")
 
-  set(CUDA_NVCC_FLAGS "")
-  set(CUDA_SEPARABLE_COMPILATION ON)
-
-  #Some versions of VTK-m overload the CUDA_LIBRARIES to contain private
-  if(PRIVATE IN_LIST CUDA_LIBRARIES)
-    set(cache_cuda_libs ${CUDA_LIBRARIES})
-    set(cache_devrt_libs ${CUDA_cudadevrt_LIBRARY})
-    set(CUDA_LIBRARIES ${CUDA_LIBRARIES} ${vtkAcceleratorsVTKm_DEPENDS})
-    set(CUDA_cudadevrt_LIBRARY PRIVATE ${CUDA_cudadevrt_LIBRARY})
-  endif()
-
-  # CUDA doesn't obey usage requirements so we have to use
-  # CUDA_INCLUDE_DIRECTORIES, but do get the proper list of
-  # include dirs I need to query the module system, which
-  # doesn't exist currently, so we manually call vtk_module_impl
-  vtk_module_impl()
-  cuda_include_directories(${CMAKE_CURRENT_BINARY_DIR}
-                           ${CMAKE_CURRENT_SOURCE_DIR}
-                           ${VTKm_INCLUDE_DIRS}
-                           ${vtkAcceleratorsVTKm_DEPENDS_INCLUDE_DIRS})
-
-  cuda_add_library(vtkAcceleratorsVTKmCuda STATIC
-                   ${cuda_accelerator_srcs}
-                   OPTIONS "${compile_options}"
-                   )
-
-  set_target_properties(vtkAcceleratorsVTKmCuda
-                        PROPERTIES POSITION_INDEPENDENT_CODE True
-                        JOB_POOL_COMPILE vtkm_pool
-                        )
   vtk_module_library(vtkAcceleratorsVTKm
                      ${headers}
                      ${lib_srcs}
+                     ${cuda_accelerator_srcs}
                      )
-
-  target_link_libraries(vtkAcceleratorsVTKm
-                        PRIVATE vtkAcceleratorsVTKmCuda ${cache_devrt_libs})
-
-  set(CUDA_SEPARABLE_COMPILATION ${seperable_state})
-  set(CUDA_NVCC_FLAGS_CACHE  ${cache_flag_state})
-
-  if(cache_cuda_libs)
-    set(CUDA_LIBRARIES  ${cache_cuda_libs})
-    set(CUDA_cudadevrt_LIBRARY  ${CUDA_cudadevrt_LIBRARY})
-  endif()
+  set_target_properties(vtkAcceleratorsVTKm PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+  target_compile_options(vtkAcceleratorsVTKm
+    PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe --diag_suppress=extra_semicolon>)
 else()
   vtk_module_library(vtkAcceleratorsVTKm
                      ${headers}
                      ${lib_srcs}
                      ${cpu_accelerator_srcs}
                      )
-  set_property(TARGET vtkAcceleratorsVTKm PROPERTY JOB_POOL_COMPILE vtkm_pool)
 endif()
 
-target_link_libraries(vtkAcceleratorsVTKm PRIVATE vtkm_cont ${VTKm_LIBRARIES})
-target_include_directories(vtkAcceleratorsVTKm PRIVATE ${VTKm_INCLUDE_DIRS})
+set_property(TARGET vtkAcceleratorsVTKm PROPERTY JOB_POOL_COMPILE vtkm_pool)
+target_link_libraries(vtkAcceleratorsVTKm PRIVATE vtkVTKm)
 
 if (MSVC)
-  # MSVC has limits on obj size that are exceeded by this module so we need
-  # a flag to ignore those limits
-  target_compile_options(vtkAcceleratorsVTKm PRIVATE /bigobj)
-
   #C4702 Generates numerous false positives with template code about
   #      unreachable code
   #C4512 Generates numerous warning that implicit assignment operators can't
@@ -257,6 +193,5 @@ if(NOT VTK_INSTALL_NO_DEVELOPMENT)
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR}
     COMPONENT Development
     FILES_MATCHING PATTERN "*.h*"
-
     )
 endif()
