@@ -43,6 +43,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestSphereMap.cxx
   TestSpherePoints.cxx
   TestSphereVertex.cxx
+  TestToneMappingPass.cxx,NO_DATA
   TestUserShader.cxx
   TestUserShader2.cxx
   TestVBOPLYMapper.cxx

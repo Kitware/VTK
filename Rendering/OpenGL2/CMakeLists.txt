@@ -85,6 +85,7 @@ set(Module_SRCS
   vtkSobelGradientMagnitudePass.cxx
   vtkTextureObject.cxx
   vtkTextureUnitManager.cxx
+  vtkToneMappingPass.cxx
   vtkTransformFeedback.cxx
   vtkTranslucentPass.cxx
   vtkValuePass.cxx
