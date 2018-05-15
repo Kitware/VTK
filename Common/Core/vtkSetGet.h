@@ -424,7 +424,7 @@ virtual void Set##name(type data[]) \
 // Examples: float *GetColor() and void GetColor(float c[count]).
 //
 #define vtkGetVectorMacro(name,type,count) \
-virtual type *Get##name () \
+virtual type *Get##name () VTK_SIZEHINT(count)\
 { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << this->name); \
   return this->name; \
@@ -603,7 +603,7 @@ virtual void Set##name(double x, double y, double z) \
 { \
     this->name##Coordinate->SetValue(x,y,z); \
 } \
-virtual double *Get##name() \
+virtual double *Get##name() VTK_SIZEHINT(3)\
 { \
     return this->name##Coordinate->GetValue(); \
 }
@@ -619,7 +619,7 @@ virtual void Set##name(double x, double y) \
 { \
     this->name##Coordinate->SetValue(x,y); \
 } \
-virtual double *Get##name() \
+virtual double *Get##name() VTK_SIZEHINT(2)\
 { \
     return this->name##Coordinate->GetValue(); \
 }
