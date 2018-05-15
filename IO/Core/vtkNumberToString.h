@@ -43,24 +43,14 @@ class VTKIOCORE_EXPORT vtkNumberToString
 public:
   struct TagDouble
   {
-    const double& Ref;
-    TagDouble(const double& ref)
-      : Ref(ref)
-    {
-    }
-private:
-    void operator=(const TagDouble&) = delete;
+    const double Value;
+    TagDouble(const double& value) : Value(value) {}
   };
 
   struct TagFloat
   {
-    const float& Ref;
-    TagFloat(const float& ref)
-      : Ref(ref)
-    {
-    }
-private:
-    void operator=(const TagFloat&) = delete;
+    const float Value;
+    TagFloat(const float& value) : Value(value) {}
   };
 
   template <typename T>

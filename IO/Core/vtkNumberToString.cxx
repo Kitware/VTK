@@ -29,7 +29,7 @@ inline ostream& ToString(ostream& stream, const TagT& tag)
     double_conversion::DoubleToStringConverter::EcmaScriptConverter();
   double_conversion::StringBuilder builder(buf, sizeof(buf));
   builder.Reset();
-  converter.ToShortest(tag.Ref, &builder);
+  converter.ToShortest(tag.Value, &builder);
   stream << builder.Finalize();
   return stream;
 }
