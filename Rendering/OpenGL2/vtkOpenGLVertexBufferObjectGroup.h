@@ -180,6 +180,8 @@ protected:
 
   std::map<std::string, vtkOpenGLVertexBufferObject*> UsedVBOs;
   std::map<std::string, std::vector<vtkDataArray*> > UsedDataArrays;
+  std::map<std::string, std::map<vtkDataArray*, vtkIdType> > UsedDataArrayMaps;
+  std::map<std::string, vtkIdType> UsedDataArraySizes;
 
 private:
   vtkOpenGLVertexBufferObjectGroup(const vtkOpenGLVertexBufferObjectGroup&) = delete;
