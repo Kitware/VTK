@@ -61,7 +61,8 @@ public:
     Scaling,
     Spinning,
     Inserting,
-    Erasing
+    Erasing,
+    Pushing
   };
 
   //@{
@@ -263,6 +264,7 @@ protected:
   int  HighlightHandle(vtkProp *prop); //returns handle index or -1 on fail
   virtual void SizeHandles();
   virtual void InsertHandleOnLine(double* pos) = 0;
+  virtual void PushHandle(double* pos);
   void EraseHandle(const int&);
 
   // Do the picking
@@ -271,6 +273,7 @@ protected:
   double LastPickPosition[3];
   vtkActor *CurrentHandle;
   int CurrentHandleIndex;
+  bool FirstSelected;
 
   // Methods to manipulate the curve.
   void MovePoint(double *p1, double *p2);

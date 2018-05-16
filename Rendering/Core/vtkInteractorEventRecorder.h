@@ -123,9 +123,8 @@ protected:
   static void ProcessEvents(vtkObject* object, unsigned long event,
                             void* clientdata, void* calldata);
 
-  virtual void WriteEvent(const char* event, int pos[2], int ctrlKey,
-                          int shiftKey, int keyCode, int repeatCount,
-                          char* keySym);
+  virtual void WriteEvent(const char* event, int pos[2], int modifiers,
+                          int keyCode, int repeatCount, char* keySym);
 
   virtual void ReadEvent();
 
@@ -136,6 +135,14 @@ protected:
     Start=0,
     Playing,
     Recording
+  };
+
+  // Associate a modifier with a bit
+  enum ModifierKey
+  {
+    ShiftKey=1,
+    ControlKey=2,
+    AltKey=4
   };
 
   static float StreamVersion;

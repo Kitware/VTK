@@ -227,26 +227,37 @@ void vtkPolyLineRepresentation::InsertHandleOnLine(double* pos)
   if (this->NumberOfHandles < 2) { return; }
 
   vtkIdType id = this->LinePicker->GetCellId();
-  if (id == -1){ return; }
-
-  vtkIdType subid = this->LinePicker->GetSubId();
 
   vtkPoints* newpoints = vtkPoints::New(VTK_DOUBLE);
   newpoints->SetNumberOfPoints(this->NumberOfHandles+1);
 
-  int istart = subid;
-  int istop = istart + 1;
-  int count = 0;
-  for ( int i = 0; i <= istart; ++i )
+  if (id == -1)
   {
-    newpoints->SetPoint(count++,this->HandleGeometry[i]->GetCenter());
+    // not on a line, add to the end
+    for (int i = 0; i < this->NumberOfHandles; ++i)
+    {
+      newpoints->SetPoint(i, this->HandleGeometry[i]->GetCenter());
+    }
+    newpoints->SetPoint(this->NumberOfHandles, pos);
   }
-
-  newpoints->SetPoint(count++,pos);
-
-  for ( int i = istop; i < this->NumberOfHandles; ++i )
+  else
   {
-    newpoints->SetPoint(count++,this->HandleGeometry[i]->GetCenter());
+    vtkIdType subid = this->LinePicker->GetSubId();
+
+    int istart = subid;
+    int istop = istart + 1;
+    int count = 0;
+    for (int i = 0; i <= istart; ++i)
+    {
+      newpoints->SetPoint(count++, this->HandleGeometry[i]->GetCenter());
+    }
+
+    newpoints->SetPoint(count++, pos);
+
+    for (int i = istop; i < this->NumberOfHandles; ++i)
+    {
+      newpoints->SetPoint(count++, this->HandleGeometry[i]->GetCenter());
+    }
   }
 
   this->InitializeHandles(newpoints);
