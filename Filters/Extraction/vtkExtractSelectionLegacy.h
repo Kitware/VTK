@@ -54,7 +54,7 @@ class vtkSelectionNode;
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectionLegacy : public vtkExtractSelectionBase
 {
 public:
-  VTK_LEGACY(static vtkExtractSelectionLegacy *New());
+  static vtkExtractSelectionLegacy *New();
   vtkTypeMacro(vtkExtractSelectionLegacy, vtkExtractSelectionBase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
