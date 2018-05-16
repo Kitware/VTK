@@ -43,13 +43,13 @@ class VTKIOCORE_EXPORT vtkNumberToString
 public:
   struct TagDouble
   {
-    const double Value;
+    double Value;
     TagDouble(const double& value) : Value(value) {}
   };
 
   struct TagFloat
   {
-    const float Value;
+    float Value;
     TagFloat(const float& value) : Value(value) {}
   };
 
@@ -58,8 +58,8 @@ public:
   {
     return val;
   }
-  TagDouble operator()(const double& val) const { return TagDouble(val); }
-  TagFloat operator()(const float& val) const { return TagFloat(val); }
+  const TagDouble operator()(const double& val) const { return TagDouble(val); }
+  const TagFloat operator()(const float& val) const { return TagFloat(val); }
 };
 
 VTKIOCORE_EXPORT ostream& operator<<(ostream& stream, const vtkNumberToString::TagDouble& tag);
