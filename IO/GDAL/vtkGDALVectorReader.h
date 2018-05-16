@@ -93,14 +93,19 @@ public:
   //@}
 
   /**
-   * Return projection string belong to each layer.
+   * Return projection string belonging to each layer in WKT format.
    */
   std::map<int, std::string> GetLayersProjection();
 
   /**
-   * Return projection string belong to a layer.
+   * Return projection string belonging to a layer in WKT format.
    */
   const char* GetLayerProjection(int layerIndex);
+
+  /**
+   * Return projection string belonging to a layer in PROJ.4 format
+   */
+  const char* GetLayerProjectionAsProj4(int layerIndex);
 
   //@{
   /**

@@ -109,12 +109,15 @@ vtkGeoProjection::vtkGeoProjection()
   this->CentralMeridian = 0.;
   this->Projection = nullptr;
   this->ProjectionMTime = 0;
+  this->PROJ4String = nullptr;
+  this->SetPROJ4String("");
   this->Internals = new vtkInternals();
 }
 //-----------------------------------------------------------------------------
 vtkGeoProjection::~vtkGeoProjection()
 {
   this->SetName( nullptr );
+  this->SetPROJ4String( nullptr );
   if ( this->Projection )
   {
     pj_free( this->Projection );
@@ -128,6 +131,7 @@ void vtkGeoProjection::PrintSelf( ostream& os, vtkIndent indent )
   this->Superclass::PrintSelf( os, indent );
   os << indent << "Name: " << this->Name << "\n";
   os << indent << "CentralMeridian: " << this->CentralMeridian << "\n";
+  os << indent << "PROJ4String: " << this->PROJ4String << "\n";
   os << indent << "Projection: " << this->Projection << "\n";
   os << indent << "Optional parameters:\n";
   for(int i=0;i<this->GetNumberOfOptionalParameters();i++)
@@ -180,44 +184,51 @@ int vtkGeoProjection::UpdateProjection()
     this->Projection = nullptr;
   }
 
-  if ( ! this->Name || ! strlen( this->Name ) )
+  if ( this->PROJ4String && strlen( this->PROJ4String ) )
   {
-    return 1;
+    this->Projection = pj_init_plus( this->PROJ4String );
   }
-
-  if ( ! strcmp ( this->Name, "latlong" ) )
+  else
   {
-    // latlong is "null" projection.
-    return 0;
+    if ( ! this->Name || ! strlen( this->Name ) )
+    {
+      return 1;
+    }
+
+    if ( ! strcmp ( this->Name, "latlong" ) )
+    {
+      // latlong is "null" projection.
+      return 0;
+    }
+
+    int argSize = 3 + this->GetNumberOfOptionalParameters();
+    const char** pjArgs = new const char*[argSize];
+    std::string projSpec( "+proj=" );
+    projSpec += this->Name;
+    std::string ellpsSpec( "+ellps=clrk66" );
+    std::string meridSpec;
+    std::ostringstream os;
+    os << "+lon_0=" << this->CentralMeridian;
+    meridSpec = os.str();
+    pjArgs[0] = projSpec.c_str();
+    pjArgs[1] = ellpsSpec.c_str();
+    pjArgs[2] = meridSpec.c_str();
+
+    // Add optional parameters
+    std::vector<std::string> stringHolder(
+      this->GetNumberOfOptionalParameters()); // Keep string ref in memory
+    for(int i=0; i < this->GetNumberOfOptionalParameters(); i++)
+    {
+      std::ostringstream param;
+      param << "+" << this->GetOptionalParameterKey(i);
+      param << "=" << this->GetOptionalParameterValue(i);
+      stringHolder[i] = param.str();
+      pjArgs[3+i] = stringHolder[i].c_str();
+    }
+
+    this->Projection = pj_init( argSize, const_cast<char**>( pjArgs ) );
+    delete[] pjArgs;
   }
-
-  int argSize = 3 + this->GetNumberOfOptionalParameters();
-  const char** pjArgs = new const char*[argSize];
-  std::string projSpec( "+proj=" );
-  projSpec += this->Name;
-  std::string ellpsSpec( "+ellps=clrk66" );
-  std::string meridSpec;
-  std::ostringstream os;
-  os << "+lon_0=" << this->CentralMeridian;
-  meridSpec = os.str();
-  pjArgs[0] = projSpec.c_str();
-  pjArgs[1] = ellpsSpec.c_str();
-  pjArgs[2] = meridSpec.c_str();
-
-  // Add optional parameters
-  std::vector<std::string> stringHolder(
-    this->GetNumberOfOptionalParameters()); // Keep string ref in memory
-  for(int i=0; i < this->GetNumberOfOptionalParameters(); i++)
-  {
-    std::ostringstream param;
-    param << "+" << this->GetOptionalParameterKey(i);
-    param << "=" << this->GetOptionalParameterValue(i);
-    stringHolder[i] = param.str();
-    pjArgs[3+i] = stringHolder[i].c_str();
-  }
-
-  this->Projection = pj_init( argSize, const_cast<char**>( pjArgs ) );
-  delete[] pjArgs;
   this->ProjectionMTime = this->GetMTime();
   if ( this->Projection )
   {
