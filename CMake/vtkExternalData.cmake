@@ -56,6 +56,9 @@ set(ExternalData_URL_TEMPLATES "" CACHE STRING
 mark_as_advanced(ExternalData_URL_TEMPLATES)
 if(NOT VTK_FORBID_DOWNLOADS)
   list(APPEND ExternalData_URL_TEMPLATES
+    # Data published by Girder
+    "https://data.kitware.com/api/v1/file/hashsum/%(algo)/%(hash)/download"
+
     # Data published by MIDAS
     "http://midas3.kitware.com/midas/api/rest?method=midas.bitstream.download&checksum=%(hash)&algorithm=%(algo)"
 
