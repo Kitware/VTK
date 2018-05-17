@@ -166,7 +166,7 @@ void vtkOpenGLSkybox::Render(vtkRenderer *ren, vtkMapper *mapper)
         "      vec3 pos = dirv*t - p0l0;\n"
         "      gl_FragData[0] = texture(texture_0, vec2(dot(floorRight,pos), dot(floorFront, pos)));\n"
         // The discards cause a discontinuity with mipmapping
-        // on the horizen of the floor. So we fade out ther floor
+        // on the horizon of the floor. So we fade out the floor
         // along the horizon. Specifically starting at when the
         // dot product equals .02 which is at 88.85 degrees and
         // going to zero at 90 degrees.

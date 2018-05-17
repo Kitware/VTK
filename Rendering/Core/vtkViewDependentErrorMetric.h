@@ -54,7 +54,7 @@ public:
 
   //@{
   /**
-   * Return the squared screen-based geometric accurary measured in pixels.
+   * Return the squared screen-based geometric accuracy measured in pixels.
    * An accuracy less or equal to 0.25 (0.5^2) ensures that the screen-space
    * interpolation of a mid-point matches exactly with the projection of the
    * mid-point (a value less than 1 but greater than 0.25 is not enough,

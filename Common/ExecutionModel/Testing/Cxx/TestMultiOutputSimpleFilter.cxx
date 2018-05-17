@@ -223,14 +223,14 @@ int TestMultiOutputSimpleFilter(int argc, char* argv[])
   }
 
   std::string inputAMR = data_dir;
-  std::string inputMutliblock = data_dir;
+  std::string inputMultiblock = data_dir;
   inputAMR += "/Data/AMR/HierarchicalBoxDataset.v1.1.vthb";
-  inputMutliblock += "/Data/many_blocks/many_blocks.vtm";
+  inputMultiblock += "/Data/many_blocks/many_blocks.vtm";
   delete[] data_dir;
 
   int retVal = TestComposite(inputAMR, true);
 
-  retVal |= TestComposite(inputMutliblock, false);
+  retVal |= TestComposite(inputMultiblock, false);
 
   return retVal;
 }

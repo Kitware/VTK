@@ -404,7 +404,7 @@ class wxVTKRenderWindow(baseClass):
         else:
             button = None
 
-        # if the ActiveButton is realeased, then release mouse capture
+        # if the ActiveButton is released, then release mouse capture
         if self._ActiveButton and button == self._ActiveButton:
             if _useCapture:
                 self.ReleaseMouse()

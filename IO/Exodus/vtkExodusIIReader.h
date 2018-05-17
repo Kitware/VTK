@@ -291,7 +291,7 @@ public:
   /**
    * Geometric locations can include displacements.  By default,
    * this is ON.  The nodal positions are 'displaced' by the
-   * standard exodus displacment vector. If displacements
+   * standard exodus displacement vector. If displacements
    * are turned 'off', the user can explicitly add them by
    * applying a warp filter.
    */

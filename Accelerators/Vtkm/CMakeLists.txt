@@ -154,7 +154,7 @@ if(TARGET vtkm::cuda)
 
   # Temporarily suppress "has address taken but no possible call to it" warnings,
   # until we figure out its implications.
-  # We are diabling all warnings as nvlink has no known way to suppress
+  # We are disabling all warnings as nvlink has no known way to suppress
   # individual warning types.
   set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xnvlink -w")
 

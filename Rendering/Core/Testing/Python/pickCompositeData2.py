@@ -120,7 +120,7 @@ pickdata=[
   ]
 
 def expectedResult(data):
-    """Returns whether pick is expected to be successfull"""
+    """Returns whether pick is expected to be successful"""
     return data[0]
 
 def expectedBlockId(data):

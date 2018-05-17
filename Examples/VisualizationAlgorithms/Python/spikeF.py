@@ -44,7 +44,7 @@ transformF.SetTransform(transform)
 # vtkGlyph3D takes two inputs: the input point set (SetInput) which can be
 # any vtkDataSet; and the glyph (SetSource) which must be a vtkPolyData.
 # We are interested in orienting the glyphs by the surface normals that
-# we previosuly generated.
+# we previously generated.
 glyph = vtk.vtkGlyph3D()
 glyph.SetInputConnection(ptMask.GetOutputPort())
 glyph.SetSourceConnection(transformF.GetOutputPort())
