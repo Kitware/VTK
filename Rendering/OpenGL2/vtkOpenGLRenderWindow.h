@@ -171,14 +171,6 @@ public:
   // Initialize VTK for rendering in a new OpenGL context
   virtual void OpenGLInitContext();
 
-  //@{
-  /**
-   * Get if the context includes opengl core profile 3.2 support
-   */
-  static bool GetContextSupportsOpenGL32();
-  void SetContextSupportsOpenGL32(bool val);
-  //@}
-
   /**
    * Get the major and minor version numbers of the OpenGL context we are using
    * ala 3.2, 3.3, 4.0, etc... returns 0,0 if opengl has not been initialized

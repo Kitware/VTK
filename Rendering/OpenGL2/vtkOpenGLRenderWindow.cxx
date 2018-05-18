@@ -172,24 +172,6 @@ int vtkOpenGLRenderWindow::GetGlobalMaximumNumberOfMultiSamples()
   return vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
 }
 
-// used for OpenGL32 Support
-static bool vtkOpenGLRenderWindowContextSupportsOpenGL32 = false;
-
-bool vtkOpenGLRenderWindow::GetContextSupportsOpenGL32()
-{
-  return vtkOpenGLRenderWindowContextSupportsOpenGL32;
-}
-
-// ----------------------------------------------------------------------------
-void vtkOpenGLRenderWindow::SetContextSupportsOpenGL32(bool val)
-{
-  if (val == vtkOpenGLRenderWindowContextSupportsOpenGL32)
-  {
-    return;
-  }
-  vtkOpenGLRenderWindowContextSupportsOpenGL32 = val;
-}
-
 //----------------------------------------------------------------------------
 const char *vtkOpenGLRenderWindow::GetRenderingBackend()
 {
@@ -754,11 +736,7 @@ void vtkOpenGLRenderWindow::OpenGLInitContext()
         "remote desktop note that it only supports OpenGL 3.2 with nvidia "
         "quadro cards. You can use other remoting software such as nomachine "
         "to avoid this issue.");
-        return;
-    }
-    else
-    {
-      this->SetContextSupportsOpenGL32(true);
+      return;
     }
 #else
     // GLEW is not being used, so avoid false failure on GL checks later.

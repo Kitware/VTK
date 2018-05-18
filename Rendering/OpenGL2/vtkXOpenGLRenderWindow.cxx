@@ -631,7 +631,6 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
           this->VBOCache = renWin->VBOCache;
           this->VBOCache->Register(this);
         }
-        this->SetContextSupportsOpenGL32(true);
       }
     }
   }
