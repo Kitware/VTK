@@ -104,6 +104,9 @@ public:
 
   /**
    * Return projection string belonging to a layer in PROJ.4 format
+   *
+   * \note The returned string has to be deleted (via delete[]) by the
+   * calling program.
    */
   const char* GetLayerProjectionAsProj4(int layerIndex);
 
