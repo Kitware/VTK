@@ -751,7 +751,7 @@ int vtkNIFTIImageReader::RequestInformation(
   // 1) via a quaternion (orientation and offset, i.e. rigid-body)
   // 2) via a matrix (used to store e.g. the results of registration)
   //
-  // A NIFTI file can have both a quaternion (qform) and matrix (xform)
+  // A NIFTI file can have both a quaternion (qform) and matrix (sform)
   // stored in the same file.  The NIFTI documentation recommends that
   // the qform be used to record the "scanner anatomical" coordinates
   // and that the sform, if present, be used to define a secondary
