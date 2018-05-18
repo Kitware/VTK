@@ -121,8 +121,8 @@ public:
 
   /**
    * QFac gives the slice order in the NIFTI file versus the VTK image.
-   * If QFac is -1, then the VTK slice index J is related to the NIFTI
-   * slice index j by the equation J = (num_slices - j - 1).  VTK requires
+   * If QFac is -1, then the VTK slice index K is related to the NIFTI
+   * slice index k by the equation K = (num_slices - k - 1).  VTK requires
    * the slices to be ordered so that the voxel indices (I,J,K) provide a
    * right-handed coordinate system, whereas NIFTI does not.  Instead,
    * NIFTI stores a factor called "qfac" in the header to signal when the
