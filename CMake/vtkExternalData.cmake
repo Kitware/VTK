@@ -59,9 +59,6 @@ if(NOT VTK_FORBID_DOWNLOADS)
     # Data published by Girder
     "https://data.kitware.com/api/v1/file/hashsum/%(algo)/%(hash)/download"
 
-    # Data published by MIDAS
-    "http://midas3.kitware.com/midas/api/rest?method=midas.bitstream.download&checksum=%(hash)&algorithm=%(algo)"
-
     # Data published by developers using git-gitlab-push.
     "http://www.vtk.org/files/ExternalData/%(algo)/%(hash)"
   )
