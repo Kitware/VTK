@@ -831,7 +831,7 @@ int vtkNIFTIImageReader::RequestInformation(
   //       NIFTI, which allows us to preserve positive spacing and retain
   //       a well-behaved rotation matrix, by using these equations:
   //
-  //         J = number_of_slices - j - 1
+  //         K = number_of_slices - k - 1
   //
   //         M14 = qoffset_x - (number_of_slices - 1)*pixdim[3]*R13
   //         M24 = qoffset_y - (number_of_slices - 1)*pixdim[3]*R23
@@ -839,7 +839,7 @@ int vtkNIFTIImageReader::RequestInformation(
   //
   //       This will give us data that will be well-behaved in VTK, at
   //       the expense of making VTK slice numbers not match with
-  //       the original NIFTI slice numbers.  NIFTY slice 0 will become
+  //       the original NIFTI slice numbers.  NIFTI slice 0 will become
   //       VTK slice N-1, and the order will be reversed.
   //
   // -- Matrix Representation --
