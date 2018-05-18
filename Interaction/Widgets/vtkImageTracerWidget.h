@@ -272,16 +272,6 @@ public:
   vtkBooleanMacro(HandleRightMouseButton,vtkTypeBool);
   //@}
 
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# define SetPropA SetProp
-# define SetPropW SetProp
-#endif
-
-#ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-# undef SetPropA
-# undef SetPropW
-#endif
-
 protected:
   vtkImageTracerWidget();
   ~vtkImageTracerWidget() override;
