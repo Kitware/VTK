@@ -60,7 +60,7 @@ if(NOT VTK_FORBID_DOWNLOADS)
     "https://data.kitware.com/api/v1/file/hashsum/%(algo)/%(hash)/download"
 
     # Data published by developers using git-gitlab-push.
-    "http://www.vtk.org/files/ExternalData/%(algo)/%(hash)"
+    "https://www.vtk.org/files/ExternalData/%(algo)/%(hash)"
   )
 endif()
 
