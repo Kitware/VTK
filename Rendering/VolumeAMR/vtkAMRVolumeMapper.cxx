@@ -201,12 +201,12 @@ int vtkAMRVolumeMapper::GetBlendMode()
   return this->InternalMapper->GetBlendMode();
 }
 //----------------------------------------------------------------------------
-void vtkAMRVolumeMapper::SetCropping(int mode)
+void vtkAMRVolumeMapper::SetCropping(vtkTypeBool mode)
 {
   this->InternalMapper->SetCropping(mode);
 }
 //----------------------------------------------------------------------------
-int vtkAMRVolumeMapper::GetCropping()
+vtkTypeBool vtkAMRVolumeMapper::GetCropping()
 {
   return this->InternalMapper->GetCropping();
 }

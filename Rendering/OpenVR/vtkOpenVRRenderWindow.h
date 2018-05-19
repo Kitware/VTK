@@ -273,7 +273,7 @@ public:
   void  SetParentId(void *) {};
   void HideCursor() {};
   void ShowCursor() {};
-  virtual void SetFullScreen(int) {};
+  virtual void SetFullScreen(vtkTypeBool) {};
   virtual void WindowRemap(void) {};
   virtual void SetNextWindowId(void *) {};
 

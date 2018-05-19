@@ -101,12 +101,12 @@ vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #define MAX_LIGHTS 8
 
 GLXFBConfig vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
-                                                  int drawable_type,
-                                                  int doublebuff,
-                                                  int stereo,
-                                                  int multisamples,
-                                                  int stencil,
-                                                  bool srgb)
+                                                 int drawable_type,
+                                                 vtkTypeBool doublebuff,
+                                                 vtkTypeBool stereo,
+                                                 int multisamples,
+                                                 vtkTypeBool stencil,
+                                                 bool srgb)
 {
   int           index;
   static int    attributes[50];
@@ -183,8 +183,11 @@ GLXFBConfig vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
   return None;
 }
 
+// dead code?
+#if 0
 XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
-                                                int doublebuff, int stereo,
+                                                vtkTypeBool doublebuff,
+                                                vtkTypeBool stereo,
                                                 int multisamples,
                                                 int stencil, bool srgb)
 {
@@ -198,14 +201,15 @@ XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
 
   return v;
 }
+#endif
 
 GLXFBConfig vtkXOpenGLRenderWindowGetDesiredFBConfig(
   Display *DisplayId,
-  int &win_stereo,
+  vtkTypeBool &win_stereo,
   int &win_multisamples,
-  int &win_doublebuffer,
+  vtkTypeBool &win_doublebuffer,
   int drawable_type,
-  int &stencil,
+  vtkTypeBool &stencil,
   bool srgb)
 {
   GLXFBConfig   fbc = None;
@@ -381,7 +385,7 @@ bool vtkXOpenGLRenderWindow::InitializeFromCurrentContext()
 // Set the variable that indicates that we want a stereo capable window
 // be created. This method can only be called before a window is realized.
 //
-void vtkXOpenGLRenderWindow::SetStereoCapableWindow(int capable)
+void vtkXOpenGLRenderWindow::SetStereoCapableWindow(vtkTypeBool capable)
 {
   if (!this->Internal->ContextId)
   {
@@ -884,7 +888,7 @@ void vtkXOpenGLRenderWindow::Finalize (void)
 }
 
 // Change the window to fill the entire screen.
-void vtkXOpenGLRenderWindow::SetFullScreen(int arg)
+void vtkXOpenGLRenderWindow::SetFullScreen(vtkTypeBool arg)
 {
   int *temp;
 
@@ -1669,7 +1673,7 @@ void vtkXOpenGLRenderWindow::ShowCursor()
 // (mangled) from vtkXOpenGLRenderWindow like the other OpenGL classes.
 //============================================================================
 
-void vtkXOpenGLRenderWindow::SetOffScreenRendering(int i)
+void vtkXOpenGLRenderWindow::SetOffScreenRendering(vtkTypeBool i)
 {
   if (this->OffScreenRendering == i)
   {

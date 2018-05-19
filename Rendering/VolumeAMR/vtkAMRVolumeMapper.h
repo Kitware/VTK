@@ -118,8 +118,8 @@ public:
    * Turn On/Off orthogonal cropping. (Clipping planes are
    * perpendicular to the coordinate axes.)
    */
-  void SetCropping(int mode) override;
-  int GetCropping() override;
+  void SetCropping(vtkTypeBool) override;
+  vtkTypeBool GetCropping() override;
   //@}
 
   //@{
