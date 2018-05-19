@@ -1,4 +1,5 @@
 set(Module_SRCS
+  vtkBlockSelector.cxx
   vtkConvertSelection.cxx
   vtkExtractBlock.cxx
   vtkExtractCells.cxx

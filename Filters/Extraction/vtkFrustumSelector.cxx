@@ -577,8 +577,10 @@ void vtkFrustumSelector::CreateFrustum(double verts[32])
 }
 
 //--------------------------------------------------------------------------
-void vtkFrustumSelector::Initialize(vtkSelectionNode* node)
+void vtkFrustumSelector::Initialize(vtkSelectionNode* node, const char* insidednessArrayName)
 {
+  this->Superclass::Initialize(node, insidednessArrayName);
+
   // sanity checks
   if (node && node->GetContentType() == vtkSelectionNode::FRUSTUM)
   {
@@ -594,13 +596,9 @@ void vtkFrustumSelector::Initialize(vtkSelectionNode* node)
 }
 
 //--------------------------------------------------------------------------
-void vtkFrustumSelector::Finalize()
-{
-  this->Node = nullptr;
-}
-
-//--------------------------------------------------------------------------
-bool vtkFrustumSelector::ComputeSelectedElements(vtkDataObject* input, vtkSignedCharArray* elementSelected)
+bool vtkFrustumSelector::ComputeSelectedElementsForBlock(vtkDataObject* input,
+  vtkSignedCharArray* insidednessArray, unsigned int vtkNotUsed(compositeIndex),
+  unsigned int vtkNotUsed(amrLevel), unsigned int vtkNotUsed(amrIndex))
 {
   vtkDataSet* inputDS = vtkDataSet::SafeDownCast(input);
   // frustum selection only supports datasets
@@ -613,11 +611,11 @@ bool vtkFrustumSelector::ComputeSelectedElements(vtkDataObject* input, vtkSigned
   auto fieldType = this->Node->GetProperties()->Get(vtkSelectionNode::FIELD_TYPE());
   if (fieldType == vtkSelectionNode::POINT)
   {
-    this->ComputeSelectedPoints(inputDS, elementSelected);
+    this->ComputeSelectedPoints(inputDS, insidednessArray);
   }
   else if (fieldType == vtkSelectionNode::CELL)
   {
-    this->ComputeSelectedCells(inputDS, elementSelected);
+    this->ComputeSelectedCells(inputDS, insidednessArray);
   }
   else
   {
