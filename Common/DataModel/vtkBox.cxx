@@ -511,7 +511,7 @@ int vtkBox::IntersectWithLine(const double bounds[6],
 }
 
 //----------------------------------------------------------------------------
-int vtkBox::
+vtkTypeBool vtkBox::
 IntersectWithPlane(double bounds[6], double origin[3], double normal[3])
 {
   // Evaluate the eight points. If there is a sign change, then there is an
@@ -568,7 +568,7 @@ namespace {
 // number of intersections ranges from [3,6]. The memory layout for xout[18]
 // is consistent with the vtkPoints array and is organized as (xyz, xyz, xyz,
 // xyz, xyz, xyz).
-int vtkBox::
+vtkTypeBool vtkBox::
 IntersectWithPlane(double bounds[6], double origin[3], double normal[3],
                    double xout[18])
 {
