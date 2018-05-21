@@ -574,7 +574,7 @@ const char* vtkGDALVectorReader::GetLayerProjectionAsProj4(int layerIndex)
   }
   char *projStr;
   layer->GetSpatialRef()->exportToProj4(&projStr);
-  char* returnStr = new char[strlen(projStr)];
+  char* returnStr = new char[strlen(projStr) + 1];
   strcpy(returnStr, projStr);
   CPLFree(projStr);
   return returnStr;
