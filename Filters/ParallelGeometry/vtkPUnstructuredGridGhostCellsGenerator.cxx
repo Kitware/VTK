@@ -526,6 +526,8 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndReduceSurfacePointsShare
     comIter->second.CommStep = 0;
   }
 
+  // we need sizesToSend to stick around for the noblocksends
+  std::vector<int> sizesToSend(this->Internals->Neighbors.size());
   if (this->Internals->InputGlobalPointIds)
   {
     // get all sizes from neighbors
@@ -567,14 +569,13 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndReduceSurfacePointsShare
     {
       std::vector<vtkIdType>& sendIds = this->Internals->SendIds[*iter];
       // send size of vector
-      int size = static_cast<int>(sendIds.size());
-      this->Internals->SubController->NoBlockSend(&size, 1, *iter,
-                                                  UGGCG_SIZE_EXCHANGE_TAG, sendReqs[reqidx]);
-      reqidx++;
+      sizesToSend[reqidx] = static_cast<int>(sendIds.size());
+      this->Internals->SubController->NoBlockSend(&sizesToSend[reqidx], 1, *iter,
+                                                  UGGCG_SIZE_EXCHANGE_TAG, sendReqs[2*reqidx]);
 
       // send the vector
-      this->Internals->SubController->NoBlockSend(&sendIds[0], size, *iter,
-                                                  UGGCG_DATA_EXCHANGE_TAG, sendReqs[reqidx]);
+      this->Internals->SubController->NoBlockSend(&sendIds[0], sizesToSend[reqidx], *iter,
+                                                  UGGCG_DATA_EXCHANGE_TAG, sendReqs[2*reqidx+1]);
       reqidx++;
     }
 
@@ -673,14 +674,13 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndReduceSurfacePointsShare
     {
       // Send data length
       std::vector<double>& sendPoints = this->Internals->SendPoints[*iter];
-      int size = static_cast<int>(sendPoints.size());
-      this->Internals->SubController->NoBlockSend(&size, 1, *iter,
-                                                  UGGCG_SIZE_EXCHANGE_TAG, sendReqs[reqidx]);
-      reqidx++;
+      sizesToSend[reqidx] = static_cast<int>(sendPoints.size());
+      this->Internals->SubController->NoBlockSend(&sizesToSend[reqidx], 1, *iter,
+                                                  UGGCG_SIZE_EXCHANGE_TAG, sendReqs[2*reqidx]);
 
       // Send raw data
-      this->Internals->SubController->NoBlockSend(&sendPoints[0], size, *iter,
-                                                  UGGCG_DATA_EXCHANGE_TAG, sendReqs[reqidx]);
+      this->Internals->SubController->NoBlockSend(&sendPoints[0], sizesToSend[reqidx], *iter,
+                                                  UGGCG_DATA_EXCHANGE_TAG, sendReqs[2*reqidx+1]);
       reqidx++;
     }
 
