@@ -174,8 +174,12 @@ int ConvertNumericLimitsValue(const char* t, T)
     convertedStream >> convertedValue;
     if (value != convertedValue)
     {
+#if (!defined(_MSC_VER)) || (_MSC_VER > 1800)
       std::cout << "ERROR: Bad conversion of std::min" << std::endl;
       status = EXIT_FAILURE;
+#else
+      std::cout << "WARNING: Bad conversion of std::min (ignored on MSVC 2013 and older)" << std::endl;
+#endif
     }
   }
   {
