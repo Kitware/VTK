@@ -459,6 +459,10 @@ int vtkCleanPolyData::RequestData(
           updatedPts[numNewPts++] = ptId;
         }
       }
+      if (numNewPts > 1 && updatedPts[0] == updatedPts[numNewPts - 1])
+      {
+        numNewPts--;
+      }
       if (numNewPts > 3)
       {
         // Cell is a proper triangle strip, always add
