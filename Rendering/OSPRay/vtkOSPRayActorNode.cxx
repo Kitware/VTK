@@ -23,11 +23,13 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationStringKey.h"
+#include "vtkImageData.h"
 #include "vtkMapper.h"
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
+#include "vtkTexture.h"
 #include "vtkViewNodeCollection.h"
 
 #include "ospray/ospray.h"
@@ -173,6 +175,7 @@ vtkMTimeType vtkOSPRayActorNode::GetMTime()
   vtkDataObject * dobj = nullptr;
   vtkPolyData *poly = nullptr;
   vtkMapper *mapper = act->GetMapper();
+  vtkTexture *texture = act->GetTexture();
   if (mapper)
   {
     //if (act->GetRedrawMTime() > mtime)
@@ -233,6 +236,17 @@ vtkMTimeType vtkOSPRayActorNode::GetMTime()
         dit->GoToNextItem();
       }
       dit->Delete();
+    }
+  }
+  if (texture)
+  {
+    if (texture->GetMTime() > mtime)
+    {
+      mtime = texture->GetMTime();
+    }
+    if (texture->GetInput() && texture->GetInput()->GetMTime() > mtime)
+    {
+      mtime = texture->GetInput()->GetMTime();
     }
   }
   return mtime;

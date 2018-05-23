@@ -295,7 +295,6 @@ namespace vtkosp {
     {
       osp::Texture2D *t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(vColorTextureMap);
       ospSetObject(actorMaterial, "map_Kd", ((OSPTexture2D)(t2d)));
-      ospCommit(t2d);
       ospCommit(actorMaterial);
       ospSetMaterial(ospMesh, actorMaterial);
     }
@@ -453,7 +452,6 @@ namespace vtkosp {
     {
       osp::Texture2D *t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(vColorTextureMap);
       ospSetObject(actorMaterial, "map_Kd", ((OSPTexture2D)(t2d)));
-      ospCommit(t2d);
       ospCommit(actorMaterial);
       ospSetMaterial(ospMesh, actorMaterial);
     }
@@ -577,7 +575,6 @@ namespace vtkosp {
       //Note: this will only have an affect on OBJMaterials
       osp::Texture2D *t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(vColorTextureMap);
       ospSetObject(actorMaterial, "map_Kd", ((OSPTexture2D)(t2d)));
-      ospCommit(t2d);
       ospCommit(actorMaterial);
       ospSetMaterial(ospMesh, actorMaterial);
     }

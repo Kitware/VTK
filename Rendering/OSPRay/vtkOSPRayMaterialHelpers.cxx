@@ -26,32 +26,86 @@
 osp::Texture2D *vtkOSPRayMaterialHelpers::VTKToOSPTexture
   (vtkImageData *vColorTextureMap)
 {
+  unsigned char *ochars;
+  void *obuffer;
   int xsize = vColorTextureMap->GetExtent()[1];
   int ysize = vColorTextureMap->GetExtent()[3];
-  unsigned char *ichars =
-    (unsigned char *)vColorTextureMap->GetScalarPointer();
-  unsigned char *ochars = new unsigned char[(xsize+1)*(ysize+1)*3]; //LEAK?
-  unsigned char *oc = ochars;
-  int comps = vColorTextureMap->GetNumberOfScalarComponents();
-  for (int i = 0; i <= xsize; ++i)
+  bool incompatible = false;
+  int scalartype = vColorTextureMap->GetScalarType();
+  if (scalartype != VTK_UNSIGNED_CHAR &&
+      scalartype != VTK_CHAR &&
+      scalartype != VTK_FLOAT)
   {
-    for (int j = 0; j <= ysize; ++j)
+    incompatible = true;
+  }
+  int comps = vColorTextureMap->GetNumberOfScalarComponents();
+  if (comps != 1 && comps != 3 && comps != 4)
+  {
+    incompatible = true;
+  }
+  if (incompatible)
+  {
+    vtkGenericWarningMacro("Problem, incompatible texture type. Defaulting to black texture.");
+    ochars = new unsigned char[(xsize+1)*(ysize+1)*3];
+    unsigned char *oc = ochars;
+    for (int i = 0; i <= xsize; ++i)
     {
-      oc[0] = ichars[0];
-      oc[1] = ichars[1];
-      oc[2] = ichars[2];
-      oc+=3;
-      ichars+=comps;
+      for (int j = 0; j <= ysize; ++j)
+      {
+        oc[0] = 0;
+        oc[1] = 0;
+        oc[2] = 0;
+        oc+=3;
+      }
     }
+    obuffer = (void*)ochars;
+  } else {
+    obuffer = vColorTextureMap->GetScalarPointer();
   }
   osp::Texture2D *t2d;
+  OSPTextureFormat ospformat = OSP_TEXTURE_RGB8;
+  if (scalartype == VTK_FLOAT)
+  {
+    if (comps == 1)
+    {
+      ospformat = OSP_TEXTURE_R32F;
+    }
+    else if (comps == 3)
+    {
+      ospformat = OSP_TEXTURE_RGB32F;
+    }
+    else if (comps == 4)
+    {
+      ospformat = OSP_TEXTURE_RGBA32F;
+    }
+  }
+  else
+  {
+    if (comps == 1)
+    {
+      ospformat = OSP_TEXTURE_R8;
+    }
+    else if (comps == 3)
+    {
+      ospformat = OSP_TEXTURE_RGB8;
+    }
+    else if (comps == 4)
+    {
+      ospformat = OSP_TEXTURE_RGBA8;
+    }
+  }
   t2d = (osp::Texture2D*)ospNewTexture2D
     (
      osp::vec2i{xsize+1,
          ysize+1},
-     OSP_TEXTURE_RGB8,
-     ochars,
+     ospformat,
+     obuffer,
      OSP_TEXTURE_FILTER_NEAREST);
+  ospCommit(t2d);
+  if (incompatible)
+  {
+    delete[] ochars;
+  }
   return t2d;
 }
 
@@ -119,7 +173,6 @@ void vtkOSPRayMaterialHelpers::MakeMaterials
     vtkImageData* vColorTextureMap = vtkImageData::SafeDownCast(texname->GetInput()); \
     osp::Texture2D *t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(vColorTextureMap); \
     ospSetObject(oMaterial, #texname, ((OSPTexture2D)(t2d))); \
-    ospCommit(t2d); \
   }
 
 //------------------------------------------------------------------------------
