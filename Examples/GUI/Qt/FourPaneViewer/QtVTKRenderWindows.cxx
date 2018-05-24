@@ -22,6 +22,7 @@
 #include "vtkProperty.h"
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
+#include "vtkRenderWindowInteractor.h"
 #include "vtkResliceImageViewer.h"
 #include "vtkResliceCursorLineRepresentation.h"
 #include "vtkResliceCursorThickLineRepresentation.h"

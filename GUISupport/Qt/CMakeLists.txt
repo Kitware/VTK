@@ -14,7 +14,9 @@ set(QVTKLibSrcs
   vtkQtDebugLeaksView.cxx
   vtkQtTableModelAdapter.cxx
   vtkQtTreeModelAdapter.cxx
+  QVTKOpenGLSimpleWidget.cxx
   QVTKOpenGLWidget.cxx
+  QVTKOpenGLWindow.cxx
   )
 
 set(QVTKMocHeaders
@@ -29,7 +31,9 @@ set(QVTKMocHeaders
   vtkQtDebugLeaksView.h
   vtkQtTableModelAdapter.h
   vtkQtTreeModelAdapter.h
+  QVTKOpenGLSimpleWidget.h
   QVTKOpenGLWidget.h
+  QVTKOpenGLWindow.h
   )
 
 set(add_qvtkwidget FALSE)

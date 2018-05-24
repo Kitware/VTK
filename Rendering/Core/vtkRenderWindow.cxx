@@ -190,6 +190,19 @@ void vtkRenderWindow::SetDesiredUpdateRate(double rate)
   }
 }
 
+//----------------------------------------------------------------------------
+void vtkRenderWindow::SetStereoType(int stereoType)
+{
+  if (this->StereoType == stereoType)
+  {
+    return;
+  }
+
+  this->StereoType = stereoType;
+  this->InvokeEvent(vtkCommand::WindowStereoTypeChangedEvent);
+
+  this->Modified();
+}
 
 //----------------------------------------------------------------------------
 //
@@ -775,7 +788,7 @@ void vtkRenderWindow::StereoRenderComplete(void)
         // set up the pointers
         // right starts on x = 1 on even scanlines
         // right starts on x = 0 on odd scanlines
-        if(y % 2) {
+        if (y % 2 == 0) {
           left = sleft + y * 3 * size[0] + 3;
           right = sright + y * 3 * size[0] + 3;
         }

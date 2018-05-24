@@ -24,6 +24,7 @@
 =========================================================================*/
 
 #include <QApplication>
+#include <QSurfaceFormat>
 
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkImageViewer.h"

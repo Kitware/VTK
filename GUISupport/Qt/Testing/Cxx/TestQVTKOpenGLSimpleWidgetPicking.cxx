@@ -14,7 +14,7 @@
 =========================================================================*/
 // Tests picking actors with QVTKOpenGLSimpleWidget and vtkPropPicker.
 
-#include "QVTKOpenGLWidget.h"
+#include "QVTKOpenGLSimpleWidget.h"
 #include "vtkActor2D.h"
 #include "vtkCamera.h"
 #include "vtkCoordinate.h"
@@ -24,7 +24,6 @@
 #include "vtkProperty2D.h"
 #include "vtkPropPicker.h"
 #include "vtkRenderer.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkSphereSource.h"
 
 #include <QApplication>
@@ -34,15 +33,16 @@
 #include <cmath>
 #include <vector>
 
-int TestQVTKOpenGLWidgetPicking(int argc, char* argv[])
+int TestQVTKOpenGLSimpleWidgetPicking(int argc, char* argv[])
 {
   // Disable multisampling
   vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(0);
-  QSurfaceFormat::setDefaultFormat(QVTKOpenGLWidget::defaultFormat());
+  QSurfaceFormat::setDefaultFormat(QVTKOpenGLSimpleWidget::defaultFormat());
 
   QApplication app(argc, argv);
 
-  QVTKOpenGLWidget widget;
+  QVTKOpenGLSimpleWidget widget;
+  widget.resize(300, 300);
 
   auto renWin = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
   widget.SetRenderWindow(renWin);
@@ -89,16 +89,6 @@ int TestQVTKOpenGLWidgetPicking(int argc, char* argv[])
   ren->GetActiveCamera()->SetPosition(0.0, 0.0, 9.0);
 
   widget.show();
-
-  // Make sure that the widget context is valid before making OpenGL calls.
-  // This should only take up to 4 calls to processEvents(). If this test keeps
-  // timing out, consider that the widget initialization is broken.
-  while (!widget.isValid())
-  {
-    app.processEvents();
-  }
-
-  widget.resize(300, 300);
   app.processEvents();
 
   auto picker = vtkSmartPointer<vtkPropPicker>::New();

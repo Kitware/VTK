@@ -301,7 +301,7 @@ public:
    * actually rendering in stereo mode.
    */
   vtkGetMacro(StereoType,int);
-  vtkSetMacro(StereoType,int);
+  void SetStereoType(int);
   void SetStereoTypeToCrystalEyes()
     {this->SetStereoType(VTK_STEREO_CRYSTAL_EYES);}
   void SetStereoTypeToRedBlue()

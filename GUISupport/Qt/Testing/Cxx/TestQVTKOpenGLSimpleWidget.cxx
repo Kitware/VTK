@@ -12,10 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// Tests QVTKOpenGLWidget
+// Tests QVTKOpenGLSimpleWidget
 
-#include "QVTKOpenGLWidget.h"
-
+#include "QVTKOpenGLSimpleWidget.h"
 #include "vtkActor.h"
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkNew.h"
@@ -26,23 +25,24 @@
 
 #include <QApplication>
 #include <QSurfaceFormat>
-#include <qmainwindow.h>
 
-int TestQVTKOpenGLWidget(int argc, char* argv[])
+int TestQVTKOpenGLSimpleWidget(int argc, char* argv[])
 {
   // disable multisampling.
   vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(0);
-  QSurfaceFormat::setDefaultFormat(QVTKOpenGLWidget::defaultFormat());
+  QSurfaceFormat::setDefaultFormat(QVTKOpenGLSimpleWidget::defaultFormat());
 
   QApplication app(argc, argv);
 
   vtkNew<vtkTesting> vtktesting;
   vtktesting->AddArguments(argc, argv);
 
-  QVTKOpenGLWidget widget;
+  QVTKOpenGLSimpleWidget widget;
+
   {
     vtkNew<vtkGenericOpenGLRenderWindow> window0;
     widget.SetRenderWindow(window0);
+    widget.show();
     app.processEvents();
   }
 
@@ -72,17 +72,9 @@ int TestQVTKOpenGLWidget(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  widget.show();
-
-  // Make sure that the widget context is valid before making OpenGL calls.
-  // This should only take up to 4 calls to processEvents(). If this test keeps
-  // timing out, consider that the widget initialization is broken.
-  while (!widget.isValid())
-  {
-    app.processEvents();
-  }
-
   vtktesting->SetRenderWindow(window);
+  widget.update();
+  app.processEvents();
 
   int retVal = vtktesting->RegressionTest(10);
   switch (retVal)

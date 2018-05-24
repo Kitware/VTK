@@ -56,7 +56,7 @@ QVTKInteractorAdapter::~QVTKInteractorAdapter()
 {
 }
 
-void QVTKInteractorAdapter::SetDevicePixelRatio(int ratio, vtkRenderWindowInteractor* iren)
+void QVTKInteractorAdapter::SetDevicePixelRatio(float ratio, vtkRenderWindowInteractor* iren)
 {
   if (ratio != DevicePixelRatio)
   {

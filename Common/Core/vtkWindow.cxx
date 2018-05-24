@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkWindow.h"
 
+#include "vtkCommand.h"
 #include "vtkToolkits.h"
 
 
@@ -82,6 +83,7 @@ void vtkWindow::SetSize(int x, int y)
     this->Size[0] = x;
     this->Size[1] = y;
     this->Modified();
+    this->InvokeEvent(vtkCommand::WindowResizeEvent, nullptr);
   }
 }
 

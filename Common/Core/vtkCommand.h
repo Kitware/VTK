@@ -329,6 +329,8 @@
     _vtk_add_event(HighlightEvent)\
     _vtk_add_event(WindowSupportsOpenGLEvent)\
     _vtk_add_event(WindowIsDirectEvent)\
+    _vtk_add_event(WindowStereoTypeChangedEvent)\
+    _vtk_add_event(WindowResizeEvent)\
     _vtk_add_event(UncheckedPropertyModifiedEvent)\
     _vtk_add_event(UpdateShaderEvent)\
     _vtk_add_event(MessageEvent)\
