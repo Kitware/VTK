@@ -30,6 +30,10 @@ set(Module_SRCS
   vtkXMLPTableReader.cxx
   vtkXMLPUnstructuredDataReader.cxx
   vtkXMLPUnstructuredGridReader.cxx
+  vtkXMLPartitionedDataSetReader.cxx
+  vtkXMLPartitionedDataSetWriter.cxx
+  vtkXMLPartitionedDataSetCollectionReader.cxx
+  vtkXMLPartitionedDataSetCollectionWriter.cxx
   vtkXMLReader.cxx
   vtkXMLRectilinearGridReader.cxx
   vtkXMLRectilinearGridWriter.cxx

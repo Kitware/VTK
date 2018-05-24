@@ -34,6 +34,8 @@ class vtkMultiBlockDataSet;
 class vtkMultiPieceDataSet;
 class vtkNonOverlappingAMR;
 class vtkOverlappingAMR;
+class vtkPartitionedDataSet;
+class vtkPartitionedDataSetCollection;
 
 class VTKIOLEGACY_EXPORT vtkCompositeDataReader : public vtkDataReader
 {
@@ -83,6 +85,8 @@ protected:
   bool ReadCompositeData(vtkMultiBlockDataSet*);
   bool ReadCompositeData(vtkHierarchicalBoxDataSet*);
   bool ReadCompositeData(vtkOverlappingAMR*);
+  bool ReadCompositeData(vtkPartitionedDataSet*);
+  bool ReadCompositeData(vtkPartitionedDataSetCollection*);
   bool ReadCompositeData(vtkNonOverlappingAMR*);
   vtkDataObject* ReadChild();
 

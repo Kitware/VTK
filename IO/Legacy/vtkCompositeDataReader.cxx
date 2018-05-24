@@ -29,6 +29,8 @@
 #include "vtkNonOverlappingAMR.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUniformGrid.h"
 
@@ -182,6 +184,16 @@ int vtkCompositeDataReader::ReadOutputType()
     {
       return VTK_HIERARCHICAL_BOX_DATA_SET;
     }
+    if (strncmp(this->LowerCase(line), "partitioned_collection",
+        strlen("partitioned_collection")) == 0)
+    {
+      return VTK_PARTITIONED_DATA_SET_COLLECTION;
+    }
+    if (strncmp(this->LowerCase(line), "partitioned",
+        strlen("partitioned")) == 0)
+    {
+      return VTK_PARTITIONED_DATA_SET;
+    }
   }
 
   return -1;
@@ -201,6 +213,9 @@ int vtkCompositeDataReader::RequestData(vtkInformation *, vtkInformationVector *
   vtkHierarchicalBoxDataSet* hb = vtkHierarchicalBoxDataSet::GetData(outputVector, 0);
   vtkOverlappingAMR* oamr = vtkOverlappingAMR::GetData(outputVector, 0);
   vtkNonOverlappingAMR* noamr = vtkNonOverlappingAMR::GetData(outputVector, 0);
+  vtkPartitionedDataSet* pd = vtkPartitionedDataSet::GetData(outputVector, 0);
+  vtkPartitionedDataSetCollection* pdc =
+    vtkPartitionedDataSetCollection::GetData(outputVector, 0);
 
   // Read the data-type description line which was already read in
   // RequestDataObject() so we just skip it here without any additional
@@ -232,6 +247,14 @@ int vtkCompositeDataReader::RequestData(vtkInformation *, vtkInformationVector *
   else if (noamr)
   {
     this->ReadCompositeData(noamr);
+  }
+  else if (pd)
+  {
+    this->ReadCompositeData(pd);
+  }
+  else if (pdc)
+  {
+    this->ReadCompositeData(pdc);
   }
 
   return 1;
@@ -555,6 +578,132 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkMultiPieceDataSet* mp)
         return false;
       }
       mp->SetPiece(cc, child);
+      child->FastDelete();
+    }
+    else
+    {
+      // eat up the ENDCHILD marker.
+      this->ReadString(line);
+    }
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataReader::ReadCompositeData(vtkPartitionedDataSet* mp)
+{
+  char line[256];
+  if (!this->ReadString(line))
+  {
+    vtkErrorMacro("Failed to read block-count");
+    return false;
+  }
+
+  if (strncmp(this->LowerCase(line), "children", strlen("children")) != 0)
+  {
+    vtkErrorMacro("Failed to read CHILDREN.");
+    return false;
+  }
+
+  unsigned int num_partitions = 0;
+  if (!this->Read(&num_partitions))
+  {
+    vtkErrorMacro("Failed to read number of pieces.");
+    return false;
+  }
+
+  mp->SetNumberOfPartitions(num_partitions);
+  for (unsigned int cc=0; cc < num_partitions; cc++)
+  {
+    if (!this->ReadString(line))
+    {
+      vtkErrorMacro("Failed to read 'CHILD <type>' line");
+      return false;
+    }
+
+    int type;
+    if (!this->Read(&type))
+    {
+      vtkErrorMacro("Failed to read child type.");
+      return false;
+    }
+    // eat up the "\n" and other whitespace at the end of CHILD <type>.
+    this->ReadLine(line);
+
+    if (type != -1)
+    {
+      vtkDataObject* child = this->ReadChild();
+      if (!child)
+      {
+        vtkErrorMacro("Failed to read child.");
+        return false;
+      }
+      mp->SetPartition(cc, child);
+      child->FastDelete();
+    }
+    else
+    {
+      // eat up the ENDCHILD marker.
+      this->ReadString(line);
+    }
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataReader::ReadCompositeData(
+  vtkPartitionedDataSetCollection* mp)
+{
+  char line[256];
+  if (!this->ReadString(line))
+  {
+    vtkErrorMacro("Failed to read block-count");
+    return false;
+  }
+
+  if (strncmp(this->LowerCase(line), "children", strlen("children")) != 0)
+  {
+    vtkErrorMacro("Failed to read CHILDREN.");
+    return false;
+  }
+
+  unsigned int num_datasets = 0;
+  if (!this->Read(&num_datasets))
+  {
+    vtkErrorMacro("Failed to read number of pieces.");
+    return false;
+  }
+
+  mp->SetNumberOfPartitionedDataSets(num_datasets);
+  for (unsigned int cc=0; cc < num_datasets; cc++)
+  {
+    if (!this->ReadString(line))
+    {
+      vtkErrorMacro("Failed to read 'CHILD <type>' line");
+      return false;
+    }
+
+    int type;
+    if (!this->Read(&type))
+    {
+      vtkErrorMacro("Failed to read child type.");
+      return false;
+    }
+    // eat up the "\n" and other whitespace at the end of CHILD <type>.
+    this->ReadLine(line);
+
+    if (type != -1)
+    {
+      vtkPartitionedDataSet* child = vtkPartitionedDataSet::SafeDownCast(
+        this->ReadChild());
+      if (!child)
+      {
+        vtkErrorMacro("Failed to read child.");
+        return false;
+      }
+      mp->SetPartitionedDataSet(cc, child);
       child->FastDelete();
     }
     else

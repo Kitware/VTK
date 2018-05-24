@@ -32,6 +32,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkImageData.h"
 #include  "vtkMultiBlockDataSet.h"
 #include  "vtkMultiPieceDataSet.h"
+#include  "vtkPartitionedDataSet.h"
+#include  "vtkPartitionedDataSetCollection.h"
 #include  "vtkPath.h"
 #include  "vtkPiecewiseFunction.h"
 #include  "vtkPointSet.h"
@@ -93,6 +95,8 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkPistonDataObject", // OBSOLETE
   "vtkPath",
   "vtkUnstructuredGridBase",
+  "vtkPartitionedDataSet",
+  "vtkPartitionedDataSetCollection",
   nullptr
 };
 
@@ -267,6 +271,14 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
   else if(strcmp(type, "vtkPath") == 0)
   {
     return vtkPath::New();
+  }
+  else if(strcmp(type, "vtkPartitionedDataSet") == 0)
+  {
+    return vtkPartitionedDataSet::New();
+  }
+  else if(strcmp(type, "vtkPartitionedDataSetCollection") == 0)
+  {
+    return vtkPartitionedDataSetCollection::New();
   }
 
   vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \"" << type

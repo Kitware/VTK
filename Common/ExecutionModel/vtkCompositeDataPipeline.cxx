@@ -17,6 +17,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkCompositeDataIterator.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkFieldData.h"
 #include "vtkImageData.h"
 #include "vtkInformationDoubleKey.h"
@@ -32,6 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
@@ -230,7 +232,8 @@ bool vtkCompositeDataPipeline::ShouldIterateOverInput(vtkInformationVector** inI
             strcmp(inputType, "vtkHierarchicalBoxDataSet") == 0 ||
             strcmp(inputType, "vtkOverlappingAMR") == 0 ||
             strcmp(inputType, "vtkNonOverlappingAMR") == 0 ||
-            strcmp(inputType, "vtkMultiBlockDataSet") == 0)
+            strcmp(inputType, "vtkMultiBlockDataSet") == 0 ||
+            strcmp(inputType, "vtkPartitionedDataSetCollection") == 0)
         {
           vtkDebugMacro(<< "ShouldIterateOverInput return 0 (Composite)");
           return false;
@@ -290,15 +293,18 @@ void vtkCompositeDataPipeline::ExecuteEach(vtkCompositeDataIterator* iter,
       // neither dobj nor outObj are vtkCompositeDataSet subclasses.
       std::vector<vtkDataObject*> outObjs =
         this->ExecuteSimpleAlgorithmForBlock(inInfoVec, outInfoVec, inInfo, request, dobj);
-      for (unsigned port = 0; port < compositeOutputs.size(); ++port)
+      if (!outObjs.empty())
       {
-        if (vtkDataObject* outObj = outObjs[port])
+        for (unsigned port = 0; port < compositeOutputs.size(); ++port)
         {
-          if (compositeOutputs[port])
+          if (vtkDataObject* outObj = outObjs[port])
           {
-            compositeOutputs[port]->SetDataSet(iter, outObj);
+            if (compositeOutputs[port])
+            {
+              compositeOutputs[port]->SetDataSet(iter, outObj);
+            }
+            outObj->FastDelete();
           }
-          outObj->FastDelete();
         }
       }
     }
@@ -400,6 +406,32 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
 
     vtkSmartPointer<vtkCompositeDataIterator> iter;
     iter.TakeReference(input->NewIterator());
+    if (vtkPartitionedDataSetCollection::SafeDownCast(input))
+    {
+      bool iteratePartitions = false;
+      vtkInformation* inPortInfo =
+        this->Algorithm->GetInputPortInformation(compositePort);
+      if (inPortInfo->Has(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE())
+          && inPortInfo->Length(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE()) > 0)
+      {
+        int size = inPortInfo->Length(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+        for(int j = 0; j < size; ++j)
+        {
+          const char* inputType =
+            inPortInfo->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), j);
+          if (strcmp(inputType, "vtkPartitionedDataSet") == 0)
+          {
+            iteratePartitions = true;
+          }
+        }
+        if (iteratePartitions)
+        {
+          vtkDataObjectTreeIterator::SafeDownCast(iter)->TraverseSubTreeOff();
+          vtkDataObjectTreeIterator::SafeDownCast(iter)->VisitOnlyLeavesOff();
+        }
+      }
+    }
+
     this->ExecuteEach(iter, inInfoVec, outInfoVec, compositePort, 0, r, compositeOutputs);
 
     // True when the pipeline is iterating over the current (simple)
@@ -445,12 +477,12 @@ std::vector<vtkDataObject*> vtkCompositeDataPipeline::ExecuteSimpleAlgorithmForB
 
   std::vector<vtkDataObject*> outputs;
 
-  if (dobj && dobj->IsA("vtkCompositeDataSet"))
-  {
-    vtkErrorMacro("ExecuteSimpleAlgorithmForBlock cannot be called "
-      "for a vtkCompositeDataSet");
-    return outputs; // return empty vector as error
-  }
+  // if (dobj && dobj->IsA("vtkCompositeDataSet"))
+  // {
+  //   vtkErrorMacro("ExecuteSimpleAlgorithmForBlock cannot be called "
+  //     "for a vtkCompositeDataSet");
+  //   return outputs; // return empty vector as error
+  // }
 
   // There must be a bug somewhere. If this Remove()
   // is not called, the following Set() has the effect
