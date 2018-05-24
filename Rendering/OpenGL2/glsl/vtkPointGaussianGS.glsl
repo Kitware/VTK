@@ -36,6 +36,9 @@ out vec2 offsetVCGSOutput;
 // clipping plane vars
 //VTK::Clip::Dec
 
+// picking support
+//VTK::Picking::Dec
+
 void main()
 {
   // the offsets sent down are positioned
@@ -67,6 +70,9 @@ void main()
   // note 1.73205 = 2.0*cos(30)
 
   offset = vec4(-1.73205*radiusVCVSOutput[0], -radiusVCVSOutput[0], 0.0, 0.0);
+
+  //VTK::Picking::Impl
+
   offsetVCGSOutput = offset.xy/radius;
   gl_Position = VCDCMatrix * (gl_in[0].gl_Position + offset.x*base1 + offset.y*base2);
   EmitVertex();

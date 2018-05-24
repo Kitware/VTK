@@ -1832,7 +1832,7 @@ namespace vtkvolume
   };
 
   //--------------------------------------------------------------------------
-  std::string PickingIdMid24PassExit(vtkRenderer* vtkNotUsed(ren),
+  std::string PickingIdHigh24PassExit(vtkRenderer* vtkNotUsed(ren),
     vtkVolumeMapper* vtkNotUsed(mapper), vtkVolume* vtkNotUsed(vol))
   {
   return std::string("\

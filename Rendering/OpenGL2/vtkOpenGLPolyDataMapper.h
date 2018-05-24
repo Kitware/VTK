@@ -231,14 +231,21 @@ public:
     PrimitiveEnd
   };
 
+  void UpdateCellMaps(
+    bool HaveAppleBug,
+    vtkPolyData *poly,
+    vtkCellArray **prims, int representation,
+    vtkPoints *points);
+
   /**
    * Get access to the map of glprim to vtkcell ids
    */
-  static void MakeCellCellMap(std::vector<vtkIdType> &CellCellMap,
-                              bool HaveAppleBug,
-                              vtkPolyData *poly,
-                              vtkCellArray **prims, int representation,
-                              vtkPoints *points);
+  static void MakeCellCellMap(
+    std::vector<vtkIdType> &cellCellMap,
+    bool HaveAppleBug,
+    vtkPolyData *poly,
+    vtkCellArray **prims, int representation,
+    vtkPoints *points);
 
   /**
    * Select a data array from the point/cell data
@@ -275,6 +282,14 @@ public:
    * Remove all vertex attributes.
    */
   void RemoveAllVertexAttributeMappings() override;
+
+  /**
+   * allows a mapper to update a selections color buffers
+   * Called from a prop which in turn is called from the selector
+   */
+  void ProcessSelectorPixelBuffers(vtkHardwareSelector *sel,
+    std::vector<unsigned int> &pixeloffsets,
+    vtkProp *prop) override;
 
 protected:
   vtkOpenGLPolyDataMapper();
@@ -509,7 +524,6 @@ protected:
     std::vector<float> &normals,
     vtkPolyData *pd);
 
-  bool HavePickScalars;
   vtkTextureObject *CellScalarTexture;
   vtkOpenGLBufferObject *CellScalarBuffer;
   bool HaveCellScalars;
@@ -553,11 +567,16 @@ protected:
   // typically 2 for points, 4 for lines, 6 for surface
   int GetPointPickingPrimitiveSize(int primType);
 
-  // a map from drawn triangles back to containing cell id
-  std::vector<unsigned int> CellCellMap;
-
   // used to occasionally invoke timers
   unsigned int TimerQueryCounter;
+
+  // stores the mapping from vtk cells to gl_PrimitiveId
+  std::vector<vtkIdType> CellCellMap;
+  std::vector<vtkIdType> PointCellMap;
+  std::string CellMapsBuildString;
+
+  // compute and set the maximum point and cell ID used in selection
+  virtual void UpdateMaximumPointCellIds(vtkRenderer* ren, vtkActor *actor);
 
 private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&) = delete;

@@ -52,6 +52,14 @@ public:
    */
   void Render(vtkRenderer *ren, vtkActor *act) override;
 
+  /**
+   * allows a mapper to update a selections color buffers
+   * Called from a prop which in turn is called from the selector
+   */
+  void ProcessSelectorPixelBuffers(vtkHardwareSelector *sel,
+    std::vector<unsigned int> &pixeloffsets,
+    vtkProp *prop) override;
+
 protected:
   vtkOpenGLPointGaussianMapper();
   ~vtkOpenGLPointGaussianMapper() override;
@@ -99,6 +107,9 @@ protected:
    * Need to loop over the hierarchy to compute bounds
    */
   void ComputeBounds() override;
+
+  // used by the hardware selector
+  std::vector<std::vector<unsigned int>> PickPixels;
 
 private:
   vtkOpenGLPointGaussianMapper(const vtkOpenGLPointGaussianMapper&) = delete;

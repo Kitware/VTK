@@ -69,18 +69,38 @@ void vtkOpenGLMoleculeMapper::Render(vtkRenderer *ren, vtkActor *act )
   if (this->RenderAtoms)
   {
     this->FastAtomMapper->Render(ren, act);
-    //  this->AtomGlyphMapper->Render(ren, act);
   }
 
   if (this->RenderBonds)
   {
     this->FastBondMapper->Render(ren, act);
-    //  this->BondGlyphMapper->Render(ren, act);
   }
 
   if (this->RenderLattice)
   {
     this->LatticeMapper->Render(ren, act);
+  }
+}
+
+void vtkOpenGLMoleculeMapper::ProcessSelectorPixelBuffers(
+  vtkHardwareSelector *sel,
+  std::vector<unsigned int> &pixeloffsets,
+  vtkProp *prop)
+{
+  // forward to helper
+  if (this->RenderAtoms)
+  {
+    this->FastAtomMapper->ProcessSelectorPixelBuffers(sel, pixeloffsets, prop);
+  }
+
+  if (this->RenderBonds)
+  {
+    this->FastBondMapper->ProcessSelectorPixelBuffers(sel, pixeloffsets, prop);
+  }
+
+  if (this->RenderLattice)
+  {
+    this->LatticeMapper->ProcessSelectorPixelBuffers(sel, pixeloffsets, prop);
   }
 }
 

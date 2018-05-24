@@ -314,6 +314,14 @@ vtkDataObject* vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
   }
   current_flat_index++;
 
+  // for leaf types quick continue, otherwise it recurses which
+  // calls two more SafeDownCast which are expensive
+  int dotype = parent_obj->GetDataObjectType();
+  if (dotype < VTK_COMPOSITE_DATA_SET) // see vtkType.h
+  {
+    return nullptr;
+  }
+
   auto multiBlock = vtkMultiBlockDataSet::SafeDownCast(parent_obj);
   auto multiPiece = vtkMultiPieceDataSet::SafeDownCast(parent_obj);
   if (multiBlock || multiPiece)

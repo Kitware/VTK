@@ -23,26 +23,6 @@ public:
 
   // Point Line Poly Strip end
   size_t PrimOffsets[5];
-
-  bool Different(
-    vtkCompositeMapperHelperData *next,
-    vtkHardwareSelector *selector,
-    int primType)
-  {
-    return
-      (selector &&
-        selector->GetCurrentPass() ==
-            vtkHardwareSelector::COMPOSITE_INDEX_PASS) ||
-      this->Opacity != next->Opacity ||
-      this->Visibility != next->Visibility ||
-      this->Pickability != next->Pickability ||
-      this->OverridesColor != next->OverridesColor ||
-      this->AmbientColor != next->AmbientColor ||
-      this->DiffuseColor != next->DiffuseColor ||
-      (primType >= 0 && primType <= 3 &&
-        this->PrimOffsets[primType+1] != next->PrimOffsets[primType]);
-  }
-
 };
 
 //===================================================================
@@ -73,6 +53,18 @@ public:
    * Accessor to the ordered list of PolyData that we last drew.
    */
   std::vector<vtkPolyData*> GetRenderedList(){ return this->RenderedList; }
+
+  /**
+   * allows a mapper to update a selections color buffers
+   * Called from a prop which in turn is called from the selector
+   */
+  void ProcessSelectorPixelBuffers(vtkHardwareSelector *sel,
+    std::vector<unsigned int> &pixeloffsets,
+    vtkProp *prop) override;
+
+  virtual void ProcessCompositePixelBuffers(vtkHardwareSelector *sel,
+    vtkProp *prop, vtkCompositeMapperHelperData *hdata,
+    std::vector<unsigned int> &mypixels);
 
 protected:
   vtkCompositePolyDataMapper2 *Parent;
@@ -137,6 +129,9 @@ protected:
   vtkHardwareSelector *CurrentSelector;
 
   std::vector<vtkPolyData*> RenderedList;
+
+  // used by the hardware selector
+  std::vector<std::vector<unsigned int>> PickPixels;
 
   std::map<vtkAbstractArray*, vtkDataArray*> ColorArrayMap;
 
