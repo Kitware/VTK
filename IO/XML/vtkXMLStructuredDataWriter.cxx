@@ -205,7 +205,7 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
         this->UpdateFieldData(fieldDataCopy);
 
         // Write the field data arrays.
-        this->WriteFieldDataAppendedData(this->GetInput()->GetFieldData(),
+        this->WriteFieldDataAppendedData(fieldDataCopy,
           this->CurrentTimeIndex, this->FieldDataOM);
         if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
         {
