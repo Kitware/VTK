@@ -837,7 +837,7 @@ void vtkOSPRayRendererNode::Traverse(int operation)
       (numAct != this->NumActors))
   {
     this->NumActors = numAct;
-    //ospRelease((OSPModel)this->OModel);
+    ospRelease((OSPModel)this->OModel);
     oModel = ospNewModel();
     this->OModel = oModel;
     it->InitTraversal();
