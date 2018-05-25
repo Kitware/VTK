@@ -996,6 +996,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     {
       this->ImageX = this->Size[0];
       this->ImageY = this->Size[1];
+      ospRelease(this->OFrameBuffer);
       this->OFrameBuffer = ospNewFrameBuffer
         (isize,
          OSP_FB_RGBA8,
