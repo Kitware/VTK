@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSelectionOperator.h
+  Module:    vtkSelector.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,14 +13,14 @@
 
 =========================================================================*/
 /**
- * @class   vtkSelectionOperator.h
+ * @class   vtkSelector.h
  * @brief   Computes the portion of a dataset which is inside a selection
  *
  * This is an abstract superclass for types of selection operations.
  */
 
-#ifndef vtkSelectionOperator_h
-#define vtkSelectionOperator_h
+#ifndef vtkSelector_h
+#define vtkSelector_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkObject.h"
@@ -32,10 +32,10 @@ class vtkSelectionNode;
 class vtkSignedCharArray;
 class vtkTable;
 
-class VTKFILTERSEXTRACTION_EXPORT vtkSelectionOperator : public vtkObject
+class VTKFILTERSEXTRACTION_EXPORT vtkSelector : public vtkObject
 {
   public:
-  vtkTypeMacro(vtkSelectionOperator, vtkObject);
+  vtkTypeMacro(vtkSelector, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -75,8 +75,8 @@ class VTKFILTERSEXTRACTION_EXPORT vtkSelectionOperator : public vtkObject
   virtual bool ComputeSelectedElements(vtkDataObject* input, vtkDataObject* output);
 
 protected:
-  vtkSelectionOperator();
-  virtual ~vtkSelectionOperator() override;
+  vtkSelector();
+  virtual ~vtkSelector() override;
 
   // Contains the selection criteria.
   vtkSelectionNode* Node = nullptr;
@@ -147,8 +147,8 @@ protected:
     vtkDataObject* data, vtkSignedCharArray* selectedPoints);
 
 private:
-  vtkSelectionOperator(const vtkSelectionOperator&) = delete;
-  void operator=(const vtkSelectionOperator&) = delete;
+  vtkSelector(const vtkSelector&) = delete;
+  void operator=(const vtkSelector&) = delete;
 };
 
 #endif

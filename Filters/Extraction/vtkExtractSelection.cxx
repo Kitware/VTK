@@ -32,7 +32,7 @@
 #include "vtkPoints.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
-#include "vtkSelectionOperator.h"
+#include "vtkSelector.h"
 #include "vtkSignedCharArray.h"
 #include "vtkTable.h"
 #include "vtkUniformGridAMRDataIterator.h"
@@ -224,7 +224,7 @@ int vtkExtractSelection::RequestData(
   }
 
   // Create operators for each of vtkSelectionNode instances and initialize them.
-  std::map< std::string, vtkSmartPointer< vtkSelectionOperator > > selectors;
+  std::map< std::string, vtkSmartPointer< vtkSelector > > selectors;
   for (unsigned int cc = 0, max = selection->GetNumberOfNodes(); cc < max; ++cc)
   {
     auto node = selection->GetNode(cc);
@@ -343,7 +343,7 @@ int vtkExtractSelection::RequestData(
 }
 
 //----------------------------------------------------------------------------
-vtkSmartPointer<vtkSelectionOperator> vtkExtractSelection::NewSelectionOperator(
+vtkSmartPointer<vtkSelector> vtkExtractSelection::NewSelectionOperator(
   vtkSelectionNode::SelectionContent contentType)
 {
   switch (contentType)

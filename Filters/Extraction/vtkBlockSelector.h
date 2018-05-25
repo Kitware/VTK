@@ -22,13 +22,13 @@
 #ifndef vtkBlockSelector_h
 #define vtkBlockSelector_h
 
-#include "vtkSelectionOperator.h"
+#include "vtkSelector.h"
 
-class VTKFILTERSEXTRACTION_EXPORT vtkBlockSelector : public vtkSelectionOperator
+class VTKFILTERSEXTRACTION_EXPORT vtkBlockSelector : public vtkSelector
 {
 public:
   static vtkBlockSelector* New();
-  vtkTypeMacro(vtkBlockSelector, vtkSelectionOperator);
+  vtkTypeMacro(vtkBlockSelector, vtkSelector);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void Initialize(vtkSelectionNode* node, const char* insidednessArrayName) override;

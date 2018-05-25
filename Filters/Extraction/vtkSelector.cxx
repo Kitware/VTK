@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSelectionOperator.cxx
+  Module:    vtkSelector.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include "vtkSelectionOperator.h"
+#include "vtkSelector.h"
 
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
@@ -25,19 +25,19 @@
 #include "vtkUniformGridAMRDataIterator.h"
 
 //----------------------------------------------------------------------------
-vtkSelectionOperator::vtkSelectionOperator()
+vtkSelector::vtkSelector()
 {
 }
 
 //----------------------------------------------------------------------------
-vtkSelectionOperator::~vtkSelectionOperator()
+vtkSelector::~vtkSelector()
 {
   this->Node = nullptr;
   delete[] this->InsidednessArrayName;
 }
 
 //----------------------------------------------------------------------------
-void vtkSelectionOperator::Initialize(vtkSelectionNode* node, const char* insidednessArrayName)
+void vtkSelector::Initialize(vtkSelectionNode* node, const char* insidednessArrayName)
 {
   this->Node = node;
   if (insidednessArrayName)
@@ -54,7 +54,7 @@ void vtkSelectionOperator::Initialize(vtkSelectionNode* node, const char* inside
 }
 
 //--------------------------------------------------------------------------
-bool vtkSelectionOperator::ComputeSelectedElements(vtkDataObject* input, vtkDataObject* output)
+bool vtkSelector::ComputeSelectedElements(vtkDataObject* input, vtkDataObject* output)
 {
   if (auto inputCD = vtkCompositeDataSet::SafeDownCast(input))
   {
@@ -92,7 +92,7 @@ bool vtkSelectionOperator::ComputeSelectedElements(vtkDataObject* input, vtkData
 }
 
 //----------------------------------------------------------------------------
-bool vtkSelectionOperator::ComputeSelectedElementsForCompositeDataSet(
+bool vtkSelector::ComputeSelectedElementsForCompositeDataSet(
   vtkCompositeDataSet* inputCD, vtkCompositeDataSet* outputCD)
 {
   assert(inputCD != nullptr);
@@ -147,7 +147,7 @@ bool vtkSelectionOperator::ComputeSelectedElementsForCompositeDataSet(
 }
 
 //----------------------------------------------------------------------------
-bool vtkSelectionOperator::SkipBlock(unsigned int compositeIndex, unsigned int amrLevel, unsigned int amrIndex)
+bool vtkSelector::SkipBlock(unsigned int compositeIndex, unsigned int amrLevel, unsigned int amrIndex)
 {
   auto properties = this->Node->GetProperties();
   if (properties->Has(vtkSelectionNode::COMPOSITE_INDEX()) &&
@@ -172,7 +172,7 @@ bool vtkSelectionOperator::SkipBlock(unsigned int compositeIndex, unsigned int a
 
 //----------------------------------------------------------------------------
 // Creates a new insidedness array with the given number of elements.
-vtkSmartPointer<vtkSignedCharArray> vtkSelectionOperator::CreateInsidednessArray(vtkIdType numElems)
+vtkSmartPointer<vtkSignedCharArray> vtkSelector::CreateInsidednessArray(vtkIdType numElems)
 {
   auto darray = vtkSmartPointer<vtkSignedCharArray>::New();
   darray->SetName("vtkInsidedness");
@@ -182,7 +182,7 @@ vtkSmartPointer<vtkSignedCharArray> vtkSelectionOperator::CreateInsidednessArray
 }
 
 //----------------------------------------------------------------------------
-vtkSmartPointer<vtkSignedCharArray> vtkSelectionOperator::ComputeCellsContainingSelectedPoints(
+vtkSmartPointer<vtkSignedCharArray> vtkSelector::ComputeCellsContainingSelectedPoints(
   vtkDataObject* data, vtkSignedCharArray* selectedPoints)
 {
   vtkDataSet* dataset = vtkDataSet::SafeDownCast(data);
@@ -214,7 +214,7 @@ vtkSmartPointer<vtkSignedCharArray> vtkSelectionOperator::ComputeCellsContaining
 }
 
 //----------------------------------------------------------------------------
-void vtkSelectionOperator::PrintSelf(ostream& os, vtkIndent indent)
+void vtkSelector::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
 }

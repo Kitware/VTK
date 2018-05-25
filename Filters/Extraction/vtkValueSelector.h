@@ -16,7 +16,7 @@
  * @class vtkValueSelector
  * @brief selects elements matching chosen values.
  *
- * vtkValueSelector is a vtkSelectionOperator that can select elements matching
+ * vtkValueSelector is a vtkSelector that can select elements matching
  * values. This can handle a wide array of vtkSelectionNode::SelectionContent types.
  * These include vtkSelectionNode::GLOBALIDS, vtkSelectionNode::PEDIGREEIDS,
  * vtkSelectionNode::VALUES, vtkSelectionNode::INDICES, and
@@ -40,15 +40,15 @@
 #ifndef vtkValueSelector_h
 #define vtkValueSelector_h
 
-#include "vtkSelectionOperator.h"
+#include "vtkSelector.h"
 
 #include <memory> // unique_ptr
 
-class VTKFILTERSEXTRACTION_EXPORT vtkValueSelector : public vtkSelectionOperator
+class VTKFILTERSEXTRACTION_EXPORT vtkValueSelector : public vtkSelector
 {
 public:
   static vtkValueSelector* New();
-  vtkTypeMacro(vtkValueSelector, vtkSelectionOperator);
+  vtkTypeMacro(vtkValueSelector, vtkSelector);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void Initialize(vtkSelectionNode* node, const char* insidednessArrayName) override;

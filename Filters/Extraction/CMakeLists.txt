@@ -30,7 +30,7 @@ set(Module_SRCS
   vtkHierarchicalDataExtractLevel.cxx
   vtkLocationSelector.cxx
   vtkProbeSelectedLocations.cxx
-  vtkSelectionOperator.cxx
+  vtkSelector.cxx
   vtkValueSelector.cxx
   )
 

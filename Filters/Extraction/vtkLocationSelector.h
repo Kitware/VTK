@@ -16,22 +16,22 @@
  * @class vtkLocationSelector
  * @brief selects cells containing or points near chosen point locations.
  *
- * vtkLocationSelector is vtkSelectionOperator that can select elements
+ * vtkLocationSelector is vtkSelector that can select elements
  * containing or near matching elements. It handles vtkSelectionNode::LOCATIONS
  */
 
 #ifndef vtkLocationSelector_h
 #define vtkLocationSelector_h
 
-#include "vtkSelectionOperator.h"
+#include "vtkSelector.h"
 
 #include <memory> // unique_ptr
 
-class VTKFILTERSEXTRACTION_EXPORT vtkLocationSelector : public vtkSelectionOperator
+class VTKFILTERSEXTRACTION_EXPORT vtkLocationSelector : public vtkSelector
 {
 public:
   static vtkLocationSelector* New();
-  vtkTypeMacro(vtkLocationSelector, vtkSelectionOperator);
+  vtkTypeMacro(vtkLocationSelector, vtkSelector);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void Initialize(vtkSelectionNode* node, const char* insidednessArrayName) override;

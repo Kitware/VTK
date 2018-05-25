@@ -15,7 +15,7 @@
 /**
  * @class   vtkFrustumSelector.h
  *
- * vtkFrustumSelector is a vtkSelectionOperator that selects elements based
+ * vtkFrustumSelector is a vtkSelector that selects elements based
  * on whether they are inside or intersect a frustum of interest.  This handles
  * the vtkSelectionNode::FRUSTUM selection type.
  *
@@ -25,7 +25,7 @@
 #define vtkFrustumSelector_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
-#include "vtkSelectionOperator.h"
+#include "vtkSelector.h"
 
 #include "vtkSmartPointer.h" // for smart pointer
 
@@ -33,11 +33,11 @@ class vtkDataSet;
 class vtkPlanes;
 class vtkSignedCharArray;
 
-class VTKFILTERSEXTRACTION_EXPORT vtkFrustumSelector : public vtkSelectionOperator
+class VTKFILTERSEXTRACTION_EXPORT vtkFrustumSelector : public vtkSelector
 {
 public:
   static vtkFrustumSelector *New();
-  vtkTypeMacro(vtkFrustumSelector, vtkSelectionOperator);
+  vtkTypeMacro(vtkFrustumSelector, vtkSelector);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void Initialize(vtkSelectionNode* node, const char* insidednessArrayName) override;
