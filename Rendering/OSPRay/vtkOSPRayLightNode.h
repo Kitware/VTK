@@ -91,6 +91,7 @@ private:
   void operator=(const vtkOSPRayLightNode&) = delete;
 
   static double LightScale;
+  void *OLight;
 };
 
 #endif
