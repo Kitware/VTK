@@ -152,9 +152,9 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
       }
       else
       {
-        if (this->OSPRayVolume && this->Cache->GetSize() == 0)
+        if (this->Cache->GetSize() == 0)
         {
-          delete this->OSPRayVolume;
+          ospRelease(this->OSPRayVolume);
         }
         this->OSPRayVolume = ospNewVolume("amr_volume");
         this->Cache->AddToCache(tstep, this->OSPRayVolume);

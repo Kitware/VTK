@@ -51,9 +51,9 @@ vtkOSPRayTetrahedraMapperNode::vtkOSPRayTetrahedraMapperNode()
 vtkOSPRayTetrahedraMapperNode::~vtkOSPRayTetrahedraMapperNode()
 {
   ospRelease(this->TransferFunction);
-  if (this->OSPRayVolume && this->Cache->GetSize() == 0)
+  if (this->Cache->GetSize() == 0)
   {
-    delete this->OSPRayVolume;
+    ospRelease(this->OSPRayVolume);
   }
   delete this->Cache;
 }
@@ -150,7 +150,7 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
       {
         if (this->OSPRayVolume && this->Cache->GetSize() == 0)
         {
-          delete this->OSPRayVolume;
+          ospRelease(this->OSPRayVolume);
         }
 #if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
         this->OSPRayVolume = ospNewVolume("unstructured_volume");

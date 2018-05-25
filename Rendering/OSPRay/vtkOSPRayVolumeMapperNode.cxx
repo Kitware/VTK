@@ -51,9 +51,9 @@ vtkOSPRayVolumeMapperNode::vtkOSPRayVolumeMapperNode()
 vtkOSPRayVolumeMapperNode::~vtkOSPRayVolumeMapperNode()
 {
   ospRelease(this->TransferFunction);
-  if (this->OSPRayVolume && this->Cache->GetSize() == 0)
+  if (this->Cache->GetSize() == 0)
   {
-    delete this->OSPRayVolume;
+    ospRelease(this->OSPRayVolume);
   }
   delete this->Cache;
 }
@@ -181,9 +181,9 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
           return;
         }
 
-        if (this->OSPRayVolume && this->Cache->GetSize() == 0)
+        if (this->Cache->GetSize() == 0)
         {
-          delete this->OSPRayVolume;
+          ospRelease(this->OSPRayVolume);
         }
         this->OSPRayVolume = ospNewVolume("block_bricked_volume");
         this->Cache->AddToCache(tstep, this->OSPRayVolume);

@@ -445,18 +445,9 @@ vtkOSPRayRendererNode::~vtkOSPRayRendererNode()
   delete[] this->Buffer;
   delete[] this->ZBuffer;
   delete[] this->ODepthBuffer;
-  if (this->OModel)
-  {
-    ospRelease((OSPModel)this->OModel);
-  }
-  if (this->ORenderer)
-  {
-    ospRelease((OSPRenderer)this->ORenderer);
-  }
-  if (this->OFrameBuffer)
-  {
-    ospRelease(this->OFrameBuffer);
-  }
+  ospRelease((OSPModel)this->OModel);
+  ospRelease((OSPRenderer)this->ORenderer);
+  ospRelease(this->OFrameBuffer);
   this->AccumulateMatrix->Delete();
   delete this->Internal;
 }
