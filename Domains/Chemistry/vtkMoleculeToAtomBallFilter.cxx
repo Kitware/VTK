@@ -59,6 +59,7 @@ int vtkMoleculeToAtomBallFilter::RequestData(
   vtkCellArray *polys = vtkCellArray::New();
   vtkPoints *points = vtkPoints::New();
   vtkUnsignedShortArray *atomicNums = vtkUnsignedShortArray::New();
+  atomicNums->SetName(input->GetAtomicNumberArrayName());
 
   // Initialize a SphereSource
   vtkSphereSource *sphereSource = vtkSphereSource::New();
@@ -71,7 +72,8 @@ int vtkMoleculeToAtomBallFilter::RequestData(
                    GetNumberOfPoints());
   polys->Allocate(numAtoms * sphereSource->GetOutput()->GetPolys()->
                   GetNumberOfCells());
-  atomicNums->Allocate(points->GetNumberOfPoints());
+  atomicNums->Allocate(numAtoms * sphereSource->GetOutput()->GetPoints()->
+                   GetNumberOfPoints());
 
   // Initialize some variables for later
   vtkIdType numCellPoints, *cellPoints;

@@ -28,6 +28,7 @@ SET(Module_SRCS
   vtkInformationExecutivePortKey.cxx
   vtkInformationExecutivePortVectorKey.cxx
   vtkInformationIntegerRequestKey.cxx
+  vtkMoleculeAlgorithm.cxx
   vtkMultiBlockDataSetAlgorithm.cxx
   vtkMultiTimeStepAlgorithm.cxx
   vtkPassInputTypeAlgorithm.cxx

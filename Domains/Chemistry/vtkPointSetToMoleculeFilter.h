@@ -34,6 +34,17 @@ public:
   static vtkPointSetToMoleculeFilter* New();
   vtkTypeMacro(vtkPointSetToMoleculeFilter, vtkMoleculeAlgorithm);
 
+  //@{
+  /**
+   * Get/Set if the filter should look for lines in input cells and convert them
+   * into bonds.
+   * default is ON.
+   */
+  vtkGetMacro(ConvertLinesIntoBonds, bool);
+  vtkSetMacro(ConvertLinesIntoBonds, bool);
+  vtkBooleanMacro(ConvertLinesIntoBonds, bool);
+  //@}
+
 protected:
   vtkPointSetToMoleculeFilter();
   ~vtkPointSetToMoleculeFilter() override = default;
@@ -42,6 +53,7 @@ protected:
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
+  bool ConvertLinesIntoBonds;
 private:
   vtkPointSetToMoleculeFilter(const vtkPointSetToMoleculeFilter&) = delete;
   void operator=(const vtkPointSetToMoleculeFilter&) = delete;
