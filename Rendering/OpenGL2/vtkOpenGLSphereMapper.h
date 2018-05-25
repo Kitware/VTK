@@ -95,7 +95,7 @@ protected:
   void RenderPieceDraw(vtkRenderer *ren, vtkActor *act) override;
 
   virtual void CreateVBO(
-    float * points, vtkIdType numPts,
+    vtkPolyData *poly, vtkIdType numPts,
     unsigned char *colors, int colorComponents,
     vtkIdType nc,
     float *sizes, vtkIdType ns, vtkRenderer *ren);

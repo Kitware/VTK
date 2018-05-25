@@ -730,12 +730,12 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
         poly->GetVerts()
       );
     }
-    this->VBOs->CacheDataArray("offsetMC", offsets, ren, VTK_FLOAT);
+    this->VBOs->CacheDataArray("radiusMC", offsets, ren, VTK_FLOAT);
     offsets->Delete();
   }
   else
   {
-    this->VBOs->CacheDataArray("offsetMC", nullptr, ren, VTK_FLOAT);
+    this->VBOs->CacheDataArray("radiusMC", nullptr, ren, VTK_FLOAT);
   }
 
   if (this->Colors)
@@ -764,7 +764,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
   {
     this->Primitives[i].IBO->IndexCount = 0;
   }
-  this->Primitives[PrimitivePoints].IBO->IndexCount = splatCount;
+  this->Primitives[PrimitiveTris].IBO->IndexCount = splatCount;
   this->VBOBuildTime.Modified();
 }
 
@@ -775,7 +775,7 @@ void vtkOpenGLPointGaussianMapperHelper::RenderPieceDraw(vtkRenderer* ren, vtkAc
   int numVerts = this->VBOs->GetNumberOfTuples("vertexMC");
   if (numVerts)
   {
-    this->UpdateShaders(this->Primitives[PrimitivePoints], ren, actor);
+    this->UpdateShaders(this->Primitives[PrimitiveTris], ren, actor);
 
     // save off current state of src / dst blend functions
     if (this->Owner->GetEmissive() != 0 && !ren->GetSelector())

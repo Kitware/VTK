@@ -3,7 +3,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPointGaussianGS.glsl
+  Module:    vtkSphereMapperGS.glsl
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -26,23 +26,21 @@ layout(points) in;
 layout(triangle_strip, max_vertices = 3) out;
 
 uniform int cameraParallel;
-uniform float triangleScale;
 
 uniform mat4 VCDCMatrix;
 
 in float radiusVCVSOutput[];
-out vec2 offsetVCGSOutput;
+out float radiusVCGSOutput;
+
+out vec4 vertexVCGSOutput;
+out vec3 centerVCGSOutput;
 
 // clipping plane vars
 //VTK::Clip::Dec
 
 void main()
 {
-  // the offsets sent down are positioned
-  // as radius*triangleScale from the center of the
-  // gaussian.  This has to be consistent
-  // with the offsets we build into the VBO
-  float radius = radiusVCVSOutput[0]/triangleScale;
+  radiusVCGSOutput = radiusVCVSOutput[0];
 
   int i = 0;
   vec4 offset;
@@ -64,21 +62,23 @@ void main()
 
   //VTK::Color::Impl
 
+  centerVCGSOutput = gl_in[0].gl_Position.xyz/gl_in[0].gl_Position.w;
+
   // note 1.73205 = 2.0*cos(30)
 
-  offset = vec4(-1.73205*radiusVCVSOutput[0], -radiusVCVSOutput[0], 0.0, 0.0);
-  offsetVCGSOutput = offset.xy/radius;
-  gl_Position = VCDCMatrix * (gl_in[0].gl_Position + offset.x*base1 + offset.y*base2);
+  offset = vec4(-1.73205*radiusVCGSOutput, -radiusVCGSOutput, 0.0, 0.0);
+  vertexVCGSOutput = gl_in[0].gl_Position + offset.x*base1 + offset.y*base2;
+  gl_Position = VCDCMatrix * vertexVCGSOutput;
   EmitVertex();
 
-  offset = vec4(1.73205*radiusVCVSOutput[0], -radiusVCVSOutput[0], 0.0, 0.0);
-  offsetVCGSOutput = offset.xy/radius;
-  gl_Position = VCDCMatrix * (gl_in[0].gl_Position + offset.x*base1 + offset.y*base2);
+  offset = vec4(1.73205*radiusVCGSOutput, -radiusVCGSOutput, 0.0, 0.0);
+  vertexVCGSOutput = gl_in[0].gl_Position + offset.x*base1 + offset.y*base2;
+  gl_Position = VCDCMatrix * vertexVCGSOutput;
   EmitVertex();
 
-  offset = vec4(0.0, 2.0*radiusVCVSOutput[0], 0.0, 0.0);
-  offsetVCGSOutput = offset.xy/radius;
-  gl_Position = VCDCMatrix * (gl_in[0].gl_Position + offset.x*base1 + offset.y*base2);
+  offset = vec4(0.0, 2.0*radiusVCGSOutput, 0.0, 0.0);
+  vertexVCGSOutput = gl_in[0].gl_Position + offset.x*base1 + offset.y*base2;
+  gl_Position = VCDCMatrix * vertexVCGSOutput;
   EmitVertex();
 
   EndPrimitive();

@@ -34,7 +34,8 @@
 #include "vtkShaderProgram.h"
 #include "vtkUnsignedCharArray.h"
 
-#include "vtkStickMapperVS.h"
+#include "vtkPointGaussianVS.h"
+#include "vtkStickMapperGS.h"
 
 #include "vtk_glew.h"
 
@@ -57,7 +58,8 @@ void vtkOpenGLStickMapper::GetShaderTemplate(
     vtkRenderer *ren, vtkActor *actor)
 {
   this->Superclass::GetShaderTemplate(shaders,ren,actor);
-  shaders[vtkShader::Vertex]->SetSource(vtkStickMapperVS);
+  shaders[vtkShader::Vertex]->SetSource(vtkPointGaussianVS);
+  shaders[vtkShader::Geometry]->SetSource(vtkStickMapperGS);
 }
 
 void vtkOpenGLStickMapper::ReplaceShaderValues(
@@ -65,7 +67,24 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(
     vtkRenderer *ren, vtkActor *actor)
 {
   std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
+  std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+
+  vtkShaderProgram::Substitute(VSSource,
+    "//VTK::Normal::Dec",
+    "in vec3 orientMC;\n"
+    "uniform mat3 normalMatrix;\n"
+    "out float lengthVCVSOutput;\n"
+    "out vec3 orientVCVSOutput;");
+
+  vtkShaderProgram::Substitute(VSSource,
+    "//VTK::Normal::Impl",
+    "  lengthVCVSOutput = length(orientMC);\n"
+    "  orientVCVSOutput = normalMatrix * normalize(orientMC);\n"
+    // make sure it is pointing out of the screen
+    "if (orientVCVSOutput.z < 0.0) { \n"
+    "  orientVCVSOutput = -orientVCVSOutput;\n }\n"
+    );
 
   vtkShaderProgram::Substitute(VSSource,
     "//VTK::Camera::Dec",
@@ -182,6 +201,13 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(
       vtkShaderProgram::Substitute(VSSource,
         "//VTK::Picking::Impl",
         "selectionIdVSOutput = selectionId;");
+      vtkShaderProgram::Substitute(GSSource,
+        "//VTK::Picking::Dec",
+        "in vec4 selectionIdVSOutput[];\n"
+        "out vec4 selectionIdGSOutput;");
+      vtkShaderProgram::Substitute(GSSource,
+        "//VTK::Picking::Impl",
+        "selectionIdGSOutput = selectionIdVSOutput[0];");
       vtkShaderProgram::Substitute(FSSource,
         "//VTK::Picking::Dec",
         "in vec4 selectionIdVSOutput;");
@@ -203,6 +229,7 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(
   }
 
   shaders[vtkShader::Vertex]->SetSource(VSSource);
+  shaders[vtkShader::Geometry]->SetSource(GSSource);
   shaders[vtkShader::Fragment]->SetSource(FSSource);
 
   this->Superclass::ReplaceShaderValues(shaders,ren,actor);
@@ -289,7 +316,7 @@ void vtkOpenGLStickMapper::PrintSelf(ostream& os, vtkIndent indent)
 namespace
 {
 // internal function called by CreateVBO
-void vtkOpenGLStickMapperCreateVBO(float * points, vtkIdType numPts,
+void vtkOpenGLStickMapperCreateVBO(vtkPolyData *poly, vtkIdType numPts,
               unsigned char *colors, int colorComponents,
               float *orients,
               float *sizes,
@@ -297,69 +324,33 @@ void vtkOpenGLStickMapperCreateVBO(float * points, vtkIdType numPts,
               vtkOpenGLVertexBufferObjectGroup *VBOs,
               vtkViewport *ren)
 {
-  vtkFloatArray *verts = vtkFloatArray::New();
-  verts->SetNumberOfComponents(3);
-  verts->SetNumberOfTuples(numPts*6);
-  float *vPtr = static_cast<float *>(verts->GetVoidPointer(0));
-
   vtkFloatArray *orientDA = vtkFloatArray::New();
   orientDA->SetNumberOfComponents(3);
-  orientDA->SetNumberOfTuples(numPts*6);
+  orientDA->SetNumberOfTuples(numPts);
   float *orPtr = static_cast<float *>(orientDA->GetVoidPointer(0));
 
   vtkFloatArray *radiusDA = vtkFloatArray::New();
   radiusDA->SetNumberOfComponents(1);
-  radiusDA->SetNumberOfTuples(numPts*6);
+  radiusDA->SetNumberOfTuples(numPts);
   float *radPtr = static_cast<float *>(radiusDA->GetVoidPointer(0));
-
-  vtkUnsignedCharArray *offsets = vtkUnsignedCharArray::New();
-  offsets->SetNumberOfComponents(4);
-  offsets->SetNumberOfTuples(numPts*6);
-  unsigned char *oPtr = static_cast<unsigned char *>(offsets->GetVoidPointer(0));
 
   vtkUnsignedCharArray *ucolors = vtkUnsignedCharArray::New();
   ucolors->SetNumberOfComponents(4);
-  ucolors->SetNumberOfTuples(numPts*6);
+  ucolors->SetNumberOfTuples(numPts);
   unsigned char *cPtr = static_cast<unsigned char *>(ucolors->GetVoidPointer(0));
 
-  float *pointPtr;
   float *orientPtr;
   unsigned char *colorPtr;
 
   for (vtkIdType i = 0; i < numPts; ++i)
   {
-    // Vertices
-    pointPtr = points + i*3;
-    vPtr[0] = pointPtr[0];
-    vPtr[1] = pointPtr[1];
-    vPtr[2] = pointPtr[2];
-    // copy first point, now we have two
-    memcpy((vPtr + 3), vPtr, sizeof(float)*3);
-    // copy first two twice more
-    memcpy((vPtr + 6), vPtr, sizeof(float)*6);
-    memcpy((vPtr + 12), vPtr, sizeof(float)*6);
-    vPtr += 18;
-
     // orientation
     float length = sizes[i*3];
     orientPtr = orients + i*3;
     orPtr[0] = orientPtr[0]*length;
     orPtr[1] = orientPtr[1]*length;
     orPtr[2] = orientPtr[2]*length;
-    // copy first point, now we have two
-    memcpy((orPtr + 3), orPtr, sizeof(float)*3);
-    // copy first two twice more
-    memcpy((orPtr + 6), orPtr, sizeof(float)*6);
-    memcpy((orPtr + 12), orPtr, sizeof(float)*6);
-    orPtr += 18;
-
-    // offsets
-    *(oPtr++) = 0; *(oPtr++) = 0; *(oPtr++) = 0; *(oPtr++) = 0;
-    *(oPtr++) = 255; *(oPtr++) = 0; *(oPtr++) = 0; *(oPtr++) = 0;
-    *(oPtr++) = 255; *(oPtr++) = 0; *(oPtr++) = 255; *(oPtr++) = 0;
-    *(oPtr++) = 0; *(oPtr++) = 0; *(oPtr++) = 255; *(oPtr++) = 0;
-    *(oPtr++) = 255; *(oPtr++) = 255; *(oPtr++) = 255; *(oPtr++) = 0;
-    *(oPtr++) = 0; *(oPtr++) = 255; *(oPtr++) = 255; *(oPtr++) = 0;
+    orPtr += 3;
 
     // colors or selection ids
     if (selectionIds)
@@ -378,26 +369,15 @@ void vtkOpenGLStickMapperCreateVBO(float * points, vtkIdType numPts,
       cPtr[2] = colorPtr[2];
       cPtr[3] = (colorComponents == 4 ? colorPtr[3] : 255);
     }
-    memcpy(cPtr + 4, cPtr, 4);
-    memcpy(cPtr + 8, cPtr, 8);
-    memcpy(cPtr + 16, cPtr, 8);
-    cPtr += 24;
+    cPtr += 4;
 
-    float radius = sizes[i*3+1];
-    *(radPtr++) = radius;
-    *(radPtr++) = radius;
-    *(radPtr++) = radius;
-    *(radPtr++) = radius;
-    *(radPtr++) = radius;
-    *(radPtr++) = radius;
+    *(radPtr++) = sizes[i*3+1];
   }
 
-  VBOs->CacheDataArray("vertexMC", verts, ren, VTK_FLOAT);
-  verts->Delete();
+  VBOs->CacheDataArray("vertexMC",
+    poly->GetPoints()->GetData(), ren, VTK_FLOAT);
   VBOs->CacheDataArray("orientMC", orientDA, ren, VTK_FLOAT);
   orientDA->Delete();
-  VBOs->CacheDataArray("offsetMC", offsets, ren, VTK_UNSIGNED_CHAR);
-  offsets->Delete();
   VBOs->CacheDataArray("radiusMC", radiusDA, ren, VTK_FLOAT);
   radiusDA->Delete();
 
@@ -414,32 +394,6 @@ void vtkOpenGLStickMapperCreateVBO(float * points, vtkIdType numPts,
   ucolors->Delete();
   VBOs->BuildAllVBOs(ren);
 }
-}
-
-size_t vtkOpenGLStickMapperCreateTriangleIndexBuffer(
-  vtkOpenGLBufferObject *indexBuffer,
-  int numPts)
-{
-  std::vector<unsigned int> indexArray;
-  indexArray.reserve(numPts * 12);
-
-  for (int i = 0; i < numPts; i++)
-  {
-    indexArray.push_back(i*6);
-    indexArray.push_back(i*6+1);
-    indexArray.push_back(i*6+2);
-    indexArray.push_back(i*6);
-    indexArray.push_back(i*6+2);
-    indexArray.push_back(i*6+3);
-    indexArray.push_back(i*6+3);
-    indexArray.push_back(i*6+2);
-    indexArray.push_back(i*6+4);
-    indexArray.push_back(i*6+3);
-    indexArray.push_back(i*6+4);
-    indexArray.push_back(i*6+5);
-  }
-  indexBuffer->Upload(indexArray, vtkOpenGLBufferObject::ElementArrayBuffer);
-  return indexArray.size();
 }
 
 //-------------------------------------------------------------------------
@@ -479,10 +433,8 @@ void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer *ren,
   vtkHardwareSelector* selector = ren->GetSelector();
   bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != nullptr);
 
-  // Iterate through all of the different types in the polydata, building OpenGLs
-  // and IBOs as appropriate for each type.
   vtkOpenGLStickMapperCreateVBO(
-    static_cast<float *>(poly->GetPoints()->GetVoidPointer(0)),
+    poly,
     poly->GetPoints()->GetNumberOfPoints(),
     this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : nullptr,
     this->Colors ? this->Colors->GetNumberOfComponents() : 0,
@@ -493,14 +445,13 @@ void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer *ren,
       : nullptr,
     this->VBOs, ren);
 
-  // create the IBO
+  // create the IBO (none)
   this->Primitives[PrimitivePoints].IBO->IndexCount = 0;
   this->Primitives[PrimitiveLines].IBO->IndexCount = 0;
   this->Primitives[PrimitiveTriStrips].IBO->IndexCount = 0;
   this->Primitives[PrimitiveTris].IBO->IndexCount =
-    vtkOpenGLStickMapperCreateTriangleIndexBuffer(
-      this->Primitives[PrimitiveTris].IBO,
-      poly->GetPoints()->GetNumberOfPoints());
+    poly->GetPoints()->GetNumberOfPoints();
+
   this->VBOBuildTime.Modified();
 }
 
@@ -508,17 +459,11 @@ void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer *ren,
 void vtkOpenGLStickMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
 {
   // draw polygons
-  if (this->Primitives[PrimitiveTris].IBO->IndexCount)
+  int numVerts = this->VBOs->GetNumberOfTuples("vertexMC");
+  if (numVerts)
   {
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShaders(this->Primitives[PrimitiveTris], ren, actor);
-    this->Primitives[PrimitiveTris].IBO->Bind();
-    int numVerts = this->VBOs->GetNumberOfTuples("vertexMC");
-    glDrawRangeElements(GL_TRIANGLES, 0,
-                        static_cast<GLuint>(numVerts - 1),
-                        static_cast<GLsizei>(this->Primitives[PrimitiveTris].IBO->IndexCount),
-                        GL_UNSIGNED_INT,
-                        nullptr);
-    this->Primitives[PrimitiveTris].IBO->Release();
+    glDrawArrays(GL_POINTS, 0, static_cast<GLuint>(numVerts));
   }
 }
