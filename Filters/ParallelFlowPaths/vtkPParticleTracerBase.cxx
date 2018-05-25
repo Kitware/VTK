@@ -150,7 +150,7 @@ void vtkPParticleTracerBase::AssignSeedsToProcessors(
   for (int i=0; i<numSeeds; i++)
   {
     ParticleInformation &info = candidates[i];
-    memcpy(&(info.CurrentPosition.x[0]), source->GetPoint(i), sizeof(double)*3);
+    memcpy(info.CurrentPosition.x, source->GetPoint(i), sizeof(double)*3);
     info.CurrentPosition.x[3] = t;
     info.LocationState        = 0;
     info.CachedCellId[0]      =-1;
@@ -181,7 +181,7 @@ void vtkPParticleTracerBase::AssignSeedsToProcessors(
   for (int i=0; it!=candidates.end(); ++it, ++i)
   {
     ParticleInformation &info = (*it);
-    double *pos = &info.CurrentPosition.x[0];
+    double *pos = info.CurrentPosition.x;
     // if outside bounds, reject instantly
     if (this->InsideBounds(pos))
     {
@@ -196,7 +196,7 @@ void vtkPParticleTracerBase::AssignSeedsToProcessors(
     }
   }
   std::vector<int> realOwningProcess(numSeeds);
-  this->Controller->AllReduce(&owningProcess[0], &realOwningProcess[0], numSeeds,
+  this->Controller->AllReduce(owningProcess.data(), realOwningProcess.data(), numSeeds,
                               vtkCommunicator::MAX_OP);
 
   for(size_t i=0;i<realOwningProcess.size();i++)
@@ -231,7 +231,7 @@ void vtkPParticleTracerBase::AssignUniqueIds(
     // setup arrays used by the AllGather call.
     std::vector<vtkIdType> recvNumParticles(this->Controller->GetNumberOfProcesses(), 0);
     // Broadcast and receive count to/from all other processes.
-    this->Controller->AllGather(&numParticles, &recvNumParticles[0], 1);
+    this->Controller->AllGather(&numParticles, recvNumParticles.data(), 1);
     // Each process is allocating a certain number.
     // start our indices from sum[0,this->Rank](numparticles)
     for (int i=0; i<this->Controller->GetLocalProcessId(); ++i)
@@ -267,7 +267,7 @@ bool vtkPParticleTracerBase::SendReceiveParticles(RemoteParticleVector &sParticl
 
   std::vector<int> allNumParticles(this->Controller->GetNumberOfProcesses(), 0);
   // Broadcast and receive size to/from all other processes.
-  this->Controller->AllGather(&numParticles, &allNumParticles[0], 1);
+  this->Controller->AllGather(&numParticles, allNumParticles.data(), 1);
 
   // write the message
   const int size1 = sizeof(ParticleInformation);
@@ -314,10 +314,10 @@ bool vtkPParticleTracerBase::SendReceiveParticles(RemoteParticleVector &sParticl
   //receive the message
 
   std::vector<char> recvMessage(allMessageSize,0);
-  this->Controller->AllGatherV(messageSize>0?  &sendMessage[0] : nullptr,
-                               allMessageSize>0? &recvMessage[0] : nullptr,
-                               messageSize, &messageLength[0],
-                               &messageOffset[0]);
+  this->Controller->AllGatherV(messageSize>0?  sendMessage.data() : nullptr,
+                               allMessageSize>0? recvMessage.data() : nullptr,
+                               messageSize, messageLength.data(),
+                               messageOffset.data());
 
 
   int myRank = this->Controller->GetLocalProcessId();
@@ -346,8 +346,11 @@ bool vtkPParticleTracerBase::SendReceiveParticles(RemoteParticleVector &sParticl
     }
   }
   std::vector<vtkIdType> realOwningProcess(numAllParticles);
-  this->Controller->AllReduce(&owningProcess[0], &realOwningProcess[0],
-                              numAllParticles, vtkCommunicator::MAX_OP);
+  if (numAllParticles)
+  {
+    this->Controller->AllReduce(owningProcess.data(), realOwningProcess.data(),
+                                numAllParticles, vtkCommunicator::MAX_OP);
+  }
 
   // if any value in realOwningProcess array is not -1 then we know
   // that a particle was moved to another process and probably needs
@@ -390,8 +393,8 @@ bool vtkPParticleTracerBase::SendReceiveParticles(RemoteParticleVector &sParticl
         int numComponents = arr->GetNumberOfComponents();
         int dataSize = sizeof(double)*numComponents;
         std::vector<double> xi(numComponents);
-        memcpy(&xi[0], data, dataSize);
-        arr->InsertNextTuple(&xi[0]);
+        memcpy(xi.data(), data, dataSize);
+        arr->InsertNextTuple(xi.data());
         data+=dataSize;
       }
       counter++;
