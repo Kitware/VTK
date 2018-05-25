@@ -224,6 +224,10 @@ int vtkXMLPDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
     {
       this->PCellDataElement = eNested;
     }
+    else if (strcmp(eNested->GetName(), "FieldData") == 0)
+    {
+      this->FieldDataElement = eNested;
+    }
   }
   this->SetupPieces(numPieces);
   int piece = 0;
