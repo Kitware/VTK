@@ -1817,7 +1817,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     this->StartTimerEvent("vtkLineIntegralConvolution::Integrate2");
     #endif
 
-    // in pass 2 lic is comuted by convolving edge-enhanced result of pass 1
+    // in pass 2 lic is computed by convolving edge-enhanced result of pass 1
     // rather than noise. This gives the result a nice smooth look, since the
     // input is fairly smooth fewer steps are needed.
 
