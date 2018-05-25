@@ -30,8 +30,18 @@
 #include "vtkVolumeNode.h"
 #include "vtkVolumeProperty.h"
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 #include "ospcommon/box.h"
 #include "ospcommon/vec.h"
+// Undo disabling of warning.
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+
 #include "ospray/ospray.h"
 #include "ospray/version.h"
 
@@ -173,7 +183,10 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
              iter->GoToNextItem())
           {
           unsigned int level = iter->GetCurrentLevel();
-          assert(level >= lastLevel);  //ospray requires level info be ordered lowest to highest
+          if (!(level >= lastLevel))
+          {
+            vtkErrorMacro("ospray requires level info be ordered lowest to highest");
+          };
           lastLevel = level;
           unsigned int index = iter->GetCurrentIndex();
 
