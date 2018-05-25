@@ -32,7 +32,8 @@
 #include "vtkRenderWindow.h"
 #include "vtkShaderProgram.h"
 
-#include "vtkSphereMapperVS.h"
+#include "vtkPointGaussianVS.h"
+#include "vtkSphereMapperGS.h"
 
 #include "vtk_glew.h"
 
@@ -55,7 +56,8 @@ void vtkOpenGLSphereMapper::GetShaderTemplate(
   vtkRenderer *ren, vtkActor *actor)
 {
   this->Superclass::GetShaderTemplate(shaders,ren,actor);
-  shaders[vtkShader::Vertex]->SetSource(vtkSphereMapperVS);
+  shaders[vtkShader::Vertex]->SetSource(vtkPointGaussianVS);
+  shaders[vtkShader::Geometry]->SetSource(vtkSphereMapperGS);
 }
 
 void vtkOpenGLSphereMapper::ReplaceShaderValues(
@@ -212,72 +214,39 @@ void vtkOpenGLSphereMapper::PrintSelf(ostream& os, vtkIndent indent)
 
 // internal function called by CreateVBO
 void vtkOpenGLSphereMapper::CreateVBO(
-  float * points, vtkIdType numPts,
+  vtkPolyData *poly, vtkIdType numPts,
   unsigned char *colors, int colorComponents,
   vtkIdType nc,
   float *sizes, vtkIdType ns, vtkRenderer *ren)
 {
-  vtkFloatArray *verts = vtkFloatArray::New();
-  verts->SetNumberOfComponents(3);
-  verts->SetNumberOfTuples(numPts*3);
-  float *vPtr = static_cast<float *>(verts->GetVoidPointer(0));
-
   vtkFloatArray *offsets = vtkFloatArray::New();
-  offsets->SetNumberOfComponents(2);
-  offsets->SetNumberOfTuples(numPts*3);
+  offsets->SetNumberOfComponents(1);
+  offsets->SetNumberOfTuples(numPts);
   float *oPtr = static_cast<float *>(offsets->GetVoidPointer(0));
 
   vtkUnsignedCharArray *ucolors = vtkUnsignedCharArray::New();
   ucolors->SetNumberOfComponents(4);
-  ucolors->SetNumberOfTuples(numPts*3);
+  ucolors->SetNumberOfTuples(numPts);
   unsigned char *cPtr = static_cast<unsigned char *>(ucolors->GetVoidPointer(0));
 
-  float *pointPtr;
   unsigned char *colorPtr;
-
-  float cos30 = cos(vtkMath::RadiansFromDegrees(30.0));
 
   for (vtkIdType i = 0; i < numPts; ++i)
   {
-    pointPtr = points + i*3;
     colorPtr = (nc == numPts ? colors + i*colorComponents : colors);
     float radius = (ns == numPts ? sizes[i] : sizes[0]);
 
-    // Vertices
-    *(vPtr++) = pointPtr[0];
-    *(vPtr++) = pointPtr[1];
-    *(vPtr++) = pointPtr[2];
     *(cPtr++) = colorPtr[0];
     *(cPtr++) = colorPtr[1];
     *(cPtr++) = colorPtr[2];
     *(cPtr++) = colorPtr[3];
-    *(oPtr++) = -2.0f*radius*cos30;
-    *(oPtr++) = -radius;
-
-    *(vPtr++) = pointPtr[0];
-    *(vPtr++) = pointPtr[1];
-    *(vPtr++) = pointPtr[2];
-    *(cPtr++) = colorPtr[0];
-    *(cPtr++) = colorPtr[1];
-    *(cPtr++) = colorPtr[2];
-    *(cPtr++) = colorPtr[3];
-    *(oPtr++) = 2.0f*radius*cos30;
-    *(oPtr++) = -radius;
-
-    *(vPtr++) = pointPtr[0];
-    *(vPtr++) = pointPtr[1];
-    *(vPtr++) = pointPtr[2];
-    *(cPtr++) = colorPtr[0];
-    *(cPtr++) = colorPtr[1];
-    *(cPtr++) = colorPtr[2];
-    *(cPtr++) = colorPtr[3];
-    *(oPtr++) = 0.0f;
-    *(oPtr++) = 2.0f*radius;
+    *(oPtr++) = radius;
   }
 
-  this->VBOs->CacheDataArray("vertexMC", verts, ren, VTK_FLOAT);
-  verts->Delete();
-  this->VBOs->CacheDataArray("offsetMC", offsets, ren, VTK_FLOAT);
+  this->VBOs->CacheDataArray("vertexMC",
+    poly->GetPoints()->GetData(), ren, VTK_FLOAT);
+
+  this->VBOs->CacheDataArray("radiusMC", offsets, ren, VTK_FLOAT);
   offsets->Delete();
   this->VBOs->CacheDataArray("scalarColor", ucolors, ren, VTK_UNSIGNED_CHAR);
   ucolors->Delete();
@@ -359,7 +328,7 @@ void vtkOpenGLSphereMapper::BuildBufferObjects(
   // Iterate through all of the different types in the polydata, building OpenGLs
   // and IBOs as appropriate for each type.
   this->CreateVBO(
-    static_cast<float *>(poly->GetPoints()->GetVoidPointer(0)),
+    poly,
     numPts,
     c, cc, nc,
     scales, ns,
@@ -374,10 +343,9 @@ void vtkOpenGLSphereMapper::BuildBufferObjects(
   this->Primitives[PrimitivePoints].IBO->IndexCount = 0;
   this->Primitives[PrimitiveLines].IBO->IndexCount = 0;
   this->Primitives[PrimitiveTriStrips].IBO->IndexCount = 0;
-  this->Primitives[PrimitiveTris].IBO->IndexCount = numPts*3;
+  this->Primitives[PrimitiveTris].IBO->IndexCount = numPts;
   this->VBOBuildTime.Modified();
 }
-
 
 //----------------------------------------------------------------------------
 void vtkOpenGLSphereMapper::Render(vtkRenderer *ren, vtkActor *act)
@@ -399,12 +367,12 @@ void vtkOpenGLSphereMapper::Render(vtkRenderer *ren, vtkActor *act)
 void vtkOpenGLSphereMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
 {
   // draw polygons
-  if (this->Primitives[PrimitiveTris].IBO->IndexCount)
+  int numVerts = this->VBOs->GetNumberOfTuples("vertexMC");
+  if (numVerts)
   {
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShaders(this->Primitives[PrimitiveTris], ren, actor);
-    int numVerts = this->VBOs->GetNumberOfTuples("vertexMC");
-    glDrawArrays(GL_TRIANGLES, 0,
+    glDrawArrays(GL_POINTS, 0,
                 static_cast<GLuint>(numVerts));
   }
 }

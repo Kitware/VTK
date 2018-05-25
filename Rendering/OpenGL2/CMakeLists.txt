@@ -128,8 +128,8 @@ set(shader_files
   glsl/vtkSimpleMotionBlurPassFS.glsl
   glsl/vtkSobelGradientMagnitudePass1FS.glsl
   glsl/vtkSobelGradientMagnitudePass2FS.glsl
-  glsl/vtkSphereMapperVS.glsl
-  glsl/vtkStickMapperVS.glsl
+  glsl/vtkSphereMapperGS.glsl
+  glsl/vtkStickMapperGS.glsl
   glsl/vtkTextureObjectFS.glsl
   glsl/vtkTextureObjectVS.glsl
   )

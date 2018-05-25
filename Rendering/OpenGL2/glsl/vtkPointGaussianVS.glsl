@@ -17,7 +17,7 @@
 // this shader implements imposters in OpenGL for Spheres
 
 in vec4 vertexMC;
-in float offsetMC;
+in float radiusMC;
 
 // optional normal declaration
 //VTK::Normal::Dec
@@ -34,7 +34,9 @@ in float offsetMC;
 // camera and actor matrix values
 //VTK::Camera::Dec
 
-out float offsetVSOutput;
+//VTK::Picking::Dec
+
+out float radiusVCVSOutput;
 
 void main()
 {
@@ -46,10 +48,9 @@ void main()
 
   //VTK::Clip::Impl
 
-  // compute the projected vertex position
-  vec4 vertexVC = MCVCMatrix * vertexMC;
+  radiusVCVSOutput = radiusMC;
 
-  offsetVSOutput = offsetMC;
+  gl_Position = MCVCMatrix * vertexMC;
 
-  gl_Position = vertexVC;
+  //VTK::Picking::Impl
 }

@@ -129,7 +129,7 @@ int TestPointGaussianSelection(int argc, char *argv[])
       && node->GetProperties()->Get(vtkSelectionNode::PROP()) == actor.Get()
       && node->GetProperties()->Get(vtkSelectionNode::COMPOSITE_INDEX()) == 1
       && selIds
-      && selIds->GetNumberOfTuples() == 15
+      && selIds->GetNumberOfTuples() == 14
       && selIds->GetValue(4) == 227
       )
     {
