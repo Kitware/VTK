@@ -39,7 +39,7 @@ public:
 
 protected:
   vtkMoleculeToLinesFilter() = default;
-  ~vtkMoleculeToLinesFilter() = default;
+  ~vtkMoleculeToLinesFilter() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
