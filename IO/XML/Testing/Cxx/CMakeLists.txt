@@ -2,6 +2,7 @@ set(TestXML_ARGS "DATA{${VTK_TEST_INPUT_DIR}/sample.xml}")
 set(all_tests
   TestAMRXMLIO.cxx,NO_VALID
   TestDataObjectXMLIO.cxx,NO_VALID
+  TestMultiBlockXMLIOWithPartialArrays.cxx,NO_VALID
   TestReadDuplicateDataArrayNames.cxx,NO_DATA,NO_VALID
   TestXML.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestXMLGhostCellsImport.cxx
