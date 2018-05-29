@@ -445,18 +445,9 @@ vtkOSPRayRendererNode::~vtkOSPRayRendererNode()
   delete[] this->Buffer;
   delete[] this->ZBuffer;
   delete[] this->ODepthBuffer;
-  if (this->OModel)
-  {
-    ospRelease((OSPModel)this->OModel);
-  }
-  if (this->ORenderer)
-  {
-    ospRelease((OSPRenderer)this->ORenderer);
-  }
-  if (this->OFrameBuffer)
-  {
-    ospRelease(this->OFrameBuffer);
-  }
+  ospRelease((OSPModel)this->OModel);
+  ospRelease((OSPRenderer)this->ORenderer);
+  ospRelease(this->OFrameBuffer);
   this->AccumulateMatrix->Delete();
   delete this->Internal;
 }
@@ -837,7 +828,7 @@ void vtkOSPRayRendererNode::Traverse(int operation)
       (numAct != this->NumActors))
   {
     this->NumActors = numAct;
-    //ospRelease((OSPModel)this->OModel);
+    ospRelease((OSPModel)this->OModel);
     oModel = ospNewModel();
     this->OModel = oModel;
     it->InitTraversal();
@@ -996,6 +987,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     {
       this->ImageX = this->Size[0];
       this->ImageY = this->Size[1];
+      ospRelease(this->OFrameBuffer);
       this->OFrameBuffer = ospNewFrameBuffer
         (isize,
          OSP_FB_RGBA8,

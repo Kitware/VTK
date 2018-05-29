@@ -37,10 +37,7 @@ void vtkOSPRayVolumeCache::AddToCache(double tstep, osp::Volume *payload)
     return;
   }
   osp::Volume *content = this->GetFromCache(tstep);
-  if (content)
-  {
-    delete content;
-  }
+  ospRelease(content);
   this->Contents[tstep] = payload;
 }
 
@@ -60,7 +57,7 @@ void vtkOSPRayVolumeCache::Empty()
 {
   for (auto itr : this->Contents)
   {
-    delete itr.second;
+    ospRelease(itr.second);
   }
   this->Contents.clear();
   this->Size = 0;

@@ -38,11 +38,13 @@ vtkStandardNewMacro(vtkOSPRayLightNode);
 //----------------------------------------------------------------------------
 vtkOSPRayLightNode::vtkOSPRayLightNode()
 {
+  this->OLight = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkOSPRayLightNode::~vtkOSPRayLightNode()
 {
+  ospRelease((OSPLight)this->OLight);
 }
 
 //----------------------------------------------------------------------------
@@ -120,6 +122,9 @@ void vtkOSPRayLightNode::Render(bool prepass)
 {
   if (prepass)
   {
+    ospRelease((OSPLight)this->OLight);
+    OSPLight ospLight;
+
     vtkOSPRayRendererNode *orn =
       static_cast<vtkOSPRayRendererNode *>(
         this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
@@ -136,7 +141,7 @@ void vtkOSPRayLightNode::Render(bool prepass)
     }
     if (vtkOSPRayLightNode::GetIsAmbient(light))
     {
-      OSPLight ospLight = ospNewLight(oRenderer, "ambient");
+      ospLight = ospNewLight(oRenderer, "ambient");
       color[0] = static_cast<float>(light->GetDiffuseColor()[0]);
       color[1] = static_cast<float>(light->GetDiffuseColor()[1]);
       color[2] = static_cast<float>(light->GetDiffuseColor()[2]);
@@ -163,7 +168,6 @@ void vtkOSPRayLightNode::Render(bool prepass)
         pz = p[2];
         }
       float coneAngle = static_cast<float>(light->GetConeAngle());
-      OSPLight ospLight;
       if (coneAngle <= 0.0)
       {
         ospLight = ospNewLight(oRenderer, "PointLight");
@@ -225,7 +229,7 @@ void vtkOSPRayLightNode::Render(bool prepass)
       direction[0] = fx - px;
       direction[1] = fy - py;
       direction[2] = fz - pz;
-      OSPLight ospLight = ospNewLight(oRenderer, "DirectionalLight");
+      ospLight = ospNewLight(oRenderer, "DirectionalLight");
       ospSet3f(ospLight, "color", color[0], color[1], color[2]);
       float fI = static_cast<float>
         (vtkOSPRayLightNode::LightScale*
@@ -240,5 +244,6 @@ void vtkOSPRayLightNode::Render(bool prepass)
       ospCommit(ospLight);
       orn->AddLight(ospLight);
     }
+    this->OLight = ospLight;
   }
 }
