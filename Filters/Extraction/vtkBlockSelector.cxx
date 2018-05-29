@@ -86,7 +86,7 @@ vtkBlockSelector::~vtkBlockSelector()
 }
 
 //----------------------------------------------------------------------------
-void vtkBlockSelector::Initialize(vtkSelectionNode* node, const char* insidednessArrayName)
+void vtkBlockSelector::Initialize(vtkSelectionNode* node, const std::string& insidednessArrayName)
 {
   this->Superclass::Initialize(node, insidednessArrayName);
 

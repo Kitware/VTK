@@ -49,20 +49,12 @@ class VTKFILTERSEXTRACTION_EXPORT vtkSelector : public vtkObject
    * @param insidednessArrayName The name of the insidedness array to add to the output
    *        from this operator.
    */
-  virtual void Initialize(vtkSelectionNode* node, const char* insidednessArrayName);
+  virtual void Initialize(vtkSelectionNode* node, const std::string& insidednessArrayName);
 
   /**
    * Does any cleanup of objects created in Initialize
    */
   virtual void Finalize() {}
-
-  //@{
-  /**
-   * Set/get the name to give the insidedness array.
-   */
-  vtkGetStringMacro(InsidednessArrayName);
-  vtkSetStringMacro(InsidednessArrayName);
-  //@}
 
   /**
    * Given an input and the vtkSelectionNode passed into the Initialize() method, add to the
@@ -83,7 +75,7 @@ protected:
 
   // Name of the insidedness array added to the output when the selection criteria is
   // evaluated by this operator.
-  char * InsidednessArrayName = nullptr;
+  std::string InsidednessArrayName;
 
   /**
    * This method computes whether or not each element in the dataset is inside the selection

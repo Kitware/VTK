@@ -32,25 +32,13 @@ vtkSelector::vtkSelector()
 //----------------------------------------------------------------------------
 vtkSelector::~vtkSelector()
 {
-  this->Node = nullptr;
-  delete[] this->InsidednessArrayName;
 }
 
 //----------------------------------------------------------------------------
-void vtkSelector::Initialize(vtkSelectionNode* node, const char* insidednessArrayName)
+void vtkSelector::Initialize(vtkSelectionNode* node, const std::string& insidednessArrayName)
 {
   this->Node = node;
-  if (insidednessArrayName)
-  {
-    delete[] this->InsidednessArrayName;
-    size_t n = strlen(insidednessArrayName);
-    this->InsidednessArrayName = new char[n+1]; // +1 for '\0'
-    memcpy(this->InsidednessArrayName, insidednessArrayName, sizeof(char) * (n+1));
-  }
-  else
-  {
-    this->InsidednessArrayName = nullptr;
-  }
+  this->InsidednessArrayName = insidednessArrayName;
 }
 
 //--------------------------------------------------------------------------
@@ -68,7 +56,7 @@ bool vtkSelector::ComputeSelectedElements(vtkDataObject* input, vtkDataObject* o
         this->Node->GetFieldType());
     vtkIdType numElements = input->GetNumberOfElements(association);
     auto insidednessArray = this->CreateInsidednessArray(numElements);
-    insidednessArray->SetName(this->InsidednessArrayName);
+    insidednessArray->SetName(this->InsidednessArrayName.c_str());
 
     bool computed = this->ComputeSelectedElementsForDataObject(input, insidednessArray);
 
@@ -82,7 +70,7 @@ bool vtkSelector::ComputeSelectedElements(vtkDataObject* input, vtkDataObject* o
       // insidednessArray going in is associated with points. Returned, it is
       // associated with cells.
       insidednessArray = this->ComputeCellsContainingSelectedPoints(input, insidednessArray);
-      insidednessArray->SetName(this->InsidednessArrayName);
+      insidednessArray->SetName(this->InsidednessArrayName.c_str());
       association = vtkDataObject::CELL;
     }
 
@@ -112,7 +100,7 @@ bool vtkSelector::ComputeSelectedElementsForCompositeDataSet(
         this->Node->GetFieldType());
     vtkIdType numElements = inputBlock->GetNumberOfElements(association);
     auto insidednessArray = this->CreateInsidednessArray(numElements);
-    insidednessArray->SetName(this->InsidednessArrayName);
+    insidednessArray->SetName(this->InsidednessArrayName.c_str());
 
     unsigned int compositeIndex = inIter->GetCurrentFlatIndex();
     unsigned int amrLevel = inIterAMR ? inIterAMR->GetCurrentLevel() : VTK_UNSIGNED_INT_MAX;
@@ -136,7 +124,7 @@ bool vtkSelector::ComputeSelectedElementsForCompositeDataSet(
         // insidednessArray going in is associated with points. Returned, it is
         // associated with cells.
         insidednessArray = this->ComputeCellsContainingSelectedPoints(inputBlock, insidednessArray);
-        insidednessArray->SetName(this->InsidednessArrayName);
+        insidednessArray->SetName(this->InsidednessArrayName.c_str());
         association = vtkDataObject::CELL;
       }
     }

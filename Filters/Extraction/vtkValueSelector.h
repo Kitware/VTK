@@ -51,7 +51,7 @@ public:
   vtkTypeMacro(vtkValueSelector, vtkSelector);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void Initialize(vtkSelectionNode* node, const char* insidednessArrayName) override;
+  void Initialize(vtkSelectionNode* node, const std::string& insidednessArrayName) override;
   void Finalize() override;
 
 protected:

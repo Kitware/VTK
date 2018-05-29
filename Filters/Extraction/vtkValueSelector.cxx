@@ -465,10 +465,9 @@ vtkValueSelector::~vtkValueSelector()
 }
 
 //----------------------------------------------------------------------------
-void vtkValueSelector::Initialize(vtkSelectionNode* node, const char* insidednessArrayName)
+void vtkValueSelector::Initialize(vtkSelectionNode* node, const std::string& insidednessArrayName)
 {
   assert(node);
-  assert(insidednessArrayName);
 
   this->Superclass::Initialize(node, insidednessArrayName);
 
