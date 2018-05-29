@@ -15,7 +15,7 @@
 /**
  * @class   vtkFrustumSelector.h
  *
- * vtkFrustumSelector is a vtkSelectionOperator that selects elements based
+ * vtkFrustumSelector is a vtkSelector that selects elements based
  * on whether they are inside or intersect a frustum of interest.  This handles
  * the vtkSelectionNode::FRUSTUM selection type.
  *
@@ -25,7 +25,7 @@
 #define vtkFrustumSelector_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
-#include "vtkSelectionOperator.h"
+#include "vtkSelector.h"
 
 #include "vtkSmartPointer.h" // for smart pointer
 
@@ -33,12 +33,14 @@ class vtkDataSet;
 class vtkPlanes;
 class vtkSignedCharArray;
 
-class VTKFILTERSEXTRACTION_EXPORT vtkFrustumSelector : public vtkSelectionOperator
+class VTKFILTERSEXTRACTION_EXPORT vtkFrustumSelector : public vtkSelector
 {
 public:
   static vtkFrustumSelector *New();
-  vtkTypeMacro(vtkFrustumSelector, vtkSelectionOperator);
+  vtkTypeMacro(vtkFrustumSelector, vtkSelector);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  void Initialize(vtkSelectionNode* node, const std::string& insidednessArrayName) override;
 
   /**
    * Return the MTime taking into account changes to the Frustum
@@ -53,6 +55,17 @@ public:
   vtkPlanes* GetFrustum();
   //@}
 
+protected:
+  vtkFrustumSelector(vtkPlanes *f=nullptr);
+  ~vtkFrustumSelector() override;
+
+  vtkSmartPointer<vtkPlanes> Frustum;
+  vtkSmartPointer<vtkSelectionNode> Node;
+
+  bool ComputeSelectedElementsForBlock(vtkDataObject* input,
+    vtkSignedCharArray* insidednessArray, unsigned int compositeIndex,
+    unsigned int amrLevel, unsigned int amrIndex) override;
+
   /**
    * Given eight vertices, creates a frustum.
    * each pt is x,y,z,1
@@ -63,11 +76,6 @@ public:
    * near upper right, far upper right
    */
   void CreateFrustum(double vertices[32]);
-
-  void Initialize(vtkSelectionNode* node) override;
-  void Finalize() override;
-
-  bool ComputeSelectedElements(vtkDataObject* input, vtkSignedCharArray* elementInside) override;
 
   /**
    * Computes which points in the dataset are inside the frustum and populates the pointsInside
@@ -81,13 +89,6 @@ public:
   void ComputeSelectedCells(vtkDataSet* input, vtkSignedCharArray* cellsInside);
 
   int OverallBoundsTest(double bounds[6]);
-
-protected:
-  vtkFrustumSelector(vtkPlanes *f=nullptr);
-  ~vtkFrustumSelector() override;
-
-  vtkSmartPointer<vtkPlanes> Frustum;
-  vtkSmartPointer<vtkSelectionNode> Node;
 
 private:
   vtkFrustumSelector(const vtkFrustumSelector&) = delete;

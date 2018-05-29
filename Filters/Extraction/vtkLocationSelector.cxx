@@ -32,7 +32,7 @@ class vtkLocationSelector::vtkInternals
 {
 public:
   virtual ~vtkInternals() {}
-  virtual bool Execute(vtkDataSet* dataset, vtkSignedCharArray* insidenessArray) = 0;
+  virtual bool Execute(vtkDataSet* dataset, vtkSignedCharArray* insidednessArray) = 0;
 };
 
 /// When selecting points near the chosen locations, we use the following
@@ -57,7 +57,7 @@ public:
     this->PointLocator->Update();
   }
 
-  bool Execute(vtkDataSet* dataset, vtkSignedCharArray* insidenessArray) override
+  bool Execute(vtkDataSet* dataset, vtkSignedCharArray* insidednessArray) override
   {
     const vtkIdType numpts = dataset->GetNumberOfPoints();
     if (numpts <= 0)
@@ -73,10 +73,10 @@ public:
         double coords[3], d2;
         dataset->GetPoint(cc, coords);
         auto pid = locator->FindClosestPointWithinRadius(radius, coords, d2);
-        insidenessArray->SetValue(cc, pid >= 0 ? 1 : 0);
+        insidednessArray->SetValue(cc, pid >= 0 ? 1 : 0);
       }
     });
-    insidenessArray->Modified();
+    insidednessArray->Modified();
     return true;
   }
 };
@@ -91,15 +91,15 @@ public:
   {
   }
 
-  bool Execute(vtkDataSet* dataset, vtkSignedCharArray* insidenessArray) override
+  bool Execute(vtkDataSet* dataset, vtkSignedCharArray* insidednessArray) override
   {
     vtkNew<vtkStaticCellLocator> cellLocator;
     cellLocator->SetDataSet(dataset);
     cellLocator->Update();
 
     const auto numLocations = this->SelectionList->GetNumberOfTuples();
-    const auto numCells = insidenessArray->GetNumberOfTuples();
-    std::fill_n(insidenessArray->GetPointer(0), numCells, static_cast<char>(0));
+    const auto numCells = insidednessArray->GetNumberOfTuples();
+    std::fill_n(insidednessArray->GetPointer(0), numCells, static_cast<char>(0));
     for (vtkIdType cc = 0; cc < numLocations; ++cc)
     {
       double coords[3];
@@ -107,10 +107,10 @@ public:
       auto cid = cellLocator->FindCell(coords);
       if (cid >= 0 && cid < numCells)
       {
-        insidenessArray->SetValue(cid, 1);
+        insidednessArray->SetValue(cid, 1);
       }
     }
-    insidenessArray->Modified();
+    insidednessArray->Modified();
     return true;
   }
 };
@@ -128,8 +128,10 @@ vtkLocationSelector::~vtkLocationSelector()
 }
 
 //----------------------------------------------------------------------------
-void vtkLocationSelector::Initialize(vtkSelectionNode* node)
+void vtkLocationSelector::Initialize(vtkSelectionNode* node, const std::string& insidednessArrayName)
 {
+  this->Superclass::Initialize(node, insidednessArrayName);
+
   this->Internals.reset();
 
   auto selectionList = vtkDataArray::SafeDownCast(node->GetSelectionList());
@@ -182,12 +184,13 @@ void vtkLocationSelector::Finalize()
 }
 
 //----------------------------------------------------------------------------
-bool vtkLocationSelector::ComputeSelectedElements(
-  vtkDataObject* input, vtkSignedCharArray* elementInside)
+bool vtkLocationSelector::ComputeSelectedElementsForBlock(vtkDataObject* input,
+  vtkSignedCharArray* insidednessArray, unsigned int vtkNotUsed(compositeIndex),
+  unsigned int vtkNotUsed(amrLevel), unsigned int vtkNotUsed(amrIndex))
 {
-  assert(input != nullptr && elementInside != nullptr);
+  assert(input != nullptr && insidednessArray != nullptr);
   vtkDataSet* ds = vtkDataSet::SafeDownCast(input);
-  return (this->Internals != nullptr && ds != nullptr) ? this->Internals->Execute(ds, elementInside)
+  return (this->Internals != nullptr && ds != nullptr) ? this->Internals->Execute(ds, insidednessArray)
                                                        : false;
 }
 

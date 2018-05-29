@@ -20,10 +20,10 @@
  * its input dataset. The dataset is given on its first input port.
  * The subset is described by the contents of the vtkSelection on its
  * second input port.  Depending on the contents of the vtkSelection
- * this will create various vtkSelectionOperators to identify the
+ * this will create various vtkSelectors to identify the
  * selected elements.
  * @sa
- * vtkSelection vtkSelectionOperator vtkSelectionNode
+ * vtkSelection vtkSelector vtkSelectionNode
 */
 
 #ifndef vtkExtractSelection_h
@@ -38,7 +38,7 @@
 class vtkSignedCharArray;
 class vtkSelection;
 class vtkSelectionNode;
-class vtkSelectionOperator;
+class vtkSelector;
 class vtkUnstructuredGrid;
 class vtkTable;
 
@@ -117,10 +117,10 @@ protected:
   vtkDataObject::AttributeTypes GetAttributeTypeOfSelection(vtkSelection* sel, bool& sane);
 
   /**
-   * Creates a new vtkSelectionOperator for the given content type.
+   * Creates a new vtkSelector for the given content type.
    * May return null if not supported.
    */
-  virtual vtkSmartPointer<vtkSelectionOperator> NewSelectionOperator(
+  virtual vtkSmartPointer<vtkSelector> NewSelectionOperator(
     vtkSelectionNode::SelectionContent type);
 
   /**

@@ -68,11 +68,11 @@ public:
 // implying that the values are exact matches.
 struct ArrayValueMatchFunctor
 {
-  vtkSignedCharArray* InsidenessArray;
+  vtkSignedCharArray* InsidednessArray;
   int ComponentNo;
 
-  ArrayValueMatchFunctor(vtkSignedCharArray* insidenessArray, int comp)
-    : InsidenessArray(insidenessArray)
+  ArrayValueMatchFunctor(vtkSignedCharArray* insidednessArray, int comp)
+    : InsidednessArray(insidednessArray)
     , ComponentNo(comp)
   {
   }
@@ -96,15 +96,15 @@ struct ArrayValueMatchFunctor
     const ValueType* haystack_end = haystack_begin + selList->GetNumberOfValues();
     const int comp = fArray->GetNumberOfComponents() == 1 ? 0 : this->ComponentNo;
 
-    vtkSignedCharArray* insidenessArray = this->InsidenessArray;
-    assert(insidenessArray->GetNumberOfTuples() == fArray->GetNumberOfTuples());
+    vtkSignedCharArray* insidednessArray = this->InsidednessArray;
+    assert(insidednessArray->GetNumberOfTuples() == fArray->GetNumberOfTuples());
     if (comp >= 0)
     {
       vtkSMPTools::For(0, fArray->GetNumberOfTuples(), [=](vtkIdType begin, vtkIdType end) {
         for (vtkIdType cc = begin; cc < end; ++cc)
         {
           auto val = faccessor.Get(cc, comp);
-          insidenessArray->SetValue(
+          insidednessArray->SetValue(
             cc, std::binary_search(haystack_begin, haystack_end, val) ? 1 : 0);
         }
       });
@@ -124,7 +124,7 @@ struct ArrayValueMatchFunctor
             val += valKK * valKK;
           }
           const auto magnitude = static_cast<ValueType>(std::sqrt(val));
-          insidenessArray->SetValue(
+          insidednessArray->SetValue(
             cc, std::binary_search(haystack_begin, haystack_end, magnitude) ? 1 : 0);
         }
       });
@@ -137,9 +137,9 @@ struct ArrayValueMatchFunctor
   {
     assert(selList->GetNumberOfComponents() == 1);
 
-    this->InsidenessArray->FillValue(0);
+    this->InsidednessArray->FillValue(0);
 
-    const vtkIdType numDataValues = this->InsidenessArray->GetNumberOfTuples();
+    const vtkIdType numDataValues = this->InsidednessArray->GetNumberOfTuples();
     const vtkIdType numSelList = selList->GetNumberOfTuples();
     vtkDataArrayAccessor<SelectionListArrayType> selListAccessor(selList);
     for (vtkIdType cc = 0; cc < numSelList; ++cc)
@@ -147,7 +147,7 @@ struct ArrayValueMatchFunctor
       auto cid = static_cast<vtkIdType>(selListAccessor.Get(cc, 0));
       if (cid >= 0 && cid < numDataValues)
       {
-        this->InsidenessArray->SetValue(cid, 1);
+        this->InsidednessArray->SetValue(cid, 1);
       }
     }
   }
@@ -158,11 +158,11 @@ struct ArrayValueMatchFunctor
 // implying that the values are ranges.
 struct ArrayValueRangeFunctor
 {
-  vtkSignedCharArray* InsidenessArray;
+  vtkSignedCharArray* InsidednessArray;
   int ComponentNo;
 
-  ArrayValueRangeFunctor(vtkSignedCharArray* insidenessArray, int comp)
-    : InsidenessArray(insidenessArray)
+  ArrayValueRangeFunctor(vtkSignedCharArray* insidednessArray, int comp)
+    : InsidednessArray(insidednessArray)
     , ComponentNo(comp)
   {
   }
@@ -173,7 +173,7 @@ struct ArrayValueRangeFunctor
   {
     assert(selList->GetNumberOfComponents() == 2);
     assert(fArray->GetNumberOfComponents() > this->ComponentNo);
-    assert(this->InsidenessArray->GetNumberOfTuples() == fArray->GetNumberOfTuples());
+    assert(this->InsidednessArray->GetNumberOfTuples() == fArray->GetNumberOfTuples());
 
     using ValueType = typename vtkDataArrayAccessor<SelectionListArrayType>::APIType;
     vtkDataArrayAccessor<InputArrayType> fAccessor(fArray);
@@ -197,7 +197,7 @@ struct ArrayValueRangeFunctor
           {
             match = (val >= rangeAccessor.Get(r, 0) && val <= rangeAccessor.Get(r, 1));
           }
-          this->InsidenessArray->SetValue(cc, match ? 1 : 0);
+          this->InsidednessArray->SetValue(cc, match ? 1 : 0);
         }
       });
     }
@@ -221,7 +221,7 @@ struct ArrayValueRangeFunctor
           {
             match = (magnitude >= rangeAccessor.Get(r, 0) && magnitude <= rangeAccessor.Get(r, 1));
           }
-          this->InsidenessArray->SetValue(cc, match ? 1 : 0);
+          this->InsidednessArray->SetValue(cc, match ? 1 : 0);
         }
       });
     }
@@ -235,17 +235,17 @@ struct ArrayValueRangeFunctor
 
     vtkDataArrayAccessor<SelectionListArrayType> rangeAccessor(selList);
 
-    const vtkIdType numValues = this->InsidenessArray->GetNumberOfTuples();
+    const vtkIdType numValues = this->InsidednessArray->GetNumberOfTuples();
     const vtkIdType numRanges = selList->GetNumberOfTuples();
 
-    this->InsidenessArray->FillValue(0);
+    this->InsidednessArray->FillValue(0);
     for (vtkIdType cc = 0; cc < numRanges; ++cc)
     {
       vtkIdType start = std::min(static_cast<vtkIdType>(rangeAccessor.Get(cc, 0)), numValues - 1);
       vtkIdType last = std::min(static_cast<vtkIdType>(rangeAccessor.Get(cc, 1)), numValues - 1);
       if (start >= 0 && last >= start)
       {
-        std::fill_n(this->InsidenessArray->GetPointer(start), (start - last) + 1, 1);
+        std::fill_n(this->InsidednessArray->GetPointer(start), (start - last) + 1, 1);
       }
     }
   }
@@ -340,7 +340,7 @@ private:
     }
   }
 
-  bool Execute(vtkAbstractArray* darray, vtkSignedCharArray* insidenessArray)
+  bool Execute(vtkAbstractArray* darray, vtkSignedCharArray* insidednessArray)
   {
     if (vtkStringArray::SafeDownCast(darray))
     {
@@ -351,7 +351,7 @@ private:
     }
     else if (auto dataArray = vtkDataArray::SafeDownCast(darray))
     {
-      return this->Execute(dataArray, insidenessArray);
+      return this->Execute(dataArray, insidednessArray);
     }
     else
     {
@@ -360,7 +360,7 @@ private:
     }
   }
 
-  bool Execute(vtkDataArray* darray, vtkSignedCharArray* insidenessArray)
+  bool Execute(vtkDataArray* darray, vtkSignedCharArray* insidednessArray)
   {
     assert(vtkDataArray::SafeDownCast(this->SelectionList));
     if (darray->GetNumberOfComponents() < this->ComponentNo)
@@ -371,7 +371,7 @@ private:
 
     if (this->SelectionList->GetNumberOfComponents() == 1)
     {
-      ArrayValueMatchFunctor worker(insidenessArray, this->ComponentNo);
+      ArrayValueMatchFunctor worker(insidednessArray, this->ComponentNo);
       if (!vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::AllTypes>::Execute(
             darray, vtkDataArray::SafeDownCast(this->SelectionList), worker))
       {
@@ -382,7 +382,7 @@ private:
     }
     else
     {
-      ArrayValueRangeFunctor worker(insidenessArray, this->ComponentNo);
+      ArrayValueRangeFunctor worker(insidednessArray, this->ComponentNo);
       if (!vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::AllTypes>::Execute(
             darray, vtkDataArray::SafeDownCast(this->SelectionList), worker))
       {
@@ -392,18 +392,18 @@ private:
       }
     }
 
-    insidenessArray->Modified();
+    insidednessArray->Modified();
     return true;
   }
 
   // this is used for when selecting elements by ids
-  bool Execute(vtkSignedCharArray* insidenessArray)
+  bool Execute(vtkSignedCharArray* insidednessArray)
   {
     assert(vtkDataArray::SafeDownCast(this->SelectionList));
 
     if (this->SelectionList->GetNumberOfComponents() == 1)
     {
-      ArrayValueMatchFunctor worker(insidenessArray, 0);
+      ArrayValueMatchFunctor worker(insidednessArray, 0);
       if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Integrals>::Execute(
             vtkDataArray::SafeDownCast(this->SelectionList), worker))
       {
@@ -414,7 +414,7 @@ private:
     }
     else
     {
-      ArrayValueRangeFunctor worker(insidenessArray, 0);
+      ArrayValueRangeFunctor worker(insidednessArray, 0);
       if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Integrals>::Execute(
             vtkDataArray::SafeDownCast(this->SelectionList), worker))
       {
@@ -423,30 +423,30 @@ private:
         return false;
       }
     }
-    insidenessArray->Modified();
+    insidednessArray->Modified();
     return true;
   }
 };
 
 //----------------------------------------------------------------------------
 bool vtkValueSelector::vtkInternals::Execute(
-  vtkDataObject* dobj, vtkSignedCharArray* insidenessArray)
+  vtkDataObject* dobj, vtkSignedCharArray* insidednessArray)
 {
   if (this->FieldAssociation != -1 && !this->FieldName.empty())
   {
     auto* dsa = dobj->GetAttributesAsFieldData(this->FieldAssociation);
-    return dsa ? this->Execute(dsa->GetAbstractArray(this->FieldName.c_str()), insidenessArray)
+    return dsa ? this->Execute(dsa->GetAbstractArray(this->FieldName.c_str()), insidednessArray)
                : false;
   }
   else if (this->FieldAssociation != -1 && this->FieldAttributeType != -1)
   {
     auto* dsa = dobj->GetAttributes(this->FieldAssociation);
-    return dsa ? this->Execute(dsa->GetAbstractAttribute(this->FieldAttributeType), insidenessArray)
+    return dsa ? this->Execute(dsa->GetAbstractAttribute(this->FieldAttributeType), insidednessArray)
                : false;
   }
   else if (this->FieldAssociation != -1)
   {
-    return this->Execute(insidenessArray);
+    return this->Execute(insidednessArray);
   }
   return false;
 }
@@ -465,9 +465,11 @@ vtkValueSelector::~vtkValueSelector()
 }
 
 //----------------------------------------------------------------------------
-void vtkValueSelector::Initialize(vtkSelectionNode* node)
+void vtkValueSelector::Initialize(vtkSelectionNode* node, const std::string& insidednessArrayName)
 {
   assert(node);
+
+  this->Superclass::Initialize(node, insidednessArrayName);
 
   this->Internals.reset();
 
@@ -564,11 +566,12 @@ void vtkValueSelector::Finalize()
 }
 
 //----------------------------------------------------------------------------
-bool vtkValueSelector::ComputeSelectedElements(
-  vtkDataObject* input, vtkSignedCharArray* elementInside)
+bool vtkValueSelector::ComputeSelectedElementsForBlock(vtkDataObject* input,
+    vtkSignedCharArray* insidednessArray, unsigned int vtkNotUsed(compositeIndex),
+    unsigned int vtkNotUsed(amrLevel), unsigned int vtkNotUsed(amrIndex))
 {
-  assert(input != nullptr && elementInside != nullptr);
-  return this->Internals ? this->Internals->Execute(input, elementInside) : false;
+  assert(input != nullptr && insidednessArray != nullptr);
+  return this->Internals ? this->Internals->Execute(input, insidednessArray) : false;
 }
 
 //----------------------------------------------------------------------------

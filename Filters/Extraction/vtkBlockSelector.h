@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkLocationSelector.h
+  Module:    vtkBlockSelector.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,46 +13,40 @@
 
 =========================================================================*/
 /**
- * @class vtkLocationSelector
- * @brief selects cells containing or points near chosen point locations.
+ * @class vtkBlockSelector
+ * @brief Selects cells or points contained in a block as defined in the
+ * vtkSelectionNode used to initialize this operator.
  *
- * vtkLocationSelector is vtkSelector that can select elements
- * containing or near matching elements. It handles vtkSelectionNode::LOCATIONS
  */
 
-#ifndef vtkLocationSelector_h
-#define vtkLocationSelector_h
+#ifndef vtkBlockSelector_h
+#define vtkBlockSelector_h
 
 #include "vtkSelector.h"
 
-#include <memory> // unique_ptr
-
-class VTKFILTERSEXTRACTION_EXPORT vtkLocationSelector : public vtkSelector
+class VTKFILTERSEXTRACTION_EXPORT vtkBlockSelector : public vtkSelector
 {
 public:
-  static vtkLocationSelector* New();
-  vtkTypeMacro(vtkLocationSelector, vtkSelector);
+  static vtkBlockSelector* New();
+  vtkTypeMacro(vtkBlockSelector, vtkSelector);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void Initialize(vtkSelectionNode* node, const std::string& insidednessArrayName) override;
-  void Finalize() override;
 
 protected:
-  vtkLocationSelector();
-  ~vtkLocationSelector() override;
+  vtkBlockSelector();
+  ~vtkBlockSelector();
 
   bool ComputeSelectedElementsForBlock(vtkDataObject* input,
     vtkSignedCharArray* insidednessArray, unsigned int compositeIndex,
     unsigned int amrLevel, unsigned int amrIndex) override;
 
 private:
-  vtkLocationSelector(const vtkLocationSelector&) = delete;
-  void operator=(const vtkLocationSelector&) = delete;
+  vtkBlockSelector(const vtkBlockSelector&) = delete;
+  void operator=(const vtkBlockSelector&) = delete;
 
   class vtkInternals;
-  class vtkInternalsForPoints;
-  class vtkInternalsForCells;
-  std::unique_ptr<vtkInternals> Internals;
+  vtkInternals* Internals;
 };
 
 #endif

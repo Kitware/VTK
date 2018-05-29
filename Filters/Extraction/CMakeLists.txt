@@ -1,4 +1,5 @@
 set(Module_SRCS
+  vtkBlockSelector.cxx
   vtkConvertSelection.cxx
   vtkExtractBlock.cxx
   vtkExtractCells.cxx
@@ -29,7 +30,7 @@ set(Module_SRCS
   vtkHierarchicalDataExtractLevel.cxx
   vtkLocationSelector.cxx
   vtkProbeSelectedLocations.cxx
-  vtkSelectionOperator.cxx
+  vtkSelector.cxx
   vtkValueSelector.cxx
   )
 
