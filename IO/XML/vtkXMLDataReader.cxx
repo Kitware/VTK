@@ -30,10 +30,21 @@
 
 
 #include <cassert>
+#include <map> // needed for std::map
 
+class vtkXMLDataReader::MapStringToInt : public std::map<std::string, int>
+{
+};
+class vtkXMLDataReader::MapStringToInt64 : public std::map<std::string, vtkTypeInt64>
+{
+};
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
+  : PointDataTimeStep(new vtkXMLDataReader::MapStringToInt())
+  , PointDataOffset(new vtkXMLDataReader::MapStringToInt64())
+  , CellDataTimeStep(new vtkXMLDataReader::MapStringToInt())
+  , CellDataOffset(new vtkXMLDataReader::MapStringToInt64())
 {
   this->NumberOfPieces = 0;
   this->PointDataElements = nullptr;
@@ -47,11 +58,6 @@ vtkXMLDataReader::vtkXMLDataReader()
   this->DataProgressObserver = vtkCallbackCommand::New();
   this->DataProgressObserver->SetCallback(&vtkXMLDataReader::DataProgressCallbackFunction);
   this->DataProgressObserver->SetClientData(this);
-
-  this->PointDataTimeStep = nullptr;
-  this->PointDataOffset = nullptr;
-  this->CellDataTimeStep = nullptr;
-  this->CellDataOffset = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -66,16 +72,6 @@ vtkXMLDataReader::~vtkXMLDataReader()
     this->DestroyPieces();
   }
   this->DataProgressObserver->Delete();
-  if (this->NumberOfPointArrays)
-  {
-    delete[] this->PointDataTimeStep;
-    delete[] this->PointDataOffset;
-  }
-  if (this->NumberOfCellArrays)
-  {
-    delete[] this->CellDataTimeStep;
-    delete[] this->CellDataOffset;
-  }
 }
 
 //----------------------------------------------------------------------------
@@ -270,16 +266,21 @@ void vtkXMLDataReader::SetupOutputData()
   // from one piece because all pieces have the same set of arrays.
   vtkXMLDataElement* ePointData = this->PointDataElements[0];
   vtkXMLDataElement* eCellData = this->CellDataElements[0];
+
   this->NumberOfPointArrays = 0;
+  this->PointDataTimeStep->clear();
+  this->PointDataOffset->clear();
   if (ePointData)
   {
     for (int i = 0; i < ePointData->GetNumberOfNestedElements(); i++)
     {
       vtkXMLDataElement* eNested = ePointData->GetNestedElement(i);
-      if (this->PointDataArrayIsEnabled(eNested) &&
-          !pointData->HasArray(eNested->GetAttribute("Name")))
+      const char* ename = eNested->GetAttribute("Name");
+      if (this->PointDataArrayIsEnabled(eNested) && !pointData->HasArray(ename))
       {
         this->NumberOfPointArrays++;
+        (*this->PointDataTimeStep)[ename] = -1;
+        (*this->PointDataOffset)[ename] = -1;
         vtkAbstractArray* array = this->CreateArray(eNested);
         if (array)
         {
@@ -294,18 +295,20 @@ void vtkXMLDataReader::SetupOutputData()
       }
     }
   }
-  assert(this->NumberOfPointArrays == this->PointDataArraySelection->GetNumberOfArraysEnabled());
-
   this->NumberOfCellArrays = 0;
+  this->CellDataTimeStep->clear();
+  this->CellDataOffset->clear();
   if (eCellData)
   {
     for (int i = 0; i < eCellData->GetNumberOfNestedElements(); i++)
     {
       vtkXMLDataElement* eNested = eCellData->GetNestedElement(i);
-      if (this->CellDataArrayIsEnabled(eNested) &&
-          !cellData->HasArray(eNested->GetAttribute("Name")))
+      const char* ename = eNested->GetAttribute("Name");
+      if (this->CellDataArrayIsEnabled(eNested) && !cellData->HasArray(ename))
       {
         this->NumberOfCellArrays++;
+        (*this->CellDataTimeStep)[ename] = -1;
+        (*this->CellDataOffset)[ename] = -1;
         vtkAbstractArray* array = this->CreateArray(eNested);
         if (array)
         {
@@ -320,41 +323,10 @@ void vtkXMLDataReader::SetupOutputData()
       }
     }
   }
-  assert(this->NumberOfCellArrays == this->CellDataArraySelection->GetNumberOfArraysEnabled());
 
   // Setup attribute indices for the point data and cell data.
   this->ReadAttributeIndices(ePointData, pointData);
   this->ReadAttributeIndices(eCellData, cellData);
-
-  // Since NumberOfCellArrays and NumberOfPointArrays are valid
-  // lets allocate PointDataTimeStep, CellDataTimeStep, PointDataOffset
-  // CellDataOffset
-  if (this->NumberOfPointArrays)
-  {
-    delete [] this->PointDataTimeStep;
-    delete [] this->PointDataOffset;
-
-    this->PointDataTimeStep = new int[this->NumberOfPointArrays];
-    this->PointDataOffset = new vtkTypeInt64[this->NumberOfPointArrays];
-    for (int i = 0; i < this->NumberOfPointArrays; i++)
-    {
-      this->PointDataTimeStep[i] = -1;
-      this->PointDataOffset[i] = -1;
-    }
-  }
-  if (this->NumberOfCellArrays)
-  {
-    delete [] this->CellDataTimeStep;
-    delete [] this->CellDataOffset;
-
-    this->CellDataTimeStep = new int[this->NumberOfCellArrays];
-    this->CellDataOffset = new vtkTypeInt64[this->NumberOfCellArrays];
-    for (int i = 0; i < this->NumberOfCellArrays; i++)
-    {
-      this->CellDataTimeStep[i] = -1;
-      this->CellDataOffset[i]   = -1;
-    }
-  }
 }
 
 //----------------------------------------------------------------------------
@@ -579,7 +551,6 @@ int vtkXMLDataReader::PointDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
 {
   // First thing need to find the id of this dataarray from its name:
   const char* name = eNested->GetAttribute("Name");
-  int idx = this->PointDataArraySelection->GetEnabledArrayIndex(name);
 
   // Easy case no timestep:
   int numTimeSteps = eNested->GetVectorAttribute("TimeStep",
@@ -592,7 +563,7 @@ int vtkXMLDataReader::PointDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
   }
   if (!numTimeSteps && !this->NumberOfTimeSteps)
   {
-    assert(this->PointDataTimeStep[idx] == -1); //No timestep in this file
+    assert(this->PointDataTimeStep->at(name) == -1); // No timestep in this file
     return 1;
   }
   // else TimeStep was specified but no TimeValues associated were found
@@ -611,11 +582,11 @@ int vtkXMLDataReader::PointDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
   vtkTypeInt64 offset;
   if (eNested->GetScalarAttribute("offset", offset))
   {
-    if (this->PointDataOffset[idx] != offset)
+    if (this->PointDataOffset->at(name) != offset)
     {
       // save the pointsOffset
-      assert(this->PointDataTimeStep[idx] == -1); //cannot have mixture of binary and appended
-      this->PointDataOffset[idx] = offset;
+      assert(this->PointDataTimeStep->at(name) == -1); // cannot have mixture of binary and appended
+      this->PointDataOffset->at(name) = offset;
       return 1;
     }
   }
@@ -623,20 +594,20 @@ int vtkXMLDataReader::PointDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
   {
     // No offset is specified this is a binary file
     // First thing to check if numTimeSteps == 0:
-    if (!numTimeSteps && this->NumberOfTimeSteps && this->PointDataTimeStep[idx] == -1)
+    if (!numTimeSteps && this->NumberOfTimeSteps && this->PointDataTimeStep->at(name) == -1)
     {
       // Update last PointsTimeStep read
-      this->PointDataTimeStep[idx] = this->CurrentTimeStep;
+      (*this->PointDataTimeStep)[name] = this->CurrentTimeStep;
       return 1;
     }
     int isLastTimeInArray = vtkXMLReader::IsTimeStepInArray(
-      this->PointDataTimeStep[idx], this->TimeSteps, numTimeSteps);
-     // If no time is specified or if time is specified and match then read
+      this->PointDataTimeStep->at(name), this->TimeSteps, numTimeSteps);
+    // If no time is specified or if time is specified and match then read
     if (isCurrentTimeInArray && !isLastTimeInArray)
     {
       // CurrentTimeStep is in TimeSteps but Last is not := need to read
       // Update last PointsTimeStep read
-      this->PointDataTimeStep[idx] = this->CurrentTimeStep;
+      this->PointDataTimeStep->at(name) = this->CurrentTimeStep;
       return 1;
     }
   }
@@ -649,7 +620,6 @@ int vtkXMLDataReader::CellDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
 {
   // First thing need to find the id of this dataarray from its name:
   const char* name = eNested->GetAttribute("Name");
-  int idx = this->CellDataArraySelection->GetEnabledArrayIndex(name);
 
   // Easy case no timestep:
   int numTimeSteps = eNested->GetVectorAttribute("TimeStep",
@@ -662,7 +632,7 @@ int vtkXMLDataReader::CellDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
   }
   if (!numTimeSteps && !this->NumberOfTimeSteps)
   {
-    assert(this->CellDataTimeStep[idx] == -1); //No timestep in this file
+    assert(this->CellDataTimeStep->at(name) == -1); // No timestep in this file
     return 1;
   }
   // else TimeStep was specified but no TimeValues associated were found
@@ -681,11 +651,11 @@ int vtkXMLDataReader::CellDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
   vtkTypeInt64 offset;
   if (eNested->GetScalarAttribute("offset", offset))
   {
-    if (this->CellDataOffset[idx] != offset)
+    if (this->CellDataOffset->at(name) != offset)
     {
       // save the pointsOffset
-      assert(this->CellDataTimeStep[idx] == -1); //cannot have mixture of binary and appended
-      this->CellDataOffset[idx] = offset;
+      assert(this->CellDataTimeStep->at(name) == -1); // cannot have mixture of binary and appended
+      this->CellDataOffset->at(name) = offset;
       return 1;
     }
   }
@@ -693,20 +663,20 @@ int vtkXMLDataReader::CellDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
   {
     // No offset is specified this is a binary file
     // First thing to check if numTimeSteps == 0:
-    if (!numTimeSteps && this->NumberOfTimeSteps && this->CellDataTimeStep[idx] == -1)
+    if (!numTimeSteps && this->NumberOfTimeSteps && this->CellDataTimeStep->at(name) == -1)
     {
       // Update last CellDataTimeStep read
-      this->CellDataTimeStep[idx] = this->CurrentTimeStep;
+      this->CellDataTimeStep->at(name) = this->CurrentTimeStep;
       return 1;
     }
     int isLastTimeInArray = vtkXMLReader::IsTimeStepInArray(
-      this->CellDataTimeStep[idx], this->TimeSteps, numTimeSteps);
-     // If no time is specified or if time is specified and match then read
+      this->CellDataTimeStep->at(name), this->TimeSteps, numTimeSteps);
+    // If no time is specified or if time is specified and match then read
     if (isCurrentTimeInArray && !isLastTimeInArray)
     {
       // CurrentTimeStep is in TimeSteps but Last is not := need to read
       // Update last CellsTimeStep read
-      this->CellDataTimeStep[idx] = this->CurrentTimeStep;
+      this->CellDataTimeStep->at(name) = this->CurrentTimeStep;
       return 1;
     }
   }
