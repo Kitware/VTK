@@ -2376,6 +2376,12 @@ namespace vtkvolume
       \n    }\
       \n  }\
       \n\
+      \n  if (any(greaterThan(startPosTex, in_texMax[0])) ||\
+      \n      any(lessThan(startPosTex, in_texMin[0])))\
+      \n  {\
+      \n    return false;\
+      \n  }\
+      \n\
       \n  return true;\
       \n}\
       \n");

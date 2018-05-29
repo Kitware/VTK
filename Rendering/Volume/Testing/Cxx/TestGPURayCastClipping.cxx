@@ -27,10 +27,10 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
+#include <vtkRTAnalyticSource.h>
 #include <vtkSmartPointer.h>
 #include <vtkTestUtilities.h>
 #include <vtkVolumeProperty.h>
-#include <vtkXMLImageDataReader.h>
 
 int TestGPURayCastClipping(int argc, char *argv[])
 {
@@ -38,15 +38,9 @@ int TestGPURayCastClipping(int argc, char *argv[])
 
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
 
-  vtkNew<vtkXMLImageDataReader> reader;
-  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
-                            argc, argv, "Data/vase_1comp.vti");
-
-  reader->SetFileName(volumeFile);
-  reader->Update();
-  volumeMapper->SetInputConnection(reader->GetOutputPort());
-
-  delete [] volumeFile;
+  vtkNew<vtkRTAnalyticSource> wavelet;
+  wavelet->Update();
+  volumeMapper->SetInputConnection(wavelet->GetOutputPort());
 
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
   volumeMapper->SetBlendModeToComposite();
@@ -77,7 +71,7 @@ int TestGPURayCastClipping(int argc, char *argv[])
   colorTransferFunction->AddRGBPoint(scalarRange[1], 1.0, 0.5, 0.1);
 
   // Test cropping now
-  const double* bounds = reader->GetOutput()->GetBounds();
+  const double* bounds = wavelet->GetOutput()->GetBounds();
   vtkNew<vtkPlane> clipPlane1;
   clipPlane1->SetOrigin(0.45 * (bounds[0] + bounds[1]), 0.0, 0.0);
   clipPlane1->SetNormal(0.8, 0.0, 0.0);
