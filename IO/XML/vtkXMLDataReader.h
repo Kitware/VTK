@@ -30,6 +30,8 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLReader.h"
 
+#include <memory> // for std::unique_ptr
+
 class VTKIOXML_EXPORT vtkXMLDataReader : public vtkXMLReader
 {
 public:
@@ -108,25 +110,27 @@ protected:
   // The observer to report progress from reading data from XMLParser.
   vtkCallbackCommand* DataProgressObserver;
 
+private:
+  class MapStringToInt;
+  class MapStringToInt64;
+
   // Specify the last time step read, useful to know if we need to rearead data
   // //PointData
-  int *PointDataTimeStep;
-  vtkTypeInt64 *PointDataOffset;
+  std::unique_ptr<MapStringToInt> PointDataTimeStep;
+  std::unique_ptr<MapStringToInt64> PointDataOffset;
   int PointDataNeedToReadTimeStep(vtkXMLDataElement *eNested);
 
   //CellData
-  int *CellDataTimeStep;
-  vtkTypeInt64 *CellDataOffset;
+  std::unique_ptr<MapStringToInt> CellDataTimeStep;
+  std::unique_ptr<MapStringToInt64> CellDataOffset;
   int CellDataNeedToReadTimeStep(vtkXMLDataElement *eNested);
 
-private:
   vtkXMLDataReader(const vtkXMLDataReader&) = delete;
   void operator=(const vtkXMLDataReader&) = delete;
 
   void ConvertGhostLevelsToGhostType(
     FieldType type, vtkAbstractArray* data, vtkIdType startIndex,
     vtkIdType numValues) override;
-
 };
 
 #endif
