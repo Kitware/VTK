@@ -25,7 +25,7 @@
 namespace
 {
 template <typename T>
-int TestConvertType(std::string type, std::string fileName);
+int TestConvertType(const std::string& type, const std::string& fileName);
 }
 int TestXMLWriteRead(int argc, char* argv[])
 {
@@ -50,7 +50,7 @@ int TestXMLWriteRead(int argc, char* argv[])
 namespace
 {
 template <typename T>
-int TestConvertType(std::string type, std::string fileName)
+int TestConvertType(const std::string& type, const std::string& fileName)
 {
   std::cout << "Testing type " << type << std::endl;
 

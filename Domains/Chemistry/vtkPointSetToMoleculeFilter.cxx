@@ -27,9 +27,9 @@ vtkStandardNewMacro(vtkPointSetToMoleculeFilter);
 
 //----------------------------------------------------------------------------
 vtkPointSetToMoleculeFilter::vtkPointSetToMoleculeFilter()
+  : ConvertLinesIntoBonds(true)
 {
   this->SetNumberOfInputPorts(1);
-  this->ConvertLinesIntoBondsOn();
 
   // by default process active point scalars
   this->SetInputArrayToProcess(
