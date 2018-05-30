@@ -20,13 +20,13 @@ class vtkTest:
    Subclass this for your tests.  It also has a few useful internal
    functions that can be used to do some simple blackbox testing.
 
-compareImage(renwin, img_fname, threshold=10):
+compareImage(renwin, img_fname, threshold=0.15):
    Compares renwin with image and generates image if it does not
    exist.  The threshold determines how closely the images must match.
    The function also handles multiple images and finds the best
    matching image.
 
-compareImageWithSavedImage(src_img, img_fname, threshold=10):
+compareImageWithSavedImage(src_img, img_fname, threshold=0.15):
    Compares given source image (in the form of a vtkImageData) with
    saved image and generates the image if it does not exist.  The
    threshold determines how closely the images must match.  The
@@ -268,7 +268,7 @@ class vtkTest(unittest.TestCase):
     def assertImageMatch(self, renwin, baseline, **kwargs):
         """Throw an error if a rendering in the render window does not match the baseline image.
 
-        This method accepts a threshold keyword argument (with a default of 10)
+        This method accepts a threshold keyword argument (with a default of 0.15)
         that specifies how different a baseline may be before causing a failure.
         """
         absoluteBaseline = baseline
@@ -299,7 +299,7 @@ def _getTempImagePath(img_fname):
     x = os.path.join(VTK_TEMP_DIR, os.path.split(img_fname)[1])
     return os.path.abspath(x)
 
-def compareImageWithSavedImage(src_img, img_fname, threshold=10):
+def compareImageWithSavedImage(src_img, img_fname, threshold=0.15):
     """Compares a source image (src_img, which is a vtkImageData) with
     the saved image file whose name is given in the second argument.
     If the image file does not exist the image is generated and
@@ -380,7 +380,7 @@ def compareImageWithSavedImage(src_img, img_fname, threshold=10):
     _printCDashImageSuccess(img_err, err_index)
 
 
-def compareImage(renwin, img_fname, threshold=10):
+def compareImage(renwin, img_fname, threshold=0.15):
     """Compares renwin's (a vtkRenderWindow) contents with the image
     file whose name is given in the second argument.  If the image
     file does not exist the image is generated and stored.  If not the

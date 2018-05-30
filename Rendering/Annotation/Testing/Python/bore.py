@@ -68,6 +68,7 @@ ren1 = vtk.vtkRenderer()
 ren1.SetActiveCamera(camera)
 renWin = vtk.vtkRenderWindow()
 renWin.AddRenderer(ren1)
+renWin.SetMultiSamples(0)
 iren = vtk.vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 # Add the actors to the renderer set the background and size

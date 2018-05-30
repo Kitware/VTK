@@ -91,7 +91,7 @@ int TestPolyDataPointSampler(int argc, char* argv[])
   renderer->GetActiveCamera()->Zoom(2);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImageThreshold( renWin, 0.3 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

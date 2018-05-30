@@ -131,7 +131,7 @@ int TestMPASReader( int argc, char *argv[] )
   // interact with data
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImageThreshold( renWin, 0.25 );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {

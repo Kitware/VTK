@@ -23,6 +23,7 @@
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -81,6 +82,8 @@ namespace
 
     vtkNew<vtkActor> actor;
     actor->SetMapper(mapper);
+    actor->GetProperty()->SetAmbient(1.0);
+    actor->GetProperty()->SetDiffuse(0.0);
 
     ren->AddActor(actor);
     ren->ResetCamera();

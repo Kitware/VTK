@@ -85,6 +85,7 @@ int TestSetZBuffer(int argc, char *argv[])
     renderWindow->SetZbufferData(0,0,299,299,&(depth[0]));
     renderWindow->Render();
   }
+  renderer->SetPreserveColorBuffer(1);
 
   int retVal = vtkRegressionTestImage( renderWindow );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)

@@ -25,20 +25,6 @@
 vtkStandardNewMacro(vtkRectilinearGridOutlineFilter);
 
 
-int vtkRectilinearGridOutlineFilter::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *vtkNotUsed(outputVector))
-{
-  // get the info object
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-
-  // Although there may be overlap between piece outlines,
-  // it is not worth requesting exact extents.
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 0);
-  return 1;
-}
-
 int vtkRectilinearGridOutlineFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
