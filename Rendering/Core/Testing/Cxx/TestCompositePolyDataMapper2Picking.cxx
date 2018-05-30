@@ -219,6 +219,26 @@ int TestCompositePolyDataMapper2Picking(int argc, char* argv[])
             plane->SetCenter(block*0.25, 0.5, parent*0.5);
             elev->SetLowPoint(block*0.25 - 0.2 + 0.2*block/nblocks, -0.02, 0.0);
             elev->SetHighPoint(block*0.25 + 0.1 + 0.2*block/nblocks, 0.02, 0.0);
+            elev->Update();
+
+            vtkPolyData* poly = vtkPolyData::SafeDownCast(elev->GetOutput(0));
+            vtkNew<vtkCellArray> lines;
+            lines->InsertNextCell(2);
+            lines->InsertCellPoint(16);
+            lines->InsertCellPoint(17);
+            lines->InsertNextCell(2);
+            lines->InsertCellPoint(18);
+            lines->InsertCellPoint(19);
+            poly->SetLines(lines);
+            vtkNew<vtkCellArray> strips;
+            strips->InsertNextCell(5);
+            strips->InsertCellPoint(20);
+            strips->InsertCellPoint(21);
+            strips->InsertCellPoint(22);
+            strips->InsertCellPoint(23);
+            strips->InsertCellPoint(24);
+            poly->SetStrips(strips);
+
             p2c->Update();
             child->DeepCopy(p2c->GetOutput(0));
           }
