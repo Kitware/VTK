@@ -170,7 +170,7 @@ int vtkOBJReader::RequestData(
 
   { // (make a local scope section to emphasise that the variables below are only used here)
 
-  const int MAX_LINE = 1024;
+  const int MAX_LINE = 1024 * 256;
   char rawLine[MAX_LINE];
   char tcoordsName[100];
   float xyz[3];
@@ -187,6 +187,12 @@ int vtkOBJReader::RequestData(
     lineNr++;
     char *pLine = rawLine;
     char *pEnd = rawLine + strlen(rawLine);
+
+    if (*(pEnd-1) != '\n' && ! feof(in))
+    {
+      vtkErrorMacro(<< "Line longer than " << MAX_LINE << ": " <<  pLine);
+      everything_ok = false;
+    }
 
     // find the first non-whitespace character
     while (isspace(*pLine) && pLine < pEnd) { pLine++; }
