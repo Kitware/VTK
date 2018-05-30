@@ -35,7 +35,7 @@ public:
 
 protected:
   vtkBlockSelector();
-  ~vtkBlockSelector();
+  ~vtkBlockSelector() override;
 
   bool ComputeSelectedElementsForBlock(vtkDataObject* input,
     vtkSignedCharArray* insidednessArray, unsigned int compositeIndex,
