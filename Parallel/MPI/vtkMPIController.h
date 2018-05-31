@@ -262,7 +262,7 @@ public:
    * object is returned through the argument list.
    * Note: this method delegates to the communicator
    */
-  int WaitAny(const int count,vtkMPICommunicator::Request requests[], int& idx)
+  int WaitAny(const int count,vtkMPICommunicator::Request requests[], int& idx) VTK_SIZEHINT(requests, count)
   {return ((vtkMPICommunicator*)this->Communicator)->WaitAny(count,requests,idx);}
 
   /**
@@ -272,7 +272,7 @@ public:
    */
   int WaitSome(
       const int count, vtkMPICommunicator::Request requests[],
-      vtkIntArray *completed );
+      vtkIntArray *completed ) VTK_SIZEHINT(requests, count);
 
   /**
    * Returns true iff *all* of the communication request objects are complete.
@@ -285,7 +285,7 @@ public:
    * reflected in the out parameter idx. Otherwise, if none of the communication
    * requests are complete false is returned.
    */
-  bool TestAny(const int count,vtkMPICommunicator::Request requests[],int &idx);
+  bool TestAny(const int count,vtkMPICommunicator::Request requests[],int &idx) VTK_SIZEHINT(requests, count);
 
   /**
    * Return true iff *one or more* of the communicator request objects is
@@ -293,7 +293,7 @@ public:
    * are given in the completed user-supplied vtkIntArray.
    */
   bool TestSome(const int count,vtkMPICommunicator::Request requests[],
-                vtkIntArray *completed );
+                vtkIntArray *completed ) VTK_SIZEHINT(requests, count);
 
   static const char* GetProcessorName();
 

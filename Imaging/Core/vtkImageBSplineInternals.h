@@ -54,7 +54,7 @@ public:
    */
   static void ConvertToInterpolationCoefficients(
     double data[], long size, long border, double poles[4], long numPoles,
-    double tol);
+    double tol) VTK_SIZEHINT(data, size);
 
   //@{
   /**

@@ -230,7 +230,7 @@ public:
    * completes. Upon return, the index in the array of the completed request
    * object is returned through the argument list.
    */
-  int WaitAny(const int count, Request requests[], int& idx);
+  int WaitAny(const int count, Request requests[], int& idx) VTK_SIZEHINT(requests, count);
 
   /**
    * Blocks until *one or more* of the specified requests in the given request
@@ -238,19 +238,19 @@ public:
    * completed is stored in the completed vtkIntArray.
    */
   int WaitSome(
-      const int count, Request requests[], int &NCompleted, int *completed );
+      const int count, Request requests[], int &NCompleted, int *completed ) VTK_SIZEHINT(requests, count);
 
   /**
    * Checks if the given communication request objects are complete. Upon
    * return, flag evaluates to true iff *all* of the communication request
    * objects are complete.
    */
-  int TestAll( const int count, Request requests[], int& flag );
+  int TestAll( const int count, Request requests[], int& flag ) VTK_SIZEHINT(requests, count);
 
   /**
    * Check if at least *one* of the specified requests has completed.
    */
-  int TestAny(const int count, Request requests[], int &idx, int &flag );
+  int TestAny(const int count, Request requests[], int &idx, int &flag ) VTK_SIZEHINT(requests, count);
 
   /**
    * Checks the status of *all* the given request communication object handles.
@@ -259,7 +259,7 @@ public:
    * given the by the pre-allocated completed array.
    */
   int TestSome(const int count,Request requests[],
-               int& NCompleted,int *completed);
+               int& NCompleted,int *completed) VTK_SIZEHINT(requests, count);
 
   friend class vtkMPIController;
 
