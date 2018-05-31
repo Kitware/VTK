@@ -200,6 +200,14 @@ void vtkOpenGLGlyph3DMapper::CopyInformationToSubMapper(
   mapper->SetResolveCoincidentTopologyZShift(
     this->GetResolveCoincidentTopologyZShift());
 
+  double f, u;
+  this->GetRelativeCoincidentTopologyPolygonOffsetParameters(f, u);
+  mapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(f, u);
+  this->GetRelativeCoincidentTopologyLineOffsetParameters(f, u);
+  mapper->SetRelativeCoincidentTopologyLineOffsetParameters(f, u);
+  this->GetRelativeCoincidentTopologyPointOffsetParameter(u);
+  mapper->SetRelativeCoincidentTopologyPointOffsetParameter(u);
+
   // ResolveCoincidentTopologyPolygonOffsetParameters is static
   mapper->SetResolveCoincidentTopologyPolygonOffsetFaces(
     this->GetResolveCoincidentTopologyPolygonOffsetFaces());
