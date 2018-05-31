@@ -505,7 +505,10 @@ void vtkExtractSelection::ExtractSelectedCells(vtkDataSet* input, vtkUnstructure
 }
 
 //----------------------------------------------------------------------------
-void vtkExtractSelection::ExtractSelectedPoints(vtkDataSet* input, vtkUnstructuredGrid* output, vtkSignedCharArray* pointInside)
+void vtkExtractSelection::ExtractSelectedPoints(
+  vtkDataSet* input,
+  vtkUnstructuredGrid* output,
+  vtkSignedCharArray* pointInside)
 {
   vtkIdType numPts = input->GetNumberOfPoints();
 
@@ -524,11 +527,6 @@ void vtkExtractSelection::ExtractSelectedPoints(vtkDataSet* input, vtkUnstructur
 
   double x[3];
 
-  // The new point id for each point (-1 for not in selection)
-  std::vector<vtkIdType> pointMap;
-  pointMap.resize(numPts);
-  std::fill(pointMap.begin(), pointMap.end(), -1);
-
   vtkNew<vtkIdTypeArray> originalPointIds;
   originalPointIds->SetNumberOfComponents(1);
   originalPointIds->SetName("vtkOriginalPointIds");
@@ -536,8 +534,6 @@ void vtkExtractSelection::ExtractSelectedPoints(vtkDataSet* input, vtkUnstructur
 
   for (vtkIdType ptId = 0; ptId < numPts; ++ptId)
   {
-    pointMap[ptId] = -1;
-
     signed char isInside;
     assert(ptId < pointInside->GetNumberOfValues());
     pointInside->GetTypedTuple(ptId, &isInside);
@@ -547,7 +543,6 @@ void vtkExtractSelection::ExtractSelectedPoints(vtkDataSet* input, vtkUnstructur
       vtkIdType newPointId = newPts->InsertNextPoint(x);
       outputPD->CopyData(pd,ptId,newPointId);
       originalPointIds->InsertNextValue(ptId);
-      pointMap[ptId] = newPointId;
     }
   }
 
