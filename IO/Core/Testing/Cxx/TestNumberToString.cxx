@@ -70,7 +70,7 @@ int TestNumberToString(int, char* [])
     return status;
   }
 
-  unsigned int samples = 100000;
+  unsigned int samples = 10000;
   if (TestConvert<float>(samples) || TestConvert<double>(samples))
   {
     return EXIT_FAILURE;
