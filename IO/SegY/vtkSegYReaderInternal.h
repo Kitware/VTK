@@ -32,6 +32,8 @@ class vtkSegYReaderInternal
 {
 public:
   vtkSegYReaderInternal();
+  vtkSegYReaderInternal(const vtkSegYReaderInternal& other) = delete;
+  vtkSegYReaderInternal& operator=(const vtkSegYReaderInternal& other) = delete;
   ~vtkSegYReaderInternal();
 
 public:
