@@ -40,6 +40,10 @@ if (VTK_ANDROID_BUILD)
   return()
 endif()
 
+#FIXME(DONOTMERGE)
+set (Module_vtkFiltersMomentInvariants ON)
+set (VTK_BUILD_PARALLEL_MOMENT_INVARIANTS ON)
+
 include(vtkCompilerChecks)
 include(vtkCompilerPlatformFlags)
 include(vtkCompilerExtraFlags)
