@@ -762,19 +762,32 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
   hdata->PrimOffsets[1] = hdata->PrimOffsets[0] +
     prims[0]->GetNumberOfConnectivityEntries() -
     prims[0]->GetNumberOfCells();
-  hdata->PrimOffsets[2] = hdata->PrimOffsets[1] +
-    prims[1]->GetNumberOfConnectivityEntries() -
-    2*prims[1]->GetNumberOfCells();
 
   this->AppendCellTextures(ren, act, prims, representation,
     newColors, newNorms, poly);
 
-  hdata->PrimOffsets[4] = (!newColors.empty() ? newColors.size()/4 : newNorms.size()/4);
+  if (pointPicking)
+  {
+    for (int i = 1; i < 4; i++)
+    {
+      hdata->PrimOffsets[i+1] = hdata->PrimOffsets[i] +
+        prims[i]->GetNumberOfConnectivityEntries() -
+        prims[i]->GetNumberOfCells();
+    }
+  }
+  else
+  {
+    hdata->PrimOffsets[2] = hdata->PrimOffsets[1] +
+      prims[1]->GetNumberOfConnectivityEntries() -
+      2*prims[1]->GetNumberOfCells();
 
-  // we back compute the strip number
-  size_t triCount = prims[3]->GetNumberOfConnectivityEntries()
-    - 3*prims[3]->GetNumberOfCells();
-  hdata->PrimOffsets[3] = hdata->PrimOffsets[4] - triCount;
+    hdata->PrimOffsets[4] = (!newColors.empty() ? newColors.size()/4 : newNorms.size()/4);
+
+    // we back compute the strip number
+    size_t triCount = prims[3]->GetNumberOfConnectivityEntries()
+      - 3*prims[3]->GetNumberOfCells();
+    hdata->PrimOffsets[3] = hdata->PrimOffsets[4] - triCount;
+  }
 
   // on Apple Macs with the AMD PrimID bug <rdar://20747550>
   // we use a slow painful approach to work around it (pre 10.11).
