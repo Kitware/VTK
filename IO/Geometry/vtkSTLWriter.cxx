@@ -258,7 +258,8 @@ void vtkSTLWriter::WriteBinarySTL(
   if (this->BinaryHeader)
   {
     // Use binary header
-    if (vtksys::SystemTools::StringStartsWith(static_cast<const char*>(this->BinaryHeader->GetVoidPointer(0)), "solid"))
+    if (this->BinaryHeader->GetNumberOfValues() >= 5
+        && memcmp(this->BinaryHeader->GetVoidPointer(0), "solid", 5) == 0)
     {
       vtkErrorMacro("Invalid header for Binary STL file. Cannot start with \"solid\". Changing header to\n" << vtkSTLWriterDefaultHeader);
       strncpy(binaryFileHeader, vtkSTLWriterDefaultHeader, vtkSTLWriterBinaryHeaderSize);
