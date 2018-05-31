@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestLinePlot.cxx
+  Module:    TestHistogram2D.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -26,7 +26,6 @@
 #include "vtkPlotLine.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkSmartPointer.h"
 #include "vtkTable.h"
 #include "vtkVector.h"
 
@@ -47,12 +46,12 @@ int TestHistogram2D(int, char * [])
   view->GetRenderWindow()->Render();
 
   // Add only a plot without an image data
-  vtkSmartPointer<vtkTable> table = vtkSmartPointer<vtkTable>::New();
-  vtkSmartPointer<vtkDoubleArray> X = vtkSmartPointer<vtkDoubleArray>::New();
+  vtkNew<vtkTable> table;
+  vtkNew<vtkDoubleArray> X;
   X->SetName("X");
   X->SetNumberOfComponents(1);
   X->SetNumberOfTuples(size);
-  vtkSmartPointer<vtkDoubleArray> Y = vtkSmartPointer<vtkDoubleArray>::New();
+  vtkNew<vtkDoubleArray> Y;
   Y->SetName("Y");
   Y->SetNumberOfComponents(1);
   Y->SetNumberOfTuples(size);
@@ -65,7 +64,7 @@ int TestHistogram2D(int, char * [])
   table->AddColumn(X);
   table->AddColumn(Y);
 
-  vtkPlotLine* plot = vtkPlotLine::SafeDownCast(chart->AddPlot((int)vtkChart::LINE));
+  vtkPlotLine* plot = vtkPlotLine::SafeDownCast(chart->AddPlot(vtkChart::LINE));
   plot->SetInputData(table, 0, 1);
   plot->SetColor(1.0, 0.0, 0.0);
   plot->SetWidth(5);
