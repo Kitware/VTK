@@ -587,7 +587,6 @@ void vtkFrustumSelector::Initialize(vtkSelectionNode* node, const std::string& i
     vtkDoubleArray *corners = vtkArrayDownCast<vtkDoubleArray>(
       node->GetSelectionList());
     this->CreateFrustum(corners->GetPointer(0));
-    this->Node = node;
   }
   else
   {

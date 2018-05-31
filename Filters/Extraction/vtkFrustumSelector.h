@@ -60,7 +60,6 @@ protected:
   ~vtkFrustumSelector() override;
 
   vtkSmartPointer<vtkPlanes> Frustum;
-  vtkSmartPointer<vtkSelectionNode> Node;
 
   bool ComputeSelectedElementsForBlock(vtkDataObject* input,
     vtkSignedCharArray* insidednessArray, unsigned int compositeIndex,
