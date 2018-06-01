@@ -114,71 +114,15 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       vtkErrorMacro("VolumeMapper's Input has no scalar array!");
       return;
     }
-    vtkDataArray *sca = nullptr;
-    int ncomp = sa->GetNumberOfComponents();
-    if (ncomp>1)
-    {
-      int comp = 0;//mapper->GetArrayComponent(); not yet supported
-      /*
-      if (comp<0)
-      {
-        comp = 0;
-      }
-      if (comp>ncomp-1)
-      {
-        comp = ncomp-1;
-      }
-      */
-      sca = sa->NewInstance();
-      sca->SetNumberOfComponents(1);
-      sca->SetNumberOfTuples(sa->GetNumberOfTuples());
-      sca->CopyComponent(0, sa, comp);
-      sa = sca;
-    }
-    int ScalarDataType = sa->GetDataType();
-    void* ScalarDataPointer = sa->GetVoidPointer(0);
-    int dim[3];
-    data->GetDimensions(dim);
-    if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_CELLS)
-    {
-      dim[0] = dim[0]-1;
-      dim[1] = dim[1]-1;
-      dim[2] = dim[2]-1;
-    }
-
-    std::string voxelType;
-    if (ScalarDataType == VTK_FLOAT)
-    {
-      voxelType = "float";
-    }
-    else if (ScalarDataType == VTK_UNSIGNED_CHAR)
-    {
-      voxelType = "uchar";
-    }
-    else if (ScalarDataType == VTK_UNSIGNED_SHORT)
-    {
-      voxelType = "ushort";
-    }
-    else if (ScalarDataType == VTK_SHORT)
-    {
-      voxelType = "short";
-    }
-    else if (ScalarDataType == VTK_DOUBLE)
-    {
-      voxelType = "double";
-    }
-    else
-    {
-      vtkErrorMacro("ERROR: Unsupported data type for ospray volumes, current supported data types are: float, uchar, and double.");
-      return;
-    }
 
     if (!this->TransferFunction)
     {
       this->TransferFunction = ospNewTransferFunction("piecewise_linear");
     }
 
+    vtkVolumeProperty* volProperty = vol->GetProperty();
     // when input data is modified
+    vtkDataArray *sca = nullptr;
     if (mapper->GetDataSetInput()->GetMTime() > this->BuildTime)
     {
       double tstep = vtkOSPRayRendererNode::GetViewTime(ren);
@@ -189,6 +133,54 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       }
       else
       {
+        int ncomp = sa->GetNumberOfComponents();
+        if (ncomp>1)
+        {
+          int comp = 0;//mapper->GetArrayComponent(); not yet supported
+          sca = sa->NewInstance();
+          sca->SetNumberOfComponents(1);
+          sca->SetNumberOfTuples(sa->GetNumberOfTuples());
+          sca->CopyComponent(0, sa, comp);
+          sa = sca;
+        }
+        int ScalarDataType = sa->GetDataType();
+        void* ScalarDataPointer = sa->GetVoidPointer(0);
+        int dim[3];
+        data->GetDimensions(dim);
+        if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_CELLS)
+        {
+          dim[0] = dim[0]-1;
+          dim[1] = dim[1]-1;
+          dim[2] = dim[2]-1;
+        }
+
+        std::string voxelType;
+        if (ScalarDataType == VTK_FLOAT)
+        {
+          voxelType = "float";
+        }
+        else if (ScalarDataType == VTK_UNSIGNED_CHAR)
+        {
+          voxelType = "uchar";
+        }
+        else if (ScalarDataType == VTK_UNSIGNED_SHORT)
+        {
+          voxelType = "ushort";
+        }
+        else if (ScalarDataType == VTK_SHORT)
+        {
+          voxelType = "short";
+        }
+        else if (ScalarDataType == VTK_DOUBLE)
+        {
+          voxelType = "double";
+        }
+        else
+        {
+          vtkErrorMacro("ERROR: Unsupported data type for ospray volumes, current supported data types are: float, uchar, short, ushort, and double.");
+          return;
+        }
+
         if (this->OSPRayVolume && this->Cache->GetSize() == 0)
         {
           delete this->OSPRayVolume;
@@ -225,11 +217,55 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
 
         ospSet2f(this->TransferFunction, "valueRange",
                  sa->GetRange()[0], sa->GetRange()[1]);
+        ospSetObject(this->OSPRayVolume, "transferFunction",
+                     this->TransferFunction);
+
+        ospSet1f(OSPRayVolume, "adaptiveMaxSamplingRate", 1.2f);
+        ospSet1f(OSPRayVolume, "adaptiveBacktrack", 0.01f);
+        ospSet1i(OSPRayVolume, "adaptiveSampling", 1);
+        if (this->SamplingRate == 0.0f)  // 0 means automatic sampling rate
+        {
+          //automatically determine sampling rate
+          int minBound = std::min(std::min(dim[0],dim[1]),dim[2]);
+          float minSamplingRate = 0.075f; // lower for min adaptive sampling step
+          if (minBound < 100)
+          {
+            float s = (100.0f - minBound)/100.0f;
+            ospSet1f(this->OSPRayVolume, "samplingRate", s*6.f + 1.f);
+            ospSet1i(this->OSPRayVolume, "adaptiveSampling", 0); //turn off preIntegration
+          }
+          else if (minBound < 1000)
+          {
+            float s = std::min((900.0f - minBound)/1000.0f, 1.f);
+            float s_new = (s*s*s*(0.5f-minSamplingRate) + minSamplingRate);
+            ospSet1f(this->OSPRayVolume, "samplingRate", s_new);
+            ospSet1f(this->OSPRayVolume, "adaptiveMaxSamplingRate", 2.f);
+          }
+          else
+          {
+            ospSet1f(this->OSPRayVolume, "samplingRate", minSamplingRate);
+          }
+        }
+        else
+        {
+          ospSet1f(this->OSPRayVolume, "samplingRate", this->SamplingRate);
+        }
+        ospSet1f(this->OSPRayVolume, "adaptiveScalar", 15.f);
+        ospSet1i(this->OSPRayVolume, "preIntegration", 0); //turn off preIntegration
+
+        float rs = static_cast<float>(volProperty->GetSpecular(0)/16.); //16 chosen because near GL
+        float gs = static_cast<float>(volProperty->GetSpecular(1)/16.);
+        float bs = static_cast<float>(volProperty->GetSpecular(2)/16.);
+        ospSet3f(this->OSPRayVolume, "specular", rs,gs,bs);
+
+        ospSet1i(this->OSPRayVolume, "gradientShadingEnabled",
+                 volProperty->GetShade());
+        ospCommit(this->TransferFunction);
+        ospCommit(this->OSPRayVolume);
       }
     }
 
     // test for modifications to volume properties
-    vtkVolumeProperty* volProperty = vol->GetProperty();
     if (vol->GetProperty()->GetMTime() > this->PropertyTime
         || mapper->GetDataSetInput()->GetMTime() > this->BuildTime)
     {
@@ -256,58 +292,15 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       OSPData tfAlphaData = ospNewData(NumColors, OSP_FLOAT, &TFOVals[0]);
       ospSetData(this->TransferFunction, "opacities", tfAlphaData);
 
-      ospSetObject(this->OSPRayVolume, "transferFunction",
-                   this->TransferFunction);
-
-      ospSet1i(this->OSPRayVolume, "gradientShadingEnabled",
-               volProperty->GetShade());
       this->PropertyTime.Modified();
       ospRelease(colorData);
       ospRelease(tfAlphaData);
+      ospCommit(this->TransferFunction);
     }
-
-    ospSet1f(OSPRayVolume, "adaptiveMaxSamplingRate", 1.2f);
-    ospSet1f(OSPRayVolume, "adaptiveBacktrack", 0.01f);
-    ospSet1i(OSPRayVolume, "adaptiveSampling", 1);
-    if (this->SamplingRate == 0.0f)  // 0 means automatic sampling rate
-    {
-      //automatically determine sampling rate
-      int minBound = std::min(std::min(dim[0],dim[1]),dim[2]);
-      float minSamplingRate = 0.075f; // lower for min adaptive sampling step
-      if (minBound < 100)
-      {
-        float s = (100.0f - minBound)/100.0f;
-        ospSet1f(this->OSPRayVolume, "samplingRate", s*6.f + 1.f);
-        ospSet1i(this->OSPRayVolume, "adaptiveSampling", 0); //turn off preIntegration
-      }
-      else if (minBound < 1000)
-      {
-        float s = std::min((900.0f - minBound)/1000.0f, 1.f);
-        float s_new = (s*s*s*(0.5f-minSamplingRate) + minSamplingRate);
-        ospSet1f(this->OSPRayVolume, "samplingRate", s_new);
-        ospSet1f(this->OSPRayVolume, "adaptiveMaxSamplingRate", 2.f);
-      }
-      else
-      {
-        ospSet1f(this->OSPRayVolume, "samplingRate", minSamplingRate);
-      }
-    }
-    else
-    {
-      ospSet1f(this->OSPRayVolume, "samplingRate", this->SamplingRate);
-    }
-    ospSet1f(this->OSPRayVolume, "adaptiveScalar", 15.f);
-    float rs = static_cast<float>(volProperty->GetSpecular(0)/16.); //16 chosen because near GL
-    float gs = static_cast<float>(volProperty->GetSpecular(1)/16.);
-    float bs = static_cast<float>(volProperty->GetSpecular(2)/16.);
-    ospSet3f(this->OSPRayVolume, "specular", rs,gs,bs);
-    ospSet1i(this->OSPRayVolume, "preIntegration", 0); //turn off preIntegration
 
     this->RenderTime = volNode->GetMTime();
     this->BuildTime.Modified();
 
-    ospCommit(this->TransferFunction);
-    ospCommit(this->OSPRayVolume);
     ospAddVolume(OSPRayModel, this->OSPRayVolume);
 
     if (sca)

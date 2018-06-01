@@ -171,10 +171,29 @@ osp::Material* vtkOSPRayMaterialHelpers::MakeMaterial
     OSPSET1F(flakeSpread)
     OSPSET1F(eta)
   }
+  else if (implname == "Principled")
+  {
+    oMaterial = ospNewMaterial(oRenderer, implname.c_str());
+    OSPSET3F(baseColor);
+    OSPSET1F(metallic);
+    OSPSET3F(specular);
+    OSPSET3F(edgeColor);
+    OSPSET1F(transmission);
+    OSPSET1F(roughness);
+    OSPSET1F(normalScale);
+    OSPSET1F(coat);
+    OSPSET3F(coatColor);
+    OSPSET1F(coatThickness);
+    OSPSET1F(coatRoughness);
+    OSPSET1F(coatNormalScale);
+    OSPSET1F(ior);
+    OSPSET1F(iorOutside);
+  }
   else if (implname == "OBJMaterial")
   {
     oMaterial = ospNewMaterial(oRenderer, implname.c_str());
     OSPSET1F(alpha);//aka "d", default 1.0
+    OSPSET1F(d);//aka "d", default 1.0
     OSPSET3F(color);//aka "Kd" aka "kd", default (0.8,0.8,0.8)
     OSPSET3F(kd);//aka "Kd" aka "kd", default (0.8,0.8,0.8)
     OSPSET3F(Kd);//aka "Kd" aka "kd", default (0.8,0.8,0.8)
