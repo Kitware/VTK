@@ -26,6 +26,7 @@ void vtkPythonAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
+  vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject str;
   if (this->Object)
   {
@@ -61,6 +62,7 @@ vtkPythonAlgorithm::~vtkPythonAlgorithm()
   // have been finalized before the VTK object is released.
   if (Py_IsInitialized())
   {
+    vtkPythonScopeGilEnsurer gilEnsurer;
     Py_XDECREF(this->Object);
   }
 }
@@ -104,6 +106,8 @@ static PyObject* VTKToPython(vtkObjectBase* obj)
 
 static std::string GetPythonErrorString()
 {
+  vtkPythonScopeGilEnsurer gilEnsurer;
+
   PyObject* type;
   PyObject* value;
   PyObject* traceback;
@@ -190,6 +194,7 @@ static std::string GetPythonErrorString()
 
 int vtkPythonAlgorithm::CheckResult(const char* method, const vtkSmartPyObject &res)
 {
+  vtkPythonScopeGilEnsurer gilEnsurer;
   if (!res)
   {
     std::string pymsg = GetPythonErrorString();
@@ -209,6 +214,8 @@ int vtkPythonAlgorithm::CheckResult(const char* method, const vtkSmartPyObject &
 
 void vtkPythonAlgorithm::SetPythonObject(PyObject* obj)
 {
+  vtkPythonScopeGilEnsurer gilEnsurer;
+
   if (!obj)
   {
     return;
@@ -246,6 +253,7 @@ int vtkPythonAlgorithm::ProcessRequest(vtkInformation* request,
                                        vtkInformationVector** inInfo,
                                        vtkInformationVector* outInfo)
 {
+  vtkPythonScopeGilEnsurer gilEnsurer;
   char mname[] = "ProcessRequest";
   VTK_GET_METHOD(method, this->Object, mname, 0)
 
@@ -276,6 +284,7 @@ int vtkPythonAlgorithm::ProcessRequest(vtkInformation* request,
 
 int vtkPythonAlgorithm::FillInputPortInformation(int port, vtkInformation* info)
 {
+  vtkPythonScopeGilEnsurer gilEnsurer;
   char mname[] = "FillInputPortInformation";
   VTK_GET_METHOD(method, this->Object, mname, 0)
 
@@ -297,6 +306,7 @@ int vtkPythonAlgorithm::FillInputPortInformation(int port, vtkInformation* info)
 
 int vtkPythonAlgorithm::FillOutputPortInformation(int port, vtkInformation* info)
 {
+  vtkPythonScopeGilEnsurer gilEnsurer;
   char mname[] = "FillOutputPortInformation";
   VTK_GET_METHOD(method, this->Object, mname, 0)
 
