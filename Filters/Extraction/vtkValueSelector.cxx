@@ -263,80 +263,67 @@ class vtkValueSelector::vtkInternals
 
 public:
   // use this constructor when selection is specified as (assoc, name)
-  vtkInternals(vtkAbstractArray* selList, int assoc, const std::string& aname, int comp)
-    : vtkInternals(comp, selList)
+  vtkInternals(vtkAbstractArray* selectionList, int fieldAssociation, const std::string& fieldName, int component)
+    : vtkInternals(selectionList, fieldName, fieldAssociation, -1, component)
   {
-    this->FieldName = aname;
-    this->FieldAssociation = assoc;
 
-    if (assoc < 0 || assoc >= vtkDataObject::NUMBER_OF_ASSOCIATIONS ||
-      assoc == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS)
-    {
-      throw std::runtime_error("unsupported association");
-    }
   }
 
   // use this constructor when selection is specified as (assoc, attribute type)
-  vtkInternals(vtkAbstractArray* selList, int assoc, int attr, int comp)
-    : vtkInternals(comp, selList)
+  vtkInternals(vtkAbstractArray* selectionList, int fieldAssociation, int attributeType, int component)
+    : vtkInternals(selectionList, "", fieldAssociation, attributeType, component)
   {
-    this->FieldAssociation = assoc;
-    this->FieldAttributeType = attr;
-
-    if (assoc < 0 || assoc >= vtkDataObject::NUMBER_OF_ASSOCIATIONS ||
-      assoc == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS)
-    {
-      throw std::runtime_error("unsupported association");
-    }
-
-    if (attr < 0 || attr >= vtkDataSetAttributes::NUM_ATTRIBUTES)
+    if (attributeType < 0 || attributeType >= vtkDataSetAttributes::NUM_ATTRIBUTES)
     {
       throw std::runtime_error("unsupported attribute type");
     }
   }
 
   // use this constructor when selection is for ids of element type = assoc.
-  vtkInternals(vtkAbstractArray* selList, int assoc)
-    : vtkInternals(0, selList)
+  vtkInternals(vtkAbstractArray* selectionList, int fieldAssociation)
+    : vtkInternals(selectionList, "", fieldAssociation, -1, 0)
   {
-    this->FieldAssociation = assoc;
-
-    if (assoc < 0 || assoc >= vtkDataObject::NUMBER_OF_ASSOCIATIONS ||
-      assoc == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS)
-    {
-      throw std::runtime_error("unsupported association");
-    }
   }
 
   // returns false on any failure or unhandled case.
   bool Execute(vtkDataObject* dobj, vtkSignedCharArray* darray);
 
 private:
-  vtkInternals(int comp, vtkAbstractArray* selList)
-    : SelectionList()
-    , FieldName()
-    , FieldAssociation(-1)
-    , FieldAttributeType(-1)
-    , ComponentNo(comp)
+  vtkInternals(vtkAbstractArray* selectionList,
+    const std::string& fieldName,
+    int fieldAssociation,
+    int attributeType,
+    int component)
+    : SelectionList(selectionList)
+    , FieldName(fieldName)
+    , FieldAssociation(fieldAssociation)
+    , FieldAttributeType(attributeType)
+    , ComponentNo(component)
   {
-    if (selList->GetNumberOfComponents() != 1 && selList->GetNumberOfComponents() != 2)
+    if (fieldAssociation < 0 || fieldAssociation >= vtkDataObject::NUMBER_OF_ASSOCIATIONS ||
+      fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS)
+    {
+      throw std::runtime_error("unsupported field association");
+    }
+
+    if (selectionList->GetNumberOfComponents() != 1 && selectionList->GetNumberOfComponents() != 2)
     {
       // 1-component == exact value match
       // 2-component == values in range specified by each tuple.
       throw std::runtime_error("Currently, selecting multi-components arrays is not supported.");
     }
 
-    if (selList->GetNumberOfComponents() == 1)
+    if (selectionList->GetNumberOfComponents() == 1)
     {
       // we sort the selection list to speed up extraction later.
-      this->SelectionList.TakeReference(selList->NewInstance());
-      this->SelectionList->DeepCopy(selList);
+      this->SelectionList.TakeReference(selectionList->NewInstance());
+      this->SelectionList->DeepCopy(selectionList);
       vtkSortDataArray::Sort(this->SelectionList);
     }
     else
     {
       // don't bother sorting.
-      this->SelectionList = selList;
+      this->SelectionList = selectionList;
     }
   }
 
