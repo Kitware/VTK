@@ -213,7 +213,7 @@ int vtkmGradient::RequestData(vtkInformation* request,
         if (this->ComputeGradient)
         {
           cellToPoint.SetActiveField(
-            field.GetName(), vtkm::cont::Field::ASSOC_CELL_SET);
+            filter.GetOutputFieldName(), vtkm::cont::Field::ASSOC_CELL_SET);
           auto ds = cellToPoint.Execute(c2pIn, policy);
           result.AddField(ds.GetField(0));
         }
