@@ -254,6 +254,21 @@ int vtkmGradient::RequestData(vtkInformation* request,
       result = filter.Execute(in, policy);
     }
 
+    // Remove gradient field from result if it was not requested.
+    auto requestedResult = result;
+    if (!this->ComputeGradient)
+    {
+      requestedResult = CopyDataSetStructure(result);
+      vtkm::Id numOfFields = static_cast<vtkm::Id>(result.GetNumberOfFields());
+      for (vtkm::Id i=0; i < numOfFields; ++i)
+      {
+        if (result.GetField(i).GetName() != filter.GetOutputFieldName())
+        {
+          requestedResult.AddField(result.GetField(i));
+        }
+      }
+    }
+
     // convert arrays back to VTK
     if (!fromvtkm::ConvertArrays(result, output))
     {
