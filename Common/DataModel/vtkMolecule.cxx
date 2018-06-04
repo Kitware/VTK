@@ -695,21 +695,6 @@ int vtkMolecule::Initialize(vtkPoints* atomPositions,
     atomicNumberArray = atomData->GetArray(this->GetAtomicNumberArrayName());
   }
 
-  // ensure it is a short array
-  if (atomicNumberArray && !vtkUnsignedShortArray::SafeDownCast(atomicNumberArray))
-  {
-    vtkNew<vtkUnsignedShortArray> newAtomicNumberShortArray;
-    vtkIdType nbPoints = atomicNumberArray->GetNumberOfTuples();
-    newAtomicNumberShortArray->SetNumberOfComponents(1);
-    newAtomicNumberShortArray->SetNumberOfTuples(nbPoints);
-    newAtomicNumberShortArray->SetName(atomicNumberArray->GetName());
-    for (vtkIdType i = 0; i < nbPoints; i++)
-    {
-      newAtomicNumberShortArray->SetTuple1(i, atomicNumberArray->GetTuple1(i));
-    }
-    atomicNumberArray->ShallowCopy(newAtomicNumberShortArray);
-  }
-
   if (!atomPositions && !atomicNumberArray)
   {
     vtkDebugMacro(<< "Atom position and atomic numbers were not found: skip atomic data.");
@@ -722,8 +707,26 @@ int vtkMolecule::Initialize(vtkPoints* atomPositions,
     return 0;
   }
 
+  // ensure it is a short array
+  vtkNew<vtkUnsignedShortArray> newAtomicNumberShortArray;
+  if (vtkUnsignedShortArray::SafeDownCast(atomicNumberArray))
+  {
+    newAtomicNumberShortArray->ShallowCopy(atomicNumberArray);
+  }
+  else
+  {
+    vtkIdType nbPoints = atomicNumberArray->GetNumberOfTuples();
+    newAtomicNumberShortArray->SetNumberOfComponents(1);
+    newAtomicNumberShortArray->SetNumberOfTuples(nbPoints);
+    newAtomicNumberShortArray->SetName(atomicNumberArray->GetName());
+    for (vtkIdType i = 0; i < nbPoints; i++)
+    {
+      newAtomicNumberShortArray->SetTuple1(i, atomicNumberArray->GetTuple1(i));
+    }
+  }
+
   int nbAtoms = atomPositions->GetNumberOfPoints();
-  if (nbAtoms != atomicNumberArray->GetNumberOfTuples())
+  if (nbAtoms != newAtomicNumberShortArray->GetNumberOfTuples())
   {
     vtkErrorMacro(<< "Number of atoms not equal to number of atomic numbers.");
     return 0;
@@ -764,6 +767,7 @@ int vtkMolecule::Initialize(vtkPoints* atomPositions,
         otherArrayCopy->ShallowCopy(otherArray);
         otherArrayCopy->SetName(newName.c_str());
         this->GetVertexData()->AddArray(otherArrayCopy);
+        otherArrayCopy->Delete();
       }
       else
       {
@@ -774,14 +778,14 @@ int vtkMolecule::Initialize(vtkPoints* atomPositions,
 
   // add atomic number array: if given array has the expected name, add it directly
   // (it will replace the current one). Else copy it and add it with atomic number name.
-  if (atomicNumberName == atomicNumberArray->GetName())
+  if (atomicNumberName == newAtomicNumberShortArray->GetName())
   {
-    this->GetVertexData()->AddArray(atomicNumberArray);
+    this->GetVertexData()->AddArray(newAtomicNumberShortArray);
   }
   else
   {
     vtkNew<vtkUnsignedShortArray> atomicNumberArrayCopy;
-    atomicNumberArrayCopy->ShallowCopy(atomicNumberArray);
+    atomicNumberArrayCopy->ShallowCopy(newAtomicNumberShortArray);
     atomicNumberArrayCopy->SetName(atomicNumberName.c_str());
     this->GetVertexData()->AddArray(atomicNumberArrayCopy.Get());
   }
