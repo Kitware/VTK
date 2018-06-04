@@ -6,6 +6,7 @@ vtk_add_test_cxx(vtkRenderingOSPRayCxxTests tests
   TestOSPRayDynamicObject.cxx
   TestOSPRayDynamicScene.cxx
   TestOSPRayImplicits.cxx
+  TestOSPRayIsosurface.cxx
   TestOSPRayLayers.cxx
   TestOSPRayLights.cxx
   TestOSPRayMultiBlock.cxx

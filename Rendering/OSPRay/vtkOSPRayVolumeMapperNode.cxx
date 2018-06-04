@@ -14,9 +14,9 @@
  =========================================================================*/
 #include "vtkOSPRayVolumeMapperNode.h"
 
-#include "vtkAbstractVolumeMapper.h"
 #include "vtkCellData.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkContourValues.h"
 #include "vtkDataArray.h"
 #include "vtkInformation.h"
 #include "vtkImageData.h"
@@ -26,11 +26,13 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkVolume.h"
+#include "vtkVolumeMapper.h"
 #include "vtkVolumeNode.h"
 #include "vtkVolumeProperty.h"
 #include "vtkRenderer.h"
 
 #include <algorithm>
+#include <vector>
 
 #include "ospray/ospray.h"
 
@@ -75,7 +77,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     {
       return;
     }
-    vtkAbstractVolumeMapper* mapper = vtkAbstractVolumeMapper::SafeDownCast(this->GetRenderable());
+    vtkVolumeMapper* mapper = vtkVolumeMapper::SafeDownCast(this->GetRenderable());
     if (!vol->GetProperty())
     {
       // this is OK, happens in paraview client side for instance
@@ -301,7 +303,32 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     this->RenderTime = volNode->GetMTime();
     this->BuildTime.Modified();
 
-    ospAddVolume(OSPRayModel, this->OSPRayVolume);
+    vtkContourValues* contours = volProperty->GetIsoSurfaceValues();
+    if (mapper->GetBlendMode() == vtkVolumeMapper::ISOSURFACE_BLEND)
+    {
+      int nbContours = contours->GetNumberOfContours();
+      if (nbContours > 0)
+      {
+        double* p = contours->GetValues();
+        std::vector<float> values(p, p + nbContours);
+
+        this->OSPRayIsosurface = ospNewGeometry("isosurfaces");
+        OSPData isosurfaces = ospNewData(values.size(), OSP_FLOAT, values.data());
+
+        ospSetData(this->OSPRayIsosurface, "isovalues", isosurfaces);
+        ospSetObject(this->OSPRayIsosurface, "volume", this->OSPRayVolume);
+        ospCommit(this->OSPRayIsosurface);
+        ospAddGeometry(OSPRayModel, this->OSPRayIsosurface);
+      }
+      else
+      {
+        vtkWarningMacro("Isosurface mode is selected but no contour is defined");
+      }
+    }
+    else
+    {
+      ospAddVolume(OSPRayModel, this->OSPRayVolume);
+    }
 
     if (sca)
     {
