@@ -86,7 +86,7 @@ int TestPLYReaderTextureUV( int argc, char *argv[] )
 
   ren->AddActor(actor);
   ren->SetBackground(0,0,0);
-  renWin->SetSize(300,300);
+  renWin->SetSize(400,400);
 
   // interact with data
   renWin->Render();
