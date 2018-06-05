@@ -213,7 +213,7 @@ int vtkmGradient::RequestData(vtkInformation* request,
         if (this->ComputeGradient)
         {
           cellToPoint.SetActiveField(
-            field.GetName(), vtkm::cont::Field::ASSOC_CELL_SET);
+            filter.GetOutputFieldName(), vtkm::cont::Field::ASSOC_CELL_SET);
           auto ds = cellToPoint.Execute(c2pIn, policy);
           result.AddField(ds.GetField(0));
         }
@@ -252,6 +252,21 @@ int vtkmGradient::RequestData(vtkInformation* request,
       filter.SetComputePointGradient(false);
       filter.SetActiveField(field.GetName(), vtkm::cont::Field::ASSOC_POINTS);
       result = filter.Execute(in, policy);
+    }
+
+    // Remove gradient field from result if it was not requested.
+    auto requestedResult = result;
+    if (!this->ComputeGradient)
+    {
+      requestedResult = CopyDataSetStructure(result);
+      vtkm::Id numOfFields = static_cast<vtkm::Id>(result.GetNumberOfFields());
+      for (vtkm::Id i=0; i < numOfFields; ++i)
+      {
+        if (result.GetField(i).GetName() != filter.GetOutputFieldName())
+        {
+          requestedResult.AddField(result.GetField(i));
+        }
+      }
     }
 
     // convert arrays back to VTK
