@@ -116,7 +116,7 @@ public:
   //@}
 
   int ExecuteAppend(vtkPolyData* output,
-    vtkPolyData* inputs[], int numInputs);
+    vtkPolyData* inputs[], int numInputs) VTK_SIZEHINT(inputs, numInputs);
 
 protected:
   vtkAppendPolyData();

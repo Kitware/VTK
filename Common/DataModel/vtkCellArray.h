@@ -149,7 +149,7 @@ public:
    * Create a cell by specifying the number of points and an array of point
    * id's.  Return the cell id of the cell.
    */
-  vtkIdType InsertNextCell(vtkIdType npts, const vtkIdType* pts)
+  vtkIdType InsertNextCell(vtkIdType npts, const vtkIdType pts[])
     VTK_SIZEHINT(pts, npts);
 
   /**
@@ -213,7 +213,7 @@ public:
    * the responsibility of the caller and may be done after multiple calls to
    * ReplaceCell.
    */
-  void ReplaceCell(vtkIdType loc, int npts, const vtkIdType *pts)
+  void ReplaceCell(vtkIdType loc, int npts, const vtkIdType pts[])
     VTK_EXPECTS(0 <= loc && loc < GetSize())
     VTK_SIZEHINT(pts, npts);
 
@@ -296,7 +296,7 @@ private:
 
 //----------------------------------------------------------------------------
 inline vtkIdType vtkCellArray::InsertNextCell(vtkIdType npts,
-                                              const vtkIdType* pts)
+                                              const vtkIdType pts[]) VTK_SIZEHINT(pts, npts)
 {
   vtkIdType i = this->Ia->GetMaxId() + 1;
   vtkIdType *ptr = this->Ia->WritePointer(i, npts+1);
@@ -396,7 +396,7 @@ inline void vtkCellArray::ReverseCell(vtkIdType loc)
 
 //----------------------------------------------------------------------------
 inline void vtkCellArray::ReplaceCell(vtkIdType loc, int npts,
-                                      const vtkIdType *pts)
+                                      const vtkIdType pts[])
 {
   vtkIdType *oldPts=this->Ia->GetPointer(loc+1);
   for (int i=0; i < npts; i++)

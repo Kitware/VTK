@@ -230,7 +230,7 @@ public:
    * line, polygon, and triangle strip arrays have been supplied.
    * Note: will also insert VTK_PIXEL, but converts it to VTK_QUAD.
    */
-  vtkIdType InsertNextCell(int type, int npts, const vtkIdType *pts);
+  vtkIdType InsertNextCell(int type, int npts, const vtkIdType pts[]) VTK_SIZEHINT(pts, npts);
 
   /**
    * Insert a cell of type VTK_VERTEX, VTK_POLY_VERTEX, VTK_LINE, VTK_POLY_LINE,
@@ -285,7 +285,7 @@ public:
    * Special (efficient) operations on poly data. Use carefully.
    */
   void GetPointCells(vtkIdType ptId, unsigned short& ncells,
-                     vtkIdType* &cells);
+                     vtkIdType* &cells) VTK_SIZEHINT(cells, ncells);
 
   /**
    * Get the neighbors at an edge. More efficient than the general
@@ -302,7 +302,7 @@ public:
    * built (with BuildCells()). The cell type is returned.
    */
   unsigned char GetCellPoints(vtkIdType cellId,
-      vtkIdType& npts, vtkIdType* &pts);
+      vtkIdType& npts, vtkIdType* &pts) VTK_SIZEHINT(pts, npts);
 
   /**
    * Get a pointer to the cell, ie [npts pid1 .. pidn]. More efficient
@@ -339,7 +339,7 @@ public:
    * built (i.e., BuildLinks() has not been executed). Use the operator
    * ReplaceLinkedCell() to replace a cell when cell structure has been built.
    */
-  void ReplaceCell(vtkIdType cellId, int npts, const vtkIdType *pts);
+  void ReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[]) VTK_SIZEHINT(pts, npts);
 
   /**
    * Replace a point in the cell connectivity list with a different point.
@@ -386,7 +386,7 @@ public:
    * built). This method adds the cell and then updates the links from the
    * points to the cells. (Memory is allocated as necessary.)
    */
-  vtkIdType InsertNextLinkedCell(int type, int npts, const vtkIdType *pts);
+  vtkIdType InsertNextLinkedCell(int type, int npts, const vtkIdType pts[]) VTK_SIZEHINT(pts, npts);
 
   /**
    * Replace one cell with another in cell structure. This operator updates the
@@ -396,7 +396,7 @@ public:
    * You may also want to consider using the operator ResizeCellList() if the
    * link list is changing size.
    */
-  void ReplaceLinkedCell(vtkIdType cellId, int npts, const vtkIdType *pts);
+  void ReplaceLinkedCell(vtkIdType cellId, int npts, const vtkIdType pts[]) VTK_SIZEHINT(pts, npts);
 
   /**
    * Remove all references to cell in cell structure. This means the links from
