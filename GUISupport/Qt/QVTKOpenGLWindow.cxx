@@ -341,7 +341,13 @@ bool QVTKOpenGLWindow::event(QEvent* e)
 //-----------------------------------------------------------------------------
 void QVTKOpenGLWindow::mousePressEvent(QMouseEvent* e)
 {
-  this->ProcessEvent(e);
+  // do not transmit a MouseButtonPress that generates a double click
+  // see QTBUG-25831
+  if ((e->type() != QEvent::MouseButtonPress)
+      || !(e->flags().testFlag(Qt::MouseEventCreatedDoubleClick)))
+  {
+    this->ProcessEvent(e);
+  }
 }
 
 //-----------------------------------------------------------------------------
