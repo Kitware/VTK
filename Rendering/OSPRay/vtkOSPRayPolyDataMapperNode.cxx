@@ -968,7 +968,9 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
       float *tc = vColorCoordinates->GetPointer(0);
       for (int i = 0; i < numPointValueTextureCoords; i++)
       {
-        pointValueTextureCoords[i] = *tc;
+        float v = *tc;
+        v = ((v > 1.0f) ? 1.0 : ((v < 0.0f) ? 0.0f : v)); //clamp [0..1]
+        pointValueTextureCoords[i] = v;
         tc+=2;
       }
       vColorTextureMap = pColorTextureMap;
