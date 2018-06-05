@@ -262,14 +262,14 @@ MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdList* vtkNotUsed(ptIds
 }
 
 vtkIdType
-MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdType vtkNotUsed(npts), vtkIdType *vtkNotUsed(ptIds))
+MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdType vtkNotUsed(npts), const vtkIdType vtkNotUsed(ptIds)[])
 {
   vtkWarningMacro(<<"Read only block\n");
   return -1;
 }
 
 vtkIdType
-MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdType vtkNotUsed(npts), vtkIdType *vtkNotUsed(ptIds),
+MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdType vtkNotUsed(npts), const vtkIdType vtkNotUsed(ptIds)[],
     vtkIdType vtkNotUsed(nfaces), vtkIdType *vtkNotUsed(faces))
 {
   vtkWarningMacro(<<"Read only block\n");
@@ -277,7 +277,7 @@ MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdType vtkNotUsed(npts),
 }
 
 void
-MappedGridImpl::ReplaceCell(vtkIdType vtkNotUsed(cellId), int vtkNotUsed(npts), vtkIdType *vtkNotUsed(pts))
+MappedGridImpl::ReplaceCell(vtkIdType vtkNotUsed(cellId), int vtkNotUsed(npts), const vtkIdType vtkNotUsed(pts)[])
 {
   vtkWarningMacro(<<"Read only block\n");
 }

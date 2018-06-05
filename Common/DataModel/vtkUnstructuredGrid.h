@@ -100,39 +100,6 @@ public:
    */
   void Allocate(vtkIdType numCells=1000, int extSize=1000) override;
 
-  /**
-   * Insert/create cell in object by type and list of point ids defining
-   * cell topology. Most cells require just a type which implicitly defines
-   * a set of points and their ordering. For non-polyhedron cell type, npts
-   * is the number of unique points in the cell. pts are the list of global
-   * point Ids. For polyhedron cell, a special input format is required.
-   * npts is the number of faces in the cell. ptIds is the list of face stream:
-   * (numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...)
-   * Make sure you have called Allocate() before calling this method
-   */
-  vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds) override;
-
-  /**
-   * Insert/create cell in object by a list of point ids defining
-   * cell topology. Most cells require just a type which implicitly defines
-   * a set of points and their ordering. For non-polyhedron cell type, ptIds
-   * is the list of global Ids of unique cell points. For polyhedron cell,
-   * a special ptIds input format is required:
-   * (numCellFaces, numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...)
-   * Make sure you have called Allocate() before calling this method
-   */
-  vtkIdType InsertNextCell(int type, vtkIdList *ptIds) override;
-
-  // Description:
-  // Insert/create a polyhedron cell. npts is the number of unique points in
-  // the cell. pts is the list of the unique cell point Ids. nfaces is the
-  // number of faces in the cell. faces is the face-stream
-  // [numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...].
-  // All point Ids are global.
-  // Make sure you have called Allocate() before calling this method
-  vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds,
-                           vtkIdType nfaces, vtkIdType *faces) override;
-
   //@{
   /**
    * Standard vtkDataSet methods; see vtkDataSet.h for documentation.
@@ -202,8 +169,7 @@ public:
   //@}
 
   vtkCellArray *GetCells() {return this->Connectivity;};
-  void ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts) override;
-  vtkIdType InsertNextLinkedCell(int type, int npts, vtkIdType *pts);
+  vtkIdType InsertNextLinkedCell(int type, int npts, const vtkIdType pts[]) VTK_SIZEHINT(pts, npts);
   void RemoveReferenceToCell(vtkIdType ptId, vtkIdType cellId);
   void AddReferenceToCell(vtkIdType ptId, vtkIdType cellId);
   void ResizeCellList(vtkIdType ptId, int size);
@@ -342,7 +308,7 @@ public:
    * be touched.
    */
   static void DecomposeAPolyhedronCell(vtkIdType nCellFaces,
-                                       vtkIdType * inFaceStream,
+                                       const vtkIdType * inFaceStream,
                                        vtkIdType & nCellpts,
                                        vtkCellArray * cellArray,
                                        vtkIdTypeArray * faces);
@@ -427,6 +393,12 @@ protected:
   // (n,i,j,k,n,i,j,k,...).
   vtkIdTypeArray *Faces;
   vtkIdTypeArray *FaceLocations;
+
+  vtkIdType InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[]) override;
+  vtkIdType InternalInsertNextCell(int type, vtkIdList *ptIds) override;
+  vtkIdType InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[],
+    vtkIdType nfaces, const vtkIdType faces[]) override;
+  void InternalReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[]) override;
 
 private:
   // Hide these from the user and the compiler.
