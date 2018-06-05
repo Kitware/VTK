@@ -72,15 +72,15 @@ public:
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut) override;
-  int EvaluatePosition(double x[3], double* closestPoint,
+  int EvaluatePosition(const double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
                        double& dist2, double *weights) override;
-  void EvaluateLocation(int& subId, double pcoords[3], double x[3],
+  void EvaluateLocation(int& subId, const double pcoords[3], double x[3],
                         double *weights) override;
-  int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId) override;
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) override;
-  void Derivatives(int subId, double pcoords[3], double *values,
+  void Derivatives(int subId, const double pcoords[3], const double *values,
                    int dim, double *derivs) override;
   double *GetParametricCoords() override;
   //@}
@@ -90,7 +90,7 @@ public:
    * are closest parametrically to the point specified. This may include faces,
    * edges, or vertices.
    */
-  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) override;
+  int CellBoundary(int subId, const double pcoords[3], vtkIdList *pts) override;
 
   /**
    * Return the center of the tetrahedron in parametric coordinates.
@@ -101,7 +101,7 @@ public:
    * Return the distance of the parametric coordinate provided to the
    * cell. If inside the cell, a distance of zero is returned.
    */
-  double GetParametricDistance(double pcoords[3]) override;
+  double GetParametricDistance(const double pcoords[3]) override;
 
   /**
    * Compute the center of the tetrahedron,
@@ -157,21 +157,21 @@ public:
   /**
    * @deprecated Replaced by vtkTetra::InterpolateFunctions as of VTK 5.2
    */
-  static void InterpolationFunctions(double pcoords[3], double weights[4]);
+  static void InterpolationFunctions(const double pcoords[3], double weights[4]);
   /**
    * @deprecated Replaced by vtkTetra::InterpolateDerivs as of VTK 5.2
    */
-  static void InterpolationDerivs(double pcoords[3], double derivs[12]);
+  static void InterpolationDerivs(const double pcoords[3], double derivs[12]);
   //@{
   /**
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
    */
-  void InterpolateFunctions(double pcoords[3], double weights[4]) override
+  void InterpolateFunctions(const double pcoords[3], double weights[4]) override
   {
     vtkTetra::InterpolationFunctions(pcoords,weights);
   }
-  void InterpolateDerivs(double pcoords[3], double derivs[12]) override
+  void InterpolateDerivs(const double pcoords[3], double derivs[12]) override
   {
     vtkTetra::InterpolationDerivs(pcoords,derivs);
   }

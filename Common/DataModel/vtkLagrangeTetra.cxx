@@ -461,7 +461,7 @@ void vtkLagrangeTetra::TetraFromOctahedron(
 }
 
 //----------------------------------------------------------------------------
-int vtkLagrangeTetra::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
+int vtkLagrangeTetra::CellBoundary(int vtkNotUsed(subId), const double pcoords[3],
                                    vtkIdList *pts)
 {
   const double ijk = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
@@ -498,7 +498,7 @@ int vtkLagrangeTetra::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
 }
 
 //----------------------------------------------------------------------------
-int vtkLagrangeTetra::EvaluatePosition(double* x, double* closestPoint,
+int vtkLagrangeTetra::EvaluatePosition(const double x[3], double* closestPoint,
                                        int& subId, double pcoords[3],
                                        double& minDist2, double *weights)
 {
@@ -570,7 +570,7 @@ int vtkLagrangeTetra::EvaluatePosition(double* x, double* closestPoint,
 
 //----------------------------------------------------------------------------
 void vtkLagrangeTetra::EvaluateLocation(int& vtkNotUsed(subId),
-                                        double pcoords[3], double x[3],
+                                        const double pcoords[3], double x[3],
                                         double *weights)
 {
   x[0] = x[1] = x[2] = 0.;
@@ -662,8 +662,8 @@ void vtkLagrangeTetra::Clip(double value,
 }
 
 //----------------------------------------------------------------------------
-int vtkLagrangeTetra::IntersectWithLine(double* p1,
-                                        double* p2,
+int vtkLagrangeTetra::IntersectWithLine(const double* p1,
+                                        const double* p2,
                                         double tol,
                                         double& t,
                                         double* x,
@@ -727,7 +727,7 @@ int vtkLagrangeTetra::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 }
 
 //----------------------------------------------------------------------------
-void vtkLagrangeTetra::JacobianInverse(double pcoords[3], double**inverse,
+void vtkLagrangeTetra::JacobianInverse(const double pcoords[3], double**inverse,
                                        double* derivs)
 {
   // Given parametric coordinates compute inverse Jacobian transformation
@@ -778,8 +778,8 @@ void vtkLagrangeTetra::JacobianInverse(double pcoords[3], double**inverse,
 
 //----------------------------------------------------------------------------
 void vtkLagrangeTetra::Derivatives(int vtkNotUsed(subId),
-                                   double pcoords[3],
-                                   double* values,
+                                   const double pcoords[3],
+                                   const double* values,
                                    int dim,
                                    double *derivs)
 {
@@ -857,7 +857,7 @@ int vtkLagrangeTetra::GetParametricCenter(double pcoords[3])
 }
 
 //----------------------------------------------------------------------------
-double vtkLagrangeTetra::GetParametricDistance(double pcoords[3])
+double vtkLagrangeTetra::GetParametricDistance(const double pcoords[3])
 {
   int i;
   double pDist, pDistMax=0.0;
@@ -892,7 +892,7 @@ double vtkLagrangeTetra::GetParametricDistance(double pcoords[3])
 }
 
 //----------------------------------------------------------------------------
-void vtkLagrangeTetra::InterpolateFunctions(double pcoords[3], double* weights)
+void vtkLagrangeTetra::InterpolateFunctions(const double pcoords[3], double* weights)
 {
   // Adapted from P. Silvester, "High-Order Polynomial Triangular Finite
   // Elements for Potential Problems". Int. J. Engng Sci. Vol. 7, pp. 849-861.
@@ -969,7 +969,7 @@ void vtkLagrangeTetra::InterpolateFunctions(double pcoords[3], double* weights)
 }
 
 //----------------------------------------------------------------------------
-void vtkLagrangeTetra::InterpolateDerivs(double pcoords[3], double* derivs)
+void vtkLagrangeTetra::InterpolateDerivs(const double pcoords[3], double* derivs)
 {
   // Analytic differentiation of the tetra shape functions, as adapted from
   // P. Silvester, "High-Order Polynomial Triangular Finite Elements for

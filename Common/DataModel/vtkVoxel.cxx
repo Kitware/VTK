@@ -62,7 +62,7 @@ vtkVoxel::~vtkVoxel()
 }
 
 //----------------------------------------------------------------------------
-int vtkVoxel::EvaluatePosition(double x[3], double* closestPoint,
+int vtkVoxel::EvaluatePosition(const double x[3], double* closestPoint,
                               int& subId, double pcoords[3],
                               double& dist2, double *weights)
 {
@@ -125,7 +125,7 @@ int vtkVoxel::EvaluatePosition(double x[3], double* closestPoint,
 }
 
 //----------------------------------------------------------------------------
-void vtkVoxel::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
+void vtkVoxel::EvaluateLocation(int& vtkNotUsed(subId), const double pcoords[3],
                                 double x[3], double *weights)
 {
   double pt1[3], pt2[3], pt3[3], pt4[3];
@@ -150,7 +150,7 @@ void vtkVoxel::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
 //
 // Compute Interpolation functions
 //
-void vtkVoxel::InterpolationFunctions(double pcoords[3], double sf[8])
+void vtkVoxel::InterpolationFunctions(const double pcoords[3], double sf[8])
 {
   double rm, sm, tm;
 
@@ -171,7 +171,7 @@ void vtkVoxel::InterpolationFunctions(double pcoords[3], double sf[8])
 }
 
 //----------------------------------------------------------------------------
-void vtkVoxel::InterpolationDerivs(double pcoords[3], double derivs[24])
+void vtkVoxel::InterpolationDerivs(const double pcoords[3], double derivs[24])
 {
   double rm, sm, tm;
 
@@ -211,7 +211,7 @@ void vtkVoxel::InterpolationDerivs(double pcoords[3], double derivs[24])
 }
 
 //----------------------------------------------------------------------------
-int vtkVoxel::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
+int vtkVoxel::CellBoundary(int vtkNotUsed(subId), const double pcoords[3],
                            vtkIdList *pts)
 {
   double t1=pcoords[0]-pcoords[1];
@@ -429,7 +429,7 @@ vtkCell *vtkVoxel::GetFace(int faceId)
 //
 // Intersect voxel with line using "bounding box" intersection.
 //
-int vtkVoxel::IntersectWithLine(double p1[3], double p2[3],
+int vtkVoxel::IntersectWithLine(const double p1[3], const double p2[3],
                                 double vtkNotUsed(tol),
                                 double& t, double x[3],
                                 double pcoords[3], int& subId)
@@ -557,8 +557,8 @@ int vtkVoxel::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
 }
 
 //----------------------------------------------------------------------------
-void vtkVoxel::Derivatives(int vtkNotUsed(subId), double pcoords[3],
-                           double *values, int dim, double *derivs)
+void vtkVoxel::Derivatives(int vtkNotUsed(subId), const double pcoords[3],
+                          const double *values, int dim, double *derivs)
 {
   double functionDerivs[24], sum;
   int i, j, k;

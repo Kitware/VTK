@@ -122,7 +122,7 @@ namespace
   static const double VTK_TETRA_CONVERGED=1.e-05;
 }
 
-int vtkQuadraticTetra::EvaluatePosition(double* x,
+int vtkQuadraticTetra::EvaluatePosition(const double* x,
                                         double* closestPoint,
                                         int& subId, double pcoords[3],
                                         double& dist2, double *weights)
@@ -265,7 +265,7 @@ int vtkQuadraticTetra::EvaluatePosition(double* x,
 
 //----------------------------------------------------------------------------
 void vtkQuadraticTetra::EvaluateLocation(int& vtkNotUsed(subId),
-                                         double pcoords[3],
+                                         const double pcoords[3],
                                          double x[3], double *weights)
 {
   int i, j;
@@ -285,7 +285,7 @@ void vtkQuadraticTetra::EvaluateLocation(int& vtkNotUsed(subId),
 }
 
 //----------------------------------------------------------------------------
-int vtkQuadraticTetra::CellBoundary(int subId, double pcoords[3],
+int vtkQuadraticTetra::CellBoundary(int subId, const double pcoords[3],
                                     vtkIdList *pts)
 {
   for ( int i = 0; i < 4; ++ i ) // For each of the four vertices of the tet
@@ -328,7 +328,7 @@ void vtkQuadraticTetra::Contour(double value, vtkDataArray* cellScalars,
 //----------------------------------------------------------------------------
 // Line-line intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
-int vtkQuadraticTetra::IntersectWithLine(double* p1, double* p2,
+int vtkQuadraticTetra::IntersectWithLine(const double* p1, const double* p2,
                                          double tol, double& t,
                                          double* x, double* pcoords, int& subId)
 {
@@ -400,7 +400,7 @@ int vtkQuadraticTetra::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 // Given parametric coordinates compute inverse Jacobian transformation
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives.
-void vtkQuadraticTetra::JacobianInverse(double pcoords[3], double **inverse,
+void vtkQuadraticTetra::JacobianInverse(const double pcoords[3], double **inverse,
                                         double derivs[60])
 {
   int i, j;
@@ -438,7 +438,7 @@ void vtkQuadraticTetra::JacobianInverse(double pcoords[3], double **inverse,
 
 //----------------------------------------------------------------------------
 void vtkQuadraticTetra::Derivatives(int vtkNotUsed(subId),
-                                    double pcoords[3], double *values,
+                                    const double pcoords[3], const double *values,
                                     int dim, double *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];
@@ -505,7 +505,7 @@ int vtkQuadraticTetra::GetParametricCenter(double pcoords[3])
 //----------------------------------------------------------------------------
 // Compute interpolation functions. First four nodes are the
 // tetrahedron corner vertices; the others are mid-edge nodes.
-void vtkQuadraticTetra::InterpolationFunctions(double pcoords[3],
+void vtkQuadraticTetra::InterpolationFunctions(const double pcoords[3],
                                                double weights[10])
 {
   double r = pcoords[0];
@@ -530,7 +530,7 @@ void vtkQuadraticTetra::InterpolationFunctions(double pcoords[3],
 
 //----------------------------------------------------------------------------
 // Derivatives in parametric space.
-void vtkQuadraticTetra::InterpolationDerivs(double pcoords[3], double derivs[30])
+void vtkQuadraticTetra::InterpolationDerivs(const double pcoords[3], double derivs[30])
 {
   double r = pcoords[0];
   double s = pcoords[1];
@@ -574,7 +574,7 @@ void vtkQuadraticTetra::InterpolationDerivs(double pcoords[3], double derivs[30]
 }
 
 //----------------------------------------------------------------------------
-double vtkQuadraticTetra::GetParametricDistance(double pcoords[3])
+double vtkQuadraticTetra::GetParametricDistance(const double pcoords[3])
 {
   int i;
   double pDist, pDistMax=0.0;

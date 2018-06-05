@@ -323,7 +323,7 @@ bool vtkPolygon::IsConvex(vtkPoints *p)
 }
 
 //----------------------------------------------------------------------------
-int vtkPolygon::EvaluatePosition(double x[3], double* closestPoint,
+int vtkPolygon::EvaluatePosition(const double x[3], double* closestPoint,
                                  int& subId, double pcoords[3],
                                  double& minDist2, double *weights)
 {
@@ -392,7 +392,7 @@ int vtkPolygon::EvaluatePosition(double x[3], double* closestPoint,
 }
 
 //----------------------------------------------------------------------------
-void vtkPolygon::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
+void vtkPolygon::EvaluateLocation(int& vtkNotUsed(subId), const double pcoords[3],
                                   double x[3], double *weights)
 {
   int i;
@@ -410,7 +410,7 @@ void vtkPolygon::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
 //----------------------------------------------------------------------------
 // Compute interpolation weights using 1/r**2 normalized sum or mean value
 // coordinate.
-void vtkPolygon::InterpolateFunctions(double x[3], double *weights)
+void vtkPolygon::InterpolateFunctions(const double x[3], double *weights)
 {
   // Compute interpolation weights using mean value coordinate.
   if (this->UseMVCInterpolation)
@@ -452,7 +452,7 @@ void vtkPolygon::InterpolateFunctions(double x[3], double *weights)
 
 //----------------------------------------------------------------------------
 // Compute interpolation weights using mean value coordinate.
-void vtkPolygon::InterpolateFunctionsUsingMVC(double x[3], double *weights)
+void vtkPolygon::InterpolateFunctionsUsingMVC(const double x[3], double *weights)
 {
   int numPts=this->Points->GetNumberOfPoints();
 
@@ -1495,7 +1495,7 @@ int vtkPolygon::UnbiasedEarCutTriangulation(int seed)
 }
 
 //----------------------------------------------------------------------------
-int vtkPolygon::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
+int vtkPolygon::CellBoundary(int vtkNotUsed(subId), const double pcoords[3],
                              vtkIdList *pts)
 {
   int i, numPts=this->PointIds->GetNumberOfIds();
@@ -1644,7 +1644,7 @@ vtkCell *vtkPolygon::GetEdge(int edgeId)
 //
 // Intersect this plane with finite line defined by p1 & p2 with tolerance tol.
 //
-int vtkPolygon::IntersectWithLine(double p1[3], double p2[3], double tol,double& t,
+int vtkPolygon::IntersectWithLine(const double p1[3], const double p2[3], double tol,double& t,
                                  double x[3], double pcoords[3], int& subId)
 {
   double pt1[3], n[3];
@@ -1727,8 +1727,8 @@ int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 // this method actually returns the derivative of the interpolation
 // function which is obtained using 1/r**2 normalized sum.
 #define VTK_SAMPLE_DISTANCE 0.01
-void vtkPolygon::Derivatives(int vtkNotUsed(subId), double pcoords[3],
-                             double *values, int dim, double *derivs)
+void vtkPolygon::Derivatives(int vtkNotUsed(subId), const double pcoords[3],
+                             const double *values, int dim, double *derivs)
 {
   int i, j, k, idx;
 

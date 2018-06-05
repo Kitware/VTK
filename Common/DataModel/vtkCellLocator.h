@@ -75,7 +75,7 @@ public:
    * cell.  For other IntersectWithLine signatures, see
    * vtkAbstractCellLocator.  Note this is currently not thread-safe.
    */
-  int IntersectWithLine(double a0[3], double a1[3], double tol,
+  int IntersectWithLine(const double a0[3], const double a1[3], double tol,
                         double& t, double x[3], double pcoords[3],
                         int &subId, vtkIdType &cellId,
                         vtkGenericCell *cell) override;
@@ -92,7 +92,7 @@ public:
    * exit.
    */
   void FindClosestPoint(
-    double x[3], double closestPoint[3],
+    const double x[3], double closestPoint[3],
     vtkGenericCell *cell, vtkIdType &cellId,
     int &subId, double& dist2) override;
 
@@ -152,7 +152,7 @@ public:
    * to populate. This method returns data only after the locator has been
    * built.
    */
-  void FindCellsAlongLine(double p1[3], double p2[3],
+  void FindCellsAlongLine(const double p1[3], const double p2[3],
                           double tolerance, vtkIdList *cells) override;
 
   //@{
@@ -172,14 +172,14 @@ protected:
   ~vtkCellLocator() override;
 
   void GetBucketNeighbors(int ijk[3], int ndivs, int level);
-  void GetOverlappingBuckets(double x[3], int ijk[3], double dist,
+  void GetOverlappingBuckets(const double x[3], int ijk[3], double dist,
                              int prevMinLevel[3], int prevMaxLevel[3]);
 
   void ClearCellHasBeenVisited();
   void ClearCellHasBeenVisited(int id);
 
-  double Distance2ToBucket(double x[3], int nei[3]);
-  double Distance2ToBounds(double x[3], double bounds[6]);
+  double Distance2ToBucket(const double x[3], int nei[3]);
+  double Distance2ToBounds(const double x[3], double bounds[6]);
 
   int NumberOfOctants; // number of octants in tree
   double Bounds[6]; // bounding box root octant
@@ -201,7 +201,7 @@ protected:
 
   void ComputeOctantBounds(int i, int j, int k);
   double OctantBounds[6]; //the bounds of the current octant
-  int IsInOctantBounds(double x[3], double tol = 0.0)
+  int IsInOctantBounds(const double x[3], double tol = 0.0)
   {
     if ( this->OctantBounds[0]-tol <= x[0] && x[0] <= this->OctantBounds[1]+tol &&
          this->OctantBounds[2]-tol <= x[1] && x[1] <= this->OctantBounds[3]+tol &&

@@ -245,7 +245,7 @@ void vtkLagrangeHexahedron::Initialize()
 }
 
 int vtkLagrangeHexahedron::CellBoundary(
-  int vtkNotUsed(subId), double pcoords[3], vtkIdList* pts)
+  int vtkNotUsed(subId), const double pcoords[3], vtkIdList* pts)
 {
   double t1=pcoords[0]-pcoords[1];
   double t2=1.0-pcoords[0]-pcoords[1];
@@ -320,7 +320,7 @@ int vtkLagrangeHexahedron::CellBoundary(
 }
 
 int vtkLagrangeHexahedron::EvaluatePosition(
-  double* x,
+  const double x[3],
   double* closestPoint,
   int& subId,
   double pcoords[3],
@@ -375,7 +375,7 @@ int vtkLagrangeHexahedron::EvaluatePosition(
 
 void vtkLagrangeHexahedron::EvaluateLocation(
   int& subId,
-  double pcoords[3],
+  const double pcoords[3],
   double x[3], double* weights)
 {
   subId = 0; // TODO: Should this be -1?
@@ -443,8 +443,8 @@ void vtkLagrangeHexahedron::Clip(
 }
 
 int vtkLagrangeHexahedron::IntersectWithLine(
-  double* p1,
-  double* p2,
+  const double* p1,
+  const double* p2,
   double tol,
   double& t,
   double* x,
@@ -525,8 +525,8 @@ int vtkLagrangeHexahedron::Triangulate(
 
 void vtkLagrangeHexahedron::Derivatives(
   int vtkNotUsed(subId),
-  double pcoords[3],
-  double* values,
+  const double pcoords[3],
+  const double* values,
   int dim,
   double* derivs)
 {
@@ -554,7 +554,7 @@ double* vtkLagrangeHexahedron::GetParametricCoords()
       this->PointParametricCoordinates->GetData())->GetPointer(0);
 }
 
-double vtkLagrangeHexahedron::GetParametricDistance(double pcoords[3])
+double vtkLagrangeHexahedron::GetParametricDistance(const double pcoords[3])
 {
   double pDist, pDistMax = 0.0;
 
@@ -594,13 +594,13 @@ const int* vtkLagrangeHexahedron::GetOrder()
 }
 
 void vtkLagrangeHexahedron::InterpolateFunctions(
-  double pcoords[3], double* weights)
+  const double pcoords[3], double* weights)
 {
   vtkLagrangeInterpolation::Tensor3ShapeFunctions(this->GetOrder(), pcoords, weights);
 }
 
 void vtkLagrangeHexahedron::InterpolateDerivs(
-  double pcoords[3], double* derivs)
+  const double pcoords[3], double* derivs)
 {
   vtkLagrangeInterpolation::Tensor3ShapeDerivatives(this->GetOrder(), pcoords, derivs);
 }

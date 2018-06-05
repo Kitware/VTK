@@ -78,7 +78,7 @@ static int LinearQuads[4][4] = { {0, 4, 8, 7}, {4, 1, 5, 8},
                                  {8, 5, 2, 6}, {7, 8, 6, 3} };
 
 //----------------------------------------------------------------------------
-int vtkBiQuadraticQuad::EvaluatePosition (double *x,
+int vtkBiQuadraticQuad::EvaluatePosition (const double x[3],
                                           double *closestPoint,
                                           int &subId, double pcoords[3],
                                           double &minDist2, double *weights)
@@ -153,7 +153,7 @@ int vtkBiQuadraticQuad::EvaluatePosition (double *x,
 
 //----------------------------------------------------------------------------
 void vtkBiQuadraticQuad::EvaluateLocation (int& vtkNotUsed(subId),
-                                           double pcoords[3],
+                                           const double pcoords[3],
                                            double x[3], double *weights)
 {
   int i, j;
@@ -173,7 +173,7 @@ void vtkBiQuadraticQuad::EvaluateLocation (int& vtkNotUsed(subId),
 }
 
 //----------------------------------------------------------------------------
-int vtkBiQuadraticQuad::CellBoundary (int subId, double pcoords[3], vtkIdList * pts)
+int vtkBiQuadraticQuad::CellBoundary(int subId, const double pcoords[3], vtkIdList * pts)
 {
   return this->Quad->CellBoundary (subId, pcoords, pts);
 }
@@ -233,8 +233,8 @@ vtkBiQuadraticQuad::Clip (double value, vtkDataArray * cellScalars,
 // Line-line intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
 int
-vtkBiQuadraticQuad::IntersectWithLine (double *p1,
-               double *p2, double tol, double &t, double *x, double *pcoords, int &subId)
+vtkBiQuadraticQuad::IntersectWithLine (const double *p1,
+               const double *p2, double tol, double &t, double *x, double *pcoords, int &subId)
 {
   int subTest, i;
   subId = 0;
@@ -332,7 +332,7 @@ int vtkBiQuadraticQuad::Triangulate (int vtkNotUsed(index),
 //----------------------------------------------------------------------------
 void
 vtkBiQuadraticQuad::Derivatives (int vtkNotUsed (subId),
-                                 double pcoords[3], double *values,
+                                 const double pcoords[3], const double *values,
                                  int dim, double *derivs)
 {
   double sum[3], weights[9];
@@ -411,7 +411,7 @@ vtkBiQuadraticQuad::Derivatives (int vtkNotUsed (subId),
 // Compute interpolation functions. The first four nodes are the corner
 // vertices; the others are mid-edge nodes, the last one is the mid-center
 // node.
-void vtkBiQuadraticQuad::InterpolationFunctionsPrivate (double pcoords[3],
+void vtkBiQuadraticQuad::InterpolationFunctionsPrivate (const double pcoords[3],
                                                         double weights[9])
 {
   //Normally these coordinates are named r and s, but I chose x and y,
@@ -436,7 +436,7 @@ void vtkBiQuadraticQuad::InterpolationFunctionsPrivate (double pcoords[3],
 
 //----------------------------------------------------------------------------
 // Derivatives in parametric space.
-void vtkBiQuadraticQuad::InterpolationDerivsPrivate (double pcoords[3],
+void vtkBiQuadraticQuad::InterpolationDerivsPrivate (const double pcoords[3],
                                                      double derivs[18])
 {
   // Coordinate conversion

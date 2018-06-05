@@ -39,7 +39,7 @@ vtkVertex::vtkVertex()
 
 //----------------------------------------------------------------------------
 // Make a new vtkVertex object with the same information as this object.
-int vtkVertex::EvaluatePosition(double x[3], double* closestPoint,
+int vtkVertex::EvaluatePosition(const double x[3], double* closestPoint,
                                 int& subId, double pcoords[3],
                                 double& dist2, double *weights)
 {
@@ -71,7 +71,7 @@ int vtkVertex::EvaluatePosition(double x[3], double* closestPoint,
 
 //----------------------------------------------------------------------------
 void vtkVertex::EvaluateLocation(int& vtkNotUsed(subId),
-                                 double vtkNotUsed(pcoords)[3], double x[3],
+                                 const double vtkNotUsed(pcoords)[3], double x[3],
                                  double *weights)
 {
   this->Points->GetPoint(0, x);
@@ -84,7 +84,7 @@ void vtkVertex::EvaluateLocation(int& vtkNotUsed(subId),
 // and whether the point is inside or outside of the cell. The cell boundary
 // is defined by a list of points (pts) that specify a vertex (1D cell).
 // If the return value of the method is != 0, then the point is inside the cell.
-int vtkVertex::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
+int vtkVertex::CellBoundary(int vtkNotUsed(subId), const double pcoords[3],
                             vtkIdList *pts)
 {
 
@@ -136,7 +136,7 @@ void vtkVertex::Contour(double value, vtkDataArray *cellScalars,
 // Intersect with a ray. Return parametric coordinates (both line and cell)
 // and global intersection coordinates, given ray definition and tolerance.
 // The method returns non-zero value if intersection occurs.
-int vtkVertex::IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
+int vtkVertex::IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
                                 double x[3], double pcoords[3], int& subId)
 {
   int i;
@@ -202,8 +202,8 @@ int vtkVertex::Triangulate(int vtkNotUsed(index),vtkIdList *ptIds,
 // Get the derivative of the vertex. Returns (0.0, 0.0, 0.0) for all
 // dimensions.
 void vtkVertex::Derivatives(int vtkNotUsed(subId),
-                            double vtkNotUsed(pcoords)[3],
-                            double *vtkNotUsed(values),
+                            const double vtkNotUsed(pcoords)[3],
+                            const double *vtkNotUsed(values),
                             int dim, double *derivs)
 {
   int i, idx;
@@ -245,13 +245,13 @@ void vtkVertex::Clip(double value, vtkDataArray *cellScalars,
 
 //----------------------------------------------------------------------------
 // Compute interpolation functions
-void vtkVertex::InterpolationFunctions(double [3], double weights[1])
+void vtkVertex::InterpolationFunctions(const double [3], double weights[1])
 {
   weights[0] = 1.0;
 }
 
 //----------------------------------------------------------------------------
-void vtkVertex::InterpolationDerivs(double [3], double derivs[3])
+void vtkVertex::InterpolationDerivs(const double [3], double derivs[3])
 {
   derivs[0] = 0.0;
   derivs[1] = 0.0;

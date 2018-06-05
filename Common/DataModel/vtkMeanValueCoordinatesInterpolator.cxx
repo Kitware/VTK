@@ -104,7 +104,7 @@ vtkMeanValueCoordinatesInterpolator::
 // (Note: the input point type should be float or double, but this is
 // not enfored.)
 template <class T>
-void vtkComputeMVCWeightsForPolygonMesh(double x[3], T *pts, vtkIdType npts,
+void vtkComputeMVCWeightsForPolygonMesh(const double x[3], T *pts, vtkIdType npts,
                                   vtkMVCPolyIterator& iter, double *weights)
 {
   if (!npts)
@@ -357,7 +357,7 @@ void vtkComputeMVCWeightsForPolygonMesh(double x[3], T *pts, vtkIdType npts,
 // (Note: the input point type should be float or double, but this is
 // not enfored.)
 template <class T>
-void vtkComputeMVCWeightsForTriangleMesh(double x[3], T *pts, vtkIdType npts,
+void vtkComputeMVCWeightsForTriangleMesh(const double x[3], T *pts, vtkIdType npts,
                                     vtkMVCTriIterator& iter, double *weights)
 {
   //Points are organized {(x,y,z), (x,y,z), ....}
@@ -534,7 +534,7 @@ void vtkComputeMVCWeightsForTriangleMesh(double x[3], T *pts, vtkIdType npts,
 // Static function to compute weights for triangle mesh (with vtkIdList)
 // Satisfy classes' public API.
 void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(
-  double x[3], vtkPoints *pts, vtkIdList *tris, double *weights)
+  const double x[3], vtkPoints *pts, vtkIdList *tris, double *weights)
 {
   // Check the input
   if ( !tris )
@@ -555,7 +555,7 @@ void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(
 // Static function to compute weights for triangle or polygonal mesh
 // (with vtkCellArray). Satisfy classes' public API.
 void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(
-  double x[3], vtkPoints *pts, vtkCellArray *cells, double *weights)
+  const double x[3], vtkPoints *pts, vtkCellArray *cells, double *weights)
 {
   // Check the input
   if ( !cells )
@@ -605,7 +605,7 @@ void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(
 
 //----------------------------------------------------------------------------
 void vtkMeanValueCoordinatesInterpolator::
-ComputeInterpolationWeightsForTriangleMesh(double x[3], vtkPoints *pts,
+ComputeInterpolationWeightsForTriangleMesh(const double x[3], vtkPoints *pts,
                               vtkMVCTriIterator& iter, double *weights)
 {
   // Check the input
@@ -638,7 +638,7 @@ ComputeInterpolationWeightsForTriangleMesh(double x[3], vtkPoints *pts,
 
 //----------------------------------------------------------------------------
 void vtkMeanValueCoordinatesInterpolator::
-ComputeInterpolationWeightsForPolygonMesh(double x[3], vtkPoints *pts,
+ComputeInterpolationWeightsForPolygonMesh(const double x[3], vtkPoints *pts,
                             vtkMVCPolyIterator& iter, double *weights)
 {
   // Check the input

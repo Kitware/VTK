@@ -101,7 +101,7 @@ vtkCell *vtkQuadraticLinearQuad::GetEdge(int edgeId)
 }
 
 //----------------------------------------------------------------------------
-int vtkQuadraticLinearQuad::EvaluatePosition (double *x,
+int vtkQuadraticLinearQuad::EvaluatePosition (const double x[3],
                                               double *closestPoint,
                                               int &subId, double pcoords[3],
                                               double &minDist2, double *weights)
@@ -164,7 +164,7 @@ int vtkQuadraticLinearQuad::EvaluatePosition (double *x,
 
 //----------------------------------------------------------------------------
 void vtkQuadraticLinearQuad::EvaluateLocation(int& vtkNotUsed(subId),
-                                              double pcoords[3],
+                                              const double pcoords[3],
                                               double x[3], double *weights)
 {
   int i, j;
@@ -184,7 +184,7 @@ void vtkQuadraticLinearQuad::EvaluateLocation(int& vtkNotUsed(subId),
 }
 
 //----------------------------------------------------------------------------
-int vtkQuadraticLinearQuad::CellBoundary(int subId, double pcoords[3], vtkIdList *pts)
+int vtkQuadraticLinearQuad::CellBoundary(int subId, const double pcoords[3], vtkIdList *pts)
 {
   return this->Quad->CellBoundary(subId, pcoords, pts);
 }
@@ -240,8 +240,8 @@ void vtkQuadraticLinearQuad::Clip (double value, vtkDataArray * cellScalars,
 //----------------------------------------------------------------------------
 // Line-line intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
-int vtkQuadraticLinearQuad::IntersectWithLine (double *p1,
-                                               double *p2,
+int vtkQuadraticLinearQuad::IntersectWithLine (const double *p1,
+                                               const double *p2,
                                                double tol,
                                                double &t,
                                                double *x,
@@ -359,7 +359,7 @@ int vtkQuadraticLinearQuad::Triangulate (int vtkNotUsed (index),
 
 //----------------------------------------------------------------------------
 void vtkQuadraticLinearQuad::Derivatives (int vtkNotUsed (subId),
-  double pcoords[3], double *values, int dim, double *derivs)
+  const double pcoords[3], const double *values, int dim, double *derivs)
 {
   double x0[3], x1[3], x2[3], deltaX[3], weights[6];
   int i, j;
@@ -397,7 +397,7 @@ void vtkQuadraticLinearQuad::Derivatives (int vtkNotUsed (subId),
 //----------------------------------------------------------------------------
 // Compute interpolation functions. The first four nodes are the corner
 // vertices; the others are mid-edge nodes.
-void vtkQuadraticLinearQuad::InterpolationFunctions(double pcoords[3],
+void vtkQuadraticLinearQuad::InterpolationFunctions(const double pcoords[3],
                                                     double weights[6])
 {
   double x = pcoords[0];
@@ -418,7 +418,7 @@ void vtkQuadraticLinearQuad::InterpolationFunctions(double pcoords[3],
 
 //----------------------------------------------------------------------------
 // Derivatives in parametric space.
-void vtkQuadraticLinearQuad::InterpolationDerivs(double pcoords[3], double derivs[12])
+void vtkQuadraticLinearQuad::InterpolationDerivs(const double pcoords[3], double derivs[12])
 {
   double x = pcoords[0];
   double y = pcoords[1];

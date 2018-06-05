@@ -148,7 +148,7 @@ static const double VTK_DIVERGED = 1.e6;
 static const int VTK_WEDGE_MAX_ITERATION = 20;
 static const double VTK_WEDGE_CONVERGED = 1.e-03;
 
-int vtkBiQuadraticQuadraticWedge::EvaluatePosition (double *x,
+int vtkBiQuadraticQuadraticWedge::EvaluatePosition (const double x[3],
   double *closestPoint,
   int &subId, double pcoords[3], double &dist2, double *weights)
 {
@@ -279,7 +279,7 @@ int vtkBiQuadraticQuadraticWedge::EvaluatePosition (double *x,
 
 //----------------------------------------------------------------------------
 void vtkBiQuadraticQuadraticWedge::EvaluateLocation (int &vtkNotUsed (subId),
-  double pcoords[3], double x[3], double *weights)
+  const double pcoords[3], double x[3], double *weights)
 {
   double pt[3];
 
@@ -298,7 +298,7 @@ void vtkBiQuadraticQuadraticWedge::EvaluateLocation (int &vtkNotUsed (subId),
 
 //----------------------------------------------------------------------------
 int vtkBiQuadraticQuadraticWedge::CellBoundary (int subId,
-  double pcoords[3], vtkIdList * pts)
+  const double pcoords[3], vtkIdList * pts)
 {
   return this->Wedge->CellBoundary (subId, pcoords, pts);
 }
@@ -353,7 +353,7 @@ vtkBiQuadraticQuadraticWedge::Clip (double value, vtkDataArray *cellScalars,
 //----------------------------------------------------------------------------
 // Line-hex intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
-int vtkBiQuadraticQuadraticWedge::IntersectWithLine (double *p1, double *p2,
+int vtkBiQuadraticQuadraticWedge::IntersectWithLine (const double *p1, const double *p2,
                                                      double tol, double &t,
                                                      double *x,
                                                      double *pcoords,
@@ -468,7 +468,7 @@ int vtkBiQuadraticQuadraticWedge::Triangulate (int vtkNotUsed (index),
 // Given parametric coordinates compute inverse Jacobian transformation
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives.
-void vtkBiQuadraticQuadraticWedge::JacobianInverse(double pcoords[3],
+void vtkBiQuadraticQuadraticWedge::JacobianInverse(const double pcoords[3],
   double **inverse, double derivs[54])
 {
   int i, j;
@@ -509,7 +509,7 @@ void vtkBiQuadraticQuadraticWedge::JacobianInverse(double pcoords[3],
 
 //----------------------------------------------------------------------------
 void vtkBiQuadraticQuadraticWedge::Derivatives (int vtkNotUsed (subId),
-  double pcoords[3], double *values, int dim, double *derivs)
+  const double pcoords[3], const double *values, int dim, double *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];
   double functionDerivs[3 * 18], sum[3];
@@ -541,7 +541,7 @@ void vtkBiQuadraticQuadraticWedge::Derivatives (int vtkNotUsed (subId),
 
 //----------------------------------------------------------------------------
 // Compute interpolation functions for the fifteen nodes.
-void vtkBiQuadraticQuadraticWedge::InterpolationFunctions (double pcoords[3], double weights[18])
+void vtkBiQuadraticQuadraticWedge::InterpolationFunctions(const double pcoords[3], double weights[18])
 {
   // VTK needs parametric coordinates to be between (0,1). Isoparametric
   // shape functions are formulated between (-1,1). Here we do a
@@ -579,7 +579,7 @@ void vtkBiQuadraticQuadraticWedge::InterpolationFunctions (double pcoords[3], do
 
 //----------------------------------------------------------------------------
 // Derivatives in parametric space.
-void vtkBiQuadraticQuadraticWedge::InterpolationDerivs (double pcoords[3], double derivs[54])
+void vtkBiQuadraticQuadraticWedge::InterpolationDerivs(const double pcoords[3], double derivs[54])
 {
   //VTK needs parametric coordinates to be between (0,1). Isoparametric
   //shape functions are formulated between (-1,1). Here we do a

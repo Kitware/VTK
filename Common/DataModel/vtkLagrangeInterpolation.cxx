@@ -610,7 +610,7 @@ int vtkLagrangeInterpolation::Tensor3ShapeDerivatives(const int order[2], const 
 void vtkLagrangeInterpolation::Tensor3EvaluateDerivative(
   const int order[4],
   const double* pcoords,
-  double* fieldVals,
+  const double* fieldVals,
   int fieldDim,
   double* fieldDerivs)
 {
@@ -903,7 +903,7 @@ void vtkLagrangeInterpolation::WedgeEvaluate(
 void vtkLagrangeInterpolation::WedgeEvaluateDerivative(
   const int order[4],
   const double* pcoords,
-  double* fieldVals,
+  const double* fieldVals,
   int fieldDim,
   double* fieldDerivs)
 {

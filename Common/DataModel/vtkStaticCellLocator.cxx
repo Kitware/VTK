@@ -255,12 +255,12 @@ struct vtkCellProcessor
   virtual ~vtkCellProcessor() = default;
 
   // Satisfy cell locator API
-  virtual vtkIdType FindCell(double pos[3], vtkGenericCell *cell,
+  virtual vtkIdType FindCell(const double pos[3], vtkGenericCell *cell,
                              double pcoords[3], double* weights ) = 0;
   virtual void FindCellsWithinBounds(double *bbox, vtkIdList *cells) = 0;
-  virtual void FindCellsAlongLine(double p1[3], double p2[3],
+  virtual void FindCellsAlongLine(const double p1[3], const double p2[3],
                                   double tol, vtkIdList *cells) = 0;
-  virtual int IntersectWithLine(double a0[3], double a1[3], double tol,
+  virtual int IntersectWithLine(const double a0[3], const double a1[3], double tol,
                                 double& t, double x[3], double pcoords[3],
                                 int &subId, vtkIdType &cellId,
                                 vtkGenericCell *cell) = 0;
@@ -332,12 +332,12 @@ struct CellProcessor : public vtkCellProcessor
   }
 
   // Methods to satisfy vtkCellProcessor virtual API
-  vtkIdType FindCell(double pos[3], vtkGenericCell *cell,
+  vtkIdType FindCell(const double pos[3], vtkGenericCell *cell,
                              double pcoords[3], double* weights ) override;
   void FindCellsWithinBounds(double *bbox, vtkIdList *cells) override;
-  void FindCellsAlongLine(double p1[3], double p2[3], double tol,
+  void FindCellsAlongLine(const double p1[3], const double p2[3], double tol,
                           vtkIdList *cells) override;
-  int IntersectWithLine(double a0[3], double a1[3], double tol,
+  int IntersectWithLine(const double a0[3], const double a1[3], double tol,
                                 double& t, double x[3], double pcoords[3],
                                 int &subId, vtkIdType &cellId,
                                 vtkGenericCell *cell) override;
@@ -470,7 +470,7 @@ struct MapOffsets
 
 //-----------------------------------------------------------------------------
 template <typename T> vtkIdType CellProcessor<T>::
-FindCell(double pos[3], vtkGenericCell *cell, double pcoords[3], double* weights)
+FindCell(const double pos[3], vtkGenericCell *cell, double pcoords[3], double* weights)
 {
   vtkIdType binId = this->Binner->GetBinIndex(pos);
   T numIds = this->GetNumberOfIds(binId);
@@ -568,7 +568,7 @@ FindCellsWithinBounds(double *bbox, vtkIdList *cells)
 // cells in intersected bins are placed into the output cellId vtkIdList. See
 // the IntersectWithLine method for more information on voxel traversal.
 template <typename T> void CellProcessor<T>::
-FindCellsAlongLine(double a0[3], double a1[3], double vtkNotUsed(tol),
+FindCellsAlongLine(const double a0[3], const double a1[3], double vtkNotUsed(tol),
                    vtkIdList *cells)
 {
   // Initialize the list of cells
@@ -712,7 +712,7 @@ FindCellsAlongLine(double a0[3], double a1[3], double vtkNotUsed(tol),
 // of this code:
 // https://github.com/francisengelmann/fast_voxel_traversal/blob/master/main.cpp.
 template <typename T> int CellProcessor<T>::
-IntersectWithLine(double a0[3], double a1[3], double tol, double& t, double x[3],
+IntersectWithLine(const double a0[3], const double a1[3], double tol, double& t, double x[3],
                   double pcoords[3], int &subId, vtkIdType &cellId,
                   vtkGenericCell *cell)
 {
@@ -952,7 +952,7 @@ FindCellsWithinBounds(double *bbox, vtkIdList *cells)
 
 //-----------------------------------------------------------------------------
 void vtkStaticCellLocator::
-FindCellsAlongLine(double p1[3], double p2[3], double tol, vtkIdList *cells)
+FindCellsAlongLine(const double p1[3], const double p2[3], double tol, vtkIdList *cells)
 {
   this->BuildLocator();
   if ( ! this->Processor )
@@ -964,7 +964,7 @@ FindCellsAlongLine(double p1[3], double p2[3], double tol, vtkIdList *cells)
 
 //-----------------------------------------------------------------------------
 int vtkStaticCellLocator::
-IntersectWithLine(double p1[3], double p2[3], double tol,
+IntersectWithLine(const double p1[3], const double p2[3], double tol,
                   double &t, double x[3], double pcoords[3],
                   int &subId, vtkIdType &cellId, vtkGenericCell *cell)
 {

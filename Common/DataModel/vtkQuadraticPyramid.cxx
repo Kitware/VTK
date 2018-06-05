@@ -157,7 +157,7 @@ namespace
   static const double VTK_PYRAMID_CONVERGED=1.e-03;
 }
 
-int vtkQuadraticPyramid::EvaluatePosition(double* x,
+int vtkQuadraticPyramid::EvaluatePosition(const double* x,
                                           double* closestPoint,
                                           int& subId, double pcoords[3],
                                           double& dist2, double *weights)
@@ -344,7 +344,7 @@ int vtkQuadraticPyramid::EvaluatePosition(double* x,
 
 //----------------------------------------------------------------------------
 void vtkQuadraticPyramid::EvaluateLocation(int& vtkNotUsed(subId),
-                                           double pcoords[3],
+                                           const double pcoords[3],
                                            double x[3], double *weights)
 {
   int i, j;
@@ -364,7 +364,7 @@ void vtkQuadraticPyramid::EvaluateLocation(int& vtkNotUsed(subId),
 }
 
 //----------------------------------------------------------------------------
-int vtkQuadraticPyramid::CellBoundary(int subId, double pcoords[3],
+int vtkQuadraticPyramid::CellBoundary(int subId, const double pcoords[3],
                                       vtkIdList *pts)
 {
   return this->Pyramid->CellBoundary(subId, pcoords, pts);
@@ -487,7 +487,7 @@ void vtkQuadraticPyramid::Contour(double value,
 // Line-hex intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
 //
-int vtkQuadraticPyramid::IntersectWithLine(double* p1, double* p2,
+int vtkQuadraticPyramid::IntersectWithLine(const double* p1, const double* p2,
                                            double tol, double& t,
                                            double* x, double* pcoords, int& subId)
 {
@@ -607,7 +607,7 @@ int vtkQuadraticPyramid::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives.
 //
-void vtkQuadraticPyramid::JacobianInverse(double pcoords[3], double **inverse,
+void vtkQuadraticPyramid::JacobianInverse(const double pcoords[3], double **inverse,
                                           double derivs[39])
 {
   int i, j;
@@ -645,7 +645,7 @@ void vtkQuadraticPyramid::JacobianInverse(double pcoords[3], double **inverse,
 
 //----------------------------------------------------------------------------
 void vtkQuadraticPyramid::Derivatives(int vtkNotUsed(subId),
-                                      double pcoords[3], double *values,
+                                      const double pcoords[3], const double *values,
                                       int dim, double *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];
@@ -719,7 +719,7 @@ void vtkQuadraticPyramid::Clip(double value, vtkDataArray* cellScalars,
 //----------------------------------------------------------------------------
 // Compute interpolation functions for the fifteen nodes.
 //
-void vtkQuadraticPyramid::InterpolationFunctions(double pcoords[3],
+void vtkQuadraticPyramid::InterpolationFunctions(const double pcoords[3],
                                                  double weights[13])
 {
   // VTK needs parametric coordinates to be between (0,1). Isoparametric
@@ -754,7 +754,7 @@ void vtkQuadraticPyramid::InterpolationFunctions(double pcoords[3],
 //----------------------------------------------------------------------------
 // Derivatives in parametric space.
 //
-void vtkQuadraticPyramid::InterpolationDerivs(double pcoords[3],
+void vtkQuadraticPyramid::InterpolationDerivs(const double pcoords[3],
                                               double derivs[39])
 {
   //VTK needs parametric coordinates to be between (0,1). Isoparametric

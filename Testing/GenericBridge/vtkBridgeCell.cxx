@@ -419,7 +419,7 @@ int vtkBridgeCell::FindClosestBoundary(int subId,
 // \post valid_result: result==-1 || result==0 || result==1
 // \post positive_distance: result!=-1 implies (closestPoint!=0 implies
 //                                               dist2>=0)
-int vtkBridgeCell::EvaluatePosition(double x[3],
+int vtkBridgeCell::EvaluatePosition(const double x[3],
                                     double *closestPoint,
                                     int &subId,
                                     double pcoords[3],
@@ -649,7 +649,7 @@ int vtkBridgeCell::GetParametricCenter(double pcoords[3])
 // allow cells to be picked who are not really intersected "inside" the
 // cell.)
 // \post positive_result: result>=0
-double vtkBridgeCell::GetParametricDistance(double pcoords[3])
+double vtkBridgeCell::GetParametricDistance(const double pcoords[3])
 {
   return this->Cell->GetParametricDistance(pcoords);
 }
@@ -1059,7 +1059,7 @@ void vtkBridgeCell::AllocateWeights()
 //----------------------------------------------------------------------------
 // Description:
 // Compute the weights for parametric coordinates `pcoords'.
-void vtkBridgeCell::InterpolationFunctions(double pcoords[3], double *weights)
+void vtkBridgeCell::InterpolationFunctions(const double pcoords[3], double *weights)
 {
   this->Cell->InterpolateFunctions(pcoords, weights);
 }

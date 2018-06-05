@@ -257,7 +257,7 @@ protected:
 
   virtual void ResetPickInfo();
 
-  double IntersectWithLine(double p1[3], double p2[3], double tol,
+  double IntersectWithLine(const double p1[3], const double p2[3], double tol,
                                   vtkAssemblyPath *path, vtkProp3D *p,
                                   vtkAbstractMapper3D *m) override;
 

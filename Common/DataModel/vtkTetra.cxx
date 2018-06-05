@@ -49,7 +49,7 @@ vtkTetra::~vtkTetra()
 }
 
 //----------------------------------------------------------------------------
-int vtkTetra::EvaluatePosition(double x[3], double* closestPoint,
+int vtkTetra::EvaluatePosition(const double x[3], double* closestPoint,
                               int& subId, double pcoords[3],
                               double& minDist2, double *weights)
 {
@@ -130,7 +130,7 @@ int vtkTetra::EvaluatePosition(double x[3], double* closestPoint,
 }
 
 //----------------------------------------------------------------------------
-void vtkTetra::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
+void vtkTetra::EvaluateLocation(int& vtkNotUsed(subId), const double pcoords[3],
                                 double x[3], double *weights)
 {
   double u4;
@@ -160,7 +160,7 @@ void vtkTetra::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
 // Returns the set of points that are on the boundary of the tetrahedron that
 // are closest parametrically to the point specified. This may include faces,
 // edges, or vertices.
-int vtkTetra::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
+int vtkTetra::CellBoundary(int vtkNotUsed(subId), const double pcoords[3],
                            vtkIdList *pts)
 {
   double minPCoord = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
@@ -384,7 +384,7 @@ vtkCell *vtkTetra::GetFace(int faceId)
 //
 // Intersect triangle faces against line.
 //
-int vtkTetra::IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
+int vtkTetra::IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
                                double x[3], double pcoords[3], int& subId)
 {
   int intersection=0;
@@ -453,8 +453,8 @@ int vtkTetra::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkPoints *pt
 
 
 //----------------------------------------------------------------------------
-void vtkTetra::Derivatives(int vtkNotUsed(subId), double vtkNotUsed(pcoords)[3],
-                           double *values, int dim, double *derivs)
+void vtkTetra::Derivatives(int vtkNotUsed(subId), const double vtkNotUsed(pcoords)[3],
+                           const double *values, int dim, double *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];
   double functionDerivs[12], sum[3], value;
@@ -695,7 +695,7 @@ int vtkTetra::BarycentricCoords(double x[3], double  x1[3], double x2[3],
 //
 // Compute iso-parametric interpolation functions
 //
-void vtkTetra::InterpolationFunctions(double pcoords[3], double sf[4])
+void vtkTetra::InterpolationFunctions(const double pcoords[3], double sf[4])
 {
   sf[0] = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
   sf[1] = pcoords[0];
@@ -704,7 +704,7 @@ void vtkTetra::InterpolationFunctions(double pcoords[3], double sf[4])
 }
 
 //----------------------------------------------------------------------------
-void vtkTetra::InterpolationDerivs(double pcoords[3], double derivs[12])
+void vtkTetra::InterpolationDerivs(const double pcoords[3], double derivs[12])
 {
   (void)pcoords;
   // r-derivatives
@@ -956,7 +956,7 @@ double *vtkTetra::GetParametricCoords()
 }
 
 //----------------------------------------------------------------------------
-double vtkTetra::GetParametricDistance(double pcoords[3])
+double vtkTetra::GetParametricDistance(const double pcoords[3])
 {
   int i;
   double pDist, pDistMax=0.0;

@@ -240,7 +240,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyLine::EvaluatePosition(double x[3], double* closestPoint,
+int vtkPolyLine::EvaluatePosition(const double x[3], double* closestPoint,
                                  int& subId, double pcoords[3],
                                  double& minDist2, double *weights)
 {
@@ -288,7 +288,7 @@ int vtkPolyLine::EvaluatePosition(double x[3], double* closestPoint,
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyLine::EvaluateLocation(int& subId, double pcoords[3], double x[3],
+void vtkPolyLine::EvaluateLocation(int& subId, const double pcoords[3], double x[3],
                                    double *weights)
 {
   int i;
@@ -307,7 +307,7 @@ void vtkPolyLine::EvaluateLocation(int& subId, double pcoords[3], double x[3],
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyLine::CellBoundary(int subId, double pcoords[3], vtkIdList *pts)
+int vtkPolyLine::CellBoundary(int subId, const double pcoords[3], vtkIdList *pts)
 {
   pts->SetNumberOfIds(1);
 
@@ -373,7 +373,7 @@ void vtkPolyLine::Contour(double value, vtkDataArray *cellScalars,
 //----------------------------------------------------------------------------
 // Intersect with sub-lines
 //
-int vtkPolyLine::IntersectWithLine(double p1[3], double p2[3],double tol,double& t,
+int vtkPolyLine::IntersectWithLine(const double p1[3], const double p2[3],double tol,double& t,
                                   double x[3], double pcoords[3], int& subId)
 {
   int subTest, numLines=this->Points->GetNumberOfPoints() - 1;
@@ -413,7 +413,7 @@ int vtkPolyLine::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyLine::Derivatives(int subId, double pcoords[3], double *values,
+void vtkPolyLine::Derivatives(int subId, const double pcoords[3], const double *values,
                               int dim, double *derivs)
 {
   this->Line->PointIds->SetNumberOfIds(2);

@@ -128,7 +128,7 @@ public:
    * evaluating the MVC coordinates. The dist is always zero if the point x[3]
    * is inside the polyhedron; otherwise it's the distance to the surface.
    */
-  int EvaluatePosition(double x[3], double* closestPoint,
+  int EvaluatePosition(const double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
                        double& dist2, double *weights) override;
 
@@ -136,7 +136,7 @@ public:
    * The inverse of EvaluatePosition. Note the weights should be the MVC
    * weights.
    */
-  void EvaluateLocation(int& subId, double pcoords[3], double x[3],
+  void EvaluateLocation(int& subId, const double pcoords[3], double x[3],
                         double *weights) override;
 
   /**
@@ -145,7 +145,7 @@ public:
    * line. The parametric coordinates are returned as well (subId can be
    * ignored). Returns the number of intersection points.
    */
-  int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId) override;
 
   /**
@@ -172,14 +172,14 @@ public:
    * extract the local tetrahedron from subId and pcoords, then evaluate
    * derivatives on the local tetrahedron.
    */
-  void Derivatives(int subId, double pcoords[3], double *values,
+  void Derivatives(int subId, const double pcoords[3], const double *values,
                    int dim, double *derivs) override;
 
   /**
    * Find the boundary face closest to the point defined by the pcoords[3]
    * and subId of the cell (subId can be ignored).
    */
-  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) override;
+  int CellBoundary(int subId, const double pcoords[3], vtkIdList *pts) override;
 
   /**
    * Return the center of the cell in parametric coordinates. In this cell,
@@ -198,8 +198,8 @@ public:
    * (aka shape functions/derivatives). Here we use the MVC calculation
    * process to compute the interpolation functions.
    */
-  void InterpolateFunctions(double x[3], double *sf) override;
-  void InterpolateDerivs(double x[3], double *derivs) override;
+  void InterpolateFunctions(const double x[3], double *sf) override;
+  void InterpolateDerivs(const double x[3], double *derivs) override;
   //@}
 
   //@{
@@ -222,7 +222,7 @@ public:
    * otherwise). The tolerance is expressed in normalized space; i.e., a
    * fraction of the size of the bounding box.
    */
-  int IsInside(double x[3], double tolerance);
+  int IsInside(const double x[3], double tolerance);
 
   /**
    * Determine whether or not a polyhedron is convex. This method is adapted
@@ -276,8 +276,8 @@ protected:
   // Bounds management
   int    BoundsComputed;
   void   ComputeBounds();
-  void   ComputeParametricCoordinate(double x[3], double pc[3]);
-  void   ComputePositionFromParametricCoordinate(double pc[3], double x[3]);
+  void   ComputeParametricCoordinate(const double x[3], double pc[3]);
+  void   ComputePositionFromParametricCoordinate(const double pc[3], double x[3]);
 
   // Members for supporting geometric operations
   int             PolyDataConstructed;

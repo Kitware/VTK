@@ -115,16 +115,14 @@ public:
    * Return intersection point (if any) of finite line with cells contained
    * in cell locator. See vtkCell.h parameters documentation.
    */
-  virtual int IntersectWithLine(
-    double p1[3], double p2[3], double tol, double& t, double x[3],
+  virtual int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
     double pcoords[3], int &subId);
 
   /**
    * Return intersection point (if any) AND the cell which was intersected by
    * the finite line.
    */
-  virtual int IntersectWithLine(
-    double p1[3], double p2[3], double tol, double& t, double x[3],
+  virtual int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
     double pcoords[3], int &subId, vtkIdType &cellId);
 
   /**
@@ -132,8 +130,7 @@ public:
    * the finite line. The cell is returned as a cell id and as a generic
    * cell.
    */
-  virtual int IntersectWithLine(
-    double p1[3], double p2[3], double tol, double& t, double x[3],
+  virtual int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
     double pcoords[3], int &subId, vtkIdType &cellId, vtkGenericCell *cell);
 
   /**
@@ -158,7 +155,7 @@ public:
    * vertices of the cell.
    */
   virtual void FindClosestPoint(
-    double x[3], double closestPoint[3],
+    const double x[3], double closestPoint[3],
     vtkIdType &cellId, int &subId, double& dist2);
 
   /**
@@ -173,7 +170,7 @@ public:
    * exit.
    */
   virtual void FindClosestPoint(
-    double x[3], double closestPoint[3],
+    const double x[3], double closestPoint[3],
     vtkGenericCell *cell, vtkIdType &cellId,
     int &subId, double& dist2);
 
@@ -246,8 +243,7 @@ public:
    * to populate. This method returns data only after the locator has been
    * built.
    */
-  virtual void FindCellsAlongLine(
-    double p1[3], double p2[3], double tolerance, vtkIdList *cells);
+  virtual void FindCellsAlongLine(const double p1[3], const double p2[3], double tolerance, vtkIdList *cells);
 
   /**
    * Returns the Id of the cell containing the point,

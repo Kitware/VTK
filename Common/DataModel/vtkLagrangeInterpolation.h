@@ -40,7 +40,7 @@ public:
   void Tensor3EvaluateDerivative(
     const int order[4],
     const double* pcoords,
-    double* fieldVals,
+    const double* fieldVals,
     int fieldDim,
     double* fieldDerivs);
 
@@ -57,7 +57,7 @@ public:
   void WedgeEvaluateDerivative(
     const int order[4],
     const double* pcoords,
-    double* fieldVals,
+    const double* fieldVals,
     int fieldDim,
     double* fieldDerivs);
 

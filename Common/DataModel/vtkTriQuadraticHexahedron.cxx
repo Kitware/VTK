@@ -128,7 +128,7 @@ static const double VTK_DIVERGED = 1.e6;
 static const int VTK_HEX_MAX_ITERATION = 10;
 static const double VTK_HEX_CONVERGED = 1.e-03;
 
-int vtkTriQuadraticHexahedron::EvaluatePosition (double *x,
+int vtkTriQuadraticHexahedron::EvaluatePosition (const double *x,
                double *closestPoint,
                int &subId, double pcoords[3], double &dist2, double *weights)
 {
@@ -274,7 +274,7 @@ int vtkTriQuadraticHexahedron::EvaluatePosition (double *x,
 
 //----------------------------------------------------------------------------
 void vtkTriQuadraticHexahedron::EvaluateLocation (int &vtkNotUsed (subId),
-  double pcoords[3], double x[3], double *weights)
+  const double pcoords[3], double x[3], double *weights)
 {
   int i, j;
   double pt[3];
@@ -294,7 +294,7 @@ void vtkTriQuadraticHexahedron::EvaluateLocation (int &vtkNotUsed (subId),
 
 //----------------------------------------------------------------------------
 int
-vtkTriQuadraticHexahedron::CellBoundary (int subId, double pcoords[3], vtkIdList * pts)
+vtkTriQuadraticHexahedron::CellBoundary(int subId, const double pcoords[3], vtkIdList * pts)
 {
   return this->Hex->CellBoundary (subId, pcoords, pts);
 }
@@ -352,7 +352,7 @@ void vtkTriQuadraticHexahedron::Clip (double value,
 //----------------------------------------------------------------------------
 // Line-hex intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
-int vtkTriQuadraticHexahedron::IntersectWithLine (double *p1, double *p2,
+int vtkTriQuadraticHexahedron::IntersectWithLine (const double *p1, const double *p2,
                 double tol, double &t, double *x, double *pcoords, int &subId)
 {
   int intersection = 0;
@@ -442,7 +442,7 @@ int vtkTriQuadraticHexahedron::Triangulate (int vtkNotUsed (index), vtkIdList * 
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives.
 void
-vtkTriQuadraticHexahedron::JacobianInverse (double pcoords[3], double **inverse, double derivs[81])
+vtkTriQuadraticHexahedron::JacobianInverse(const double pcoords[3], double **inverse, double derivs[81])
 {
   int i, j;
   double *m[3], m0[3], m1[3], m2[3];
@@ -481,7 +481,7 @@ vtkTriQuadraticHexahedron::JacobianInverse (double pcoords[3], double **inverse,
 
 //----------------------------------------------------------------------------
 void vtkTriQuadraticHexahedron::Derivatives (int vtkNotUsed (subId),
-          double pcoords[3], double *values, int dim, double *derivs)
+          const double pcoords[3], const double *values, int dim, double *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];
   double functionDerivs[81], sum[3];
@@ -514,7 +514,7 @@ void vtkTriQuadraticHexahedron::Derivatives (int vtkNotUsed (subId),
 
 //----------------------------------------------------------------------------
 // Compute interpolation functions for the 27 nodes.
-void vtkTriQuadraticHexahedron::InterpolationFunctions (double pcoords[3], double weights[27])
+void vtkTriQuadraticHexahedron::InterpolationFunctions(const double pcoords[3], double weights[27])
 {
   //VTK needs parametric coordinates to be between (0,1). Isoparametric
   //shape functions are formulated between (-1,1). Here we do a
@@ -574,7 +574,7 @@ void vtkTriQuadraticHexahedron::InterpolationFunctions (double pcoords[3], doubl
 
 //----------------------------------------------------------------------------
 // Derivatives in parametric space.
-void vtkTriQuadraticHexahedron::InterpolationDerivs (double pcoords[3],
+void vtkTriQuadraticHexahedron::InterpolationDerivs(const double pcoords[3],
   double derivs[81])
 {
   //VTK needs parametric coordinates to be between (0,1). Isoparametric

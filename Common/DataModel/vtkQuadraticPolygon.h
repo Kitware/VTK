@@ -66,7 +66,7 @@ public:
    * is transform into a vtkPolygon (with 2*n edges and 2*n points)
    * and the vtkPolygon methods are called.
    */
-  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) override;
+  int CellBoundary(int subId, const double pcoords[3], vtkIdList *pts) override;
   void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys,
@@ -77,14 +77,14 @@ public:
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut) override;
-  int EvaluatePosition(double x[3], double* closestPoint,
+  int EvaluatePosition(const double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
                        double& dist2, double *weights) override;
-  void EvaluateLocation(int& subId, double pcoords[3], double x[3],
+  void EvaluateLocation(int& subId, const double pcoords[3], double x[3],
                         double *weights) override;
-  int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId) override;
-  void InterpolateFunctions(double x[3], double *weights) override;
+  void InterpolateFunctions(const double x[3], double *weights) override;
   static void ComputeCentroid(vtkIdTypeArray *ids, vtkPoints *pts,
                               double centroid[3]);
   int ParameterizePolygon(double p0[3], double p10[3], double &l10,
@@ -105,7 +105,7 @@ public:
   //@}
 
   // Not implemented
-  void Derivatives(int subId, double pcoords[3], double *values,
+  void Derivatives(int subId, const double pcoords[3], const double *values,
                    int dim, double *derivs) override;
 
   //@{

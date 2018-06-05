@@ -52,7 +52,7 @@ vtkPointPicker::vtkPointPicker()
   this->UseCells = 0;
 }
 
-double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
+double vtkPointPicker::IntersectWithLine(const double p1[3], const double p2[3], double tol,
                                         vtkAssemblyPath *path, vtkProp3D *p,
                                         vtkAbstractMapper3D *m)
 {
@@ -212,7 +212,7 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
   return tMin;
 }
 
-vtkIdType vtkPointPicker::IntersectDataSetWithLine(double p1[3],
+vtkIdType vtkPointPicker::IntersectDataSetWithLine(const double p1[3],
                                                    double ray[3],
                                                    double rayFactor,
                                                    double tol,
@@ -282,7 +282,7 @@ vtkIdType vtkPointPicker::IntersectDataSetWithLine(double p1[3],
   return minPtId;
 }
 
-bool vtkPointPicker::UpdateClosestPoint(double x[3], double p1[3],
+bool vtkPointPicker::UpdateClosestPoint(double x[3], const double p1[3],
                                         double ray[3], double rayFactor,
                                         double tol,
                                         double& tMin, double& distMin )

@@ -167,7 +167,7 @@ int vtkCell::GetParametricCenter(double pcoords[3])
 //----------------------------------------------------------------------------
 // This method works fine for all "rectangular" cells, not triangular
 // and tetrahedral topologies.
-double vtkCell::GetParametricDistance(double pcoords[3])
+double vtkCell::GetParametricDistance(const double pcoords[3])
 {
   int i;
   double pDist, pDistMax=0.0;

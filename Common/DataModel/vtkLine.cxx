@@ -42,7 +42,7 @@ static const int VTK_NO_INTERSECTION=0;
 static const int VTK_YES_INTERSECTION=2;
 static const int VTK_ON_LINE=3;
 
-int vtkLine::EvaluatePosition(double x[3], double* closestPoint,
+int vtkLine::EvaluatePosition(const double x[3], double* closestPoint,
                              int& subId, double pcoords[3],
                              double& dist2, double *weights)
 {
@@ -72,7 +72,7 @@ int vtkLine::EvaluatePosition(double x[3], double* closestPoint,
 }
 
 //----------------------------------------------------------------------------
-void vtkLine::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
+void vtkLine::EvaluateLocation(int& vtkNotUsed(subId), const double pcoords[3],
                                double x[3], double *weights)
 {
   int i;
@@ -201,7 +201,7 @@ int vtkLine::Intersection3D(double a1[3], double a2[3],
 }
 
 //----------------------------------------------------------------------------
-int vtkLine::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
+int vtkLine::CellBoundary(int vtkNotUsed(subId), const double pcoords[3],
                           vtkIdList *pts)
 {
   pts->SetNumberOfIds(1);
@@ -608,7 +608,7 @@ double vtkLine::DistanceToLine (const double x[3], const double p1[3], const dou
 //----------------------------------------------------------------------------
 // Line-line intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
-int vtkLine::IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
+int vtkLine::IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
                                double x[3], double pcoords[3], int& subId)
 {
   double a1[3], a2[3];
@@ -713,8 +713,8 @@ int vtkLine::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 
 //----------------------------------------------------------------------------
 void vtkLine::Derivatives(int vtkNotUsed(subId),
-                          double vtkNotUsed(pcoords)[3],
-                          double *values,
+                          const double vtkNotUsed(pcoords)[3],
+                          const double *values,
                           int dim, double *derivs)
 {
   double x0[3], x1[3], deltaX[3];
@@ -849,14 +849,14 @@ void vtkLine::Clip(double value, vtkDataArray *cellScalars,
 //
 // Compute interpolation functions
 //
-void vtkLine::InterpolationFunctions(double pcoords[3], double weights[2])
+void vtkLine::InterpolationFunctions(const double pcoords[3], double weights[2])
 {
   weights[0] = 1.0 - pcoords[0];
   weights[1] = pcoords[0];
 }
 
 //----------------------------------------------------------------------------
-void vtkLine::InterpolationDerivs(double vtkNotUsed(pcoords)[3], double derivs[2])
+void vtkLine::InterpolationDerivs(const double vtkNotUsed(pcoords)[3], double derivs[2])
 {
   derivs[0] = -1.0;
   derivs[1] = 1.0;

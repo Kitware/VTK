@@ -161,13 +161,13 @@ vtkCell *vtkGenericCell::GetFace(int faceId)
 }
 
 //----------------------------------------------------------------------------
-int vtkGenericCell::CellBoundary(int subId, double pcoords[3], vtkIdList *pts)
+int vtkGenericCell::CellBoundary(int subId, const double pcoords[3], vtkIdList *pts)
 {
   return this->Cell->CellBoundary(subId, pcoords, pts);
 }
 
 //----------------------------------------------------------------------------
-int vtkGenericCell::EvaluatePosition(double x[3], double closestPoint[3],
+int vtkGenericCell::EvaluatePosition(const double x[3], double closestPoint[3],
                                     int& subId, double pcoords[3],
                                     double& dist2, double *weights)
 {
@@ -176,7 +176,7 @@ int vtkGenericCell::EvaluatePosition(double x[3], double closestPoint[3],
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::EvaluateLocation(int& subId, double pcoords[3],
+void vtkGenericCell::EvaluateLocation(int& subId, const double pcoords[3],
                                      double x[3], double *weights)
 {
   this->Cell->EvaluateLocation(subId, pcoords, x, weights);
@@ -206,7 +206,7 @@ void vtkGenericCell::Clip(double value, vtkDataArray *cellScalars,
 }
 
 //----------------------------------------------------------------------------
-int vtkGenericCell::IntersectWithLine(double p1[3], double p2[3], double tol,
+int vtkGenericCell::IntersectWithLine(const double p1[3], const double p2[3], double tol,
                                       double& t, double x[3], double pcoords[3],
                                       int& subId)
 {
@@ -220,7 +220,7 @@ int vtkGenericCell::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::Derivatives(int subId, double pcoords[3], double *values,
+void vtkGenericCell::Derivatives(int subId, const double pcoords[3], const double *values,
                                  int dim, double *derivs)
 {
   this->Cell->Derivatives(subId, pcoords, values, dim, derivs);
@@ -407,13 +407,13 @@ void vtkGenericCell::SetCellType(int cellType)
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::InterpolateFunctions(double pcoords[3], double *weights)
+void vtkGenericCell::InterpolateFunctions(const double pcoords[3], double *weights)
 {
   this->Cell->InterpolateFunctions(pcoords,weights);
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::InterpolateDerivs(double pcoords[3], double *derivs)
+void vtkGenericCell::InterpolateDerivs(const double pcoords[3], double *derivs)
 {
   this->Cell->InterpolateDerivs(pcoords,derivs);
 }
