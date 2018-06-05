@@ -397,7 +397,7 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
     }
     argcWide++;
   }
-  vtkPythonScopeGilEnsurer gilEnsurer;
+  vtkPythonScopeGilEnsurer gilEnsurer(false, true);
   int res = Py_Main(argcWide, argvWide);
   for (int i = 0; i < argcWide; i++)
   {
