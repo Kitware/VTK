@@ -1,3 +1,4 @@
+from vtkmodules.vtkCommonCore import vtkInformation
 from vtkmodules.vtkCommonDataModel import vtkDataObject
 from vtkmodules.vtkCommonExecutionModel import vtkAlgorithm
 from vtkmodules.vtkCommonExecutionModel import vtkDemandDrivenPipeline
