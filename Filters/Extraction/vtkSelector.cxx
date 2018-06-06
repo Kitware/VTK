@@ -58,7 +58,8 @@ bool vtkSelector::ComputeSelectedElements(vtkDataObject* input, vtkDataObject* o
     auto insidednessArray = this->CreateInsidednessArray(numElements);
     insidednessArray->SetName(this->InsidednessArrayName.c_str());
 
-    bool computed = this->ComputeSelectedElementsForDataObject(input, insidednessArray);
+    bool computed = this->ComputeSelectedElementsForBlock(input, insidednessArray,
+      VTK_UNSIGNED_INT_MAX, VTK_UNSIGNED_INT_MAX, VTK_UNSIGNED_INT_MAX);
     if (!computed)
     {
       insidednessArray->Fill(0);

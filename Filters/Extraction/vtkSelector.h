@@ -85,21 +85,12 @@ protected:
    *
    * What type of elements are operated over is determined by the vtkSelectionNode's
    * field association. The insidednessArray passed in should have the correct number of elements
-   * for that field type or it will be resized.
+   * for that field type or it will be resized. The last three parameters give the
+   * data object's composite index, AMR level or AMR index.
    *
    * Returns true for successful completion. The operator should only return false
    * when it cannot operate on the inputs.
-   */
-  virtual bool ComputeSelectedElementsForDataObject(vtkDataObject* input,
-    vtkSignedCharArray* insidednessArray)
-  {
-    return this->ComputeSelectedElementsForBlock(input, insidednessArray,
-      VTK_UNSIGNED_INT_MAX, VTK_UNSIGNED_INT_MAX, VTK_UNSIGNED_INT_MAX);
-  }
-
-  /** A version of ComputeSelectedElementsForDataObject() that takes
-   * additional parameters giving the data object's composite index, AMR
-   * level or AMR index.
+   *
    */
   virtual bool ComputeSelectedElementsForBlock(vtkDataObject* input,
     vtkSignedCharArray* insidednessArray, unsigned int compositeIndex,
