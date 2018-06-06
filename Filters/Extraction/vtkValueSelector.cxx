@@ -329,20 +329,19 @@ private:
 
   bool Execute(vtkAbstractArray* darray, vtkSignedCharArray* insidednessArray)
   {
-    if (vtkStringArray::SafeDownCast(darray))
-    {
-      // this will be added later, if needed.
-      vtkGenericWarningMacro(<< darray->GetClassName()
-                             << " currently not supported by vtkValueSelector.");
-      return false;
-    }
-    else if (auto dataArray = vtkDataArray::SafeDownCast(darray))
+    if (auto dataArray = vtkDataArray::SafeDownCast(darray))
     {
       return this->Execute(dataArray, insidednessArray);
     }
+    else if (darray)
+    {
+      // classes like vtkStringArray may be added later, if needed.
+      vtkGenericWarningMacro(<< darray->GetClassName() << " not supported by vtkValueSelector.");
+      return false;
+    }
     else
     {
-      vtkGenericWarningMacro(<< darray->GetClassName() << " not supported by vtkValueSelector.");
+      // missing array, this can happen.
       return false;
     }
   }
