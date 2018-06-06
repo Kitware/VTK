@@ -633,7 +633,15 @@ vtkIdType vtkLookupTable::GetIndex(double v)
 {
   if ( this->IndexedLookup )
   {
-    return this->GetAnnotatedValueIndex( v ) % this->GetNumberOfTableValues();
+    if (this->NumberOfColors > 0)
+    {
+      return this->GetAnnotatedValueIndex( v ) % this->NumberOfColors;
+    }
+    else
+    {
+      // Treat as a NaN
+      return -1;
+    }
   }
 
   // Map to an index:
