@@ -1984,8 +1984,8 @@ void vtkTextureObject::CopyFromFrameBuffer(int srcXmin,
   assert("pre: is2D" && this->GetNumberOfDimensions()==2);
 
   this->Activate();
-  glCopyTexImage2D(this->Target,0,this->Format,srcXmin,srcYmin,width,height,0);
-  vtkOpenGLCheckErrorMacro("failed at glCopyTexImage2D " << this->Format);
+  glCopyTexImage2D(this->Target,0,this->InternalFormat,srcXmin,srcYmin,width,height,0);
+  vtkOpenGLCheckErrorMacro("failed at glCopyTexImage2D " << this->InternalFormat);
 }
 
 //----------------------------------------------------------------------------

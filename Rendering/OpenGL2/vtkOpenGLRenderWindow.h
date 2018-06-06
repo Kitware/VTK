@@ -152,6 +152,13 @@ public:
    */
   int GetColorBufferSizes(int *rgba) override;
 
+  /**
+   * Get the internal format of current attached texture or render buffer.
+   * attachmentPoint is the index of attachment.
+   * Returns 0 if not able to determine.
+   */
+  int GetColorBufferInternalFormat(int attachmentPoint);
+
   //@{
   /**
    * Set the size of the window in screen coordinates in pixels.
