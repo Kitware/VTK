@@ -18,7 +18,7 @@
  * @brief   Class for drawing box plots.
  *
  *
- * Plots to draw box plots given columns from a vtkTable that may contains
+ * Plots to draw box plots given columns from a vtkTable that may contain
  * 5 lines with quartiles and median.
 */
 

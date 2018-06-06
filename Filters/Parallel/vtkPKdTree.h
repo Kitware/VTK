@@ -231,7 +231,7 @@ public:
 
   /**
    * Adds the region IDs for which this process has data to
-   * the supplied vtkIntArray.  Retruns the number of regions.
+   * the supplied vtkIntArray.  Returns the number of regions.
    */
   int GetRegionListForProcess(int processId, vtkIntArray *regions);
 

@@ -3482,7 +3482,7 @@ int TestGetAdjustedScalarRange()
   if (range[0] != uc->GetDataTypeMin() ||
       range[1] != uc->GetDataTypeMax())
   {
-    std::cout << " GetAjustedScalarRange(unsigned char) expected "
+    std::cout << " GetAdjustedScalarRange(unsigned char) expected "
               << uc->GetDataTypeMin() << ", " << uc->GetDataTypeMax()
               << " but got " << range[0] << ", " << range[1]
               << std::endl;
@@ -3509,7 +3509,7 @@ int TestGetAdjustedScalarRange()
   if (range[0] != us->GetDataTypeMin() ||
       range[1] != us->GetDataTypeMax())
   {
-    std::cout << " GetAjustedScalarRange(unsigned short) expected "
+    std::cout << " GetAdjustedScalarRange(unsigned short) expected "
               << us->GetDataTypeMin() << ", " << us->GetDataTypeMax()
               << " but got " << range[0] << ", " << range[1]
               << std::endl;
@@ -3520,7 +3520,7 @@ int TestGetAdjustedScalarRange()
   if (range[0] != us->GetDataTypeMin() ||
       range[1] != 4095.0)
   {
-    std::cout << " GetAjustedScalarRange(unsigned short) expected "
+    std::cout << " GetAdjustedScalarRange(unsigned short) expected "
               << us->GetDataTypeMin() << ", " << 4095.0
               << " but got " << range[0] << ", " << range[1]
               << std::endl;
@@ -3531,7 +3531,7 @@ int TestGetAdjustedScalarRange()
   if (range[0] != us->GetDataTypeMin() ||
       range[1] >= uc->GetDataTypeMax())
   {
-    std::cout << " GetAjustedScalarRange(unsigned short) expected "
+    std::cout << " GetAdjustedScalarRange(unsigned short) expected "
               << us->GetDataTypeMin() << ", " << ">= " << uc->GetDataTypeMax()
               << " but got " << range[0] << ", " << range[1]
               << std::endl;
@@ -3541,7 +3541,7 @@ int TestGetAdjustedScalarRange()
   // Test nullptr array
   if (vtkMath::GetAdjustedScalarRange(nullptr, 1000, nullptr))
   {
-    std::cout << " GetAjustedScalarRange with a nullptr array expected "
+    std::cout << " GetAdjustedScalarRange with a nullptr array expected "
               << 0
               << " but got " << 1
               << std::endl;

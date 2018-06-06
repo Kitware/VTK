@@ -88,7 +88,7 @@ void vtkOpenVRCamera::GetHMDEyeProjections(vtkRenderer *ren)
   float fxmin, fxmax, fymin, fymax;
   double xmin, xmax, ymin, ymax;
 
-  // note docs are propbably wrong in OpenVR arg list for this func
+  // note docs are probably wrong in OpenVR arg list for this func
   hMD->GetProjectionRaw( vr::Eye_Left, &fxmin, &fxmax, &fymin, &fymax);
   xmin = fxmin*znear;
   xmax = fxmax*znear;

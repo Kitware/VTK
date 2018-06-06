@@ -108,7 +108,7 @@ public:
    * - @a Expand: The default behavior. The draw area will automatically resize
    * to take up as much of @a Geometry as possible. Margin sizes are
    * minimized based on the space required for axis labels/tick marks.
-   * - FixedAspect: Same as Expand, but a fixed aspected ratio is enforced.
+   * - FixedAspect: Same as Expand, but a fixed aspect ratio is enforced.
    * See SetFixedAspect.
    * - FixedRect: Draw area is always constrained to a fixed rectangle.
    * See SetFixedRect.

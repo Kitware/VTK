@@ -22,7 +22,7 @@
  * Note that input data arrays should match (same number of arrays with same names in each input)
  *
  * Option MergeCoincidentAtoms specifies if coincident atoms should be merged or not.
- * This may be usefull in Parallel mode to remove ghost atoms when gather molecule on a rank.
+ * This may be useful in Parallel mode to remove ghost atoms when gather molecule on a rank.
  * When merging, use the data of the non ghost atom. If none, use the data of the last coincident atom.
  * This option is active by default.
  */
@@ -51,7 +51,7 @@ public:
 
   //@{
   /**
-   * Specify if coincident atoms (atom with excatly the same position)
+   * Specify if coincident atoms (atom with exactly the same position)
    * should be merged into one.
    * True by default.
    */
