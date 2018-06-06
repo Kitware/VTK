@@ -328,12 +328,10 @@ int vtkXMLCompositeDataWriter::WriteData()
     this->Internal->Root->PrintXML(os, indent);
   }
 
+  // We want to avoid using appended data mode as it
+  // is not supported in meta formats.
   int dataMode = this->DataMode;
-  if (dataMode == vtkXMLWriter::Ascii)
-  {
-    this->DataMode = vtkXMLWriter::Ascii;
-  }
-  else
+  if (dataMode == vtkXMLWriter::Appended)
   {
     this->DataMode = vtkXMLWriter::Binary;
   }

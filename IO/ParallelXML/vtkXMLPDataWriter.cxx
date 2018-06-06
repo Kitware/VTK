@@ -16,7 +16,11 @@
 
 #include "vtkCallbackCommand.h"
 #include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
 #include "vtkErrorCode.h"
+#include "vtkFieldData.h"
+#include "vtkInformation.h"
+#include "vtkNew.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <vtksys/SystemTools.hxx>
@@ -37,6 +41,36 @@ void vtkXMLPDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 void vtkXMLPDataWriter::WritePData(vtkIndent indent)
 {
   vtkDataSet* input = this->GetInputAsDataSet();
+
+  // We want to avoid using appended data mode as it
+  // is not supported in meta formats.
+  int dataMode = this->DataMode;
+  if (dataMode == vtkXMLWriter::Appended)
+  {
+    this->DataMode = vtkXMLWriter::Binary;
+  }
+
+  vtkFieldData *fieldData = input->GetFieldData();
+
+  vtkInformation* meta = input->GetInformation();
+  bool hasTime = meta->Has(vtkDataObject::DATA_TIME_STEP()) ? true : false;
+  if ((fieldData && fieldData->GetNumberOfArrays()) || hasTime)
+  {
+    vtkNew<vtkFieldData> fieldDataCopy;
+    fieldDataCopy->ShallowCopy(fieldData);
+    if (hasTime)
+    {
+      vtkNew<vtkDoubleArray> time;
+      time->SetNumberOfTuples(1);
+      time->SetTypedComponent(0, 0, meta->Get(vtkDataObject::DATA_TIME_STEP()));
+      time->SetName("TimeValue");
+      fieldDataCopy->AddArray(time);
+    }
+    this->WriteFieldDataInline(fieldDataCopy, indent);
+  }
+
+  this->DataMode = dataMode;
+
   this->WritePPointData(input->GetPointData(), indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
