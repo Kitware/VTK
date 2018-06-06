@@ -58,7 +58,12 @@ bool vtkSelector::ComputeSelectedElements(vtkDataObject* input, vtkDataObject* o
     auto insidednessArray = this->CreateInsidednessArray(numElements);
     insidednessArray->SetName(this->InsidednessArrayName.c_str());
 
-    bool computed = this->ComputeSelectedElementsForDataObject(input, insidednessArray);
+    bool computed = this->ComputeSelectedElementsForBlock(input, insidednessArray,
+      VTK_UNSIGNED_INT_MAX, VTK_UNSIGNED_INT_MAX, VTK_UNSIGNED_INT_MAX);
+    if (!computed)
+    {
+      insidednessArray->Fill(0);
+    }
 
     // If selecting cells containing points, we need to map the selected points
     // to selected cells.
@@ -105,28 +110,24 @@ bool vtkSelector::ComputeSelectedElementsForCompositeDataSet(
     unsigned int compositeIndex = inIter->GetCurrentFlatIndex();
     unsigned int amrLevel = inIterAMR ? inIterAMR->GetCurrentLevel() : VTK_UNSIGNED_INT_MAX;
     unsigned int amrIndex = inIterAMR ? inIterAMR->GetCurrentIndex() : VTK_UNSIGNED_INT_MAX;
-    if (this->SkipBlock(compositeIndex, amrLevel, amrIndex))
+    if (this->SkipBlock(compositeIndex, amrLevel, amrIndex) ||
+      !this->ComputeSelectedElementsForBlock(inputBlock, insidednessArray, compositeIndex, amrLevel, amrIndex))
     {
       insidednessArray->Fill(0);
     }
-    else
-    {
-      this->ComputeSelectedElementsForBlock(inputBlock, insidednessArray, compositeIndex,
-        amrLevel, amrIndex);
 
-      // If selecting cells containing points, we need to map the selected points
-      // to selected cells.
-      auto selectionProperties = this->Node->GetProperties();
-      if (association == vtkDataObject::POINT &&
-          selectionProperties->Has(vtkSelectionNode::CONTAINING_CELLS()) &&
-          selectionProperties->Get(vtkSelectionNode::CONTAINING_CELLS()) == 1)
-      {
-        // insidednessArray going in is associated with points. Returned, it is
-        // associated with cells.
-        insidednessArray = this->ComputeCellsContainingSelectedPoints(inputBlock, insidednessArray);
-        insidednessArray->SetName(this->InsidednessArrayName.c_str());
-        association = vtkDataObject::CELL;
-      }
+    // If selecting cells containing points, we need to map the selected points
+    // to selected cells.
+    auto selectionProperties = this->Node->GetProperties();
+    if (association == vtkDataObject::POINT &&
+        selectionProperties->Has(vtkSelectionNode::CONTAINING_CELLS()) &&
+        selectionProperties->Get(vtkSelectionNode::CONTAINING_CELLS()) == 1)
+    {
+      // insidednessArray going in is associated with points. Returned, it is
+      // associated with cells.
+      insidednessArray = this->ComputeCellsContainingSelectedPoints(inputBlock, insidednessArray);
+      insidednessArray->SetName(this->InsidednessArrayName.c_str());
+      association = vtkDataObject::CELL;
     }
     outputBlock->GetAttributes(association)->AddArray(insidednessArray);
   }
