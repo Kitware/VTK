@@ -279,6 +279,9 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
 
   # warnings from ospray include.
   "ospray/ospcommon"
+
+  # warnings as part of the doxygen documentaiton build
+  "no documentation block in"
   )
 
 IF(APPLE)
