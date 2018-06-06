@@ -144,7 +144,15 @@ bool vtkOSPRayMaterialLibrary::InternalParseJSON
 {
   //todo: this reader is a lot more fragile then I'ld like, need to make it robust
   Json::Value root;
-  *doc >> root;
+  try
+  {
+    *doc >> root;
+  }
+  catch (Json::RuntimeError)
+  {
+    delete doc;
+    return false;
+  }
   delete doc;
 
   if (!root.isMember("family"))
