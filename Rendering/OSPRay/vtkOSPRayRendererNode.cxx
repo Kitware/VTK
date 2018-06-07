@@ -215,6 +215,7 @@ public:
     this->least[2] = 0.;
     this->LastViewPort[0] = 0.;
     this->LastViewPort[1] = 0.;
+    this->LastParallelScale = 0.0;
   };
 
   ~vtkOSPRayRendererNodeInternals() {};
@@ -412,6 +413,7 @@ public:
   double lup[3];
   double least[3];
   double LastViewPort[2];
+  double LastParallelScale;
 
   OSPLight BGLight;
 };
@@ -1117,6 +1119,12 @@ void vtkOSPRayRendererNode::Render(bool prepass)
               i=4; j=4;
             }
           }
+        }
+        if (this->Internal->LastParallelScale !=
+            ren->GetActiveCamera()->GetParallelScale())
+        {
+          this->Internal->LastParallelScale = ren->GetActiveCamera()->GetParallelScale();
+          canReuse = false;
         }
       }
       if (!canReuse)
