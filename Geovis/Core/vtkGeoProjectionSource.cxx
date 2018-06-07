@@ -88,6 +88,7 @@ vtkCxxSetObjectMacro(vtkGeoProjectionSource, Transform, vtkAbstractTransform);
 //----------------------------------------------------------------------------
 vtkGeoProjectionSource::vtkGeoProjectionSource()
 {
+  VTK_LEGACY_BODY(vtkGeoProjectionSource::vtkGeoProjectionSource, "VTK 8.2");
   this->Projection=0;
   this->Transform = nullptr;
   this->MinCellsPerNode = 20;
@@ -488,4 +489,3 @@ vtkAbstractTransform* vtkGeoProjectionSource::GetTransform()
 {
   return this->Transform;
 }
-

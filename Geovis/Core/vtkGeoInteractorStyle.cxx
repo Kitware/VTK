@@ -68,6 +68,7 @@ namespace
 //----------------------------------------------------------------------------
 vtkGeoInteractorStyle::vtkGeoInteractorStyle()
 {
+  VTK_LEGACY_BODY(vtkGeoInteractorStyle::vtkGeoInteractorStyle, "VTK 8.2");
   vtkEventCommand* rc = new vtkEventCommand(this);
   this->EventCommand = rc;
   rc->UnRegister(nullptr);

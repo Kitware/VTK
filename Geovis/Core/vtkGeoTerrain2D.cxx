@@ -30,6 +30,7 @@ vtkStandardNewMacro(vtkGeoTerrain2D);
 //----------------------------------------------------------------------------
 vtkGeoTerrain2D::vtkGeoTerrain2D()
 {
+  VTK_LEGACY_BODY(vtkGeoTerrain2D::vtkGeoTerrain2D, "VTK 8.2");
   this->LocationTolerance = 50.0;
   this->TextureTolerance = 1.0;
   this->CameraBounds[0] = 0;
@@ -107,4 +108,3 @@ vtkAbstractTransform* vtkGeoTerrain2D::GetTransform()
   }
   return nullptr;
 }
-

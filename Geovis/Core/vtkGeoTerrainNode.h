@@ -34,6 +34,7 @@
 
 class vtkPolyData;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoTerrainNode : public vtkGeoTreeNode
 {
 public:
@@ -162,4 +163,5 @@ private:
   void operator=(const vtkGeoTerrainNode&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

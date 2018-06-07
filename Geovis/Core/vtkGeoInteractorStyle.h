@@ -43,6 +43,7 @@ class vtkCompassWidget;
 class vtkGeoCamera;
 class vtkUnsignedCharArray;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoInteractorStyle :
   public vtkInteractorStyleTrackballCamera
 {
@@ -167,4 +168,5 @@ private:
   void operator=(const vtkGeoInteractorStyle&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

@@ -28,6 +28,7 @@ vtkStandardNewMacro(vtkGeoTreeNodeCache);
 //----------------------------------------------------------------------------
 vtkGeoTreeNodeCache::vtkGeoTreeNodeCache()
 {
+  VTK_LEGACY_BODY(vtkGeoTreeNodeCache::vtkGeoTreeNodeCache, "VTK 8.2");
   this->Oldest = nullptr;
   this->Newest = nullptr;
   this->Size = 0;

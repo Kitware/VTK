@@ -77,6 +77,8 @@ private:
 //----------------------------------------------------------------------------
 vtkGeoAlignedImageSource::vtkGeoAlignedImageSource()
 {
+  VTK_LEGACY_BODY(vtkGeoAlignedImageSource::vtkGeoAlignedImageSource,
+                  "VTK 8.2");
   this->Image = nullptr;
   this->LevelImages = vtkMultiBlockDataSet::New();
   this->LatitudeRange[0] = -90;
@@ -425,4 +427,3 @@ int vtkGeoAlignedImageSource::PowerOfTwo(int val)
   }
   return tmp;
 }
-

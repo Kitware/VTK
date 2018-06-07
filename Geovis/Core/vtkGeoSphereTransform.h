@@ -37,6 +37,7 @@
 
 class vtkGeoProjection;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoSphereTransform : public vtkAbstractTransform
 {
 public:
@@ -107,4 +108,5 @@ private:
   void operator = ( const vtkGeoSphereTransform& ) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif // vtkGeoSphereTransform_h

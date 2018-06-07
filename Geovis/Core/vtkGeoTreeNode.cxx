@@ -27,6 +27,7 @@ vtkStandardNewMacro(vtkGeoTreeNode);
 //----------------------------------------------------------------------------
 vtkGeoTreeNode::vtkGeoTreeNode()
 {
+  VTK_LEGACY_BODY(vtkGeoTreeNode::vtkGeoTreeNode, "VTK 8.2");
   this->Level = 0;
   this->Parent = nullptr;
   this->Older = nullptr;

@@ -43,6 +43,7 @@
 
 class vtkGraph;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoRandomGraphSource : public vtkRandomGraphSource
 {
 public:
@@ -64,5 +65,6 @@ private:
   void operator=(const vtkGeoRandomGraphSource&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif
 

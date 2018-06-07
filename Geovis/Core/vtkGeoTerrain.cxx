@@ -64,6 +64,7 @@ vtkCxxSetObjectMacro(vtkGeoTerrain, GeoCamera, vtkGeoCamera);
 //----------------------------------------------------------------------------
 vtkGeoTerrain::vtkGeoTerrain()
 {
+  VTK_LEGACY_BODY(vtkGeoTerrain::vtkGeoTerrain, "VTK 8.2");
   this->GeoSource = nullptr;
   this->Root = vtkGeoTerrainNode::New();
   this->Origin[0] = 0.0;
@@ -554,4 +555,3 @@ void vtkGeoTerrain::PrintTree(ostream & os, vtkIndent indent, vtkGeoTerrainNode*
     this->PrintTree(os, indent.GetNextIndent(), parent->GetChild(i));
   }
 }
-

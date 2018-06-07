@@ -35,6 +35,7 @@ class vtkDoubleArray;
 class vtkPolyData;
 class vtkRenderer;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoAdaptiveArcs : public vtkPolyDataAlgorithm
 {
 public:
@@ -111,4 +112,5 @@ private:
   void operator=(const vtkGeoAdaptiveArcs&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

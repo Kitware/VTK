@@ -37,6 +37,7 @@
 
 class vtkGeoTreeNode;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoTreeNodeCache : public vtkObject
 {
 public:
@@ -110,4 +111,5 @@ private:
   void operator=(const vtkGeoTreeNodeCache&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

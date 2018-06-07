@@ -38,6 +38,7 @@ class vtkAbstractTransform;
 class vtkGeoTerrainNode;
 class vtkMutexLock;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoProjectionSource : public vtkGeoSource
 {
 public:
@@ -91,4 +92,5 @@ private:
   void operator=(const vtkGeoProjectionSource&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

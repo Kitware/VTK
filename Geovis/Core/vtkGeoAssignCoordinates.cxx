@@ -38,6 +38,7 @@ vtkStandardNewMacro(vtkGeoAssignCoordinates);
 
 vtkGeoAssignCoordinates::vtkGeoAssignCoordinates()
 {
+  VTK_LEGACY_BODY(vtkGeoAssignCoordinates::vtkGeoAssignCoordinates, "VTK 8.2");
   this->LongitudeArrayName = nullptr;
   this->LatitudeArrayName = nullptr;
   this->CoordinatesInArrays = true;
