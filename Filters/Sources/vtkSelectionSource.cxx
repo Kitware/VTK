@@ -458,7 +458,7 @@ int vtkSelectionSource::RequestData(
                      this->ArrayComponent);
     // Create the selection list
     vtkDoubleArray* selectionList = vtkDoubleArray::New();
-    selectionList->SetNumberOfComponents(1);
+    selectionList->SetNumberOfComponents(2);
     selectionList->SetNumberOfValues(
       static_cast<vtkIdType>(this->Internal->Thresholds.size()));
 
@@ -467,7 +467,9 @@ int vtkSelectionSource::RequestData(
     for (vtkIdType cc=0;
       iter != this->Internal->Thresholds.end(); ++iter, ++cc)
     {
-      selectionList->SetValue(cc, *iter);
+      selectionList->SetTypedComponent(cc, 0, *iter);
+      ++iter;
+      selectionList->SetTypedComponent(cc, 1, *iter);
     }
 
     output->SetSelectionList(selectionList);
@@ -536,4 +538,3 @@ int vtkSelectionSource::RequestData(
 
   return 1;
 }
-
