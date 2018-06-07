@@ -1867,13 +1867,13 @@ void vtkOpenGLContextDevice2D::DrawPolyData(float p[2], float scale,
 
   if (polyData->GetLines()->GetNumberOfCells() > 0)
   {
-    this->PolyDataImpl->Draw(CellArrayHelper::LINE, polyData->GetLines(),
+    this->PolyDataImpl->Draw(CellArrayHelper::LINE, polyData,
     polyData->GetPoints(), p[0], p[1], scale, scalarMode, colors);
   }
 
   if (polyData->GetPolys()->GetNumberOfCells() > 0)
   {
-    this->PolyDataImpl->Draw(CellArrayHelper::POLYGON, polyData->GetPolys(),
+    this->PolyDataImpl->Draw(CellArrayHelper::POLYGON, polyData,
       polyData->GetPoints(), p[0], p[1], scale, scalarMode, colors);
   }
 }
