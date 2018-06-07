@@ -205,6 +205,9 @@ protected:
       bool StencilTest;
       bool Blend;
       bool MultiSample;
+      int MaxTextureSize;
+      int MajorVersion;
+      int MinorVersion;
       GLState() {
       }
   };

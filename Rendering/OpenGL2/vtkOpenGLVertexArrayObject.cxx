@@ -314,7 +314,7 @@ bool vtkOpenGLVertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *
 
   const GLchar *namePtr = static_cast<const GLchar *>(name.c_str());
   VertexAttributes attribs;
-  attribs.Index = glGetAttribLocation(this->Internal->HandleProgram, namePtr);
+  attribs.Index = program->FindAttributeArray(namePtr);
   attribs.Offset = offset;
   attribs.Stride = static_cast<GLsizei>(stride);
   attribs.Type = convertTypeToGL(elementType);

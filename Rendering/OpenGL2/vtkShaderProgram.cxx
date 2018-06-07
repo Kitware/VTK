@@ -892,7 +892,7 @@ bool vtkShaderProgram::SetAttributeArrayInternal(
   return true;
 }
 
-inline int vtkShaderProgram::FindAttributeArray(const char *cname)
+int vtkShaderProgram::FindAttributeArray(const char *cname)
 {
   if (cname == nullptr || !this->Linked)
   {
@@ -916,7 +916,7 @@ inline int vtkShaderProgram::FindAttributeArray(const char *cname)
   return loc;
 }
 
-inline int vtkShaderProgram::FindUniform(const char *cname)
+int vtkShaderProgram::FindUniform(const char *cname)
 {
   if (cname == nullptr || !this->Linked)
   {

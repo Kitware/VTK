@@ -306,6 +306,10 @@ public:
   vtkMTimeType GetUniformGroupUpdateTime(int);
   //@}
 
+  // returns the location for a uniform or attribute in
+  // this program. Is cached for performance.
+  int FindUniform(const char *name);
+  int FindAttributeArray(const char *name);
 
 protected:
   vtkShaderProgram();
@@ -396,9 +400,6 @@ protected:
   friend class VertexArrayObject;
 
 private:
-  int FindAttributeArray(const char *name);
-  int FindUniform(const char *name);
-
   vtkShaderProgram(const vtkShaderProgram&) = delete;
   void operator=(const vtkShaderProgram&) = delete;
 

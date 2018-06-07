@@ -131,6 +131,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
 {
   vtkOpenGLRenderWindow* renWin =
     static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
+  vtkOpenGLState *ostate = renWin->GetState();
 
   if (!this->ExternalTextureObject)
   {
@@ -264,7 +265,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
 
         // -- decide whether the texture needs to be resampled --
         GLint maxDimGL;
-        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxDimGL);
+        ostate->vtkglGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxDimGL);
         vtkOpenGLCheckErrorMacro("failed at glGetIntegerv");
         // if larger than permitted by the graphics library then must resample
         bool resampleNeeded = xsize > maxDimGL || ysize > maxDimGL;
@@ -277,7 +278,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
         {
           vtkDebugMacro(<< "Resampling texture to power of two for OpenGL");
           resultData[i] = this->ResampleToPowerOfTwo(xsize, ysize, dataPtr[i],
-                                                  bytesPerPixel);
+                                                  bytesPerPixel, maxDimGL);
         }
         else
         {
@@ -383,7 +384,6 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
 
   if (this->PremultipliedAlpha)
   {
-    vtkOpenGLState *ostate = renWin->GetState();
     ostate->GetBlendFuncState(this->PrevBlendParams);
 
     // make the blend function correct for textures premultiplied by alpha.
@@ -410,7 +410,7 @@ void vtkOpenGLTexture::PostRender(vtkRenderer *ren)
 }
 
 // ----------------------------------------------------------------------------
-static int FindPowerOfTwo(int i)
+static int FindPowerOfTwo(int i, int maxDimGL)
 {
   int size = vtkMath::NearestPowerOfTwo(i);
 
@@ -418,8 +418,6 @@ static int FindPowerOfTwo(int i)
   // suggestions)]
   // limit the size of the texture to the maximum allowed by OpenGL
   // (slightly more graceful than texture failing but not ideal)
-  GLint maxDimGL;
-  glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxDimGL);
   if (size < 0 || size > maxDimGL)
   {
     size = maxDimGL ;
@@ -435,7 +433,8 @@ static int FindPowerOfTwo(int i)
 unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs,
                                                       int &ys,
                                                       unsigned char *dptr,
-                                                      int bpp)
+                                                      int bpp,
+                                                      int maxDimGL)
 {
   unsigned char *tptr, *p, *p1, *p2, *p3, *p4;
   vtkIdType jOffset, iIdx, jIdx;
@@ -443,8 +442,8 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs,
   int yInIncr = xs;
   int xInIncr = 1;
 
-  int xsize = FindPowerOfTwo(xs);
-  int ysize = FindPowerOfTwo(ys);
+  int xsize = FindPowerOfTwo(xs, maxDimGL);
+  int ysize = FindPowerOfTwo(ys, maxDimGL);
   if (this->RestrictPowerOf2ImageSmaller)
   {
     if (xsize > xs)

@@ -1991,13 +1991,13 @@ void vtkTextureObject::CopyFromFrameBuffer(int srcXmin,
 //----------------------------------------------------------------------------
 int vtkTextureObject::GetMaximumTextureSize(vtkOpenGLRenderWindow* context)
 {
-  GLint maxSize = -1;
-  if (context && context->IsCurrent())
+  int maxSize = -1;
+  if (context)
   {
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxSize);
+    context->GetState()->vtkglGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxSize);
   }
 
-  return static_cast<int>(maxSize);
+  return maxSize;
 }
 
 //----------------------------------------------------------------------------
