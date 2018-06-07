@@ -927,6 +927,37 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
   }
 }
 
+int vtkOpenGLRenderWindow::GetColorBufferInternalFormat(int attachmentPoint)
+{
+  int format = 0;
+
+  if (GLEW_ARB_direct_state_access)
+  {
+    int type;
+    glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + attachmentPoint,
+      GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &type);
+    if (type == GL_TEXTURE)
+    {
+      int texName;
+      glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + attachmentPoint,
+        GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &texName);
+
+      glGetTextureLevelParameteriv(texName, 0, GL_TEXTURE_INTERNAL_FORMAT, &format);
+    }
+    else if (type == GL_RENDERBUFFER)
+    {
+      int rbName;
+      glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + attachmentPoint,
+        GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &rbName);
+
+      glGetNamedRenderbufferParameteriv(rbName, GL_RENDERBUFFER_INTERNAL_FORMAT, &format);
+    }
+    vtkOpenGLClearErrorMacro();
+  }
+
+  return format;
+}
+
 unsigned char* vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
                                                    int x2, int y2,
                                                    int front, int right)
