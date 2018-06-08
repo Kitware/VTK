@@ -50,6 +50,7 @@ class vtkAssembly;
 class vtkGeoTerrain2D;
 class vtkViewTheme;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKVIEWSGEOVIS_EXPORT vtkGeoView2D : public vtkRenderView
 {
 public:
@@ -89,4 +90,5 @@ private:
   void operator=(const vtkGeoView2D&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif
