@@ -32,6 +32,7 @@ set(lib_srcs
 
 #needed to properly setup language wrappers
 set(headers
+  vtkmAverageToCells.h
   vtkmAverageToPoints.h
   vtkmCleanGrid.h
   vtkmClip.h
@@ -40,14 +41,15 @@ set(headers
   vtkmExtractVOI.h
   vtkmThreshold.h
   vtkmLevelOfDetail.h
-  vtkmAverageToCells.h
   vtkmGradient.h
+  vtkmPointElevation.h
   vtkmPolyDataNormals.h
   vtkmTriangleMeshPointNormals.h
   )
 
 #implementation of the algorithms for cpu accelerators
 set(cpu_accelerator_srcs
+  vtkmAverageToCells.cxx
   vtkmAverageToPoints.cxx
   vtkmCleanGrid.cxx
   vtkmClip.cxx
@@ -56,11 +58,11 @@ set(cpu_accelerator_srcs
   vtkmExtractVOI.cxx
   vtkmThreshold.cxx
   vtkmLevelOfDetail.cxx
-  vtkmAverageToCells.cxx
   vtkmCellSetExplicit.cxx
   vtkmCellSetSingleType.cxx
   vtkmConnectivityExec.cxx
   vtkmGradient.cxx
+  vtkmPointElevation.cxx
   vtkmPolyDataNormals.cxx
   vtkmTriangleMeshPointNormals.cxx
   vtkmlib/Portals.cxx
@@ -82,6 +84,7 @@ set(cuda_accelerator_srcs
   vtkmCellSetSingleType.cu
   vtkmConnectivityExec.cu
   vtkmGradient.cu
+  vtkmPointElevation.cu
   vtkmPolyDataNormals.cu
   vtkmTriangleMeshPointNormals.cu
   vtkmlib/Portals.cu
