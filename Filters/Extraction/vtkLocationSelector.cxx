@@ -15,6 +15,7 @@
 #include "vtkLocationSelector.h"
 
 #include "vtkDataSetAttributes.h"
+#include "vtkGenericCell.h"
 #include "vtkInformation.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -22,7 +23,6 @@
 #include "vtkSMPTools.h"
 #include "vtkSelectionNode.h"
 #include "vtkSignedCharArray.h"
-#include "vtkStaticCellLocator.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -119,18 +119,19 @@ public:
 
   bool Execute(vtkDataSet* dataset, vtkSignedCharArray* insidednessArray) override
   {
-    vtkNew<vtkStaticCellLocator> cellLocator;
-    cellLocator->SetDataSet(dataset);
-    cellLocator->Update();
-
     const auto numLocations = this->SelectionList->GetNumberOfTuples();
     const auto numCells = insidednessArray->GetNumberOfTuples();
     std::fill_n(insidednessArray->GetPointer(0), numCells, static_cast<char>(0));
+    std::vector<double> weights(dataset->GetMaxCellSize(), 0.0);
+    vtkNew<vtkGenericCell> cell;
     for (vtkIdType cc = 0; cc < numLocations; ++cc)
     {
       double coords[3];
       this->SelectionList->GetTuple(cc, coords);
-      auto cid = cellLocator->FindCell(coords);
+      int subId;
+
+      double pcoords[3];
+      auto cid = dataset->FindCell(coords, nullptr, cell, 0, 0.0, subId, pcoords, &weights[0]);
       if (cid >= 0 && cid < numCells)
       {
         insidednessArray->SetValue(cid, 1);
