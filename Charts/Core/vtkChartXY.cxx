@@ -1397,6 +1397,43 @@ vtkAxis* vtkChartXY::GetAxis(int axisIndex)
 }
 
 //-----------------------------------------------------------------------------
+void vtkChartXY::SetAxis(int axisIndex, vtkAxis * axis)
+{
+  if ((axisIndex < 4) && (axisIndex >= 0))
+  {
+    vtkAxis * old_axis = this->ChartPrivate->axes[axisIndex];
+    this->ChartPrivate->axes[axisIndex] = axis;
+    this->ChartPrivate->axes[axisIndex]->SetVisible(old_axis->GetVisible());
+
+    // remove the old axis
+    this->RemoveItem(old_axis);
+
+    this->AttachAxisRangeListener(this->ChartPrivate->axes[axisIndex]);
+    this->AddItem(this->ChartPrivate->axes[axisIndex]);
+
+    this->ChartPrivate->axes[axisIndex]->SetPosition(axisIndex);
+
+    vtkPlotGrid* grid1 = static_cast<vtkPlotGrid *>(this->ChartPrivate->Clip->GetItem(0));
+    vtkPlotGrid* grid2 = static_cast<vtkPlotGrid *>(this->ChartPrivate->Clip->GetItem(1));
+    switch (axisIndex)
+    {
+    case vtkAxis::BOTTOM:
+      grid1->SetXAxis(this->ChartPrivate->axes[vtkAxis::BOTTOM]);
+      break;
+    case vtkAxis::LEFT:
+      grid1->SetYAxis(this->ChartPrivate->axes[vtkAxis::LEFT]);
+      break;
+    case vtkAxis::TOP:
+      grid2->SetXAxis(this->ChartPrivate->axes[vtkAxis::TOP]);
+      break;
+    case vtkAxis::RIGHT:
+      grid2->SetYAxis(this->ChartPrivate->axes[vtkAxis::RIGHT]);
+      break;
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
 vtkIdType vtkChartXY::GetNumberOfAxes()
 {
   return 4;

@@ -403,6 +403,14 @@ public:
 
   //@{
   /**
+   * Get/set whether the axis title should be visible.
+   */
+  vtkSetMacro(TitleVisible, bool);
+  vtkGetMacro(TitleVisible, bool);
+  //@}
+
+  //@{
+  /**
    * Get/set the numerical precision to use, default is 2. This is ignored
    * when Notation is STANDARD_NOTATION or PRINTF_NOTATION.
    */
@@ -581,7 +589,7 @@ public:
    * Generate a single label using the current settings when TickLabelAlgorithm
    * is TICK_SIMPLE.
    */
-  vtkStdString GenerateSimpleLabel(double val);
+  virtual vtkStdString GenerateSimpleLabel(double val);
 
 protected:
   vtkAxis();
@@ -607,12 +615,12 @@ protected:
    */
   void GenerateTickLabels();
 
-  void GenerateLabelFormat(int notation, double n);
+  virtual void GenerateLabelFormat(int notation, double n);
 
   /**
    * Generate label using a printf-style format string.
    */
-  vtkStdString GenerateSprintfLabel(double value, const std::string & format);
+  virtual vtkStdString GenerateSprintfLabel(double value, const std::string & format);
 
   /**
    * Calculate the next "nicest" numbers above and below the current minimum.
@@ -645,7 +653,7 @@ protected:
    * If more than 20 tick marks would result, the stride for the varying digit
    * is increased.
    */
-  void GenerateLogSpacedLinearTicks(int order, double min, double max);
+  virtual void GenerateLogSpacedLinearTicks(int order, double min, double max);
 
   /**
    * Generate tick marks for logarithmic scale for specific order of magnitude.
@@ -691,6 +699,7 @@ protected:
   float LabelOffset;   // Offset of label from the tick mark
   bool TicksVisible;   // Should the tick marks be visible.
   bool AxisVisible;    // Should the axis line be visible.
+  bool TitleVisible;   // Should the title be visible.
   int Precision;       // Numerical precision to use, defaults to 2.
   int Notation;        // The notation to use (standard, scientific, mixed)
   std::string LabelFormat; // The printf-style format string used for labels.

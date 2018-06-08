@@ -78,6 +78,13 @@ public:
    */
   vtkAxis * GetAxis(int axis);
 
+
+  /**
+   * Set the x (0), y (1) or z (2) axis.
+   */
+  virtual void SetAxis(int axisIndex, vtkAxis* axis);
+
+
   //@{
   /**
    * Set the color for the axes.

@@ -58,6 +58,7 @@ vtkAxis::vtkAxis()
   this->LabelProperties->SetFontSize(12);
   this->LabelProperties->SetFontFamilyToArial();
   this->LabelProperties->SetJustificationToCentered();
+  this->TitleVisible = true;
   this->TitleProperties = vtkTextProperty::New();
   this->TitleProperties->SetColor(0.0, 0.0, 0.0);
   this->TitleProperties->SetFontSize(12);
@@ -325,7 +326,7 @@ bool vtkAxis::Paint(vtkContext2D *painter)
   }
 
   // Draw the axis title if there is one
-  if (!this->Title.empty())
+  if (!this->Title.empty() && this->TitleVisible)
   {
     int x = 0;
     int y = 0;

@@ -117,6 +117,13 @@ vtkAxis * vtkChartXYZ::GetAxis(int axis)
 }
 
 //-----------------------------------------------------------------------------
+void vtkChartXYZ::SetAxis(int axisIndex, vtkAxis* axis)
+{
+  assert(axisIndex >= 0 && axisIndex < 3);
+  this->Axes[axisIndex] = axis;
+}
+
+//-----------------------------------------------------------------------------
 void vtkChartXYZ::SetAxisColor(const vtkColor4ub& color)
 {
   this->AxisPen->SetColor(color);
