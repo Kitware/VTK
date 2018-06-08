@@ -6,6 +6,8 @@ endif()
 vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   ${extra_opengl2_tests}
   TestBlockOpacity.cxx TestBlockVisibility.cxx
+  TestCompositeDataPointGaussian.cxx,NO_DATA
+  TestCompositeDataPointGaussianSelection.cxx,NO_DATA
   TestCompositePolyDataMapper2.cxx,NO_DATA
   TestCompositePolyDataMapper2Picking.cxx,NO_DATA
   TestCompositePolyDataMapper2Scalars.cxx,NO_DATA

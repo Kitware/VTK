@@ -24,6 +24,7 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkPointGaussianMapper.h"
+#include <vector> // for ivar
 
 class vtkOpenGLPointGaussianMapperHelper;
 
@@ -46,14 +47,56 @@ public:
    */
   bool GetIsOpaque() override;
 
+  /**
+   * This calls RenderPiece (in a for loop if streaming is necessary).
+   */
+  void Render(vtkRenderer *ren, vtkActor *act) override;
+
 protected:
   vtkOpenGLPointGaussianMapper();
   ~vtkOpenGLPointGaussianMapper() override;
 
-  void RenderPiece(vtkRenderer *ren, vtkActor *act) override;
+  std::vector<vtkOpenGLPointGaussianMapperHelper *> Helpers;
+  vtkOpenGLPointGaussianMapperHelper *CreateHelper();
+  void CopyMapperValuesToHelper(
+    vtkOpenGLPointGaussianMapperHelper *helper);
 
-  vtkOpenGLPointGaussianMapperHelper *Helper;
   vtkTimeStamp HelperUpdateTime;
+
+  // unused
+  void RenderPiece(vtkRenderer *, vtkActor *) override {};
+
+  void RenderInternal(vtkRenderer *, vtkActor *);
+
+  // create the table for opacity values
+  void BuildOpacityTable();
+
+  // create the table for scale values
+  void BuildScaleTable();
+
+  float *OpacityTable; // the table
+  double OpacityScale; // used for quick lookups
+  double OpacityOffset; // used for quick lookups
+  float *ScaleTable; // the table
+  double ScaleScale; // used for quick lookups
+  double ScaleOffset; // used for quick lookups
+
+  /**
+   * We need to override this method because the standard streaming
+   * demand driven pipeline may not be what we need as we can handle
+   * hierarchical data as input
+   */
+  vtkExecutive* CreateDefaultExecutive() override;
+
+  /**
+   * Need to define the type of data handled by this mapper.
+   */
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+
+  /**
+   * Need to loop over the hierarchy to compute bounds
+   */
+  void ComputeBounds() override;
 
 private:
   vtkOpenGLPointGaussianMapper(const vtkOpenGLPointGaussianMapper&) = delete;

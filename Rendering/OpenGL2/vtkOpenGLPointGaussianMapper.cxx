@@ -15,9 +15,16 @@
 
 #include "vtkOpenGLHelper.h"
 
+#include "vtkBoundingBox.h"
 #include "vtkCellArray.h"
+#include "vtkCommand.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataPipeline.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkFloatArray.h"
 #include "vtkHardwareSelector.h"
+#include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkMatrix4x4.h"
@@ -34,6 +41,7 @@
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkRenderWindow.h"
 #include "vtkShaderProgram.h"
 
 #include "vtkPointGaussianVS.h"
@@ -50,15 +58,21 @@ public:
 
   vtkPointGaussianMapper *Owner;
 
-  bool UsingPoints;
+  // set from parent
   float *OpacityTable; // the table
   double OpacityScale; // used for quick lookups
   double OpacityOffset; // used for quick lookups
-
   float *ScaleTable; // the table
   double ScaleScale; // used for quick lookups
   double ScaleOffset; // used for quick lookups
+
+  vtkIdType FlatIndex;
+
+  bool UsingPoints;
   double TriangleScale;
+
+  // called by our Owner skips some stuff
+  void GaussianRender(vtkRenderer *ren, vtkActor *act);
 
 protected:
   vtkOpenGLPointGaussianMapperHelper();
@@ -97,12 +111,6 @@ protected:
 
   void RenderPieceDraw(vtkRenderer *ren, vtkActor *act) override;
 
-  // create the table for opacity values
-  void BuildOpacityTable();
-
-  // create the table for scale values
-  void BuildScaleTable();
-
   // Description:
   // Does the shader source need to be recomputed
   bool GetNeedToRebuildShaders(vtkOpenGLHelper &cellBO,
@@ -120,14 +128,15 @@ vtkStandardNewMacro(vtkOpenGLPointGaussianMapperHelper)
 vtkOpenGLPointGaussianMapperHelper::vtkOpenGLPointGaussianMapperHelper()
 {
   this->Owner = nullptr;
+  this->UsingPoints = false;
+  this->TriangleScale = 0.0;
+  this->FlatIndex = 1;
   this->OpacityTable = nullptr;
   this->ScaleTable = nullptr;
-  this->UsingPoints = false;
   this->OpacityScale = 1.0;
   this->ScaleScale = 1.0;
   this->OpacityOffset = 0.0;
   this->ScaleOffset = 0.0;
-  this->TriangleScale = 0.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -243,16 +252,6 @@ bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildShaders(
 //-----------------------------------------------------------------------------
 vtkOpenGLPointGaussianMapperHelper::~vtkOpenGLPointGaussianMapperHelper()
 {
-  if (this->OpacityTable)
-  {
-    delete [] this->OpacityTable;
-    this->OpacityTable = nullptr;
-  }
-  if (this->ScaleTable)
-  {
-    delete [] this->ScaleTable;
-    this->ScaleTable = nullptr;
-  }
 }
 
 //-----------------------------------------------------------------------------
@@ -556,53 +555,6 @@ bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildBufferObjects(
 }
 
 //-------------------------------------------------------------------------
-void vtkOpenGLPointGaussianMapperHelper::BuildOpacityTable()
-{
-  double range[2];
-
-  // if a piecewise function was provided, use it to map the opacities
-  vtkPiecewiseFunction *pwf = this->Owner->GetScalarOpacityFunction();
-  int tableSize = this->Owner->GetOpacityTableSize();
-
-  delete [] this->OpacityTable;
-  this->OpacityTable = new float [tableSize+1];
-  if (pwf)
-  {
-    // build the interpolation table
-    pwf->GetRange(range);
-    pwf->GetTable(range[0],range[1],tableSize,this->OpacityTable);
-    // duplicate the last value for bilinear interp edge case
-    this->OpacityTable[tableSize] = this->OpacityTable[tableSize-1];
-    this->OpacityScale = (tableSize - 1.0)/(range[1] - range[0]);
-    this->OpacityOffset = range[0];
-  }
-
-}
-
-//-------------------------------------------------------------------------
-void vtkOpenGLPointGaussianMapperHelper::BuildScaleTable()
-{
-  double range[2];
-
-  // if a piecewise function was provided, use it to map the opacities
-  vtkPiecewiseFunction *pwf = this->Owner->GetScaleFunction();
-  int tableSize = this->Owner->GetScaleTableSize();
-
-  delete [] this->ScaleTable;
-  this->ScaleTable = new float [tableSize+1];
-  if (pwf)
-  {
-    // build the interpolation table
-    pwf->GetRange(range);
-    pwf->GetTable(range[0],range[1],tableSize,this->ScaleTable);
-    // duplicate the last value for bilinear interp edge case
-    this->ScaleTable[tableSize] = this->ScaleTable[tableSize-1];
-    this->ScaleScale = (tableSize - 1.0)/(range[1] - range[0]);
-    this->ScaleOffset = range[0];
-  }
-}
-
-//-------------------------------------------------------------------------
 void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
   vtkRenderer *ren, vtkActor *vtkNotUsed(act))
 {
@@ -618,18 +570,6 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
 
   bool hasScaleArray = this->Owner->GetScaleArray() != nullptr &&
     poly->GetPointData()->HasArray(this->Owner->GetScaleArray());
-  if (hasScaleArray && this->Owner->GetScaleFunction())
-  {
-    this->BuildScaleTable();
-  }
-  else
-  {
-    if (this->ScaleTable)
-    {
-      delete [] this->ScaleTable;
-      this->ScaleTable = nullptr;
-    }
-  }
 
   if (this->Owner->GetScaleFactor() == 0.0)
   {
@@ -644,18 +584,6 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
   // a ScalarOpacityFunction map the array through it
   bool hasOpacityArray = this->Owner->GetOpacityArray() != nullptr &&
     poly->GetPointData()->HasArray(this->Owner->GetOpacityArray());
-  if (hasOpacityArray && this->Owner->GetScalarOpacityFunction())
-  {
-    this->BuildOpacityTable();
-  }
-  else
-  {
-    if (this->OpacityTable)
-    {
-      delete [] this->OpacityTable;
-      this->OpacityTable = nullptr;
-    }
-  }
 
   // For vertex coloring, this sets this->Colors as side effect.
   // For texture map coloring, this sets ColorCoordinates
@@ -776,19 +704,50 @@ void vtkOpenGLPointGaussianMapperHelper::RenderPieceDraw(vtkRenderer* ren, vtkAc
   if (numVerts)
   {
     this->UpdateShaders(this->Primitives[PrimitiveTris], ren, actor);
+    glDrawArrays(GL_POINTS, 0, static_cast<GLuint>(numVerts));
+  }
+}
 
-    // save off current state of src / dst blend functions
-    if (this->Owner->GetEmissive() != 0 && !ren->GetSelector())
-    {
-      vtkOpenGLState *ostate = static_cast<vtkOpenGLRenderer *>(ren)->GetState();
-      vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
-      ostate->vtkglBlendFunc( GL_SRC_ALPHA, GL_ONE);  // additive for emissive sources
-      glDrawArrays(GL_POINTS, 0, static_cast<GLuint>(numVerts));
-    }
-    else
-    {
-      glDrawArrays(GL_POINTS, 0, static_cast<GLuint>(numVerts));
-    }
+namespace
+{
+// helper to get the state of picking
+int getPickState(vtkRenderer *ren)
+{
+  vtkHardwareSelector* selector = ren->GetSelector();
+  if (selector)
+  {
+    return selector->GetCurrentPass();
+  }
+
+  if (ren->GetRenderWindow()->GetIsPicking())
+  {
+    return vtkHardwareSelector::ACTOR_PASS;
+  }
+
+  return vtkHardwareSelector::MIN_KNOWN_PASS - 1;
+}
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLPointGaussianMapperHelper::GaussianRender(
+  vtkRenderer* ren, vtkActor *actor)
+{
+  int picking = getPickState(ren);
+  if (this->LastSelectionState != picking)
+  {
+    this->SelectionStateChanged.Modified();
+    this->LastSelectionState = picking;
+  }
+
+  this->LastBoundBO = nullptr;
+  this->CurrentInput = this->GetInput();
+
+  this->UpdateBufferObjects(ren, actor);
+  this->RenderPieceDraw(ren,actor);
+
+  if (this->LastBoundBO)
+  {
+    this->LastBoundBO->VAO->Release();
   }
 }
 
@@ -798,32 +757,237 @@ vtkStandardNewMacro(vtkOpenGLPointGaussianMapper)
 //-----------------------------------------------------------------------------
 vtkOpenGLPointGaussianMapper::vtkOpenGLPointGaussianMapper()
 {
-  this->Helper = vtkOpenGLPointGaussianMapperHelper::New();
-  this->Helper->Owner = this;
+  this->OpacityTable = nullptr;
+  this->ScaleTable = nullptr;
+  this->OpacityScale = 1.0;
+  this->ScaleScale = 1.0;
+  this->OpacityOffset = 0.0;
+  this->ScaleOffset = 0.0;
 }
 
 vtkOpenGLPointGaussianMapper::~vtkOpenGLPointGaussianMapper()
 {
-  this->Helper->Delete();
-  this->Helper = nullptr;
+  if (this->OpacityTable)
+  {
+    delete [] this->OpacityTable;
+    this->OpacityTable = nullptr;
+  }
+  if (this->ScaleTable)
+  {
+    delete [] this->ScaleTable;
+    this->ScaleTable = nullptr;
+  }
+
+  // clear old helpers
+  for (auto hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
+  {
+    (*hiter)->Delete();
+  }
+  this->Helpers.clear();
 }
 
-void vtkOpenGLPointGaussianMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
+void vtkOpenGLPointGaussianMapper::Render(
+  vtkRenderer *ren, vtkActor *actor)
 {
-  if (this->GetMTime() > this->HelperUpdateTime)
+  // Make sure that we have been properly initialized.
+  if (ren->GetRenderWindow()->CheckAbortStatus())
   {
-    this->Helper->vtkPolyDataMapper::ShallowCopy(this);
-    this->Helper->Modified();
+    return;
+  }
+
+  if (this->GetInputAlgorithm() == nullptr)
+  {
+    return;
+  }
+
+  if (!this->Static)
+  {
+    this->InvokeEvent(vtkCommand::StartEvent,nullptr);
+    this->GetInputAlgorithm()->Update();
+    this->InvokeEvent(vtkCommand::EndEvent,nullptr);
+  }
+
+  if (this->GetInputDataObject(0, 0) == nullptr)
+  {
+    vtkErrorMacro(<< "No input!");
+    return;
+  }
+
+  // the first step is to update the helpers if needed
+  if (this->HelperUpdateTime < this->GetInputDataObject(0, 0)->GetMTime() ||
+      this->HelperUpdateTime < this->GetMTime())
+  {
+    // update tables
+    if (this->GetScaleFunction())
+    {
+      this->BuildScaleTable();
+    }
+    else
+    {
+      if (this->ScaleTable)
+      {
+        delete [] this->ScaleTable;
+        this->ScaleTable = nullptr;
+      }
+    }
+
+    if (this->GetScalarOpacityFunction())
+    {
+      this->BuildOpacityTable();
+    }
+    else
+    {
+      if (this->OpacityTable)
+      {
+        delete [] this->OpacityTable;
+        this->OpacityTable = nullptr;
+      }
+    }
+
+    // clear old helpers
+    for (auto hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
+    {
+      (*hiter)->Delete();
+    }
+    this->Helpers.clear();
+
+    // build new helpers
+    vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
+      this->GetInputDataObject(0, 0));
+
+    if (input)
+    {
+      vtkSmartPointer<vtkDataObjectTreeIterator> iter =
+        vtkSmartPointer<vtkDataObjectTreeIterator>::New();
+      iter->SetDataSet(input);
+      iter->SkipEmptyNodesOn();
+      iter->VisitOnlyLeavesOn();
+      for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+          iter->GoToNextItem())
+      {
+        unsigned int flatIndex = iter->GetCurrentFlatIndex();
+        vtkDataObject *dso = iter->GetCurrentDataObject();
+        vtkPolyData *pd = vtkPolyData::SafeDownCast(dso);
+
+        if (!pd || !pd->GetPoints())
+        {
+          continue;
+        }
+
+        vtkOpenGLPointGaussianMapperHelper *helper = this->CreateHelper();
+        this->CopyMapperValuesToHelper(helper);
+        helper->SetInputData(pd);
+        helper->FlatIndex = flatIndex;
+        this->Helpers.push_back(helper);
+      }
+    }
+    else
+    {
+      vtkPolyData *pd = vtkPolyData::SafeDownCast(
+        this->GetInputDataObject(0, 0));
+      if (pd && pd->GetPoints())
+      {
+        vtkOpenGLPointGaussianMapperHelper *helper = this->CreateHelper();
+        this->CopyMapperValuesToHelper(helper);
+        helper->SetInputData(pd);
+        this->Helpers.push_back(helper);
+      }
+    }
+
     this->HelperUpdateTime.Modified();
   }
-  this->Helper->RenderPiece(ren,act);
+
+  if (this->Emissive != 0 && !ren->GetSelector())
+  {
+    vtkOpenGLState *ostate = static_cast<vtkOpenGLRenderer *>(ren)->GetState();
+    vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
+    ostate->vtkglBlendFunc( GL_SRC_ALPHA, GL_ONE);  // additive for emissive sources
+    this->RenderInternal(ren,actor);
+  }
+  else // intentional else due to scope
+  {
+    this->RenderInternal(ren,actor);
+  }
+}
+
+// this could be made much faster for composite
+// datasets that have lots of small blocks
+// but for now we just want to add the functionality
+void vtkOpenGLPointGaussianMapper::RenderInternal(
+  vtkRenderer *ren, vtkActor *actor)
+{
+  // Set the PointSize
+#if GL_ES_VERSION_3_0 != 1
+  glPointSize(actor->GetProperty()->GetPointSize()); // not on ES2
+#endif
+
+  // render points for point picking in a special way
+  vtkHardwareSelector* selector = ren->GetSelector();
+  if (selector &&
+      selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  {
+    static_cast<vtkOpenGLRenderer *>(ren)->GetState()->vtkglDepthMask(GL_FALSE);
+  }
+
+  if (selector)
+  {
+    selector->BeginRenderProp();
+  }
+
+  for (auto hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
+  {
+    // make sure the BOs are up to date
+    vtkOpenGLPointGaussianMapperHelper *helper = *hiter;
+    if (selector &&
+        selector->GetCurrentPass() == vtkHardwareSelector::COMPOSITE_INDEX_PASS)
+    {
+      selector->RenderCompositeIndex(helper->FlatIndex);
+    }
+    helper->GaussianRender(ren,actor);
+  }
+
+  // reset picking
+  if (selector &&
+      selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  {
+    static_cast<vtkOpenGLRenderer *>(ren)->GetState()->vtkglDepthMask(GL_TRUE);
+  }
+  if (selector)
+  {
+    selector->EndRenderProp();
+  }
+
+  this->UpdateProgress(1.0);
+}
+
+vtkOpenGLPointGaussianMapperHelper *vtkOpenGLPointGaussianMapper::CreateHelper()
+{
+  auto helper = vtkOpenGLPointGaussianMapperHelper::New();
+  helper->Owner = this;
+  return helper;
+}
+
+void vtkOpenGLPointGaussianMapper::CopyMapperValuesToHelper(
+  vtkOpenGLPointGaussianMapperHelper *helper)
+{
+  helper->vtkPolyDataMapper::ShallowCopy(this);
+  helper->OpacityTable = this->OpacityTable;
+  helper->OpacityScale = this->OpacityScale;
+  helper->OpacityOffset = this->OpacityOffset;
+  helper->ScaleTable = this->ScaleTable;
+  helper->ScaleScale = this->ScaleScale;
+  helper->ScaleOffset = this->ScaleOffset;
+  helper->Modified();
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPointGaussianMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
-  this->Helper->ReleaseGraphicsResources(win);
-  this->Helper->SetInputData(nullptr);
+  for (auto hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
+  {
+    (*hiter)->ReleaseGraphicsResources(win);
+  }
+
   this->Modified();
 }
 
@@ -835,6 +999,106 @@ bool vtkOpenGLPointGaussianMapper::GetIsOpaque()
     return false;
   }
   return this->Superclass::GetIsOpaque();
+}
+
+//-------------------------------------------------------------------------
+void vtkOpenGLPointGaussianMapper::BuildScaleTable()
+{
+  double range[2];
+
+  // if a piecewise function was provided, use it to map the opacities
+  vtkPiecewiseFunction *pwf = this->GetScaleFunction();
+  int tableSize = this->GetScaleTableSize();
+
+  delete [] this->ScaleTable;
+  this->ScaleTable = new float [tableSize+1];
+  if (pwf)
+  {
+    // build the interpolation table
+    pwf->GetRange(range);
+    pwf->GetTable(range[0],range[1],tableSize,this->ScaleTable);
+    // duplicate the last value for bilinear interp edge case
+    this->ScaleTable[tableSize] = this->ScaleTable[tableSize-1];
+    this->ScaleScale = (tableSize - 1.0)/(range[1] - range[0]);
+    this->ScaleOffset = range[0];
+  }
+}
+
+//-------------------------------------------------------------------------
+void vtkOpenGLPointGaussianMapper::BuildOpacityTable()
+{
+  double range[2];
+
+  // if a piecewise function was provided, use it to map the opacities
+  vtkPiecewiseFunction *pwf = this->GetScalarOpacityFunction();
+  int tableSize = this->GetOpacityTableSize();
+
+  delete [] this->OpacityTable;
+  this->OpacityTable = new float [tableSize+1];
+  if (pwf)
+  {
+    // build the interpolation table
+    pwf->GetRange(range);
+    pwf->GetTable(range[0],range[1],tableSize,this->OpacityTable);
+    // duplicate the last value for bilinear interp edge case
+    this->OpacityTable[tableSize] = this->OpacityTable[tableSize-1];
+    this->OpacityScale = (tableSize - 1.0)/(range[1] - range[0]);
+    this->OpacityOffset = range[0];
+  }
+
+}
+
+//----------------------------------------------------------------------------
+int vtkOpenGLPointGaussianMapper::FillInputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+vtkExecutive* vtkOpenGLPointGaussianMapper::CreateDefaultExecutive()
+{
+  return vtkCompositeDataPipeline::New();
+}
+
+//-----------------------------------------------------------------------------
+//Looks at each DataSet and finds the union of all the bounds
+void vtkOpenGLPointGaussianMapper::ComputeBounds()
+{
+  vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
+    this->GetInputDataObject(0, 0));
+
+  // If we don't have hierarchical data, test to see if we have
+  // plain old polydata. In this case, the bounds are simply
+  // the bounds of the input polydata.
+  if (!input)
+  {
+    this->Superclass::ComputeBounds();
+    return;
+  }
+
+  vtkBoundingBox bbox;
+
+  //for each data set build a vtkPolyDataMapper
+  vtkCompositeDataIterator* iter = input->NewIterator();
+  iter->GoToFirstItem();
+  while (!iter->IsDoneWithTraversal())
+  {
+    vtkPolyData* pd =
+      vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
+    if (pd)
+    {
+      double bounds[6];
+      pd->GetBounds(bounds);
+      bbox.AddBounds(bounds);
+    }
+    iter->GoToNextItem();
+  }
+  iter->Delete();
+
+  bbox.GetBounds(this->Bounds);
 }
 
 //-----------------------------------------------------------------------------
