@@ -30,25 +30,25 @@
 
 class vtkLocationSelector::vtkInternals
 {
-protected:
-  vtkSmartPointer<vtkDataArray> SelectionList;
-  double SearchRadius;
-
 public:
-  vtkInternals(vtkDataArray* selList, double searchRadius)
+  vtkInternals(vtkDataArray* selList)
     : SelectionList(selList)
-    , SearchRadius(searchRadius)
   {
   }
+
   virtual ~vtkInternals() {}
   virtual bool Execute(vtkDataSet* dataset, vtkSignedCharArray* insidednessArray) = 0;
+
+protected:
+  vtkSmartPointer<vtkDataArray> SelectionList;
 };
 
 class vtkLocationSelector::vtkInternalsForPoints : public vtkLocationSelector::vtkInternals
 {
 public:
   vtkInternalsForPoints(vtkDataArray* selList, double searchRadius)
-    : vtkInternals(selList, searchRadius)
+    : vtkInternals(selList)
+    , SearchRadius(searchRadius)
   {
   }
 
@@ -107,13 +107,16 @@ public:
     insidednessArray->Modified();
     return true;
   }
+
+protected:
+  double SearchRadius;
 };
 
 class vtkLocationSelector::vtkInternalsForCells : public vtkLocationSelector::vtkInternals
 {
 public:
-  vtkInternalsForCells(vtkDataArray* selList, double searchRadius)
-    : vtkInternals(selList, searchRadius)
+  vtkInternalsForCells(vtkDataArray* selList)
+    : vtkInternals(selList)
   {
   }
 
@@ -194,7 +197,7 @@ void vtkLocationSelector::Initialize(vtkSelectionNode* node, const std::string& 
       break;
 
     case vtkDataObject::FIELD_ASSOCIATION_CELLS:
-      this->Internals.reset(new vtkInternalsForCells(selectionList, radius));
+      this->Internals.reset(new vtkInternalsForCells(selectionList));
       break;
 
     default:
