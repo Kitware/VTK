@@ -394,6 +394,15 @@ void vtkOpenGLState::vtkglGetIntegerv(GLenum pname, GLint *params)
     case GL_BLEND_DST_ALPHA:
       *params = this->CurrentState.BlendFunc[3];
       break;
+    case GL_MAX_TEXTURE_SIZE:
+      *params = this->CurrentState.MaxTextureSize;
+      break;
+    case GL_MAJOR_VERSION:
+      *params = this->CurrentState.MajorVersion;
+      break;
+    case GL_MINOR_VERSION:
+      *params = this->CurrentState.MinorVersion;
+      break;
     default:
       ::glGetIntegerv(pname, params);
   }
@@ -533,6 +542,13 @@ void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow *)
 
   ::glCullFace(GL_BACK);
   this->CurrentState.CullFaceMode = GL_BACK;
+
+  ::glGetIntegerv(GL_MAX_TEXTURE_SIZE,
+    &this->CurrentState.MaxTextureSize);
+  ::glGetIntegerv(GL_MAJOR_VERSION,
+    &this->CurrentState.MajorVersion);
+  ::glGetIntegerv(GL_MINOR_VERSION,
+    &this->CurrentState.MinorVersion);
 }
 
 void vtkOpenGLState::vtkglClear(GLbitfield val)

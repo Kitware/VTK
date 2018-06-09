@@ -661,8 +661,8 @@ void vtkOpenGLRenderWindow::GetOpenGLVersion(int &major, int &minor)
 
   if (this->Initialized)
   {
-    glGetIntegerv(GL_MAJOR_VERSION, & glMajorVersion);
-    glGetIntegerv(GL_MINOR_VERSION, & glMinorVersion);
+    this->State->vtkglGetIntegerv(GL_MAJOR_VERSION, & glMajorVersion);
+    this->State->vtkglGetIntegerv(GL_MINOR_VERSION, & glMinorVersion);
   }
 
   major = glMajorVersion;

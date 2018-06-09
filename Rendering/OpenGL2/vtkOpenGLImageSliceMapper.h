@@ -112,14 +112,13 @@ protected:
    * Test whether a given texture size is supported.  This includes a
    * check of whether the texture will fit into texture memory.
    */
-  bool TextureSizeOK(const int size[2]);
+  bool TextureSizeOK(const int size[2], vtkRenderer *ren);
 
   /**
    * Check various OpenGL capabilities
    */
   void CheckOpenGLCapabilities(vtkOpenGLRenderWindow *renWin);
 
-  long FragmentShaderIndex; // OpenGL ID for fragment shader
   vtkRenderWindow *RenderWindow; // RenderWindow used for previous render
   int TextureSize[2];
   int TextureBytesPerPixel;

@@ -120,7 +120,6 @@ vtkOpenGLImageSliceMapper::vtkOpenGLImageSliceMapper()
   this->BackgroundPolyDataActor->SetMapper(polyDataMapper);
   }
 
-  this->FragmentShaderIndex = 0;
   this->RenderWindow = nullptr;
   this->TextureSize[0] = 0;
   this->TextureSize[1] = 0;
@@ -158,7 +157,6 @@ void vtkOpenGLImageSliceMapper::ReleaseGraphicsResources(vtkWindow *renWin)
   this->BackingPolyDataActor->ReleaseGraphicsResources(renWin);
   this->PolyDataActor->ReleaseGraphicsResources(renWin);
 
-  this->FragmentShaderIndex = 0;
   this->RenderWindow = nullptr;
   this->Modified();
 }
@@ -178,7 +176,7 @@ void vtkOpenGLImageSliceMapper::RecursiveRenderTexturedPolygon(
     extent, xdim, ydim, imageSize, textureSize);
 
   // Check if we can fit this texture in memory
-  if (this->TextureSizeOK(textureSize))
+  if (this->TextureSizeOK(textureSize, ren))
   {
     // We can fit it - render
     this->RenderTexturedPolygon(
@@ -386,21 +384,33 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
   vtkCellArray *tris = poly->GetPolys();
   vtkDataArray *polyTCoords = poly->GetPointData()->GetTCoords();
 
+  // do we need to rebuild the cell array?
+  int numTris = 2;
+  if (points)
+  {
+    numTris = (points->GetNumberOfPoints() - 2);
+  }
+  if (tris->GetNumberOfConnectivityEntries() != 4*numTris)
+  {
+    tris->Initialize();
+    tris->Allocate(numTris*4);
+    // this wacky code below works for 2 and 4 triangles at least
+    for (vtkIdType i = 0; i < numTris; i++)
+    {
+      tris->InsertNextCell(3);
+      tris->InsertCellPoint(numTris + 1 - (i+1)/2);
+      tris->InsertCellPoint(i/2);
+      tris->InsertCellPoint((i % 2 == 0) ? numTris - i/2 : i/2 + 1);
+    }
+    tris->Modified();
+  }
+
+  // now rebuild the points/tcoords as needed
   if (!points)
   {
     double coords[12], tcoords[8];
     this->MakeTextureGeometry(extent, coords, tcoords);
 
-    tris->Initialize();
-    tris->InsertNextCell(3);
-    tris->InsertCellPoint(0);
-    tris->InsertCellPoint(1);
-    tris->InsertCellPoint(2);
-    tris->InsertNextCell(3);
-    tris->InsertCellPoint(0);
-    tris->InsertCellPoint(2);
-    tris->InsertCellPoint(3);
-    tris->Modified();
 
     polyPoints->SetNumberOfPoints(4);
     if (textured)
@@ -441,8 +451,6 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
       polyTCoords->SetNumberOfTuples(ncoords);
     }
 
-    tris->Initialize();
-    tris->Allocate(4*(ncoords-2));
     for (vtkIdType i = 0; i < ncoords; i++)
     {
       if (textured)
@@ -452,15 +460,7 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
         tcoord[1] = (coord[1] - yshift)/yscale;
         polyTCoords->SetTuple(i,tcoord);
       }
-      if (i >= 2)
-      {
-        tris->InsertNextCell(3);
-        tris->InsertCellPoint(ncoords - (i+1)/2);
-        tris->InsertCellPoint(i/2 - 1);
-        tris->InsertCellPoint((i % 2 == 0) ? ncoords - 1 - i/2 : i/2);
-      }
     }
-    tris->Modified();
     if (textured)
     {
       polyTCoords->Modified();
@@ -658,19 +658,20 @@ void vtkOpenGLImageSliceMapper::ComputeTextureSize(
 
 //----------------------------------------------------------------------------
 // Determine if a given texture size is supported by the video card
-bool vtkOpenGLImageSliceMapper::TextureSizeOK(const int size[2])
+bool vtkOpenGLImageSliceMapper::TextureSizeOK(
+  const int size[2], vtkRenderer *ren)
 {
-  vtkOpenGLClearErrorMacro();
+  vtkOpenGLRenderWindow *renWin =
+    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenGLState *ostate = renWin->GetState();
 
   // First ask OpenGL what the max texture size is
   GLint maxSize;
-  glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxSize);
+  ostate->vtkglGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxSize);
   if (size[0] > maxSize || size[1] > maxSize)
   {
     return 0;
   }
-
-  vtkOpenGLCheckErrorMacro("failed after TextureSizeOK");
 
   // if it does fit, we will render it later
   return 1;
