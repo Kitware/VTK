@@ -931,6 +931,7 @@ int vtkOpenGLRenderWindow::GetColorBufferInternalFormat(int attachmentPoint)
 {
   int format = 0;
 
+#ifndef GL_ES_VERSION_3_0
   if (GLEW_ARB_direct_state_access)
   {
     int type;
@@ -954,6 +955,7 @@ int vtkOpenGLRenderWindow::GetColorBufferInternalFormat(int attachmentPoint)
     }
     vtkOpenGLClearErrorMacro();
   }
+#endif
 
   return format;
 }
