@@ -168,6 +168,11 @@ vtkIdType *vtkIdList::Resize(const vtkIdType sz)
     return nullptr;
   }
 
+  if (this->NumberOfIds > newSize)
+  {
+    this->NumberOfIds = newSize;
+  }
+
   if (this->Ids)
   {
     memcpy(newIds, this->Ids,
