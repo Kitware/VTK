@@ -40,6 +40,7 @@ set(Module_SRCS
   vtkTransmitStructuredDataPiece.cxx
   vtkTransmitStructuredGridPiece.cxx
   vtkTransmitUnstructuredGridPiece.cxx
+  vtkUnstructuredGridGhostCellsGenerator.cxx
   )
 set_source_files_properties(
   vtkBlockDistribution.h
