@@ -986,6 +986,7 @@ void vtkOpenGLPointGaussianMapper::ReleaseGraphicsResources(vtkWindow* win)
   for (auto hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
   {
     (*hiter)->ReleaseGraphicsResources(win);
+    (*hiter)->SetInputData(nullptr);
   }
 
   this->Modified();
