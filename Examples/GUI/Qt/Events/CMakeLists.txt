@@ -42,5 +42,5 @@ qt5_wrap_ui(UI_Srcs ${UIs})
 
 add_executable(qtevents
   MACOSX_BUNDLE  ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs})
-qt5_use_modules(qtevents Core Gui Widgets)
+target_link_libraries(qtevents Qt5::Core Qt5::Gui Qt5::Widgets)
 target_link_libraries(qtevents ${VTK_LIBRARIES})
