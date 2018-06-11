@@ -448,7 +448,7 @@ endforeach()
 
 # construct if this build of VTK has VTK-m enabled
 set(VTK_HAS_VTKM false)
-if(TARGET vtkm)
+if(TARGET vtkm_cont)
   set(VTK_HAS_VTKM true)
 endif()
 
