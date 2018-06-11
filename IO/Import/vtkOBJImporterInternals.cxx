@@ -198,12 +198,6 @@ bool tokenGetTexture(size_t &t, std::vector<Token> &tokens,
   // texture options must all be on one line
   for (size_t tt = t+1; tt < tokens.size(); ++tt)
   {
-    if (tokens[tt].Type == Token::Number)
-    {
-      vtkGenericWarningMacro("Number found outside of a command or option on token# " <<
-        tt << " with number " << tokens[tt].NumberValue);
-      break;
-    }
     if (tokens[tt].Type == Token::Space)
     {
       continue;
@@ -231,6 +225,7 @@ bool tokenGetTexture(size_t &t, std::vector<Token> &tokens,
       tokenGetVector(tt, tokens, tmp, 2, 1);
       continue;
     }
+
     // if we got here then must be name of texture file
     // or an unknown option, we combine all tokens
     // form this point forward as they may be a filename
