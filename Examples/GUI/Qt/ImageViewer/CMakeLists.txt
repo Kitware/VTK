@@ -20,5 +20,5 @@ set( Srcs main.cxx )
 find_package(Qt5 COMPONENTS Core REQUIRED QUIET)
 
 add_executable(qtimageviewer ${Srcs})
-qt5_use_modules(qtimageviewer Core Gui Widgets)
+target_link_libraries(qtimageviewer Qt5::Core Qt5::Gui Qt5::Widgets)
 target_link_libraries(qtimageviewer ${VTK_LIBRARIES})
