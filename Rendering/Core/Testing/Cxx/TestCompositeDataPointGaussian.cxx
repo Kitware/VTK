@@ -70,7 +70,6 @@ int TestCompositeDataPointGaussian(int argc, char* argv[])
   unsigned levelStart = 0;
   unsigned levelEnd = 1;
   int numLevels = sizeof(blocksPerLevel) / sizeof(blocksPerLevel[0]);
-  int numLeaves = 0;
   int numNodes = 0;
   vtkStdString blockName("Rolf");
   mapper->SetInputDataObject(data.GetPointer());
@@ -90,7 +89,6 @@ int TestCompositeDataPointGaussian(int argc, char* argv[])
           child->DeepCopy(cyl->GetOutput(0));
           blocks[parent]->SetBlock(
             block, (block % 2) ? nullptr : child.GetPointer());
-          ++numLeaves;
         }
         else
         {
