@@ -182,6 +182,11 @@ namespace
 {
   void InvertSelection(vtkSignedCharArray* array)
   {
+    if (!array)
+    {
+      return;
+    }
+
     const int n = array->GetNumberOfTuples();
     for (int i = 0; i < n; ++i)
     {
