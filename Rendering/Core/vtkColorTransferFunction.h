@@ -239,6 +239,31 @@ public:
 
   //@{
   /**
+   * Get/Set the opacity to use when a NaN (not a number) is
+   * encountered. This a double in the range [0,1].
+   */
+  vtkSetMacro(NanOpacity, double);
+  vtkGetMacro(NanOpacity, double);
+  //@}
+
+  //@{
+  /**
+   * Set the RGBA color to use when a NaN (not a number) is
+   * encountered.  This is an RGBA 4-tuple color of doubles in the
+   * range [0,1].
+   */
+  virtual void SetNanColorRGBA(double r, double g, double b, double a) {
+    this->SetNanColor(r, g, b);
+    this->SetNanOpacity(a);
+  }
+
+  void SetNanColorRGBA(double rgba[4]) {
+    this->SetNanColorRGBA(rgba[0], rgba[1], rgba[2], rgba[3]);
+  }
+  //@}
+
+  //@{
+  /**
    * Set the color to use when a value below the range is
    * encountered. This is an RGB 3-tuple of doubles in the range [0, 1].
    */
@@ -358,6 +383,11 @@ protected:
    * The color to use for not-a-number.
    */
   double NanColor[3];
+
+  /**
+   * The opacity to use for not-a-number.
+   */
+  double NanOpacity;
 
   /**
    * The below-range color.

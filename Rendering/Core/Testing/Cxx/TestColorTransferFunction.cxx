@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include <vtkColorTransferFunction.h>
+#include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkSmartPointer.h>
 
@@ -69,6 +70,52 @@ int TestColorTransferFunction(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       return EXIT_FAILURE;
     }
   }
+
+  ctf->SetNanColorRGBA(1., 1., 1., 0.5);
+  ctf->GetTable(vtkMath::Nan(), 1., 256, table);
+  // Table should be all white (Nan color).
+  for (int i = 0; i < 3*256; ++i)
+  {
+    if (table[i] != 1.0)
+    {
+      std::cerr << "Table should have all ones.\n";
+      return EXIT_FAILURE;
+    }
+  }
+
+  ctf->AddRGBPoint(0.0, 0.0, 0.0, 0.0);
+  ctf->AddRGBPoint(1.0, 1.0, 1.0, 1.0);
+  double color[4] = {-1., -1., -1., -1.};
+  ctf->GetIndexedColor(0, color);
+  for (int i = 0; i < 3; ++i)
+  {
+    if (color[i] != 0.0)
+    {
+      std::cerr << "Color should have all zeros.\n";
+      return EXIT_FAILURE;
+    }
+  }
+  if (color[3] != 1.0)
+  {
+    std::cerr << "Opacity should be 1.\n";
+    return EXIT_FAILURE;
+  }
+
+  ctf->GetIndexedColor(-1, color);
+  for (int i = 0; i < 3; ++i)
+  {
+    if (color[i] != 1.0)
+    {
+      std::cerr << "Nan Color should have all ones.\n";
+      return EXIT_FAILURE;
+    }
+  }
+  if (color[3] != 0.5)
+  {
+    std::cerr << "Nan Color opacity should be 0.5.\n";
+    return EXIT_FAILURE;
+  }
+
 
   if (!TestLABCIEDE2000())
   {

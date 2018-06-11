@@ -290,8 +290,17 @@ void vtkDiscretizableColorTransferFunction::SetAlpha(double alpha)
 //-----------------------------------------------------------------------------
 void vtkDiscretizableColorTransferFunction::SetNanColor(double r, double g, double b)
 {
-  this->LookupTable->SetNanColor(r, g, b, 1.0);
+  this->LookupTable->SetNanColor(r, g, b, this->GetNanOpacity());
   this->Superclass::SetNanColor(r, g, b);
+}
+
+//-----------------------------------------------------------------------------
+void vtkDiscretizableColorTransferFunction::SetNanOpacity(double a)
+{
+  double color[3];
+  this->GetNanColor(color);
+  this->LookupTable->SetNanColor(color[0], color[1], color[2], a);
+  this->Superclass::SetNanOpacity(a);
 }
 
 //-----------------------------------------------------------------------------
