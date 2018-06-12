@@ -182,6 +182,11 @@ namespace
 {
   void InvertSelection(vtkSignedCharArray* array)
   {
+    if (!array)
+    {
+      return;
+    }
+
     const int n = array->GetNumberOfTuples();
     for (int i = 0; i < n; ++i)
     {
@@ -421,8 +426,17 @@ vtkSmartPointer<vtkDataObject> vtkExtractSelection::ExtractElements(
 }
 
 //----------------------------------------------------------------------------
-void vtkExtractSelection::ExtractSelectedCells(vtkDataSet* input, vtkUnstructuredGrid* output, vtkSignedCharArray* cellInside)
+void vtkExtractSelection::ExtractSelectedCells(
+  vtkDataSet* input,
+  vtkUnstructuredGrid* output,
+  vtkSignedCharArray* cellInside)
 {
+  if (!cellInside || cellInside->GetNumberOfTuples() <= 0)
+  {
+    // Assume nothing was selected and return.
+    return;
+  }
+
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
 
@@ -510,6 +524,12 @@ void vtkExtractSelection::ExtractSelectedPoints(
   vtkUnstructuredGrid* output,
   vtkSignedCharArray* pointInside)
 {
+  if (!pointInside || pointInside->GetNumberOfTuples() <= 0)
+  {
+    // Assume nothing was selected and return.
+    return;
+  }
+
   vtkIdType numPts = input->GetNumberOfPoints();
 
   vtkPointData *pd = input->GetPointData();

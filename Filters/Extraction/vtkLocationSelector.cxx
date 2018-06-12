@@ -15,6 +15,7 @@
 #include "vtkLocationSelector.h"
 
 #include "vtkDataSetAttributes.h"
+#include "vtkGenericCell.h"
 #include "vtkInformation.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -22,7 +23,6 @@
 #include "vtkSMPTools.h"
 #include "vtkSelectionNode.h"
 #include "vtkSignedCharArray.h"
-#include "vtkStaticCellLocator.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -31,80 +31,110 @@
 class vtkLocationSelector::vtkInternals
 {
 public:
-  virtual ~vtkInternals() {}
-  virtual bool Execute(vtkDataSet* dataset, vtkSignedCharArray* insidednessArray) = 0;
-};
-
-/// When selecting points near the chosen locations, we use the following
-/// strategy:
-/// 1. Build a vtkStaticPointLocator using the location of interest.
-/// 2. Iterate over all point in the target dataset (dataset being selected) and
-///    which if it's within search-radius for the selection locations.
-class vtkLocationSelector::vtkInternalsForPoints : public vtkLocationSelector::vtkInternals
-{
-  vtkNew<vtkStaticPointLocator> PointLocator;
-  double SearchRadius;
-
-public:
-  vtkInternalsForPoints(vtkDataArray* selList, double searchRadius)
-    : SearchRadius(searchRadius)
-  {
-    vtkNew<vtkUnstructuredGrid> ds;
-    vtkNew<vtkPoints> pts;
-    pts->SetData(selList);
-    ds->SetPoints(pts);
-    this->PointLocator->SetDataSet(ds);
-    this->PointLocator->Update();
-  }
-
-  bool Execute(vtkDataSet* dataset, vtkSignedCharArray* insidednessArray) override
-  {
-    const vtkIdType numpts = dataset->GetNumberOfPoints();
-    if (numpts <= 0)
-    {
-      return false;
-    }
-
-    const double radius = this->SearchRadius;
-    vtkStaticPointLocator* locator = this->PointLocator;
-    vtkSMPTools::For(0, numpts, [=](vtkIdType begin, vtkIdType end) {
-      for (vtkIdType cc = begin; cc < end; ++cc)
-      {
-        double coords[3], d2;
-        dataset->GetPoint(cc, coords);
-        auto pid = locator->FindClosestPointWithinRadius(radius, coords, d2);
-        insidednessArray->SetValue(cc, pid >= 0 ? 1 : 0);
-      }
-    });
-    insidednessArray->Modified();
-    return true;
-  }
-};
-
-class vtkLocationSelector::vtkInternalsForCells : public vtkLocationSelector::vtkInternals
-{
-  vtkSmartPointer<vtkDataArray> SelectionList;
-
-public:
-  vtkInternalsForCells(vtkDataArray* selList, double vtkNotUsed(searchRadius))
+  vtkInternals(vtkDataArray* selList)
     : SelectionList(selList)
   {
   }
 
+  virtual ~vtkInternals() {}
+  virtual bool Execute(vtkDataSet* dataset, vtkSignedCharArray* insidednessArray) = 0;
+
+protected:
+  vtkSmartPointer<vtkDataArray> SelectionList;
+};
+
+class vtkLocationSelector::vtkInternalsForPoints : public vtkLocationSelector::vtkInternals
+{
+public:
+  vtkInternalsForPoints(vtkDataArray* selList, double searchRadius)
+    : vtkInternals(selList)
+    , SearchRadius(searchRadius)
+  {
+  }
+
   bool Execute(vtkDataSet* dataset, vtkSignedCharArray* insidednessArray) override
   {
-    vtkNew<vtkStaticCellLocator> cellLocator;
-    cellLocator->SetDataSet(dataset);
-    cellLocator->Update();
+    const vtkIdType numPoints = dataset->GetNumberOfPoints();
+    if (numPoints <= 0)
+    {
+      return false;
+    }
 
+    vtkSmartPointer<vtkStaticPointLocator> locator;
+
+    if (dataset->IsA("vtkPointSet"))
+    {
+      locator = vtkSmartPointer<vtkStaticPointLocator>::New();
+      locator->SetDataSet(dataset);
+      locator->Update();
+    }
+
+    std::fill_n(insidednessArray->GetPointer(0), numPoints, static_cast<char>(0));
+    const double radius = this->SearchRadius;
+
+    // Find points closest to each point in the locations of interest.
+    vtkIdType numLocations = this->SelectionList->GetNumberOfTuples();
+    for (vtkIdType locationId = 0; locationId < numLocations; ++locationId)
+    {
+      double location[3], dist2;
+      this->SelectionList->GetTuple(locationId, location);
+
+      vtkIdType ptId = -1;
+      if (locator)
+      {
+        ptId = locator->FindClosestPointWithinRadius(radius, location, dist2);
+      }
+      else
+      {
+        ptId = dataset->FindPoint(location);
+        if (ptId >= 0)
+        {
+          double *x = dataset->GetPoint(ptId);
+          double distance = vtkMath::Distance2BetweenPoints(x, location);
+          if (distance > radius*radius)
+          {
+            ptId = -1;
+          }
+        }
+      }
+
+      if (ptId >= 0)
+      {
+        insidednessArray->SetTypedComponent(ptId, 0, 1);
+      }
+    }
+
+    insidednessArray->Modified();
+    return true;
+  }
+
+protected:
+  double SearchRadius;
+};
+
+class vtkLocationSelector::vtkInternalsForCells : public vtkLocationSelector::vtkInternals
+{
+public:
+  vtkInternalsForCells(vtkDataArray* selList)
+    : vtkInternals(selList)
+  {
+  }
+
+  bool Execute(vtkDataSet* dataset, vtkSignedCharArray* insidednessArray) override
+  {
     const auto numLocations = this->SelectionList->GetNumberOfTuples();
     const auto numCells = insidednessArray->GetNumberOfTuples();
     std::fill_n(insidednessArray->GetPointer(0), numCells, static_cast<char>(0));
+    std::vector<double> weights(dataset->GetMaxCellSize(), 0.0);
+    vtkNew<vtkGenericCell> cell;
     for (vtkIdType cc = 0; cc < numLocations; ++cc)
     {
       double coords[3];
       this->SelectionList->GetTuple(cc, coords);
-      auto cid = cellLocator->FindCell(coords);
+      int subId;
+
+      double pcoords[3];
+      auto cid = dataset->FindCell(coords, nullptr, cell, 0, 0.0, subId, pcoords, &weights[0]);
       if (cid >= 0 && cid < numCells)
       {
         insidednessArray->SetValue(cid, 1);
@@ -167,7 +197,7 @@ void vtkLocationSelector::Initialize(vtkSelectionNode* node, const std::string& 
       break;
 
     case vtkDataObject::FIELD_ASSOCIATION_CELLS:
-      this->Internals.reset(new vtkInternalsForCells(selectionList, radius));
+      this->Internals.reset(new vtkInternalsForCells(selectionList));
       break;
 
     default:
