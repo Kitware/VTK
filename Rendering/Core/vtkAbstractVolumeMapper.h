@@ -45,8 +45,8 @@ public:
   /**
    * Set/Get the input data
    */
-  vtkDataSet *GetDataSetInput();
-  vtkDataObject *GetDataObjectInput();
+  virtual vtkDataSet *GetDataSetInput();
+  virtual vtkDataObject *GetDataObjectInput();
   //@}
 
   //@{
