@@ -88,6 +88,7 @@ public:
   void vtkglBlendFuncSeparate(unsigned int sfactorRGB, unsigned int dfactorRGB,
     unsigned int sfactorAlpha, unsigned int dfactorAlpha);
   void vtkglBlendEquation(unsigned int val);
+  void vtkglBlendEquationSeparate(unsigned int col, unsigned int alpha);
   void vtkglCullFace(unsigned int val);
   //@}
 
@@ -192,7 +193,8 @@ protected:
       double ClearDepth;
       unsigned char DepthMask;
       unsigned int DepthFunc;
-      unsigned int BlendEquation;
+      unsigned int BlendEquationValue1;
+      unsigned int BlendEquationValue2;
       unsigned int CullFaceMode;
       std::array<float, 4> ClearColor;
       std::array<unsigned char, 4> ColorMask;
