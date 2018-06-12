@@ -78,10 +78,10 @@ class vtkVolumeStateRAII
       this->State->SetEnumState(GL_CULL_FACE, this->CullFaceEnabled);
       this->State->vtkglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-      // this does not actuallyrestore the state always
-      // but a test failsif I change it so either the original
+      // this does not actually restore the state always
+      // but a test fails if I change it so either the original
       // test was wrong or it is itended
-      if (this->BlendEnabled)
+      if (!this->BlendEnabled)
       {
         this->State->vtkglDisable(GL_BLEND);
       }
