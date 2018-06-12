@@ -82,7 +82,7 @@ endif()
 
 # Setup VTK-m if it was enabled
 set(VTK_HAS_VTKM @VTK_HAS_VTKM@)
-if(VTK_HAS_VTKM)
+if(VTK_HAS_VTKM AND NOT TARGET vtkm_cont)
   set(VTKM_CMAKE_DIR "${VTK_CMAKE_DIR}")
   if(NOT __vtk_install_tree)
     set(VTKM_CMAKE_DIR "@VTKm_BINARY_DIR@/@VTK_INSTALL_PACKAGE_DIR@/vtkm")
