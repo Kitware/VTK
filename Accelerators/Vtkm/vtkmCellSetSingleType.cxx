@@ -21,49 +21,38 @@
 #include "vtkmCellSetSingleType.h"
 #include "vtkmConnectivityExec.h"
 
-#include <vtkm/cont/ArrayHandleCast.h>
-#include <vtkm/cont/ArrayHandleCounting.h>
-#include <vtkm/cont/ArrayHandleConstant.h>
+#include <vtkm/cont/internal/ReverseConnectivityBuilder.h>
 #include <vtkm/worklet/WorkletMapField.h>
 #include <vtkm/worklet/DispatcherMapField.h>
 
-
-namespace {
-class ComputeSingleTypeReverseMapping : public vtkm::worklet::WorkletMapField
+namespace
 {
-  vtkm::Id NumberOfPointsPerCell;
-public:
-  ComputeSingleTypeReverseMapping(vtkm::Id numberOfPointsPerCell):
-    NumberOfPointsPerCell(numberOfPointsPerCell)
+
+// Converts [0, rconnSize) to [0, connSize), skipping cell length entries.
+struct SingleTypeRConnToConn
+{
+  vtkm::Id PointsPerCell;
+
+  VTKM_EXEC
+  vtkm::Id operator()(vtkm::Id rconnIdx) const
   {
-
-  }
-  typedef void ControlSignature(FieldIn<IdType> cellIndex,
-                                WholeArrayIn<IdType> connectivity,
-                                WholeArrayOut<IdType> pointIds,
-                                WholeArrayOut<IdType> cellIds);
-  typedef void ExecutionSignature(_1, _2, _3, _4);
-  typedef _1 InputDomain;
-
-
-  VTKM_SUPPRESS_EXEC_WARNINGS
-  template <typename ConnPortalType, typename PortalType>
-  VTKM_EXEC void operator()(const vtkm::Id& cellId,
-                            const ConnPortalType& connectivity,
-                            const PortalType& pointIdKey,
-                            const PortalType& pointIdValue) const
-  {
-    const vtkm::Id read_offset = (NumberOfPointsPerCell+1) * cellId;
-    const vtkm::Id write_offset = NumberOfPointsPerCell * cellId;
-    const vtkm::Id numIndices = connectivity.Get(read_offset);
-    for (vtkm::Id i = 0; i < numIndices; i++)
-    {
-      pointIdKey.Set(write_offset + i, connectivity.Get(read_offset + i + 1) );
-      pointIdValue.Set(write_offset + i, cellId);
-    }
+    return rconnIdx + 1 + (rconnIdx / this->PointsPerCell);
   }
 };
-} //namespace
+
+// Converts a connectivity index to a cell id:
+struct SingleTypeCellIdCalc
+{
+  vtkm::Id EncodedCellSize;
+
+  VTKM_EXEC
+  vtkm::Id operator()(vtkm::Id connIdx) const
+  {
+    return connIdx / this->EncodedCellSize;
+  }
+};
+
+} // end anon namespace
 
 namespace vtkm {
 namespace cont {
@@ -124,43 +113,29 @@ typename vtkm::exec::ReverseConnectivityVTK<Device>
 {
   if(!this->ReverseConnectivityBuilt)
   {
+    const vtkm::Id numberOfPoints = this->GetNumberOfPoints();
     const vtkm::Id numberOfCells = this->GetNumberOfCells();
     const vtkm::Id numberOfPointsPerCell = this->DetermineNumberOfPoints();
     const vtkm::Id rconnSize = numberOfCells*numberOfPointsPerCell;
 
-    // create a mapping of where each key is the point id and the value
-    // is the cell id.
-    using Algorithm = vtkm::cont::DeviceAdapterAlgorithm<Device>;
-    vtkm::cont::ArrayHandle<vtkm::Id> pointIdKey;
+    const SingleTypeRConnToConn rconnToConnCalc{numberOfPointsPerCell};
+    const SingleTypeCellIdCalc cellIdCalc{numberOfPointsPerCell + 1}; // +1 for cell length entries
 
-    // We need to allocate pointIdKey and RConn to correct length.
-    // which for this is equal to numberOfCells * numberOfPointsPerCell
-    // as the connectivity has the vtk padding per cell
-    pointIdKey.Allocate(rconnSize);
-    this->RConn.Allocate(rconnSize);
+    vtkm::cont::internal::ReverseConnectivityBuilder builder;
 
-    vtkm::worklet::DispatcherMapField<ComputeSingleTypeReverseMapping, Device>
-        dispatcher(
-            ComputeSingleTypeReverseMapping(this->DetermineNumberOfPoints()));
-    dispatcher.Invoke(vtkm::cont::make_ArrayHandleCounting<vtkm::Id>(0, 1, numberOfCells),
-                      this->Connectivity, pointIdKey, this->RConn);
-    Algorithm::SortByKey(pointIdKey, this->RConn);
+    builder.Run(this->Connectivity,
+                this->RConn,
+                this->RNumIndices,
+                this->RIndexOffsets,
+                rconnToConnCalc,
+                cellIdCalc,
+                numberOfPoints,
+                rconnSize,
+                Device{});
 
-    // now we can compute the NumIndices
-    vtkm::cont::ArrayHandle<vtkm::Id> reducedKeys;
-    Algorithm::ReduceByKey(pointIdKey,
-      vtkm::cont::make_ArrayHandleConstant(vtkm::IdComponent(1), rconnSize),
-      reducedKeys, this->RNumIndices, vtkm::Add());
-
-    // than a scan exclusive will give us the index offsets
-    using CastedNumIndices = vtkm::cont::ArrayHandleCast<vtkm::Id,
-      vtkm::cont::ArrayHandle<vtkm::IdComponent>>;
-    Algorithm::ScanExclusive(
-      CastedNumIndices(this->RNumIndices), this->RIndexOffsets);
-
-    this->NumberOfPoints = reducedKeys.GetNumberOfValues();
+    this->NumberOfPoints = this->RIndexOffsets.GetNumberOfValues();
     this->ReverseConnectivityBuilt = true;
-  }
+  } // End if !RConnBuilt
 
   //no need to have a reverse shapes array, as everything has the shape type
   //of vertex

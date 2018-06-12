@@ -12,19 +12,68 @@ import vtk
 from vtk.numpy_interface import dataset_adapter as dsa
 from vtk.numpy_interface import algorithms as algs
 
-rt = vtk.vtkRTAnalyticSource()
+def test_dataset(ds):
+  p2c = vtk.vtkPointDataToCellData()
+  p2c.SetInputData(ds)
+  p2c.Update()
 
-p2c = vtk.vtkPointDataToCellData()
-p2c.SetInputConnection(rt.GetOutputPort())
-p2c.Update()
+  d1 = dsa.WrapDataObject(p2c.GetOutput())
 
-d1 = dsa.WrapDataObject(p2c.GetOutput())
+  vtkm_p2c = vtk.vtkmAverageToCells()
+  vtkm_p2c.SetInputData(ds)
+  vtkm_p2c.SetInputArrayToProcess(0, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS, "RTData")
+  vtkm_p2c.Update()
 
-vtkm_p2c = vtk.vtkmAverageToCells()
-vtkm_p2c.SetInputData(rt.GetOutput())
-vtkm_p2c.SetInputArrayToProcess(0, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS, "RTData")
-vtkm_p2c.Update()
+  d2 = dsa.WrapDataObject(vtkm_p2c.GetOutput())
 
-d2 = dsa.WrapDataObject(vtkm_p2c.GetOutput())
+  rtD1 = d1.PointData['RTData']
+  rtD2 = d2.PointData['RTData']
 
-assert (algs.max(algs.abs(d1.CellData['RTData'] - d2.CellData['RTData'])) < 10E-4)
+  assert (algs.max(algs.abs(rtD1 - rtD2)) < 10E-4)
+
+print("Testing simple debugging grid...")
+# This dataset matches the example values in vtkmCellSetExplicit:
+dbg = vtk.vtkUnstructuredGrid()
+dbg.SetPoints(vtk.vtkPoints())
+dbg.GetPoints().SetNumberOfPoints(7)
+dbg.InsertNextCell(vtk.VTK_TRIANGLE, 3, [0, 1, 2])
+dbg.InsertNextCell(vtk.VTK_QUAD,     4, [0, 1, 3, 4])
+dbg.InsertNextCell(vtk.VTK_TRIANGLE, 3, [1, 3, 5])
+dbg.InsertNextCell(vtk.VTK_LINE,     2, [5, 6])
+
+dbgRt = vtk.vtkDoubleArray()
+dbgRt.SetNumberOfTuples(7)
+dbgRt.SetName('RTData')
+dbgRt.SetValue(0, 17.40)
+dbgRt.SetValue(1, 123.0)
+dbgRt.SetValue(2, 28.60)
+dbgRt.SetValue(3, 19.47)
+dbgRt.SetValue(4, 3.350)
+dbgRt.SetValue(5, 0.212)
+dbgRt.SetValue(6, 1023.)
+dbg.GetPointData().AddArray(dbgRt)
+
+test_dataset(dbg)
+print("Success!")
+
+print("Testing homogeneous image data...")
+source = vtk.vtkRTAnalyticSource()
+source.Update()
+imgData = source.GetOutput()
+test_dataset(imgData)
+print("Success!")
+
+d = dsa.WrapDataObject(imgData)
+rtData = d.PointData['RTData']
+rtMin = algs.min(rtData)
+rtMax = algs.max(rtData)
+clipScalar = 0.5 * (rtMin + rtMax)
+
+print("Testing non-homogenous unstructured grid...")
+clip = vtk.vtkClipDataSet()
+clip.SetInputData(imgData)
+clip.SetValue(clipScalar)
+clip.Update()
+ugrid = clip.GetOutput()
+test_dataset(ugrid)
+print("Success!")
