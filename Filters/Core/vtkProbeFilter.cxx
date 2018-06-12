@@ -26,6 +26,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPointSet.h"
 #include "vtkSmartPointer.h"
 #include "vtkSMPTools.h"
 #include "vtkSMPThreadLocal.h"
@@ -398,12 +399,18 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
   tol2 = this->ComputeTolerance ? VTK_DOUBLE_MAX :
          (this->Tolerance * this->Tolerance);
 
+  // vtkPointSet based datasets do not have an implicit structure to their
+  // points. A cell locator performs better here than using the dataset's
+  // FindCell function.
   vtkSmartPointer<vtkAbstractCellLocator> cellLocator;
-  cellLocator.TakeReference(this->CellLocatorPrototype ?
-                            this->CellLocatorPrototype->NewInstance() :
-                            vtkStaticCellLocator::New());
-  cellLocator->SetDataSet(source);
-  cellLocator->Update();
+  if (vtkPointSet::SafeDownCast(source) != nullptr)
+  {
+    cellLocator.TakeReference(this->CellLocatorPrototype ?
+                              this->CellLocatorPrototype->NewInstance() :
+                              vtkStaticCellLocator::New());
+    cellLocator->SetDataSet(source);
+    cellLocator->Update();
+  }
 
   // Loop over all input points, interpolating source data
   //
@@ -429,8 +436,9 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
     input->GetPoint(ptId, x);
 
     // Find the cell that contains xyz and get it
-    vtkIdType cellId =
-      cellLocator->FindCell(x, tol2, gcell.GetPointer(), pcoords, weights);
+    vtkIdType cellId = (cellLocator.Get() != nullptr) ?
+      cellLocator->FindCell(x, tol2, gcell.GetPointer(), pcoords, weights) :
+      source->FindCell(x, nullptr, -1, tol2, subId, pcoords, weights);
 
     vtkCell* cell = nullptr;
     if (cellId >= 0)
