@@ -23,6 +23,7 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkFloatArray.h"
+#include "vtkGarbageCollector.h"
 #include "vtkHardwareSelector.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
@@ -778,12 +779,31 @@ vtkOpenGLPointGaussianMapper::~vtkOpenGLPointGaussianMapper()
     this->ScaleTable = nullptr;
   }
 
-  // clear old helpers
+  // clear old helpers carefully due to garbage collection loops
   for (auto hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
   {
-    (*hiter)->Delete();
+    // these pointers may be set to nullptr by the garbage collector
+    // since we are passing them in using ReportReferences
+    if (*hiter)
+    {
+      (*hiter)->Delete();
+    }
   }
   this->Helpers.clear();
+}
+
+void vtkOpenGLPointGaussianMapper::ReportReferences(
+  vtkGarbageCollector* collector
+  )
+{
+  // Report references held by this object that may be in a loop.
+  this->Superclass::ReportReferences(collector);
+
+  // helpers is a vector
+  for (auto hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
+  {
+    vtkGarbageCollectorReport(collector, *hiter, "vtkOpenGLPointGaussianMapperHelper");
+  }
 }
 
 void vtkOpenGLPointGaussianMapper::Render(
@@ -818,7 +838,7 @@ void vtkOpenGLPointGaussianMapper::Render(
       this->HelperUpdateTime < this->GetMTime())
   {
     // update tables
-    if (this->GetScaleFunction())
+    if (this->GetScaleFunction() && this->GetScaleArray() != nullptr)
     {
       this->BuildScaleTable();
     }
@@ -831,7 +851,7 @@ void vtkOpenGLPointGaussianMapper::Render(
       }
     }
 
-    if (this->GetScalarOpacityFunction())
+    if (this->GetScalarOpacityFunction() && this->GetOpacityArray() != nullptr)
     {
       this->BuildOpacityTable();
     }
@@ -986,7 +1006,6 @@ void vtkOpenGLPointGaussianMapper::ReleaseGraphicsResources(vtkWindow* win)
   for (auto hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
   {
     (*hiter)->ReleaseGraphicsResources(win);
-    (*hiter)->SetInputData(nullptr);
   }
 
   this->Modified();
