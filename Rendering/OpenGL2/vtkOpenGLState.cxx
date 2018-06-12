@@ -179,12 +179,19 @@ void vtkOpenGLState::vtkglBlendFuncSeparate(
 
 void vtkOpenGLState::vtkglBlendEquation(GLenum val)
 {
+  this->vtkglBlendEquationSeparate(val,val);
+}
+
+void vtkOpenGLState::vtkglBlendEquationSeparate(GLenum val, GLenum val2)
+{
 #ifndef NO_CACHE
-  if (this->CurrentState.BlendEquation != val)
+  if (this->CurrentState.BlendEquationValue1 != val ||
+      this->CurrentState.BlendEquationValue2 != val2)
 #endif
   {
-    this->CurrentState.BlendEquation =  val;
-    ::glBlendEquation(val);
+    this->CurrentState.BlendEquationValue1 =  val;
+    this->CurrentState.BlendEquationValue2 =  val2;
+    ::glBlendEquationSeparate(val, val2);
   }
 }
 
@@ -549,6 +556,10 @@ void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow *)
     &this->CurrentState.MajorVersion);
   ::glGetIntegerv(GL_MINOR_VERSION,
     &this->CurrentState.MinorVersion);
+
+  ::glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+  this->CurrentState.BlendEquationValue1 = GL_FUNC_ADD;
+  this->CurrentState.BlendEquationValue2 = GL_FUNC_ADD;
 }
 
 void vtkOpenGLState::vtkglClear(GLbitfield val)
