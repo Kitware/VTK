@@ -629,7 +629,7 @@ private:
   void DrawLines(vtkPolyData* polyData, int scalarMode, float const x,
     float const y, float const scale)
   {
-    if (polyData->GetMTime() > this->LinesLoadingTime)
+    if (polyData != this->lastLinesPolyDataAddr || polyData->GetMTime() > this->LinesLoadingTime)
     {
       vtkNew<vtkGenericCell> genericCell;
       this->Lines.clear();
@@ -674,6 +674,7 @@ private:
         }
       }
 
+      this->lastLinesPolyDataAddr = polyData;
       this->LinesLoadingTime.Modified();
       cellIter->Delete();
     }
@@ -716,7 +717,7 @@ private:
   void DrawPolygons(vtkPolyData* polyData, int scalarMode, float const x,
     float const y, float const scale)
   {
-    if (polyData->GetMTime() > this->PolygonsLoadingTime)
+    if (polyData != this->lastPolysPolyDataAddr || polyData->GetMTime() > this->PolygonsLoadingTime)
     {
       this->PolyTri.clear();
       this->PolyColors->Reset();
@@ -780,6 +781,7 @@ private:
         }
       }
 
+      this->lastPolysPolyDataAddr = polyData;
       this->PolygonsLoadingTime.Modified();
       cellIter->Delete();
     }
@@ -810,6 +812,7 @@ private:
   std::vector<float> PolyTri;
   vtkNew<vtkUnsignedCharArray> PolyColors;
   vtkTimeStamp PolygonsLoadingTime;
+  vtkPolyData* lastPolysPolyDataAddr;
   //@}
 
   //@{
@@ -819,6 +822,7 @@ private:
   std::vector<float> Lines;
   vtkNew<vtkUnsignedCharArray> LineColors;
   vtkTimeStamp LinesLoadingTime;
+  vtkPolyData* lastLinesPolyDataAddr;
   //@}
 };
 #endif // VTKOPENGLCONTEXTDEVICE2DPRIVATE_H
