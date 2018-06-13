@@ -67,7 +67,7 @@ public:
 
 protected:
   vtkPStructuredGridGhostDataGenerator();
-  virtual ~vtkPStructuredGridGhostDataGenerator();
+  ~vtkPStructuredGridGhostDataGenerator() override;
 
   /**
    * Registers the grid associated with this instance of multi-block.

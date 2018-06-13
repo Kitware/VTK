@@ -117,7 +117,7 @@ public:
 
 protected:
   vtkUnstructuredGridGhostCellsGenerator();
-  ~vtkUnstructuredGridGhostCellsGenerator();
+  ~vtkUnstructuredGridGhostCellsGenerator() override;
 
   int RequestUpdateExtent(
     vtkInformation*,

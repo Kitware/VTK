@@ -68,7 +68,7 @@ public:
 
 protected:
   vtkPUniformGridGhostDataGenerator();
-  virtual ~vtkPUniformGridGhostDataGenerator();
+  ~vtkPUniformGridGhostDataGenerator() override;
 
   /**
    * Registers grids associated with this object instance on this process.

@@ -61,7 +61,7 @@ public:
 
 protected:
   vtkPDataSetGhostGenerator();
-  virtual ~vtkPDataSetGhostGenerator();
+  ~vtkPDataSetGhostGenerator() override;
 
   /**
    * Creates ghost layers. Implemented by concrete implementations.
