@@ -123,7 +123,7 @@ public:
 
 protected:
   vtkPStructuredGridConnectivity();
-  ~vtkPStructuredGridConnectivity();
+  ~vtkPStructuredGridConnectivity() override;
 
   vtkMultiProcessController *Controller;
   int Rank;

@@ -104,7 +104,7 @@ public:
 
 protected:
   vtkPUnstructuredGridGhostCellsGenerator();
-  ~vtkPUnstructuredGridGhostCellsGenerator();
+  ~vtkPUnstructuredGridGhostCellsGenerator() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *) override;
