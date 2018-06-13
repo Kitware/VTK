@@ -56,6 +56,8 @@ protected:
   vtkOpenGLPointGaussianMapper();
   ~vtkOpenGLPointGaussianMapper() override;
 
+  void ReportReferences(vtkGarbageCollector* collector) override;
+
   std::vector<vtkOpenGLPointGaussianMapperHelper *> Helpers;
   vtkOpenGLPointGaussianMapperHelper *CreateHelper();
   void CopyMapperValuesToHelper(
