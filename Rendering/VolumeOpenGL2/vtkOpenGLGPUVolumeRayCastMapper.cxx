@@ -123,7 +123,9 @@ public:
     this->CubeVAOId = 0;
     this->CubeIndicesId = 0;
     this->NoiseTextureObject = nullptr;
+    this->SharedNoiseTextureObject = false;
     this->DepthTextureObject = nullptr;
+    this->SharedDepthTextureObject = false;
     this->TextureWidth = 1024;
     this->ActualSampleDistance = 1.0;
     this->CurrentMask = nullptr;
@@ -458,7 +460,10 @@ public:
   GLuint CubeIndicesId;
 
   vtkTextureObject* NoiseTextureObject;
+  bool SharedNoiseTextureObject;
+
   vtkTextureObject* DepthTextureObject;
+  bool SharedDepthTextureObject;
 
   int TextureWidth;
 
@@ -2324,6 +2329,52 @@ void vtkOpenGLGPUVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CurrentPass: " << this->CurrentPass << "\n";
 }
 
+void vtkOpenGLGPUVolumeRayCastMapper::SetSharedNoiseTexture(vtkTextureObject *nt)
+{
+  if (this->Impl->NoiseTextureObject == nt)
+  {
+    return;
+  }
+  if (this->Impl->NoiseTextureObject)
+  {
+    this->Impl->NoiseTextureObject->Delete();
+  }
+  this->Impl->NoiseTextureObject = nt;
+
+  if (nt)
+  {
+    nt->Register(this); // as it will get deleted later on
+    this->Impl->SharedNoiseTextureObject = true;
+  }
+  else
+  {
+    this->Impl->SharedNoiseTextureObject = false;
+  }
+}
+
+void vtkOpenGLGPUVolumeRayCastMapper::SetSharedDepthTexture(vtkTextureObject *nt)
+{
+  if (this->Impl->DepthTextureObject == nt)
+  {
+    return;
+  }
+  if (this->Impl->DepthTextureObject)
+  {
+    this->Impl->DepthTextureObject->Delete();
+  }
+  this->Impl->DepthTextureObject = nt;
+
+  if (nt)
+  {
+    nt->Register(this); // as it will get deleted later on
+    this->Impl->SharedDepthTextureObject = true;
+  }
+  else
+  {
+    this->Impl->SharedDepthTextureObject = false;
+  }
+}
+
 //----------------------------------------------------------------------------
 vtkTextureObject* vtkOpenGLGPUVolumeRayCastMapper::GetDepthTexture()
 {
@@ -2367,14 +2418,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
     input.second.ReleaseGraphicsResources(window);
   }
 
-  if (this->Impl->NoiseTextureObject)
+  if (this->Impl->NoiseTextureObject && !this->Impl->SharedNoiseTextureObject)
   {
     this->Impl->NoiseTextureObject->ReleaseGraphicsResources(window);
     this->Impl->NoiseTextureObject->Delete();
     this->Impl->NoiseTextureObject = nullptr;
   }
 
-  if (this->Impl->DepthTextureObject)
+  if (this->Impl->DepthTextureObject && !this->Impl->SharedDepthTextureObject)
   {
     this->Impl->DepthTextureObject->ReleaseGraphicsResources(window);
     this->Impl->DepthTextureObject->Delete();
@@ -3204,6 +3255,10 @@ bool vtkOpenGLGPUVolumeRayCastMapper::PreLoadData(vtkRenderer* ren,
     return false;
   }
 
+  // have to register if we preload
+  this->ResourceCallback->RegisterGraphicsResources(
+    static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow()));
+
   this->Impl->ClearRemovedInputs(ren->GetRenderWindow());
   return this->Impl->UpdateInputs(ren, vol);
 }
@@ -3241,7 +3296,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ClearRemovedInputs(
   this->Parent->RemovedPorts.clear();
 
   if (orderChanged)
+  {
     this->ForceTransferInit();
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -3381,9 +3438,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     this->Impl->InitializationTime.GetMTime());
 
   this->ComputeReductionFactor(vol->GetAllocatedRenderTime());
-  this->Impl->CaptureDepthTexture(ren);
+  if (!this->Impl->SharedDepthTextureObject)
+  {
+    this->Impl->CaptureDepthTexture(ren);
+  }
 
-  if (this->UseJittering)
+  if (this->UseJittering && !this->Impl->SharedNoiseTextureObject)
   {
     this->Impl->CreateNoiseTexture(ren);
   }
@@ -3722,14 +3782,20 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetMapperShaderParameters(
 {
 #if GL_ES_VERSION_3_0 != 1
   // currently broken on ES
-  this->DepthTextureObject->Activate();
+  if (!this->SharedDepthTextureObject)
+  {
+    this->DepthTextureObject->Activate();
+  }
   prog->SetUniformi("in_depthSampler",
-    this->DepthTextureObject->GetTextureUnit());
+     this->DepthTextureObject->GetTextureUnit());
 #endif
 
   if (this->NoiseTextureObject)
   {
-    this->NoiseTextureObject->Activate();
+    if (!this->SharedNoiseTextureObject)
+    {
+      this->NoiseTextureObject->Activate();
+    }
     prog->SetUniformi("in_noiseSampler",
       this->NoiseTextureObject->GetTextureUnit());
   }
@@ -3909,12 +3975,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::FinishRendering(
     input.DeactivateTransferFunction(this->Parent->BlendMode);
   }
 
-  if (this->NoiseTextureObject)
+  if (this->NoiseTextureObject && !this->SharedNoiseTextureObject)
   {
     this->NoiseTextureObject->Deactivate();
   }
 #if GL_ES_VERSION_3_0 != 1
-  if (this->DepthTextureObject)
+  if (this->DepthTextureObject && !this->SharedDepthTextureObject)
   {
     this->DepthTextureObject->Deactivate();
   }

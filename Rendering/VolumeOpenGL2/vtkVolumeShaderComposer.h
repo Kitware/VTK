@@ -348,14 +348,14 @@ namespace vtkvolume
         \n  // we use a fraction of it. The texture coordinate is less than 1 if\
         \n  // the reduction factor is less than 1.\
         \n  // Device coordinates are between -1 and 1. We need texture\
-        \n  // coordinates between 0 and 1. The in_noiseSampler and in_depthSampler\
-        \n  // buffers have the original size buffer.\
+        \n  // coordinates between 0 and 1. The in_depthSampler\
+        \n  // buffer has the original size buffer.\
         \n  vec2 fragTexCoord = (gl_FragCoord.xy - in_windowLowerLeftCorner) *\
         \n                      in_inverseWindowSize;\
         \n\
         \n  if (in_useJittering)\
         \n  {\
-        \n    float jitterValue = texture2D(in_noiseSampler, fragTexCoord).x;\
+        \n    float jitterValue = texture2D(in_noiseSampler, gl_FragCoord.xy / textureSize(in_noiseSampler, 0)).x;\
         \n    g_rayJitter = g_dirStep * jitterValue;\
         \n    g_dataPos += g_rayJitter;\
         \n  }\

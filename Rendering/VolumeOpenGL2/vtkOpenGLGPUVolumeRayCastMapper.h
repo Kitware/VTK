@@ -138,6 +138,22 @@ public:
   vtkSetVector2Macro(NoiseTextureSize, int);
   //@}
 
+  // Sets a noise texture for this mapper to use
+  // This allows many mappers to use the same
+  // texture reducing GPU usage. If this is set
+  // the standard noise texture code is skipped
+  // The noise texture should be activated
+  // and deactivated outside of this class
+  void SetSharedNoiseTexture(vtkTextureObject *nt);
+
+  // Sets a depth texture for this mapper to use
+  // This allows many mappers to use the same
+  // texture reducing GPU usage. If this is set
+  // the standard depth texture code is skipped
+  // The depth texture should be activated
+  // and deactivated outside of this class
+  void SetSharedDepthTexture(vtkTextureObject *nt);
+
   /**
    * Set a fixed number of partitions in which to split the volume
    * during rendring. This will force by-block rendering without
@@ -190,14 +206,15 @@ public:
   vtkGetStringMacro(FragmentShaderCode);
   //@}
 
-protected:
-  vtkOpenGLGPUVolumeRayCastMapper();
-  ~vtkOpenGLGPUVolumeRayCastMapper() override;
-
   // Description:
   // Delete OpenGL objects.
   // \post done: this->OpenGLObjectsCreated==0
   void ReleaseGraphicsResources(vtkWindow *window) override;
+
+protected:
+  vtkOpenGLGPUVolumeRayCastMapper();
+  ~vtkOpenGLGPUVolumeRayCastMapper() override;
+
   vtkGenericOpenGLResourceFreeCallback *ResourceCallback;
 
   // Description:
