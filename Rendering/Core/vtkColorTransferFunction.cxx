@@ -289,6 +289,7 @@ vtkColorTransferFunction::vtkColorTransferFunction()
   this->NanColor[0] = 0.5;
   this->NanColor[1] = 0.0;
   this->NanColor[2] = 0.0;
+  this->NanOpacity = 1.0;
 
   this->BelowRangeColor[0] = 0.0;
   this->BelowRangeColor[1] = 0.0;
@@ -1584,7 +1585,7 @@ void vtkColorTransferFunctionIndexedMapData(
   int numNodes = self->GetSize();
 
   vtkVariant vin;
-  if ( (alpha=self->GetAlpha()) >= 1.0 ) //no blending required
+  if ( (alpha=self->GetAlpha()) >= 1.0 && self->GetNanOpacity() >= 1 ) //no blending required
   {
     if (outFormat == VTK_RGBA)
     {
@@ -1666,7 +1667,10 @@ void vtkColorTransferFunctionIndexedMapData(
         vin = *input;
         vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
         if ( idx < 0 || numNodes == 0 )
+        {
           self->GetNanColor( &nodeVal[1] );
+          alpha = self->GetNanOpacity();
+        }
         else
           self->GetNodeValue( idx % numNodes, nodeVal );
         output[0] = static_cast<unsigned char>(255. * nodeVal[1]);
@@ -1701,7 +1705,10 @@ void vtkColorTransferFunctionIndexedMapData(
         vin = *input;
         vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
         if ( idx < 0 || numNodes == 0 )
+        {
           self->GetNanColor( &nodeVal[1] );
+          alpha = self->GetNanOpacity();
+        }
         else
           self->GetNodeValue( idx % numNodes, nodeVal );
         output[0] = static_cast<unsigned char>(255. * nodeVal[1]*0.30 + 255. * nodeVal[2]*0.59 +
@@ -1808,7 +1815,7 @@ void vtkColorTransferFunction::GetIndexedColor(vtkIdType idx, double rgba[4])
     return;
   }
   this->GetNanColor(rgba);
-  rgba[3] = 1.0; // NanColor is RGB-only.
+  rgba[3] = this->GetNanOpacity();
 }
 
 //----------------------------------------------------------------------------
@@ -1976,6 +1983,8 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NanColor: "
      << this->NanColor[0] << ", " << this->NanColor[1] << ", "
      << this->NanColor[2] << endl;
+
+  os << indent << "NanOpacity: " << this->NanOpacity << "\n";
 
   os << indent << "BelowRangeColor: (" << this->BelowRangeColor[0] << ", "
      << this->BelowRangeColor[1] << ", " << this->BelowRangeColor[2] << ")\n";

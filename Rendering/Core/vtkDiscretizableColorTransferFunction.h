@@ -190,6 +190,13 @@ public:
   //@}
 
   /**
+   * Set the opacity to use when a NaN (not a number) is encountered.  This is an
+   * double in the range [0, 1].
+   * Overridden to pass the NanOpacity to the internal vtkLookupTable.
+   */
+  void SetNanOpacity(double a) override;
+
+  /**
    * This should return 1 if the subclass is using log scale for
    * mapping scalars to colors.
    */
