@@ -50,13 +50,13 @@ namespace CIEDE2000
 {
 
 //----------------------------------------------------------------------------
-static const int COLORSPACE_SIZE_X = 16;
-static const int COLORSPACE_SIZE_Y = 16;
-static const int COLORSPACE_SIZE_Z = 16;
+static const int COLORSPACE_SIZE_X = 17;
+static const int COLORSPACE_SIZE_Y = 17;
+static const int COLORSPACE_SIZE_Z = 17;
 
-static const int NEIGHBORHOOD_SIZE_X = 2;
-static const int NEIGHBORHOOD_SIZE_Y = 2;
-static const int NEIGHBORHOOD_SIZE_Z = 2;
+static const int NEIGHBORHOOD_SIZE_X = 1;
+static const int NEIGHBORHOOD_SIZE_Y = 1;
+static const int NEIGHBORHOOD_SIZE_Z = 1;
 
 typedef int PositionComponent;
 typedef std::array<PositionComponent, 3> Position;

@@ -31,7 +31,7 @@ bool TestLABCIEDE2000()
 
   ctf->SetColorSpaceToLabCIEDE2000();
   rgba = ctf->MapValue(0.5);
-  if (rgba[0] != 187 || rgba[1] != 34 || rgba[2] != 120)
+  if (rgba[0] != 196 || rgba[1] != 16 || rgba[2] != 123)
   {
     cerr << "ERROR: ColorSpace == VTK_CTF_LAB_CIEDE2000 failed!" << endl;
     return false;
