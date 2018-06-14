@@ -650,27 +650,33 @@ private:
            cellIter->GoToNextCell(), cellId++)
       {
         polyData->GetCell(cellIter->GetCellId(), genericCell);
-        if (genericCell->GetCellType() == VTK_LINE)
+        if (genericCell->GetCellType() == VTK_LINE ||
+            genericCell->GetCellType() == VTK_POLY_LINE)
         {
-          this->NumPointsCell = genericCell->GetNumberOfPoints();
-          this->PointIds = genericCell->GetPointIds()->GetPointer(0);
+          vtkIdType actualNumPointsCell = genericCell->GetNumberOfPoints();
 
-          this->MapCurrentCell(x, y, scale, cellId, scalarMode);
-
-          // Accumulate the current cell in the batched array
-          for (int i = 0; i < this->NumPointsCell; i++)
+          for (int i = 0; i < actualNumPointsCell - 1; ++i)
           {
-            this->Lines.push_back(this->CellPoints[2 * i]);
-            this->Lines.push_back(this->CellPoints[2 * i + 1]);
+            this->NumPointsCell = 2;
+            this->PointIds = genericCell->GetPointIds()->GetPointer(i);
 
-            double* color4 = this->CellColors->GetTuple(i);
-            this->LineColors->InsertTuple4(vertOffset + i, color4[0], color4[1], color4[2],
-              color4[3]);
+            this->MapCurrentCell(x, y, scale, cellId, scalarMode);
+
+            // Accumulate the current cell in the batched array
+            for (int j = 0; j < this->NumPointsCell; j++)
+            {
+              this->Lines.push_back(this->CellPoints[2 * j]);
+              this->Lines.push_back(this->CellPoints[2 * j + 1]);
+
+              double* color4 = this->CellColors->GetTuple(j);
+              this->LineColors->InsertTuple4(vertOffset + j, color4[0], color4[1], color4[2],
+                color4[3]);
+            }
+
+            vertOffset += this->NumPointsCell;
+            this->CellColors->Reset();
+            this->CellPoints.clear();
           }
-
-          vertOffset += this->NumPointsCell;
-          this->CellColors->Reset();
-          this->CellPoints.clear();
         }
       }
 
@@ -679,9 +685,12 @@ private:
       cellIter->Delete();
     }
 
-    this->Device->DrawLines(&this->Lines[0], this->Lines.size() / 2,
-      static_cast<unsigned char*>(this->LineColors->GetVoidPointer(0)),
-      this->LineColors->GetNumberOfComponents());
+    if (this->Lines.size() > 0)
+    {
+      this->Device->DrawLines(&this->Lines[0], this->Lines.size() / 2,
+        static_cast<unsigned char*>(this->LineColors->GetVoidPointer(0)),
+        this->LineColors->GetNumberOfComponents());
+    }
   };
 
   /**
@@ -786,8 +795,11 @@ private:
       cellIter->Delete();
     }
 
-    this->Device->CoreDrawTriangles(this->PolyTri,
-      static_cast<unsigned char*>(this->PolyColors->GetVoidPointer(0)), 4);
+    if (this->PolyTri.size() > 0)
+    {
+      this->Device->CoreDrawTriangles(this->PolyTri,
+        static_cast<unsigned char*>(this->PolyColors->GetVoidPointer(0)), 4);
+    }
   };
 
   vtkOpenGLContextDevice2D* Device;
