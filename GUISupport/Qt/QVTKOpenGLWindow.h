@@ -198,6 +198,12 @@ public slots:
    */
   virtual bool isValid();
 
+  /**
+   * Returns true if the internal OpenGL contect is the actual current
+   * OpenGL context, false otherwise.
+   */
+  virtual bool isCurrent();
+
 private slots:
   /**
    * slot called when vtk resized the render window

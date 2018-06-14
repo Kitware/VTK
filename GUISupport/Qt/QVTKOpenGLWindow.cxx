@@ -207,7 +207,7 @@ void QVTKOpenGLWindow::Start()
 //-----------------------------------------------------------------------------
 void QVTKOpenGLWindow::MakeCurrent()
 {
-  if (!this->context())
+  if (!this->context() || this->isCurrent())
   {
     return;
   }
@@ -233,7 +233,7 @@ void QVTKOpenGLWindow::IsCurrent(vtkObject*, unsigned long, void*,
   void* call_data)
 {
   bool* ptr = reinterpret_cast<bool*>(call_data);
-  *ptr = QOpenGLContext::currentContext() == this->context();
+  *ptr = this->isCurrent();
 }
 
 //-----------------------------------------------------------------------------
@@ -341,7 +341,13 @@ bool QVTKOpenGLWindow::event(QEvent* e)
 //-----------------------------------------------------------------------------
 void QVTKOpenGLWindow::mousePressEvent(QMouseEvent* e)
 {
-  this->ProcessEvent(e);
+  // do not transmit a MouseButtonPress that generates a double click
+  // see QTBUG-25831
+  if ((e->type() != QEvent::MouseButtonPress)
+      || !(e->flags().testFlag(Qt::MouseEventCreatedDoubleClick)))
+  {
+    this->ProcessEvent(e);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -507,4 +513,16 @@ bool QVTKOpenGLWindow::isValid()
   }
 
   return true;
+}
+
+//-----------------------------------------------------------------------------
+bool QVTKOpenGLWindow::isCurrent()
+{
+  // Check for an existing context()
+  if (!this->context())
+  {
+    return false;
+  }
+
+  return QOpenGLContext::currentContext() == this->context();
 }

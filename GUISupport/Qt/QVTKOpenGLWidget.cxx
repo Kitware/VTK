@@ -157,14 +157,6 @@ bool QVTKOpenGLWidget::event(QEvent* e)
       emit(mouseEvent(mouse_event));
     }
   }
-
-  // When events are fired from QtTesting, double click will never reach the
-  // internal window. Explicitely process this event. (QTBUG-61836 related)
-  if (e->type() == QEvent::MouseButtonDblClick)
-  {
-    this->qVTKOpenGLWindowInternal->ProcessEvent(e);
-  }
-
   return Superclass::event(e);
 }
 
