@@ -283,6 +283,9 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   # warnings as part of the doxygen documentation build
   "no documentation block in"
   "Utilities/Doxygen"
+
+  #Qt vtk class warning from buggy cppcheck
+  "warning: Member variable 'QVTKOpenGLWidget::qVTKOpenGLWindowInternal' is not initialized"
   )
 
 IF(APPLE)
