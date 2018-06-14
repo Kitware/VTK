@@ -62,9 +62,7 @@ int vtkExtractSelection::FillInputPortInformation(
 {
   if (port==0)
   {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
-    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
-    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   }
   else
   {
@@ -137,6 +135,14 @@ int vtkExtractSelection::RequestDataObject(
       outInfo->Set(vtkDataObject::DATA_OBJECT(), outputDO);
       outputDO->Delete();
     }
+    return 1;
+  }
+
+  if (!outputDO || ! outputDO->IsTypeOf(inputDO->GetClassName()))
+  {
+    outputDO = inputDO->NewInstance();
+    outInfo->Set(vtkDataObject::DATA_OBJECT(), outputDO);
+    outputDO->Delete();
     return 1;
   }
 
@@ -418,11 +424,9 @@ vtkSmartPointer<vtkDataObject> vtkExtractSelection::ExtractElements(
     this->ExtractSelectedRows(input, output, insidednessArray);
     return vtkSmartPointer<vtkTable>::Take(output);
   }
-  else
-  {
-    // TODO unknown type
-  }
-  return nullptr;
+
+  vtkDataObject* output = block->NewInstance();
+  return vtkSmartPointer<vtkDataObject>::Take(output);
 }
 
 //----------------------------------------------------------------------------
