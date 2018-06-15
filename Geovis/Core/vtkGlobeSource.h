@@ -44,6 +44,7 @@ class vtkCellArray;
 class vtkFloatArray;
 
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGlobeSource : public vtkPolyDataAlgorithm
 {
 public:
@@ -181,4 +182,5 @@ private:
   void operator=(const vtkGlobeSource&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

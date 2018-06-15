@@ -47,6 +47,7 @@ vtkCxxSetObjectMacro(vtkGeoView, Terrain, vtkGeoTerrain);
 //----------------------------------------------------------------------------
 vtkGeoView::vtkGeoView()
 {
+  VTK_LEGACY_BODY(vtkGeoView::vtkGeoView, "VTK 8.2");
   this->Terrain = nullptr;
 
   // Replace the interactor style
@@ -290,4 +291,3 @@ void vtkGeoView::PrintSelf(ostream& os, vtkIndent indent)
     this->Terrain->PrintSelf(os, indent.GetNextIndent());
   }
 }
-

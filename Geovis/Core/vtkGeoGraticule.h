@@ -39,6 +39,7 @@
 
 class vtkPolyData;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoGraticule : public vtkPolyDataAlgorithm
 {
 public:
@@ -140,4 +141,5 @@ private:
   void operator = ( const vtkGeoGraticule& ) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif // vtkGeoGraticule_h

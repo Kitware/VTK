@@ -80,6 +80,7 @@ class vtkCamera;
 class vtkGeoTerrainNode;
 class vtkTransform;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoCamera : public vtkObject
 {
 public:
@@ -245,4 +246,5 @@ private:
   void operator=(const vtkGeoCamera&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

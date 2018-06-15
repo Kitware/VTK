@@ -56,6 +56,7 @@ class vtkImageData;
 class vtkPolyDataMapper;
 class vtkViewTheme;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKVIEWSGEOVIS_EXPORT vtkGeoView : public vtkRenderView
 {
 public:
@@ -129,5 +130,6 @@ private:
   void operator=(const vtkGeoView&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif
 

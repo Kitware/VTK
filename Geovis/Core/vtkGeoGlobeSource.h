@@ -34,6 +34,7 @@
 
 class vtkGeoTerrainNode;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoGlobeSource : public vtkGeoSource
 {
 public:
@@ -60,4 +61,5 @@ private:
   void operator=(const vtkGeoGlobeSource&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

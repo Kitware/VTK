@@ -50,6 +50,7 @@ public:
 
 vtkGeoSource::vtkGeoSource()
 {
+  VTK_LEGACY_BODY(vtkGeoSource::vtkGeoSource, "VTK 8.2");
   this->InputSet = vtkCollection::New();
   this->InputSetLock = vtkMutexLock::New();
   this->ProcessingSet = vtkCollection::New();
@@ -247,4 +248,3 @@ void vtkGeoSource::WorkerThread()
     }
   }
 }
-

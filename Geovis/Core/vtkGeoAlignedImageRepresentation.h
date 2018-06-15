@@ -38,6 +38,7 @@ class vtkGeoImageNode;
 class vtkGeoSource;
 class vtkGeoTreeNodeCache;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoAlignedImageRepresentation : public vtkDataRepresentation
 {
 public:
@@ -102,4 +103,5 @@ private:
   void operator=(const vtkGeoAlignedImageRepresentation&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

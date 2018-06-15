@@ -43,6 +43,7 @@ vtkStandardNewMacro(vtkGeoAdaptiveArcs);
 //-------------------------------------------------------------------------
 vtkGeoAdaptiveArcs::vtkGeoAdaptiveArcs()
 {
+  VTK_LEGACY_BODY(vtkGeoAdaptiveArcs::vtkGeoAdaptiveArcs, "VTK 8.2");
   this->GlobeRadius = vtkGeoMath::EarthRadiusMeters();
   this->Renderer = nullptr;
   this->MaximumPixelSeparation = 10.0;

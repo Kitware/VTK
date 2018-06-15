@@ -69,6 +69,7 @@ double vtkGeoGraticule::LongitudeLevelTics[12] =
 
 vtkGeoGraticule::vtkGeoGraticule()
 {
+  VTK_LEGACY_BODY(vtkGeoGraticule::vtkGeoGraticule, "VTK 8.2");
   this->SetNumberOfInputPorts( 0 );
   this->LatitudeLevel = 2;
   this->LongitudeLevel = 1;

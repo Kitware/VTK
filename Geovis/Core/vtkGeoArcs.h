@@ -33,6 +33,7 @@
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoArcs : public vtkPolyDataAlgorithm
 {
 public:
@@ -86,4 +87,5 @@ private:
   void operator=(const vtkGeoArcs&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

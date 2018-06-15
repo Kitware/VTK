@@ -40,6 +40,7 @@ class vtkGeoImageNode;
 class vtkImageData;
 class vtkMultiBlockDataSet;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoAlignedImageSource : public vtkGeoSource
 {
 public:
@@ -114,4 +115,5 @@ private:
   void operator=(const vtkGeoAlignedImageSource&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

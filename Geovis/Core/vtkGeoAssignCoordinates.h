@@ -40,6 +40,7 @@
 
 class vtkAbstractTransform;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoAssignCoordinates : public vtkPassInputTypeAlgorithm
 {
 public:
@@ -114,5 +115,6 @@ private:
   void operator=(const vtkGeoAssignCoordinates&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif
 

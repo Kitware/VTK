@@ -134,6 +134,9 @@ vtkCxxSetObjectMacro(vtkGeoAlignedImageRepresentation, GeoSource, vtkGeoSource);
 //----------------------------------------------------------------------------
 vtkGeoAlignedImageRepresentation::vtkGeoAlignedImageRepresentation()
 {
+  VTK_LEGACY_BODY(
+    vtkGeoAlignedImageRepresentation::vtkGeoAlignedImageRepresentation,
+    "VTK 8.2");
   this->GeoSource = nullptr;
   this->Root = vtkGeoImageNode::New();
   this->Cache = vtkGeoTreeNodeCache::New();

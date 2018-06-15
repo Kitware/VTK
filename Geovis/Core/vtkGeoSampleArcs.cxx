@@ -40,6 +40,7 @@ vtkStandardNewMacro(vtkGeoSampleArcs);
 
 vtkGeoSampleArcs::vtkGeoSampleArcs()
 {
+  VTK_LEGACY_BODY(vtkGeoSampleArcs::vtkGeoSampleArcs, "VTK 8.2");
   this->GlobeRadius = vtkGeoMath::EarthRadiusMeters();
   this->MaximumDistanceMeters = 100000.0;
   this->InputCoordinateSystem = RECTANGULAR;
@@ -182,4 +183,3 @@ void vtkGeoSampleArcs::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "InputCoordinateSystem: " << this->InputCoordinateSystem << endl;
   os << indent << "OutputCoordinateSystem: " << this->OutputCoordinateSystem << endl;
 }
-

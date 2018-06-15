@@ -34,6 +34,7 @@ vtkStandardNewMacro(vtkGeoArcs);
 
 vtkGeoArcs::vtkGeoArcs()
 {
+  VTK_LEGACY_BODY(vtkGeoArcs::vtkGeoArcs, "VTK 8.2");
   this->GlobeRadius = vtkGeoMath::EarthRadiusMeters();
   this->ExplodeFactor = 0.2;
   this->NumberOfSubdivisions = 20;

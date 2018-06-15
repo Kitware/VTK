@@ -30,6 +30,7 @@ vtkStandardNewMacro(vtkGeoImageNode);
 //----------------------------------------------------------------------------
 vtkGeoImageNode::vtkGeoImageNode()
 {
+  VTK_LEGACY_BODY(vtkGeoImageNode::vtkGeoImageNode, "VTK 8.2");
   this->Image = vtkSmartPointer<vtkImageData>::New();
   this->Texture = vtkSmartPointer<vtkTexture>::New();
 }

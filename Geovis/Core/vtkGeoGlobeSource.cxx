@@ -26,7 +26,10 @@
 
 vtkStandardNewMacro(vtkGeoGlobeSource);
 //----------------------------------------------------------------------------
-vtkGeoGlobeSource::vtkGeoGlobeSource() = default;
+vtkGeoGlobeSource::vtkGeoGlobeSource()
+{
+  VTK_LEGACY_BODY(vtkGeoGlobeSource::vtkGeoGlobeSource, "VTK 8.2");
+}
 
 //----------------------------------------------------------------------------
 vtkGeoGlobeSource::~vtkGeoGlobeSource() = default;

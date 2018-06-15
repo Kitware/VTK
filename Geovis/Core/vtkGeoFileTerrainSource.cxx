@@ -36,6 +36,7 @@ vtkStandardNewMacro(vtkGeoFileTerrainSource);
 //----------------------------------------------------------------------------
 vtkGeoFileTerrainSource::vtkGeoFileTerrainSource()
 {
+  VTK_LEGACY_BODY(vtkGeoFileTerrainSource::vtkGeoFileTerrainSource, "VTK 8.2");
   this->Path = nullptr;
 }
 

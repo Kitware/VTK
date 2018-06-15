@@ -38,6 +38,7 @@
 class vtkGeoImageNode;
 class vtkGeoTreeNode;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoFileImageSource : public vtkGeoSource
 {
 public:
@@ -77,4 +78,5 @@ private:
   char* Path;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif

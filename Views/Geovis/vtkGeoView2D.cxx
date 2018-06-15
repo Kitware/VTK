@@ -36,6 +36,7 @@ vtkCxxSetObjectMacro(vtkGeoView2D, Surface, vtkGeoTerrain2D);
 
 vtkGeoView2D::vtkGeoView2D()
 {
+  VTK_LEGACY_BODY(vtkGeoView2D::vtkGeoView2D, "VTK 8.2");
   this->Surface = nullptr;
   this->SetInteractionModeTo2D();
   this->Assembly = vtkAssembly::New();

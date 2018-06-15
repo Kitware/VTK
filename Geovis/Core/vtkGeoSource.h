@@ -51,6 +51,7 @@ class vtkGeoTreeNode;
 class vtkMultiThreader;
 class vtkMutexLock;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKGEOVISCORE_EXPORT vtkGeoSource : public vtkObject
 {
 public:
@@ -128,4 +129,5 @@ private:
   void operator=(const vtkGeoSource&) = delete;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif // vtkGeoSource_h

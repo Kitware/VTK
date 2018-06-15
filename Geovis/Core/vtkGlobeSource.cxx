@@ -44,6 +44,7 @@ vtkStandardNewMacro(vtkGlobeSource);
 //----------------------------------------------------------------------------
 vtkGlobeSource::vtkGlobeSource()
 {
+  VTK_LEGACY_BODY(vtkGlobeSource::vtkGlobeSource, "VTK 8.2");
   this->Origin[0] = this->Origin[1] = this->Origin[2] = 0.0;
   this->Radius = vtkGeoMath::EarthRadiusMeters();
   this->AutoCalculateCurtainHeight = true;

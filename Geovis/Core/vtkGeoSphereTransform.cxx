@@ -31,6 +31,7 @@ vtkStandardNewMacro(vtkGeoSphereTransform);
 
 vtkGeoSphereTransform::vtkGeoSphereTransform()
 {
+  VTK_LEGACY_BODY(vtkGeoSphereTransform::vtkGeoSphereTransform, "VTK 8.2");
   this->ToRectangular = true;
   this->BaseAltitude = 0.0;
 }
@@ -109,4 +110,3 @@ vtkAbstractTransform* vtkGeoSphereTransform::MakeTransform()
   vtkGeoSphereTransform* geoTrans = vtkGeoSphereTransform::New();
   return geoTrans;
 }
-
