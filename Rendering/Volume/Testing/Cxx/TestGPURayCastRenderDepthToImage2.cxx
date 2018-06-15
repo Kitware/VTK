@@ -25,7 +25,6 @@
 #include "vtkImageMapper3D.h"
 #include "vtkLookupTable.h"
 #include "vtkNew.h"
-#include "vtkOpenGLGPUVolumeRayCastMapper.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkRegressionTestImage.h"

@@ -27,7 +27,6 @@
 #include "vtkPointData.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
-#include "vtkRenderingOpenGLConfigure.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartVolumeMapper.h"

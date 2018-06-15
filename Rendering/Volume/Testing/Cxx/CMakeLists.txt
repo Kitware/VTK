@@ -10,7 +10,6 @@ set (VolumeCxxTests
   TestGPURayCastCameraInsideNonUniformScaleTransform.cxx
   TestGPURayCastCameraInsideSmallSpacing.cxx
   TestGPURayCastCameraInsideTransformation.cxx
-  TestGPURayCastCellData.cxx
   TestGPURayCastClipping.cxx
   TestGPURayCastClippingPolyData.cxx
   TestGPURayCastClippingUserTransform.cxx
@@ -23,12 +22,6 @@ set (VolumeCxxTests
   TestGPURayCastDataTypesMIP.cxx
   TestGPURayCastDataTypesMinIP.cxx
   TestGPURayCastDependentComponentsLightParameters.cxx
-  TestGPURayCastDepthPeeling.cxx
-  TestGPURayCastDepthPeelingBlendModes.cxx
-  TestGPURayCastDepthPeelingClip.cxx
-  TestGPURayCastDepthPeelingOpaque.cxx
-  TestGPURayCastDepthPeelingTransVol.cxx
-  TestGPURayCastDepthPeelingTransparentPolyData.cxx
   TestGPURayCastFourComponentsAdditive.cxx
   TestGPURayCastFourComponentsAverage.cxx
   TestGPURayCastFourComponentsComposite.cxx
@@ -41,9 +34,6 @@ set (VolumeCxxTests
   TestGPURayCastImageSampleXY.cxx
   TestGPURayCastIndependentComponentsLightParameters.cxx
   TestGPURayCastIndependentVectorMode.cxx
-  TestGPURayCastIsosurface.cxx
-  TestGPURayCastJittering.cxx
-  TestGPURayCastJitteringCustom.cxx
   TestGPURayCastLargeColorTransferFunction.cxx
   TestGPURayCastMIPBinaryMask.cxx
   TestGPURayCastMIPToComposite.cxx
@@ -60,8 +50,6 @@ set (VolumeCxxTests
   TestGPURayCastRenderDepthToImage.cxx
   TestGPURayCastRenderDepthToImage2.cxx
   TestGPURayCastRenderToTexture.cxx
-  TestGPURayCastTextureStreaming.cxx
-  TestGPURayCastTextureStreamingMask.cxx
   TestGPURayCastThreeComponentsAdditive.cxx
   TestGPURayCastThreeComponentsIndependent.cxx
   TestGPURayCastTransfer2D.cxx
@@ -69,8 +57,6 @@ set (VolumeCxxTests
   TestGPURayCastTwoComponentsDependentGradient.cxx
   TestGPURayCastTwoComponentsGradient.cxx
   TestGPURayCastTwoComponentsIndependent.cxx
-  TestGPURayCastUserShader.cxx
-  TestGPURayCastUserShader2.cxx
   TestGPURayCastVolumeDepthPass.cxx
   TestGPURayCastVolumeLightKit.cxx
   TestGPURayCastVolumeOrientation.cxx
@@ -91,19 +77,6 @@ set (VolumeCxxTests
   TestSmartVolumeMapperWindowLevel.cxx
   )
 
-set(test_shader_files
-  TestGPURayCastUserShader2_FS.glsl
-  )
-unset(shader_c_files)
-foreach(file ${test_shader_files})
-  vtk_encode_string(
-    INPUT         "${file}"
-    SOURCE_OUTPUT source)
-  list(APPEND shader_c_files ${source})
-endforeach()
-
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
 # everyone gets these tests
 vtk_add_test_cxx(vtkRenderingVolumeCxxTests tests
   ${VolumeCxxTests}
@@ -111,5 +84,4 @@ vtk_add_test_cxx(vtkRenderingVolumeCxxTests tests
 
 vtk_test_cxx_executable(vtkRenderingVolumeCxxTests tests
   RENDERING_FACTORY
-  ${shader_c_files}
   )

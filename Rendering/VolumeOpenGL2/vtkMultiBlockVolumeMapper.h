@@ -28,9 +28,8 @@
  * it falls back to using a single mapper instance and reloading data for each block.
  *
  * Jittering is used to alleviate seam artifacts at the block edges due to the
- * discontinuous resolution between blocks.  Jittering is disabled by default until
- * valid resolution is set (e.g. x > 0 && y > 0).  Jittering is only supported in
- * GPURenderMode.
+ * discontinuous resolution between blocks.  Jittering is enabled by default.
+ * Jittering is only supported in GPURenderMode.
  *
  */
 #ifndef vtkMultiBlockVolumeMapper_h
@@ -95,15 +94,6 @@ public:
   vtkGetMacro(VectorComponent, int);
   //@}
 
-  /**
-   * Set the resolution of the noise texture used for ray jittering (viewport's
-   * resolution is normally a good choice).  In this mapper jittering is used to
-   * alleviate seam artifacts at the block edges due to discontinuous resolution
-   * between blocks.  Jittering is disabled by default until valid resolution is
-   * set (e.g. x > 0 && y > 0).
-   */
-  void SetJitteringResolution(int x, int y);
-
   //@{
   /**
    * Blending mode API from vtkVolumeMapper
@@ -163,8 +153,6 @@ private:
    */
   void CreateMappers(vtkDataObjectTree* input, vtkRenderer* ren, vtkVolume* vol);
 
-  void ApplyJitteringResolution(vtkSmartVolumeMapper* mapper);
-
   vtkDataObjectTree* GetDataObjectTreeInput();
 
   /**
@@ -195,9 +183,6 @@ private:
 
   vtkTimeStamp BlockLoadingTime;
   vtkTimeStamp BoundsComputeTime;
-
-  int JitteringSizeX;
-  int JitteringSizeY;
 
   int VectorMode;
   int VectorComponent;

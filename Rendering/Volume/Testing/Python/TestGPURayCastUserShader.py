@@ -60,7 +60,7 @@ volumeProperty.SetScalarOpacity(pf)
 volumeProperty.SetColor(ctf)
 volumeProperty.SetShade(1)
 
-mapper = vtk.vtkOpenGLGPUVolumeRayCastMapper()
+mapper = vtk.vtkGPUVolumeRayCastMapper()
 mapper.SetInputConnection(reader.GetOutputPort())
 mapper.SetUseJittering(1)
 

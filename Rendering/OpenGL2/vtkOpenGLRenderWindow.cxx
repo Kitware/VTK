@@ -37,6 +37,7 @@
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObjectCache.h"
 #include "vtkOutputWindow.h"
+#include "vtkPerlinNoise.h"
 #include "vtkRendererCollection.h"
 #include "vtkRenderTimerLog.h"
 #include "vtkShaderProgram.h"
@@ -225,6 +226,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->Capabilities = nullptr;
 
   this->TQuad2DVBO = nullptr;
+  this->NoiseTextureObject = nullptr;
 }
 
 // free up memory & close the window
@@ -252,6 +254,11 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
   {
     this->TQuad2DVBO->Delete();
     this->TQuad2DVBO = nullptr;
+  }
+
+  if (this->NoiseTextureObject)
+  {
+    this->NoiseTextureObject->Delete();
   }
 
   delete [] this->Capabilities;
@@ -305,6 +312,10 @@ const char* vtkOpenGLRenderWindow::ReportCapabilities()
 void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
 {
   // release the registered resources
+  if (this->NoiseTextureObject)
+  {
+    this->NoiseTextureObject->ReleaseGraphicsResources(this);
+  }
 
   std::set<vtkGenericOpenGLResourceFreeCallback *>::iterator it
    = this->Resources.begin();
@@ -2487,4 +2498,61 @@ vtkOpenGLBufferObject *vtkOpenGLRenderWindow::GetTQuad2DVBO()
     }
   }
   return this->TQuad2DVBO;
+}
+
+int vtkOpenGLRenderWindow::GetNoiseTextureUnit()
+{
+  if (!this->NoiseTextureObject)
+  {
+    this->NoiseTextureObject = vtkTextureObject::New();
+    this->NoiseTextureObject->SetContext(this);
+  }
+
+  if (this->NoiseTextureObject->GetHandle() == 0)
+  {
+    vtkNew<vtkPerlinNoise> generator;
+    generator->SetFrequency(64, 64, 1.0);
+    generator->SetAmplitude(0.5);
+
+    int const bufferSize = 64 * 64;
+    float *noiseTextureData = new float[bufferSize];
+    for (int i = 0; i < bufferSize; i++)
+    {
+      int const x = i % 64;
+      int const y = i / 64;
+      noiseTextureData[i] = static_cast<float>(
+        generator->EvaluateFunction(x, y, 0.0) + 0.5);
+    }
+
+    // Prepare texture
+    this->NoiseTextureObject->Create2DFromRaw(64, 64, 1, VTK_FLOAT,
+      noiseTextureData);
+
+    this->NoiseTextureObject->SetWrapS(vtkTextureObject::Repeat);
+    this->NoiseTextureObject->SetWrapT(vtkTextureObject::Repeat);
+    this->NoiseTextureObject->SetMagnificationFilter(vtkTextureObject::Nearest);
+    this->NoiseTextureObject->SetMinificationFilter(vtkTextureObject::Nearest);
+    delete [] noiseTextureData;
+  }
+
+
+  int result = this->GetTextureUnitForTexture(this->NoiseTextureObject);
+
+  if (result >= 0)
+  {
+    return result;
+  }
+
+  this->NoiseTextureObject->Activate();
+  return this->GetTextureUnitForTexture(this->NoiseTextureObject);
+}
+
+void vtkOpenGLRenderWindow::Render()
+{
+  this->Superclass::Render();
+  if (this->NoiseTextureObject &&
+    this->GetTextureUnitForTexture(this->NoiseTextureObject) >= 0)
+  {
+    this->NoiseTextureObject->Deactivate();
+  }
 }

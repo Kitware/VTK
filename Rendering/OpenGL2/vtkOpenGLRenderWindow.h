@@ -430,6 +430,12 @@ public:
   // coordinates for a quad and tcoords
   vtkOpenGLBufferObject *GetTQuad2DVBO();
 
+  // Activate and return thje texture unit for a generic 2d 64x64
+  // float greyscale noise texture ranging from 0 to 1. The texture is
+  // generated using PerlinNoise.  This textur eunit will automatically
+  // be deactivated at the end of the render process.
+  int GetNoiseTextureUnit();
+
   /**
    * Update the system, if needed, due to stereo rendering. For some stereo
    * methods, subclasses might need to switch some hardware settings here.
@@ -441,6 +447,11 @@ public:
    * of the left and right eye.
    */
   void StereoMidpoint() override;
+
+  /**
+   * Handle opengl specific code and calls superclass
+   */
+  void Render() override;
 
 protected:
   vtkOpenGLRenderWindow();
@@ -567,6 +578,9 @@ protected:
 
   // used for fast quad rendering
   vtkOpenGLBufferObject *TQuad2DVBO;
+
+  // noise texture
+  vtkTextureObject *NoiseTextureObject;
 
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) = delete;

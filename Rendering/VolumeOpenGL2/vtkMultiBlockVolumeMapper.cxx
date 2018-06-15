@@ -34,8 +34,6 @@ vtkStandardNewMacro(vtkMultiBlockVolumeMapper)
 //------------------------------------------------------------------------------
 vtkMultiBlockVolumeMapper::vtkMultiBlockVolumeMapper()
 : FallBackMapper(nullptr)
-, JitteringSizeX(-1)
-, JitteringSizeY(-1)
 , VectorMode(vtkSmartVolumeMapper::DISABLED)
 , VectorComponent(0)
 {
@@ -296,8 +294,14 @@ vtkSmartVolumeMapper* vtkMultiBlockVolumeMapper::CreateMapper()
   mapper->SetCropping(this->GetCropping());
   mapper->SetCroppingRegionFlags(this->GetCroppingRegionFlags());
   mapper->SetCroppingRegionPlanes(this->GetCroppingRegionPlanes());
-  this->ApplyJitteringResolution(mapper);
 
+  vtkOpenGLGPUVolumeRayCastMapper* glMapper =
+    vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper->GetGPUMapper());
+
+  if (glMapper != nullptr)
+  {
+    glMapper->UseJitteringOn();
+  }
   return mapper;
 }
 
@@ -332,8 +336,6 @@ void vtkMultiBlockVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << "Number Of Mappers: " << this->Mappers.size() << "\n";
   os << "BlockLoadingTime: " << this->BlockLoadingTime.GetMTime() << "\n";
   os << "BoundsComputeTime: " << this->BoundsComputeTime.GetMTime() << "\n";
-  os << "Jittering resolution (x, y): " << this->JitteringSizeX << ", "
-    << this->JitteringSizeY << "\n";
   os << "VectorMode: " << this->VectorMode << "\n";
   os << "VectorComponent: " << this->VectorComponent << "\n";
 }
@@ -397,55 +399,6 @@ void vtkMultiBlockVolumeMapper::SetArrayAccessMode(int accessMode)
     (*it)->SetArrayAccessMode(accessMode);
   }
   Superclass::SetArrayAccessMode(accessMode);
-}
-
-//------------------------------------------------------------------------------
-void vtkMultiBlockVolumeMapper::SetJitteringResolution(int x, int y)
-{
-  if (this->JitteringSizeX != x || this->JitteringSizeY != y)
-  {
-    this->JitteringSizeX = x;
-    this->JitteringSizeY = y;
-
-    MapperVec::const_iterator end = this->Mappers.end();
-    for (MapperVec::const_iterator it = this->Mappers.begin(); it != end; ++it)
-    {
-      this->ApplyJitteringResolution((*it));
-    }
-
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkMultiBlockVolumeMapper::ApplyJitteringResolution(
-  vtkSmartVolumeMapper* mapper)
-{
-  vtkOpenGLGPUVolumeRayCastMapper* glMapper =
-    vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper->GetGPUMapper());
-
-  if (glMapper == nullptr)
-  {
-    vtkWarningMacro("Jittering is not supported by this mapper.");
-    return;
-  }
-
-  if (this->JitteringSizeX <= 0 || this->JitteringSizeY <= 0)
-  {
-    glMapper->UseJitteringOff();
-  }
-
-  vtkPerlinNoise* generator = vtkPerlinNoise::New();
-  generator->SetFrequency(static_cast<double>(this->JitteringSizeX),
-    static_cast<double>(this->JitteringSizeY), 1.0);
-  generator->SetAmplitude(0.5);
-
-  int texSize[2] = {this->JitteringSizeX, this->JitteringSizeY};
-  glMapper->SetNoiseTextureSize(texSize);
-  glMapper->SetNoiseGenerator(generator);
-  glMapper->UseJitteringOn();
-
-  generator->Delete();
 }
 
 //----------------------------------------------------------------------------
