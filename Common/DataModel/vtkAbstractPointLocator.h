@@ -93,11 +93,13 @@ public:
                                       vtkIdList *result);
   //@}
 
+  //@{
   /**
-   * Provide an accessor to the bounds.
+   * Provide an accessor to the bounds. Valid after the locator is built.
    */
   virtual double *GetBounds() { return this->Bounds; }
   virtual void GetBounds(double*);
+  //@}
 
   //@{
   /**

@@ -35,6 +35,7 @@ vtk_add_test_python(
   TestScalarTrees.py
   TestSphereTreeFilter.py
   TestSphereTreeFilter2.py
+  TestStaticCleanPolyData.py
   TestStructuredGridPlaneCutter.py
   TestSynchronizedTemplates2D.py
   TestSynchronizedTemplates3D.py
@@ -45,6 +46,8 @@ vtk_add_test_python(
   TestTriangleFilter.py
   TestUnstructuredGridPlaneCutter.py
   TestVectorDotNorm.py
+  TestVoronoi2D.py
+  TestVoronoi2D2.py
   TestWindowedSincPolylineSmoothing.py
   capCow.py
   capSphere.py

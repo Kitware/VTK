@@ -1459,8 +1459,8 @@ int vtkDelaunay2D::FillInputPortInformation(int port, vtkInformation* info)
 }
 
 //----------------------------------------------------------------------------
-vtkAbstractTransform * vtkDelaunay2D::ComputeBestFittingPlane(
-  vtkPointSet *input)
+vtkAbstractTransform* vtkDelaunay2D::
+ComputeBestFittingPlane(vtkPointSet *input)
 {
   vtkIdType numPts=input->GetNumberOfPoints();
   double m[9], v[3], x[3];

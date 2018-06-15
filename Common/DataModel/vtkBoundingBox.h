@@ -16,8 +16,8 @@ PURPOSE.  See the above copyright notice for more information.
  * @class   vtkBoundingBox
  * @brief   Fast Simple Class for dealing with 3D bounds
  *
- * vtkBoundingBox maintains a 3D axis aligned bounding box.  It is very
- * lite weight and many of the member functions are in-lined so its very fast
+ * vtkBoundingBox maintains a 3D axis aligned bounding box.  It is very light
+ * weight and many of the member functions are in-lined so it is very fast.
  * It is not derived from vtkObject so it can be allocated on the stack
  *
  * @sa
@@ -45,7 +45,7 @@ public:
   //@}
 
   /**
-   * Copy Constructor
+   * Copy constructor.
    */
   vtkBoundingBox(const vtkBoundingBox &bbox);
 
@@ -56,7 +56,7 @@ public:
 
   //@{
   /**
-   * Equality Operator
+   * Equality operator.
    */
   bool operator==(const vtkBoundingBox &bbox)const;
   bool operator!=(const vtkBoundingBox &bbox)const;
@@ -64,8 +64,8 @@ public:
 
   //@{
   /**
-   * Set the bounds explicitly of the box (vtk Style)
-   * Returns 1 if the box was changed else 0.
+   * Set the bounds explicitly of the box (using the VTK convention for
+   * representing a bounding box).  Returns 1 if the box was changed else 0.
    */
   void SetBounds(const double bounds[6]);
   void SetBounds(double xMin, double xMax,
@@ -102,29 +102,29 @@ public:
 
   //@{
   /**
-   * Change bounding box so it includes the point p
-   * Note that the bounding box may have 0 volume if its bounds
-   * were just initialized.
+   * Change bounding box so it includes the point p.  Note that the bounding
+   * box may have 0 volume if its bounds were just initialized.
    */
   void AddPoint(double p[3]);
   void AddPoint(double px, double py, double pz);
   //@}
 
   /**
-   * Change the bounding box to be the union of itself and bbox.
+   * Change the bounding box to be the union of itself and the specified
+   * bbox.
    */
   void AddBox(const vtkBoundingBox &bbox);
 
   /**
    * Adjust the bounding box so it contains the specified bounds (defined by
-   * the vtk standard (xmin,xmax, ymin,ymax, zmin,zmax).
+   * the VTK representation (xmin,xmax, ymin,ymax, zmin,zmax).
    */
   void AddBounds(const double bounds[]);
 
   /**
-   * Intersect this box with bbox. The method returns 1 if
-   * both boxes are valid and they do have overlap else it will return 0.
-   * If 0 is returned the box has not been modified.
+   * Intersect this box with bbox. The method returns 1 if both boxes are
+   * valid and they do have overlap else it will return 0.  If 0 is returned
+   * the box has not been modified.
    */
   int IntersectBox(const vtkBoundingBox &bbox);
 
@@ -134,21 +134,21 @@ public:
   int Intersects(const vtkBoundingBox &bbox) const;
 
   /**
-   * Intersect this box with the half space defined by plane.
-   * Returns true if there is intersection---which implies that the box has been modified
+   * Intersect this box with the half space defined by plane.  Returns true
+   * if there is intersection---which implies that the box has been modified
    * Returns false otherwise.
    */
   bool IntersectPlane(double origin[3],double normal[3]);
 
   /**
    * Returns 1 if the min and max points of bbox are contained
-   * within the bounds of this box, else returns 0.
+   * within the bounds of the specified box, else returns 0.
    */
   int Contains(const vtkBoundingBox &bbox) const;
 
   //@{
   /**
-   * Get the bounds of the box (defined by vtk style).
+   * Get the bounds of the box (defined by VTK style).
    */
   void GetBounds(double bounds[6]) const;
   void GetBounds(double &xMin, double &xMax,
@@ -157,7 +157,7 @@ public:
   //@}
 
   /**
-   * Return the ith bounds of the box (defined by vtk style).
+   * Return the ith bounds of the box (defined by VTK style).
    */
   double GetBound(int i) const;
 
@@ -167,6 +167,7 @@ public:
    */
   const double *GetMinPoint() const VTK_SIZEHINT(3);
   void GetMinPoint(double &x, double &y, double &z) const;
+  void GetMinPoint(double x[3]);
   //@}
 
   //@{
@@ -175,7 +176,14 @@ public:
    */
   const double *GetMaxPoint() const VTK_SIZEHINT(3);
   void GetMaxPoint(double &x, double &y, double &z) const;
+  void GetMaxPoint(double x[3]);
   //@}
+
+  /**
+   * Get the ith corner of the bounding box. The points are ordered
+   * with i, then j, then k increasing.
+   */
+  void GetCorner(int corner, double p[3]) const;
 
   //@{
   /**
@@ -191,17 +199,17 @@ public:
   void GetCenter(double center[3]) const;
 
   /**
-   * Get the lengths of the box.
+   * Get the length of each sode of the box.
    */
   void GetLengths(double lengths[3]) const;
 
   /**
-   * Return the length in the ith direction.
+   * Return the length of the bounding box in the ith direction.
    */
   double GetLength(int i) const;
 
   /**
-   * Return the Max Length of the box.
+   * Return the maximum length of the box.
    */
   double GetMaxLength() const;
 
@@ -213,13 +221,15 @@ public:
 
   //@{
   /**
-   * Expand the Box by delta on each side, the box will grow by 2*delta in
-   * x,y and z. Alternatively, inflate the bounds so that it has non-zero
-   * volume. Edges that are inflated are adjusted 1% of the longest edge. Or
-   * if all edges are zero length, the bounding box is inflated by 1 unit in
-   * each of the x-y-z directions.
+   * Expand the bounding box. Inflate(delta) expands by delta on each side,
+   * the box will grow by 2*delta in x, y, and z. Inflate(dx,dy,dz) expands
+   * by the given amounts in each of the x, y, z directions. Finally,
+   * Inflate() expands the bounds so that it has non-zero volume. Edges that
+   * are inflated are adjusted 1% of the longest edge. Or if an edge is
+   * zero length, the bounding box is inflated by 1 unit in that direction.
    */
   void Inflate(double delta);
+  void Inflate(double deltaX, double deltaY, double deltaZ);
   void Inflate();
   //@}
 
@@ -232,6 +242,17 @@ public:
    */
   void Scale(double s[3]);
   void Scale(double sx, double sy, double sz);
+  //@}
+
+  //@{
+  /**
+   * Scale each dimension of the box by some given factor, with the origin of
+   * the bounding box the center of the scaling. If the box is not
+   * valid, it is not changed.
+   */
+  void ScaleAboutCenter(double s);
+  void ScaleAboutCenter(double s[3]);
+  void ScaleAboutCenter(double sx, double sy, double sz);
   //@}
 
   /**
@@ -286,9 +307,23 @@ inline const double *vtkBoundingBox::GetMinPoint() const
   return this->MinPnt;
 }
 
+inline void vtkBoundingBox::GetMinPoint(double x[3])
+{
+  x[0] = this->MinPnt[0];
+  x[1] = this->MinPnt[1];
+  x[2] = this->MinPnt[2];
+}
+
 inline const double *vtkBoundingBox::GetMaxPoint() const
 {
   return this->MaxPnt;
+}
+
+inline void vtkBoundingBox::GetMaxPoint(double x[3])
+{
+  x[0] = this->MaxPnt[0];
+  x[1] = this->MaxPnt[1];
+  x[2] = this->MaxPnt[2];
 }
 
 inline int vtkBoundingBox::IsValid() const
@@ -438,6 +473,26 @@ inline int vtkBoundingBox::ContainsPoint(double px, double py,
 inline int vtkBoundingBox::ContainsPoint(double p[3]) const
 {
   return this->ContainsPoint(p[0], p[1], p[2]);
+}
+
+inline void vtkBoundingBox::GetCorner(int corner, double p[3]) const
+{
+  if ((corner < 0) || (corner > 7))
+  {
+    p[0] = VTK_DOUBLE_MAX;
+    p[1] = VTK_DOUBLE_MAX;
+    p[2] = VTK_DOUBLE_MAX;
+    return; // out of bounds
+  }
+
+  int ix = (corner & 1)        ? 1 : 0;  // 0,1,0,1,0,1,0,1
+  int iy = ((corner >> 1) & 1) ? 1 : 0;  // 0,0,1,1,0,0,1,1
+  int iz = (corner >> 2)       ? 1 : 0;  // 0,0,0,0,1,1,1,1
+
+  const double* pts[2] = { this->MinPnt, this->MaxPnt };
+  p[0] = pts[ix][0];
+  p[1] = pts[iy][1];
+  p[2] = pts[iz][2];
 }
 
 #endif

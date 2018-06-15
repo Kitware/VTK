@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkStaticPointLocator.h
+  Module:    vtkStaticPointLocator2D.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,20 +13,25 @@
 
 =========================================================================*/
 /**
- * @class   vtkStaticPointLocator
- * @brief   quickly locate points in 3-space
+ * @class   vtkStaticPointLocator2D
+ * @brief   quickly locate points in 2-space
  *
- * vtkStaticPointLocator is a spatial search object to quickly locate points
- * in 3D.  vtkStaticPointLocator works by dividing a specified region of
- * space into a regular array of cuboid buckets, and then keeping a
+ * vtkStaticPointLocator2D is a spatial search object to quickly locate points
+ * in 2D.  vtkStaticPointLocator2D works by dividing a specified region of
+ * space into a regular array of rectilinear buckets, and then keeping a
  * list of points that lie in each bucket. Typical operation involves giving
- * a position in 3D and finding the closest point; or finding the N closest
- * points.
+ * a position in 2D and finding the closest point; or finding the N closest
+ * points. (Note that the more general vtkStaticPointLocator is available
+ * for 3D operations.) Other specialized methods for 2D have also been provided.
  *
- * vtkStaticPointLocator is an accelerated version of vtkPointLocator. It is
+ * vtkStaticPointLocator2D is an accelerated version of vtkPointLocator. It is
  * threaded (via vtkSMPTools), and supports one-time static construction
  * (i.e., incremental point insertion is not supported). If you need to
  * incrementally insert points, use the vtkPointLocator or its kin to do so.
+ *
+ * Note that to satisfy the superclass's API, methods often assume a 3D point
+ * is provided. However, only the x,y values are used for processing. The
+ * z-value is only used to define location of the 2D plane.
  *
  * @warning
  * This class is templated. It may run slower than serial execution if the code
@@ -44,33 +49,34 @@
  * here.
  *
  * @sa
- * vtkPointLocator vtkCellLocator vtkLocator vtkAbstractPointLocator
+ * vtkStaticPointLocator vtkPointLocator vtkCellLocator vtkLocator
+ * vtkAbstractPointLocator
 */
 
-#ifndef vtkStaticPointLocator_h
-#define vtkStaticPointLocator_h
+#ifndef vtkStaticPointLocator2D_h
+#define vtkStaticPointLocator2D_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAbstractPointLocator.h"
 
 class vtkIdList;
-struct vtkBucketList;
+struct vtkBucketList2D;
 
 
-class VTKCOMMONDATAMODEL_EXPORT vtkStaticPointLocator : public vtkAbstractPointLocator
+class VTKCOMMONDATAMODEL_EXPORT vtkStaticPointLocator2D : public vtkAbstractPointLocator
 {
 public:
   /**
    * Construct with automatic computation of divisions, averaging
    * 5 points per bucket.
    */
-  static vtkStaticPointLocator *New();
+  static vtkStaticPointLocator2D *New();
 
   //@{
   /**
    * Standard type and print methods.
    */
-  vtkTypeMacro(vtkStaticPointLocator,vtkAbstractPointLocator);
+  vtkTypeMacro(vtkStaticPointLocator2D,vtkAbstractPointLocator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -78,7 +84,7 @@ public:
   /**
    * Specify the average number of points in each bucket. This data member is
    * used in conjunction with the Automatic data member (if enabled) to
-   * determine the number of locator x-y-z divisions.
+   * determine the number of locator x-y divisions.
    */
   vtkSetClampMacro(NumberOfPointsPerBucket,int,1,VTK_INT_MAX);
   vtkGetMacro(NumberOfPointsPerBucket,int);
@@ -86,13 +92,13 @@ public:
 
   //@{
   /**
-   * Set the number of divisions in x-y-z directions. If the Automatic data
+   * Set the number of divisions in x-y directions. If the Automatic data
    * member is enabled, the Divisions are set according to the
    * NumberOfPointsPerBucket and MaxNumberOfBuckets data members. The number
    * of divisions must be >= 1 in each direction.
    */
-  vtkSetVector3Macro(Divisions,int);
-  vtkGetVectorMacro(Divisions,int,3);
+  vtkSetVector2Macro(Divisions,int);
+  vtkGetVectorMacro(Divisions,int,2);
   //@}
 
   // Re-use any superclass signatures that we don't override.
@@ -105,14 +111,15 @@ public:
    * Given a position x, return the id of the point closest to it. An
    * alternative method (defined in the superclass) requires separate x-y-z
    * values. These methods are thread safe if BuildLocator() is directly or
-   * indirectly called from a single thread first.
+   * indirectly called from a single thread first. (Note in the 2D locator
+   * the z-value is ignored.)
    */
   vtkIdType FindClosestPoint(const double x[3]) override;
 
   //@{
   /**
    * Given a position x and a radius r, return the id of the point closest to
-   * the point in that radius.  These methods are thread safe if
+   * the point within that radius.  These methods are thread safe if
    * BuildLocator() is directly or indirectly called from a single thread
    * first. dist2 returns the squared distance to the point. Note that if multiple
    * points are located the same distance away, the actual point returned is a
@@ -156,6 +163,17 @@ public:
   int IntersectWithLine(double a0[3], double a1[3], double tol, double& t,
                         double lineX[3], double ptX[3], vtkIdType &ptId);
 
+
+  //@{
+  /**
+   * Special method for 2D operations (e.g., vtkVoronoi2D). The method
+   * returns the approximate number of points requested, returning the radius
+   * R of the furthest point, with the guarantee that all points are included
+   * that are closer than <=R.
+   */
+  double FindCloseNBoundedPoints(int N, const double x[3], vtkIdList *result);
+  //@}
+
   /**
    * Merge points in the locator given a tolerance. Return a merge map which
    * represents the mapping of "concident" point ids to a single point. Note
@@ -176,15 +194,10 @@ public:
   //@}
 
   /**
-   * Populate a polydata with the faces of the bins that potentially contain cells.
-   * Note that the level parameter has no effect on this method as there is no
-   * hierarchy built (i.e., uniform binning). Typically this is used for debugging.
-   */
-  void GenerateRepresentation(int level, vtkPolyData *pd) override;
-
-  /**
    * Given a bucket number bNum between 0 <= bNum < this->GetNumberOfBuckets(),
-   * return the number of points found in the bucket.
+   * return the number of points found in the bucket. Note that a bucket can
+   * also be specified with locator indices (i,j) which converts to a the
+   * bucket number bNum=i+this->Divisions[0]*j.
    */
   vtkIdType GetNumberOfPointsInBucket(vtkIdType bNum);
 
@@ -225,28 +238,58 @@ public:
 
   //@{
   /**
+   * Provide an accessor to the bounds. Valid after the locator is built.
+   */
+  void GetBounds(double *bounds) override
+  {
+    bounds[0] = this->Bounds[0];
+    bounds[1] = this->Bounds[1];
+    bounds[2] = this->Bounds[2];
+    bounds[3] = this->Bounds[3];
+  }
+  //@}
+
+  //@{
+  /**
    * Provide an accessor to the bucket spacing. Valid after the locator is
    * built.
    */
   virtual double *GetSpacing() { return this->H; }
   virtual void GetSpacing(double spacing[3])
-  { spacing[0] = this->H[0]; spacing[1] = this->H[1]; spacing[2] = this->H[2]; }
+  { spacing[0] = this->H[0]; spacing[1] = this->H[1]; spacing[2] = 0.0; }
   //@}
 
+  //@{
+  /**
+   * Given a point x[3], return the locator index (i,j) which contains the
+   * point. This method is meant to be fast, so error checking is not
+   * performed. This method should only be called after the locator is built.
+   */
+  void GetBucketIndices(const double *x, int ij[2]) const;
+  vtkIdType GetBucketIndex(const double *x) const;
+  //@}
+
+  /**
+   * Populate a polydata with the faces of the bins that potentially contain cells.
+   * Note that the level parameter has no effect on this method as there is no
+   * hierarchy built (i.e., uniform binning). Typically this is used for debugging.
+   */
+  void GenerateRepresentation(int level, vtkPolyData *pd) override;
+
 protected:
-  vtkStaticPointLocator();
-  ~vtkStaticPointLocator() override;
+  vtkStaticPointLocator2D();
+  ~vtkStaticPointLocator2D() override;
 
   int NumberOfPointsPerBucket; // Used with AutomaticOn to control subdivide
-  int Divisions[3]; // Number of sub-divisions in x-y-z directions
-  double H[3]; // Width of each bucket in x-y-z directions
-  vtkBucketList *Buckets; // Lists of point ids in each bucket
+  int Divisions[2]; // Number of sub-divisions in x-y directions
+  double H[2]; // Width of each bucket in x-y directions
+  vtkBucketList2D *Buckets; // Lists of point ids in each bucket
   vtkIdType MaxNumberOfBuckets; // Maximum number of buckets in locator
   bool LargeIds; //indicate whether integer ids are small or large
 
 private:
-  vtkStaticPointLocator(const vtkStaticPointLocator&) = delete;
-  void operator=(const vtkStaticPointLocator&) = delete;
+  vtkStaticPointLocator2D(const vtkStaticPointLocator2D&) = delete;
+  void operator=(const vtkStaticPointLocator2D&) = delete;
 
 };
 
