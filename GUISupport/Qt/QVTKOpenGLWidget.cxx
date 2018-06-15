@@ -78,6 +78,13 @@ QVTKOpenGLWidget::QVTKOpenGLWidget(vtkGenericOpenGLRenderWindow* w,
 
   // forward the original QWidget size to the internal window
   this->resize(Superclass::size());
+
+  // enable qt gesture events
+  grabGesture(Qt::PinchGesture);
+  grabGesture(Qt::PanGesture);
+  grabGesture(Qt::TapGesture);
+  grabGesture(Qt::TapAndHoldGesture);
+  grabGesture(Qt::SwipeGesture);
 }
 
 //-----------------------------------------------------------------------------
