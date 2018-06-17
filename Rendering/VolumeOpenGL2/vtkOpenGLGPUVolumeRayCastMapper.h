@@ -127,25 +127,6 @@ public:
   // the user.
   vtkGetMacro(CurrentPass, int);
 
-  //@{
-  /**
-   * Sets a user defined function to generate the ray jittering noise.
-   * vtkPerlinNoise is used by default with a texture size equivlent to
-   * the window size. These settings will have no effect when UseJittering
-   * is Off.
-   */
-  void SetNoiseGenerator(vtkImplicitFunction* generator);
-  vtkSetVector2Macro(NoiseTextureSize, int);
-  //@}
-
-  // Sets a noise texture for this mapper to use
-  // This allows many mappers to use the same
-  // texture reducing GPU usage. If this is set
-  // the standard noise texture code is skipped
-  // The noise texture should be activated
-  // and deactivated outside of this class
-  void SetSharedNoiseTexture(vtkTextureObject *nt);
-
   // Sets a depth texture for this mapper to use
   // This allows many mappers to use the same
   // texture reducing GPU usage. If this is set
@@ -353,9 +334,6 @@ private:
   vtkInternal* Impl;
 
   friend class vtkVolumeTexture;
-
-  vtkImplicitFunction* NoiseGenerator;
-  int NoiseTextureSize[2];
 
   vtkOpenGLGPUVolumeRayCastMapper(
     const vtkOpenGLGPUVolumeRayCastMapper&) = delete;

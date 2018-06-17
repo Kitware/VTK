@@ -5,12 +5,13 @@ vtk_module(vtkRenderingVolumeOpenGL2
     OpenGL2
   IMPLEMENTATION_REQUIRED_BY_BACKEND
   TEST_DEPENDS
+    vtkFiltersModeling
     vtkTestingCore
     vtkTestingRendering
-    vtkRenderingFreeType
     vtkImagingSources
     vtkImagingGeneral
     vtkInteractionStyle
+    vtkIOLegacy
   KIT
     vtkOpenGL
   DEPENDS

@@ -62,7 +62,6 @@
 #include "vtkOpenGLState.h"
 #include <vtkOpenGLVertexArrayObject.h>
 #include <vtkMultiVolume.h>
-#include <vtkPerlinNoise.h>
 #include <vtkPixelBufferObject.h>
 #include <vtkPixelExtent.h>
 #include <vtkPixelTransfer.h>
@@ -122,8 +121,6 @@ public:
     this->CubeVBOId = 0;
     this->CubeVAOId = 0;
     this->CubeIndicesId = 0;
-    this->NoiseTextureObject = nullptr;
-    this->SharedNoiseTextureObject = false;
     this->DepthTextureObject = nullptr;
     this->SharedDepthTextureObject = false;
     this->TextureWidth = 1024;
@@ -136,7 +133,6 @@ public:
     this->LastRenderToImageWindowSize[0] = 0;
     this->LastRenderToImageWindowSize[1] = 0;
     this->CurrentSelectionPass = vtkHardwareSelector::MIN_KNOWN_PASS - 1;
-    this->NoiseTextureData = nullptr;
 
     this->NumberOfLights = 0;
     this->LightComplexity = 0;
@@ -163,14 +159,6 @@ public:
   //--------------------------------------------------------------------------
   ~vtkInternal()
   {
-    delete[] this->NoiseTextureData;
-
-    if (this->NoiseTextureObject)
-    {
-      this->NoiseTextureObject->Delete();
-      this->NoiseTextureObject = nullptr;
-    }
-
     if (this->DepthTextureObject)
     {
       this->DepthTextureObject->Delete();
@@ -265,10 +253,6 @@ public:
 
   bool LoadMask(vtkRenderer* ren);
 
-  // Update the noise texture used for ray jittering. Jittering is useful for
-  // reducing banding (a.k.a. wood-grain) artifacts.
-  void CreateNoiseTexture(vtkRenderer* ren);
-
   // Update the depth sampler with the current state of the z-buffer. The
   // sampler is used for z-buffer compositing with opaque geometry during
   // ray-casting (rays are early-terminated if hidden begin opaque geometry).
@@ -361,7 +345,9 @@ public:
   /**
    * Global parameters.
    */
-  void SetMapperShaderParameters(vtkShaderProgram* prog, int independent,
+  void SetMapperShaderParameters(vtkShaderProgram* prog,
+    vtkRenderer *ren,
+    int independent,
     int numComponents);
 
   /**
@@ -459,15 +445,10 @@ public:
   GLuint CubeVAOId;
   GLuint CubeIndicesId;
 
-  vtkTextureObject* NoiseTextureObject;
-  bool SharedNoiseTextureObject;
-
   vtkTextureObject* DepthTextureObject;
   bool SharedDepthTextureObject;
 
   int TextureWidth;
-
-  float* NoiseTextureData;
 
   float ActualSampleDistance;
 
@@ -791,90 +772,6 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   }
 
   return 0;
-}
-
-//----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CreateNoiseTexture(
-  vtkRenderer* ren)
-{
-  vtkOpenGLRenderWindow* glWindow =
-    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
-
-  if (!this->NoiseTextureObject)
-  {
-    this->NoiseTextureObject = vtkTextureObject::New();
-  }
-  this->NoiseTextureObject->SetContext(glWindow);
-
-  bool updateSize = false;
-  bool useUserSize = this->Parent->NoiseTextureSize[0] > 0 &&
-    this->Parent->NoiseTextureSize[1] > 0;
-  if (useUserSize)
-  {
-    int const twidth = this->NoiseTextureObject->GetWidth();
-    int const theight = this->NoiseTextureObject->GetHeight();
-    updateSize = this->Parent->NoiseTextureSize[0] != twidth ||
-      this->Parent->NoiseTextureSize[1] != theight;
-  }
-
-  if (!this->NoiseTextureObject->GetHandle() || updateSize ||
-    this->NoiseTextureObject->GetMTime() <
-      this->Parent->NoiseGenerator->GetMTime())
-  {
-    int* winSize = ren->GetRenderWindow()->GetSize();
-    int sizeX = useUserSize ? this->Parent->NoiseTextureSize[0] : winSize[0];
-    int sizeY = useUserSize ? this->Parent->NoiseTextureSize[1] : winSize[1];
-
-    int const maxSize = vtkTextureObject::GetMaximumTextureSize(glWindow);
-    if (sizeX > maxSize || sizeY > maxSize)
-    {
-      sizeX = vtkMath::Max(sizeX, maxSize);
-      sizeY = vtkMath::Max(sizeY, maxSize);
-    }
-
-    // Allocate buffer. After controlling for the maximum supported size sizeX/Y
-    // might have changed, so an additional check is needed.
-    int const twidth = this->NoiseTextureObject->GetWidth();
-    int const theight = this->NoiseTextureObject->GetHeight();
-    bool sizeChanged = sizeX != twidth || sizeY != theight;
-    if (sizeChanged || !this->NoiseTextureData)
-    {
-      delete[] this->NoiseTextureData;
-      this->NoiseTextureData = nullptr;
-      this->NoiseTextureData = new float[sizeX * sizeY];
-    }
-
-    // Generate jitter noise
-    if (!this->Parent->NoiseGenerator)
-    {
-      // Use default settings
-      vtkPerlinNoise* perlinNoise = vtkPerlinNoise::New();
-      perlinNoise->SetPhase(0.0, 0.0, 0.0);
-      perlinNoise->SetFrequency(sizeX, sizeY, 1.0);
-      perlinNoise->SetAmplitude(0.5); /* [-n, n] */
-      this->Parent->NoiseGenerator = perlinNoise;
-    }
-
-    int const bufferSize = sizeX * sizeY;
-    for (int i = 0; i < bufferSize; i++)
-    {
-      int const x = i % sizeX;
-      int const y = i / sizeY;
-      this->NoiseTextureData[i] = static_cast<float>(
-        this->Parent->NoiseGenerator->EvaluateFunction(x, y, 0.0) + 0.1);
-    }
-
-    // Prepare texture
-    this->NoiseTextureObject->Create2DFromRaw(
-      sizeX, sizeY, 1, VTK_FLOAT, this->NoiseTextureData);
-
-    this->NoiseTextureObject->SetWrapS(vtkTextureObject::Repeat);
-    this->NoiseTextureObject->SetWrapT(vtkTextureObject::Repeat);
-    this->NoiseTextureObject->SetMagnificationFilter(vtkTextureObject::Nearest);
-    this->NoiseTextureObject->SetMinificationFilter(vtkTextureObject::Nearest);
-    this->NoiseTextureObject->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
-    this->NoiseTextureObject->Modified();
-  }
 }
 
 //----------------------------------------------------------------------------
@@ -2283,8 +2180,6 @@ vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper()
   this->Impl = new vtkInternal(this);
   this->ReductionFactor = 1.0;
   this->CurrentPass = RenderPass;
-  this->NoiseTextureSize[0] = this->NoiseTextureSize[1] = -1;
-  this->NoiseGenerator = nullptr;
   this->VertexShaderCode = nullptr;
   this->FragmentShaderCode = nullptr;
 
@@ -2306,12 +2201,6 @@ vtkOpenGLGPUVolumeRayCastMapper::~vtkOpenGLGPUVolumeRayCastMapper()
     this->ResourceCallback = nullptr;
   }
 
-  if (this->NoiseGenerator)
-  {
-    this->NoiseGenerator->Delete();
-    this->NoiseGenerator = nullptr;
-  }
-
   delete this->Impl;
   this->Impl = nullptr;
 
@@ -2327,29 +2216,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ReductionFactor: " << this->ReductionFactor << "\n";
   os << indent << "CurrentPass: " << this->CurrentPass << "\n";
-}
-
-void vtkOpenGLGPUVolumeRayCastMapper::SetSharedNoiseTexture(vtkTextureObject *nt)
-{
-  if (this->Impl->NoiseTextureObject == nt)
-  {
-    return;
-  }
-  if (this->Impl->NoiseTextureObject)
-  {
-    this->Impl->NoiseTextureObject->Delete();
-  }
-  this->Impl->NoiseTextureObject = nt;
-
-  if (nt)
-  {
-    nt->Register(this); // as it will get deleted later on
-    this->Impl->SharedNoiseTextureObject = true;
-  }
-  else
-  {
-    this->Impl->SharedNoiseTextureObject = false;
-  }
 }
 
 void vtkOpenGLGPUVolumeRayCastMapper::SetSharedDepthTexture(vtkTextureObject *nt)
@@ -2416,13 +2282,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
   for (auto& input : this->AssembledInputs)
   {
     input.second.ReleaseGraphicsResources(window);
-  }
-
-  if (this->Impl->NoiseTextureObject && !this->Impl->SharedNoiseTextureObject)
-  {
-    this->Impl->NoiseTextureObject->ReleaseGraphicsResources(window);
-    this->Impl->NoiseTextureObject->Delete();
-    this->Impl->NoiseTextureObject = nullptr;
   }
 
   if (this->Impl->DepthTextureObject && !this->Impl->SharedDepthTextureObject)
@@ -3443,11 +3302,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     this->Impl->CaptureDepthTexture(ren);
   }
 
-  if (this->UseJittering && !this->Impl->SharedNoiseTextureObject)
-  {
-    this->Impl->CreateNoiseTexture(ren);
-  }
-
   vtkMTimeType renderPassTime = this->GetRenderPassStageMTime(vol);
 
   const auto multiVol = vtkMultiVolume::SafeDownCast(vol);
@@ -3778,7 +3632,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetVolumeShaderParameters(
 
 ////----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetMapperShaderParameters(
-  vtkShaderProgram* prog, int independent, int numComp)
+  vtkShaderProgram* prog, vtkRenderer *ren, int independent, int numComp)
 {
 #if GL_ES_VERSION_3_0 != 1
   // currently broken on ES
@@ -3790,14 +3644,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetMapperShaderParameters(
      this->DepthTextureObject->GetTextureUnit());
 #endif
 
-  if (this->NoiseTextureObject)
+  if (this->Parent->GetUseJittering())
   {
-    if (!this->SharedNoiseTextureObject)
-    {
-      this->NoiseTextureObject->Activate();
-    }
-    prog->SetUniformi("in_noiseSampler",
-      this->NoiseTextureObject->GetTextureUnit());
+    vtkOpenGLRenderWindow* win =
+      static_cast<vtkOpenGLRenderWindow *>(ren->GetRenderWindow());
+    prog->SetUniformi("in_noiseSampler", win->GetNoiseTextureUnit());
   }
 
   prog->SetUniformi("in_useJittering", this->Parent->UseJittering);
@@ -3975,10 +3826,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::FinishRendering(
     input.DeactivateTransferFunction(this->Parent->BlendMode);
   }
 
-  if (this->NoiseTextureObject && !this->SharedNoiseTextureObject)
-  {
-    this->NoiseTextureObject->Deactivate();
-  }
 #if GL_ES_VERSION_3_0 != 1
   if (this->DepthTextureObject && !this->SharedDepthTextureObject)
   {
@@ -4043,7 +3890,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderMultipleInputs(
   vtkMatrix3x3* norm;
   cam->GetKeyMatrices(ren, wcvc, norm, vcdc, wcdc);
 
-  this->SetMapperShaderParameters(prog, independent, numComp);
+  this->SetMapperShaderParameters(prog, ren, independent, numComp);
   this->SetVolumeShaderParameters(prog, independent, numComp, wcvc);
   this->SetLightingShaderParameters(ren, prog, this->MultiVolume, numSamplers);
   this->SetCameraShaderParameters(prog, ren, cam);
@@ -4075,7 +3922,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderSingleInput(vtkRenderer
   while(block != nullptr)
   {
     const int numSamplers = (independent ? numComp : 1);
-    this->SetMapperShaderParameters(prog, independent, numComp);
+    this->SetMapperShaderParameters(prog, ren, independent, numComp);
 
     vtkMatrix4x4* wcvc, *vcdc, *wcdc;
     vtkMatrix3x3* norm;
@@ -4097,10 +3944,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderSingleInput(vtkRenderer
     }
   }
 }
-
-//----------------------------------------------------------------------------
-vtkCxxSetObjectMacro(vtkOpenGLGPUVolumeRayCastMapper, NoiseGenerator,
-  vtkImplicitFunction);
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::SetPartitions(unsigned short x,
