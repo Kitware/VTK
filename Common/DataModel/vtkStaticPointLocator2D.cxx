@@ -145,12 +145,19 @@ struct vtkBucketList2D
 // Utility class to store an array of ij values
 struct NeighborBuckets2D
 {
+  // Start with an array to avoid memory allocation overhead
+  int InitialBuffer[VTK_INITIAL_BUCKET_SIZE*2];
+  int *P;
+  vtkIdType Count;
+  vtkIdType MaxSize;
+
   NeighborBuckets2D()
   {
-    this->Count = 0;
     this->P = &(this->InitialBuffer[0]);
+    this->Count = 0;
     this->MaxSize = VTK_INITIAL_BUCKET_SIZE;
   }
+
   ~NeighborBuckets2D()
   {
     this->Count = 0;
@@ -159,6 +166,7 @@ struct NeighborBuckets2D
       delete[] this->P;
     }
   }
+
   int GetNumberOfNeighbors() { return this->Count; }
   void Reset() { this->Count = 0; }
 
@@ -194,13 +202,6 @@ struct NeighborBuckets2D
     this->Count++;
     return this->Count-1;
   }
-
-protected:
-  // Start with an array to avoid memory allocation overhead
-  int InitialBuffer[VTK_INITIAL_BUCKET_SIZE*2];
-  int *P;
-  vtkIdType Count;
-  vtkIdType MaxSize;
 };
 
 
