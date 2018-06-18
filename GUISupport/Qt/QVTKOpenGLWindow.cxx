@@ -93,7 +93,7 @@ void QVTKOpenGLWindow::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
     return;
   }
 
-  // window is not ready untill initializeGL() is called
+  // window is not ready until initializeGL() is called
   this->RenderWindow->SetReadyForRendering(false);
 
   this->RenderWindow->SetForceMaximumHardwareLineWidth(1);
@@ -273,7 +273,7 @@ void QVTKOpenGLWindow::UpdateStereoType(vtkObject*, unsigned long, void*, void*)
   this->setFormat(fmt);
 
   // the format set above only takes effect when create() is called on the
-  // widget. To allow switching from one stereo type to another, we explicitely
+  // widget. To allow switching from one stereo type to another, we explicitly
   // destroy and recreate the widget, in order to recreate the context.
   this->destroy();
   this->show();
@@ -318,7 +318,7 @@ bool QVTKOpenGLWindow::event(QEvent* e)
   // should not catch any event and let them pass through to the widget.
   // The containing widget should then forward back only the required events for
   // this window (such as mouse events and resize events).
-  // Untill this misbehavior is fixed, we have to handle forwarding of events.
+  // Until this misbehavior is fixed, we have to handle forwarding of events.
   emit(windowEvent(e));
 
   if(e->type() == QEvent::TouchBegin ||

@@ -134,7 +134,7 @@ public:
 
   /**
    * Forward events to the internal QVTKOpenGLWindow when events are
-   * explicitely sent to the widget. This is required due to QTBUG-61836 that
+   * explicitly sent to the widget. This is required due to QTBUG-61836 that
    * prevents the use of the flag Qt::TransparentForMouseInput.
    * This flag indicates that the internal window let events pass through.
    * When this misbehavior gets fixed, events will be forwarded to this widget's

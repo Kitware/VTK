@@ -211,7 +211,7 @@ int vtkStaticCleanPolyData::RequestData(
   vtkPointData *inPD = input->GetPointData();
   vtkCellData  *inCD = input->GetCellData();
 
-  // The merge map indicates whichs points are merged with what points
+  // The merge map indicates which points are merged with what points
   vtkIdType *mergeMap = new vtkIdType [numPts];
   this->Locator->SetDataSet(input);
   this->Locator->BuildLocator();

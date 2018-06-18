@@ -648,7 +648,7 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
 
   // 1: Remove decoration from the big chart.
   // 2: Set three dimensions to plot in the BigChart3D.
-  // 3: Make BigChart inivisible, and BigChart3D visible.
+  // 3: Make BigChart invisible, and BigChart3D visible.
   // 4: Rotate between the two dimensions we are transitioning between.
   //    -> Loop from start to end angle to complete the effect.
   // 5: Make the new dimensionality active, update BigChart.

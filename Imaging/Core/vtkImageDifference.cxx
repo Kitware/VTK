@@ -50,7 +50,7 @@ vtkImageDifference::vtkImageDifference()
   this->AllowShift = 1;
   this->Averaging = 1;
   this->AverageThresholdFactor = 0.65;
-  // ideally theshold*averageThresholdFactor should be < 255/9
+  // ideally threshold*averageThresholdFactor should be < 255/9
   // to capture one pixel errors or 510/9 to capture 2 pixel errors
 
   this->ErrorMessage = nullptr;
