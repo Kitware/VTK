@@ -24,8 +24,8 @@
  *
  * The 2D Voronoi tessellation is a tiling of space, where each Voronoi tile
  * represents the region nearest to one of the input points. Voronoi
- * tessellations are important in computational geometry, and are the dual of
- * Delaunay triangulations.
+ * tessellations are important in computational geometry (and many other
+ * fields), and are the dual of Delaunay triangulations.
  *
  * The input to this filter is a list of points specified in 3D, even though
  * the triangulation is 2D. Thus the triangulation is constructed in the x-y
@@ -45,6 +45,27 @@
  * purposes. This includes producing a single tile under various stages of
  * creation, as well as the Voronoi flower, related to the error metric for
  * point insertion / half-space clipping.
+ *
+ * Publications are in preparation to describe the algorithm. A brief summary
+ * is as follows. In parallel, each (generating) input point is associated
+ * with an initial Voronoi tile, which is simply the bounding box of the
+ * point set. A locator is then used to identify nearby points: each neighbor
+ * in turn generates a clipping line positioned halfway between the
+ * generating point and the neigboring point, and orthogonal to the line
+ * connecting them. Clips are readily performed by evaluationg the vertices
+ * of the convex Voronoi tile as being on either side (inside,outside) of the
+ * clip line. If two intersections of the Voronoi tile are found, the portion
+ * of the tile "outside" the clip line is discarded, resulting in a new
+ * convex, Voronoi tile. As each clip occurs, the Voronoi "Flower" error
+ * metric (the union of error spheres) is compared to the extent of the
+ * region containing the neighboring clip points. The clip region (along with
+ * the points contained in it) is grown by careful expansion (e.g., outward
+ * spiraling iterator over all candidate clip points). When the Voronoi
+ * Flower is contained within the clip region, the algorithm terminates and
+ * the Voronoi tile is output. Once complete, it is possible to construct the
+ * Delaunay triangulation from the Voronoi tessellation. Note that
+ * topological and geometric information is used to generate a valid
+ * triangulation (e.g., merging points and validating topology).
  *
  * @warning
  * Coincident input points will result in overlapping tiles.  This is because
