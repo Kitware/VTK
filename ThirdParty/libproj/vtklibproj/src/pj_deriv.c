@@ -7,13 +7,13 @@ pj_deriv(LP lp, double h, PJ *P, struct DERIVS *der) {
 
 	lp.lam += h;
 	lp.phi += h;
-	if (fabs(lp.phi) > HALFPI) return 1;
+	if (fabs(lp.phi) > M_HALFPI) return 1;
 	h += h;
 	t = (*P->fwd)(lp, P);
 	if (t.x == HUGE_VAL) return 1;
 	der->x_l = t.x; der->y_p = t.y; der->x_p = -t.x; der->y_l = -t.y;
 	lp.phi -= h;
-	if (fabs(lp.phi) > HALFPI) return 1;
+	if (fabs(lp.phi) > M_HALFPI) return 1;
 	t = (*P->fwd)(lp, P);
 	if (t.x == HUGE_VAL) return 1;
 	der->x_l += t.x; der->y_p -= t.y; der->x_p += t.x; der->y_l -= t.y;

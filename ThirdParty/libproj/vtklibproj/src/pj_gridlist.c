@@ -43,6 +43,7 @@
 #endif /* _WIN32_WCE */
 
 static PJ_GRIDINFO *grid_list = NULL;
+#define PJ_MAX_PATH_LENGTH 1024
 
 /************************************************************************/
 /*                        pj_deallocate_grids()                         */
@@ -177,8 +178,8 @@ PJ_GRIDINFO **pj_gridlist_from_nadgrids( projCtx ctx, const char *nadgrids,
     for( s = nadgrids; *s != '\0'; )
     {
         size_t end_char;
-        int   required = 1;
-        char  name[128];
+        int    required = 1;
+        char   name[PJ_MAX_PATH_LENGTH];
 
         if( *s == '@' )
         {

@@ -1,10 +1,12 @@
 #define PJ_LIB__
-#include	<projects.h>
+#include <projects.h>
+
 PROJ_HEAD(robin, "Robinson") "\n\tPCyl., Sph.";
+
 #define V(C,z) (C.c0 + z * (C.c1 + z * (C.c2 + z * C.c3)))
 #define DV(C,z) (C.c1 + z * (C.c2 + C.c2 + z * 3. * C.c3))
 
-/* 
+/*
 note: following terms based upon 5 deg. intervals in degrees.
 
 Some background on these coefficients is available at:
@@ -14,7 +16,7 @@ http://trac.osgeo.org/proj/ticket/113
 */
 
 struct COEFS {
-	float c0, c1, c2, c3;
+    float c0, c1, c2, c3;
 };
 
 static const struct COEFS X[] = {
@@ -38,6 +40,7 @@ static const struct COEFS X[] = {
     {0.5722, -0.00906601, 0.000182, 6.24051e-06},
     {0.5322, -0.00677797, 0.000275608, 6.24051e-06}
 };
+
 static const struct COEFS Y[] = {
     {-5.20417e-18, 0.0124, 1.21431e-18, -8.45284e-11},
     {0.062, 0.0124, -1.26793e-09, 4.22642e-10},
@@ -59,61 +62,135 @@ static const struct COEFS Y[] = {
     {0.9761, 0.00616527, -0.000256, -4.2106e-06},
     {1, 0.00328947, -0.000319159, -4.2106e-06}
 };
-#define FXC	0.8487
-#define FYC	1.3523
-#define C1	11.45915590261646417544
-#define RC1	0.08726646259971647884
-#define NODES	18
-#define ONEEPS	1.000001
-#define EPS	1e-8
-FORWARD(s_forward); /* spheroid */
-	int i;
-	double dphi;
-	(void) P;
 
-	i = floor((dphi = fabs(lp.phi)) * C1);
-	if (i >= NODES) i = NODES - 1;
-	dphi = RAD_TO_DEG * (dphi - RC1 * i);
-	xy.x = V(X[i], dphi) * FXC * lp.lam;
-	xy.y = V(Y[i], dphi) * FYC;
-	if (lp.phi < 0.) xy.y = -xy.y;
-	return (xy);
-}
-INVERSE(s_inverse); /* spheroid */
-	int i;
-	double t, t1;
-	struct COEFS T;
+#define FXC 0.8487
+#define FYC 1.3523
+#define C1  11.45915590261646417544
+#define RC1 0.08726646259971647884
+#define NODES   18
+#define ONEEPS  1.000001
+#define EPS 1e-8
 
-	lp.lam = xy.x / FXC;
-	lp.phi = fabs(xy.y / FYC);
-	if (lp.phi >= 1.) { /* simple pathologic cases */
-		if (lp.phi > ONEEPS) I_ERROR
-		else {
-			lp.phi = xy.y < 0. ? -HALFPI : HALFPI;
-			lp.lam /= X[NODES].c0;
-		}
-	} else { /* general problem */
-		/* in Y space, reduce to table interval */
-		for (i = floor(lp.phi * NODES);;) {
-			if (Y[i].c0 > lp.phi) --i;
-			else if (Y[i+1].c0 <= lp.phi) ++i;
-			else break;
-		}
-		T = Y[i];
-		/* first guess, linear interp */
-		t = 5. * (lp.phi - T.c0)/(Y[i+1].c0 - T.c0);
-		/* make into root */
-		T.c0 -= lp.phi;
-		for (;;) { /* Newton-Raphson reduction */
-			t -= t1 = V(T,t) / DV(T,t);
-			if (fabs(t1) < EPS)
-				break;
-		}
-		lp.phi = (5 * i + t) * DEG_TO_RAD;
-		if (xy.y < 0.) lp.phi = -lp.phi;
-		lp.lam /= V(X[i], t);
-	}
-	return (lp);
+
+static XY s_forward (LP lp, PJ *P) {           /* Spheroidal, forward */
+    XY xy = {0.0,0.0};
+    int i;
+    double dphi;
+    (void) P;
+
+    i = floor((dphi = fabs(lp.phi)) * C1);
+    if (i >= NODES) i = NODES - 1;
+    dphi = RAD_TO_DEG * (dphi - RC1 * i);
+    xy.x = V(X[i], dphi) * FXC * lp.lam;
+    xy.y = V(Y[i], dphi) * FYC;
+    if (lp.phi < 0.) xy.y = -xy.y;
+
+    return xy;
 }
-FREEUP; if (P) pj_dalloc(P); }
-ENTRY0(robin) P->es = 0.; P->inv = s_inverse; P->fwd = s_forward; ENDENTRY(P)
+
+
+static LP s_inverse (XY xy, PJ *P) {           /* Spheroidal, inverse */
+    LP lp = {0.0,0.0};
+    int i;
+    double t, t1;
+    struct COEFS T;
+
+    lp.lam = xy.x / FXC;
+    lp.phi = fabs(xy.y / FYC);
+    if (lp.phi >= 1.) { /* simple pathologic cases */
+        if (lp.phi > ONEEPS) I_ERROR
+        else {
+            lp.phi = xy.y < 0. ? -M_HALFPI : M_HALFPI;
+            lp.lam /= X[NODES].c0;
+        }
+    } else { /* general problem */
+        /* in Y space, reduce to table interval */
+        for (i = floor(lp.phi * NODES);;) {
+            if (Y[i].c0 > lp.phi) --i;
+            else if (Y[i+1].c0 <= lp.phi) ++i;
+            else break;
+        }
+        T = Y[i];
+        /* first guess, linear interp */
+        t = 5. * (lp.phi - T.c0)/(Y[i+1].c0 - T.c0);
+        /* make into root */
+        T.c0 -= lp.phi;
+        for (;;) { /* Newton-Raphson reduction */
+            t -= t1 = V(T,t) / DV(T,t);
+            if (fabs(t1) < EPS)
+                break;
+        }
+        lp.phi = (5 * i + t) * DEG_TO_RAD;
+        if (xy.y < 0.) lp.phi = -lp.phi;
+        lp.lam /= V(X[i], t);
+    }
+    return lp;
+}
+
+
+static void *freeup_new (PJ *P) {                       /* Destructor */
+    if (0==P)
+        return 0;
+
+    return pj_dealloc(P);
+}
+
+
+static void freeup (PJ *P) {
+    freeup_new (P);
+    return;
+}
+
+
+PJ *PROJECTION(robin) {
+    P->es = 0.;
+    P->inv = s_inverse;
+    P->fwd = s_forward;
+
+    return P;
+}
+
+
+#ifndef PJ_SELFTEST
+int pj_robin_selftest (void) {return 0;}
+#else
+
+int pj_robin_selftest (void) {
+    double tolerance_lp = 1e-10;
+    double tolerance_xy = 1e-7;
+
+    char s_args[] = {"+proj=robin   +a=6400000    +lat_1=0.5 +lat_2=2"};
+
+    LP fwd_in[] = {
+        { 2, 1},
+        { 2,-1},
+        {-2, 1},
+        {-2,-1}
+    };
+
+    XY s_fwd_expect[] = {
+        { 189588.423282507836,  107318.530350702888},
+        { 189588.423282507836, -107318.530350702888},
+        {-189588.423282507836,  107318.530350702888},
+        {-189588.423282507836, -107318.530350702888},
+    };
+
+    XY inv_in[] = {
+        { 200, 100},
+        { 200,-100},
+        {-200, 100},
+        {-200,-100}
+    };
+
+    LP s_inv_expect[] = {
+        { 0.002109689065506131,  0.000931805533547745983},
+        { 0.002109689065506131, -0.000931805533547745983},
+        {-0.002109689065506131,  0.000931805533547745983},
+        {-0.002109689065506131, -0.000931805533547745983},
+    };
+
+    return pj_generic_selftest (0, s_args, tolerance_xy, tolerance_lp, 4, 4, fwd_in, 0, s_fwd_expect, inv_in, 0, s_inv_expect);
+}
+
+
+#endif

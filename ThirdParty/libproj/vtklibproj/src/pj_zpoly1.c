@@ -26,10 +26,10 @@ pj_zpolyd1(COMPLEX z, COMPLEX *C, int n, COMPLEX *der) {
 	int first = 1;
 
 	a = *(C += n);
+	b = a;
 	while (n-- > 0) {
 		if (first) {
 			first = 0;
-			b = a;
 		} else {
 			b.r = a.r + z.r * (t = b.r) - z.i * b.i;
 			b.i = a.i + z.r * b.i + z.i * t;

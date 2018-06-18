@@ -9,9 +9,9 @@ bchgen(projUV a, projUV b, int nu, int nv, projUV **f, projUV(*func)(projUV)) {
 	bma.u = 0.5 * (b.u - a.u); bma.v = 0.5 * (b.v - a.v);
 	bpa.u = 0.5 * (b.u + a.u); bpa.v = 0.5 * (b.v + a.v);
 	for ( i = 0; i < nu; ++i) {
-		arg.u = cos(PI * (i + 0.5) / nu) * bma.u + bpa.u;
+		arg.u = cos(M_PI * (i + 0.5) / nu) * bma.u + bpa.u;
 		for ( j = 0; j < nv; ++j) {
-			arg.v = cos(PI * (j + 0.5) / nv) * bma.v + bpa.v;
+			arg.v = cos(M_PI * (j + 0.5) / nv) * bma.v + bpa.v;
 			f[i][j] = (*func)(arg);
 			if ((f[i][j]).u == HUGE_VAL)
 				return(1);
@@ -23,7 +23,7 @@ bchgen(projUV a, projUV b, int nu, int nv, projUV **f, projUV(*func)(projUV)) {
 		for ( i = 0; i < nu; ++i) {
 			arg.u = arg.v = 0.;
 			for (k = 0; k < nu; ++k) {
-				d = cos(PI * i * (k + .5) / nu);
+				d = cos(M_PI * i * (k + .5) / nu);
 				arg.u += f[k][j].u * d;
 				arg.v += f[k][j].v * d;
 			}
@@ -42,7 +42,7 @@ bchgen(projUV a, projUV b, int nu, int nv, projUV **f, projUV(*func)(projUV)) {
 		for (j = 0; j < nv; ++j) {
 			arg.u = arg.v = 0.;
 			for (k = 0; k < nv; ++k) {
-				d = cos(PI * j * (k + .5) / nv);
+				d = cos(M_PI * j * (k + .5) / nv);
 				arg.u += t[k].u * d;
 				arg.v += t[k].v * d;
 			}

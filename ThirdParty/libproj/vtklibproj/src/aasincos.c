@@ -11,7 +11,7 @@ aasin(projCtx ctx,double v) {
 	if ((av = fabs(v)) >= 1.) {
 		if (av > ONE_TOL)
                         pj_ctx_set_errno( ctx, -19 );
-		return (v < 0. ? -HALFPI : HALFPI);
+		return (v < 0. ? -M_HALFPI : M_HALFPI);
 	}
 	return asin(v);
 }
@@ -23,7 +23,7 @@ aacos(projCtx ctx, double v) {
 	if ((av = fabs(v)) >= 1.) {
 		if (av > ONE_TOL)
                         pj_ctx_set_errno( ctx, -19 );
-		return (v < 0. ? PI : 0.);
+		return (v < 0. ? M_PI : 0.);
 	}
 	return acos(v);
 }

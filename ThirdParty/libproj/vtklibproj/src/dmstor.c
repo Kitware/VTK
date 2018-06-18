@@ -11,7 +11,7 @@ static double proj_strtod(char *nptr, char **endptr);
 *sym = "NnEeSsWw";
 	static const double
 vm[] = {
-	.0174532925199433,
+	DEG_TO_RAD,
 	.0002908882086657216,
 	.0000048481368110953599
 };

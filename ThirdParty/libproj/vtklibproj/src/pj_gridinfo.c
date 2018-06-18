@@ -244,8 +244,8 @@ int pj_gridinfo_load( projCtx ctx, PJ_GRIDINFO *gi )
                 cvs = ct_tmp.cvs + (row) * gi->ct->lim.lam
                     + (gi->ct->lim.lam - i - 1);
 
-                cvs->phi = *(diff_seconds++) * ((PI/180.0) / 3600.0);
-                cvs->lam = *(diff_seconds++) * ((PI/180.0) / 3600.0);
+                cvs->phi = *(diff_seconds++) * ((M_PI/180.0) / 3600.0);
+                cvs->lam = *(diff_seconds++) * ((M_PI/180.0) / 3600.0);
             }
         }
 
@@ -312,7 +312,7 @@ int pj_gridinfo_load( projCtx ctx, PJ_GRIDINFO *gi )
                 return 0;
             }
 
-            if( !IS_LSB )
+            if( gi->must_swap )
                 swap_words( (unsigned char *) row_buf, 4,
                             gi->ct->lim.lam*4 );
 
@@ -324,8 +324,8 @@ int pj_gridinfo_load( projCtx ctx, PJ_GRIDINFO *gi )
                 cvs = ct_tmp.cvs + (row) * gi->ct->lim.lam
                     + (gi->ct->lim.lam - i - 1);
 
-                cvs->phi = *(diff_seconds++) * ((PI/180.0) / 3600.0);
-                cvs->lam = *(diff_seconds++) * ((PI/180.0) / 3600.0);
+                cvs->phi = *(diff_seconds++) * ((M_PI/180.0) / 3600.0);
+                cvs->lam = *(diff_seconds++) * ((M_PI/180.0) / 3600.0);
                 diff_seconds += 2; /* skip accuracy values */
             }
         }
@@ -392,12 +392,12 @@ int pj_gridinfo_load( projCtx ctx, PJ_GRIDINFO *gi )
 }
 
 /************************************************************************/
-/*                       pj_gridinfo_init_ntv2()                        */
+/*                        pj_gridinfo_parent()                          */
 /*                                                                      */
 /*      Seek a parent grid file by name from a grid list                */
 /************************************************************************/
 
-static PJ_GRIDINFO* pj_gridinfo_parent( PJ_GRIDINFO *gilist, 
+static PJ_GRIDINFO* pj_gridinfo_parent( PJ_GRIDINFO *gilist,
         const char *name, int length )
 {
     while( gilist )
@@ -423,6 +423,7 @@ static int pj_gridinfo_init_ntv2( projCtx ctx, PAFile fid, PJ_GRIDINFO *gilist )
 {
     unsigned char header[11*16];
     int num_subfiles, subfile;
+    int must_swap;
 
     assert( sizeof(int) == 4 );
     assert( sizeof(double) == 8 );
@@ -443,10 +444,15 @@ static int pj_gridinfo_init_ntv2( projCtx ctx, PAFile fid, PJ_GRIDINFO *gilist )
         return 0;
     }
 
+    if( header[8] == 11 )
+        must_swap = !IS_LSB;
+    else
+        must_swap = IS_LSB;
+
 /* -------------------------------------------------------------------- */
 /*      Byte swap interesting fields if needed.                         */
 /* -------------------------------------------------------------------- */
-    if( !IS_LSB )
+    if( must_swap )
     {
         swap_words( header+8, 4, 1 );
         swap_words( header+8+16, 4, 1 );
@@ -490,7 +496,7 @@ static int pj_gridinfo_init_ntv2( projCtx ctx, PAFile fid, PJ_GRIDINFO *gilist )
 /* -------------------------------------------------------------------- */
 /*      Byte swap interesting fields if needed.                         */
 /* -------------------------------------------------------------------- */
-        if( !IS_LSB )
+        if( must_swap )
         {
             swap_words( header+8+16*4, 8, 1 );
             swap_words( header+8+16*5, 8, 1 );
@@ -561,6 +567,7 @@ static int pj_gridinfo_init_ntv2( projCtx ctx, PAFile fid, PJ_GRIDINFO *gilist )
             gi->next = NULL;
         }
 
+        gi->must_swap = must_swap;
         gi->ct = ct;
         gi->format = "ntv2";
         gi->grid_offset = pj_ctx_ftell( ctx, fid );
@@ -858,9 +865,8 @@ PJ_GRIDINFO *pj_gridinfo_init( projCtx ctx, const char *gridname )
 /* -------------------------------------------------------------------- */
     if( pj_ctx_fread( ctx, header, sizeof(header), 1, fp ) != 1 )
     {
-        pj_ctx_fclose( ctx, fp );
-        pj_ctx_set_errno( ctx, -38 );
-        return gilist;
+        /* some files may be smaller that sizeof(header), eg 160, so */
+        ctx->last_errno = 0; /* don't treat as a persistent error */
     }
 
     pj_ctx_fseek( ctx, fp, SEEK_SET, 0 );

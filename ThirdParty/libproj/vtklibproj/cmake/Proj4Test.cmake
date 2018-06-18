@@ -15,9 +15,9 @@ function(proj_add_test_script_sh SH_NAME BIN_USE)
          endif(EXISTS ${GRID_FULLNAME})
     endif(ARGV2)
     
-    if( CMAKE_MINOR_VERSION LESS 8  OR CMAKE_PATCH_VERSION LESS 4 )
+    if( CMAKE_VERSION VERSION_LESS 2.8.4 )
        set(TEST_OK 0)
-       message(STATUS "test with bash script need a cmake version > 2.8.3 ")
+       message(STATUS "test with bash script need a cmake version >= 2.8.4")
     endif()
  
     if(${TEST_OK})

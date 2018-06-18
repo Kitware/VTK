@@ -12,7 +12,7 @@ pj_factors(LP lp, PJ *P, double h, struct FACTORS *fac) {
 	double cosphi, t, n, r;
 
 	/* check for forward and latitude or longitude overange */
-	if ((t = fabs(lp.phi)-HALFPI) > EPS || fabs(lp.lam) > 10.) {
+	if ((t = fabs(lp.phi)-M_HALFPI) > EPS || fabs(lp.lam) > 10.) {
                 pj_ctx_set_errno( P->ctx, -14);
 		return 1;
 	} else { /* proceed */
@@ -21,9 +21,9 @@ pj_factors(LP lp, PJ *P, double h, struct FACTORS *fac) {
 
 		if (h < EPS)
 			h = DEFAULT_H;
-		if (fabs(lp.phi) > (HALFPI - h)) 
+		if (fabs(lp.phi) > (M_HALFPI - h))
                 /* adjust to value around pi/2 where derived still exists*/
-		        lp.phi = lp.phi < 0. ? (-HALFPI+h) : (HALFPI-h);
+		        lp.phi = lp.phi < 0. ? (-M_HALFPI+h) : (M_HALFPI-h);
 		else if (P->geoc)
 			lp.phi = atan(P->rone_es * tan(lp.phi));
 		lp.lam -= P->lam0;	/* compute del lp.lam */

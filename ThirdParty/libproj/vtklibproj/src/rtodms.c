@@ -10,7 +10,7 @@
 	static double
 RES = 1000.,
 RES60 = 60000.,
-CONV = 206264806.24709635515796003417;
+CONV = 206264806.24709635516;
 	static char
 format[50] = "%dd%d'%.3f\"%c";
 	static int
@@ -25,7 +25,7 @@ set_rtodms(int fract, int con_w) {
 		for (i = 0; i < fract; ++i)
 			RES *= 10.;
 		RES60 = RES * 60.;
-		CONV = 180. * 3600. * RES / PI;
+		CONV = 180. * 3600. * RES / M_PI;
 		if (! con_w)
 			(void)sprintf(format,"%%dd%%d'%%.%df\"%%c", fract);
 		else
@@ -57,13 +57,15 @@ rtodms(char *s, double r, int pos, int neg) {
 		(void)sprintf(ss,format,deg,min,sec,sign);
 	else if (sec) {
 		char *p, *q;
+		/* double prime + pos/neg suffix (if included) + NUL */
+		size_t suffix_len = sign ? 3 : 2;
 
 		(void)sprintf(ss,format,deg,min,sec,sign);
-		for (q = p = ss + strlen(ss) - (sign ? 3 : 2); *p == '0'; --p) ;
+		for (q = p = ss + strlen(ss) - suffix_len; *p == '0'; --p) ;
 		if (*p != '.')
 			++p;
 		if (++q != p)
-			(void)strcpy(p, q);
+			(void)memmove(p, q, suffix_len);
 	} else if (min)
 		(void)sprintf(ss,"%dd%d'%c",deg,min,sign);
 	else

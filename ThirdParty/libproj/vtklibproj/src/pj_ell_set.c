@@ -77,7 +77,7 @@ pj_ell_set(projCtx ctx, paralist *pl, double *a, double *es) {
 			double tmp;
 
 			tmp = sin(pj_param(ctx,pl, i ? "rR_lat_a" : "rR_lat_g").f);
-			if (fabs(tmp) > HALFPI) {
+			if (fabs(tmp) > M_HALFPI) {
                                 pj_ctx_set_errno(ctx,-11);
 				goto bomb;
 			}

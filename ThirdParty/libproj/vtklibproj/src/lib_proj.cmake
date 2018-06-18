@@ -2,33 +2,47 @@
 ### SWITCH BETWEEN STATIC OR SHARED LIBRARY###
 ##############################################
 colormsg(_HIBLUE_ "Configuring proj library:")
+if (FALSE) # XXX(kitware): Hide configure noise.
 message(STATUS "")
+endif ()
 
 # default config, shared on unix and static on Windows
-set(BUILD_LIBPROJ_SHARED_DEFAULT ON )
+if(UNIX)
+    set(BUILD_LIBPROJ_SHARED_DEFAULT ON )
+endif(UNIX)
 if( WIN32)
     set(BUILD_LIBPROJ_SHARED_DEFAULT OFF)
 endif(WIN32)
-if ( NOT DEFINED BUILD_SHARED_LIBS )
-    option(BUILD_SHARED_LIBS "Build libproj library shared." ${BUILD_LIBPROJ_SHARED_DEFAULT})
+if (FALSE) # XXX(kitware): Hardcode settings
+option(BUILD_LIBPROJ_SHARED "Build libproj library shared." ${BUILD_LIBPROJ_SHARED_DEFAULT})
+else ()
+set(BUILD_LIBPROJ_SHARED ${BUILD_SHARED_LIBS})
 endif ()
+if(BUILD_LIBPROJ_SHARED)
+  set(PROJ_LIBRARY_TYPE SHARED)
+else(BUILD_LIBPROJ_SHARED)
+  set(PROJ_LIBRARY_TYPE STATIC)
+endif(BUILD_LIBPROJ_SHARED)
 
-option(LIBPROJ_USE_THREAD "Build libproj with thread/mutex support " ON)
-mark_as_advanced(LIBPROJ_USE_THREAD)
 
-if(NOT LIBPROJ_USE_THREAD)
+if (FALSE) # XXX(kitware): Hardcode settings
+option(USE_THREAD "Build libproj with thread/mutex support " ON)
+else ()
+set(USE_THREAD ON)
+endif ()
+if(NOT USE_THREAD)
    add_definitions( -DMUTEX_stub)
-endif(NOT LIBPROJ_USE_THREAD)
+endif(NOT USE_THREAD)
 find_package(Threads QUIET)
-if(LIBPROJ_USE_THREAD AND Threads_FOUND AND CMAKE_USE_WIN32_THREADS_INIT )
+if(USE_THREAD AND Threads_FOUND AND CMAKE_USE_WIN32_THREADS_INIT )
    add_definitions( -DMUTEX_win32)
-endif(LIBPROJ_USE_THREAD AND Threads_FOUND AND CMAKE_USE_WIN32_THREADS_INIT )
-if(LIBPROJ_USE_THREAD AND Threads_FOUND AND CMAKE_USE_PTHREADS_INIT )
+endif(USE_THREAD AND Threads_FOUND AND CMAKE_USE_WIN32_THREADS_INIT )
+if(USE_THREAD AND Threads_FOUND AND CMAKE_USE_PTHREADS_INIT )
    add_definitions( -DMUTEX_pthread)
-endif(LIBPROJ_USE_THREAD AND Threads_FOUND AND CMAKE_USE_PTHREADS_INIT )
-if(LIBPROJ_USE_THREAD AND NOT Threads_FOUND)
-  message(FATAL_ERROR "No thread library found and thread/mutex support is required by LIBPROJ_USE_THREAD option")
-endif(LIBPROJ_USE_THREAD AND NOT Threads_FOUND)
+endif(USE_THREAD AND Threads_FOUND AND CMAKE_USE_PTHREADS_INIT )
+if(USE_THREAD AND NOT Threads_FOUND)
+  message(FATAL_ERROR "No thread library found and thread/mutex support is required by USE_THREAD option")
+endif(USE_THREAD AND NOT Threads_FOUND)
 
 
 ##############################################
@@ -51,6 +65,7 @@ SET(SRC_LIBPROJ_PJ
         PJ_cea.c
         PJ_chamb.c
         PJ_collg.c
+        PJ_comill.c
         PJ_crast.c
         PJ_denoy.c
         PJ_eck1.c
@@ -84,6 +99,7 @@ SET(SRC_LIBPROJ_PJ
         PJ_lcc.c
         PJ_loxim.c
         PJ_lsat.c
+        PJ_misrsom.c
         PJ_mbt_fps.c
         PJ_mbtfpp.c
         PJ_mbtfpq.c
@@ -92,6 +108,7 @@ SET(SRC_LIBPROJ_PJ
         PJ_mod_ster.c
         PJ_moll.c
         PJ_natearth.c
+        PJ_natearth2.c
         PJ_nell.c
         PJ_nell_h.c
         PJ_nocol.c
@@ -102,6 +119,7 @@ SET(SRC_LIBPROJ_PJ
         PJ_oea.c
         PJ_omerc.c
         PJ_ortho.c
+        PJ_patterson.c
         PJ_poly.c
         PJ_putp2.c
         PJ_putp3.c
@@ -111,6 +129,7 @@ SET(SRC_LIBPROJ_PJ
         PJ_qsc.c
         PJ_robin.c
         PJ_rpoly.c
+        PJ_sch.c
         PJ_sconics.c
         PJ_somerc.c
         PJ_sterea.c
@@ -118,6 +137,7 @@ SET(SRC_LIBPROJ_PJ
         PJ_sts.c
         PJ_tcc.c
         PJ_tcea.c
+        PJ_times.c
         PJ_tmerc.c
         PJ_tpeqd.c
         PJ_urm5.c
@@ -162,8 +182,10 @@ SET(SRC_LIBPROJ_CORE
         pj_errno.c
         pj_factors.c
         pj_fwd.c
+        pj_fwd3d.c
         pj_gauss.c
         pj_gc_reader.c
+        pj_generic_selftest.c
         pj_geocent.c
         pj_gridcatalog.c
         pj_gridinfo.c
@@ -172,6 +194,7 @@ SET(SRC_LIBPROJ_CORE
         pj_init.c
         pj_initcache.c
         pj_inv.c
+        pj_inv3d.c
         pj_latlong.c
         pj_list.c
         pj_list.h
@@ -186,6 +209,7 @@ SET(SRC_LIBPROJ_CORE
         pj_pr_list.c
         pj_qsfn.c
         pj_release.c
+        pj_run_selftests.c
         pj_strerrno.c
         pj_transform.c
         pj_tsfn.c
@@ -204,6 +228,8 @@ set(HEADERS_LIBPROJ
         projects.h
         proj_api.h
         geodesic.h
+        vtk_libproj_mangle.h
+        "${CMAKE_CURRENT_BINARY_DIR}/vtklibproj_export.h"
 )
 
 # Group source files for IDE source explorers (e.g. Visual Studio)
@@ -215,52 +241,150 @@ source_group("CMake Files" FILES CMakeLists.txt)
 
 
 # Embed PROJ_LIB data files location
-add_definitions(-DPROJ_LIB="${CMAKE_INSTALL_PREFIX}/${LIBPROJ_DATADIR}")
+add_definitions(-DPROJ_LIB="${CMAKE_INSTALL_PREFIX}/${DATADIR}")
+
+#################################################
+## java wrapping with jni
+#################################################
+if (FALSE)
+option(JNI_SUPPORT "Build support of java/jni wrapping for proj library" OFF)
+find_package(JNI QUIET)
+else ()
+set(JNI_SUPPORT OFF)
+endif ()
+if(JNI_SUPPORT AND NOT JNI_FOUND)
+  message(FATAL_ERROR "jni support is required but jni is not found")
+endif(JNI_SUPPORT AND NOT JNI_FOUND)
+boost_report_value(JNI_SUPPORT)
+if(JNI_SUPPORT)
+  set(SRC_LIBPROJ_CORE ${SRC_LIBPROJ_CORE}
+                       jniproj.c )
+  set(HEADERS_LIBPROJ ${HEADERS_LIBPROJ}
+                        org_proj4_PJ.h
+                        org_proj4_Projections.h)
+  source_group("Source Files\\JNI" FILES ${SRC_LIBPROJ_JNI})
+  add_definitions(-DJNI_ENABLED)
+  include_directories( ${JNI_INCLUDE_DIRS})
+  boost_report_value(JNI_INCLUDE_DIRS)
+endif(JNI_SUPPORT)
 
 #################################################
 ## targets: libproj and proj_config.h
 #################################################
 set(ALL_LIBPROJ_SOURCES ${SRC_LIBPROJ_PJ} ${SRC_LIBPROJ_CORE})
 set(ALL_LIBPROJ_HEADERS ${HEADERS_LIBPROJ} )
-if(WIN32 AND BUILD_SHARED_LIBS)
+if (FALSE) # XXX(kitware): Can't use a def file for mangled symbols.
+if(WIN32 AND BUILD_LIBPROJ_SHARED)
     set(ALL_LIBPROJ_SOURCES ${ALL_LIBPROJ_SOURCES} proj.def )
-endif(WIN32 AND BUILD_SHARED_LIBS)
+endif(WIN32 AND BUILD_LIBPROJ_SHARED)
+endif ()
 
 # Core targets configuration
-set(PROJ_CORE_TARGET vtkproj)
+string(TOLOWER "${PROJECT_INTERN_NAME}" PROJECTNAMEL)
+set(PROJ_CORE_TARGET ${PROJECTNAMEL})
+if (FALSE) # XXX(kitware): VTK handles output names.
 proj_target_output_name(${PROJ_CORE_TARGET} PROJ_CORE_TARGET_OUTPUT_NAME)
+endif ()
 
-vtk_add_library( ${PROJ_CORE_TARGET}
+if (FALSE) # XXX(kitware): use VTK's module system.
+add_library( ${PROJ_CORE_TARGET}
+                    ${PROJ_LIBRARY_TYPE}
                     ${ALL_LIBPROJ_SOURCES}
                     ${ALL_LIBPROJ_HEADERS}
                     ${PROJ_RESOURCES}  )
+else ()
+vtk_add_library(vtklibproj ${ALL_LIBPROJ_SOURCES} ${ALL_LIBPROJ_HEADERS})
+if (NOT VTK_INSTALL_NO_DEVELOPMENT)
+  install(FILES
+    ${ALL_LIBPROJ_HEADERS}
+    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtklibproj/src"
+    COMPONENT Development)
+endif()
+target_include_directories(vtklibproj
+  PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>")
+set(PROJ_CORE_TARGET vtklibproj)
+
+include(GenerateExportHeader)
+generate_export_header(vtklibproj
+  EXPORT_MACRO_NAME vtklibproj_EXPORT
+  EXPORT_FILE_NAME  vtklibproj_export.h)
+
+if (DEFINED VTK_CUSTOM_LIBRARY_SUFFIX)
+  set(_lib_suffix "${VTK_CUSTOM_LIBRARY_SUFFIX}")
+else ()
+  set(_lib_suffix "-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+endif ()
+set_property(TARGET vtklibproj PROPERTY OUTPUT_NAME vtkproj${_lib_suffix})
+endif ()
+
+
+if (FALSE) # XXX(kitware): Not necessary for VTK.
+if(WIN32)
+  set_target_properties(${PROJ_CORE_TARGET}
+    PROPERTIES
+    VERSION "${${PROJECT_INTERN_NAME}_BUILD_VERSION}"
+    OUTPUT_NAME "${PROJ_CORE_TARGET_OUTPUT_NAME}"
+    CLEAN_DIRECT_OUTPUT 1)
+elseif(BUILD_FRAMEWORKS_AND_BUNDLE)
+  set_target_properties(${PROJ_CORE_TARGET}
+    PROPERTIES
+    VERSION "${${PROJECT_INTERN_NAME}_BUILD_VERSION}"
+    INSTALL_NAME_DIR ${PROJ_INSTALL_NAME_DIR}
+    CLEAN_DIRECT_OUTPUT 1)
+else()
+  set_target_properties(${PROJ_CORE_TARGET}
+    PROPERTIES
+    VERSION "${${PROJECT_INTERN_NAME}_BUILD_VERSION}"
+    SOVERSION "${${PROJECT_INTERN_NAME}_API_VERSION}"
+    CLEAN_DIRECT_OUTPUT 1)
+endif()
 
 set_target_properties(${PROJ_CORE_TARGET}
     PROPERTIES
     LINKER_LANGUAGE C)
+endif ()
 
 ##############################################
 # Link properties
 ##############################################
 set(PROJ_LIBRARIES ${PROJ_CORE_TARGET} )
-if(UNIX AND BUILD_SHARED_LIBS)
-    find_library(LIBPROJ_M_LIB m)
-    mark_as_advanced(LIBPROJ_M_LIB)
-    if(LIBPROJ_M_LIB)
-      TARGET_LINK_LIBRARIES(${PROJ_CORE_TARGET} -lm)
+if(UNIX)
+    find_library(M_LIB m)
+    mark_as_advanced(M_LIB)
+    if(M_LIB)
+      TARGET_LINK_LIBRARIES(${PROJ_CORE_TARGET} PRIVATE ${M_LIB})
     endif()
-endif(UNIX AND BUILD_SHARED_LIBS)
-if(LIBPROJ_USE_THREAD AND Threads_FOUND AND CMAKE_USE_PTHREADS_INIT AND BUILD_SHARED_LIBS)
-   TARGET_LINK_LIBRARIES(${PROJ_CORE_TARGET} ${CMAKE_THREAD_LIBS_INIT})
-endif(LIBPROJ_USE_THREAD AND Threads_FOUND AND CMAKE_USE_PTHREADS_INIT AND BUILD_SHARED_LIBS)
+endif(UNIX)
+if(USE_THREAD AND Threads_FOUND AND CMAKE_USE_PTHREADS_INIT)
+   TARGET_LINK_LIBRARIES(${PROJ_CORE_TARGET} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+endif(USE_THREAD AND Threads_FOUND AND CMAKE_USE_PTHREADS_INIT)
 
+
+##############################################
+# install
+##############################################
+if (FALSE) # XXX(kitware): VTK handles installation.
+install(TARGETS ${PROJ_CORE_TARGET}
+        EXPORT targets
+        RUNTIME DESTINATION ${BINDIR}
+        LIBRARY DESTINATION ${LIBDIR}
+        ARCHIVE DESTINATION ${LIBDIR}
+        FRAMEWORK DESTINATION ${FRAMEWORKDIR})
+
+if(NOT BUILD_FRAMEWORKS_AND_BUNDLE)
+  install(FILES ${ALL_LIBPROJ_HEADERS}
+        DESTINATION ${INCLUDEDIR})
+endif(NOT BUILD_FRAMEWORKS_AND_BUNDLE)
 
 ##############################################
 # Core configuration summary
 ##############################################
 boost_report_value(PROJ_CORE_TARGET)
 boost_report_value(PROJ_CORE_TARGET_OUTPUT_NAME)
+boost_report_value(PROJ_LIBRARY_TYPE)
 boost_report_value(PROJ_LIBRARIES)
+endif ()
 
 
 

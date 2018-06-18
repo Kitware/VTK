@@ -1,6 +1,8 @@
 #ifndef GEOCENT_H
 #define GEOCENT_H
 
+#include "vtk_libproj_mangle.h"
+
 /***************************************************************************/
 /* RSC IDENTIFIER:  GEOCENTRIC
  *
@@ -91,8 +93,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "vtk_libproj_mangle.h"
 
 typedef struct 
 {
