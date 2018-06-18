@@ -1,6 +1,6 @@
 # This project builds the test directories from all VTK modules as a separate
 # project outside the main VTK build tree as if they were an application.
-cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.3...3.12 FATAL_ERROR)
 
 project(VTKTestExternal)
 if(VTK_SOURCE_DIR OR VTK_BINARY_DIR)
