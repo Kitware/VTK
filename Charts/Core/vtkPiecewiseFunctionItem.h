@@ -22,7 +22,7 @@
 class vtkPiecewiseFunction;
 class vtkImageData;
 
-/// vtkPiecewiseFunctionItem internall uses vtkPlot::Color, white by default
+/// vtkPiecewiseFunctionItem internal uses vtkPlot::Color, white by default
 class VTKCHARTSCORE_EXPORT vtkPiecewiseFunctionItem: public vtkScalarsToColorsItem
 {
 public:

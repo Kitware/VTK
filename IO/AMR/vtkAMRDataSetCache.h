@@ -69,7 +69,7 @@ public:
   /**
    * Given the name of the point array and AMR block composite index, this
    * method returns a pointer to the point data array.
-   * NOTE: Null is returend if the point array and /or block is not cached.
+   * NOTE: Null is returned if the point array and /or block is not cached.
    */
   vtkDataArray* GetAMRBlockPointData(
       int compositeIdx, const char *dataName );

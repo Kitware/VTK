@@ -103,7 +103,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
     vtkVector3d sPrev, sNext;
 
     sNextId = FindNextValidSegment(pts, linePts, 0);
-    if (sNextId != npts) // atleast one valid segment
+    if (sNextId != npts) // at least one valid segment
     {
       vtkVector3d pt1, pt2;
       pts->GetPoint(linePts->GetId(sNextId), pt1.GetData());

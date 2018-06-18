@@ -140,7 +140,7 @@ public:
   //@{
   /**
    * Multiply the Gaussian splat distribution by this value. If UseScalars is
-   * on and a scalar aray is provided, then the scalar value will be
+   * on and a scalar array is provided, then the scalar value will be
    * multiplied by the ScaleFactor times the Gaussian function.
    */
   vtkSetClampMacro(ScaleFactor,double,0.0,VTK_DOUBLE_MAX);

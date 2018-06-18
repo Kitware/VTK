@@ -82,7 +82,7 @@ protected:
   void ReadTopology(vtkXMLDataElement *elem);
 
 protected:
-  // Used by ReadTopology to recusively build the tree
+  // Used by ReadTopology to recursively build the tree
   void SubdivideFromDescriptor(
                           vtkHyperTreeCursor* treeCursor,
                           vtkHyperTree* tree,

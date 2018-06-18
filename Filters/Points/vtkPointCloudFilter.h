@@ -86,7 +86,7 @@ public:
 
   /**
    * Return the number of points removed after filter execution. The
-   * information retuned is valid only after the filter executes.
+   * information returned is valid only after the filter executes.
    */
   vtkIdType GetNumberOfPointsRemoved();
 

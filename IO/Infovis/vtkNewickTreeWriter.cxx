@@ -49,7 +49,7 @@ void vtkNewickTreeWriter::WriteData()
   ostream *fp = this->OpenVTKFile();
   if(!fp)
   {
-    vtkErrorMacro("Falied to open output stream");
+    vtkErrorMacro("Failed to open output stream");
     return;
   }
 

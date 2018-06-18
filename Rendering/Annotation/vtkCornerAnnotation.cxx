@@ -388,7 +388,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
 
   // Check to see whether we have to rebuild everything
   // If the viewport has changed we may - or may not need
-  // to rebuild, it depends on if the projected coords chage
+  // to rebuild, it depends on if the projected coords change
   int viewport_size_has_changed = 0;
   if (viewport->GetMTime() > this->BuildTime ||
       (viewport->GetVTKWindow() &&
@@ -456,7 +456,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
     {
       // Rebuid text props.
       // Perform shallow copy here since each individual corner has a
-      // different aligment/size but they share the other this->TextProperty
+      // different alignment/size but they share the other this->TextProperty
       // attributes.
       fontSize = this->TextMapper[0]->GetTextProperty()->GetFontSize();
 
@@ -504,7 +504,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
       int height_13 = tempi[3] + tempi[7];  // total height of text in right top/bottom corners
       int height_47 = tempi[9] + tempi[15]; // total height of text at center of top/bottom edges
 
-      int width_01 = tempi[0] + tempi[2];   // total width of text on botttom left/right corners
+      int width_01 = tempi[0] + tempi[2];   // total width of text on bottom left/right corners
       int width_23 = tempi[4] + tempi[6];   // total width of text on top left/right corners
       int width_56 = tempi[10] + tempi[12]; // total width of text at center of left/right edges
 

@@ -67,7 +67,7 @@ public:
 
   //@{
   /**
-   * Standard methids for printing and determining type information.
+   * Standard methods for printing and determining type information.
    */
   vtkTypeMacro( vtkDijkstraImageGeodesicPath, vtkDijkstraGraphGeodesicPath );
   void PrintSelf( ostream& os, vtkIndent indent ) override;

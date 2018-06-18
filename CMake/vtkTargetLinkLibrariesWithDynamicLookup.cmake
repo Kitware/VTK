@@ -10,7 +10,7 @@
 # library.
 #
 # Specifically, for OSX it uses undefined dynamic_lookup. This is
-# simular to using "-shared" on Linux where undefined symbols are
+# similar to using "-shared" on Linux where undefined symbols are
 # ignored.
 #
 # Additionally, the linker is checked to see if it supports undefined

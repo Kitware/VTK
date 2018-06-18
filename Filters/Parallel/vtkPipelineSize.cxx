@@ -56,7 +56,7 @@ vtkPipelineSize::GetEstimatedSize(vtkAlgorithm *input, int inputPort,
 }
 
 // The first size is the memory going downstream from here - which is all
-// the memory coming in minus any data realeased. The second size is the
+// the memory coming in minus any data released. The second size is the
 // size of the specified output (which can be used by the downstream
 // filter when determining how much data it might release). The final size
 // is the maximum pipeline size encountered here and upstream from here.
@@ -211,7 +211,7 @@ void vtkPipelineSize::GenericComputeSourcePipelineSize(vtkAlgorithm *src,
   }
 
   // The first size is the memory going downstream from here - which is all
-  // the memory coming in minus any data realeased. The second size is the
+  // the memory coming in minus any data released. The second size is the
   // size of the specified output (which can be used by the downstream
   // filter when determining how much data it might release). The final size
   // is the maximum pipeline size encountered here and upstream from here.

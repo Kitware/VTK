@@ -304,7 +304,7 @@ vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(
       }
       else
       {
-        vtkErrorMacro( "Unsupport array type in HDF5 file!" );
+        vtkErrorMacro( "Unsupported array type in HDF5 file!" );
         return nullptr;
       }
     } // END if the array is supposed to be loaded

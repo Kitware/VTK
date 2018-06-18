@@ -75,7 +75,7 @@ public:
 
   bool RemoveAttributeArray(const std::string &name);
 
-  // Force this VAO to emulate a vertex aray object even if
+  // Force this VAO to emulate a vertex array object even if
   // the system supports VAOs. This can be useful in cases where
   // the vertex array object does not handle all extensions.
   void SetForceEmulation(bool val);

@@ -69,7 +69,7 @@ public:
   // Description:
   // Returns an object of type T that is local to the current thread.
   // This needs to be called mainly within a threaded execution path.
-  // It will create a new object (local to the tread so each thread
+  // It will create a new object (local to the thread so each thread
   // get their own when calling Local) which is a copy of exemplar as passed
   // to the constructor (or a default object if no exemplar was provided)
   // the first time it is called. After the first time, it will return

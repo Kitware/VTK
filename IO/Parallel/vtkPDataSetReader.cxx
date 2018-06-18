@@ -682,7 +682,7 @@ void vtkPDataSetReader::ReadVTKFileInformation(
     }
     if (strncmp(str, "DIMENSIONS", 10) != 0)
     {
-      vtkErrorMacro("Expecting 'DIMENSIONS' insted of: " << str);
+      vtkErrorMacro("Expecting 'DIMENSIONS' instead of: " << str);
       return;
     }
 
@@ -698,7 +698,7 @@ void vtkPDataSetReader::ReadVTKFileInformation(
     file->getline(str, 1024, ' ');
     if (strncmp(str, "DIMENSIONS", 10) != 0)
     {
-      vtkErrorMacro("Expecting 'DIMENSIONS' insted of: " << str);
+      vtkErrorMacro("Expecting 'DIMENSIONS' instead of: " << str);
       return;
     }
     *file >> dx;

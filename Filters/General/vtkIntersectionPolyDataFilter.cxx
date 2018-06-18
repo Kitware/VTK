@@ -117,7 +117,7 @@ protected:
   int GetSingleLoop(vtkPolyData *pd,simPolygon *loop, vtkIdType nextCell,
                     std::vector<bool> &interPtBool, std::vector<bool> &lineBool);
 
-  //Follow a loop orienation to iterate around a split polygon
+  //Follow a loop orientation to iterate around a split polygon
   int FollowLoopOrientation(vtkPolyData *pd, simPolygon *loop,
                             vtkIdType *nextCell,
                             vtkIdType nextPt, vtkIdType prevPt,
@@ -128,7 +128,7 @@ protected:
                           vtkIdType *nextCell, vtkIdType nextPt,
                           vtkIdType prevPt, vtkIdList *pointCells);
 
-  //Get the loop orienation is already given
+  //Get the loop orientation is already given
   int GetLoopOrientation(vtkPolyData *pd, vtkIdType cell, vtkIdType ptId1,
                          vtkIdType ptId2);
 
@@ -161,7 +161,7 @@ public:
 
   // Map from points to the cells that contain them. Used for point
   // data interpolation. For points on the edge between two cells, it
-  // does not matter which cell is recorded bcause the interpolation
+  // does not matter which cell is recorded because the interpolation
   // will be the same.  One array for each output surface.
   vtkIdTypeArray      *PointCellIds[2];
   vtkIntArray         *BoundaryPoints[2];

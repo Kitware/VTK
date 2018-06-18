@@ -41,7 +41,7 @@ vtkStandardNewMacro(vtkPolyData);
 //----------------------------------------------------------------------------
 // Initialize static member.  This member is used to simplify traversal
 // of verts, lines, polygons, and triangle strips lists.  It basically
-// "marks" empty lists so that the traveral method "GetNextCell"
+// "marks" empty lists so that the traversal method "GetNextCell"
 // works properly.
 
 struct vtkPolyDataDummyContainter

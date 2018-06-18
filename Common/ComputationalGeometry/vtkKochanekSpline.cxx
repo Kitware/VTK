@@ -277,8 +277,8 @@ void vtkKochanekSpline::Fit1D (int size, double *x, double *y,
         break;
 
       case 3:
-        // desired secord derivative at leftmost point is leftValue
-        // times secod derivative at first interior point
+        // desired second derivative at leftmost point is leftValue
+        // times second derivative at first interior point
         if ((leftValue > (-2.0 + VTK_EPSILON)) ||
             (leftValue < (-2.0 - VTK_EPSILON)))
         {
@@ -312,8 +312,8 @@ void vtkKochanekSpline::Fit1D (int size, double *x, double *y,
          break;
 
       case 3:
-        // desired secord derivative at rightmost point is rightValue
-        // times secord derivative at last interior point
+        // desired second derivative at rightmost point is rightValue
+        // times second derivative at last interior point
         if ((rightValue > (-2.0 + VTK_EPSILON)) ||
             (rightValue < (-2.0 - VTK_EPSILON)))
         {

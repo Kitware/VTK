@@ -423,7 +423,7 @@ void vtkLabeledContourMapper::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "SkipDistance: " << this->SkipDistance << "\n"
-     << indent << "LabelVisiblity: " << (this->LabelVisibility ? "On\n"
+     << indent << "LabelVisibility: " << (this->LabelVisibility ? "On\n"
                                                                : "Off\n")
      << indent << "NumberOfTextActors: " << this->NumberOfTextActors << "\n"
      << indent << "NumberOfUsedTextActors: "

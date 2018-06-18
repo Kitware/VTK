@@ -159,7 +159,7 @@ class TestVariant(Testing.vtkTest):
     def testHash(self):
         """Use a variant as a dict key"""
         d = {}
-        # doubles, ints, srings, all hash as strings
+        # doubles, ints, strings, all hash as strings
         d[vtk.vtkVariant(1.0)] = 'double'
         d[vtk.vtkVariant(1)] = 'int'
         self.assertEqual(d[vtk.vtkVariant('1')], 'int')

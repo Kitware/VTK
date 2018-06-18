@@ -6922,7 +6922,7 @@ int vtkEarthSource::RequestData(
   }
 
   //
-  // Update ourselves and release memeory
+  // Update ourselves and release memory
   //
   output->SetPoints(newPoints);
   newPoints->Delete();

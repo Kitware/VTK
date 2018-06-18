@@ -431,7 +431,7 @@ int vtkAffineRepresentation2D::ComputeInteractionState(int X, int Y, int modify)
 // Record the current event position, and the rectilinear wipe position.
 void vtkAffineRepresentation2D::StartWidgetInteraction(double startEventPos[2])
 {
-  // Initialize bookeeping variables
+  // Initialize bookkeeping variables
   this->StartEventPosition[0] = startEventPos[0];
   this->StartEventPosition[1] = startEventPos[1];
   this->StartEventPosition[2] = 0.0;

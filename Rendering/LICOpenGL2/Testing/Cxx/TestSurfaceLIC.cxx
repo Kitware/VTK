@@ -107,7 +107,7 @@ int TestSurfaceLIC(int argc, char* argv[])
   arg.AddArgument("--number-of-noise-levels", argT::EQUAL_ARGUMENT, &number_of_noise_levels,
     "(optional: default 256) number of gray scale colors");
   arg.AddArgument("--impulse-noise-prob", argT::EQUAL_ARGUMENT, &impulse_noise_prob,
-    "(optional: default 1.0) probabilty a pixel will contain a noise value");
+    "(optional: default 1.0) probability a pixel will contain a noise value");
   arg.AddArgument("--impulse-noise-bg-val", argT::EQUAL_ARGUMENT, &impulse_noise_bg_value,
     "(optional: default 1.0) bg_valabilty a pixel will contain a noise value");
   arg.AddArgument("--noise-gen-seed", argT::EQUAL_ARGUMENT, &noise_gen_seed,

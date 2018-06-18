@@ -114,7 +114,7 @@ for idColumn in range(0, reference.GetNumberOfColumns()):
 
     sys.exit(1)
 
-# Test the rows vlaues
+# Test the rows values
 for idRow in range(0, reference.GetNumberOfRows()):
   for idColumn in range(0, reference.GetNumberOfColumns()):
     currentValue = table.GetValue(idRow, idColumn);

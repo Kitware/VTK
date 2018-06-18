@@ -234,7 +234,7 @@ int vtkMCubesReader::RequestData(
         fread (&point, static_cast<int>(sizeof(pointType)), 1, fp));
       if (val != 1)
       {
-         vtkErrorMacro(<<"Error reading triange " << i
+         vtkErrorMacro(<<"Error reading triangle " << i
                        << " (" << numTris << "), point/normal " << j);
       }
 

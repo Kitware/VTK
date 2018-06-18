@@ -22,7 +22,7 @@
  * This class can be used as a superclass for filters that want to
  * stream their input pipeline by making multiple execution passes.
  * The subclass needs to set NumberOfPasses to > 1 before execution (
- * usuall in the constructor or in RequestInformation) to initiate
+ * usual in the constructor or in RequestInformation) to initiate
  * streaming. vtkStreamerBase will handle streaming while calling
  * ExecutePass() during each pass. CurrentIndex can be used to obtain
  * the index for the current pass. Finally, PostExecute() is called

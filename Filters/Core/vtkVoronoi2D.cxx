@@ -1013,7 +1013,7 @@ int vtkVoronoi2D::RequestData(
     fPts->Delete();
     fVerts->Delete();
 
-    // Now udpate the vtkSpheres implicit function, and create a third output
+    // Now update the vtkSpheres implicit function, and create a third output
     // that has the PointOfInterested-associated tile, with scalar values at
     // each point which are the radii of the error circles (and when taken
     // together form the Voronoi flower).

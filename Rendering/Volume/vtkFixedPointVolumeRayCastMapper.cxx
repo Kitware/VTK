@@ -2839,7 +2839,7 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients( vtkVolume *vol )
   }
   else
   {
-    // We were not able to allocate contigous space - allocate it slice by slice
+    // We were not able to allocate contiguous space - allocate it slice by slice
     for ( i = 0; i < numSlices; i++ )
     {
       this->GradientNormal[i]  = new unsigned short [sliceSize];
@@ -2857,7 +2857,7 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients( vtkVolume *vol )
   }
   else
   {
-    // We were not able to allocate contigous space - allocate it slice by slice
+    // We were not able to allocate contiguous space - allocate it slice by slice
     for ( i = 0; i < numSlices; i++ )
     {
       this->GradientMagnitude[i] = new unsigned char [sliceSize];

@@ -330,7 +330,7 @@ inline void vtkRectilinearGridToTetrahedra::TetrahedralizeAddCenterPoint(
 // According to the DivisionType
 // There had better be 0..8 voxel corners, though only 0..7 maybe needed.
 // Why? This function may add id 8 to VoxelCorners.
-// If a point needs to be inserted into the nodelist, itselt
+// If a point needs to be inserted into the nodelist, insert
 // it at NextPointId. Assume there is space in the nodelist.
 // Return the number of Tets Added.
 

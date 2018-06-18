@@ -91,7 +91,7 @@ public:
 
   //@{
   /**
-   * Specify the vtkHierarchicalBinningFilter to query for relavant
+   * Specify the vtkHierarchicalBinningFilter to query for relevant
    * information. Make sure that this filter has executed prior to the execution of
    * this filter. (This is generally a safe bet if connected in a pipeline.)
    */

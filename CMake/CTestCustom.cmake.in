@@ -194,12 +194,12 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
 
   # warnings from some Eigen headers:
   #
-  # Eigin has so many warnings using individual suppresions
+  # Eigin has so many warnings using individual suppressions
   # does not work. So many will be suppressed that it exceeds
   # the limit ctest will show making it difficult to see
   # the specifics of an unsuppressed warning unless you have
   # access to the raw build logs. So we suppress everything
-  # that has eigin in the path. The old suppresions are left
+  # that has eigin in the path. The old suppressions are left
   # commented below should they be needed.
   "[Ee]igen/src/.* note:"
   "[Ee]igen/src/.* warning:"

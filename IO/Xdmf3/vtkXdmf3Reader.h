@@ -61,7 +61,7 @@ public:
   /**
    * When true (the default) the reader treats a series of files as a temporal
    * collection. When false it treats it as a spatial partition and uses
-   * an optimized top level paritioning strategy.
+   * an optimized top level partitioning strategy.
    */
   vtkSetMacro(FileSeriesAsTime, bool);
   vtkGetMacro(FileSeriesAsTime, bool);

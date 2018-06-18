@@ -140,7 +140,7 @@ int TestPlane(int,char *[])
     arrayOutput->SetNumberOfTuples(nPoints);
 
     std::cout << "Testing FunctionValue:\n";
-    // calcuate function values with the vtkDataArray interface
+    // calculate function values with the vtkDataArray interface
     plane->FunctionValue(input, arrayOutput);
 
     //Calculate the same points using a loop over points.

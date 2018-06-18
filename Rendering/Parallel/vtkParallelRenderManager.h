@@ -538,7 +538,7 @@ protected:
 
   /**
    * Used to synchronize rendering information per frame.
-   * These are old methods provided for backwords compatibility. One should look
+   * These are old methods provided for backward compatibility. One should look
    * at using CollectWindowInformation(), ProcessWindowInformation() etc. for
    * bufferred sending of information over.
    */

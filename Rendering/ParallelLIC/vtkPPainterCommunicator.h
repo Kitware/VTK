@@ -59,7 +59,7 @@ public:
 
   //@{
   /**
-   * Querry MPI for inforrmation about the communicator.
+   * Querry MPI for information about the communicator.
    */
   virtual int GetRank();
   virtual int GetSize();
@@ -68,7 +68,7 @@ public:
 
   //@{
   /**
-   * Querry MPI for information a bout the world communicator.
+   * Querry MPI for information about the world communicator.
    */
   virtual int GetWorldRank();
   virtual int GetWorldSize();

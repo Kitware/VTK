@@ -1,4 +1,4 @@
-# some specific defaults for Andriod to give folks
+# some specific defaults for Android to give folks
 # a reasonable starting point
 if (ANDROID OR APPLE_IOS)
   set(CMAKE_REQUIRE_LARGE_FILE_SUPPORT 2 CACHE STRING "Result from TRY_RUN" FORCE)

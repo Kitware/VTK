@@ -1000,7 +1000,7 @@ void vtkImageStencilData::Replace(vtkImageStencilData *stencil1)
       (extent1[2] > extent2[3]) || (extent1[3] < extent2[2]) ||
       (extent1[4] > extent2[5]) || (extent1[5] < extent2[4]))
   {
-    // The extents don't intersect.. No subraction needed
+    // The extents don't intersect.. No subtraction needed
     return;
   }
 

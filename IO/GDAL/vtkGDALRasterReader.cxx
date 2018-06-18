@@ -472,7 +472,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
   (void)err; //unused
 
   const double* d = GetGeoCornerPoints();
-  // 4,5 are the x,y coordinates for the oposite corner to 0,1
+  // 4,5 are the x,y coordinates for the opposite corner to 0,1
   double geoSpacing[] = {(d[4]-d[0])/this->Reader->RasterDimensions[0],
                          (d[5]-d[1])/this->Reader->RasterDimensions[1],
                          1};

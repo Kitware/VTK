@@ -339,7 +339,7 @@ void vtkBiDimensionalRepresentation2D::Point3WidgetInteraction(double e[2])
   double slope1[3], slope2[3];
 
   // Start by getting the coordinates (P1,P2) defining Line1. Also get
-  // characterisitics of Line1 including its slope, etc.
+  // characteristics of Line1 including its slope, etc.
   this->GetPoint1WorldPosition(p1);
   this->GetPoint2WorldPosition(p2);
   slope1[0] = p2[0] - p1[0];

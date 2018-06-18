@@ -21,7 +21,7 @@
  * space leaping is used to skip large empty regions in the scalar
  * opacity and/or the gradient opacity transfer functions. Depending on
  * the various options set by vtkFixedPointVolumeRayCastMapper, the class
- * will internally invoke one of the many optmized routines to compute the
+ * will internally invoke one of the many optimized routines to compute the
  * min/max/gradient-max values within a fixed block size, trying to
  * compute everything in a single multi-threaded pass through the data
  *
@@ -154,7 +154,7 @@ public:
   //@{
   /**
    * Get the first non-zero scalar opacity and gradient opacity indices for
-   * each independent copmonent
+   * each independent component
    * INTERNAL - Do not use.
    */
   unsigned short * GetMinNonZeroScalarIndex();

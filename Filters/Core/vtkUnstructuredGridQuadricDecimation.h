@@ -90,7 +90,7 @@ public:
 
   //@{
   /**
-   * Set/Get the desired number of tetrahedra to be outputed
+   * Set/Get the desired number of tetrahedra to be outputted
    */
   vtkSetMacro(NumberOfTetsOutput, int);
   vtkGetMacro(NumberOfTetsOutput, int);

@@ -188,7 +188,7 @@ public slots:
     void* client_data, void* call_data);
 
   /**
-   * slot to process events comming from the widget containing this window
+   * slot to process events coming from the widget containing this window
    */
   virtual void widgetEvent(QEvent* e);
 

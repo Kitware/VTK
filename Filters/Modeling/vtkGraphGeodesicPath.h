@@ -34,7 +34,7 @@ class VTKFILTERSMODELING_EXPORT vtkGraphGeodesicPath : public vtkGeodesicPath
 public:
   //@{
   /**
-   * Standard methids for printing and determining type information.
+   * Standard methods for printing and determining type information.
    */
   vtkTypeMacro(vtkGraphGeodesicPath,vtkGeodesicPath);
   void PrintSelf(ostream& os, vtkIndent indent) override;

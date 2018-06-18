@@ -52,7 +52,7 @@ public:
 //-------------------------------------------------------------------------
 int TestTemporalCacheTemporal(int , char *[])
 {
-  // we have to use a compsite pipeline
+  // we have to use a composite pipeline
   vtkCompositeDataPipeline* prototype = vtkCompositeDataPipeline::New();
   vtkAlgorithm::SetDefaultExecutivePrototype(prototype);
   prototype->Delete();

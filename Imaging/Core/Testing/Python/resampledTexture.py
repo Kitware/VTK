@@ -24,7 +24,7 @@ extract.SetVOI(32,32,0,63,0,92)
 atext = vtk.vtkTexture()
 atext.SetInputConnection(extract.GetOutputPort())
 atext.InterpolateOn()
-# gnerate plane to map texture on to
+# generate plane to map texture on to
 plane = vtk.vtkPlaneSource()
 plane.SetXResolution(1)
 plane.SetYResolution(1)

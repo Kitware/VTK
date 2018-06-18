@@ -592,7 +592,7 @@ void vtkInteractorStyleTrackballActor::Prop3DTransform(vtkProp3D *prop3D,
 
   newTransform->Translate(boxCenter[0], boxCenter[1], boxCenter[2]);
 
-  // now try to get the composit of translate, rotate, and scale
+  // now try to get the composite of translate, rotate, and scale
   newTransform->Translate(-(orig[0]), -(orig[1]), -(orig[2]));
   newTransform->PreMultiply();
   newTransform->Translate(orig[0], orig[1], orig[2]);

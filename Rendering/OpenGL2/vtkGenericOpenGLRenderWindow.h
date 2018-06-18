@@ -135,7 +135,7 @@ public:
 
   //@{
   /**
-   * Specificy a non-zero line width to force the hardware line width determined
+   * Specify a non-zero line width to force the hardware line width determined
    * by the window.
    */
   vtkSetClampMacro(ForceMaximumHardwareLineWidth, float, 0, VTK_FLOAT_MAX);

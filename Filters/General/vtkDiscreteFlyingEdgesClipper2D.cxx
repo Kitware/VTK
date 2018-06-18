@@ -264,7 +264,7 @@ public:
   unsigned char GetConnectivityLength(unsigned char caseNum)
     { return this->VertCases[caseNum][1]; }
 
-  // Return wether an interior vertex is required for a particular case.
+  // Return whether an interior vertex is required for a particular case.
   unsigned char GetInteriorVertex(unsigned char caseNum)
     { return this->VertCases[caseNum][2]; }
 
@@ -394,7 +394,7 @@ public:
                            vtkImageData *input, int *updateExt);
 };
 
-// The case table is formated: (numPolys, connectityLen, centerPoint,
+// The case table is formatted: (numPolys, connectityLen, centerPoint,
 // vi,vj,vk, vi,vj,vk, ...) referring to the pixel corner points [0,3];
 // points generated on pixel edges [10,13]; and possibly the pixel center
 // point (100) to define polygons. The case number is determined by combining

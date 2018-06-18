@@ -374,7 +374,7 @@ inline void GetGlobalFieldMetaData(diy::mpi::communicator &comm,
   int source;
   diy::mpi::all_reduce(comm, rank, source, diy::mpi::minimum<int>());
 
-  if (source < comm.size()) // atleast one process has field meta data
+  if (source < comm.size()) // at least one process has field meta data
   {
     diy::MemoryBuffer bb;
     if (comm.rank() == source)

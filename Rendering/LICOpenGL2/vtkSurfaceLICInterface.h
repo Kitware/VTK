@@ -183,7 +183,7 @@ public:
    * vtkLineINtegralComvolution2D) and after the scalar colors have been
    * combined with the LIC.
 
-   * The best appraoch for using this feature is to enable LIC enhancement,
+   * The best approach for using this feature is to enable LIC enhancement,
    * and only if the image is to dark or dull enable COLOR enhancement.
 
    * Both stages are implemented by a histogram stretching algorithm. During
@@ -395,7 +395,7 @@ public:
   //@{
   /**
    * Control the density of of the noise. A value of 1.0 produces uniform random
-   * noise while values < 1.0 produce impulse noise with the given probabilty.
+   * noise while values < 1.0 produce impulse noise with the given probability.
    */
   void SetImpulseNoiseProbability(double val);
   vtkGetMacro(ImpulseNoiseProbability, double);

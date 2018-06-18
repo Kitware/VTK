@@ -76,7 +76,7 @@ int otherCellTypes(int, char *[])
 {
   TestOCT();
 
-  // Might need to be ajusted if vtkCellTypes changes
+  // Might need to be adjusted if vtkCellTypes changes
   bool fail1 = (VTK_NUMBER_OF_CELL_TYPES <= VTK_HIGHER_ORDER_HEXAHEDRON);
 
   // vtkUnstructuredGrid uses uchar to store cellId

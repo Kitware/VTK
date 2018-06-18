@@ -56,7 +56,7 @@ public:
 
   //@{
   /**
-   * When set, the output mutliblock dataset will be pruned to remove empty
+   * When set, the output multiblock dataset will be pruned to remove empty
    * nodes. On by default.
    */
   vtkSetMacro(PruneOutput, vtkTypeBool);

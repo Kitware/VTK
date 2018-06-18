@@ -184,7 +184,7 @@ public:
   /**
    * Divide the extent in half in the given direction. The
    * operation is done in-place the other half of the split
-   * extent is returned. The retunr will be empty if the split
+   * extent is returned. The return will be empty if the split
    * could not be made.
    */
   vtkPixelExtent Split(int dir);

@@ -122,7 +122,7 @@
  * a conversion but generally it should still be easy. Use the code
  * samples above (or any of the classes in OpenGL2 that currently use FBOs)
  * to guide you. They have all been converted to this class. Where previously
- * a DepthBuffer was autmatically created for you, you now need to do it
+ * a DepthBuffer was automatically created for you, you now need to do it
  * explicitly using AddDepthAttachment().
  *
  * This class should be named vtkOpenGLFramebufferObject (FO)
@@ -387,7 +387,7 @@ public:
 
   /**
    * Returns if the context supports the required extensions.
-   * Extension will be loaded when the conetxt is set.
+   * Extension will be loaded when the context is set.
    */
   static bool IsSupported(vtkOpenGLRenderWindow *) {
       return true; }
@@ -425,7 +425,7 @@ public:
 
   /**
    * Download data from the read color attachment of the currently
-   * bound FBO into the retruned PBO. The PBO must be free'd when
+   * bound FBO into the returned PBO. The PBO must be free'd when
    * you are finished with it. The number of components in the
    * PBO is the same as in the name of the specific download function.
    * When downloading a single color channel, the channel must be
@@ -447,7 +447,7 @@ public:
   /**
    * Download data from the depth attachment of the currently
    * bound FBO. The returned PBO must be Delete'd by the caller.
-   * The retruned PBO has one component.
+   * The returned PBO has one component.
    */
   vtkPixelBufferObject *DownloadDepth(
         int extent[4],

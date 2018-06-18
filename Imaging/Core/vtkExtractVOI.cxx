@@ -213,7 +213,7 @@ bool vtkExtractVOI::RequestDataImpl(vtkInformationVector **inputVector,
       (this->SampleRate[1] < 1) ||
       (this->SampleRate[2] < 1) )
   {
-    vtkErrorMacro("SampleRate must be >= 1 in all 3 dimenstions!");
+    vtkErrorMacro("SampleRate must be >= 1 in all 3 dimensions!");
     return false;
   }
 

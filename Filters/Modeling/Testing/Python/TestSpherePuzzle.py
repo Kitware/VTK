@@ -56,7 +56,7 @@ def ButtonCallback (x,y,__vtk__temp0=0,__vtk__temp1=0):
     x = lindex(pt,0)
     y = lindex(pt,1)
     z = lindex(pt,2)
-    # Had to move away from mose events (sgi RT problems)
+    # Had to move away from mouse events (sgi RT problems)
     i = 0
     while i <= 100:
         puzzle.SetPoint(x,y,z)

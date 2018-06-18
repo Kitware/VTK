@@ -81,7 +81,7 @@ class VTKFILTERSHYBRID_EXPORT vtkProjectedTerrainPath : public vtkPolyDataAlgori
 public:
   //@{
   /**
-   * Standard methids for printing and determining type information.
+   * Standard methods for printing and determining type information.
    */
   vtkTypeMacro(vtkProjectedTerrainPath,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -182,7 +182,7 @@ protected:
   double    HeightTolerance;
   vtkIdType MaximumNumberOfLines;
 
-  //Bookeeping arrays
+  //Bookkeeping arrays
   int          Dimensions[3];
   int          Extent[6];
   double       Origin[3];

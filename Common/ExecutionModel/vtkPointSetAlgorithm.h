@@ -22,7 +22,7 @@
  * class you should be aware of. This class defaults such that your filter
  * will have one input port and one output port. If that is not the case
  * simply change it with SetNumberOfInputPorts etc. See this classes
- * contstructor for the default. This class also provides a FillInputPortInfo
+ * constructor for the default. This class also provides a FillInputPortInfo
  * method that by default says that all inputs will be PointSet. If that
  * isn't the case then please override this method in your subclass.
  * You should implement the subclass's algorithm into

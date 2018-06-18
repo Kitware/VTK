@@ -99,7 +99,7 @@ const char *vtkOpenGLStrError(unsigned int code)
  * OpenGL reports no errors. The list of errors and their
  * descriptions are returned in the user supplied arrays.
  * User passes the size of the arrays as the first argument.
- * Error flags will still be cleared if the user arays are
+ * Error flags will still be cleared if the user arrays are
  * less than the number of errors.
  */
 #if defined(VTK_REPORT_OPENGL_ERRORS)

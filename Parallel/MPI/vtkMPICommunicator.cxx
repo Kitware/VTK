@@ -57,7 +57,7 @@ MPI_Comm* vtkMPICommunicatorOpaqueComm::GetHandle()
 
 //-----------------------------------------------------------------------------
 // This MPI error handler basically does the same thing as the default error
-// handler, but also provides a convenient place to attache a debugger
+// handler, but also provides a convenient place to attach a debugger
 // breakpoint.
 extern "C" void vtkMPICommunicatorMPIErrorHandler(MPI_Comm *comm,
                                                   int *errorcode, ...)
@@ -864,7 +864,7 @@ int vtkMPICommunicator::ReceiveVoidArray(void *data, vtkIdType maxlength, int ty
     if (words_received < maxReceive)
     {
       // words_received in this packet is exactly equal to maxReceive, then it
-      // means that the sender is sending atleast one more packet for this
+      // means that the sender is sending at least one more packet for this
       // message. Otherwise, we have received all the packets for this message
       // and we no longer need to iterate.
       return 1;

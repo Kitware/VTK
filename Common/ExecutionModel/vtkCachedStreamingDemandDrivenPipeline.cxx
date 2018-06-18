@@ -238,7 +238,7 @@ int vtkCachedStreamingDemandDrivenPipeline
     return 0;
   }
 
-  // first do the ususal thing
+  // first do the usual thing
   int result = this->Superclass::ExecuteData(request, inInfoVec, outInfoVec);
 
   // then save the newly generated data

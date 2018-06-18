@@ -2223,7 +2223,7 @@ void *vtkImageData::GetArrayPointer(vtkDataArray* array, int coordinate[3])
   }
 
   const int* extent = this->Extent;
-  // error checking: since most acceses will be from pointer arithmetic.
+  // error checking: since most accesses will be from pointer arithmetic.
   // this should not waste much time.
   for (idx = 0; idx < 3; ++idx)
   {

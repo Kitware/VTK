@@ -225,7 +225,7 @@ void vtkImageSobel3D::ThreadedRequestData(
   // this filter cannot handle multi component input.
   if (inData[0][0]->GetNumberOfScalarComponents() != 1)
   {
-    vtkWarningMacro("Expecting input with only one compenent.\n");
+    vtkWarningMacro("Expecting input with only one component.\n");
   }
 
   // this filter expects that output is type double.

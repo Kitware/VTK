@@ -312,7 +312,7 @@ int TestRIBExporter()
   exporter->Update();
   std::cout << ".PASSED" << std::endl;
 
-  std::cout << "RIBExporter SetDisplacmentShader Update..";
+  std::cout << "RIBExporter SetDisplacementShader Update..";
   prop->SetVariable("Km", "float");
   prop->SetDisplacementShaderParameter("Km", "2");
   prop->SetDisplacementShader("dented");

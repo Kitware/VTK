@@ -203,7 +203,7 @@ public:
   vtkVector2i                NextActivePlot;
 
   vtkNew<vtkChartXYZ> BigChart3D;
-  vtkNew<vtkAxis>     TestAxis;   // Used to get ranges/numer of ticks
+  vtkNew<vtkAxis>     TestAxis;   // Used to get ranges/number of ticks
   vtkSmartPointer<vtkTooltipItem> TooltipItem;
   vtkSmartPointer<vtkStringArray> IndexedLabelsArray;
 };
@@ -648,7 +648,7 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
 
   // 1: Remove decoration from the big chart.
   // 2: Set three dimensions to plot in the BigChart3D.
-  // 3: Make BigChart inivisible, and BigChart3D visible.
+  // 3: Make BigChart invisible, and BigChart3D visible.
   // 4: Rotate between the two dimensions we are transitioning between.
   //    -> Loop from start to end angle to complete the effect.
   // 5: Make the new dimensionality active, update BigChart.

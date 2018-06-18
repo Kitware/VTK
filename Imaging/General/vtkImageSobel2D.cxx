@@ -204,7 +204,7 @@ void vtkImageSobel2D::ThreadedRequestData(
   // this filter cannot handle multi component input.
   if (inData[0][0]->GetNumberOfScalarComponents() != 1)
   {
-    vtkWarningMacro("Expecting input with only one compenent.\n");
+    vtkWarningMacro("Expecting input with only one component.\n");
   }
 
   switch (inData[0][0]->GetScalarType())

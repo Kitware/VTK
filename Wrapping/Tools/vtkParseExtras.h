@@ -60,7 +60,7 @@ size_t vtkParse_NameLength(const char *text);
 
 /**
  * Skip over a name, including any template arguments, but stopping
- * if a '::' is encoutered.  Return the number of characters.
+ * if a '::' is encountered.  Return the number of characters.
  * Examples are "name" and "name<arg>"
  */
 size_t vtkParse_UnscopedNameLength(const char *text);

@@ -233,7 +233,7 @@ void vtkBoundingBox::Inflate()
 // ---------------------------------------------------------------------------
 int vtkBoundingBox::IntersectBox(const vtkBoundingBox &bbox)
 {
-  // if either box is not valid don't do the opperation
+  // if either box is not valid don't do the operation
   if (!(this->IsValid() && bbox.IsValid()))
   {
     return 0;

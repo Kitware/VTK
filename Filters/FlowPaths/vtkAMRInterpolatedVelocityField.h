@@ -61,7 +61,7 @@ public:
    * the last data set location (this->LastLevel, this->LastId) will be
    * set according to where p is found.  If it fails, either p is out of
    * bound, in which case both the last data set and the last location
-   * will be invlaid or, in a multi-process setting, p is inbound but not
+   * will be invalid or, in a multi-process setting, p is inbound but not
    * on the processor.  In the last case, the last data set location is
    * still valid
    */

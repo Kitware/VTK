@@ -14,7 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkHierarchicalDataExtractLevel
- * @brief   extact levels between min and max
+ * @brief   extract levels between min and max
  *
  * Legacy class. Use vtkExtractLevel instead.
 */

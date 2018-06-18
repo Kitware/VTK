@@ -486,7 +486,7 @@ vtkDataObject* vtkXMLCompositeDataReader::ReadDataObject(vtkXMLDataElement* xmlE
   // Get the reader for this file
   std::string fileName = this->GetFileNameFromXML(xmlElem, filePath);
   if (fileName.empty())
-  { // No filename in XML element. Not neccessarily an error.
+  { // No filename in XML element. Not necessarily an error.
     return nullptr;
   }
   vtkXMLReader* reader = this->GetReaderForFile(fileName);
@@ -542,7 +542,7 @@ void vtkXMLCompositeDataReader::SyncDataArraySelections(vtkXMLReader *accum,
   // Get the reader for this file
   std::string fileName = this->GetFileNameFromXML(xmlElem, filePath);
   if (fileName.empty())
-  { // No filename in XML element. Not neccessarily an error.
+  { // No filename in XML element. Not necessarily an error.
     return;
   }
   vtkXMLReader* reader = this->GetReaderForFile(fileName);

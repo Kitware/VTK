@@ -40,7 +40,7 @@
  * squared. However, power parameters > 2 can be used which assign higher
  * weights for data closer to the interpolated point; or <2 which assigns
  * greater weight to points further away. (Note that if p!=2, performance may
- * be significantly impacted as the algorihm is tuned for p=2.)
+ * be significantly impacted as the algorithm is tuned for p=2.)
  *
  * @warning
  * Strictly speaking, this is a modified Shepard's methodsince only points

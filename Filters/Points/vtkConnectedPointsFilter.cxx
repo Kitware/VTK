@@ -168,7 +168,7 @@ int vtkConnectedPointsFilter::RequestData(
   vtkIdType *labels = static_cast<vtkIdType*>(this->RegionLabels->GetVoidPointer(0));
   std::fill_n(labels, numPts, -1);
 
-  // This is an incremental (propagating wave) traveral of the points. The
+  // This is an incremental (propagating wave) traversal of the points. The
   // traversal is a function of proximity, planarity, and/or position on a
   // plane
   vtkIdType ptId;

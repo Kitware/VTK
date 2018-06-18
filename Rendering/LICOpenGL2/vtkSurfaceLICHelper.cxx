@@ -376,10 +376,10 @@ bool vtkSurfaceLICHelper::VisibilityTest(double ndcBBox[24])
 // Description:
 // Given world space bounds,
 // compute bounding boxes in clip and normalized device
-// coordinates and perform view frustum visiblity test.
+// coordinates and perform view frustum visibility test.
 // return true if the bounds are visible. If so the passed
 // in extent object is initialized with the corresponding
-//screen space extents.
+// screen space extents.
 bool vtkSurfaceLICHelper::ProjectBounds(
         double PMV[16],
         int viewsize[2],

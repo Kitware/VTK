@@ -76,7 +76,7 @@ void vtkSimpleScalarTree::Initialize()
 
 //-----------------------------------------------------------------------------
 // Construct the scalar tree from the dataset provided. Checks build times
-// and modified time from input and reconstructs the tree if necessaery.
+// and modified time from input and reconstructs the tree if necessary.
 void vtkSimpleScalarTree::BuildTree()
 {
   vtkIdType cellId, i, j, numScalars;

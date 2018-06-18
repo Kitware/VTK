@@ -111,7 +111,7 @@ void vtkPolyPlane::ComputeNormals()
     this->Normals->SetName("Normals");
     this->Normals->SetNumberOfTuples(nLines);
 
-    // Now interate through all the lines and compute normal of each plane
+    // Now iterate through all the lines and compute normal of each plane
     // in the polyplane.
 
     double v1[3], p[3], n[3];

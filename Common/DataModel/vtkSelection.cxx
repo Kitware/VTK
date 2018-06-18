@@ -210,8 +210,8 @@ class vtkSelection::vtkInternals
     return false;
   }
 
-  // higher the value, higher the precendence.
-  inline int precendence(char op) const
+  // higher the value, higher the precedence.
+  inline int precedence(char op) const
   {
     switch (op)
     {
@@ -303,7 +303,7 @@ public:
       }
       else if (term[0] == '&' || term[0] == '|' || term[0] == '!')
       {
-        while (op_stack.size() > 0 && (precendence(term[0]) < precendence(op_stack.back())) &&
+        while (op_stack.size() > 0 && (precedence(term[0]) < precedence(op_stack.back())) &&
           this->ApplyBack(op_stack, var_stack))
         {
         }

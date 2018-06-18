@@ -462,7 +462,7 @@ bool vtkGeoJSONFeature::IsLineString(const Json::Value& root)
 
   if ( root.size() < 1 )
   {
-    vtkErrorMacro (<< "Expected atleast 1 value at " << root);
+    vtkErrorMacro (<< "Expected at least 1 value at " << root);
     return false;
   }
 
@@ -489,7 +489,7 @@ bool vtkGeoJSONFeature::IsMultiLineString(const Json::Value& root)
 
   if ( root.size() < 1 )
   {
-    vtkErrorMacro (<< "Expected atleast 1 value at " << root);
+    vtkErrorMacro (<< "Expected at least 1 value at " << root);
     return false;
   }
 
@@ -544,7 +544,7 @@ bool vtkGeoJSONFeature::IsMultiPoint(const Json::Value& root)
 
   if( root.size() < 1 )
   {
-      vtkErrorMacro (<< "Expected atleast 1 value at " << root << " for multipoint");
+      vtkErrorMacro (<< "Expected at least 1 value at " << root << " for multipoint");
     return false;
   }
 
@@ -571,7 +571,7 @@ bool vtkGeoJSONFeature::IsPolygon(const Json::Value& root)
 
   if ( root.size() < 1 )
   {
-    vtkErrorMacro (<< "Expected atleast 1 value at " << root << "for polygon");
+    vtkErrorMacro (<< "Expected at least 1 value at " << root << "for polygon");
     return false;
   }
 
@@ -600,7 +600,7 @@ bool vtkGeoJSONFeature::IsMultiPolygon(const Json::Value& root)
 
   if ( root.size() < 1 )
   {
-      vtkErrorMacro (<< "Expected atleast 1 value at " << root << " for multi polygon");
+      vtkErrorMacro (<< "Expected at least 1 value at " << root << " for multi polygon");
     return false;
   }
 

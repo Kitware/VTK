@@ -99,7 +99,7 @@ public:
   //@{
   /**
    * Computes the unit normal to the polygon. If pts=nullptr, point indexing is
-   * assummed to be {0, 1, ..., numPts-1}.
+   * assumed to be {0, 1, ..., numPts-1}.
    */
   static void ComputeNormal(vtkPoints *p, int numPts, vtkIdType *pts,
                             double n[3]);
@@ -124,7 +124,7 @@ public:
   //@{
   /**
    * Determine whether or not a polygon is convex. If pts=nullptr, point indexing
-   * is assummed to be {0, 1, ..., numPts-1}.
+   * is assumed to be {0, 1, ..., numPts-1}.
    */
   static bool IsConvex(vtkPoints *p, int numPts, vtkIdType *pts);
   static bool IsConvex(vtkIdTypeArray *ids, vtkPoints *p);

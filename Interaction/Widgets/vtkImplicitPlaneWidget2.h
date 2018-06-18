@@ -23,7 +23,7 @@
  * determines the actual geometry of the widget.)
  *
  * To use this widget, you generally pair it with a vtkImplicitPlaneRepresentation
- * (or a subclass). Variuos options are available for controlling how the
+ * (or a subclass). Various options are available for controlling how the
  * representation appears, and how the widget functions.
  *
  * @par Event Bindings:
