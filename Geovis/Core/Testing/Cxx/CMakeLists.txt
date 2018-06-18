@@ -12,12 +12,4 @@ vtk_add_test_cxx(vtkGeovisCoreCxxTests tests
   ${Deprecated_Tests}
   )
 
-if(NOT VTK_REPLACE_OPENGL_OVERRIDES AND
-  NOT VTK_LEGACY_REMOVE)
-  vtk_add_test_cxx(vtkGeovisCoreCxxTests tests
-    TestCoincidentGeoGraphRepresentation2D.cxx
-    TestLabeledGeoView2D.cxx
-    )
-endif()
-
 vtk_test_cxx_executable(vtkGeovisCoreCxxTests tests)
