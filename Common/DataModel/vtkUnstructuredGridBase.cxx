@@ -61,9 +61,9 @@ vtkUnstructuredGridBase::GetData(vtkInformationVector* v, int i)
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkUnstructuredGridBase::InsertNextCell(vtkIdType cellId, int npts, const vtkIdType pts[])
+vtkIdType vtkUnstructuredGridBase::InsertNextCell(int type, vtkIdType npts, const vtkIdType pts[])
 {
-  return this->InternalInsertNextCell(cellId, npts, pts);
+  return this->InternalInsertNextCell(type, npts, pts);
 }
 
 //----------------------------------------------------------------------------
@@ -73,10 +73,10 @@ vtkIdType vtkUnstructuredGridBase::InsertNextCell(int type, vtkIdList *ptIds)
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkUnstructuredGridBase::InsertNextCell(vtkIdType cellId, int npts, const vtkIdType pts[],
+vtkIdType vtkUnstructuredGridBase::InsertNextCell(int type, vtkIdType npts, const vtkIdType pts[],
   vtkIdType nfaces, const vtkIdType faces[])
 {
-  return this->InternalInsertNextCell(cellId, npts, pts, nfaces, faces);
+  return this->InternalInsertNextCell(type, npts, pts, nfaces, faces);
 }
 
 //----------------------------------------------------------------------------
