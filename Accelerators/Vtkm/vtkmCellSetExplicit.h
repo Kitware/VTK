@@ -85,19 +85,19 @@ public:
     return *this;
   }
 
-  vtkm::Id GetNumberOfCells() const
+  vtkm::Id GetNumberOfCells() const override
   {
     return this->Shapes.GetNumberOfValues();
   }
 
-  vtkm::Id GetNumberOfPoints() const
+  vtkm::Id GetNumberOfPoints() const override
   {
     return this->NumberOfPoints;
   }
 
-  virtual vtkm::Id GetNumberOfFaces() const { return -1; }
+  vtkm::Id GetNumberOfFaces() const override { return -1; }
 
-  virtual vtkm::Id GetNumberOfEdges() const { return -1; }
+  vtkm::Id GetNumberOfEdges() const override { return -1; }
 
 
   vtkm::Id GetSchedulingRange(vtkm::TopologyElementTagCell) const
@@ -171,7 +171,17 @@ public:
     return this->IndexOffsets;
   }
 
-  virtual void PrintSummary(std::ostream& out) const;
+  void PrintSummary(std::ostream& out) const override;
+
+  void ReleaseResourcesExecution() override
+  {
+    this->Shapes.ReleaseResourcesExecution();
+    this->Connectivity.ReleaseResourcesExecution();
+    this->IndexOffsets.ReleaseResourcesExecution();
+    this->RConn.ReleaseResourcesExecution();
+    this->RNumIndices.ReleaseResourcesExecution();
+    this->RIndexOffsets.ReleaseResourcesExecution();
+  }
 
 private:
   vtkm::cont::ArrayHandle<vtkm::UInt8, tovtkm::vtkAOSArrayContainerTag> Shapes;

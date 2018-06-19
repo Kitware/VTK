@@ -89,7 +89,7 @@ vtkm::cont::Field ConvertPointField(DataArrayType* input)
     StorageType storage(input);
     vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
     vtkm::cont::DynamicArrayHandle dhandle(handle);
-    return vtkm::cont::Field(name, vtkm::cont::Field::ASSOC_POINTS, dhandle);
+    return vtkm::cont::Field(name, vtkm::cont::Field::Association::POINTS, dhandle);
   }
   case 2:
   {
@@ -98,7 +98,7 @@ vtkm::cont::Field ConvertPointField(DataArrayType* input)
     StorageType storage(input);
     vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
     vtkm::cont::DynamicArrayHandle dhandle(handle);
-    return vtkm::cont::Field(name, vtkm::cont::Field::ASSOC_POINTS, dhandle);
+    return vtkm::cont::Field(name, vtkm::cont::Field::Association::POINTS, dhandle);
   }
   case 3:
   {
@@ -107,7 +107,7 @@ vtkm::cont::Field ConvertPointField(DataArrayType* input)
     StorageType storage(input);
     vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
     vtkm::cont::DynamicArrayHandle dhandle(handle);
-    return vtkm::cont::Field(name, vtkm::cont::Field::ASSOC_POINTS, dhandle);
+    return vtkm::cont::Field(name, vtkm::cont::Field::Association::POINTS, dhandle);
   }
   case 4:
   {
@@ -116,7 +116,7 @@ vtkm::cont::Field ConvertPointField(DataArrayType* input)
     StorageType storage(input);
     vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
     vtkm::cont::DynamicArrayHandle dhandle(handle);
-    return vtkm::cont::Field(name, vtkm::cont::Field::ASSOC_POINTS, dhandle);
+    return vtkm::cont::Field(name, vtkm::cont::Field::Association::POINTS, dhandle);
   }
   default:
     break;
@@ -149,7 +149,7 @@ vtkm::cont::Field ConvertCellField(DataArrayType* input)
     StorageType storage(input);
     vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
     vtkm::cont::DynamicArrayHandle dhandle(handle);
-    return vtkm::cont::Field(name, vtkm::cont::Field::ASSOC_CELL_SET, cname,
+    return vtkm::cont::Field(name, vtkm::cont::Field::Association::CELL_SET, cname,
                              dhandle);
   }
   case 2:
@@ -159,7 +159,7 @@ vtkm::cont::Field ConvertCellField(DataArrayType* input)
     StorageType storage(input);
     vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
     vtkm::cont::DynamicArrayHandle dhandle(handle);
-    return vtkm::cont::Field(name, vtkm::cont::Field::ASSOC_CELL_SET, cname,
+    return vtkm::cont::Field(name, vtkm::cont::Field::Association::CELL_SET, cname,
                              dhandle);
   }
   case 3:
@@ -169,7 +169,7 @@ vtkm::cont::Field ConvertCellField(DataArrayType* input)
     StorageType storage(input);
     vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
     vtkm::cont::DynamicArrayHandle dhandle(handle);
-    return vtkm::cont::Field(name, vtkm::cont::Field::ASSOC_CELL_SET, cname,
+    return vtkm::cont::Field(name, vtkm::cont::Field::Association::CELL_SET, cname,
                              dhandle);
   }
   case 4:
@@ -179,7 +179,7 @@ vtkm::cont::Field ConvertCellField(DataArrayType* input)
     StorageType storage(input);
     vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
     vtkm::cont::DynamicArrayHandle dhandle(handle);
-    return vtkm::cont::Field(name, vtkm::cont::Field::ASSOC_CELL_SET, cname,
+    return vtkm::cont::Field(name, vtkm::cont::Field::Association::CELL_SET, cname,
                              dhandle);
   }
   default:
@@ -427,12 +427,12 @@ bool ConvertArrays(const vtkm::cont::DataSet& input, vtkDataSet* output)
   {
     const vtkm::cont::Field& f = input.GetField(i);
     vtkDataArray* vfield = Convert(f);
-    if (vfield && f.GetAssociation() == vtkm::cont::Field::ASSOC_POINTS)
+    if (vfield && f.GetAssociation() == vtkm::cont::Field::Association::POINTS)
     {
       pd->AddArray(vfield);
       vfield->FastDelete();
     }
-    else if (vfield &&  f.GetAssociation() == vtkm::cont::Field::ASSOC_CELL_SET)
+    else if (vfield &&  f.GetAssociation() == vtkm::cont::Field::Association::CELL_SET)
     {
       cd->AddArray(vfield);
       vfield->FastDelete();

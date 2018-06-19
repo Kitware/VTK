@@ -162,7 +162,7 @@ int vtkmClip::RequestData(vtkInformation *,
           vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::MODE_NONE));
       }
 
-      fieldFilter.SetActiveField(scalars->GetName(), vtkm::cont::Field::ASSOC_POINTS);
+      fieldFilter.SetActiveField(scalars->GetName(), vtkm::cont::Field::Association::POINTS);
       fieldFilter.SetClipValue(this->ClipValue);
       result = fieldFilter.Execute(in, policy);
     }

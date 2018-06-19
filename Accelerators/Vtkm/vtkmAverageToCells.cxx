@@ -80,7 +80,7 @@ int vtkmAverageToCells::RequestData(vtkInformation* vtkNotUsed(request),
 
     vtkmInputFilterPolicy policy;
     vtkm::filter::CellAverage filter;
-    filter.SetActiveField(fieldName, vtkm::cont::Field::ASSOC_POINTS);
+    filter.SetActiveField(fieldName, vtkm::cont::Field::Association::POINTS);
     filter.SetOutputFieldName(fieldName); // should we expose this control?
 
     auto result = filter.Execute(in, policy);
