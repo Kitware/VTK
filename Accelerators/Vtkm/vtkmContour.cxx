@@ -87,7 +87,7 @@ int vtkmContour::RequestData(vtkInformation* request,
   try
   {
     vtkm::filter::MarchingCubes filter;
-    filter.SetActiveField(inputArray->GetName(), vtkm::cont::Field::ASSOC_POINTS);
+    filter.SetActiveField(inputArray->GetName(), vtkm::cont::Field::Association::POINTS);
     filter.SetGenerateNormals(this->GetComputeNormals() != 0);
     filter.SetNumberOfIsoValues(numContours);
     for(int i = 0; i < numContours; ++i)

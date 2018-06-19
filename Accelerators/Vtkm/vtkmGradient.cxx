@@ -136,8 +136,8 @@ int vtkmGradient::RequestData(vtkInformation* request,
     vtkm::cont::Field field = tovtkm::Convert(inputArray, association);
     in.AddField(field);
 
-    const bool fieldIsPoint = field.GetAssociation() == vtkm::cont::Field::ASSOC_POINTS;
-    const bool fieldIsCell = field.GetAssociation() == vtkm::cont::Field::ASSOC_CELL_SET;
+    const bool fieldIsPoint = field.GetAssociation() == vtkm::cont::Field::Association::POINTS;
+    const bool fieldIsCell = field.GetAssociation() == vtkm::cont::Field::Association::CELL_SET;
     const bool fieldIsVec = (inputArray->GetNumberOfComponents() == 3);
     const bool fieldIsScalar = inputArray->GetDataType() == VTK_FLOAT ||
                               inputArray->GetDataType() == VTK_DOUBLE;
@@ -196,7 +196,7 @@ int vtkmGradient::RequestData(vtkInformation* request,
     if (fieldIsPoint)
     {
       filter.SetComputePointGradient(!this->FasterApproximation);
-      filter.SetActiveField(field.GetName(), vtkm::cont::Field::ASSOC_POINTS);
+      filter.SetActiveField(field.GetName(), vtkm::cont::Field::Association::POINTS);
       result = filter.Execute(in, policy);
 
       //When we have faster approximation enabled the VTK-m gradient will output
@@ -213,28 +213,28 @@ int vtkmGradient::RequestData(vtkInformation* request,
         if (this->ComputeGradient)
         {
           cellToPoint.SetActiveField(
-            filter.GetOutputFieldName(), vtkm::cont::Field::ASSOC_CELL_SET);
+            filter.GetOutputFieldName(), vtkm::cont::Field::Association::CELL_SET);
           auto ds = cellToPoint.Execute(c2pIn, policy);
           result.AddField(ds.GetField(0));
         }
         if (this->ComputeDivergence && fieldIsVec)
         {
           cellToPoint.SetActiveField(
-            filter.GetDivergenceName(), vtkm::cont::Field::ASSOC_CELL_SET);
+            filter.GetDivergenceName(), vtkm::cont::Field::Association::CELL_SET);
           auto ds = cellToPoint.Execute(c2pIn, policy);
           result.AddField(ds.GetField(0));
         }
         if (this->ComputeVorticity && fieldIsVec)
         {
           cellToPoint.SetActiveField(filter.GetVorticityName(),
-            vtkm::cont::Field::ASSOC_CELL_SET);
+            vtkm::cont::Field::Association::CELL_SET);
           auto ds = cellToPoint.Execute(c2pIn, policy);
           result.AddField(ds.GetField(0));
         }
         if (this->ComputeQCriterion && fieldIsVec)
         {
           cellToPoint.SetActiveField(filter.GetQCriterionName(),
-            vtkm::cont::Field::ASSOC_CELL_SET);
+            vtkm::cont::Field::Association::CELL_SET);
           auto ds = cellToPoint.Execute(c2pIn, policy);
           result.AddField(ds.GetField(0));
         }
@@ -250,7 +250,7 @@ int vtkmGradient::RequestData(vtkInformation* request,
       in = cellToPoint.Execute(in, policy);
 
       filter.SetComputePointGradient(false);
-      filter.SetActiveField(field.GetName(), vtkm::cont::Field::ASSOC_POINTS);
+      filter.SetActiveField(field.GetName(), vtkm::cont::Field::Association::POINTS);
       result = filter.Execute(in, policy);
     }
 

@@ -81,7 +81,7 @@ int vtkmAverageToPoints::RequestData(vtkInformation *vtkNotUsed(request),
 
     vtkmInputFilterPolicy policy;
     vtkm::filter::PointAverage filter;
-    filter.SetActiveField(fieldName, vtkm::cont::Field::ASSOC_CELL_SET);
+    filter.SetActiveField(fieldName, vtkm::cont::Field::Association::CELL_SET);
     filter.SetOutputFieldName(fieldName); //should we expose this control?
 
     auto result = filter.Execute(in, policy);
