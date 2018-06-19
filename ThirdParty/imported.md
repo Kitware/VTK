@@ -10,7 +10,7 @@
   * [jsoncpp](jsoncpp/update.sh)
   * [kwiml](../Utilities/KWIML/update.sh)
   * [kwsys](../Utilities/KWSys/update.sh)
-  * [libproj4](libproj4/update.sh)
+  * [libproj](libproj/update.sh)
   * [libharu](libharu/update.sh)
   * [lz4](lz4/update.sh)
   * [metaio](../Utilities/MetaIO/update.sh)

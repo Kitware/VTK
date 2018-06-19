@@ -26,7 +26,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
-#include "vtk_libproj4.h"
+#include "vtk_libproj.h"
 
 vtkStandardNewMacro(vtkGeoTransform);
 vtkCxxSetObjectMacro(vtkGeoTransform, SourceProjection, vtkGeoProjection);

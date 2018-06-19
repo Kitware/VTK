@@ -27,7 +27,7 @@
 #include <map>
 #include <vector>
 
-#include "vtk_libproj4.h"
+#include "vtk_libproj.h"
 
 vtkStandardNewMacro(vtkGeoProjection);
 

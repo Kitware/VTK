@@ -1,0 +1,1 @@
+vtk_module(vtklibproj EXCLUDE_FROM_WRAPPING)
