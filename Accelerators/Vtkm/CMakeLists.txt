@@ -139,7 +139,7 @@ set_property(GLOBAL APPEND PROPERTY JOB_POOLS vtkm_pool=${vtkm_pool_size})
 
 if(TARGET vtkm::cuda)
   #we are building with CUDA support
-  cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
+  cmake_minimum_required(VERSION 3.9...3.12 FATAL_ERROR)
   enable_language(CUDA)
 
   # Workaround cmake issue #7519 which causes the c++11 flag set for VTK-m using
