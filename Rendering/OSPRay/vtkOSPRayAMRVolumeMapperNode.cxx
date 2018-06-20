@@ -273,6 +273,7 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
         double spacing[3];
         amr->GetAMRInfo()->GetSpacing(0,spacing);
         ospSet3f(this->OSPRayVolume, "gridOrigin", origin[0], origin[1], origin[2]);
+        ospSetString(this->OSPRayVolume, "voxelType", "float");
 
         OSPData brickDataData = ospNewData(brickDataArray.size(),OSP_OBJECT,&brickDataArray[0],0);
         ospSetData(this->OSPRayVolume,"brickData",brickDataData);
