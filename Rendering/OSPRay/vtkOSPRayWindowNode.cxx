@@ -41,7 +41,9 @@ vtkOSPRayWindowNode::vtkOSPRayWindowNode()
   }
   catch (std::runtime_error &vtkNotUsed(e))
   {
-    //todo: request addition of ospFinalize() to ospray
+#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 6
+    ospShutdown();
+#endif
     //cerr << "warning: double init" << endl;
   }
   vtkOSPRayViewNodeFactory *fac = vtkOSPRayViewNodeFactory::New();
