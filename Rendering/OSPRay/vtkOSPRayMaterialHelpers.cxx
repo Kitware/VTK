@@ -21,6 +21,7 @@
 #include "vtkTexture.h"
 
 #include "ospray/ospray.h"
+#include "ospray/version.h"
 
 //------------------------------------------------------------------------------
 osp::Texture2D *vtkOSPRayMaterialHelpers::VTKToOSPTexture
@@ -185,7 +186,7 @@ osp::Material* vtkOSPRayMaterialHelpers::MakeMaterial
   if (!ml)
     {
     cout << "No material Library in this renderer. Using OBJMaterial by default." << endl;
-    oMaterial = ospNewMaterial(oRenderer, "OBJMaterial");
+    oMaterial = NewMaterial(orn, oRenderer, "OBJMaterial");
     return oMaterial;
     }
   //todo: add a level of indirection and/or versioning so we aren't stuck with
@@ -193,7 +194,7 @@ osp::Material* vtkOSPRayMaterialHelpers::MakeMaterial
   std::string implname = ml->LookupImplName(nickname);
   if (implname == "Glass")
   {
-    oMaterial = ospNewMaterial(oRenderer, implname.c_str());
+    oMaterial = NewMaterial(orn, oRenderer, implname);
     OSPSET3F(attenuationColor);
     OSPSET1F(etaInside);
     OSPSET1F(etaOutside);
@@ -202,12 +203,12 @@ osp::Material* vtkOSPRayMaterialHelpers::MakeMaterial
   }
   else if (implname == "Matte")
   {
-    oMaterial = ospNewMaterial(oRenderer, implname.c_str());
+    oMaterial = NewMaterial(orn, oRenderer, implname);
     OSPSET3F(reflectance);
   }
   else if (implname == "Metal")
   {
-    oMaterial = ospNewMaterial(oRenderer, implname.c_str());
+    oMaterial = NewMaterial(orn, oRenderer, implname);
     OSPSET3F(eta);
     OSPSET3F(k);
     OSPSET1F(roughness);
@@ -216,7 +217,7 @@ osp::Material* vtkOSPRayMaterialHelpers::MakeMaterial
   }
   else if (implname == "MetallicPaint")
   {
-    oMaterial = ospNewMaterial(oRenderer, implname.c_str());
+    oMaterial = NewMaterial(orn, oRenderer, implname);
     OSPSET3F(baseColor)
     OSPSET3F(color)
     OSPSET1F(flakeAmount)
@@ -226,7 +227,7 @@ osp::Material* vtkOSPRayMaterialHelpers::MakeMaterial
   }
   else if (implname == "Principled")
   {
-    oMaterial = ospNewMaterial(oRenderer, implname.c_str());
+    oMaterial = NewMaterial(orn, oRenderer, implname);
     OSPSET3F(baseColor);
     OSPSET1F(metallic);
     OSPSET3F(specular);
@@ -244,7 +245,7 @@ osp::Material* vtkOSPRayMaterialHelpers::MakeMaterial
   }
   else if (implname == "OBJMaterial")
   {
-    oMaterial = ospNewMaterial(oRenderer, implname.c_str());
+    oMaterial = NewMaterial(orn, oRenderer, implname);
     OSPSET1F(alpha);//aka "d", default 1.0
     OSPSET1F(d);//aka "d", default 1.0
     OSPSET3F(color);//aka "Kd" aka "kd", default (0.8,0.8,0.8)
@@ -280,7 +281,7 @@ osp::Material* vtkOSPRayMaterialHelpers::MakeMaterial
   }
   else if (implname == "Plastic")
   {
-    oMaterial = ospNewMaterial(oRenderer, implname.c_str());
+    oMaterial = NewMaterial(orn, oRenderer, implname);
     OSPSET3F(pigmentColor);
     OSPSET1F(eta);
     OSPSET1F(roughness);
@@ -288,7 +289,7 @@ osp::Material* vtkOSPRayMaterialHelpers::MakeMaterial
   }
   else if (implname == "ThinGlass")
   {
-    oMaterial = ospNewMaterial(oRenderer, implname.c_str());
+    oMaterial = NewMaterial(orn, oRenderer, implname);
     OSPSET3F(transmission);
     OSPSET3F(color);
     OSPSET3F(attenuationColor);
@@ -298,7 +299,7 @@ osp::Material* vtkOSPRayMaterialHelpers::MakeMaterial
   }
   else if (implname == "Velvet")
   {
-    oMaterial = ospNewMaterial(oRenderer, implname.c_str());
+    oMaterial = NewMaterial(orn, oRenderer, implname);
     OSPSET3F(reflectance);
     OSPSET1F(backScattering);
     OSPSET3F(horizonScatteringColor);
@@ -309,8 +310,31 @@ osp::Material* vtkOSPRayMaterialHelpers::MakeMaterial
     cout <<
       "Warning: unrecognized material \"" << implname.c_str() <<
       "\" using OBJMaterial instead. " << endl;
-    oMaterial = ospNewMaterial(oRenderer, "OBJMaterial");
+    oMaterial = NewMaterial(orn, oRenderer, "OBJMaterial");
   }
   return oMaterial;
 
+}
+
+//------------------------------------------------------------------------------
+osp::Material *vtkOSPRayMaterialHelpers::NewMaterial(vtkOSPRayRendererNode *orn,
+                                                     osp::Renderer *oRenderer,
+                                                     std::string ospMatName)
+{
+  osp::Material *result;
+#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
+  (void)oRenderer;
+  const std::string rendererType = vtkOSPRayRendererNode::GetRendererType(orn->GetRenderer());
+  result = ospNewMaterial2(rendererType.c_str(), ospMatName.c_str());
+#else
+  (void)orn;
+  result = ospNewMaterial(oRenderer, ospMatName.c_str());
+#endif
+
+  if (!result)
+  {
+    vtkGenericWarningMacro("Failed to create OSPRay material: " << ospMatName);
+  }
+
+  return result;
 }
