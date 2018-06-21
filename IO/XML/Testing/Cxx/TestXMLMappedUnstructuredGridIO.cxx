@@ -170,10 +170,10 @@ public:
   // This container is read only -- these methods do nothing but print a warning.
   void Allocate(vtkIdType numCells, int extSize = 1000);
   vtkIdType InsertNextCell(int type, vtkIdList *ptIds);
-  vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds);
-  vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds,
-                           vtkIdType nfaces, vtkIdType *faces);
-  void ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts);
+  vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[]) VTK_SIZEHINT(ptIds, npts);
+  vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[],
+                           vtkIdType nfaces, const vtkIdType faces[]) VTK_SIZEHINT(ptIds, npts) VTK_SIZEHINT(faces, nfaces);
+  void ReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[]) VTK_SIZEHINT(pts, npts);
 
   vtkIdType GetNumberOfCells();
   void SetOwner(MappedGrid* owner) { this->Owner = owner; }
@@ -261,22 +261,22 @@ MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdList* vtkNotUsed(ptIds
 }
 
 vtkIdType
-MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdType vtkNotUsed(npts), vtkIdType *vtkNotUsed(ptIds))
+MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdType vtkNotUsed(npts), const vtkIdType vtkNotUsed(ptIds)[])
 {
   vtkWarningMacro(<<"Read only block\n");
   return -1;
 }
 
 vtkIdType
-MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdType vtkNotUsed(npts), vtkIdType *vtkNotUsed(ptIds),
-    vtkIdType vtkNotUsed(nfaces), vtkIdType *vtkNotUsed(faces))
+MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdType vtkNotUsed(npts), const vtkIdType vtkNotUsed(ptIds)[],
+    vtkIdType vtkNotUsed(nfaces), const vtkIdType vtkNotUsed(faces)[])
 {
   vtkWarningMacro(<<"Read only block\n");
   return -1;
 }
 
 void
-MappedGridImpl::ReplaceCell(vtkIdType vtkNotUsed(cellId), int vtkNotUsed(npts), vtkIdType *vtkNotUsed(pts))
+MappedGridImpl::ReplaceCell(vtkIdType vtkNotUsed(cellId), int vtkNotUsed(npts), const vtkIdType vtkNotUsed(pts)[])
 {
   vtkWarningMacro(<<"Read only block\n");
 }

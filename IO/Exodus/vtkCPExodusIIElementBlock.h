@@ -66,10 +66,10 @@ public:
   // warning.
   void Allocate(vtkIdType numCells, int extSize = 1000);
   vtkIdType InsertNextCell(int type, vtkIdList *ptIds);
-  vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds);
-  vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds,
-                           vtkIdType nfaces, vtkIdType *faces);
-  void ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts);
+  vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[]) VTK_SIZEHINT(ptIds, npts);
+  vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[],
+                           vtkIdType nfaces, const vtkIdType faces[]) VTK_SIZEHINT(ptIds, npts) VTK_SIZEHINT(faces, nfaces);
+  void ReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[]) VTK_SIZEHINT(pts, npts);
 
 protected:
   vtkCPExodusIIElementBlockImpl();

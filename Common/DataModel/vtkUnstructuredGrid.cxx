@@ -981,7 +981,7 @@ vtkIdType vtkUnstructuredGrid::GetNumberOfCells()
 // Insert/create cell in object by type and list of point ids defining
 // cell topology. Using a special input format, this function also support
 // polyhedron cells.
-vtkIdType vtkUnstructuredGrid::InsertNextCell(int type, vtkIdList *ptIds)
+vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(int type, vtkIdList *ptIds)
 {
   if (type == VTK_POLYHEDRON)
   {
@@ -1014,8 +1014,8 @@ vtkIdType vtkUnstructuredGrid::InsertNextCell(int type, vtkIdList *ptIds)
 // Insert/create cell in object by type and list of point ids defining
 // cell topology. Using a special input format, this function also support
 // polyhedron cells.
-vtkIdType vtkUnstructuredGrid::InsertNextCell(int type, vtkIdType npts,
-                                              vtkIdType *ptIds)
+vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(int type, vtkIdType npts,
+                                              const vtkIdType ptIds[])
 {
   if (type != VTK_POLYHEDRON)
   {
@@ -1072,8 +1072,8 @@ vtkIdType vtkUnstructuredGrid::InsertNextCell(int type, vtkIdType npts,
 // defining cell topology. This method is meant for face-explicit cells (e.g.
 // polyhedron).
 vtkIdType vtkUnstructuredGrid::
-InsertNextCell(int type, vtkIdType npts, vtkIdType *pts,
-               vtkIdType nfaces, vtkIdType *faces)
+InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType pts[],
+               vtkIdType nfaces, const vtkIdType faces[])
 {
   if (type != VTK_POLYHEDRON)
   {
@@ -1106,16 +1106,16 @@ InsertNextCell(int type, vtkIdType npts, vtkIdType *pts,
   this->FaceLocations->InsertNextValue(
     this->Faces->GetMaxId() + 1);
   this->Faces->InsertNextValue(nfaces);
-  vtkIdType i, *face=faces;
+
   for (int faceNum=0; faceNum < nfaces; ++faceNum)
   {
-    npts = face[0];
+    npts = faces[0];
     this->Faces->InsertNextValue(npts);
-    for (i=1; i <= npts; ++i)
+    for (vtkIdType i=1; i <= npts; ++i)
     {
-      this->Faces->InsertNextValue(face[i]);
+      this->Faces->InsertNextValue(faces[i]);
     }
-    face += npts + 1;
+    faces += npts + 1;
   } //for all faces
 
   return this->Types->InsertNextValue(static_cast<unsigned char>(type));
@@ -1605,8 +1605,8 @@ void vtkUnstructuredGrid::ResizeCellList(vtkIdType ptId, int size)
 // operator is (typically) used when links from points to cells have not been
 // built (i.e., BuildLinks() has not been executed). Use the operator
 // ReplaceLinkedCell() to replace a cell when cell structure has been built.
-void vtkUnstructuredGrid::ReplaceCell(vtkIdType cellId, int npts,
-                                      vtkIdType *pts)
+void vtkUnstructuredGrid::InternalReplaceCell(vtkIdType cellId, int npts,
+                                      const vtkIdType pts[])
 {
   vtkIdType loc;
 
@@ -1619,7 +1619,7 @@ void vtkUnstructuredGrid::ReplaceCell(vtkIdType cellId, int npts,
 // built). This method adds the cell and then updates the links from the points
 // to the cells. (Memory is allocated as necessary.)
 vtkIdType vtkUnstructuredGrid::InsertNextLinkedCell(int type, int npts,
-                                                    vtkIdType *pts)
+                                                    const vtkIdType pts[])
 {
   vtkIdType i, id;
 
@@ -2111,7 +2111,7 @@ void vtkUnstructuredGrid::DecomposeAPolyhedronCell(vtkIdType *cellStream,
 
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::DecomposeAPolyhedronCell(vtkIdType nCellFaces,
-       vtkIdType * cellStream, vtkIdType & numCellPts,
+       const vtkIdType cellStream[], vtkIdType & numCellPts,
        vtkCellArray * cellArray, vtkIdTypeArray * faces)
 {
   std::set<vtkIdType>  cellPointSet;

@@ -162,7 +162,7 @@ void vtkMappedUnstructuredGrid<Implementation, CellIterator>
 //------------------------------------------------------------------------------
 template <class Implementation, class CellIterator>
 vtkIdType vtkMappedUnstructuredGrid<Implementation, CellIterator>
-::InsertNextCell(int type, vtkIdList *ptIds)
+::InternalInsertNextCell(int type, vtkIdList *ptIds)
 {
   return this->Impl->InsertNextCell(type, ptIds);
 }
@@ -170,7 +170,7 @@ vtkIdType vtkMappedUnstructuredGrid<Implementation, CellIterator>
 //------------------------------------------------------------------------------
 template <class Implementation, class CellIterator>
 vtkIdType vtkMappedUnstructuredGrid<Implementation, CellIterator>
-::InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds)
+::InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[])
 {
   return this->Impl->InsertNextCell(type, npts, ptIds);
 }
@@ -178,8 +178,8 @@ vtkIdType vtkMappedUnstructuredGrid<Implementation, CellIterator>
 //------------------------------------------------------------------------------
 template <class Implementation, class CellIterator>
 vtkIdType vtkMappedUnstructuredGrid<Implementation, CellIterator>
-::InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds, vtkIdType nfaces,
-                 vtkIdType *faces)
+::InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[], vtkIdType nfaces,
+                 const vtkIdType faces[])
 {
   return this->Impl->InsertNextCell(type, npts, ptIds, nfaces, faces);
 }
@@ -187,7 +187,7 @@ vtkIdType vtkMappedUnstructuredGrid<Implementation, CellIterator>
 //------------------------------------------------------------------------------
 template <class Implementation, class CellIterator>
 void vtkMappedUnstructuredGrid<Implementation, CellIterator>
-::ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts)
+::InternalReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[])
 {
   this->Impl->ReplaceCell(cellId, npts, pts);
 }

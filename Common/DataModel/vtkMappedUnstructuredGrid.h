@@ -58,10 +58,10 @@
  * - int IsHomogeneous()
  * - void Allocate(vtkIdType numCells, int extSize = 1000)
  * - vtkIdType InsertNextCell(int type, vtkIdList *ptIds)
- * - vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds)
- * - vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds,
- *                            vtkIdType nfaces, vtkIdType *faces)
- * - void ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts)
+ * - vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[])
+ * - vtkIdType InsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[],
+ *                            vtkIdType nfaces, const vtkIdType faces[])
+ * - void ReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[])
  *
  * These methods should provide the same functionality as defined in
  * vtkUnstructuredGrid. See that class's documentation for more information.
@@ -172,11 +172,6 @@ public:
   void GetIdsOfCellsOfType(int type, vtkIdTypeArray *array) override;
   int IsHomogeneous() override;
   void Allocate(vtkIdType numCells, int extSize = 1000) override;
-  vtkIdType InsertNextCell(int type, vtkIdList *ptIds) override;
-  vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds) override;
-  vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds,
-                           vtkIdType nfaces, vtkIdType *faces) override;
-  void ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts) override;
   vtkMTimeType GetMTime() override;
 
   void SetImplementation(ImplementationType *impl);
@@ -190,6 +185,12 @@ protected:
   typedef vtkMappedUnstructuredGrid<Implementation, CellIterator> ThisType;
 
   vtkSmartPointer<ImplementationType> Impl;
+
+  vtkIdType InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[]) override;
+  vtkIdType InternalInsertNextCell(int type, vtkIdList *ptIds) override;
+  vtkIdType InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[],
+    vtkIdType nfaces, const vtkIdType faces[]) override;
+  void InternalReplaceCell(vtkIdType cellId, int npts, const vtkIdType pts[]) override;
 
 private:
   vtkMappedUnstructuredGrid(const vtkMappedUnstructuredGrid &) = delete;
