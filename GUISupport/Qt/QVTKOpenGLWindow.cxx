@@ -32,6 +32,7 @@ QVTKOpenGLWindow::QVTKOpenGLWindow(vtkGenericOpenGLRenderWindow* w,
   : QOpenGLWindow(shareContext, updateBehavior, parent)
   , EnableHiDPI(false)
   , OriginalDPI(0)
+  , OffscreenSurface(nullptr)
 {
   this->IrenAdapter = new QVTKInteractorAdapter(this);
   this->IrenAdapter->SetDevicePixelRatio(this->devicePixelRatio());
@@ -42,6 +43,11 @@ QVTKOpenGLWindow::QVTKOpenGLWindow(vtkGenericOpenGLRenderWindow* w,
 //-----------------------------------------------------------------------------
 QVTKOpenGLWindow::~QVTKOpenGLWindow()
 {
+  if (this->OffscreenSurface)
+  {
+    this->OffscreenSurface->destroy();
+    delete this->OffscreenSurface;
+  }
   // get rid of the VTK window
   this->SetRenderWindow(nullptr);
 }
@@ -221,10 +227,13 @@ void QVTKOpenGLWindow::MakeCurrent()
   }
   else
   {
-    QOffscreenSurface* offscreenSurface = new QOffscreenSurface();
-    offscreenSurface->setFormat(this->context()->format());
-    offscreenSurface->create();
-    this->context()->makeCurrent(offscreenSurface);
+    if (!this->OffscreenSurface)
+    {
+      this->OffscreenSurface = new QOffscreenSurface();
+      this->OffscreenSurface->setFormat(this->context()->format());
+      this->OffscreenSurface->create();
+    }
+    this->context()->makeCurrent(this->OffscreenSurface);
   }
 }
 
