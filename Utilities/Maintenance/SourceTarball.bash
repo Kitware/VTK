@@ -50,6 +50,20 @@ compute_MD5 () {
     $md5tool "$file" | sed -e "$md5regex"
 }
 
+# Check for a tool to get SHA512 sums from.
+if type -p sha512sum >/dev/null; then
+    readonly sha512tool="sha512sum"
+    readonly sha512regex="s/ .*//"
+else
+    die "No 'sha512sum' tool found."
+fi
+
+compute_SHA512 () {
+    local file="$1"; readonly file; shift
+
+    $sha512tool "$file" | sed -e "$sha512regex"
+}
+
 validate () {
     local algo="$1"
     readonly algo
@@ -111,12 +125,13 @@ find_data_objects () {
     readonly largedata
     shift
 
-    # Find all .md5 files in the tree.
+    # Find all content links in the tree.
     git ls-tree --full-tree -r "$revision" | \
-        grep '\.md5$' | \
+        egrep '\.(md5|sha512)$' | \
         while read mode type obj path; do
             case "$path" in
                 *.md5) algo="MD5" ;;
+                *.sha512) algo="SHA512" ;;
                 *)
                     die "unknown ExternalData content link: $path"
                     ;;
