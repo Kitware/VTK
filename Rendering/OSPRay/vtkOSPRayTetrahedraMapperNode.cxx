@@ -196,6 +196,24 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
               this->Cells.push_back(cell->GetPointId(j));
             }
           }
+          else if (cell->GetCellType() == VTK_WEDGE)
+          {
+            for (int j = 0; j < 2; ++j)
+            {
+              this->Cells.push_back(-1);
+            }
+            for (int j = 0; j < 6; ++j)
+            {
+              this->Cells.push_back(cell->GetPointId(j));
+            }
+          }
+          else
+          {
+            vtkWarningMacro("Unsupported cell type encountered: "
+                            << cell->GetClassName() << " id="
+                            << cell->GetCellType()
+                            << ". Ignored.");
+          }
 #endif
         }
 

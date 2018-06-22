@@ -15,6 +15,8 @@ vtk_add_test_cxx(vtkRenderingOSPRayCxxTests tests
   TestOSPRayPass.cxx
   TestOSPRayRenderMesh.cxx
   TestOSPRayScalarBar.cxx
+  TestOSPRayTetrahedraMapper.cxx
+  TestOSPRayTetrahedraMapperMixedCells.cxx
   TestOSPRayTime.cxx
   TestOSPRayWindow.cxx
   TestOSPRayStereo.cxx
@@ -42,7 +44,6 @@ vtk_add_test_cxx(vtkRenderingOSPRayCxxTests tests
   TestPathTracerMaterialLibrary.cxx,NO_VALID
   TestPathTracerMaterials.cxx
   TestPathTracerShadows.cxx
-  TestOSPRayTetrahedraMapper.cxx
   )
 vtk_test_cxx_executable(vtkRenderingOSPRayCxxTests tests RENDERING_FACTORY
   vtkOSPRayTestInteractor.cxx
