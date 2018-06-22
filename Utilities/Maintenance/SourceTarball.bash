@@ -4,7 +4,7 @@
 set -e
 
 # The URLs where data is stored for VTK.
-readonly urlbases="http://www.vtk.org/files/ExternalData/ALGO/HASH"
+readonly urlbases="https://www.vtk.org/files/ExternalData/ALGO/HASH"
 
 # Move to the top of the VTK tree.
 readonly output_base="$( pwd )"
