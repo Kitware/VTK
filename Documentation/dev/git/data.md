@@ -60,7 +60,7 @@ Notes:
   when the reference ends in the `,:` option.  Read [ExternalData][]
   module documentation for details.
 
-[ExternalData]: /CMake/ExternalData.cmake
+[ExternalData]: https://cmake.org/cmake/help/latest/module/ExternalData.html
 
 ### Build and Run the Test ###
 
