@@ -116,22 +116,21 @@ find_data_objects () {
         grep '\.md5$' | \
         while read mode type obj path; do
             case "$path" in
-                *.md5)
-                    # Include large data iff we are making the large data archive
-                    # Include the normal data iff we are making the normal data archive
-                    if git check-attr vtk-is-large-data -- $path | grep -q -v -e " set$"; then
-                        if test "$largedata" != "VTK_USE_LARGE_DATA"; then
-                            # Build the path to the object.
-                            echo "MD5/$( git cat-file blob $obj )"
-                        fi
-                    elif test "$largedata" = "VTK_USE_LARGE_DATA"; then
-                        echo "MD5/$( git cat-file blob $obj )"
-                    fi
-                    ;;
+                *.md5) algo="MD5" ;;
                 *)
                     die "unknown ExternalData content link: $path"
                     ;;
             esac
+            # Include large data iff we are making the large data archive
+            # Include the normal data iff we are making the normal data archive
+            if git check-attr vtk-is-large-data -- $path | grep -q -v -e " set$"; then
+                if test "$largedata" != "VTK_USE_LARGE_DATA"; then
+                    # Build the path to the object.
+                    echo "$algo/$( git cat-file blob $obj )"
+                fi
+            elif test "$largedata" = "VTK_USE_LARGE_DATA"; then
+                echo "$algo/$( git cat-file blob $obj )"
+            fi
         done | \
             sort | \
             uniq
