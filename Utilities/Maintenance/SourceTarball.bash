@@ -4,7 +4,7 @@
 set -e
 
 # The URLs where data is stored for VTK.
-readonly urlbases="http://www.vtk.org/files/ExternalData/ALGO/HASH"
+readonly urlbases="https://www.vtk.org/files/ExternalData/ALGO/HASH"
 
 # Move to the top of the VTK tree.
 readonly output_base="$( pwd )"
@@ -48,6 +48,20 @@ compute_MD5 () {
     shift
 
     $md5tool "$file" | sed -e "$md5regex"
+}
+
+# Check for a tool to get SHA512 sums from.
+if type -p sha512sum >/dev/null; then
+    readonly sha512tool="sha512sum"
+    readonly sha512regex="s/ .*//"
+else
+    die "No 'sha512sum' tool found."
+fi
+
+compute_SHA512 () {
+    local file="$1"; readonly file; shift
+
+    $sha512tool "$file" | sed -e "$sha512regex"
 }
 
 validate () {
@@ -111,27 +125,27 @@ find_data_objects () {
     readonly largedata
     shift
 
-    # Find all .md5 files in the tree.
+    # Find all content links in the tree.
     git ls-tree --full-tree -r "$revision" | \
-        grep '\.md5$' | \
+        egrep '\.(md5|sha512)$' | \
         while read mode type obj path; do
             case "$path" in
-                *.md5)
-                    # Include large data iff we are making the large data archive
-                    # Include the normal data iff we are making the normal data archive
-                    if git check-attr vtk-is-large-data -- $path | grep -q -v -e " set$"; then
-                        if test "$largedata" != "VTK_USE_LARGE_DATA"; then
-                            # Build the path to the object.
-                            echo "MD5/$( git cat-file blob $obj )"
-                        fi
-                    elif test "$largedata" = "VTK_USE_LARGE_DATA"; then
-                        echo "MD5/$( git cat-file blob $obj )"
-                    fi
-                    ;;
+                *.md5) algo="MD5" ;;
+                *.sha512) algo="SHA512" ;;
                 *)
                     die "unknown ExternalData content link: $path"
                     ;;
             esac
+            # Include large data iff we are making the large data archive
+            # Include the normal data iff we are making the normal data archive
+            if git check-attr vtk-is-large-data -- $path | grep -q -v -e " set$"; then
+                if test "$largedata" != "VTK_USE_LARGE_DATA"; then
+                    # Build the path to the object.
+                    echo "$algo/$( git cat-file blob $obj )"
+                fi
+            elif test "$largedata" = "VTK_USE_LARGE_DATA"; then
+                echo "$algo/$( git cat-file blob $obj )"
+            fi
         done | \
             sort | \
             uniq
