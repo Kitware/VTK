@@ -46,28 +46,28 @@ public:
   virtual void OnInitialUpdate();
   virtual LRESULT WindowProc(UINT message, WPARAM wParam, LPARAM lParam);
   void Render() {this->RenderWindow->Render();};
-  vtkWindow *GetVTKWindow() {return this->RenderWindow;};
-  virtual void SetupMemoryRendering(int x, int y, HDC prn) {
+  vtkWindow *GetVTKWindow() override {return this->RenderWindow;};
+  void SetupMemoryRendering(int x, int y, HDC prn) override {
     this->RenderWindow->SetupMemoryRendering(x,y,prn);};
-  virtual void ResumeScreenRendering() {
+  void ResumeScreenRendering() override {
     this->RenderWindow->ResumeScreenRendering();};
-  virtual unsigned char *GetMemoryData() {
+  unsigned char *GetMemoryData() override {
     return this->RenderWindow->GetMemoryData();};
 
   // Overrides
   // ClassWizard generated virtual function overrides
   //{{AFX_VIRTUAL(vtkMFCRenderView)
 protected:
-  virtual void OnDraw(CDC* pDC);      // overridden to draw this view
-  virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
+  void OnDraw(CDC* pDC) override;      // overridden to draw this view
+  BOOL OnPreparePrinting(CPrintInfo* pInfo) override;
   //}}AFX_VIRTUAL
 
   // Implementation
 protected:
   virtual ~vtkMFCRenderView();
 #ifdef _DEBUG
-  virtual void AssertValid() const;
-  virtual void Dump(CDumpContext& dc) const;
+  void AssertValid() const override;
+  void Dump(CDumpContext& dc) const override;
 #endif
 
   // Generated message map functions

@@ -63,7 +63,7 @@ public:
    * should be possible to call them multiple times, even changing WindowId
    * in-between.  This is what WindowRemap does.
    */
-  virtual void Initialize(void);
+  void Initialize(void) override;
 
   /**
    * "Deinitialize" the rendering window.  This will shutdown all system-specific
@@ -235,8 +235,8 @@ protected:
   int      CursorHidden;
   int      ForceMakeCurrent;
 
-  void CreateAWindow();
-  void DestroyWindow();
+  void CreateAWindow() override;
+  void DestroyWindow() override;
   void CreateOffScreenWindow(int width, int height);
   void DestroyOffScreenWindow();
   void ResizeOffScreenWindow(int width, int height);

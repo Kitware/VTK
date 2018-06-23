@@ -76,32 +76,32 @@ public:
   /**
    * Standard VCR functionality: Record incoming video.
    */
-  void Record();
+  void Record() override;
 
   /**
    * Standard VCR functionality: Play recorded video.
    */
-  void Play();
+  void Play() override;
 
   /**
    * Standard VCR functionality: Stop recording or playing.
    */
-  void Stop();
+  void Stop() override;
 
   /**
    * Grab a single video frame.
    */
-  void Grab();
+  void Grab() override;
 
   /**
    * Request a particular frame size (set the third value to 1).
    */
-  void SetFrameSize(int x, int y, int z);
+  void SetFrameSize(int x, int y, int z) override;
 
   /**
    * Request a particular output format (default: VTK_RGB).
    */
-  void SetOutputFormat(int format);
+  void SetOutputFormat(int format) override;
 
   //@{
   /**
@@ -240,13 +240,13 @@ public:
    * Initialize the driver (this is called automatically when the
    * first grab is done).
    */
-  void Initialize();
+  void Initialize() override;
 
   /**
    * Free the driver (this is called automatically inside the
    * destructor).
    */
-  void ReleaseSystemResources();
+  void ReleaseSystemResources() override;
 
   //@{
   /**
@@ -256,7 +256,7 @@ public:
   void *OldUserDataPtr;
   int FrameCounter;
   int ForceGrab;
-  void InternalGrab();
+  void InternalGrab() override;
   //@}
 
 protected:

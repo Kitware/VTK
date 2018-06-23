@@ -57,9 +57,9 @@ public:
   /**
    * Satisfy the superclass' API.
    */
-  virtual void BuildRepresentation();
-  virtual void WidgetInteraction(double eventPos[2]);
-  virtual void GetSize(double size[2])
+  void BuildRepresentation() override;
+  void WidgetInteraction(double eventPos[2]) override;
+  void GetSize(double size[2]) override
     {size[0]=2.0; size[1]=2.0;}
   //@}
 

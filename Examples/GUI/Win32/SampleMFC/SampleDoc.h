@@ -44,7 +44,7 @@ public:
         //{{AFX_VIRTUAL(CSampleDoc)
         public:
         virtual BOOL OnNewDocument();
-        virtual void Serialize(CArchive& ar);
+        void Serialize(CArchive& ar) override;
         virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
         //}}AFX_VIRTUAL
 
