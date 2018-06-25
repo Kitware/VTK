@@ -654,7 +654,7 @@ public:
    * colA == rowB
    * and matrix C is rowA x colB
    */
-  static void MultiplyMatrix(const double **A, const double **B,
+  static void MultiplyMatrix(const double *const *A, const double *const *B,
                              unsigned int rowA, unsigned int colA,
                              unsigned int rowB, unsigned int colB,
                              double **C);
@@ -885,7 +885,7 @@ public:
    * divided by the minimum diagonal value. (This works for triangular matrices
    * only: see Conte and de Boor, Elementary Numerical Analysis.)
    */
-  static double EstimateMatrixCondition(const double **A, int size);
+  static double EstimateMatrixCondition(const double *const *A, int size);
 
   //@{
   /**

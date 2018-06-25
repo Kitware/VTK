@@ -82,9 +82,9 @@ int vtkAbstractCellLocator::IntersectWithLine(const double p1[3], const double p
 }
 //----------------------------------------------------------------------------
 int vtkAbstractCellLocator::IntersectWithLine(
-  const double [3]vtkNotUsed(p1), const double [3]vtkNotUsed(p2), double vtkNotUsed(tol),
-  double& vtkNotUsed(t), double [3]vtkNotUsed(x),
-  double [3]vtkNotUsed(pcoords), int &vtkNotUsed(subId),
+  const double vtkNotUsed(p1)[3], const double vtkNotUsed(p2)[3], double vtkNotUsed(tol),
+  double& vtkNotUsed(t), double vtkNotUsed(x)[3],
+  double vtkNotUsed(pcoords)[3], int &vtkNotUsed(subId),
   vtkIdType &vtkNotUsed(cellId),
   vtkGenericCell *vtkNotUsed(cell))
 {
@@ -94,7 +94,7 @@ int vtkAbstractCellLocator::IntersectWithLine(
 }
 //----------------------------------------------------------------------------
 int vtkAbstractCellLocator::IntersectWithLine(
-  const double [3]vtkNotUsed(p1), const double [3]vtkNotUsed(p2),
+  const double vtkNotUsed(p1)[3], const double vtkNotUsed(p2)[3],
   vtkPoints *vtkNotUsed(points), vtkIdList *vtkNotUsed(cellIds))
 {
   vtkErrorMacro(<<"The locator class - " << this->GetClassName()

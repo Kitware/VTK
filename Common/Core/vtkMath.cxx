@@ -876,7 +876,7 @@ int vtkMath::Jacobi(double **a, double *w, double **v)
 // of the infinity matrix norm (i.e., maximum value of matrix component)
 // divided by the minimum diagonal value. (This works for triangular matrices
 // only: see Conte and de Boor, Elementary Numerical Analysis.)
-double vtkMath::EstimateMatrixCondition(const double **A, int size)
+double vtkMath::EstimateMatrixCondition(const double *const *A, int size)
 {
   int i;
   int j;
@@ -1630,7 +1630,7 @@ void vtkMath::Multiply3x3(const double A[3][3],
 }
 
 //----------------------------------------------------------------------------
-void vtkMath::MultiplyMatrix(const double **A, const double **B,
+void vtkMath::MultiplyMatrix(const double *const *A, const double *const *B,
                              unsigned int rowA, unsigned int colA,
                              unsigned int rowB, unsigned int colB,
                              double **C)
