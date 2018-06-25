@@ -150,10 +150,10 @@ int TestPolyhedron0( int argc, char* argv[] )
 
   // test the polyhedron functions
   // test intersection
-  int numInts = polyhedron->IntersectWithLine(p1,p2,tol,t,x,pc,subId); //should be 2
-  if (numInts != 2)
+  int hit = polyhedron->IntersectWithLine(p1,p2,tol,t,x,pc,subId); //should hit
+  if (!hit)
   {
-    cerr << "Expect 2 intersections, but get " << numInts << std::endl;
+    cerr << "Expected  intersection, but missed." << std::endl;
     return EXIT_FAILURE;
   }
 
