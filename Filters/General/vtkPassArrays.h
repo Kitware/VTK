@@ -34,6 +34,9 @@
  * AddArray will be processed. If instead UseFieldTypes
  * is turned on, you explicitly set which field types to process with AddFieldType.
  *
+ * By default, ghost arrays will be passed unless RemoveArrays is selected
+ * and those arrays are specifically chosen to be removed.
+ *
  * Example 1:
  *
  * <pre>

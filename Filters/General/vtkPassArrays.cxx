@@ -201,18 +201,23 @@ int vtkPassArrays::RequestData(
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
   output->ShallowCopy(input);
 
-  // If we are specifying arrays to add, start with no arrays in output
+  // If we are specifying arrays to add, start with only the ghost arrays in the output
+  // if they exist in the input
   if (!this->RemoveArrays)
   {
     if (this->UseFieldTypes)
     {
       for (std::vector<int>::size_type i = 0; i < this->Implementation->FieldTypes.size(); ++i)
       {
-        vtkFieldData* outData = output->GetAttributesAsFieldData(
-          this->Implementation->FieldTypes[i]);
-        if (outData)
+        if (vtkFieldData* outData = output->GetAttributesAsFieldData(
+              this->Implementation->FieldTypes[i]) )
         {
           outData->Initialize();
+          if (vtkFieldData* inData = input->GetAttributesAsFieldData(
+                this->Implementation->FieldTypes[i]) )
+          {
+            outData->AddArray(inData->GetAbstractArray(vtkDataSetAttributes::GhostArrayName()));
+          }
         }
       }
     }
@@ -220,11 +225,15 @@ int vtkPassArrays::RequestData(
     {
       for (ArraysType::size_type i = 0; i < this->Implementation->Arrays.size(); ++i)
       {
-        vtkFieldData* outData = output->GetAttributesAsFieldData(
-          this->Implementation->Arrays[i].first);
-        if (outData)
+        if (vtkFieldData* outData = output->GetAttributesAsFieldData(
+              this->Implementation->Arrays[i].first) )
         {
           outData->Initialize();
+          if (vtkFieldData* inData = input->GetAttributesAsFieldData(
+                this->Implementation->Arrays[i].first) )
+          {
+            outData->AddArray(inData->GetAbstractArray(vtkDataSetAttributes::GhostArrayName()));
+          }
         }
       }
     }
