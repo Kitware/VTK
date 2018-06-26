@@ -633,7 +633,7 @@ int vtkPolyhedron::IntersectWithLine(const double p1[3], const double p2[3], dou
    // Compute parametric coordinates
   this->ComputeParametricCoordinate(xMin, pc);
 
-  return numHits;
+  return (numHits > 0);
 }
 
 #define VTK_MAX_ITER 10    //Maximum iterations for ray-firing

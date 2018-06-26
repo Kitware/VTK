@@ -143,7 +143,7 @@ public:
    * Intersect the line (p1,p2) with a given tolerance tol to determine a
    * point of intersection x[3] with parametric coordinate t along the
    * line. The parametric coordinates are returned as well (subId can be
-   * ignored). Returns the number of intersection points.
+   * ignored). Returns true if the line intersects a face.
    */
   int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId) override;
