@@ -280,7 +280,7 @@ int vtkCellPicker::Pick3DRay(
 // Tolerance for parametric coordinate matching an intersection with a plane
 #define VTKCELLPICKER_PLANE_TOL 1e-14
 
-double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
+double vtkCellPicker::IntersectWithLine(const double p1[3], const double p2[3],
                                           double tol,
                                           vtkAssemblyPath *path,
                                           vtkProp3D *prop,

@@ -99,7 +99,7 @@ public:
    * dir[3] is NOT normalized.  Valid intersections will only occur between
    * 0<=t<=1.)
    */
-  static char IntersectBox(double bounds[6], double origin[3], double dir[3],
+  static char IntersectBox(double bounds[6], const double origin[3], double dir[3],
                            double coord[3], double& t);
 
   /**

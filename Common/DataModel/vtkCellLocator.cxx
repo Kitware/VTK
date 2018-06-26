@@ -160,7 +160,7 @@ void vtkCellLocator::ComputeOctantBounds(int i, int j, int k)
 // output, this will be done TODO when more time is available. To see an
 // alternative implementation, see vtkStaticCellLocator which is thread safe.
 //
-int vtkCellLocator::IntersectWithLine(double a0[3], double a1[3], double tol,
+int vtkCellLocator::IntersectWithLine(const double a0[3], const double a1[3], double tol,
                                       double& t, double x[3], double pcoords[3],
                                       int &subId, vtkIdType &cellId,
                                       vtkGenericCell *cell)
@@ -392,7 +392,7 @@ int vtkCellLocator::IntersectWithLine(double a0[3], double a1[3], double tol,
 
 //----------------------------------------------------------------------------
 // Return closest point (if any) AND the cell on which this closest point lies
-void vtkCellLocator::FindClosestPoint(double x[3], double closestPoint[3],
+void vtkCellLocator::FindClosestPoint(const double x[3], double closestPoint[3],
                                       vtkGenericCell *cell, vtkIdType &cellId,
                                       int &subId, double& dist2)
 {
@@ -1039,7 +1039,7 @@ void vtkCellLocator::GetBucketNeighbors(int ijk[3], int ndivs, int level)
 // layer before they can be used. Only buckets that have cells are placed
 // in the bucket list.
 //
-void vtkCellLocator::GetOverlappingBuckets(double x[3], int vtkNotUsed(ijk)[3],
+void vtkCellLocator::GetOverlappingBuckets(const double x[3], int vtkNotUsed(ijk)[3],
                                            double dist,
                                            int prevMinLevel[3],
                                            int prevMaxLevel[3])
@@ -1590,7 +1590,7 @@ void vtkCellLocator::ClearCellHasBeenVisited(int id)
 // WARNING!!!!! Be very careful altering this routine.  Simple changes to this
 // routine can make is 25% slower!!!!
 //
-double vtkCellLocator::Distance2ToBucket(double x[3], int nei[3])
+double vtkCellLocator::Distance2ToBucket(const double x[3], int nei[3])
 {
   double bounds[6];
 
@@ -1609,7 +1609,7 @@ double vtkCellLocator::Distance2ToBucket(double x[3], int nei[3])
 //
 // WARNING!!!!! Be very careful altering this routine.  Simple changes to this
 // routine can make it 25% slower!!!!
-double vtkCellLocator::Distance2ToBounds(double x[3], double bounds[6])
+double vtkCellLocator::Distance2ToBounds(const double x[3], double bounds[6])
 {
   double distance;
   double deltas[3];
@@ -1805,7 +1805,7 @@ void vtkCellLocator::FindCellsWithinBounds(double *bbox, vtkIdList *cells)
 }
 
 //----------------------------------------------------------------------------
-void vtkCellLocator::FindCellsAlongLine(double p1[3], double p2[3], double vtkNotUsed(tol),
+void vtkCellLocator::FindCellsAlongLine(const double p1[3], const double p2[3], double vtkNotUsed(tol),
                                         vtkIdList *cells)
 {
   this->BuildLocatorIfNeeded();

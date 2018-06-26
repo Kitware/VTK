@@ -70,19 +70,19 @@ public:
   vtkCell *GetFace (int faceId) override;
   //@}
 
-  int CellBoundary (int subId, double pcoords[3], vtkIdList * pts) override;
+  int CellBoundary(int subId, const double pcoords[3], vtkIdList * pts) override;
   void Contour (double value, vtkDataArray * cellScalars,
     vtkIncrementalPointLocator * locator, vtkCellArray * verts,
     vtkCellArray * lines, vtkCellArray * polys,
     vtkPointData * inPd, vtkPointData * outPd, vtkCellData * inCd,
     vtkIdType cellId, vtkCellData * outCd) override;
-  int EvaluatePosition (double x[3], double *closestPoint,
+  int EvaluatePosition(const double x[3], double *closestPoint,
       int &subId, double pcoords[3], double &dist2,
       double *weights) override;
-  void EvaluateLocation (int &subId, double pcoords[3], double x[3],
+  void EvaluateLocation(int &subId, const double pcoords[3], double x[3],
     double *weights) override;
   int Triangulate (int index, vtkIdList * ptIds, vtkPoints * pts) override;
-  void Derivatives (int subId, double pcoords[3], double *values, int dim,
+  void Derivatives(int subId, const double pcoords[3], const double *values, int dim,
     double *derivs) override;
   double *GetParametricCoords () override;
 
@@ -101,7 +101,7 @@ public:
    * Line-edge intersection. Intersection has to occur within [0,1] parametric
    * coordinates and with specified tolerance.
    */
-  int IntersectWithLine (double p1[3], double p2[3], double tol, double &t,
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double &t,
     double x[3], double pcoords[3], int &subId) override;
 
 
@@ -113,21 +113,21 @@ public:
   /**
    * @deprecated Replaced by vtkBiQuadraticQuadraticWedge::InterpolateFunctions as of VTK 5.2
    */
-  static void InterpolationFunctions (double pcoords[3], double weights[15]);
+  static void InterpolationFunctions(const double pcoords[3], double weights[15]);
   /**
    * @deprecated Replaced by vtkBiQuadraticQuadraticWedge::InterpolateDerivs as of VTK 5.2
    */
-  static void InterpolationDerivs (double pcoords[3], double derivs[45]);
+  static void InterpolationDerivs(const double pcoords[3], double derivs[45]);
   //@{
   /**
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
    */
-  void InterpolateFunctions (double pcoords[3], double weights[15]) override
+  void InterpolateFunctions(const double pcoords[3], double weights[15]) override
   {
     vtkBiQuadraticQuadraticWedge::InterpolationFunctions(pcoords,weights);
   }
-  void InterpolateDerivs (double pcoords[3], double derivs[45]) override
+  void InterpolateDerivs (const double pcoords[3], double derivs[45]) override
   {
     vtkBiQuadraticQuadraticWedge::InterpolationDerivs(pcoords,derivs);
   }
@@ -146,7 +146,7 @@ public:
    * matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
    * function derivatives.
    */
-  void JacobianInverse (double pcoords[3], double **inverse, double derivs[45]);
+  void JacobianInverse(const double pcoords[3], double **inverse, double derivs[45]);
 
 protected:
   vtkBiQuadraticQuadraticWedge ();

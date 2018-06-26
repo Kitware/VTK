@@ -69,16 +69,16 @@ protected:
   vtkIdType PointId; //picked point
   vtkTypeBool UseCells;  // Use cell points vs. points directly
 
-  double IntersectWithLine(double p1[3], double p2[3], double tol,
+  double IntersectWithLine(const double p1[3], const double p2[3], double tol,
                           vtkAssemblyPath *path, vtkProp3D *p,
                           vtkAbstractMapper3D *m) override;
   void Initialize() override;
 
-  vtkIdType IntersectDataSetWithLine(double p1[3], double ray[3],
+  vtkIdType IntersectDataSetWithLine(const double p1[3], double ray[3],
                                      double rayFactor, double tol,
                                      vtkDataSet* dataSet,
                                      double& tMin, double minXYZ[3]);
-  bool UpdateClosestPoint(double x[3], double p1[3],
+  bool UpdateClosestPoint(double x[3], const double p1[3],
                           double ray[3], double rayFactor, double tol,
                           double& tMin, double& distMin);
 private:

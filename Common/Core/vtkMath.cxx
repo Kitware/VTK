@@ -876,7 +876,7 @@ int vtkMath::Jacobi(double **a, double *w, double **v)
 // of the infinity matrix norm (i.e., maximum value of matrix component)
 // divided by the minimum diagonal value. (This works for triangular matrices
 // only: see Conte and de Boor, Elementary Numerical Analysis.)
-double vtkMath::EstimateMatrixCondition(double **A, int size)
+double vtkMath::EstimateMatrixCondition(const double *const *A, int size)
 {
   int i;
   int j;
@@ -1630,7 +1630,7 @@ void vtkMath::Multiply3x3(const double A[3][3],
 }
 
 //----------------------------------------------------------------------------
-void vtkMath::MultiplyMatrix(double **A, double **B,
+void vtkMath::MultiplyMatrix(const double *const *A, const double *const *B,
                              unsigned int rowA, unsigned int colA,
                              unsigned int rowB, unsigned int colB,
                              double **C)
@@ -3040,7 +3040,7 @@ int vtkMath::GetAdjustedScalarRange(
 }
 
 //----------------------------------------------------------------------------
-vtkTypeBool vtkMath::ExtentIsWithinOtherExtent(int extent1[6], int extent2[6])
+vtkTypeBool vtkMath::ExtentIsWithinOtherExtent(const int extent1[6], const int extent2[6])
 {
   if (!extent1 || !extent2)
   {
@@ -3062,7 +3062,7 @@ vtkTypeBool vtkMath::ExtentIsWithinOtherExtent(int extent1[6], int extent2[6])
 
 //----------------------------------------------------------------------------
 
-vtkTypeBool vtkMath::BoundsIsWithinOtherBounds(double bounds1[6], double bounds2[6], double delta[3])
+vtkTypeBool vtkMath::BoundsIsWithinOtherBounds(const double bounds1[6], const double bounds2[6], const double delta[3])
 {
   if(!bounds1 || !bounds2)
   {
@@ -3079,7 +3079,7 @@ vtkTypeBool vtkMath::BoundsIsWithinOtherBounds(double bounds1[6], double bounds2
 }
 
 //----------------------------------------------------------------------------
-vtkTypeBool vtkMath::PointIsWithinBounds(double point[3], double bounds[6], double delta[3])
+vtkTypeBool vtkMath::PointIsWithinBounds(const double point[3], const double bounds[6], const double delta[3])
 {
   if(!point || !bounds || !delta)
   {

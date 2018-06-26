@@ -891,7 +891,7 @@ int vtkOBBTree::IntersectWithLine(const double p1[3], const double p2[3],
 
 // Return intersection point (if any) AND the cell which was intersected by
 // finite line
-int vtkOBBTree::IntersectWithLine(double a0[3], double a1[3], double tol,
+int vtkOBBTree::IntersectWithLine(const double a0[3], const double a1[3], double tol,
                                        double& t, double x[3], double pcoords[3],
                                        int &subId, vtkIdType &cellId,
                                        vtkGenericCell *cell)

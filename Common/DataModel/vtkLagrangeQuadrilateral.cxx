@@ -94,7 +94,7 @@ void vtkLagrangeQuadrilateral::Initialize()
 }
 
 int vtkLagrangeQuadrilateral::CellBoundary(
-  int vtkNotUsed(subId), double pcoords[3], vtkIdList* pts)
+  int vtkNotUsed(subId), const double pcoords[3], vtkIdList* pts)
 {
   double t1=pcoords[0]-pcoords[1];
   double t2=1.0-pcoords[0]-pcoords[1];
@@ -139,7 +139,7 @@ int vtkLagrangeQuadrilateral::CellBoundary(
 }
 
 int vtkLagrangeQuadrilateral::EvaluatePosition(
-  double* x,
+  const double x[3],
   double* closestPoint,
   int& subId,
   double pcoords[3],
@@ -194,7 +194,7 @@ int vtkLagrangeQuadrilateral::EvaluatePosition(
 
 void vtkLagrangeQuadrilateral::EvaluateLocation(
   int& subId,
-  double pcoords[3],
+  const double pcoords[3],
   double x[3], double* weights)
 {
   subId = 0; // TODO: Should this be -1?
@@ -262,8 +262,8 @@ void vtkLagrangeQuadrilateral::Clip(
 }
 
 int vtkLagrangeQuadrilateral::IntersectWithLine(
-  double* p1,
-  double* p2,
+  const double* p1,
+  const double* p2,
   double tol,
   double& t,
   double* x,
@@ -345,8 +345,8 @@ int vtkLagrangeQuadrilateral::Triangulate(
 
 void vtkLagrangeQuadrilateral::Derivatives(
   int vtkNotUsed(subId),
-  double vtkNotUsed(pcoords)[3],
-  double* vtkNotUsed(values),
+  const double vtkNotUsed(pcoords)[3],
+  const double* vtkNotUsed(values),
   int vtkNotUsed(dim),
   double* vtkNotUsed(derivs))
 {
@@ -374,7 +374,7 @@ double* vtkLagrangeQuadrilateral::GetParametricCoords()
       this->PointParametricCoordinates->GetData())->GetPointer(0);
 }
 
-double vtkLagrangeQuadrilateral::GetParametricDistance(double pcoords[3])
+double vtkLagrangeQuadrilateral::GetParametricDistance(const double pcoords[3])
 {
   double pDist, pDistMax = 0.0;
 
@@ -420,13 +420,13 @@ const int* vtkLagrangeQuadrilateral::GetOrder()
 }
 
 void vtkLagrangeQuadrilateral::InterpolateFunctions(
-  double pcoords[3], double* weights)
+  const double pcoords[3], double* weights)
 {
   vtkLagrangeInterpolation::Tensor2ShapeFunctions(this->GetOrder(), pcoords, weights);
 }
 
 void vtkLagrangeQuadrilateral::InterpolateDerivs(
-  double pcoords[3], double* derivs)
+  const double pcoords[3], double* derivs)
 {
   vtkLagrangeInterpolation::Tensor2ShapeDerivatives(this->GetOrder(), pcoords, derivs);
 }

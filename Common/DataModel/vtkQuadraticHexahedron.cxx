@@ -202,7 +202,7 @@ static const double VTK_DIVERGED = 1.e6;
 static const int VTK_HEX_MAX_ITERATION=20;
 static const double VTK_HEX_CONVERGED=1.e-04;
 
-int vtkQuadraticHexahedron::EvaluatePosition(double* x,
+int vtkQuadraticHexahedron::EvaluatePosition(const double x[3],
                                              double* closestPoint,
                                              int& subId, double pcoords[3],
                                              double& dist2, double *weights)
@@ -347,7 +347,7 @@ int vtkQuadraticHexahedron::EvaluatePosition(double* x,
 
 //----------------------------------------------------------------------------
 void vtkQuadraticHexahedron::EvaluateLocation(int& vtkNotUsed(subId),
-                                              double pcoords[3],
+                                              const double pcoords[3],
                                               double x[3], double *weights)
 {
   int i, j;
@@ -368,7 +368,7 @@ void vtkQuadraticHexahedron::EvaluateLocation(int& vtkNotUsed(subId),
 
 //----------------------------------------------------------------------------
 int vtkQuadraticHexahedron::CellBoundary( int subId,
-                                          double pcoords[3],
+                                          const double pcoords[3],
                                           vtkIdList *pts )
 {
   for ( int i = 0; i < 8; ++ i ) // For each of the eight vertices of the hex
@@ -412,7 +412,7 @@ void vtkQuadraticHexahedron::Contour(double value,
 //----------------------------------------------------------------------------
 // Line-hex intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
-int vtkQuadraticHexahedron::IntersectWithLine(double* p1, double* p2,
+int vtkQuadraticHexahedron::IntersectWithLine(const double* p1, const double* p2,
                                               double tol, double& t,
                                               double* x, double* pcoords,
                                               int& subId)
@@ -643,7 +643,7 @@ int vtkQuadraticHexahedron::Triangulate(
 // Given parametric coordinates compute inverse Jacobian transformation
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives.
-void vtkQuadraticHexahedron::JacobianInverse(double pcoords[3],
+void vtkQuadraticHexahedron::JacobianInverse(const double pcoords[3],
                                              double **inverse,
                                              double derivs[60])
 {
@@ -682,7 +682,7 @@ void vtkQuadraticHexahedron::JacobianInverse(double pcoords[3],
 
 //----------------------------------------------------------------------------
 void vtkQuadraticHexahedron::Derivatives(int vtkNotUsed(subId),
-                                         double pcoords[3], double *values,
+                                         const double pcoords[3], const double *values,
                                          int dim, double *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];
@@ -740,7 +740,7 @@ void vtkQuadraticHexahedron::Clip(double value,
 
 //----------------------------------------------------------------------------
 // Compute interpolation functions for the twenty nodes.
-void vtkQuadraticHexahedron::InterpolationFunctions(double pcoords[3],
+void vtkQuadraticHexahedron::InterpolationFunctions(const double pcoords[3],
                                                     double weights[20])
 {
   //VTK needs parametric coordinates to be between (0,1). Isoparametric
@@ -787,7 +787,7 @@ void vtkQuadraticHexahedron::InterpolationFunctions(double pcoords[3],
 
 //----------------------------------------------------------------------------
 // Derivatives in parametric space.
-void vtkQuadraticHexahedron::InterpolationDerivs(double pcoords[3],
+void vtkQuadraticHexahedron::InterpolationDerivs(const double pcoords[3],
                                                  double derivs[60])
 {
   //VTK needs parametric coordinates to be between (0,1). Isoparametric

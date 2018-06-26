@@ -290,7 +290,7 @@ void vtkLagrangeWedge::Initialize()
   * **in parameter space** (not in world coordinates).
   */
 int vtkLagrangeWedge::CellBoundary(
-  int vtkNotUsed(subId), double pcoords[3], vtkIdList* pts)
+  int vtkNotUsed(subId), const double pcoords[3], vtkIdList* pts)
 {
   vtkVector3d pp(pcoords);
   int isInside =
@@ -373,7 +373,7 @@ int vtkLagrangeWedge::CellBoundary(
 }
 
 int vtkLagrangeWedge::EvaluatePosition(
-  double* x,
+  const double x[3],
   double* closestPoint,
   int& subId,
   double pcoords[3],
@@ -441,7 +441,7 @@ int vtkLagrangeWedge::EvaluatePosition(
 
 void vtkLagrangeWedge::EvaluateLocation(
   int& subId,
-  double pcoords[3],
+  const double pcoords[3],
   double x[3], double* weights)
 {
   subId = 0; // TODO: Should this be -1?
@@ -510,8 +510,8 @@ void vtkLagrangeWedge::Clip(
 }
 
 int vtkLagrangeWedge::IntersectWithLine(
-  double* p1,
-  double* p2,
+  const double* p1,
+  const double* p2,
   double tol,
   double& t,
   double* x,
@@ -591,8 +591,8 @@ int vtkLagrangeWedge::Triangulate(
 
 void vtkLagrangeWedge::Derivatives(
   int vtkNotUsed(subId),
-  double pcoords[3],
-  double* values,
+  const double pcoords[3],
+  const double* values,
   int dim,
   double* derivs)
 {
@@ -627,7 +627,7 @@ double* vtkLagrangeWedge::GetParametricCoords()
       this->PointParametricCoordinates->GetData())->GetPointer(0);
 }
 
-double vtkLagrangeWedge::GetParametricDistance(double pcoords[3])
+double vtkLagrangeWedge::GetParametricDistance(const double pcoords[3])
 {
   double pDist, pDistMax = 0.0;
 
@@ -694,13 +694,13 @@ const int* vtkLagrangeWedge::GetOrder()
 }
 
 void vtkLagrangeWedge::InterpolateFunctions(
-  double pcoords[3], double* weights)
+  const double pcoords[3], double* weights)
 {
   vtkLagrangeInterpolation::WedgeShapeFunctions(this->GetOrder(), pcoords, weights);
 }
 
 void vtkLagrangeWedge::InterpolateDerivs(
-  double pcoords[3], double* derivs)
+  const double pcoords[3], double* derivs)
 {
   vtkLagrangeInterpolation::WedgeShapeDerivatives(this->GetOrder(), pcoords, derivs);
 }

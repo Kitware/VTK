@@ -112,21 +112,21 @@ public:
    * and weights by triangulating the convex point set, and then
    * determining which tetrahedron the point lies in.
    */
-  int EvaluatePosition(double x[3], double* closestPoint,
+  int EvaluatePosition(const double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
                        double& dist2, double *weights) override;
 
   /**
    * The inverse of EvaluatePosition.
    */
-  void EvaluateLocation(int& subId, double pcoords[3], double x[3],
+  void EvaluateLocation(int& subId, const double pcoords[3], double x[3],
                         double *weights) override;
 
   /**
    * Triangulates the cells and then intersects them to determine the
    * intersection point.
    */
-  int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId) override;
 
   /**
@@ -138,7 +138,7 @@ public:
    * Computes derivatives by triangulating and from subId and pcoords,
    * evaluating derivatives on the resulting tetrahedron.
    */
-  void Derivatives(int subId, double pcoords[3], double *values,
+  void Derivatives(int subId, const double pcoords[3], const double *values,
                    int dim, double *derivs) override;
 
   /**
@@ -146,7 +146,7 @@ public:
    * points that are on the boundary of the cell that are closest
    * parametrically to the point specified.
    */
-  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) override;
+  int CellBoundary(int subId, const double pcoords[3], vtkIdList *pts) override;
 
   /**
    * Return the center of the cell in parametric coordinates.
@@ -164,8 +164,8 @@ public:
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
    */
-  void InterpolateFunctions(double pcoords[3], double *sf) override;
-  void InterpolateDerivs(double pcoords[3], double *derivs) override;
+  void InterpolateFunctions(const double pcoords[3], double *sf) override;
+  void InterpolateDerivs(const double pcoords[3], double *derivs) override;
   //@}
 
 protected:

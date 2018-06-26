@@ -53,10 +53,10 @@ public:
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut) override;
-  int EvaluatePosition(double x[3], double* closestPoint,
+  int EvaluatePosition(const double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
                        double& dist2, double *weights) override;
-  void EvaluateLocation(int& subId, double pcoords[3], double x[3],
+  void EvaluateLocation(int& subId, const double pcoords[3], double x[3],
                         double *weights) override;
   double *GetParametricCoords() override;
   //@}
@@ -68,7 +68,7 @@ public:
    * (1D cell).  If the return value of the method is != 0, then the point is
    * inside the cell.
    */
-  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) override;
+  int CellBoundary(int subId, const double pcoords[3], vtkIdList *pts) override;
 
   /**
    * Generate contouring primitives. The scalar list cellScalars are
@@ -92,7 +92,7 @@ public:
    * and global intersection coordinates, given ray definition and tolerance.
    * The method returns non-zero value if intersection occurs.
    */
-  int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId) override;
 
   /**
@@ -105,27 +105,27 @@ public:
    * Get the derivative of the vertex. Returns (0.0, 0.0, 0.0) for all
    * dimensions.
    */
-  void Derivatives(int subId, double pcoords[3], double *values,
+  void Derivatives(int subId, const double pcoords[3], const double *values,
                    int dim, double *derivs) override;
 
   /**
    * @deprecated Replaced by vtkVertex::InterpolateFunctions as of VTK 5.2
    */
-  static void InterpolationFunctions(double pcoords[3], double weights[1]);
+  static void InterpolationFunctions(const double pcoords[3], double weights[1]);
   /**
    * @deprecated Replaced by vtkVertex::InterpolateDerivs as of VTK 5.2
    */
-  static void InterpolationDerivs(double pcoords[3], double derivs[3]);
+  static void InterpolationDerivs(const double pcoords[3], double derivs[3]);
   //@{
   /**
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
    */
-  void InterpolateFunctions(double pcoords[3], double weights[1]) override
+  void InterpolateFunctions(const double pcoords[3], double weights[1]) override
   {
     vtkVertex::InterpolationFunctions(pcoords,weights);
   }
-  void InterpolateDerivs(double pcoords[3], double derivs[3]) override
+  void InterpolateDerivs(const double pcoords[3], double derivs[3]) override
   {
     vtkVertex::InterpolationDerivs(pcoords,derivs);
   }

@@ -711,7 +711,7 @@ int vtkPicker::Pick3DInternal(vtkRenderer *renderer, double p1World[4], double p
 
 //----------------------------------------------------------------------
 // Intersect data with specified ray.
-double vtkPicker::IntersectWithLine(double p1[3], double p2[3],
+double vtkPicker::IntersectWithLine(const double p1[3], const double p2[3],
                                    double tol,
                                    vtkAssemblyPath *path,
                                    vtkProp3D *prop3D,
@@ -810,7 +810,7 @@ double vtkPicker::IntersectWithLine(double p1[3], double p2[3],
   return t;
 }
 
-bool vtkPicker::CalculateRay(double p1[3], double p2[3],
+bool vtkPicker::CalculateRay(const double p1[3], const double p2[3],
                              double ray[3], double &rayFactor)
 {
   ray[0] = p2[0] - p1[0];

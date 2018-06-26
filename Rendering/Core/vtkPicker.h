@@ -174,11 +174,11 @@ protected:
   void MarkPickedData(vtkAssemblyPath *path,
                   double tMin, double mapperPos[3], vtkAbstractMapper3D* mapper,
                   vtkDataSet* input, vtkIdType flatBlockIndex = -1);
-  virtual double IntersectWithLine(double p1[3], double p2[3], double tol,
+  virtual double IntersectWithLine(const double p1[3], const double p2[3], double tol,
                                   vtkAssemblyPath *path, vtkProp3D *p,
                                   vtkAbstractMapper3D *m);
   void Initialize() override;
-  static bool CalculateRay(double p1[3], double p2[3],
+  static bool CalculateRay(const double p1[3], const double p2[3],
                            double ray[3], double &rayFactor);
 
   double Tolerance;  //tolerance for computation (% of window)

@@ -55,7 +55,7 @@ vtkPixel::~vtkPixel()
 }
 
 //----------------------------------------------------------------------------
-int vtkPixel::EvaluatePosition(double x[3], double* closestPoint,
+int vtkPixel::EvaluatePosition(const double x[3], double* closestPoint,
                                   int& subId, double pcoords[3],
                                   double& dist2, double *weights)
 {
@@ -142,7 +142,7 @@ int vtkPixel::EvaluatePosition(double x[3], double* closestPoint,
 }
 
 //----------------------------------------------------------------------------
-void vtkPixel::EvaluateLocation(int& subId, double pcoords[3], double x[3],
+void vtkPixel::EvaluateLocation(int& subId, const double pcoords[3], double x[3],
                                    double *weights)
 {
   double pt1[3], pt2[3], pt3[3];
@@ -164,7 +164,7 @@ void vtkPixel::EvaluateLocation(int& subId, double pcoords[3], double x[3],
 }
 
 //----------------------------------------------------------------------------
-int vtkPixel::CellBoundary(int vtkNotUsed(subId), double pcoords[3], vtkIdList *pts)
+int vtkPixel::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], vtkIdList *pts)
 {
   double t1=pcoords[0]-pcoords[1];
   double t2=1.0-pcoords[0]-pcoords[1];
@@ -303,7 +303,7 @@ vtkCell *vtkPixel::GetEdge(int edgeId)
 // Compute interpolation functions (similar but different than Quad interpolation
 // functions)
 //
-void vtkPixel::InterpolationFunctions(double pcoords[3], double sf[4])
+void vtkPixel::InterpolationFunctions(const double pcoords[3], double sf[4])
 {
   double rm, sm;
 
@@ -319,7 +319,7 @@ void vtkPixel::InterpolationFunctions(double pcoords[3], double sf[4])
 //
 // Compute derivatives of interpolation functions.
 //
-void vtkPixel::InterpolationDerivs(double pcoords[3], double derivs[8])
+void vtkPixel::InterpolationDerivs(const double pcoords[3], double derivs[8])
 {
   double rm, sm;
 
@@ -343,7 +343,7 @@ void vtkPixel::InterpolationDerivs(double pcoords[3], double derivs[8])
 //
 // Intersect plane; see whether point is inside.
 //
-int vtkPixel::IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
+int vtkPixel::IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
                                 double x[3], double pcoords[3], int& subId)
 {
   double pt1[3], pt4[3], n[3];
@@ -434,8 +434,8 @@ int vtkPixel::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
 
 //----------------------------------------------------------------------------
 void vtkPixel::Derivatives(int vtkNotUsed(subId),
-                           double pcoords[3],
-                           double *values,
+                           const double pcoords[3],
+                           const double *values,
                            int dim, double *derivs)
 {
   double functionDerivs[8], sum;

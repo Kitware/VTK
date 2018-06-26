@@ -66,14 +66,14 @@ public:
   vtkCell *GetEdge (int) override;
   vtkCell *GetFace (int) override { return nullptr; }
 
-  int CellBoundary (int subId, double pcoords[3], vtkIdList * pts) override;
-  int EvaluatePosition (double x[3], double *closestPoint,
+  int CellBoundary(int subId, const double pcoords[3], vtkIdList * pts) override;
+  int EvaluatePosition(const double x[3], double *closestPoint,
                         int &subId, double pcoords[3],
                         double &dist2, double *weights) override;
-  void EvaluateLocation (int &subId, double pcoords[3], double x[3],
+  void EvaluateLocation(int &subId, const double pcoords[3], double x[3],
                          double *weights) override;
   int Triangulate (int index, vtkIdList * ptIds, vtkPoints * pts) override;
-  void Derivatives (int subId, double pcoords[3], double *values,
+  void Derivatives(int subId, const double pcoords[3], const double *values,
                     int dim, double *derivs) override;
   double *GetParametricCoords() override;
 
@@ -97,7 +97,7 @@ public:
    * Line-edge intersection. Intersection has to occur within [0,1] parametric
    * coordinates and with specified tolerance.
    */
-  int IntersectWithLine (double p1[3], double p2[3], double tol, double &t,
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double &t,
                          double x[3], double pcoords[3],
                          int &subId) override;
 
@@ -106,11 +106,11 @@ public:
    */
   int GetParametricCenter(double pcoords[3]) override;
 
-  void InterpolateFunctions (double pcoords[3], double weights[9]) override
+  void InterpolateFunctions(const double pcoords[3], double weights[9]) override
   {
     vtkBiQuadraticQuad::InterpolationFunctionsPrivate(pcoords,weights);
   }
-  void InterpolateDerivs (double pcoords[3], double derivs[18]) override
+  void InterpolateDerivs (const double pcoords[3], double derivs[18]) override
   {
     vtkBiQuadraticQuad::InterpolationDerivsPrivate(pcoords,derivs);
   }
@@ -129,8 +129,8 @@ private:
   vtkBiQuadraticQuad(const vtkBiQuadraticQuad&) = delete;
   void operator=(const vtkBiQuadraticQuad&) = delete;
 
-  static void InterpolationFunctionsPrivate (double pcoords[3], double weights[9]);
-  static void InterpolationDerivsPrivate (double pcoords[3], double derivs[18]);
+  static void InterpolationFunctionsPrivate (const double pcoords[3], double weights[9]);
+  static void InterpolationDerivsPrivate (const double pcoords[3], double derivs[18]);
 };
 //----------------------------------------------------------------------------
 inline int vtkBiQuadraticQuad::GetParametricCenter(double pcoords[3])

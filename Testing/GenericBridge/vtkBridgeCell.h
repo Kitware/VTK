@@ -198,7 +198,7 @@ public:
    * \post positive_distance: result!=-1 implies (closestPoint!=0 implies
    * dist2>=0)
    */
-  int EvaluatePosition(double x[3],
+  int EvaluatePosition(const double x[3],
                                double *closestPoint,
                                int &subId,
                                double pcoords[3],
@@ -403,7 +403,7 @@ public:
    * cell.)
    * \post positive_result: result>=0
    */
-  double GetParametricDistance(double pcoords[3]) override;
+  double GetParametricDistance(const double pcoords[3]) override;
 
   /**
    * Return a contiguous array of parametric coordinates of the points defining
@@ -521,7 +521,7 @@ protected:
   /**
    * Compute the weights for parametric coordinates `pcoords'.
    */
-  void InterpolationFunctions(double pcoords[3], double *weights);
+  void InterpolationFunctions(const double pcoords[3], double *weights);
 
   friend class vtkBridgeDataSet;
   friend class vtkBridgeAttribute;

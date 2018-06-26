@@ -53,7 +53,7 @@ vtkCubicLine::~vtkCubicLine()
 
 
 //----------------------------------------------------------------------------
-int vtkCubicLine::EvaluatePosition(double x[3], double* closestPoint,
+int vtkCubicLine::EvaluatePosition(const double x[3], double* closestPoint,
                              int& subId, double pcoords[3],
                              double& minDist2, double *weights)
 {
@@ -129,7 +129,7 @@ int vtkCubicLine::EvaluatePosition(double x[3], double* closestPoint,
 
 
 //----------------------------------------------------------------------------
-void vtkCubicLine::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
+void vtkCubicLine::EvaluateLocation(int& vtkNotUsed(subId), const double pcoords[3],
                                double x[3], double *weights)
 {
   int i;
@@ -154,7 +154,7 @@ void vtkCubicLine::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
 
 
 //----------------------------------------------------------------------------
-int vtkCubicLine::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
+int vtkCubicLine::CellBoundary(int vtkNotUsed(subId), const double pcoords[3],
                           vtkIdList *pts)
 {
   pts->SetNumberOfIds(1);
@@ -217,7 +217,7 @@ void vtkCubicLine::Contour(double value, vtkDataArray *cellScalars,
 //----------------------------------------------------------------------------
 // Line-line intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
-int vtkCubicLine::IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
+int vtkCubicLine::IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
                                double x[3], double pcoords[3], int& subId)
 {
 
@@ -303,8 +303,8 @@ int vtkCubicLine::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 
 //----------------------------------------------------------------------------
 void vtkCubicLine::Derivatives(int vtkNotUsed(subId),
-                                       double pcoords[3],
-                                       double *values,
+                                       const double pcoords[3],
+                                       const double *values,
                                        int dim,
                                        double *derivs)
 {
@@ -425,7 +425,7 @@ void vtkCubicLine::Clip(double value, vtkDataArray *cellScalars,
 //
 // Compute interpolation functions
 //
-void vtkCubicLine::InterpolationFunctions(double pcoords[3], double weights[4]) // N2 and N3 are the middle points
+void vtkCubicLine::InterpolationFunctions(const double pcoords[3], double weights[4]) // N2 and N3 are the middle points
 {
   // pcoords[0] = t, weights need to be set in accordance with the definition of the standard cubic line finite element
   double t = pcoords[0];
@@ -440,7 +440,7 @@ void vtkCubicLine::InterpolationFunctions(double pcoords[3], double weights[4]) 
 
 
 //----------------------------------------------------------------------------
-void vtkCubicLine::InterpolationDerivs(double pcoords[3], double derivs[4])  //N2 and N3 are the middle points
+void vtkCubicLine::InterpolationDerivs(const double pcoords[3], double derivs[4])  //N2 and N3 are the middle points
 {
   double t = pcoords[0];
 
@@ -462,7 +462,7 @@ double *vtkCubicLine::GetParametricCoords()
 
 
 //----------------------------------------------------------------------------
-double vtkCubicLine::GetParametricDistance(double pcoords[3])
+double vtkCubicLine::GetParametricDistance(const double pcoords[3])
 {
 
   double pc;

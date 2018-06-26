@@ -276,7 +276,7 @@ void vtkPolyhedron::ConstructLocator()
 
 
 //----------------------------------------------------------------------------
-void vtkPolyhedron::ComputeParametricCoordinate(double x[3], double pc[3])
+void vtkPolyhedron::ComputeParametricCoordinate(const double x[3], double pc[3])
 {
   this->ComputeBounds();
   double *bounds = this->Bounds;
@@ -288,7 +288,7 @@ void vtkPolyhedron::ComputeParametricCoordinate(double x[3], double pc[3])
 
 //----------------------------------------------------------------------------
 void vtkPolyhedron::
-ComputePositionFromParametricCoordinate(double pc[3], double x[3])
+ComputePositionFromParametricCoordinate(const double pc[3], double x[3])
 {
   this->ComputeBounds();
   double *bounds = this->Bounds;
@@ -567,7 +567,7 @@ vtkIdType *vtkPolyhedron::GetFaces()
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyhedron::IntersectWithLine(double p1[3], double p2[3], double tol,
+int vtkPolyhedron::IntersectWithLine(const double p1[3], const double p2[3], double tol,
   double& tMin, double xMin[3],
   double pc[3], int& subId)
 {
@@ -641,7 +641,7 @@ int vtkPolyhedron::IntersectWithLine(double p1[3], double p2[3], double tol,
 
 //----------------------------------------------------------------------------
 // Shoot random rays and count the number of intersections
-int vtkPolyhedron::IsInside(double x[3], double tolerance)
+int vtkPolyhedron::IsInside(const double x[3], double tolerance)
 {
   // do a quick bounds check
   this->ComputeBounds();
@@ -963,7 +963,7 @@ bool vtkPolyhedron::IsConvex()
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyhedron::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
+int vtkPolyhedron::CellBoundary(int vtkNotUsed(subId), const double pcoords[3],
   vtkIdList *pts)
 {
   double x[3], n[3], o[3], v[3];
@@ -1027,7 +1027,7 @@ int vtkPolyhedron::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyhedron::EvaluatePosition(double x[3], double * closestPoint,
+int vtkPolyhedron::EvaluatePosition(const double x[3], double * closestPoint,
   int & vtkNotUsed(subId), double pcoords[3],
   double & minDist2, double * weights)
 {
@@ -1070,7 +1070,7 @@ int vtkPolyhedron::EvaluatePosition(double x[3], double * closestPoint,
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyhedron::EvaluateLocation(int & vtkNotUsed(subId), double pcoords[3],
+void vtkPolyhedron::EvaluateLocation(int & vtkNotUsed(subId), const double pcoords[3],
   double x[3], double * weights)
 {
   this->ComputePositionFromParametricCoordinate(pcoords, x);
@@ -1079,8 +1079,8 @@ void vtkPolyhedron::EvaluateLocation(int & vtkNotUsed(subId), double pcoords[3],
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyhedron::Derivatives(int vtkNotUsed(subId), double pcoords[3],
-  double *values, int dim, double *derivs)
+void vtkPolyhedron::Derivatives(int vtkNotUsed(subId), const double pcoords[3],
+  const double *values, int dim, double *derivs)
 {
   int i, j, k, idx;
   for (j = 0; j < dim; j++)
@@ -1172,7 +1172,7 @@ double *vtkPolyhedron::GetParametricCoords()
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyhedron::InterpolateFunctions(double x[3], double *sf)
+void vtkPolyhedron::InterpolateFunctions(const double x[3], double *sf)
 {
   // construct polydata, the result is stored in this->PolyData,
   // the cell array is stored in this->Polys
@@ -1188,7 +1188,7 @@ void vtkPolyhedron::InterpolateFunctions(double x[3], double *sf)
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyhedron::InterpolateDerivs(double x[3], double *derivs)
+void vtkPolyhedron::InterpolateDerivs(const double x[3], double *derivs)
 {
   (void)x;
   (void)derivs;

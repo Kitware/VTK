@@ -85,7 +85,7 @@ static const int VTK_PENTA_MAX_ITERATION=10;
 static const double VTK_PENTA_CONVERGED=1.e-03;
 
 //----------------------------------------------------------------------------
-int vtkPentagonalPrism::EvaluatePosition(double x[3], double closestPoint[3],
+int vtkPentagonalPrism::EvaluatePosition(const double x[3], double closestPoint[3],
                                          int& subId, double pcoords[3],
                                          double& dist2, double *weights)
 {
@@ -221,7 +221,7 @@ int vtkPentagonalPrism::EvaluatePosition(double x[3], double closestPoint[3],
 // See:
 // http://dilbert.engr.ucdavis.edu/~suku/nem/papers/polyelas.pdf
 
-void vtkPentagonalPrism::InterpolationFunctions(double pcoords[3],
+void vtkPentagonalPrism::InterpolationFunctions(const double pcoords[3],
                                                 double weights[10])
 {
   // VTK needs parametric coordinates to be between [0,1]. Isoparametric
@@ -269,7 +269,7 @@ void vtkPentagonalPrism::InterpolationFunctions(double pcoords[3],
 // See:
 // http://dilbert.engr.ucdavis.edu/~suku/nem/papers/polyelas.pdf
 //
-void vtkPentagonalPrism::InterpolationDerivs(double pcoords[3], double derivs[30])
+void vtkPentagonalPrism::InterpolationDerivs(const double pcoords[3], double derivs[30])
 {
   // VTK needs parametric coordinates to be between [0,1]. Isoparametric
   // shape functions are formulated between [-1,1]. Here we do a
@@ -354,7 +354,7 @@ void vtkPentagonalPrism::InterpolationDerivs(double pcoords[3], double derivs[30
 }
 
 //----------------------------------------------------------------------------
-void vtkPentagonalPrism::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3], double x[3], double *weights)
+void vtkPentagonalPrism::EvaluateLocation(int& vtkNotUsed(subId), const double pcoords[3], double x[3], double *weights)
 {
   int i, j;
   double pt[3];
@@ -385,7 +385,7 @@ static int faces[7][6] = { {0,4,3,2,1,-1}, {5,6,7,8,9,-1},
 //----------------------------------------------------------------------------
 // Returns the closest face to the point specified. Closeness is measured
 // parametrically.
-int vtkPentagonalPrism::CellBoundary(int subId, double pcoords[3],
+int vtkPentagonalPrism::CellBoundary(int subId, const double pcoords[3],
                                      vtkIdList *pts)
 {
   // load coordinates
@@ -573,7 +573,7 @@ vtkCell *vtkPentagonalPrism::GetFace(int faceId)
 //
 // Intersect prism faces against line. Each prism face is a quadrilateral.
 //
-int vtkPentagonalPrism::IntersectWithLine(double p1[3], double p2[3], double tol,
+int vtkPentagonalPrism::IntersectWithLine(const double p1[3], const double p2[3], double tol,
                                           double &t, double x[3], double pcoords[3],
                                           int& subId)
 {
@@ -672,8 +672,8 @@ int vtkPentagonalPrism::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtk
 // Compute derivatives in x-y-z directions. Use chain rule in combination
 // with interpolation function derivatives.
 //
-void vtkPentagonalPrism::Derivatives(int vtkNotUsed(subId), double pcoords[3],
-                                     double *values, int dim, double *derivs)
+void vtkPentagonalPrism::Derivatives(int vtkNotUsed(subId), const double pcoords[3],
+                                     const double *values, int dim, double *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];
   double functionDerivs[30], sum[3];
@@ -703,7 +703,7 @@ void vtkPentagonalPrism::Derivatives(int vtkNotUsed(subId), double pcoords[3],
 // Given parametric coordinates compute inverse Jacobian transformation
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives.
-void vtkPentagonalPrism::JacobianInverse(double pcoords[3], double **inverse,
+void vtkPentagonalPrism::JacobianInverse(const double pcoords[3], double **inverse,
                                          double derivs[24])
 {
   int i, j;

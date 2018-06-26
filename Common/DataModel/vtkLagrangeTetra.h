@@ -66,11 +66,11 @@ public:
     return ((vtkLagrangeTetra::MaximumOrder() + 1) *
             (vtkLagrangeTetra::MaximumOrder() + 2)/2);
   }
-  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) override;
-  int EvaluatePosition(double x[3], double* closestPoint,
+  int CellBoundary(int subId, const double pcoords[3], vtkIdList *pts) override;
+  int EvaluatePosition(const double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
                        double& dist2, double *weights) override;
-  void EvaluateLocation(int& subId, double pcoords[3], double x[3],
+  void EvaluateLocation(int& subId, const double pcoords[3], double x[3],
                         double *weights) override;
   void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator, vtkCellArray *verts,
@@ -82,19 +82,19 @@ public:
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut) override;
-  int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
                         double x[3], double pcoords[3], int& subId) override;
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) override;
-  void JacobianInverse(double pcoords[3], double** inverse, double* derivs);
-  void Derivatives(int subId, double pcoords[3], double *values,
+  void JacobianInverse(const double pcoords[3], double** inverse, double* derivs);
+  void Derivatives(int subId, const double pcoords[3], const double *values,
                    int dim, double *derivs) override;
   double* GetParametricCoords() override;
 
   int GetParametricCenter(double pcoords[3]) override;
-  double GetParametricDistance(double pcoords[3]) override;
+  double GetParametricDistance(const double pcoords[3]) override;
 
-  void InterpolateFunctions(double pcoords[3], double* weights) override;
-  void InterpolateDerivs(double pcoords[3], double* derivs) override;
+  void InterpolateFunctions(const double pcoords[3], double* weights) override;
+  void InterpolateDerivs(const double pcoords[3], double* derivs) override;
 
   vtkIdType GetOrder() const { return this->Order; }
   vtkIdType ComputeOrder();

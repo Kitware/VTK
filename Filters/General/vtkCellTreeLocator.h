@@ -71,7 +71,7 @@ class VTKFILTERSGENERAL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocato
      * Return intersection point (if any) AND the cell which was intersected by
      * the finite line. The cell is returned as a cell id and as a generic cell.
      */
-    int IntersectWithLine(double a0[3], double a1[3], double tol,
+    int IntersectWithLine(const double a0[3], const double a1[3], double tol,
                           double& t, double x[3], double pcoords[3],
                           int &subId, vtkIdType &cellId,
                           vtkGenericCell *cell) override;
@@ -94,8 +94,7 @@ class VTKFILTERSGENERAL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocato
     /**
      * reimplemented from vtkAbstractCellLocator to support bad compilers
      */
-    int IntersectWithLine(
-      double p1[3], double p2[3], double tol, double& t, double x[3],
+    int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
       double pcoords[3], int &subId) override
     {
       return this->Superclass::IntersectWithLine(p1, p2, tol, t, x, pcoords, subId);
@@ -107,8 +106,7 @@ class VTKFILTERSGENERAL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocato
      * This function is a modification from the vtkModifiedBSPTree class using the
      * data structures in the paper to find intersections.
      */
-    int IntersectWithLine(
-      double p1[3], double p2[3], double tol, double &t, double x[3],
+    int IntersectWithLine(const double p1[3], const double p2[3], double tol, double &t, double x[3],
       double pcoords[3], int &subId, vtkIdType &cellId) override;
 
     /**

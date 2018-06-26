@@ -73,7 +73,7 @@ vtkCell *vtkQuadraticTriangle::GetEdge(int edgeId)
 // order picked carefully for parametric coordinate conversion
 static int LinearTris[4][3] = { {0,3,5}, {3, 1,4}, {5,4,2}, {4,5,3} };
 
-int vtkQuadraticTriangle::EvaluatePosition(double* x, double* closestPoint,
+int vtkQuadraticTriangle::EvaluatePosition(const double* x, double* closestPoint,
                                            int& subId, double pcoords[3],
                                            double& minDist2, double *weights)
 {
@@ -145,7 +145,7 @@ int vtkQuadraticTriangle::EvaluatePosition(double* x, double* closestPoint,
 
 //----------------------------------------------------------------------------
 void vtkQuadraticTriangle::EvaluateLocation(int& vtkNotUsed(subId),
-                                        double pcoords[3],
+                                        const double pcoords[3],
                                         double x[3], double *weights)
 {
   int i;
@@ -167,7 +167,7 @@ void vtkQuadraticTriangle::EvaluateLocation(int& vtkNotUsed(subId),
 }
 
 //----------------------------------------------------------------------------
-int vtkQuadraticTriangle::CellBoundary(int subId, double pcoords[3],
+int vtkQuadraticTriangle::CellBoundary(int subId, const double pcoords[3],
                                        vtkIdList *pts)
 {
   return this->Face->CellBoundary(subId, pcoords, pts);
@@ -211,8 +211,8 @@ void vtkQuadraticTriangle::Contour(double value,
 //----------------------------------------------------------------------------
 // Line-line intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
-int vtkQuadraticTriangle::IntersectWithLine(double* p1,
-                                            double* p2,
+int vtkQuadraticTriangle::IntersectWithLine(const double* p1,
+                                            const double* p2,
                                             double tol,
                                             double& t,
                                             double* x,
@@ -259,8 +259,8 @@ int vtkQuadraticTriangle::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadraticTriangle::Derivatives(int vtkNotUsed(subId), double pcoords[3],
-                                       double *values, int dim, double *derivs)
+void vtkQuadraticTriangle::Derivatives(int vtkNotUsed(subId), const double pcoords[3],
+                                       const double *values, int dim, double *derivs)
 {
   double sum[3];
   double functionDerivs[12];
@@ -364,7 +364,7 @@ void vtkQuadraticTriangle::Clip(double value,
 
 //----------------------------------------------------------------------------
 // Compute maximum parametric distance to cell
-double vtkQuadraticTriangle::GetParametricDistance(double pcoords[3])
+double vtkQuadraticTriangle::GetParametricDistance(const double pcoords[3])
 {
   int i;
   double pDist, pDistMax=0.0;
@@ -400,7 +400,7 @@ double vtkQuadraticTriangle::GetParametricDistance(double pcoords[3])
 //----------------------------------------------------------------------------
 // Compute interpolation functions. The first three nodes are the triangle
 // vertices; the others are mid-edge nodes.
-void vtkQuadraticTriangle::InterpolationFunctions(double pcoords[3],
+void vtkQuadraticTriangle::InterpolationFunctions(const double pcoords[3],
                                                   double weights[6])
 {
   double r = pcoords[0];
@@ -417,7 +417,7 @@ void vtkQuadraticTriangle::InterpolationFunctions(double pcoords[3],
 
 //----------------------------------------------------------------------------
 // Derivatives in parametric space.
-void vtkQuadraticTriangle::InterpolationDerivs(double pcoords[3],
+void vtkQuadraticTriangle::InterpolationDerivs(const double pcoords[3],
                                                double derivs[12])
 {
   double r = pcoords[0];

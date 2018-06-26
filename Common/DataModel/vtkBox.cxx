@@ -308,7 +308,7 @@ void vtkBox::EvaluateGradient(double x[3], double n[3])
 // directions, coord[3] is the location of hit, and t is the parametric
 // coordinate along line. (Notes: the intersection ray dir[3] is NOT
 // normalized.  Valid intersections will only occur between 0<=t<=1.)
-char vtkBox::IntersectBox (double bounds[6], double origin[3], double dir[3],
+char vtkBox::IntersectBox (double bounds[6], const double origin[3], double dir[3],
                            double coord[3], double& t)
 {
   bool    inside=true;

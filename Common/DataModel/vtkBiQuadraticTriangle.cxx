@@ -77,7 +77,7 @@ vtkCell *vtkBiQuadraticTriangle::GetEdge(int edgeId)
 // order picked carefully for parametric coordinate conversion
 static int LinearTris[6][3] = { {0,3,6}, {6,3,4}, {6,4,5}, {0,6,5}, {3,1,4}, {5,4,2} };
 
-int vtkBiQuadraticTriangle::EvaluatePosition(double* x, double* closestPoint,
+int vtkBiQuadraticTriangle::EvaluatePosition(const double x[3], double* closestPoint,
                                            int& subId, double pcoords[3],
                                            double& minDist2, double *weights)
 {
@@ -162,7 +162,7 @@ int vtkBiQuadraticTriangle::EvaluatePosition(double* x, double* closestPoint,
 
 //----------------------------------------------------------------------------
 void vtkBiQuadraticTriangle::EvaluateLocation(int& vtkNotUsed(subId),
-                                        double pcoords[3],
+                                        const double pcoords[3],
                                         double x[3], double *weights)
 {
   int i;
@@ -188,7 +188,7 @@ void vtkBiQuadraticTriangle::EvaluateLocation(int& vtkNotUsed(subId),
 
 
 //----------------------------------------------------------------------------
-int vtkBiQuadraticTriangle::CellBoundary(int subId, double pcoords[3],
+int vtkBiQuadraticTriangle::CellBoundary(int subId, const double pcoords[3],
                                        vtkIdList *pts)
 {
   return this->Face->CellBoundary(subId, pcoords, pts);
@@ -236,8 +236,8 @@ void vtkBiQuadraticTriangle::Contour(double value,
 //----------------------------------------------------------------------------
 // Line-line intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
-int vtkBiQuadraticTriangle::IntersectWithLine(double* p1,
-                                            double* p2,
+int vtkBiQuadraticTriangle::IntersectWithLine(const double* p1,
+                                            const double* p2,
                                             double tol,
                                             double& t,
                                             double* x,
@@ -289,8 +289,8 @@ int vtkBiQuadraticTriangle::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 
 //----------------------------------------------------------------------------
 void vtkBiQuadraticTriangle::Derivatives(int vtkNotUsed(subId),
-                                       double pcoords[3],
-                                       double *values,
+                                       const double pcoords[3],
+                                       const double *values,
                                        int dim,
                                        double *derivs)
 {
@@ -454,7 +454,7 @@ void vtkBiQuadraticTriangle::Clip(double value,
 
 //----------------------------------------------------------------------------
 // Compute maximum parametric distance to cell
-double vtkBiQuadraticTriangle::GetParametricDistance(double pcoords[3])
+double vtkBiQuadraticTriangle::GetParametricDistance(const double pcoords[3])
 {
   int i;
   double pDist, pDistMax=0.0;
@@ -492,7 +492,7 @@ double vtkBiQuadraticTriangle::GetParametricDistance(double pcoords[3])
 //----------------------------------------------------------------------------
 // Compute interpolation functions. The first three nodes are the triangle
 // vertices; the next three nodes are mid-edge nodes; the last node is the mid-cell node.
-void vtkBiQuadraticTriangle::InterpolationFunctions(double pcoords[3],
+void vtkBiQuadraticTriangle::InterpolationFunctions(const double pcoords[3],
                                                   double weights[7])
 {
   double r = pcoords[0];
@@ -511,7 +511,7 @@ void vtkBiQuadraticTriangle::InterpolationFunctions(double pcoords[3],
 
 //----------------------------------------------------------------------------
 // Derivatives in parametric space.
-void vtkBiQuadraticTriangle::InterpolationDerivs(double pcoords[3],
+void vtkBiQuadraticTriangle::InterpolationDerivs(const double pcoords[3],
                                                double derivs[14])
 {
   double r = pcoords[0];

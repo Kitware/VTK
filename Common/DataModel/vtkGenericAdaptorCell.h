@@ -263,7 +263,7 @@ public:
    * \post positive_distance: result!=-1 implies (closestPoint!=0 implies
    * dist2>=0)
    */
-  virtual int EvaluatePosition(double x[3],
+  virtual int EvaluatePosition(const double x[3],
                                double *closestPoint,
                                int &subId,
                                double pcoords[3],
@@ -484,7 +484,7 @@ public:
    * will occasionally allow cells to be picked who are not really
    * intersected "inside" the cell.)  \post positive_result: result>=0
    */
-  virtual double GetParametricDistance(double pcoords[3])=0;
+  virtual double GetParametricDistance(const double pcoords[3])=0;
 
   /**
    * Return a contiguous array of parametric coordinates of the corrner points

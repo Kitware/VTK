@@ -196,16 +196,14 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
    * Return intersection point (if any) AND the cell which was intersected by
    * the finite line. Uses fast tree-search BBox rejection tests.
    */
-  int IntersectWithLine(
-    double p1[3], double p2[3], double tol, double &t, double x[3],
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double &t, double x[3],
     double pcoords[3], int &subId, vtkIdType &cellId) override;
 
   /**
    * Return intersection point (if any) AND the cell which was intersected by
    * the finite line. The cell is returned as a cell id and as a generic cell.
    */
-  int IntersectWithLine(
-    double p1[3], double p2[3], double tol, double &t, double x[3],
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double &t, double x[3],
     double pcoords[3], int &subId, vtkIdType &cellId, vtkGenericCell *cell) override;
 
   /**

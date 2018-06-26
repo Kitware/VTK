@@ -654,7 +654,7 @@ public:
    * colA == rowB
    * and matrix C is rowA x colB
    */
-  static void MultiplyMatrix(double **A, double **B,
+  static void MultiplyMatrix(const double *const *A, const double *const *B,
                              unsigned int rowA, unsigned int colA,
                              unsigned int rowB, unsigned int colB,
                              double **C);
@@ -885,7 +885,7 @@ public:
    * divided by the minimum diagonal value. (This works for triangular matrices
    * only: see Conte and de Boor, Elementary Numerical Analysis.)
    */
-  static double EstimateMatrixCondition(double **A, int size);
+  static double EstimateMatrixCondition(const double *const *A, int size);
 
   //@{
   /**
@@ -1156,21 +1156,21 @@ public:
    * Return true if first 3D extent is within second 3D extent
    * Extent is x-min, x-max, y-min, y-max, z-min, z-max
    */
-  static vtkTypeBool ExtentIsWithinOtherExtent(int extent1[6], int extent2[6]);
+  static vtkTypeBool ExtentIsWithinOtherExtent(const int extent1[6], const int extent2[6]);
 
   /**
    * Return true if first 3D bounds is within the second 3D bounds
    * Bounds is x-min, x-max, y-min, y-max, z-min, z-max
    * Delta is the error margin along each axis (usually a small number)
    */
-  static vtkTypeBool BoundsIsWithinOtherBounds(double bounds1[6], double bounds2[6], double delta[3]);
+  static vtkTypeBool BoundsIsWithinOtherBounds(const double bounds1[6], const double bounds2[6], const double delta[3]);
 
   /**
    * Return true if point is within the given 3D bounds
    * Bounds is x-min, x-max, y-min, y-max, z-min, z-max
    * Delta is the error margin along each axis (usually a small number)
    */
-  static vtkTypeBool PointIsWithinBounds(double point[3], double bounds[6], double delta[3]);
+  static vtkTypeBool PointIsWithinBounds(const double point[3], const double bounds[6], const double delta[3]);
 
   /**
    * Implements Plane / Axis-Aligned Bounding-Box intersection as described in

@@ -47,7 +47,7 @@ vtkQuadraticEdge::~vtkQuadraticEdge()
 
 
 //----------------------------------------------------------------------------
-int vtkQuadraticEdge::EvaluatePosition(double* x, double* closestPoint,
+int vtkQuadraticEdge::EvaluatePosition(const double x[3], double* closestPoint,
                                        int& subId, double pcoords[3],
                                        double& minDist2, double *weights)
 {
@@ -112,7 +112,7 @@ int vtkQuadraticEdge::EvaluatePosition(double* x, double* closestPoint,
 
 //----------------------------------------------------------------------------
 void vtkQuadraticEdge::EvaluateLocation(int& vtkNotUsed(subId),
-                                        double pcoords[3],
+                                        const double pcoords[3],
                                         double x[3], double *weights)
 {
   int i;
@@ -130,7 +130,7 @@ void vtkQuadraticEdge::EvaluateLocation(int& vtkNotUsed(subId),
 }
 
 //----------------------------------------------------------------------------
-int vtkQuadraticEdge::CellBoundary(int subId, double pcoords[3],
+int vtkQuadraticEdge::CellBoundary(int subId, const double pcoords[3],
                                    vtkIdList *pts)
 {
   return this->Line->CellBoundary(subId, pcoords, pts);
@@ -167,7 +167,7 @@ void vtkQuadraticEdge::Contour(double value, vtkDataArray *cellScalars,
 // The following arguments were modified to avoid warnings:
 // double p1[3], double p2[3], double x[3], double pcoords[3],
 
-int vtkQuadraticEdge::IntersectWithLine(double p1[3], double p2[3],
+int vtkQuadraticEdge::IntersectWithLine(const double p1[3], const double p2[3],
                                         double tol, double& t,
                                         double x[3], double pcoords[3],
                                         int& subId)
@@ -222,8 +222,8 @@ int vtkQuadraticEdge::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 
 //----------------------------------------------------------------------------
 void vtkQuadraticEdge::Derivatives(int vtkNotUsed(subId),
-                                       double vtkNotUsed(pcoords)[3],
-                                       double *vtkNotUsed(values),
+                                       const double vtkNotUsed(pcoords)[3],
+                                       const double *vtkNotUsed(values),
                                        int vtkNotUsed(dim),
                                        double *vtkNotUsed(derivs))
 {
@@ -256,7 +256,7 @@ void vtkQuadraticEdge::Clip(double value, vtkDataArray *cellScalars,
 
 //----------------------------------------------------------------------------
 // Compute interpolation functions. Node [2] is the mid-edge node.
-void vtkQuadraticEdge::InterpolationFunctions(double pcoords[3],
+void vtkQuadraticEdge::InterpolationFunctions(const double pcoords[3],
                                               double weights[3])
 {
   double r = pcoords[0];
@@ -268,7 +268,7 @@ void vtkQuadraticEdge::InterpolationFunctions(double pcoords[3],
 
 //----------------------------------------------------------------------------
 // Derivatives in parametric space.
-void vtkQuadraticEdge::InterpolationDerivs(double pcoords[3], double derivs[3])
+void vtkQuadraticEdge::InterpolationDerivs(const double pcoords[3], double derivs[3])
 {
   double r = pcoords[0];
 

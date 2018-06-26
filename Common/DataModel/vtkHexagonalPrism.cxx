@@ -84,7 +84,7 @@ static const int VTK_HEX_MAX_ITERATION=10;
 static const double VTK_HEX_CONVERGED=1.e-03;
 
 //----------------------------------------------------------------------------
-int vtkHexagonalPrism::EvaluatePosition(double x[3], double* closestPoint,
+int vtkHexagonalPrism::EvaluatePosition(const double x[3], double* closestPoint,
                                         int& subId, double pcoords[3],
                                         double& dist2, double *weights)
 {
@@ -218,7 +218,7 @@ int vtkHexagonalPrism::EvaluatePosition(double x[3], double* closestPoint,
 //
 // Compute iso-parametric interpolation functions
 //
-void vtkHexagonalPrism::InterpolationFunctions(double pcoords[3], double sf[12])
+void vtkHexagonalPrism::InterpolationFunctions(const double pcoords[3], double sf[12])
 {
   double r, s, t;
   r = pcoords[0];
@@ -245,7 +245,7 @@ void vtkHexagonalPrism::InterpolationFunctions(double pcoords[3], double sf[12])
 }
 
 //----------------------------------------------------------------------------
-void vtkHexagonalPrism::InterpolationDerivs(double pcoords[3], double derivs[36])
+void vtkHexagonalPrism::InterpolationDerivs(const double pcoords[3], double derivs[36])
 {
   double r, s, t;
   r = pcoords[0];
@@ -306,7 +306,7 @@ void vtkHexagonalPrism::InterpolationDerivs(double pcoords[3], double derivs[36]
 
 //----------------------------------------------------------------------------
 void vtkHexagonalPrism::EvaluateLocation(int& vtkNotUsed(subId),
-                                         double pcoords[3], double x[3],
+                                         const double pcoords[3], double x[3],
                                          double *weights)
 {
   int i, j;
@@ -340,7 +340,7 @@ static int faces[8][7] = { {0,5,4,3,2,1,-1}, {6,7,8,9,10,11,-1},
 //----------------------------------------------------------------------------
 // Returns the closest face to the point specified. Closeness is measured
 // parametrically.
-int vtkHexagonalPrism::CellBoundary(int subId, double pcoords[3],
+int vtkHexagonalPrism::CellBoundary(int subId, const double pcoords[3],
                                     vtkIdList *pts)
 {
   // load coordinates
@@ -529,7 +529,7 @@ vtkCell *vtkHexagonalPrism::GetFace(int faceId)
 //
 // Intersect prism faces against line. Each prism face is a quadrilateral.
 //
-int vtkHexagonalPrism::IntersectWithLine(double p1[3], double p2[3], double tol,
+int vtkHexagonalPrism::IntersectWithLine(const double p1[3], const double p2[3], double tol,
                                          double &t, double x[3], double pcoords[3],
                                          int& subId)
 {
@@ -633,8 +633,8 @@ int vtkHexagonalPrism::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkP
 // Compute derivatives in x-y-z directions. Use chain rule in combination
 // with interpolation function derivatives.
 //
-void vtkHexagonalPrism::Derivatives(int vtkNotUsed(subId), double pcoords[3],
-                                    double *values, int dim, double *derivs)
+void vtkHexagonalPrism::Derivatives(int vtkNotUsed(subId), const double pcoords[3],
+                                    const double *values, int dim, double *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];
   double functionDerivs[36], sum[3], value;
@@ -666,7 +666,7 @@ void vtkHexagonalPrism::Derivatives(int vtkNotUsed(subId), double pcoords[3],
 // Given parametric coordinates compute inverse Jacobian transformation
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives.
-void vtkHexagonalPrism::JacobianInverse(double pcoords[3], double **inverse,
+void vtkHexagonalPrism::JacobianInverse(const double pcoords[3], double **inverse,
                                         double derivs[36])
 {
   int i, j;
