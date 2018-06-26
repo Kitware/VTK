@@ -127,6 +127,7 @@ then
   else
     reset_stdout=$(git reset --hard FETCH_HEAD); fetch_exit=$?
     gettext "$reset_stdout"
+    echo
   fi
 fi
 
