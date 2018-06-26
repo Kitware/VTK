@@ -62,9 +62,9 @@ vtkVoxel::~vtkVoxel()
 }
 
 //----------------------------------------------------------------------------
-int vtkVoxel::EvaluatePosition(const double x[3], double* closestPoint,
+int vtkVoxel::EvaluatePosition(const double x[3], double closestPoint[3],
                               int& subId, double pcoords[3],
-                              double& dist2, double *weights)
+                              double& dist2, double weights[])
 {
   double pt1[3], pt2[3], pt3[3], pt4[3];
   int i;

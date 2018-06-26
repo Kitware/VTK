@@ -123,9 +123,9 @@ namespace
 }
 
 int vtkQuadraticTetra::EvaluatePosition(const double* x,
-                                        double* closestPoint,
+                                        double closestPoint[3],
                                         int& subId, double pcoords[3],
-                                        double& dist2, double *weights)
+                                        double& dist2, double weights[])
 {
   double params[3] = {.25, .25, .25};
   double derivs[30];

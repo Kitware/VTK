@@ -81,11 +81,11 @@ int vtkLagrangeCurve::CellBoundary(
 
 int vtkLagrangeCurve::EvaluatePosition(
   const double x[3],
-  double* closestPoint,
+  double closestPoint[3],
   int& subId,
   double pcoords[3],
   double& minDist2,
-  double* weights)
+  double weights[])
 {
   int result = 0;
 

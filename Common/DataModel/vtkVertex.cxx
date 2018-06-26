@@ -39,9 +39,9 @@ vtkVertex::vtkVertex()
 
 //----------------------------------------------------------------------------
 // Make a new vtkVertex object with the same information as this object.
-int vtkVertex::EvaluatePosition(const double x[3], double* closestPoint,
+int vtkVertex::EvaluatePosition(const double x[3], double closestPoint[3],
                                 int& subId, double pcoords[3],
-                                double& dist2, double *weights)
+                                double& dist2, double weights[])
 {
   double X[3];
 

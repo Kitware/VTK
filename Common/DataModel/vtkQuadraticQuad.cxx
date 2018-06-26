@@ -109,9 +109,9 @@ void vtkQuadraticQuad::Subdivide(double *weights)
 
 //----------------------------------------------------------------------------
 int vtkQuadraticQuad::EvaluatePosition(const double* x,
-                                       double* closestPoint,
+                                       double closestPoint[3],
                                        int& subId, double pcoords[3],
-                                       double& minDist2, double *weights)
+                                       double& minDist2, double weights[])
 {
   double pc[3], dist2;
   int ignoreId, i, returnStatus=0, status;

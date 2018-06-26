@@ -53,9 +53,9 @@ public:
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut) override;
-  int EvaluatePosition(const double x[3], double* closestPoint,
+  int EvaluatePosition(const double x[3], double closestPoint[3],
                        int& subId, double pcoords[3],
-                       double& dist2, double *weights) override;
+                       double& dist2, double weights[]) override;
   void EvaluateLocation(int& subId, const double pcoords[3], double x[3],
                         double *weights) override;
   double *GetParametricCoords() override;

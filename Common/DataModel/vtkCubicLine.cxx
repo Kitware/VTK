@@ -53,9 +53,9 @@ vtkCubicLine::~vtkCubicLine()
 
 
 //----------------------------------------------------------------------------
-int vtkCubicLine::EvaluatePosition(const double x[3], double* closestPoint,
+int vtkCubicLine::EvaluatePosition(const double x[3], double closestPoint[3],
                              int& subId, double pcoords[3],
-                             double& minDist2, double *weights)
+                             double& minDist2, double weights[])
 {
   double closest[3];
   double pc[3], dist2;

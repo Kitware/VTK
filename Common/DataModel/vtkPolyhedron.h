@@ -128,9 +128,9 @@ public:
    * evaluating the MVC coordinates. The dist is always zero if the point x[3]
    * is inside the polyhedron; otherwise it's the distance to the surface.
    */
-  int EvaluatePosition(const double x[3], double* closestPoint,
+  int EvaluatePosition(const double x[3], double closestPoint[3],
                        int& subId, double pcoords[3],
-                       double& dist2, double *weights) override;
+                       double& dist2, double weights[]) override;
 
   /**
    * The inverse of EvaluatePosition. Note the weights should be the MVC

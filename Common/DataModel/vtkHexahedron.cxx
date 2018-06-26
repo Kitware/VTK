@@ -62,9 +62,9 @@ vtkHexahedron::~vtkHexahedron()
 //  Method to calculate parametric coordinates in an eight noded
 //  linear hexahedron element from global coordinates.
 //
-int vtkHexahedron::EvaluatePosition(const double x[3], double* closestPoint,
+int vtkHexahedron::EvaluatePosition(const double x[3], double closestPoint[3],
                                    int& subId, double pcoords[3],
-                                   double& dist2, double *weights)
+                                   double& dist2, double weights[])
 {
   double params[3] = {0.5, 0.5, 0.5};
   double derivs[24];

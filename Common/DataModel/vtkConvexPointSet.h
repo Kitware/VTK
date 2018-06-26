@@ -112,9 +112,9 @@ public:
    * and weights by triangulating the convex point set, and then
    * determining which tetrahedron the point lies in.
    */
-  int EvaluatePosition(const double x[3], double* closestPoint,
+  int EvaluatePosition(const double x[3], double closestPoint[3],
                        int& subId, double pcoords[3],
-                       double& dist2, double *weights) override;
+                       double& dist2, double weights[]) override;
 
   /**
    * The inverse of EvaluatePosition.

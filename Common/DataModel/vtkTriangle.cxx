@@ -70,9 +70,9 @@ double vtkTriangle::ComputeArea()
 //----------------------------------------------------------------------------
 // Create a new cell and copy this triangle's information into the cell.
 // Returns a pointer to the new cell created.
-int vtkTriangle::EvaluatePosition(const double x[3], double* closestPoint,
+int vtkTriangle::EvaluatePosition(const double x[3], double closestPoint[3],
                                  int& subId, double pcoords[3],
-                                 double& dist2, double *weights)
+                                 double& dist2, double weights[])
 {
   int i, j;
   double pt1[3], pt2[3], pt3[3], n[3], fabsn;

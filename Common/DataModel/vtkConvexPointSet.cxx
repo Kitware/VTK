@@ -216,9 +216,9 @@ int vtkConvexPointSet::CellBoundary(int subId, const double pcoords[3],
 
 //----------------------------------------------------------------------------
 int vtkConvexPointSet::EvaluatePosition(const double x[3],
-                                         double * vtkNotUsed(closestPoint),
+                                         double vtkNotUsed(closestPoint)[3],
                                          int & subId, double pcoords[3],
-                                         double & minDist2, double * weights )
+                                         double & minDist2, double weights[])
 {
   double pc[3], dist2;
   int ignoreId, i, j, k, returnStatus=0, status;

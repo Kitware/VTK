@@ -67,9 +67,9 @@ public:
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) override;
-  int EvaluatePosition(const double x[3], double* closestPoint,
+  int EvaluatePosition(const double x[3], double closestPoint[3],
                        int& subId, double pcoords[3],
-                       double& dist2, double *weights) override;
+                       double& dist2, double weights[]) override;
   void EvaluateLocation(int& subId, const double pcoords[3], double x[3],
                         double *weights) override;
   int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,

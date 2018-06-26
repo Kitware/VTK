@@ -1027,9 +1027,9 @@ int vtkPolyhedron::CellBoundary(int vtkNotUsed(subId), const double pcoords[3],
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyhedron::EvaluatePosition(const double x[3], double * closestPoint,
+int vtkPolyhedron::EvaluatePosition(const double x[3], double closestPoint[3],
   int & vtkNotUsed(subId), double pcoords[3],
-  double & minDist2, double * weights)
+  double & minDist2, double weights[])
 {
   // compute parametric coordinates
   this->ComputeParametricCoordinate(x, pcoords);

@@ -153,9 +153,9 @@ static const int VTK_WEDGE_MAX_ITERATION=10;
 static const double VTK_WEDGE_CONVERGED=1.e-03;
 
 int vtkQuadraticWedge::EvaluatePosition(const double* x,
-                                        double* closestPoint,
+                                        double closestPoint[3],
                                         int& subId, double pcoords[3],
-                                        double& dist2, double *weights)
+                                        double& dist2, double weights[])
 {
   double  params[3] = {0.5, 0.5, 0.5};
   double derivs[3*15];

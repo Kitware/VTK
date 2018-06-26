@@ -38,9 +38,9 @@ vtkPolyVertex::~vtkPolyVertex()
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyVertex::EvaluatePosition(const double x[3], double* closestPoint,
+int vtkPolyVertex::EvaluatePosition(const double x[3], double closestPoint[3],
                                    int& subId, double pcoords[3],
-                                   double& minDist2, double *weights)
+                                   double& minDist2, double weights[])
 {
   int numPts=this->Points->GetNumberOfPoints();
   double X[3];
