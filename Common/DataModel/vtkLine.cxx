@@ -42,9 +42,9 @@ static const int VTK_NO_INTERSECTION=0;
 static const int VTK_YES_INTERSECTION=2;
 static const int VTK_ON_LINE=3;
 
-int vtkLine::EvaluatePosition(const double x[3], double* closestPoint,
+int vtkLine::EvaluatePosition(const double x[3], double closestPoint[3],
                              int& subId, double pcoords[3],
-                             double& dist2, double *weights)
+                             double& dist2, double weights[])
 {
   double a1[3], a2[3];
 
@@ -501,7 +501,7 @@ double vtkLine::DistanceBetweenLineSegments(
 // Compute distance to finite line. Returns parametric coordinate t
 // and point location on line.
 double vtkLine::DistanceToLine(const double x[3], const double p1[3], const double p2[3],
-                              double &t, double* closestPoint)
+                              double &t, double closestPoint[3])
 {
   const double *closest = nullptr;
   //

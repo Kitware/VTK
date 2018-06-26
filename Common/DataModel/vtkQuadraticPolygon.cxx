@@ -64,9 +64,9 @@ vtkCell *vtkQuadraticPolygon::GetEdge(int edgeId)
 
 //----------------------------------------------------------------------------
 int vtkQuadraticPolygon::EvaluatePosition(const double x[3],
-                                          double* closestPoint,
+                                          double closestPoint[3],
                                           int& subId, double pcoords[3],
-                                          double& minDist2, double *weights)
+                                          double& minDist2, double weights[])
 {
   this->InitializePolygon();
   int result = this->Polygon->EvaluatePosition(x, closestPoint, subId, pcoords,

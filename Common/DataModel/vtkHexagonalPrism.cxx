@@ -84,9 +84,9 @@ static const int VTK_HEX_MAX_ITERATION=10;
 static const double VTK_HEX_CONVERGED=1.e-03;
 
 //----------------------------------------------------------------------------
-int vtkHexagonalPrism::EvaluatePosition(const double x[3], double* closestPoint,
+int vtkHexagonalPrism::EvaluatePosition(const double x[3], double closestPoint[3],
                                         int& subId, double pcoords[3],
-                                        double& dist2, double *weights)
+                                        double& dist2, double weights[])
 {
   int iteration, converged;
   double  params[3];

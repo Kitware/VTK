@@ -49,9 +49,9 @@ vtkTetra::~vtkTetra()
 }
 
 //----------------------------------------------------------------------------
-int vtkTetra::EvaluatePosition(const double x[3], double* closestPoint,
+int vtkTetra::EvaluatePosition(const double x[3], double closestPoint[3],
                               int& subId, double pcoords[3],
-                              double& minDist2, double *weights)
+                              double& minDist2, double weights[])
 {
   double pt1[3], pt2[3], pt3[3], pt4[3];
   int i;

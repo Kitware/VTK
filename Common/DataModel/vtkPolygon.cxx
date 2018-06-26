@@ -323,9 +323,9 @@ bool vtkPolygon::IsConvex(vtkPoints *p)
 }
 
 //----------------------------------------------------------------------------
-int vtkPolygon::EvaluatePosition(const double x[3], double* closestPoint,
+int vtkPolygon::EvaluatePosition(const double x[3], double closestPoint[3],
                                  int& subId, double pcoords[3],
-                                 double& minDist2, double *weights)
+                                 double& minDist2, double weights[])
 {
   int i;
   double p0[3], p10[3], l10, p20[3], l20, n[3], cp[3];

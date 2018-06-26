@@ -498,9 +498,9 @@ int vtkLagrangeTetra::CellBoundary(int vtkNotUsed(subId), const double pcoords[3
 }
 
 //----------------------------------------------------------------------------
-int vtkLagrangeTetra::EvaluatePosition(const double x[3], double* closestPoint,
+int vtkLagrangeTetra::EvaluatePosition(const double x[3], double closestPoint[3],
                                        int& subId, double pcoords[3],
-                                       double& minDist2, double *weights)
+                                       double& minDist2, double weights[])
 {
   double pc[3], dist2, tempWeights[3], closest[3];
   double pcoordsMin[3] = {0., 0., 0.};

@@ -194,9 +194,9 @@ public:
    * the cell within parametric limits but be "far" from the cell.  Thus the
    * value dist2 may be checked to determine true in/out.
    */
-  virtual int EvaluatePosition(const double x[3], double* closestPoint,
+  virtual int EvaluatePosition(const double x[3], double closestPoint[3],
                                int& subId, double pcoords[3],
-                               double& dist2, double *weights) = 0;
+                               double& dist2, double weights[]) = 0;
 
   /**
    * Determine global coordinate (x[3]) from subId and parametric coordinates.

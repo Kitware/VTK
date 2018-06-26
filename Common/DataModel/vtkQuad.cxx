@@ -71,9 +71,9 @@ inline static void ComputeNormal(vtkQuad *self, double pt1[3], double pt2[3],
 }
 
 //----------------------------------------------------------------------------
-int vtkQuad::EvaluatePosition(const double x[3], double* closestPoint,
+int vtkQuad::EvaluatePosition(const double x[3], double closestPoint[3],
                              int& subId, double pcoords[3],
-                             double& dist2, double *weights)
+                             double& dist2, double weights[])
 {
   int i, j;
   double pt1[3], pt2[3], pt3[3], pt[3], n[3];

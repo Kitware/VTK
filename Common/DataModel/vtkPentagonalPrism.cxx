@@ -87,7 +87,7 @@ static const double VTK_PENTA_CONVERGED=1.e-03;
 //----------------------------------------------------------------------------
 int vtkPentagonalPrism::EvaluatePosition(const double x[3], double closestPoint[3],
                                          int& subId, double pcoords[3],
-                                         double& dist2, double *weights)
+                                         double& dist2, double weights[])
 {
   int iteration, converged;
   double  params[3];

@@ -169,7 +169,7 @@ int vtkGenericCell::CellBoundary(int subId, const double pcoords[3], vtkIdList *
 //----------------------------------------------------------------------------
 int vtkGenericCell::EvaluatePosition(const double x[3], double closestPoint[3],
                                     int& subId, double pcoords[3],
-                                    double& dist2, double *weights)
+                                    double& dist2, double weights[])
 {
   return this->Cell->EvaluatePosition(x, closestPoint, subId,
                                       pcoords, dist2, weights);

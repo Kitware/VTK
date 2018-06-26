@@ -27,7 +27,7 @@ int vtkEmptyCell::EvaluatePosition(const double vtkNotUsed(x)[3],
                                   int& subId,
                                   double pcoords[3],
                                   double& dist2,
-                                  double  *vtkNotUsed(weights))
+                                  double  vtkNotUsed(weights)[])
 {
   pcoords[0] = pcoords[1] = pcoords[2] = -1.0;
   subId = 0;

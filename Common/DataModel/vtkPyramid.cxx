@@ -113,7 +113,7 @@ vtkPyramid::~vtkPyramid()
 //----------------------------------------------------------------------------
 int vtkPyramid::EvaluatePosition(const double x[3], double closestPoint[3],
                                  int& subId, double pcoords[3],
-                                 double& dist2, double *weights)
+                                 double& dist2, double weights[])
 {
   subId = 0;
   // There are problems searching for the apex point so we check if
