@@ -550,7 +550,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
           }
           this->MatrixBuffer->Release();
 
-          if (withNormals)
+          if (withNormals && this->Primitives[i].Program->IsAttributeUsed("glyphNormalMatrix"))
           {
             this->NormalMatrixBuffer->Bind();
             if (!this->Primitives[i].VAO->AddAttributeMatrixWithDivisor(
