@@ -30,6 +30,8 @@
  * you prefer. (Note: the label format specifies the format to use for
  * a single component. The label is creating by looping over all components
  * and using the label format to render each component.)
+ * The character separator between components can be set. By default,
+ * it is set to a single whitespace.
  *
  * @warning
  * Use this filter in combination with vtkSelectVisiblePoints if you want
@@ -104,6 +106,14 @@ public:
    */
   vtkSetMacro(LabeledComponent,int);
   vtkGetMacro(LabeledComponent,int);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the separator between components.
+   */
+  vtkSetMacro(ComponentSeparator,char);
+  vtkGetMacro(ComponentSeparator,char);
   //@}
 
   //@{
@@ -252,6 +262,8 @@ protected:
   int   FieldDataArray;
   char  *FieldDataName;
   int CoordinateSystem;
+
+  char  ComponentSeparator;
 
   vtkTimeStamp BuildTime;
 

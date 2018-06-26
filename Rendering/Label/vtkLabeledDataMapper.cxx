@@ -79,6 +79,8 @@ vtkLabeledDataMapper::vtkLabeledDataMapper()
   this->TextMappers = nullptr;
   this->AllocateLabels(50);
 
+  this->ComponentSeparator = ' ';
+
   vtkSmartPointer<vtkTextProperty> prop =
     vtkSmartPointer<vtkTextProperty>::New();
   prop->SetFontSize(12);
@@ -609,7 +611,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
 
             if (j < (numComp-1))
             {
-              ResultString += ' ';
+              ResultString += this->GetComponentSeparator();
             }
             else
             {
