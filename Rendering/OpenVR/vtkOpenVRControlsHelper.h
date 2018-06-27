@@ -29,6 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStdString.h" // needed for vtkStdString iVar.
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer iVar.
 #include "vtkEventData.h" // for enums
+#include "vtkNew.h" // for iVar
 
 class vtkActor;
 class vtkProperty;
@@ -37,6 +38,7 @@ class vtkPolyDataMapper;
 class vtkCellArray;
 class vtkPoints;
 class vtkTextActor3D;
+class vtkTransform;
 
 class vtkLineSource;
 class vtkPolyDataMapper;
@@ -75,7 +77,7 @@ public:
   * Methods to interface with the vtkOpenVRPanelWidget.
   */
   void BuildRepresentation();
-  void UpdateRepresentation(vtkEventDataDevice3D *);
+  void UpdateRepresentation();
   //@}
 
   //@{
@@ -154,6 +156,13 @@ protected:
                         void* calldata);
 
   void InitControlPosition();
+
+  vtkNew<vtkTransform> TempTransform;
+  double LastPhysicalTranslation[3];
+  double LastEventPosition[3];
+  double LastEventOrientation[4];
+  bool NeedUpdate;
+  bool LabelVisible;
 
 private:
   vtkOpenVRControlsHelper(const vtkOpenVRControlsHelper&) = delete;
