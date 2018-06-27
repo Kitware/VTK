@@ -231,7 +231,7 @@ void vtkEnSightWriter::WriteData()
 
   char** blockNames=nullptr;
   int * elementIDs=nullptr;
-  char charBuffer[512];
+  char charBuffer[1024];
   char fileBuffer[512];
   snprintf(charBuffer,sizeof(charBuffer),"%s/%s.%d.%05d.geo",
     this->Path,this->BaseName,this->ProcessNumber,
