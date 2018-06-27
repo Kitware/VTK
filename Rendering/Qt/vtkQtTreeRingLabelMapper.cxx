@@ -462,7 +462,7 @@ void vtkQtTreeRingLabelMapper::LabelTree(
       double shadowColor[3];
       this->LabelTextProperty->GetShadowColor( shadowColor );
 
-      QTextDocument( textDocument );
+      QTextDocument textDocument;
       textDocument.setDocumentMargin(0);
       textDocument.setDefaultFont( fontSpec );
       QString shadowStyleSheet;
@@ -479,7 +479,7 @@ void vtkQtTreeRingLabelMapper::LabelTree(
     painter.rotate( rotation );
     painter.translate( delta_x, delta_y );
 
-    QTextDocument( textDocument );
+    QTextDocument textDocument;
     textDocument.setDocumentMargin(0);
     textDocument.setDefaultFont( fontSpec );
     QString styleSheet;
