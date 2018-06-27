@@ -296,6 +296,7 @@ void QVTKOpenGLWindow::ResizeToVTKWindow()
   // Cocoa will start overriding any glViewport calls in application code.
   // For reference, see QCocoaWindow::initialize().
 #ifdef __APPLE__
+  this->MakeCurrent();
   int* rwSize = this->RenderWindow->GetSize();
   this->resize(rwSize[0], rwSize[1]);
 #endif
