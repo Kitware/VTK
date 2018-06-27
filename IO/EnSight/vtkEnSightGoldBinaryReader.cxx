@@ -4041,7 +4041,10 @@ int vtkEnSightGoldBinaryReader::ReadLine(char result[80])
 
   if (this->Fortran)
   {
-    strncpy(result, &result[4], 76);
+    for (int i = 0; i < 76 && result[i] != '\0'; ++i)
+    {
+      result[i] = result[i+4];
+    }
     result[76] = 0;
     // better read an extra 8 bytes to prevent error next time
     char dummy[8];
