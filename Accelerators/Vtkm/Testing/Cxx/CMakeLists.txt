@@ -10,6 +10,7 @@ vtk_add_test_cxx(vtkAcceleratorsVtkmCxxTests tests
   TestVTKMLevelOfDetail.cxx
   TestVTKMMarchingCubes.cxx
   TestVTKMMarchingCubes2.cxx
+  TestVTKMNDHistogram.cxx,NO_VALID
   TestVTKMPointElevation.cxx
   TestVTKMProbe.cxx,NO_VALID
   TestVTKMPolyDataNormals.cxx
