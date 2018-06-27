@@ -39,6 +39,7 @@ set(headers
   vtkmContour.h
   vtkmExternalFaces.h
   vtkmExtractVOI.h
+  vtkmHistogram.h
   vtkmThreshold.h
   vtkmLevelOfDetail.h
   vtkmGradient.h
@@ -56,6 +57,7 @@ set(cpu_accelerator_srcs
   vtkmContour.cxx
   vtkmExternalFaces.cxx
   vtkmExtractVOI.cxx
+  vtkmHistogram.cxx
   vtkmThreshold.cxx
   vtkmLevelOfDetail.cxx
   vtkmCellSetExplicit.cxx
@@ -77,6 +79,7 @@ set(cuda_accelerator_srcs
   vtkmContour.cu
   vtkmExternalFaces.cu
   vtkmExtractVOI.cu
+  vtkmHistogram.cu
   vtkmThreshold.cu
   vtkmLevelOfDetail.cu
   vtkmAverageToCells.cu

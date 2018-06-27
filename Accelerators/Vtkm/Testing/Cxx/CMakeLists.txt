@@ -2,10 +2,11 @@ vtk_add_test_cxx(vtkAcceleratorsVtkmCxxTests tests
   TestVTKMCleanGrid.cxx
   TestVTKMClip.cxx
   TestVTKMClipWithImplicitFunction.cxx
-  TestVTKMGradient.cxx,NO_VALID
-  TestVTKMGradientAndVorticity.cxx,NO_VALID
   TestVTKMExternalFaces.cxx
   TestVTKMExtractVOI.cxx
+  TestVTKMGradient.cxx,NO_VALID
+  TestVTKMGradientAndVorticity.cxx,NO_VALID
+  TestVTKMHistogram.cxx,NO_VALID
   TestVTKMLevelOfDetail.cxx
   TestVTKMMarchingCubes.cxx
   TestVTKMMarchingCubes2.cxx
