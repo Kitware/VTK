@@ -82,6 +82,8 @@ int TestGlyph3DMapperTreeIndexing(int argc, char *argv[])
   renderer->SetBackground(0., 0., 0.);
   renderer->ResetCamera();
   renderer->ResetCameraClippingRange();
+  renderer->AutomaticLightCreationOff();
+  renderer->RemoveAllLights();
 
   vtkNew<vtkRenderWindowInteractor> iren;
   vtkNew<vtkRenderWindow> renWin;
@@ -89,6 +91,14 @@ int TestGlyph3DMapperTreeIndexing(int argc, char *argv[])
   renWin->AddRenderer(renderer);
   renWin->SetMultiSamples(0);
   renWin->SetSize(300, 300);
+
+  // Ensure the mapper works when no lights are available
+  renderer->AutomaticLightCreationOff();
+  renderer->RemoveAllLights();
+
+  renWin->Render();
+
+  renderer->AutomaticLightCreationOn();
 
   renWin->Render();
 
