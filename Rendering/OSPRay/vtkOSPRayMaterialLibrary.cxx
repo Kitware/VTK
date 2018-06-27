@@ -131,30 +131,31 @@ bool vtkOSPRayMaterialLibrary::InternalParse
   } else {
     doc = new std::istringstream(filename);
   }
+  bool retOK = false;
   if (std::string(filename).rfind(".mtl") != std::string::npos)
-    {
-    return this->InternalParseMTL(filename, fromfile, doc);
-    }
-  return this->InternalParseJSON(filename, fromfile, doc);
+  {
+    retOK = this->InternalParseMTL(filename, fromfile, doc);
+  }
+  else
+  {
+    retOK = this->InternalParseJSON(filename, fromfile, doc);
+  }
+  delete doc;
+  return retOK;
 }
 
 // ----------------------------------------------------------------------------
 bool vtkOSPRayMaterialLibrary::InternalParseJSON
   (const char *filename, bool fromfile, std::istream *doc)
 {
-  //todo: this reader is a lot more fragile then I'ld like, need to make it robust
   Json::Value root;
-  try
+  std::string errs;
+  Json::CharReaderBuilder jreader;
+  bool ok = Json::parseFromStream(jreader, *doc, &root, &errs);
+  if (!ok)
   {
-    *doc >> root;
-  }
-  catch (Json::RuntimeError)
-  {
-    delete doc;
     return false;
   }
-  delete doc;
-
   if (!root.isMember("family"))
   {
     vtkErrorMacro("Not a materials file. Must have \"family\"=\"...\" entry.");
