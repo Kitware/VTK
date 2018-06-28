@@ -43,13 +43,17 @@ QVTKOpenGLWindow::QVTKOpenGLWindow(vtkGenericOpenGLRenderWindow* w,
 //-----------------------------------------------------------------------------
 QVTKOpenGLWindow::~QVTKOpenGLWindow()
 {
+  // get rid of the VTK window
+  this->SetRenderWindow(nullptr);
+
+  // destroy the offscreen surface if any
+  // it must be destroyed after previous call to SetRenderWindow because
+  // this function might create a new offscreen surface.
   if (this->OffscreenSurface)
   {
     this->OffscreenSurface->destroy();
     delete this->OffscreenSurface;
   }
-  // get rid of the VTK window
-  this->SetRenderWindow(nullptr);
 }
 
 //-----------------------------------------------------------------------------
