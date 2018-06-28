@@ -27,6 +27,7 @@
 #include "vtkOpenGLError.h"
 #include "vtkRenderWindow.h"
 #include "vtkShaderProgram.h"
+#include "vtkTexture.h"
 
 #include <cmath>
 
@@ -120,9 +121,9 @@ void vtkOpenGLSkybox::Render(vtkRenderer *ren, vtkMapper *mapper)
         "//VTK::Output::Dec\n"  // always have this line in your FS
         "in vec3 TexCoords;\n"
         "uniform vec3 cameraPos;\n" // wc camera position
-        "uniform samplerCube texture_0;\n" // texture_0 is the first texture
+        "uniform samplerCube actortexture;\n"
         "void main () {\n"
-        "  gl_FragData[0] = texture(texture_0, normalize(TexCoords - cameraPos));\n"
+        "  gl_FragData[0] = texture(actortexture, normalize(TexCoords - cameraPos));\n"
         "}\n"
         );
     }
@@ -134,11 +135,17 @@ void vtkOpenGLSkybox::Render(vtkRenderer *ren, vtkMapper *mapper)
         "//VTK::Output::Dec\n"  // always have this line in your FS
         "in vec3 TexCoords;\n"
         "uniform vec3 cameraPos;\n" // wc camera position
-        "uniform sampler2D texture_0;\n" // texture_0 is the first texture
+        "uniform sampler2D actortexture;\n"
+        "uniform vec4 floorPlane;\n" // floor plane eqn
+        "uniform vec3 floorRight;\n" // floor plane right
+        "uniform vec3 floorFront;\n" // floor plane front
         "void main () {\n"
-        "  vec3 dirv = normalize(TexCoords - cameraPos);\n"
+        "  vec3 diri = normalize(TexCoords - cameraPos);\n"
+        "  vec3 dirv = vec3(dot(diri,floorRight),\n"
+        "    dot(diri,floorPlane.xyz),\n"
+        "    -dot(diri,floorFront));\n"
         "  float phix = length(vec2(dirv.x, dirv.z));\n"
-        "  gl_FragData[0] = texture(texture_0, vec2(0.5*atan(dirv.z, dirv.x)/3.1415927 + 0.5, atan(dirv.y,phix)/3.1415927 + 0.5));\n"
+        "  gl_FragData[0] = texture(actortexture, vec2(0.5*atan(dirv.z, dirv.x)/3.1415927 + 0.5, atan(dirv.y,phix)/3.1415927 + 0.5));\n"
         "}\n"
         );
     }
@@ -154,7 +161,7 @@ void vtkOpenGLSkybox::Render(vtkRenderer *ren, vtkMapper *mapper)
         "uniform vec3 floorRight;\n" // floor plane right
         "uniform vec3 floorFront;\n" // floor plane front
         "uniform mat4 MCDCMatrix;\n"
-        "uniform sampler2D texture_0;\n" // texture_0 is the first texture
+        "uniform sampler2D actortexture;\n"
         "void main () {\n"
         "  vec3 dirv = normalize(TexCoords - cameraPos);\n"
         "  float den = dot(floorPlane.xyz, dirv);\n"
@@ -164,7 +171,7 @@ void vtkOpenGLSkybox::Render(vtkRenderer *ren, vtkMapper *mapper)
         "    float t = dot(p0l0, floorPlane.xyz) / den;\n"
         "    if (t >= 0.0) {\n"
         "      vec3 pos = dirv*t - p0l0;\n"
-        "      gl_FragData[0] = texture(texture_0, vec2(dot(floorRight,pos), dot(floorFront, pos)));\n"
+        "      gl_FragData[0] = texture(actortexture, vec2(dot(floorRight,pos), dot(floorFront, pos)));\n"
         // The discards cause a discontinuity with mipmapping
         // on the horizon of the floor. So we fade out the floor
         // along the horizon. Specifically starting at when the
@@ -192,7 +199,10 @@ void vtkOpenGLSkybox::Render(vtkRenderer *ren, vtkMapper *mapper)
   static_cast<vtkOpenGLRenderer*>(ren)->GetState()->vtkglDepthMask(GL_TRUE);
 
   // send a render to the mapper; update pipeline
+  this->Texture->Render(ren);
+  this->OpenGLActor->SetTexture(this->GetTexture());
   mapper->Render(ren, this->OpenGLActor);
+  this->Texture->PostRender(ren);
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
