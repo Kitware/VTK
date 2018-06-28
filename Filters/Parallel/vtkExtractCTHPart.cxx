@@ -14,11 +14,13 @@
 =========================================================================*/
 #include "vtkExtractCTHPart.h"
 
+#include "vtkAppendFilter.h"
 #include "vtkAppendPolyData.h"
 #include "vtkBoundingBox.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
+#include "vtkClipDataSet.h"
 #include "vtkClipPolyData.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
@@ -46,6 +48,7 @@
 #include "vtkTimerLog.h"
 #include "vtkToolkits.h"
 #include "vtkUniformGrid.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
 #include <cassert>
@@ -76,6 +79,11 @@ public:
 
 class vtkExtractCTHPart::VectorOfFragments :
   public std::vector<vtkSmartPointer<vtkPolyData> >
+{
+};
+
+class vtkExtractCTHPart::VectorOfSolids :
+  public std::vector<vtkSmartPointer<vtkUnstructuredGrid> >
 {
 };
 
@@ -129,6 +137,7 @@ vtkExtractCTHPart::vtkExtractCTHPart()
   this->Internals = new vtkExtractCTHPartInternal();
   this->ClipPlane = nullptr;
   this->GenerateTriangles = true;
+  this->GenerateSolidGeometry = false;
   this->Capping = true;
   this->RemoveGhostCells = true;
   this->VolumeFractionSurfaceValueInternal = CTH_AMR_SURFACE_VALUE;
@@ -280,23 +289,32 @@ int vtkExtractCTHPart::RequestData(vtkInformation *vtkNotUsed(request),
 
     output->GetMetaData(array_index)->Set(vtkCompositeDataSet::NAME(), iter->c_str());
 
-    vtkNew<vtkPolyData> contour;
+    vtkSmartPointer<vtkDataSet> part = nullptr;
     vtkGarbageCollector::DeferredCollectionPush();
-    if (this->ExtractContour(contour, inputCD, iter->c_str()) &&
-      (contour->GetNumberOfPoints() > 0))
+
+    if (this->GenerateSolidGeometry)
+    {
+      part = this->ExtractSolid(inputCD, iter->c_str());
+    }
+    else
+    {
+      part = this->ExtractContour(inputCD, iter->c_str());
+    }
+
+    if (part != nullptr && part->GetNumberOfPoints() > 0)
     {
       // Add extra arrays.
       vtkNew<vtkIntArray> partArray;
       partArray->SetName("Part Index");
       partArray->SetNumberOfComponents(1);
-      partArray->SetNumberOfTuples(contour->GetNumberOfPoints());
+      partArray->SetNumberOfTuples(part->GetNumberOfPoints());
       partArray->FillComponent(0, static_cast<double>(array_index));
-      contour->GetPointData()->AddArray(partArray);
+      part->GetPointData()->AddArray(partArray);
 
       // I'm not adding the "Name" array that was added in previous
       // implementation. Don't think that's much of use.
 
-      output->SetBlock(array_index, contour);
+      output->SetBlock(array_index, part);
     }
     vtkGarbageCollector::DeferredCollectionPop();
   }
@@ -358,11 +376,11 @@ bool vtkExtractCTHPart::ComputeGlobalBounds(vtkCompositeDataSet *input)
 }
 
 //-----------------------------------------------------------------------------
-// return false on error.
-bool vtkExtractCTHPart::ExtractContour(
-  vtkPolyData* output, vtkCompositeDataSet* input, const char*arrayName)
+// return nullptr on error.
+vtkSmartPointer<vtkDataSet> vtkExtractCTHPart::ExtractContour(
+  vtkCompositeDataSet* input, const char*arrayName)
 {
-  assert(output!=nullptr && input!=nullptr && arrayName!=nullptr && arrayName[0]!=0);
+  assert(input!=nullptr && arrayName!=nullptr && arrayName[0]!=0);
 
   bool warn_once = true;
   vtkSmartPointer<vtkCompositeDataIterator> iter;
@@ -393,14 +411,14 @@ bool vtkExtractCTHPart::ExtractContour(
     {
       if (!this->ExtractClippedContourOnBlock<vtkUniformGrid>(fragments, ug, arrayName))
       {
-        return false;
+        return nullptr;
       }
     }
     else if (rg)
     {
       if (!this->ExtractClippedContourOnBlock<vtkRectilinearGrid>(fragments, rg, arrayName))
       {
-        return false;
+        return nullptr;
       }
     }
     else if (warn_once && dataObj)
@@ -414,10 +432,11 @@ bool vtkExtractCTHPart::ExtractContour(
     }
   }
 
+  vtkSmartPointer<vtkDataSet> output = vtkSmartPointer<vtkPolyData>::New();
   if (fragments.empty())
   {
-    // empty contour. Not an error though, hence we don't return false.
-    return true;
+    // empty contour. Not an error though, hence we don't return nullptr.
+    return output;
   }
   sp1.WorkDone();
 
@@ -430,9 +449,106 @@ bool vtkExtractCTHPart::ExtractContour(
     appender->AddInputData(fragments[cc]);
   }
   appender->Update();
+
   output->ShallowCopy(appender->GetOutputDataObject(0));
   this->TriggerProgressEvent(1.0);
-  return true;
+  return output;
+}
+
+//-----------------------------------------------------------------------------
+// return nullptr on error.
+vtkSmartPointer<vtkDataSet> vtkExtractCTHPart::ExtractSolid(
+  vtkCompositeDataSet* input, const char*arrayName)
+{
+  assert(input!=nullptr && arrayName!=nullptr && arrayName[0]!=0);
+
+  bool warn_once = true;
+  vtkSmartPointer<vtkCompositeDataIterator> iter;
+  iter.TakeReference(input->NewIterator());
+
+  // this loop is first 95% of the work.
+  ScaledProgress sp1(0.0, 0.95, this);
+
+  int counter = 0;
+  vtkExtractCTHPart::VectorOfSolids solids;
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem(), ++counter)
+  {
+    // each iteration is 1/(total num of datasets)'th for the work.
+    ScaledProgress sp(
+      counter * 1.0/this->Internals->TotalNumberOfDatasets,
+      1.0/this->Internals->TotalNumberOfDatasets, this);
+
+    if (counter % 1000 == 0)
+    {
+      this->TriggerProgressEvent(0.0);
+    }
+
+    vtkDataObject *dataObj = iter->GetCurrentDataObject();
+    vtkRectilinearGrid* rg = vtkRectilinearGrid::SafeDownCast(dataObj);
+    vtkUniformGrid* ug = vtkUniformGrid::SafeDownCast(dataObj);
+
+    if (ug)
+    {
+      if (!this->ExtractClippedVolumeOnBlock<vtkUniformGrid>(solids, ug, arrayName))
+      {
+        return nullptr;
+      }
+    }
+    else if (rg)
+    {
+      if (!this->ExtractClippedVolumeOnBlock<vtkRectilinearGrid>(solids, rg, arrayName))
+      {
+        return nullptr;
+      }
+    }
+    else if (warn_once && dataObj)
+    {
+      warn_once = false;
+      vtkWarningMacro(<< dataObj->GetClassName() << " will be ignored.");
+    }
+    if ((counter % 1000) == 0)
+    {
+      this->TriggerProgressEvent(1.0);
+    }
+  }
+
+  vtkSmartPointer<vtkDataSet> output = vtkSmartPointer<vtkUnstructuredGrid>::New();
+  if (solids.empty())
+  {
+    // empty fragments. Not an error though, hence we don't return nullptr.
+    return output;
+  }
+  sp1.WorkDone();
+
+  // Now, the last .05 % of the work.
+  ScaledProgress sp2(0.95, 0.05, this);
+  this->TriggerProgressEvent(0.0);
+  vtkNew<vtkAppendFilter> appender;
+  for (size_t cc=0; cc < solids.size(); cc++)
+  {
+    appender->AddInputData(solids[cc]);
+  }
+  appender->Update();
+
+  output->ShallowCopy(appender->GetOutputDataObject(0));
+  this->TriggerProgressEvent(1.0);
+  return output;
+}
+
+void vtkExtractCTHPart::DetermineSurfaceValue(int dataType)
+{
+  // determine the true value to use for the contour based on the data-type.
+  switch (dataType)
+  {
+  case VTK_UNSIGNED_CHAR:
+    this->VolumeFractionSurfaceValueInternal =
+      CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR * this->VolumeFractionSurfaceValue;
+    break;
+
+  default:
+    this->VolumeFractionSurfaceValueInternal =
+      CTH_AMR_SURFACE_VALUE_FLOAT * this->VolumeFractionSurfaceValue;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -450,17 +566,7 @@ bool vtkExtractCTHPart::ExtractClippedContourOnBlock(
   }
 
   // determine the true value to use for the contour based on the data-type.
-  switch (volumeFractionArray->GetDataType())
-  {
-  case VTK_UNSIGNED_CHAR:
-    this->VolumeFractionSurfaceValueInternal =
-      CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR * this->VolumeFractionSurfaceValue;
-    break;
-
-  default:
-    this->VolumeFractionSurfaceValueInternal =
-      CTH_AMR_SURFACE_VALUE_FLOAT * this->VolumeFractionSurfaceValue;
-  }
+  this->DetermineSurfaceValue(volumeFractionArray->GetDataType());
 
   // We create a clone so we can modify the dataset (i.e. add new arrays to it).
   vtkNew<T> inputClone;
@@ -784,6 +890,70 @@ void vtkExtractCTHPart::ExtractExteriorSurface(
   }
 #endif
 // result=>valid_surface: A=>B !A||B
+}
+
+template <class T>
+bool vtkExtractCTHPart::ExtractClippedVolumeOnBlock(
+  VectorOfSolids& solids, T* dataset, const char* arrayName)
+{
+  assert(arrayName!=nullptr && arrayName[0]!=0 && dataset != nullptr);
+
+  vtkDataArray* volumeFractionArray = dataset->GetCellData()->GetArray(arrayName);
+  if (!volumeFractionArray)
+  {
+    // skip this block.
+    return true;
+  }
+
+  // determine the true value to use for clipping based on the data-type.
+  this->DetermineSurfaceValue(volumeFractionArray->GetDataType());
+
+  // We create a clone so we can modify the dataset (i.e. add new arrays to it).
+  vtkNew<T> inputClone;
+  inputClone->ShallowCopy(dataset);
+
+  // Convert cell-data-2-point-data so we can clip the cells.
+  vtkNew<vtkDoubleArray> pointVolumeFractionArray;
+  this->ExecuteCellDataToPointData(volumeFractionArray,
+    pointVolumeFractionArray, inputClone->GetDimensions());
+  inputClone->GetPointData()->SetScalars(pointVolumeFractionArray);
+
+  // clip volume only if necessary.
+  double range[2];
+  volumeFractionArray->GetRange(range);
+  if (range[0] > this->VolumeFractionSurfaceValueInternal ||
+    range[1] < this->VolumeFractionSurfaceValueInternal)
+  {
+    // this block doesn't have the material of interest.
+    return true;
+  }
+
+  // Clip the volume.
+  vtkNew<vtkClipDataSet> blockClipper;
+  blockClipper->SetInputData(inputClone);
+  blockClipper->SetValue(this->VolumeFractionSurfaceValueInternal);
+  blockClipper->SetInputArrayToProcess(0, 0, 0,
+    vtkDataObject::FIELD_ASSOCIATION_POINTS, arrayName);
+  blockClipper->Update();
+  vtkSmartPointer<vtkUnstructuredGrid> solidFragment
+    = blockClipper->GetOutput();
+
+  solidFragment->GetPointData()->RemoveArray(arrayName);
+
+  if (!this->ClipPlane)
+  {
+    solids.push_back( solidFragment );
+    return true;
+  }
+
+  // Clip the solid fragment using the user-specified clip plane.
+  vtkNew<vtkClipDataSet> fragClipper;
+  fragClipper->SetClipFunction(this->ClipPlane);
+  fragClipper->SetInputData(solidFragment);
+  fragClipper->Update();
+  solids.push_back(fragClipper->GetOutput());
+
+  return true;
 }
 
 //----------------------------------------------------------------------------
