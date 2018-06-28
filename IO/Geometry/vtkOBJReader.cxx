@@ -22,9 +22,8 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include <cctype>
-#include <map>
+#include <unordered_map>
 
-#include <map>
 #include "vtkCellData.h"
 #include "vtkStringArray.h"
 
@@ -50,11 +49,15 @@ vtkOBJReader::~vtkOBJReader()
 This is only partial support for the OBJ format, which is quite complicated.
 To find a full specification, search the net for "OBJ format", eg.:
 
-    http://en.wikipedia.org/wiki/Obj
+    https://en.wikipedia.org/wiki/Wavefront_.obj_file
     http://netghost.narod.ru/gff/graphics/summary/waveobj.htm
     http://paulbourke.net/dataformats/obj/
 
 We support the following types:
+
+g <groupName>  [... <groupNameN]
+
+    group name, primarily for faces
 
 v <x> <y> <z>
 
@@ -135,17 +138,24 @@ int vtkOBJReader::RequestData(
 
   // initialize some structures to store the file contents in
   vtkPoints *points = vtkPoints::New();
-  std::map<std::string, vtkFloatArray*> tcoords_map;
-  std::vector<std::pair<float, float> > verticesTextureList;
+  std::unordered_map<std::string, vtkFloatArray*> tcoords_map;
+  std::vector<std::pair<float, float>> verticesTextureList;
   vtkFloatArray *normals = vtkFloatArray::New();
   normals->SetNumberOfComponents(3);
   normals->SetName("Normals");
   vtkCellArray *polys = vtkCellArray::New();
   vtkCellArray *tcoord_polys = vtkCellArray::New();
-
   vtkCellArray *pointElems = vtkCellArray::New();
   vtkCellArray *lineElems = vtkCellArray::New();
   vtkCellArray *normal_polys = vtkCellArray::New();
+
+  // Face scalars (corresponding to groups)
+  vtkFloatArray *faceScalars = vtkFloatArray::New();
+  faceScalars->SetNumberOfComponents(1);
+  faceScalars->SetName("GroupIds");
+
+  // Handling of "g" grouping
+  int groupId = -1;
 
   bool hasTCoords = false;
   bool hasNormals = false;
@@ -158,9 +168,8 @@ int vtkOBJReader::RequestData(
   vtkSmartPointer<vtkStringArray> matNames = vtkSmartPointer<vtkStringArray>::New();
   matNames->SetName("MaterialNames");
   matNames->SetNumberOfComponents(1);
-  std::map<std::string, int> matNameToId;
-  std::map<vtkIdType, std::string> wStartCellToMatName;
-  const std::map<vtkIdType, std::string>& rStartCellToMatName = wStartCellToMatName;
+  std::unordered_map<std::string, int> matNameToId;
+  std::unordered_map<vtkIdType, std::string> startCellToMatName;
   int matcnt = 0;
   int matid = 0;
 
@@ -184,7 +193,7 @@ int vtkOBJReader::RequestData(
   int lineNr = 0;
   while (everything_ok && fgets(rawLine, MAX_LINE, in) != nullptr)
   {
-    lineNr++;
+    ++lineNr;
     char *pLine = rawLine;
     char *pEnd = rawLine + strlen(rawLine);
 
@@ -237,7 +246,7 @@ int vtkOBJReader::RequestData(
           vtkFloatArray* tcoords = vtkFloatArray::New();
           tcoords->SetNumberOfComponents(2);
           tcoords->SetName(tcoordsName);
-          tcoords_map[tcoordsName] = tcoords;
+          tcoords_map.emplace(tcoordsName, tcoords);
         }
       }
       else
@@ -251,7 +260,7 @@ int vtkOBJReader::RequestData(
       // this is a tcoord, expect two floats, separated by whitespace:
       if (sscanf(pLine, "%f %f", xyz, xyz+1) == 2)
       {
-        verticesTextureList.push_back(std::pair<float, float>(xyz[0], xyz[1]));
+        verticesTextureList.emplace_back(xyz[0], xyz[1]);
       }
     }
   } // (end of first while loop)
@@ -272,19 +281,22 @@ int vtkOBJReader::RequestData(
     tcoords->SetNumberOfComponents(2);
     strcpy(tcoordsName, "TCoords");
     tcoords->SetName(tcoordsName);
-    tcoords_map[tcoordsName] = tcoords;
+    tcoords_map.emplace(tcoordsName, tcoords);
   }
 
   // Initialize every texture array with (-1, -1)
-  for (auto it = tcoords_map.begin(); it != tcoords_map.end(); ++it)
   {
-    vtkFloatArray* tcoords = it->second;
-    vtkIdType nbTuples = static_cast<vtkIdType>(verticesTextureList.size());
-    tcoords->SetNumberOfTuples(nbTuples);
+    const vtkIdType nTuples = static_cast<vtkIdType>(verticesTextureList.size());
 
-    for (vtkIdType i = 0; i < nbTuples; ++i)
+    for (auto iter : tcoords_map)
     {
-      tcoords->SetTuple2(i, -1.0, -1.0);
+      vtkFloatArray* tcoords = iter.second;
+      tcoords->SetNumberOfTuples(nTuples);
+
+      for (vtkIdType i = 0; i < nTuples; ++i)
+      {
+        tcoords->SetTuple2(i, -1.0, -1.0);
+      }
     }
   }
 
@@ -293,7 +305,7 @@ int vtkOBJReader::RequestData(
   fseek(in, 0, SEEK_SET);
   while (everything_ok && fgets(rawLine, MAX_LINE, in) != nullptr)
   {
-    lineNr++;
+    ++lineNr;
     char *pLine = rawLine;
     char *pEnd = rawLine + strlen(rawLine);
 
@@ -313,10 +325,15 @@ int vtkOBJReader::RequestData(
       pLine++;
     }
 
-    // in the OBJ format the first characters determine how to interpret the line:
-    if (strcmp(cmd, "v") == 0)
+    if (strcmp(cmd, "g") == 0)
     {
-      // this is a vertex definition, expect three floats, separated by whitespace:
+      // group definition, expect 0 or more words separated by whitespace.
+      // But here we simply note its existence, without a name
+      ++groupId;
+    }
+    else if (strcmp(cmd, "v") == 0)
+    {
+      // vertex definition, expect three floats, separated by whitespace:
       if (sscanf(pLine, "%f %f %f", xyz, xyz+1, xyz+2) == 3)
       {
         points->InsertNextPoint(xyz);
@@ -330,22 +347,21 @@ int vtkOBJReader::RequestData(
     }
     else if (strcmp(cmd, "usemtl") == 0)
     {
-      // this is a new material name (for texture coordinates), expect one string:
+      // material name (for texture coordinates), expect one string:
       if (sscanf(pLine, "%s", tcoordsName) != 1)
       {
         vtkErrorMacro(<<"Error reading 'usemtl' at line " << lineNr);
         everything_ok = false;
       }
-      std::map<std::string, int>::iterator mit = matNameToId.find(tcoordsName);
-      if (mit == matNameToId.end())
+      if (matNameToId.find(tcoordsName) == matNameToId.end())
       {
         //haven't seen this material yet, keep a record of it
-        matNameToId[tcoordsName] = matcnt;
+        matNameToId.emplace(tcoordsName, matcnt);
         matNames->InsertNextValue(tcoordsName);
         matcnt++;
       }
       //remember that starting with current cell, we should draw with it
-      wStartCellToMatName[polys->GetNumberOfCells()] = tcoordsName;
+      startCellToMatName[polys->GetNumberOfCells()] = tcoordsName;
     }
     else if (strcmp(cmd, "vt") == 0)
     {
@@ -353,7 +369,7 @@ int vtkOBJReader::RequestData(
     }
     else if (strcmp(cmd, "vn") == 0)
     {
-      // this is a normal, expect three floats, separated by whitespace:
+      // vertex normal, expect three floats, separated by whitespace:
       if (sscanf(pLine, "%f %f %f", xyz, xyz+1, xyz+2) == 3)
       {
         normals->InsertNextTuple(xyz);
@@ -368,7 +384,7 @@ int vtkOBJReader::RequestData(
     }
     else if (strcmp(cmd, "p") == 0)
     {
-      // this is a point definition, consisting of 1-based indices separated by whitespace and /
+      // point definition, consisting of 1-based indices separated by whitespace and /
       pointElems->InsertNextCell(0); // we don't yet know how many points are to come
 
       int nVerts=0; // keep a count of how many there are
@@ -435,7 +451,7 @@ int vtkOBJReader::RequestData(
     }
     else if (strcmp(cmd, "l") == 0)
     {
-      // this is a line definition, consisting of 1-based indices separated by whitespace and /
+      // line definition, consisting of 1-based indices separated by whitespace and /
       lineElems->InsertNextCell(0); // we don't yet know how many points are to come
 
       int nVerts=0; // keep a count of how many there are
@@ -515,7 +531,7 @@ int vtkOBJReader::RequestData(
     }
     else if (strcmp(cmd, "f") == 0)
     {
-      // this is a face definition, consisting of 1-based indices separated by whitespace and /
+      // face definition, consisting of 1-based indices separated by whitespace and /
 
       polys->InsertNextCell(0); // we don't yet know how many points are to come
       tcoord_polys->InsertNextCell(0);
@@ -549,7 +565,7 @@ int vtkOBJReader::RequestData(
 
             // Set the current texture array with the value corresponding to the
             // iTcoords read
-            std::pair<float, float>& currentTCoord = verticesTextureList[iTCoordAbs];
+            const auto& currentTCoord = verticesTextureList[iTCoordAbs];
             auto iter = tcoords_map.find(tcoordsName);
             vtkFloatArray* tcArray = iter->second;
             tcArray->SetTuple2(
@@ -619,7 +635,7 @@ int vtkOBJReader::RequestData(
 
             // Set the current texture array with the value corresponding to the
             // iTcoords read
-            std::pair<float, float>& currentTCoord = verticesTextureList[iTCoordAbs];
+            const auto& currentTCoord = verticesTextureList[iTCoordAbs];
             tcoords_map[tcoordsName]->SetTuple2(
               iTCoordAbs, currentTCoord.first, currentTCoord.second);
 
@@ -684,8 +700,23 @@ int vtkOBJReader::RequestData(
       normal_polys->UpdateCellCount(nNormals);
 
       // also make a note of whether any cells have tcoords, and whether any have normals
-      if (nTCoords > 0) { hasTCoords = true; }
-      if (nNormals > 0) { hasNormals = true; }
+      if (nTCoords > 0)
+      {
+        hasTCoords = true;
+      }
+      if (nNormals > 0)
+      {
+        hasNormals = true;
+      }
+
+      if (faceScalars && nVerts)
+      {
+        if (groupId < 0)
+        {
+          groupId = 0;
+        }
+        faceScalars->InsertNextValue(groupId);
+      }
     }
     else
     {
@@ -699,7 +730,8 @@ int vtkOBJReader::RequestData(
   // we have finished with the file
   fclose(in);
 
-  bool hasMaterials = matcnt > 0;
+  const bool hasGroups = (groupId >= 0);
+  const bool hasMaterials = (matcnt > 0);
 
   if (everything_ok)   // (otherwise just release allocated memory and return)
   {
@@ -732,12 +764,14 @@ int vtkOBJReader::RequestData(
       // assign the tcoords points as point data
       if (hasTCoords && tcoords_same_as_verts)
       {
-        for (auto it = tcoords_map.begin(); it != tcoords_map.end(); ++it)
+        bool setTcoords = true;
+        for (auto iter : tcoords_map)
         {
-          vtkFloatArray* tcoords = it->second;
+          vtkFloatArray* tcoords = iter.second;
           output->GetPointData()->AddArray(tcoords);
-          if (it == tcoords_map.begin())
+          if (setTcoords)
           {
+            setTcoords = false;
             output->GetPointData()->SetActiveTCoords(tcoords->GetName());
           }
         }
@@ -753,18 +787,23 @@ int vtkOBJReader::RequestData(
       if (hasMaterials)
       {
         //keep a record of the material for each cell
-        for (vtkIdType i=0; i<polys->GetNumberOfCells(); ++i)
+        for (vtkIdType celli=0; celli<polys->GetNumberOfCells(); ++celli)
         {
-          std::map<vtkIdType, std::string>::const_iterator it = rStartCellToMatName.find(i);
-          if (it != rStartCellToMatName.end())
+          const auto citer = startCellToMatName.find(celli);
+          if (citer != startCellToMatName.end())
           {
-            std::string matname = it->second;
+            const std::string& matname = citer->second;
             matid = matNameToId.find(matname)->second;
           }
           matIds->InsertNextValue(matid);
         }
         output->GetCellData()->AddArray(matIds);
         output->GetFieldData()->AddArray(matNames);
+      }
+
+      if (hasGroups && faceScalars)
+      {
+        output->GetCellData()->AddArray(faceScalars);
       }
 
       output->Squeeze();
@@ -776,9 +815,9 @@ int vtkOBJReader::RequestData(
 
       vtkPoints *new_points = vtkPoints::New();
       std::vector<vtkFloatArray*> new_tcoords_vector;
-      for (auto it = tcoords_map.begin(); it != tcoords_map.end(); ++it)
+      for (auto iter : tcoords_map)
       {
-        vtkFloatArray* tcoords = it->second;
+        vtkFloatArray* tcoords = iter.second;
         vtkFloatArray *new_tcoords = vtkFloatArray::New();
         new_tcoords->SetName(tcoords->GetName());
         new_tcoords->SetNumberOfComponents(2);
@@ -800,7 +839,7 @@ int vtkOBJReader::RequestData(
       vtkIdType n_pts=-1,*pts=dummy_warning_prevention_mechanism;
       vtkIdType n_tcoord_pts=-1,*tcoord_pts=dummy_warning_prevention_mechanism;
       vtkIdType n_normal_pts=-1,*normal_pts=dummy_warning_prevention_mechanism;
-      for (vtkIdType i = 0; i < polys->GetNumberOfCells(); ++i)
+      for (vtkIdType celli = 0; celli < polys->GetNumberOfCells(); ++celli)
       {
         polys->GetNextCell(n_pts, pts);
         tcoord_polys->GetNextCell(n_tcoord_pts, tcoord_pts);
@@ -809,11 +848,10 @@ int vtkOBJReader::RequestData(
         if (hasMaterials)
         {
           //keep a record of the material for each cell
-          std::map<vtkIdType, std::string>::const_iterator it =
-            rStartCellToMatName.find(static_cast<vtkIdType>(i));
-          if (it != rStartCellToMatName.end())
+          const auto citer = startCellToMatName.find(celli);
+          if (citer != startCellToMatName.end())
           {
-            std::string matname = it->second;
+            const std::string& matname = citer->second;
             matid = matNameToId.find(matname)->second;
           }
         }
@@ -826,33 +864,33 @@ int vtkOBJReader::RequestData(
             (n_pts != n_normal_pts && hasNormals))
         {
           // skip this poly
-          vtkDebugMacro(<<"Skipping poly "<<i+1<<" (1-based index)");
+          vtkDebugMacro(<<"Skipping poly "<<celli+1<<" (1-based index)");
         }
         else
         {
           // copy the corresponding points, tcoords and normals across
-          for (vtkIdType j = 0; j < n_pts; ++j)
+          for (vtkIdType pointi = 0; pointi < n_pts; ++pointi)
           {
             // copy the tcoord for this point across (if there is one)
-            if (n_tcoord_pts>0)
+            if (n_tcoord_pts > 0)
             {
               size_t k = 0;
-              for (auto it = tcoords_map.begin(); it != tcoords_map.end(); ++it)
+              for (auto iter : tcoords_map)
               {
+                vtkFloatArray* tcoords = iter.second;
                 vtkFloatArray* new_tcoords = new_tcoords_vector.at(k);
-                vtkFloatArray* tcoords = it->second;
-                new_tcoords->InsertNextTuple(tcoords->GetTuple(tcoord_pts[j]));
-                k++;
+                new_tcoords->InsertNextTuple(tcoords->GetTuple(tcoord_pts[pointi]));
+                ++k;
               }
             }
             // copy the normal for this point across (if there is one)
-            if (n_normal_pts>0)
+            if (n_normal_pts > 0)
             {
-              new_normals->InsertNextTuple(normals->GetTuple(normal_pts[j]));
+              new_normals->InsertNextTuple(normals->GetTuple(normal_pts[pointi]));
             }
             // copy the vertex into the new structure and update
             // the vertex index in the polys structure (pts is a pointer into it)
-            pts[j] = new_points->InsertNextPoint(points->GetPoint(pts[j]));
+            pts[pointi] = new_points->InsertNextPoint(points->GetPoint(pts[pointi]));
           }
           // copy this poly (pointing at the new points) into the new polys list
           new_polys->InsertNextCell(n_pts,pts);
@@ -868,12 +906,14 @@ int vtkOBJReader::RequestData(
       output->SetPolys(new_polys);
       if (hasTCoords)
       {
-        for (size_t i = 0; i < new_tcoords_vector.size(); ++i)
+        bool setTcoords = true;
+
+        for (vtkFloatArray* new_tcoords : new_tcoords_vector)
         {
-          vtkFloatArray* new_tcoords = new_tcoords_vector.at(i);
           output->GetPointData()->AddArray(new_tcoords);
-          if (i == 0)
+          if (setTcoords)
           {
+            setTcoords = false;
             output->GetPointData()->SetActiveTCoords(new_tcoords->GetName());
           }
         }
@@ -888,26 +928,34 @@ int vtkOBJReader::RequestData(
         output->GetFieldData()->AddArray(matNames);
       }
 
+      if (hasGroups && faceScalars)
+      {
+        output->GetCellData()->AddArray(faceScalars);
+      }
+
       // TODO: fixup for pointElems and lineElems too
 
       output->Squeeze();
 
       new_points->Delete();
       new_polys->Delete();
-      for(size_t i = 0; i < new_tcoords_vector.size(); ++i)
+      for (vtkFloatArray* new_tcoords : new_tcoords_vector)
       {
-        vtkFloatArray* new_tcoords = new_tcoords_vector.at(i);
         new_tcoords->Delete();
       }
       new_normals->Delete();
     }
   }
 
-  points->Delete();
-  for (auto it = tcoords_map.begin(); it != tcoords_map.end(); ++it)
+  if (faceScalars)
   {
-    vtkFloatArray* tcoords = it->second;
-    tcoords->Delete();
+    faceScalars->Delete();
+  }
+
+  points->Delete();
+  for (auto iter : tcoords_map)
+  {
+    iter.second->Delete();
   }
   normals->Delete();
   polys->Delete();
