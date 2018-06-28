@@ -84,6 +84,9 @@ vtkOpenVRControlsHelper::vtkOpenVRControlsHelper()
 
   this->Device = vtkEventDataDevice::Unknown;
   this->Renderer = nullptr;
+
+  this->NeedUpdate = false;
+  this->LabelVisible = false;
 }
 
 //----------------------------------------------------------------------------
@@ -138,7 +141,7 @@ void vtkOpenVRControlsHelper::InitControlPosition()
   //Hide controls tooltips if the controller is off
   if (!mod)
   {
-    this->VisibilityOff();
+    this->LabelVisible = false;
     return;
   }
 
@@ -192,23 +195,34 @@ void vtkOpenVRControlsHelper::MoveEvent(vtkObject*,
 {
   vtkOpenVRControlsHelper *self = static_cast<vtkOpenVRControlsHelper *>(clientdata);
 
+  vtkOpenVRRenderWindow* renWin =
+    static_cast<vtkOpenVRRenderWindow*>(self->Renderer->GetRenderWindow());
+
   vtkEventData *ed = static_cast<vtkEventData *>(calldata);
   vtkEventDataDevice3D *ed3 = ed->GetAsEventDataDevice3D();
-  if (ed3)
+  if (ed3 && self->Enabled &&
+      ed3->GetType() == vtkCommand::Move3DEvent &&
+      ed3->GetDevice() == self->Device)
   {
-    self->UpdateRepresentation(ed3);
+    const double *controllerPositionWC = ed3->GetWorldPosition();
+    std::copy(controllerPositionWC,controllerPositionWC+3,
+      self->LastEventPosition);
+
+    const double *wxyz = ed3->GetWorldOrientation();
+    std::copy(wxyz,wxyz+4, self->LastEventOrientation);
+
+    std::copy(renWin->GetPhysicalTranslation(), renWin->GetPhysicalTranslation()+3,
+      self->LastPhysicalTranslation);
+
+    self->NeedUpdate = true;
   }
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenVRControlsHelper::UpdateRepresentation(vtkEventDataDevice3D *ed)
+void vtkOpenVRControlsHelper::UpdateRepresentation()
 {
+  this->NeedUpdate = false;
   if (!this->Enabled)
-  {
-    return;
-  }
-
-  if (ed->GetType() != vtkCommand::Move3DEvent || ed->GetDevice() != this->Device)
   {
     return;
   }
@@ -239,7 +253,7 @@ void vtkOpenVRControlsHelper::UpdateRepresentation(vtkEventDataDevice3D *ed)
     vtkOpenVRModel* mod = renWin->GetTrackedDeviceModel(controller);
     if (!mod)
     {
-      this->VisibilityOff();
+      this->LabelVisible = false;
       return;
     }
 
@@ -252,18 +266,22 @@ void vtkOpenVRControlsHelper::UpdateRepresentation(vtkEventDataDevice3D *ed)
     }
 
     // Controller position and world orientation
-    const double *controllerPositionWC = ed->GetWorldPosition();
-
-    const double *wxyz = ed->GetWorldOrientation();
+    double *ptrans = renWin->GetPhysicalTranslation();
+    this->LastEventPosition[0] += this->LastPhysicalTranslation[0] - ptrans[0];
+    this->LastEventPosition[1] += this->LastPhysicalTranslation[1] - ptrans[1];
+    this->LastEventPosition[2] += this->LastPhysicalTranslation[2] - ptrans[2];
+    const double *controllerPositionWC = this->LastEventPosition;
+    const double *wxyz = this->LastEventOrientation;
 
     // todo use ivar here
-    vtkSmartPointer<vtkTransform> tr = vtkSmartPointer<vtkTransform>::New();
-    tr->RotateWXYZ(wxyz[0], wxyz[1], wxyz[2], wxyz[3]);
+    this->TempTransform->Identity();
+    this->TempTransform->RotateWXYZ(wxyz[0], wxyz[1], wxyz[2], wxyz[3]);
 
     double* frameForward =
       this->Renderer->GetActiveCamera()->GetDirectionOfProjection();
     //Controller up direction in WC
-    double* controllerUpWC = tr->TransformDoubleVector(0.0, 1.0, 0.0);
+    double* controllerUpWC =
+      this->TempTransform->TransformDoubleVector(0.0, 1.0, 0.0);
 
     //Compute scale factor. It reaches its max value when the control button
     //  faces the camera. This results in tooltips popping from the controller.
@@ -278,7 +296,7 @@ void vtkOpenVRControlsHelper::UpdateRepresentation(vtkEventDataDevice3D *ed)
     if (dotFactor > 0.0)
     {
       //We are looking on the right side, show tooltip
-      this->VisibilityOn();
+      this->LabelVisible = true;
 
       double PPI = 450;//Screen resolution in pixels per inch
       double FontSizeFactor = 1.0 / PPI;//Map font size to world coordinates
@@ -290,7 +308,7 @@ void vtkOpenVRControlsHelper::UpdateRepresentation(vtkEventDataDevice3D *ed)
     else
     {
       //We are looking on the wrong side, hide tooltip
-      this->VisibilityOff();
+      this->LabelVisible = false;
       return;
     }
 
@@ -299,7 +317,7 @@ void vtkOpenVRControlsHelper::UpdateRepresentation(vtkEventDataDevice3D *ed)
     //It corresponds to the vector from the controller position to the
     //position of the button in world coordinates.
     double *controlOriginWC =
-      tr->TransformDoublePoint(this->ControlPositionLC);
+      this->TempTransform->TransformDoublePoint(this->ControlPositionLC);
 
     //Control position
     double controlPositionWC[3] = {
@@ -330,7 +348,8 @@ void vtkOpenVRControlsHelper::UpdateRepresentation(vtkEventDataDevice3D *ed)
       controlPositionWC[1] + frameOrigin[1],
       controlPositionWC[2] + frameOrigin[2]};
 
-    controllerUpWC = tr->TransformDoubleVector(0.0, 1.0, 0.0);
+    controllerUpWC =
+      this->TempTransform->TransformDoubleVector(0.0, 1.0, 0.0);
 
     //Apply offset along the frame right axis
     framePosition[0] += tooltipOffset * frameRight[0] * dotFactor * this->DrawSide;
@@ -343,12 +362,12 @@ void vtkOpenVRControlsHelper::UpdateRepresentation(vtkEventDataDevice3D *ed)
     framePosition[2] += tooltipOffset * controllerUpWC[2] * dotFactor * this->ButtonSide;
 
     double* ori = this->Renderer->GetActiveCamera()->GetOrientationWXYZ();
-    tr->Identity();
-    tr->RotateWXYZ(-ori[0], ori[1], ori[2], ori[3]);
+    this->TempTransform->Identity();
+    this->TempTransform->RotateWXYZ(-ori[0], ori[1], ori[2], ori[3]);
 
     //Update Text Actor
     this->TextActor->SetPosition(framePosition);
-    this->TextActor->SetOrientation(tr->GetOrientation());
+    this->TextActor->SetOrientation(this->TempTransform->GetOrientation());
 
     //Update Line Actor
     //WARNING: Transforming the Actor is cheaper than setting the geometry
@@ -369,9 +388,9 @@ void vtkOpenVRControlsHelper::UpdateRepresentation(vtkEventDataDevice3D *ed)
     double w = vtkMath::AngleBetweenVectors(lineDirection, z);
     double xyz[3];
     vtkMath::Cross(lineDirection, z, xyz);
-    tr->Identity();
-    tr->RotateWXYZ(vtkMath::DegreesFromRadians(-w), xyz[0], xyz[1], xyz[2]);
-    this->LineActor->SetOrientation(tr->GetOrientation());
+    this->TempTransform->Identity();
+    this->TempTransform->RotateWXYZ(vtkMath::DegreesFromRadians(-w), xyz[0], xyz[1], xyz[2]);
+    this->LineActor->SetOrientation(this->TempTransform->GetOrientation());
   }
 }
 
@@ -385,7 +404,12 @@ void vtkOpenVRControlsHelper::ReleaseGraphicsResources(vtkWindow *w)
 //----------------------------------------------------------------------------
 int vtkOpenVRControlsHelper::RenderOpaqueGeometry(vtkViewport *v)
 {
-  if (!this->GetVisibility())
+  if (this->NeedUpdate)
+  {
+    this->UpdateRepresentation();
+  }
+
+  if (!this->LabelVisible)
   {
     return 0;
   }
@@ -402,7 +426,12 @@ int vtkOpenVRControlsHelper::RenderOpaqueGeometry(vtkViewport *v)
 int vtkOpenVRControlsHelper::RenderTranslucentPolygonalGeometry(
   vtkViewport *v)
 {
-  if (!this->GetVisibility())
+  if (this->NeedUpdate)
+  {
+    this->UpdateRepresentation();
+  }
+
+  if (!this->LabelVisible)
   {
     return 0;
   }
@@ -475,11 +504,8 @@ void vtkOpenVRControlsHelper::SetEnabled(bool val)
   }
 
   this->Enabled = val;
+  this->SetVisibility(this->Enabled);
   this->Modified();
-  if (!this->Enabled)
-  {
-    this->VisibilityOff();
-  }
 }
 
 //----------------------------------------------------------------------
