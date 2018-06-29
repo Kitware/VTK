@@ -1365,6 +1365,15 @@ void vtkCompositePolyDataMapper2::CopyMapperValuesToHelper(vtkCompositeMapperHel
   helper->SetGeometryShaderCode(this->GetGeometryShaderCode());
   helper->SetFragmentShaderCode(this->GetFragmentShaderCode());
   helper->SetStatic(1);
+  helper->ClearAllShaderReplacements();
+  for (auto& repl : this->UserShaderReplacements)
+  {
+    const vtkShader::ReplacementSpec& spec = repl.first;
+    const vtkShader::ReplacementValue& values = repl.second;
+
+    helper->AddShaderReplacement(spec.ShaderType, spec.OriginalValue, spec.ReplaceFirst,
+      values.Replacement, values.ReplaceAll);
+  }
 }
 
 //-----------------------------------------------------------------------------
