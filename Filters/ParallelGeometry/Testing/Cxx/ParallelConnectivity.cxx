@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include "vtkPConnectivityFilter.h"
+#include "vtkConnectivityFilter.h"
 
 #include "vtkContourFilter.h"
 #include "vtkDataSetTriangleFilter.h"
@@ -84,7 +84,15 @@ int ParallelConnectivity(int argc, char* argv[])
   ghostCells->SetMinimumNumberOfGhostLevels(1);
   ghostCells->SetInputConnection(tetrahedralize->GetOutputPort());
 
-  vtkNew<vtkPConnectivityFilter> connectivity;
+  // Test factory override mechanism instantiated as a vtkPConnectivityFilter.
+  vtkNew<vtkConnectivityFilter> connectivity;
+  if (connectivity->IsA("vtkConnectivityFiltetr"))
+  {
+    std::cerr << "Expected vtkConnectivityFilter filter to be instantiated "
+              << "as a vtkPConnectivityFilter with MPI support enabled, but "
+              << "it is a " << connectivity->GetClassName() << " instead." << std::endl;
+  }
+
   connectivity->SetInputConnection(ghostCells->GetOutputPort());
   connectivity->Update();
 
