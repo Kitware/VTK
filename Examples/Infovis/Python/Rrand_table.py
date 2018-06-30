@@ -2,7 +2,7 @@
 
 # Python example script that uses the Gnu R random table source to create an output
 # table with 5 columns and 30 rows.  The columns are filled random numbers drawn
-# from a Normal, Poisson, Chi-square, Uniform, and Binomial distribution, respecively.
+# from a Normal, Poisson, Chi-square, Uniform, and Binomial distribution, respectively.
 
 # VTK must be built with VTK_USE_GNU_R turned on for this example to work!
 

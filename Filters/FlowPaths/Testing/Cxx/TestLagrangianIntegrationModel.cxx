@@ -122,7 +122,7 @@ int TestLagrangianIntegrationModel(int, char*[])
   double tolerance = odeWavelet->GetTolerance();
   if (tolerance != 1.0e-8)
   {
-    std::cerr << "Incorect Tolerance" << std::endl;
+    std::cerr << "Incorrect Tolerance" << std::endl;
     return EXIT_FAILURE;
   }
 

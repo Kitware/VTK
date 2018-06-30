@@ -2213,7 +2213,7 @@ void vtkFunctionParser::CheckExpression(int &pos, char **error)
       }
 
       // Check for possible argument in a multiple argument function. In this
-      // case the next character might be a comman, so break out to the outer
+      // case the next character might be a comma, so break out to the outer
       // loop before incrementing index.
       if ((expectCommaOnParenthesisCount[parenthesisCount] > 0 &&
            expectCommaOnParenthesisCount[parenthesisCount] < 2) ||

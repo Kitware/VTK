@@ -97,7 +97,7 @@ ren.AddViewProp(volume)
 
 # Set up an initial view of the volume.  The focal point will be the
 # center of the volume, and the camera position will be 400mm to the
-# patient's left (whis is our right).
+# patient's left (which is our right).
 camera =  ren.GetActiveCamera()
 c = volume.GetCenter()
 camera.SetFocalPoint(c[0], c[1], c[2])
