@@ -26,7 +26,6 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/Storage.h"
-#include "vtkmlib/UnstructuredGridConverter.h"
 
 #include "vtkmFilterPolicy.h"
 
