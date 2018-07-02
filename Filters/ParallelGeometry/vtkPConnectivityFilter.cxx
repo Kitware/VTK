@@ -109,7 +109,6 @@ struct ExchangeBoundsWorker : public WorkerBase
 
     allBounds->SetNumberOfComponents(6);
     allBounds->SetNumberOfTuples(this->SubController->GetNumberOfProcesses());
-    vtkIdType numValues = allBounds->GetNumberOfValues();
     this->SubController->AllGather(typedBounds,
       reinterpret_cast<typename TArray::ValueType*>(allBounds->GetVoidPointer(0)), 6);
   }
@@ -433,15 +432,6 @@ int vtkPConnectivityFilter::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  if (this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS ||
-      this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS ||
-      this->ExtractionMode == VTK_EXTRACT_SPECIFIED_REGIONS)
-  {
-    vtkErrorMacro("ExtractionMode " << this->GetExtractionModeAsString()
-      << " is not supported in " << this->GetClassName());
-    return 1;
-  }
-
   // Get the input
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
@@ -458,18 +448,33 @@ int vtkPConnectivityFilter::RequestData(
   // RequestData is sufficient as no global data exchange and RegionId
   // relabeling is needed. It is worth checking to avoid issuing an
   // unnecessary warning when a dataset resides entirely on one process.
-  int hasCells = input->GetNumberOfCells() > 0 ? 1 : 0;
+  int numRanks = 1;
+  int myRank = 0;
   int ranksWithCells = 0;
-  globalController->AllReduce(&hasCells, &ranksWithCells, 1, vtkCommunicator::SUM_OP);
+  int hasCells = input->GetNumberOfCells() > 0 ? 1 : 0;
 
-  int numRanks = globalController->GetNumberOfProcesses();
-  int myRank = globalController->GetLocalProcessId();
+  if (globalController)
+  {
+    globalController->AllReduce(&hasCells, &ranksWithCells, 1, vtkCommunicator::SUM_OP);
+    numRanks = globalController->GetNumberOfProcesses();
+    myRank = globalController->GetLocalProcessId();
+  }
 
   // Compute local connectivity. If we are running in parallel, we need the full
   // connectivity first, and will handle the extraction mode later.
   int success = 1;
   if (numRanks > 1 && ranksWithCells > 1)
   {
+    if (this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS ||
+        this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS ||
+        this->ExtractionMode == VTK_EXTRACT_SPECIFIED_REGIONS)
+    {
+      vtkErrorMacro("ExtractionMode " << this->GetExtractionModeAsString()
+        << " is not supported in " << this->GetClassName()
+        << " when the number of ranks with data is greater than 1.");
+      return 1;
+    }
+
     int saveScalarConnectivity = this->ScalarConnectivity;
     int saveExtractionMode = this->ExtractionMode;
     int saveColorRegions = this->ColorRegions;
@@ -612,7 +617,7 @@ int vtkPConnectivityFilter::RequestData(
         continue;
       }
 
-      for (size_t ptId = 0; ptId < pointsFromMyNeighbors[rank]->GetNumberOfTuples();
+      for (vtkIdType ptId = 0; ptId < pointsFromMyNeighbors[rank]->GetNumberOfTuples();
            ++ptId)
       {
         double x[3];
