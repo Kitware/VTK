@@ -17,7 +17,16 @@
 
 #include "vtkCriticalSection.h"
 
+#ifdef _MSC_VER
+#  pragma push_macro("__TBB_NO_IMPLICIT_LINKAGE")
+#  define __TBB_NO_IMPLICIT_LINKAGE 1
+#endif
+
 #include <tbb/task_scheduler_init.h>
+
+#ifdef _MSC_VER
+#  pragma pop_macro("__TBB_NO_IMPLICIT_LINKAGE")
+#endif
 
 struct vtkSMPToolsInit
 {
