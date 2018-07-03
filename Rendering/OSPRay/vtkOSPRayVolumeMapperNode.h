@@ -34,6 +34,7 @@ namespace osp
 {
   struct TransferFunction;
   struct Volume;
+  struct Geometry;
 }
 
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayVolumeMapperNode :
@@ -73,6 +74,7 @@ protected:
   vtkTimeStamp BuildTime;
   vtkTimeStamp PropertyTime;
 
+  osp::Geometry* OSPRayIsosurface;
   osp::Volume* OSPRayVolume;
   osp::TransferFunction* TransferFunction;
   std::vector<float> TFVals;
