@@ -28,6 +28,13 @@
 class vtkInformationDoubleKey;
 class vtkInformationIntegerKey;
 class vtkLight;
+class vtkOSPRayRendererNode;
+
+namespace osp
+{
+struct Light;
+struct Renderer;
+}
 
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayLightNode :
   public vtkLightNode
@@ -81,6 +88,13 @@ public:
   static void SetRadius(double, vtkLight *);
   static double GetRadius(vtkLight *);
   //@}
+
+  /**
+   * Select the version-appropriate signature for ospNewLight.
+   */
+  static osp::Light* NewLight(vtkOSPRayRendererNode *orn,
+                              osp::Renderer *oRenderer,
+                              const std::string& lightType);
 
 protected:
   vtkOSPRayLightNode();
