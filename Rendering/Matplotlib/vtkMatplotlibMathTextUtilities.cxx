@@ -315,6 +315,7 @@ vtkMatplotlibMathTextUtilities::GetFontProperties(vtkTextProperty *tprop)
   char tpropStyle[16];
   char tpropVariant[16] = "normal";
   char tpropWeight[16];
+  char tpropStretch[16] = "normal";
   long tpropFontSize;
 
   switch (tprop->GetFontFamily())
@@ -354,8 +355,8 @@ vtkMatplotlibMathTextUtilities::GetFontProperties(vtkTextProperty *tprop)
   vtkPythonScopeGilEnsurer gilEnsurer;
   return PyObject_CallFunction(this->FontPropertiesClass,
                                const_cast<char*>("sssssi"), tpropFamily,
-                               tpropStyle, tpropVariant, tpropStyle,
-                               tpropWeight, tpropFontSize);
+                               tpropStyle, tpropVariant, tpropWeight,
+                               tpropStretch, tpropFontSize);
 }
 
 //----------------------------------------------------------------------------
