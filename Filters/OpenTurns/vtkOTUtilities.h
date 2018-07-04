@@ -21,20 +21,10 @@
 #ifndef vtkOTUtilities_h
 #define vtkOTUtilities_h
 
-#include "vtkOTConfig.h" // For OpenTURNS version
-
-#if (OPENTURNS_VERSION_MAJOR == 1 && OPENTURNS_VERSION_MINOR == 8)
-namespace OT
-{
-class NumericalSample;
-typedef NumericalSample Sample;
-}
-#else
 namespace OT
 {
 class Sample;
 }
-#endif
 
 class vtkDataArray;
 class vtkDataArrayCollection;

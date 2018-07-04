@@ -30,7 +30,6 @@
 #include "vtkPointData.h"
 #include "vtkTable.h"
 
-#include "vtkOTConfig.h"
 #include "vtkOTIncludes.h"
 #include "vtkOTUtilities.h"
 
@@ -42,10 +41,6 @@ vtkInformationKeyMacro(vtkOTDensityMap, DENSITY, Double);
 vtkStandardNewMacro(vtkOTDensityMap);
 
 using namespace OT;
-
-#if (OPENTURNS_VERSION_MAJOR == 1 && OPENTURNS_VERSION_MINOR == 8)
-typedef NumericalPoint Point;
-#endif
 
 class vtkOTDensityMap::OTDistributionCache
 {

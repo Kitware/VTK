@@ -1,8 +1,5 @@
-find_package(OpenTURNS 1.8 REQUIRED)
+find_package(OpenTURNS 1.11 REQUIRED)
 include(${OPENTURNS_USE_FILE})
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkOTConfig.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkOTConfig.h)
 
 set(Module_SRCS
     vtkOTDensityMap.cxx

@@ -16,7 +16,6 @@
 
 #include "vtkObjectFactory.h"
 
-#include "vtkOTConfig.h"
 #include "vtkOTIncludes.h"
 #include "vtkOTUtilities.h"
 

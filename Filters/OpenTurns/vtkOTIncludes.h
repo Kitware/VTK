@@ -15,25 +15,18 @@
 #ifndef vtkOTIncludes_h
 #define vtkOTIncludes_h
 
-#include "vtkOTConfig.h"
-
 #if defined(__GNUC__) && !defined(__INTEL_COMPILER)
  #pragma GCC diagnostic ignored "-Woverloaded-virtual"
-#endif
-
-#if (OPENTURNS_VERSION_MAJOR == 1 && OPENTURNS_VERSION_MINOR == 8)
- #include "openturns/NumericalPoint.hxx"
- #include "openturns/NumericalSample.hxx"
-#else
- #include "openturns/Point.hxx"
- #include "openturns/Sample.hxx"
+ #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
 #include "openturns/DistributionFactoryImplementation.hxx"
 #include "openturns/DistributionImplementation.hxx"
 #include "openturns/Epanechnikov.hxx"
 #include "openturns/KernelSmoothing.hxx"
+#include "openturns/Point.hxx"
 #include "openturns/ResourceMap.hxx"
+#include "openturns/Sample.hxx"
 #include "openturns/Triangular.hxx"
 
 #if defined(__GNUC__) && !defined(__INTEL_COMPILER)
