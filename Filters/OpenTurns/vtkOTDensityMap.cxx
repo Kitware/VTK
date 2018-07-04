@@ -31,7 +31,6 @@
 #include "vtkTable.h"
 
 #include "vtkOTConfig.h"
-#include "vtkOTDistributionImplementationWrapper.h"
 #include "vtkOTIncludes.h"
 #include "vtkOTUtilities.h"
 
@@ -47,6 +46,12 @@ using namespace OT;
 #if (OPENTURNS_VERSION_MAJOR == 1 && OPENTURNS_VERSION_MINOR == 8)
 typedef NumericalPoint Point;
 #endif
+
+class vtkOTDensityMap::OTDistributionCache
+{
+public:
+  Distribution Cache;
+};
 
 class vtkOTDensityMap::OTDensityCache
 {
@@ -68,7 +73,7 @@ vtkOTDensityMap::vtkOTDensityMap()
   this->ContourApproximationNumberOfPoints = 600;
   this->DensityLogPDFSampleCache = new vtkOTDensityMap::OTDensityCache(nullptr);
   this->DensityPDFCache = new vtkOTDensityMap::OTDensityCache(nullptr);
-  this->DensityDistribution = nullptr;
+  this->DistributionCache = new vtkOTDensityMap::OTDistributionCache();
 }
 
 //-----------------------------------------------------------------------------
@@ -78,6 +83,7 @@ vtkOTDensityMap::~vtkOTDensityMap()
   this->ClearCache();
   delete this->DensityLogPDFSampleCache;
   delete this->DensityPDFCache;
+  delete this->DistributionCache;
 }
 
 //-----------------------------------------------------------------------------
@@ -92,11 +98,6 @@ void vtkOTDensityMap::ClearCache()
   {
     delete this->DensityPDFCache->Cache;
     this->DensityPDFCache->Cache = nullptr;
-  }
-  if (this->DensityDistribution != nullptr)
-  {
-    delete this->DensityDistribution;
-    this->DensityDistribution = nullptr;
   }
   this->DensityLogPDFSampleMTime.Modified();
   this->DensityPDFMTime.Modified();
@@ -161,10 +162,10 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
 
     // Compute OpenTURNS PDF
     KernelSmoothing* ks = new KernelSmoothing();
-    this->DensityDistribution = new vtkOTDistributionImplementationWrapper(ks->build(*input));
+    this->DistributionCache->Cache = ks->build(*input);
     Sample gridX(this->GridSubdivisions * this->GridSubdivisions, 2);
     this->DensityPDFCache->Cache =
-      new Sample(this->DensityDistribution->Implementation->computePDF(
+      new Sample(this->DistributionCache->Cache.getImplementation()->computePDF(
         pointMin, pointMax, pointNumber, gridX));
     delete ks;
     // this->DensityPDFCache->Cache is now a this->GridSubdivisions*this->GridSubdivisions serialized grid,
@@ -176,10 +177,10 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   {
     if (this->DensityLogPDFSampleCache->Cache == nullptr)
     {
-      const Sample xSample(this->DensityDistribution->Implementation->getSample(
+      const Sample xSample(this->DistributionCache->Cache.getSample(
         this->ContourApproximationNumberOfPoints));
       this->DensityLogPDFSampleCache->Cache =
-        new Sample(this->DensityDistribution->Implementation->computeLogPDF(xSample));
+        new Sample(this->DistributionCache->Cache.computeLogPDF(xSample));
     }
     else
     {
@@ -190,9 +191,9 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
       if (newSize > oldSize)
       {
         const Sample xSample(
-          this->DensityDistribution->Implementation->getSample(newSize - oldSize));
+          this->DistributionCache->Cache.getSample(newSize - oldSize));
         this->DensityLogPDFSampleCache->Cache->add(
-          Sample(this->DensityDistribution->Implementation->computeLogPDF(xSample)));
+          Sample(this->DistributionCache->Cache.computeLogPDF(xSample)));
       }
       else if (newSize < oldSize)
       {
