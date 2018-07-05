@@ -249,7 +249,7 @@ void vtkSTLWriter::WriteBinarySTL(
   //
   vtkDebugMacro("Writing Binary STL file");
 
-  char binaryFileHeader[vtkSTLWriterBinaryHeaderSize] = { 0 };
+  char binaryFileHeader[vtkSTLWriterBinaryHeaderSize+1] = { 0 };
 
   // Check for STL ASCII format key word 'solid'. According to STL file format
   // only ASCII files can have 'solid' as start key word, so we ignore it and

@@ -745,7 +745,8 @@ void vtkMFIXReader::GetCellDataRange(int cellComp, float *min, float *max)
 void vtkMFIXReader::SetProjectName (const char *infile)
 {
   int len = static_cast<int>(strlen(infile));
-  strncpy(this->RunName, infile, len-4);
+  strncpy(this->RunName, infile, sizeof(this->RunName));
+  this->RunName[len-4] = '\0';
 }
 
 //----------------------------------------------------------------------------
@@ -1612,7 +1613,12 @@ void vtkMFIXReader::CreateVariableNames()
     {
       fileName[k]=0;
     }
-    strncpy(fileName, this->FileName, strlen(this->FileName)-4);
+    strncpy(fileName, this->FileName, sizeof(fileName)-1);
+    size_t fileNameLength = strlen(fileName);
+    if (fileNameLength >= 4)
+    {
+      fileName[fileNameLength-4] = '\0';
+    }
 
     if (i==0)
     {
@@ -1928,7 +1934,12 @@ void vtkMFIXReader::GetTimeSteps()
     {
       fileName[k]=0;
     }
-    strncpy(fileName, this->FileName, strlen(this->FileName)-4);
+    strncpy(fileName, this->FileName, sizeof(fileName)-1);
+    size_t fileNameLength = strlen(fileName);
+    if (fileNameLength >= 4)
+    {
+      fileName[fileNameLength-4] = '\0';
+    }
     if (i==0)
     {
       strcat(fileName, ".SP1");
@@ -2122,7 +2133,12 @@ void vtkMFIXReader::GetVariableAtTimestep(int vari , int tstep,
     fileName[k]=0;
   }
 
-  strncpy(fileName, this->FileName, strlen(this->FileName)-4);
+  strncpy(fileName, this->FileName, sizeof(fileName)-1);
+  size_t fileNameLength = strlen(fileName);
+  if (fileNameLength >= 4)
+  {
+    fileName[fileNameLength-4] = '\0';
+  }
 
   if (spx==1)
   {
@@ -2316,7 +2332,13 @@ void vtkMFIXReader::GetAllTimes(vtkInformationVector *outputVector)
   {
     fileName[k]=0;
   }
-  strncpy(fileName, this->FileName, strlen(this->FileName)-4);
+
+  strncpy(fileName, this->FileName, sizeof(fileName)-1);
+  size_t fileNameLength = strlen(fileName);
+  if (fileNameLength >= 4)
+  {
+    fileName[fileNameLength-4] = '\0';
+  }
 
   if (maxVar==0)
   {

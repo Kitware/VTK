@@ -46,6 +46,7 @@
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkLookupTable.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -231,7 +232,7 @@ void vtkEnSightWriter::WriteData()
 
   char** blockNames=nullptr;
   int * elementIDs=nullptr;
-  char charBuffer[512];
+  char charBuffer[1024];
   char fileBuffer[512];
   snprintf(charBuffer,sizeof(charBuffer),"%s/%s.%d.%05d.geo",
     this->Path,this->BaseName,this->ProcessNumber,
@@ -685,7 +686,7 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
     return;
   }
 
-  char charBuffer[512];
+  char charBuffer[1024];
   snprintf(charBuffer,sizeof(charBuffer),"%s/%s.%d.case",this->Path,this->BaseName,this->ProcessNumber);
 
   //open the geometry file
@@ -713,7 +714,7 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
 
   this->WriteTerminatedStringToFile("\nVARIABLE\n",fd);
 
-  char fileBuffer[512];
+  char fileBuffer[256];
 
   //write the Node variable files
   for (i=0;i<input->GetPointData()->GetNumberOfArrays();i++)
@@ -909,10 +910,13 @@ void vtkEnSightWriter::WriteSOSCaseFile(int numProcs)
 void vtkEnSightWriter::WriteStringToFile(const char* cstring, FILE* file)
 {
   char cbuffer[81];
-  // Terminate the buffer to avoid static analyzer warnings about strncpy not
-  // NUL-terminating its destination buffer in case the input is too long.
-  cbuffer[80] = '\0';
-  strncpy(cbuffer,cstring,80);
+  unsigned long cstringLength = static_cast<unsigned long>(strlen(cstring));
+  memcpy(cbuffer,cstring,vtkMath::Min(cstringLength,80ul));
+  for (int i = cstringLength; i < 81; ++i)
+  {
+    cbuffer[i] = '\0';
+  }
+
   // Write a constant 80 bytes to the file.
   fwrite(cbuffer, sizeof(char),80,file);
 }

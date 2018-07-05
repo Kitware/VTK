@@ -81,7 +81,9 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
       if (elem[0] == '\0')
       {
         // if element symbol was not specified, just use the "Atom name".
-        strncpy(elem, dum1, 2);
+        elem[0] = dum1[0];
+        elem[1] = dum1[1];
+        elem[2] = '\0';
       }
 
       if (!((elem[0]=='H' || elem[0]=='h') && elem[1]=='\0'))

@@ -4041,7 +4041,16 @@ int vtkEnSightGoldBinaryReader::ReadLine(char result[80])
 
   if (this->Fortran)
   {
-    strncpy(result, &result[4], 76);
+    // strncpy cannot be used for overlapping buffers
+    int i = 0;
+    for ( ; i < 76 && result[i+4] != '\0'; ++i)
+    {
+      result[i] = result[i+4];
+    }
+    for ( ; i < 76; ++i)
+    {
+      result[i] = '\0';
+    }
     result[76] = 0;
     // better read an extra 8 bytes to prevent error next time
     char dummy[8];
