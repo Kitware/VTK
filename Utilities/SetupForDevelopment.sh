@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-cd "${BASH_SOURCE%/*}/.." &&
+bash_source="${BASH_SOURCE//\\//}" &&
+cd "${bash_source%/*}/.." &&
 Utilities/GitSetup/setup-user && echo &&
 Utilities/GitSetup/setup-hooks && echo &&
 Utilities/Scripts/SetupGitAliases.sh && echo &&
