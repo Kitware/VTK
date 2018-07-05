@@ -103,20 +103,18 @@ int TestCategoricalMaterials(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkSmartPointer<vtkOSPRayMaterialLibrary> ml = vtkSmartPointer<vtkOSPRayMaterialLibrary>::New();
   vtkOSPRayRendererNode::SetMaterialLibrary(ml, renderer);
   //add materials to it
-  ml->AddMaterial("Five", "Metal");
-  ml->AddMaterial("One", "Glass");
+  ml->AddMaterial("Four", "Metal");
+  ml->AddMaterial("One", "ThinGlass");
   //some of material names use the same low level material implementation
-  ml->AddMaterial("Two", "Velvet");
+  ml->AddMaterial("Two", "ThinGlass");
   //but each one  can be tuned
-  double green[3] = {0.0,0.3,0.0};
-  double greenH[3] = {0.3,1.0,0.3};
-  ml->AddShaderVariable("Two", "reflectance", 3, green);
-  ml->AddShaderVariable("Two", "horizonScatteringColor", 3, greenH);
-  ml->AddMaterial("Three", "Velvet");
-  double blue[3] = {0.0,0.0,0.3};
-  double blueH[3] = {0.3,0.3,1.0};
-  ml->AddShaderVariable("Three", "reflectance", 3, blue);
-  ml->AddShaderVariable("Three", "horizonScatteringColor", 3, blueH);
+  double green[3] = {0.0,0.9,0.0};
+  ml->AddShaderVariable("Two", "attenuationColor", 3, green);
+  ml->AddShaderVariable("Two", "eta", {1.});
+  ml->AddMaterial("Three", "ThinGlass");
+  double blue[3] = {0.0,0.0,0.9};
+  ml->AddShaderVariable("Three", "attenuationColor", 3, blue);
+  ml->AddShaderVariable("Three", "eta", {1.65});
 
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   vtkProperty *prop;

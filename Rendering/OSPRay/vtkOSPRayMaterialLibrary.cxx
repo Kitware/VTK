@@ -88,7 +88,7 @@ void vtkOSPRayMaterialLibrary::AddTexture(const std::string& nickname, const std
 }
 
 // ----------------------------------------------------------------------------
-void vtkOSPRayMaterialLibrary::AddShaderVariable(const std::string& nickname, const std::string& varname, int numVars, double *x)
+void vtkOSPRayMaterialLibrary::AddShaderVariable(const std::string& nickname, const std::string& varname, int numVars, const double *x)
 {
   std::vector<double> w;
   w.assign(x, x+numVars);

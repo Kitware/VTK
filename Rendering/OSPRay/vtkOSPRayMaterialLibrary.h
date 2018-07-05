@@ -28,8 +28,9 @@
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkObject.h"
 
-#include <set> //for set
-#include <vector> //for set
+#include <initializer_list> //for initializer_list!
+#include <set> //for set!
+#include <vector> //for vector!
 
 class vtkOSPRayMaterialLibraryInternals;
 class vtkTexture;
@@ -101,8 +102,19 @@ public:
   /**
     * Add control variable
     * Adds a new control variable. Replaces any previous content.
+    * @{
     **/
-  void AddShaderVariable(const std::string& nickname, const std::string& variablename, int numVars, double *x);
+  void AddShaderVariable(const std::string& nickname,
+                         const std::string& variablename,
+                         int numVars, const double *x);
+  void AddShaderVariable(const std::string& nickname,
+                         const std::string& variablename,
+                         const std::initializer_list<double>& data)
+  {
+    this->AddShaderVariable(nickname, variablename,
+                            static_cast<int>(data.size()), data.begin());
+  }
+  /**@}*/
 
 
 protected:

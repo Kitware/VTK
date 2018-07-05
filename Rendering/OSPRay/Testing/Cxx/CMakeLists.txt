@@ -1,3 +1,6 @@
+find_package(OSPRay REQUIRED)
+include_directories(${OSPRAY_INCLUDE_DIRS})
+
 vtk_add_test_cxx(vtkRenderingOSPRayCxxTests tests
   # Surface rendering tests
   TestOSPRayAmbient.cxx

@@ -117,16 +117,16 @@ int TestCategoricalMultiBlock(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   //add materials to it
   ml->AddMaterial("Five", "Metal");
   ml->AddMaterial("One", "Glass");
-  ml->AddMaterial("Two", "Velvet");
-  double green[3] = {0.0,0.3,0.0};
-  double greenH[3] = {0.3,1.0,0.3};
-  ml->AddShaderVariable("Two", "reflectance", 3, green);
-  ml->AddShaderVariable("Two", "horizonScatteringColor", 3, greenH);
-  ml->AddMaterial("Three", "Velvet");
-  double blue[3] = {0.0,0.0,0.3};
-  double blueH[3] = {0.3,0.3,1.0};
-  ml->AddShaderVariable("Three", "reflectance", 3, blue);
-  ml->AddShaderVariable("Three", "horizonScatteringColor", 3, blueH);
+  //some of material names use the same low level material implementation
+  ml->AddMaterial("Two", "Glass");
+  //but each one  can be tuned
+  double green[3] = {0.0,0.9,0.0};
+  ml->AddShaderVariable("Two", "attenuationColor", 3, green);
+  ml->AddShaderVariable("Two", "eta", {1.});
+  ml->AddMaterial("Three", "Glass");
+  double blue[3] = {0.0,0.0,0.9};
+  ml->AddShaderVariable("Three", "attenuationColor", 3, blue);
+  ml->AddShaderVariable("Three", "eta", {1.65});
 
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   vtkProperty *prop;

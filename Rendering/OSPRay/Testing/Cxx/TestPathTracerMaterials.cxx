@@ -44,6 +44,11 @@
 #include "vtkSuperquadricSource.h"
 #include "vtkTexture.h"
 
+#include <ospray/version.h>
+
+// !! NOTE this test will output different images based on the OSPRay version,
+// !! since the available materials changed with OSPRay v1.6.
+
 int TestPathTracerMaterials(int argc, char* argv[])
 {
   // set up the environment
@@ -655,6 +660,8 @@ int TestPathTracerMaterials(int argc, char* argv[])
   }
   */
 
+  // Plastic is deprecated in 1.6
+#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR < 6
   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //plastic
   i++;
@@ -739,6 +746,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
     actor->SetMapper(mapper);
     renderer->AddActor(actor);
   }
+#endif // ospray < 1.6
 
   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //thin glass
@@ -819,6 +827,8 @@ int TestPathTracerMaterials(int argc, char* argv[])
   }
   */
 
+  // Velvet is deprecated in 1.6
+#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR < 6
   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //velvet
   i++;
@@ -857,7 +867,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   }
 
   j++;
-  {
+  { // It's a strange world...
     style->AddName("blue velvet");
 
     ml->AddMaterial("Velvet 3", "Velvet");
@@ -875,6 +885,121 @@ int TestPathTracerMaterials(int argc, char* argv[])
     actor->SetMapper(mapper);
     renderer->AddActor(actor);
   }
+#endif // ospray < 1.6
+
+  // CarPaint and Principled were added in 1.6:
+#if (OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 6) || OSPRAY_VERSION_MAJOR > 1
+
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //CarPaint
+  i++;
+  j=0;
+  {
+    style->AddName("default car paint");
+
+    ml->AddMaterial("CarPaint 1", "CarPaint");
+
+    actor = vtkSmartPointer<vtkActor>::New();
+    actor->SetPosition(xo+xr*1.15*i, yo, zo+zr*1.1*j);
+    prop = actor->GetProperty();
+    prop->SetMaterialName("CarPaint 1");
+    mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    mapper->SetInputConnection(polysource->GetOutputPort());
+    actor->SetMapper(mapper);
+    renderer->AddActor(actor);
+  }
+
+  j++;
+  {
+    style->AddName("Flakey purpley pink car paint");
+
+    ml->AddMaterial("CarPaint 2", "CarPaint");
+    ml->AddShaderVariable("CarPaint 2", "baseColor", {1., .1, .9});
+    ml->AddShaderVariable("CarPaint 2", "coatColor", {1., .1, .9});
+    ml->AddShaderVariable("CarPaint 2", "flipflopColor", {.5, .1, .9});
+    ml->AddShaderVariable("CarPaint 2", "flipflopFalloff", {.2});
+    ml->AddShaderVariable("CarPaint 2", "flakeDensity", {.9});
+    ml->AddShaderVariable("CarPaint 2", "flakeSpread", {.5});
+    ml->AddShaderVariable("CarPaint 2", "flakeScale", {500.});
+    ml->AddShaderVariable("CarPaint 2", "flakeRoughness", {.75});
+
+    actor = vtkSmartPointer<vtkActor>::New();
+    actor->SetPosition(xo+xr*1.15*i, yo, zo+zr*1.1*j);
+    prop = actor->GetProperty();
+    prop->SetMaterialName("CarPaint 2");
+    mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    mapper->SetInputConnection(polysource->GetOutputPort());
+    actor->SetMapper(mapper);
+    renderer->AddActor(actor);
+  }
+
+  j++;
+  {
+    style->AddName("Silvery blue car paint");
+
+    ml->AddMaterial("CarPaint 3", "CarPaint");
+    ml->AddShaderVariable("CarPaint 3", "baseColor", {.4, .4, .6});
+    ml->AddShaderVariable("CarPaint 3", "coatColor", {.7, .7, .8});
+    ml->AddShaderVariable("CarPaint 3", "coatThickness", {.3});
+    ml->AddShaderVariable("CarPaint 3", "flipflopColor", {.1, .2, .95});
+    ml->AddShaderVariable("CarPaint 3", "flipflopFalloff", {.1});
+    ml->AddShaderVariable("CarPaint 3", "flakeDensity", {.4});
+    ml->AddShaderVariable("CarPaint 3", "flakeSpread", {.2});
+    ml->AddShaderVariable("CarPaint 3", "flakeScale", {50.});
+    ml->AddShaderVariable("CarPaint 3", "flakeRoughness", {.8});
+
+    actor = vtkSmartPointer<vtkActor>::New();
+    actor->SetPosition(xo+xr*1.15*i, yo, zo+zr*1.1*j);
+    prop = actor->GetProperty();
+    prop->SetMaterialName("CarPaint 3");
+    mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    mapper->SetInputConnection(polysource->GetOutputPort());
+    actor->SetMapper(mapper);
+    renderer->AddActor(actor);
+  }
+
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  //Principled
+  i++;
+  j=0;
+  {
+    style->AddName("default principled");
+
+    ml->AddMaterial("Principled 1", "Principled");
+
+    actor = vtkSmartPointer<vtkActor>::New();
+    actor->SetPosition(xo+xr*1.15*i, yo, zo+zr*1.1*j);
+    prop = actor->GetProperty();
+    prop->SetMaterialName("Principled 1");
+    mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    mapper->SetInputConnection(polysource->GetOutputPort());
+    actor->SetMapper(mapper);
+    renderer->AddActor(actor);
+  }
+
+  j++;
+  {
+    style->AddName("green sheen principled");
+
+    ml->AddMaterial("Principled 2", "Principled");
+    ml->AddShaderVariable("Principled 2", "baseColor", {.6, .9, .6});
+    ml->AddShaderVariable("Principled 2", "edgeColor", {.1, .9, .2});
+    ml->AddShaderVariable("Principled 2", "metallic", {.7});
+    ml->AddShaderVariable("Principled 2", "sheenColor", {.2, .9, .1});
+    ml->AddShaderVariable("Principled 2", "sheen", {.9});
+    ml->AddShaderVariable("Principled 2", "coatColor", {.2, .9, .1});
+
+    actor = vtkSmartPointer<vtkActor>::New();
+    actor->SetPosition(xo+xr*1.15*i, yo, zo+zr*1.1*j);
+    prop = actor->GetProperty();
+    prop->SetMaterialName("Principled 2");
+    mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    mapper->SetInputConnection(polysource->GetOutputPort());
+    actor->SetMapper(mapper);
+    renderer->AddActor(actor);
+  }
+
+#endif // ospray >= 1.6
 
   //now finally draw
   renWin->Render(); //let vtk pick a decent camera

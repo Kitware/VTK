@@ -23,6 +23,11 @@
 #include "ospray/ospray.h"
 #include "ospray/version.h"
 
+#define VTK_OSPRAY_VERSION \
+  OSPRAY_VERSION_MAJOR * 10000 + \
+  OSPRAY_VERSION_MINOR * 100 + \
+  OSPRAY_VERSION_PATCH
+
 //------------------------------------------------------------------------------
 osp::Texture2D *vtkOSPRayMaterialHelpers::VTKToOSPTexture
   (vtkImageData *vColorTextureMap)
@@ -201,11 +206,6 @@ osp::Material* vtkOSPRayMaterialHelpers::MakeMaterial
     OSPSET3F(attenuationColorOutside);
     OSPSET1F(attenuationDistance);
   }
-  else if (implname == "Matte")
-  {
-    oMaterial = NewMaterial(orn, oRenderer, implname);
-    OSPSET3F(reflectance);
-  }
   else if (implname == "Metal")
   {
     oMaterial = NewMaterial(orn, oRenderer, implname);
@@ -224,24 +224,6 @@ osp::Material* vtkOSPRayMaterialHelpers::MakeMaterial
     OSPSET3F(flakeColor)
     OSPSET1F(flakeSpread)
     OSPSET1F(eta)
-  }
-  else if (implname == "Principled")
-  {
-    oMaterial = NewMaterial(orn, oRenderer, implname);
-    OSPSET3F(baseColor);
-    OSPSET1F(metallic);
-    OSPSET3F(specular);
-    OSPSET3F(edgeColor);
-    OSPSET1F(transmission);
-    OSPSET1F(roughness);
-    OSPSET1F(normalScale);
-    OSPSET1F(coat);
-    OSPSET3F(coatColor);
-    OSPSET1F(coatThickness);
-    OSPSET1F(coatRoughness);
-    OSPSET1F(coatNormalScale);
-    OSPSET1F(ior);
-    OSPSET1F(iorOutside);
   }
   else if (implname == "OBJMaterial")
   {
@@ -279,14 +261,6 @@ osp::Material* vtkOSPRayMaterialHelpers::MakeMaterial
     affine2f xform_Bump = getTextureTransform("map_Bump") * getTextureTransform("map_bump") * getTextureTransform("normalMap") * getTextureTransform("BumpMap");
     */
   }
-  else if (implname == "Plastic")
-  {
-    oMaterial = NewMaterial(orn, oRenderer, implname);
-    OSPSET3F(pigmentColor);
-    OSPSET1F(eta);
-    OSPSET1F(roughness);
-    OSPSET1F(thickness);
-  }
   else if (implname == "ThinGlass")
   {
     oMaterial = NewMaterial(orn, oRenderer, implname);
@@ -297,6 +271,33 @@ osp::Material* vtkOSPRayMaterialHelpers::MakeMaterial
     OSPSET1F(eta);
     OSPSET1F(thickness);
   }
+
+#if VTK_OSPRAY_VERSION >= 10401 // 1.4.1
+  // Alloy added in 1.4.1
+  else if (implname == "Alloy")
+  {
+    oMaterial = NewMaterial(orn, oRenderer, implname);
+    OSPSET3F(color);
+    OSPSET3F(edgeColor);
+    OSPSET1F(roughness);
+  }
+#endif
+
+#if VTK_OSPRAY_VERSION < 10600 // 1.6.0
+  // Matte, Plastic, Velvet no longer listed in documentation in 1.6.0
+  else if (implname == "Matte")
+  {
+    oMaterial = NewMaterial(orn, oRenderer, implname);
+    OSPSET3F(reflectance);
+  }
+  else if (implname == "Plastic")
+  {
+    oMaterial = NewMaterial(orn, oRenderer, implname);
+    OSPSET3F(pigmentColor);
+    OSPSET1F(eta);
+    OSPSET1F(roughness);
+    OSPSET1F(thickness);
+  }
   else if (implname == "Velvet")
   {
     oMaterial = NewMaterial(orn, oRenderer, implname);
@@ -305,11 +306,52 @@ osp::Material* vtkOSPRayMaterialHelpers::MakeMaterial
     OSPSET3F(horizonScatteringColor);
     OSPSET1F(horizonScatteringFallOff);
   }
+#else // OSPRay >= 1.6.0
+  // Principled and CarPaint added in 1.6.0
+  else if (implname == "Principled")
+  {
+    oMaterial = NewMaterial(orn, oRenderer, implname);
+    OSPSET3F(baseColor);
+    OSPSET1F(metallic);
+    OSPSET3F(specular);
+    OSPSET3F(edgeColor);
+    OSPSET1F(transmission);
+    OSPSET1F(roughness);
+    OSPSET1F(normalScale);
+    OSPSET1F(coat);
+    OSPSET3F(coatColor);
+    OSPSET1F(coatThickness);
+    OSPSET1F(coatRoughness);
+    OSPSET1F(coatNormalScale);
+    OSPSET1F(ior);
+    OSPSET1F(iorOutside);
+  }
+  else if (implname == "CarPaint")
+  {
+    oMaterial = NewMaterial(orn, oRenderer, implname);
+    OSPSET3F(baseColor);
+    OSPSET1F(roughness);
+    OSPSET1F(normal);
+    OSPSET1F(flakeDensity);
+    OSPSET1F(flakeScale);
+    OSPSET1F(flakeSpread);
+    OSPSET1F(flakeJitter);
+    OSPSET1F(flakeRoughness);
+    OSPSET1F(coat);
+    OSPSET1F(coatIor);
+    OSPSET3F(coatColor);
+    OSPSET1F(coatThickness);
+    OSPSET1F(coatRoughness);
+    OSPSET1F(coatNormal);
+    OSPSET3F(flipflopColor);
+    OSPSET1F(flipflopFalloff);
+  }
+#endif
   else
   {
-    cout <<
+    vtkGenericWarningMacro(
       "Warning: unrecognized material \"" << implname.c_str() <<
-      "\" using OBJMaterial instead. " << endl;
+      "\" using OBJMaterial instead. ");
     oMaterial = NewMaterial(orn, oRenderer, "OBJMaterial");
   }
   return oMaterial;
@@ -322,18 +364,30 @@ osp::Material *vtkOSPRayMaterialHelpers::NewMaterial(vtkOSPRayRendererNode *orn,
                                                      std::string ospMatName)
 {
   osp::Material *result;
-#if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
+
+#if VTK_OSPRAY_VERSION >= 10500 // 1.5.0
+
   (void)oRenderer;
   const std::string rendererType = vtkOSPRayRendererNode::GetRendererType(orn->GetRenderer());
   result = ospNewMaterial2(rendererType.c_str(), ospMatName.c_str());
-#else
+
+#else // ospray < 1.5.0
+
   (void)orn;
   result = ospNewMaterial(oRenderer, ospMatName.c_str());
+
 #endif
 
   if (!result)
   {
-    vtkGenericWarningMacro("Failed to create OSPRay material: " << ospMatName);
+    vtkGenericWarningMacro("OSPRay failed to create material: " << ospMatName
+                           << ". Trying OBJMaterial instead.");
+#if VTK_OSPRAY_VERSION >= 10500 // 1.5.0
+  result = ospNewMaterial2(rendererType.c_str(), "OBJMaterial");
+#else
+  result = ospNewMaterial(oRenderer, "OBJMaterial");
+#endif
+
   }
 
   return result;
