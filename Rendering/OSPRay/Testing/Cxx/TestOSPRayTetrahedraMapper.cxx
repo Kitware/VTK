@@ -35,6 +35,8 @@
 #include "vtkUnstructuredGridVolumeRayCastMapper.h"
 #include <vtkTestUtilities.h>
 
+namespace {
+
 static const char * TestOSPRayTetrahedraMapperLog =
 "# StreamVersion 1\n"
 "EnterEvent 299 0 0 0 0 0 0\n"
@@ -46,6 +48,7 @@ static const char * TestOSPRayTetrahedraMapperLog =
 "LeaveEvent 399 -8 0 0 0 0 0\n"
 ;
 
+} // end anon namespace
 
 int TestOSPRayTetrahedraMapper(int argc, char *argv[])
 {

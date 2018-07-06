@@ -55,7 +55,7 @@ else()
       )
 
     set(LIB_OSPRAY_EMBREE LIB_OSPRAY_EMBREE-NOTFOUND)
-    find_library(LIB_OSPRAY_EMBREE NAMES ospray_embree embree
+    find_library(LIB_OSPRAY_EMBREE NAMES ospray_embree embree embree3
       PATHS ${OSPRAY_BUILD_DIR} ${OSP_embree_DIR} NO_DEFAULT_PATH)
     mark_as_advanced(LIB_OSPRAY_EMBREE)
 

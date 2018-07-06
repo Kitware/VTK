@@ -372,7 +372,9 @@ public:
          ochars,
          0);//OSP_TEXTURE_FILTER_NEAREST);
 
-      OSPLight ospLight = ospNewLight(oRenderer, "hdri");
+      OSPLight ospLight = vtkOSPRayLightNode::NewLight(this->Owner,
+                                                       oRenderer,
+                                                       "hdri");
       ospSetObject(ospLight, "map", ((OSPTexture2D)(t2d)));
       double *up = vtkOSPRayRendererNode::GetNorthPole(ren);
       if (up)
@@ -779,7 +781,9 @@ void vtkOSPRayRendererNode::Traverse(int operation)
       )
   {
     //hardcode an ambient light for AO since OSP 1.2 stopped doing so.
-    OSPLight ospAmbient = ospNewLight(oRenderer, "AmbientLight");
+    OSPLight ospAmbient = vtkOSPRayLightNode::NewLight(this,
+                                                       oRenderer,
+                                                       "AmbientLight");
     ospSetString(ospAmbient, "name", "default_ambient");
     ospSet3f(ospAmbient, "color", 1.f, 1.f, 1.f);
     ospSet1f(ospAmbient, "intensity",

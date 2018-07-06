@@ -65,6 +65,13 @@ namespace vtkOSPRayMaterialHelpers {
                               osp::Renderer *oRenderer,
                               std::string nickname);
 
+  /**
+   * Wraps ospNewMaterial or ospNewMaterial2, depending on OSPRay version.
+   */
+  osp::Material* NewMaterial(vtkOSPRayRendererNode *orn,
+                             osp::Renderer *oRenderer,
+                             std::string ospMatName);
+
 }
 #endif
 // VTK-HeaderTest-Exclude: vtkOSPRayMaterialHelpers.h
