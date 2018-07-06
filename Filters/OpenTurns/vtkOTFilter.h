@@ -27,21 +27,12 @@
 #define vtkOTFilter_h
 
 #include "vtkFiltersOpenTurnsModule.h" // For export macro
-#include "vtkOTConfig.h" // For OpenTURNS version
 #include "vtkTableAlgorithm.h"
 
-#if (OPENTURNS_VERSION_MAJOR == 1 && OPENTURNS_VERSION_MINOR == 8)
-namespace OT
-{
-class NumericalSample;
-typedef NumericalSample Sample;
-}
-#else
 namespace OT
 {
 class Sample;
 }
-#endif
 
 class VTKFILTERSOPENTURNS_EXPORT vtkOTFilter : public vtkTableAlgorithm
 {

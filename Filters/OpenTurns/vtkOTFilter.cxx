@@ -21,7 +21,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-#include "vtkOTConfig.h"
 #include "vtkOTIncludes.h"
 #include "vtkOTUtilities.h"
 

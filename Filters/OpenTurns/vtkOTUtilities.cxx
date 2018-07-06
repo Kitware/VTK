@@ -16,20 +16,11 @@
 
 #include "vtkDataArrayCollection.h"
 #include "vtkDoubleArray.h"
+#include "vtkOTIncludes.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
-#if (OPENTURNS_VERSION_MAJOR == 1 && OPENTURNS_VERSION_MINOR == 8)
-#include "openturns/NumericalSample.hxx"
-#else
-#include "openturns/Sample.hxx"
-#endif
-
 using namespace OT;
-
-#if (OPENTURNS_VERSION_MAJOR == 1 && OPENTURNS_VERSION_MINOR == 8)
-typedef NumericalPoint Point;
-#endif
 
 //-----------------------------------------------------------------------------
 Sample* vtkOTUtilities::SingleDimArraysToSample(vtkDataArrayCollection* arrays)

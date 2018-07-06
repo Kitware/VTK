@@ -16,7 +16,6 @@
 
 #include "vtkObjectFactory.h"
 
-#include "vtkOTConfig.h"
 #include "vtkOTIncludes.h"
 #include "vtkOTUtilities.h"
 
@@ -89,8 +88,8 @@ void vtkOTKernelSmoothing::ComputePDF(Sample* input,
 {
   ks->setBoundaryCorrection(this->BoundaryCorrection);
 
-  DistributionFactoryImplementation::Implementation dist = ks->build(*input);
+  Distribution dist = ks->build(*input);
   Sample gridX;
-  Sample gridY = dist->computePDF(range[0], range[1], this->PointNumber, gridX);
+  Sample gridY = dist.getImplementation()->computePDF(range[0], range[1], this->PointNumber, gridX);
   this->AddToOutput(&gridY, pdfName);
 }
