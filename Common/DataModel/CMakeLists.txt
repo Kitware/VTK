@@ -40,6 +40,7 @@ set(Module_SRCS
   vtkDataObjectTree.cxx
   vtkDataObjectTreeIterator.cxx
   vtkDataSetAttributes.cxx
+  vtkDataSetAttributesFieldList.cxx
   vtkDataSetCollection.cxx
   vtkDataSet.cxx
   vtkDirectedAcyclicGraph.cxx

@@ -12,6 +12,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestDataArrayDispatcher.cxx
   TestDataObject.cxx
   TestDispatchers.cxx
+  TestFieldList.cxx
   TestGenericCell.cxx
   TestGraph.cxx
   TestGraph2.cxx
