@@ -484,7 +484,14 @@ void vtkAppendFilter::AppendArrays(int attributesType,
   // Initialize with the active attribute from the first input
   for (int attribute = 0; attribute < vtkDataSetAttributes::NUM_ATTRIBUTES; ++attribute)
   {
-    attributeArrays[attribute] = firstInputData->GetAbstractAttribute(attribute);
+    if (outputData->GetCopyAttribute(attribute, vtkDataSetAttributes::COPYTUPLE))
+    {
+      attributeArrays[attribute] = firstInputData->GetAbstractAttribute(attribute);
+    }
+    else
+    {
+      attributeArrays[attribute] = nullptr;
+    }
   }
 
   inputs->InitTraversal(iter);
