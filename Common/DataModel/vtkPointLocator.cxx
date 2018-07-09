@@ -36,13 +36,13 @@ public:
   vtkNeighborPoints()
   {
       this->Count = 0;
-      this->P=&(this->InitialBuffer[0]);
+      this->P = this->InitialBuffer;
       this->MaxSize = VTK_INITIAL_SIZE;
   }
   ~vtkNeighborPoints()
   {
       this->Count = 0;
-      if ( this->P != &(this->InitialBuffer[0]) )
+      if ( this->P != this->InitialBuffer )
       {
         delete[] this->P;
       }
@@ -52,7 +52,7 @@ public:
 
   int *GetPoint(int i)
   {
-      return (this->Count > i ?  &(this->P[3*i]) : nullptr);
+    return (this->Count > i ?  (this->P + 3*i) : nullptr);
   }
 
   int InsertNextPoint(const int x[3])
@@ -72,7 +72,7 @@ public:
         {
           this->P[i] = tmp[i];
         }
-        if ( tmp != &(this->InitialBuffer[0]) )
+        if ( tmp != this->InitialBuffer )
         {
           delete[] tmp;
         }

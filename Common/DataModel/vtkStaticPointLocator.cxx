@@ -149,13 +149,13 @@ struct NeighborBuckets
   NeighborBuckets()
   {
     this->Count = 0;
-    this->P = &(this->InitialBuffer[0]);
+    this->P = this->InitialBuffer;
     this->MaxSize = VTK_INITIAL_BUCKET_SIZE;
   }
   ~NeighborBuckets()
   {
     this->Count = 0;
-    if ( this->P != &(this->InitialBuffer[0]) )
+    if ( this->P != this->InitialBuffer )
     {
       delete[] this->P;
     }
