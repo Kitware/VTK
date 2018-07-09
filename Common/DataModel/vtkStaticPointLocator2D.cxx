@@ -153,7 +153,7 @@ struct NeighborBuckets2D
 
   NeighborBuckets2D()
   {
-    this->P = &(this->InitialBuffer[0]);
+    this->P = this->InitialBuffer;
     this->Count = 0;
     this->MaxSize = VTK_INITIAL_BUCKET_SIZE;
   }
@@ -161,7 +161,7 @@ struct NeighborBuckets2D
   ~NeighborBuckets2D()
   {
     this->Count = 0;
-    if ( this->P != &(this->InitialBuffer[0]) )
+    if ( this->P != this->InitialBuffer )
     {
       delete[] this->P;
     }
