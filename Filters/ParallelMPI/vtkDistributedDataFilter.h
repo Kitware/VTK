@@ -40,41 +40,41 @@
  * the decomposition computed for another dataset.  Obtain a description
  * of the k-d tree cuts this way:
  *
+ * @code{cpp}
  *    vtkBSPCuts *cuts = D3Object1->GetCuts()
+ * @endcode
  *
  * And set it this way:
  *
- *    D3Object2->SetCuts(cuts)
+ * @code{cpp}
+ *     D3Object2->SetCuts(cuts)
+ * @endcode
  *
- *    It is desirable to have a field array of global node IDs
- *    for two reasons:
  *
- *    1. When merging together sub grids that were distributed
+ * It is desirable to have a field array of global node IDs
+ * for two reasons:
+ *
+ * 1. When merging together sub grids that were distributed
  *    across processors, global node IDs can be used to remove
  *    duplicate points and significantly reduce the size of the
  *    resulting output grid.  If no such array is available,
  *    D3 will use a tolerance to merge points, which is much
  *    slower.
  *
- *    2. If ghost cells have been requested, D3 requires a
+ * 2. If ghost cells have been requested, D3 requires a
  *    global node ID array in order to request and transfer
  *    ghost cells in parallel among the processors.  If there
  *    is no global node ID array, D3 will in parallel create
  *    a global node ID array, and the time to do this can be
  *    significant.
  *
- *    If you know the name of a global node ID array in the input
- *    dataset, set that name with this method.  If you leave
- *    it unset, D3 will search the input data set for certain
- *    common names of global node ID arrays.  If none is found,
- *    and ghost cells have been requested, D3 will create a
- *    temporary global node ID array before acquiring ghost cells.
- *   It is also desirable to have global element IDs.  However,
- *   if they don't exist D3 can create them relatively quickly.
- *   Set the name of the global element ID array if you have it.
- *   If it is not set, D3 will search for it using common names.
- *   If still not found, D3 will create a temporary array of
- *   global element IDs.
+ * D3 uses `vtkPointData::GetGlobalIds` to access global
+ * node ids from the input. If none is found,
+ * and ghost cells have been requested, D3 will create a
+ * temporary global node ID array before acquiring ghost cells.
+ *
+ * It is also desirable to have global element IDs (vtkCellData::GetGlobalIds).
+ * However, if they don't exist D3 can create them relatively quickly.
  *
  * @warning
  * The Execute() method must be called by all processes in the
