@@ -25,7 +25,10 @@
 int TestResampleToImage2D(int argc, char* argv[])
 {
   vtkNew<vtkXMLUnstructuredGridReader> reader;
-  reader->SetFileName(vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/delaunay3d.vtu"));
+  char *fname =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/delaunay3d.vtu");
+  reader->SetFileName(fname);
+  delete [] fname;
 
   vtkNew<vtkResampleToImage> resample;
   resample->UseInputBoundsOff();

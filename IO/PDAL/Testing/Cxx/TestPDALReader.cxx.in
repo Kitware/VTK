@@ -41,6 +41,7 @@ int TestPDALReader_@VTK_PDAL_READER_POSTFIX@(int argc, char **argv)
   vtkNew<vtkPDALReader> reader;
   //Select source file
   reader->SetFileName(path);
+  delete [] path;
 
   //Read the output
   reader->Update();

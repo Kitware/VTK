@@ -30,7 +30,10 @@
 int TestScalarsToTexture(int argc, char* argv[])
 {
   vtkNew<vtkXMLPolyDataReader> reader;
-  reader->SetFileName(vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/can_slice.vtp"));
+  char *fname =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/can_slice.vtp");
+  reader->SetFileName(fname);
+  delete [] fname;
 
   vtkNew<vtkColorTransferFunction> stc;
   stc->SetVectorModeToMagnitude();
