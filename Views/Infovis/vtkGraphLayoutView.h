@@ -299,7 +299,7 @@ public:
    * containing "type" as a value in the vertex attribute array specified by
    * IconArrayName.
    */
-  void AddIconType(char *type, int index);
+  void AddIconType(const char *type, int index);
 
   /**
    * Clear all icon mappings.
