@@ -561,11 +561,11 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
   this->HaveAppleBug =
     static_cast<vtkOpenGLRenderer *>(viewport)->HaveApplePrimitiveIdBug();
 
+  this->MapScalars(act->GetProperty()->GetOpacity());
   this->HaveCellScalars = false;
   if (this->ScalarVisibility)
   {
     // We must figure out how the scalars should be mapped to the polydata.
-    this->MapScalars(act->GetProperty()->GetOpacity());
     if ( (this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA ||
           this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA ||
           this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA ||
