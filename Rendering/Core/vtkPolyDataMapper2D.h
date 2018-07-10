@@ -162,13 +162,13 @@ public:
    * Choose which component of which field data array to color by.
    */
   void ColorByArrayComponent(int arrayNum, int component);
-  void ColorByArrayComponent(char* arrayName, int component);
+  void ColorByArrayComponent(const char* arrayName, int component);
   //@}
 
   /**
    * Get the array name or number and component to color by.
    */
-  char* GetArrayName() { return this->ArrayName; }
+  const char* GetArrayName() { return this->ArrayName; }
   int GetArrayId() { return this->ArrayId; }
   int GetArrayAccessMode() { return this->ArrayAccessMode; }
   int GetArrayComponent() { return this->ArrayComponent; }

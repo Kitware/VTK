@@ -237,7 +237,7 @@ public:
   /**
    * Return an array of a particular name from field data and do error checking.
    */
-  static vtkDataArray *GetFieldArray(vtkFieldData *fd, char *name, int comp);
+  static vtkDataArray *GetFieldArray(vtkFieldData *fd, const char *name, int comp);
 
   /**
    * Specify an array name for one of the components.

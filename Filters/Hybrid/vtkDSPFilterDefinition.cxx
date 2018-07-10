@@ -161,12 +161,12 @@ void vtkDSPFilterDefinition::PushBackForwardNumeratorWeight(double a_value)
 }
 
 //----------------------------------------------------------------------------
-void vtkDSPFilterDefinition::SetInputVariableName(char *a_value)
+void vtkDSPFilterDefinition::SetInputVariableName(const char *a_value)
 {
   this->InputVariableName->m_string = a_value;
 }
 //----------------------------------------------------------------------------
-void vtkDSPFilterDefinition::SetOutputVariableName(char *a_value)
+void vtkDSPFilterDefinition::SetOutputVariableName(const char *a_value)
 {
   this->OutputVariableName->m_string = a_value;
 }

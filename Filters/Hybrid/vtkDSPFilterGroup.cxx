@@ -149,7 +149,7 @@ void vtkDSPFilterGroup::AddFilter(vtkDSPFilterDefinition *filter)
 }
 
 //----------------------------------------------------------------------------
-void vtkDSPFilterGroup::RemoveFilter(char *a_outputVariableName)
+void vtkDSPFilterGroup::RemoveFilter(const char *a_outputVariableName)
 {
   std::vector<vtkDSPFilterDefinition *>::iterator l_iter;
   std::vector< std::vector<vtkFloatArray *> >::iterator l_cachedOutputsIter = this->CachedOutputs->m_vector.begin();

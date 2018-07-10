@@ -50,7 +50,7 @@ public:
 
 
   void AddFilter(vtkDSPFilterDefinition *filter);
-  void RemoveFilter(char *a_outputVariableName);
+  void RemoveFilter(const char *a_outputVariableName);
 
   bool IsThisInputVariableInstanceNeeded( const char *a_name, int a_timestep, int a_outputTimestep );
   bool IsThisInputVariableInstanceCached( const char *a_name, int a_timestep );

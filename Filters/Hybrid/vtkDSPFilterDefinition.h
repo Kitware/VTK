@@ -57,8 +57,8 @@ class VTKFILTERSHYBRID_EXPORT vtkDSPFilterDefinition : public vtkObject
   void PushBackNumeratorWeight(double a_value);
   void PushBackDenominatorWeight(double a_value);
   void PushBackForwardNumeratorWeight(double a_value);
-  void SetInputVariableName(char *a_value);
-  void SetOutputVariableName(char *a_value);
+  void SetInputVariableName(const char *a_value);
+  void SetOutputVariableName(const char *a_value);
   const char *GetInputVariableName();
   const char *GetOutputVariableName();
 

@@ -642,14 +642,14 @@ vtkFiberSurface::vtkFiberSurface()
 
 //----------------------------------------------------------------------------
 
-void vtkFiberSurface::SetField1(char* nm)
+void vtkFiberSurface::SetField1(const char* nm)
 {
   this->Fields[0] = nm;
 }
 
 //----------------------------------------------------------------------------
 
-void vtkFiberSurface::SetField2(char* nm)
+void vtkFiberSurface::SetField2(const char* nm)
 {
   this->Fields[1] = nm;
 }

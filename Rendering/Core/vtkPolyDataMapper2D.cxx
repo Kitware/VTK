@@ -207,7 +207,8 @@ void vtkPolyDataMapper2D::ColorByArrayComponent(int arrayNum, int component)
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyDataMapper2D::ColorByArrayComponent(char* arrayName, int component)
+void vtkPolyDataMapper2D::ColorByArrayComponent(const char* arrayName,
+                                                int component)
 {
   if (strcmp(this->ArrayName, arrayName) == 0 &&
       component == this->ArrayComponent &&
