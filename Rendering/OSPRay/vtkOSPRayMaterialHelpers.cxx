@@ -32,7 +32,7 @@
 osp::Texture2D *vtkOSPRayMaterialHelpers::VTKToOSPTexture
   (vtkImageData *vColorTextureMap)
 {
-  unsigned char *ochars;
+  unsigned char *ochars = nullptr;
   void *obuffer;
   int xsize = vColorTextureMap->GetExtent()[1];
   int ysize = vColorTextureMap->GetExtent()[3];

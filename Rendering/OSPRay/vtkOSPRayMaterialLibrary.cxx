@@ -355,7 +355,7 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL
       if (tstr.compare(0, key.size(), key) == 0)
       {
         std::string v = tstr.substr(key.size());
-        double dv;
+        double dv = 0.;
         bool OK = false;
         try
         {
@@ -386,7 +386,9 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL
         std::string v1 = vs.substr(0,loc1);
         std::string v2 = vs.substr(loc1+1,loc2);
         std::string v3 = vs.substr(loc2+1);
-        double d1, d2, d3;
+        double d1 = 0;
+        double d2 = 0;
+        double d3 = 0;
         bool OK = false;
         try
         {
