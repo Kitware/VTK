@@ -546,25 +546,27 @@ void vtkOpenVRPanelRepresentation::PlaceWidgetExtended(
   nvright.Normalize();
   nvpn = nvright.Cross(nup);
 
-  vtkVector3d xaxis(1.0, 0.0, 0.0);
-  vtkVector3d yaxis(0.0, 1.0, 0.0);
+  double basis[16];
+  basis[0] = nvright[0];
+  basis[4] = nvright[1];
+  basis[8] = nvright[2];
+  basis[12] = 0;
+  basis[1] = nup[0];
+  basis[5] = nup[1];
+  basis[9] = nup[2];
+  basis[13] = 0;
+  basis[2] = nvpn[0];
+  basis[6] = nvpn[1];
+  basis[10] = nvpn[2];
+  basis[14] = 0;
+  basis[3] = 0;
+  basis[7] = 0;
+  basis[11] = 0;
+  basis[15] = 1;
 
-  // rotate about vright so that Y is along VUP
-  double theta = acos(nup[1]);
-  if (nup.Cross(yaxis)[0] > 0.0)
-  {
-    theta = -theta;
-  }
-  this->TextActor->RotateX(vtkMath::DegreesFromRadians(theta));
-
-  // rotate about up so that Y is along vright
-  theta = acos(nvright[0]);
-  if (nup.Dot(nvright.Cross(xaxis)) > 0.0)
-  {
-    theta = -theta;
-  }
-  this->TextActor->RotateWXYZ(vtkMath::DegreesFromRadians(theta),
-    nup[0], nup[1], nup[2]);
+  vtkNew<vtkTransform> basisT;
+  basisT->SetMatrix(basis);
+  this->TextActor->SetOrientation(basisT->GetOrientation());
 
   if (this->CoordinateSystem == World)
   {
