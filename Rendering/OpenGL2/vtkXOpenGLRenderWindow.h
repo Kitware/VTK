@@ -267,17 +267,17 @@ public:
   /**
    * Set this RenderWindow's X window id to a pre-existing window.
    */
-  void SetWindowInfo(char *info) override;
+  void SetWindowInfo(const char *info) override;
 
   /**
    * Set the window info that will be used after WindowRemap()
    */
-  void SetNextWindowInfo(char *info) override;
+  void SetNextWindowInfo(const char *info) override;
 
   /**
    * Sets the X window id of the window that WILL BE created.
    */
-  void SetParentInfo(char *info) override;
+  void SetParentInfo(const char *info) override;
 
   /**
    * This computes the size of the render window

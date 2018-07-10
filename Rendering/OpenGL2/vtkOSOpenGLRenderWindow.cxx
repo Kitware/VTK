@@ -416,7 +416,7 @@ void vtkOSOpenGLRenderWindow::SetPosition(int x, int y)
 }
 
 // Set this RenderWindow's X window id to a pre-existing window.
-void vtkOSOpenGLRenderWindow::SetWindowInfo(char *info)
+void vtkOSOpenGLRenderWindow::SetWindowInfo(const char *info)
 {
   int tmp;
 
@@ -427,7 +427,7 @@ void vtkOSOpenGLRenderWindow::SetWindowInfo(char *info)
 }
 
 // Set this RenderWindow's X window id to a pre-existing window.
-void vtkOSOpenGLRenderWindow::SetNextWindowInfo(char *info)
+void vtkOSOpenGLRenderWindow::SetNextWindowInfo(const char *info)
 {
   int tmp;
   sscanf(info,"%i",&tmp);
@@ -436,7 +436,7 @@ void vtkOSOpenGLRenderWindow::SetNextWindowInfo(char *info)
 }
 
 // Sets the X window id of the window that WILL BE created.
-void vtkOSOpenGLRenderWindow::SetParentInfo(char *info)
+void vtkOSOpenGLRenderWindow::SetParentInfo(const char *info)
 {
   int tmp;
 

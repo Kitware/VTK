@@ -50,8 +50,8 @@ public:
   virtual void *GetGenericParentId()  = 0;
   virtual void *GetGenericContext()   = 0;
   virtual void *GetGenericDrawable()  = 0;
-  virtual void SetWindowInfo(char *) = 0;
-  virtual void SetParentInfo(char *) = 0;
+  virtual void SetWindowInfo(const char *) = 0;
+  virtual void SetParentInfo(const char *) = 0;
   //@}
 
   //@{

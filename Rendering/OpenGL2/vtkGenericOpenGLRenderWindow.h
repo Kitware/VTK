@@ -94,8 +94,8 @@ public:
   void* GetGenericParentId() override;
   void* GetGenericContext() override;
   void* GetGenericDrawable() override;
-  void SetWindowInfo(char*) override;
-  void SetParentInfo(char*) override;
+  void SetWindowInfo(const char*) override;
+  void SetParentInfo(const char*) override;
   int* GetScreenSize() VTK_SIZEHINT(2) override;
   void Start() override;
   void HideCursor() override;
@@ -104,7 +104,7 @@ public:
   void WindowRemap() override;
   int  GetEventPending() override;
   void SetNextWindowId(void*) override;
-  void SetNextWindowInfo(char*) override;
+  void SetNextWindowInfo(const char*) override;
   void CreateAWindow() override;
   void DestroyWindow() override;
   // }@
