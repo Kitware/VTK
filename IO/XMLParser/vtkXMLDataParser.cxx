@@ -1186,6 +1186,10 @@ void vtkXMLDataParser::FreeAsciiBuffer()
     vtkTemplateMacro(
       vtkXMLDataParserFreeAsciiBuffer(static_cast<VTK_TT*>(buffer))
       );
+
+    case VTK_BIT:
+      vtkXMLDataParserFreeAsciiBuffer(static_cast<unsigned char *>(buffer));
+      break;
   }
   this->AsciiDataBuffer = nullptr;
 }

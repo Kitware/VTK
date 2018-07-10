@@ -46,6 +46,8 @@ vtkOBJExporter::vtkOBJExporter()
 
 vtkOBJExporter::~vtkOBJExporter()
 {
+  delete [] this->OBJFileComment;
+  delete [] this->MTLFileComment;
   delete [] this->FilePrefix;
 }
 

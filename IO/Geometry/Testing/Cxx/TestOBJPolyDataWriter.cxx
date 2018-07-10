@@ -40,11 +40,15 @@ int TestOBJPolyDataWriter(int argc, char* argv[])
   sphereSource->SetPhiResolution(16);
 
   vtkNew<vtkJPEGReader> textReader;
-  textReader->SetFileName(
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/NE2_ps_bath_small.jpg"));
+  char *fname =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/NE2_ps_bath_small.jpg");
+  textReader->SetFileName(fname);
+  delete [] fname;
 
-  std::string tmpDir(
-    vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary"));
+  char *tname =
+    vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
+  std::string tmpDir(tname);
+  delete [] tname;
   std::string filename = tmpDir + "/TestOBJPolyDataWriter_write.obj";
 
   vtkNew<vtkOBJWriter> writer;
