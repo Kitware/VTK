@@ -286,8 +286,8 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Consider increasing DOT_GRAPH_MAX_NODES"
   "based on cache misses the ideal setting for LOOKUP_CACHE_SIZE"
 
-  #Qt vtk class warning from buggy cppcheck
-  "warning: Member variable 'QVTKOpenGLWidget::qVTKOpenGLWindowInternal' is not initialized"
+  # warning from buggy cppcheck
+  "is not initialized in the constructor"
   )
 
 IF(APPLE)
