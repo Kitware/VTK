@@ -182,18 +182,10 @@ extern "C"
 
 extern "C"
 {
-  static void vtkPNGWriteWarningFunction(png_structp png_ptr,
+  static void vtkPNGWriteWarningFunction(png_structp /*png_ptr*/,
                                          png_const_charp warning_msg)
   {
-    PNG_CONST char *name = "UNKNOWN (ERROR!)";
-    char *test;
-    test = static_cast<char *>(png_get_error_ptr(png_ptr));
-
-    if (test == nullptr)
-      fprintf(stderr, "%s: libpng warning: %s\n", name, warning_msg);
-
-    else
-      fprintf(stderr, "%s: libpng warning: %s\n", test, warning_msg);
+    fprintf(stderr, "libpng warning: %s\n", warning_msg);
   }
 }
 
@@ -279,7 +271,7 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data, int* uExtent)
         return;
       }
       png_init_io(png_ptr, this->TempFP);
-      png_set_error_fn(png_ptr, png_ptr,
+      png_set_error_fn(png_ptr, nullptr,
                        vtkPNGWriteErrorFunction, vtkPNGWriteWarningFunction);
       if (setjmp(png_jmpbuf((png_ptr))))
       {

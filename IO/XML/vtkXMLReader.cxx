@@ -1582,7 +1582,7 @@ int vtkXMLReader::SetFieldDataInfo(vtkXMLDataElement *eDSA,
     return 1;
   }
 
-  char *(attributeName[vtkDataSetAttributes::NUM_ATTRIBUTES]);
+  char *attributeName[vtkDataSetAttributes::NUM_ATTRIBUTES];
 
   for (int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; i++)
   {

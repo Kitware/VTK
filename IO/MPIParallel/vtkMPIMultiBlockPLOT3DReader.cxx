@@ -216,7 +216,7 @@ int vtkMPIMultiBlockPLOT3DReader::OpenFileForDataRead(void*& vfp, const char* fn
       throw MPIPlot3DException();
     }
   }
-  catch (MPIPlot3DException)
+  catch (const MPIPlot3DException &)
   {
     delete handle;
     vfp = nullptr;
