@@ -83,7 +83,7 @@ public:
   unsigned long GetTranslation(unsigned long VTKEvent);
   const char *GetTranslation(const char *VTKEvent);
   unsigned long GetTranslation(unsigned long VTKEvent, int modifier, char keyCode,
-                               int repeatCount, char* keySym);
+                               int repeatCount, const char* keySym);
   unsigned long GetTranslation(unsigned long VTKEvent, vtkEventData *edata);
   unsigned long GetTranslation(vtkEvent *VTKEvent);
   //@}
@@ -95,7 +95,7 @@ public:
    */
   int RemoveTranslation( unsigned long VTKEvent,
                          int modifier,    char keyCode,
-                         int repeatCount, char* keySym);
+                         int repeatCount, const char* keySym);
   int RemoveTranslation( vtkEvent *e );
   int RemoveTranslation( vtkEventData *e );
   int RemoveTranslation(unsigned long VTKEvent);
