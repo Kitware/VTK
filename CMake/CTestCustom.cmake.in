@@ -286,8 +286,6 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Consider increasing DOT_GRAPH_MAX_NODES"
   "based on cache misses the ideal setting for LOOKUP_CACHE_SIZE"
 
-  # warning from buggy cppcheck
-  "is not initialized in the constructor"
   )
 
 IF(APPLE)
