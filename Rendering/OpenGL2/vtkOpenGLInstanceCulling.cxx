@@ -211,7 +211,7 @@ void vtkOpenGLInstanceCulling::BuildCullingShaders(vtkOpenGLShaderCache* cache,
             "\n  {"
             "\n    vec4 pc = MCVCMatrix * PosMC;"
             "\n    vec4 ScaledBBoxSize = MCVCMatrix * InstanceMatrix * BBoxSize;"
-            "\n    float lenPosVC = length(pc)/length(ScaledBBoxSize);";
+            "\n    float lenPosVC = length(pc.xyz)/length(ScaledBBoxSize);";
 
     for (size_t i = 1; i < this->LODList.size(); i++)
     {
