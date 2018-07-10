@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 2.8)
 if(POLICY CMP0053)
   cmake_policy(SET CMP0053 NEW) # CMake 3.1
 endif()
+if(POLICY CMP0077)
+  cmake_policy(SET CMP0077 NEW) # CMake 3.13
+endif()
 
 project(xdmf2)
 
