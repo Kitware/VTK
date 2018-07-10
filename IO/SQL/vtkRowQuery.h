@@ -92,7 +92,7 @@ public:
    * Uses GetNumberOfFields() and GetFieldName()
    * to match field name.
    */
-  int GetFieldIndex(char* name);
+  int GetFieldIndex(const char* name);
 
   /**
    * Advance row, return false if past end.
