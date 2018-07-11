@@ -623,9 +623,9 @@ void vtkOpenGLGlyph3DHelper::BuildCullingShaders(vtkRenderer* ren, vtkActor* act
     this->SetCameraShaderParameters(this->InstanceCulling->GetHelper(), ren, actor);
 
     double* bounds = this->CurrentInput->GetBounds();
-    float BBoxSize[4] = { static_cast<float>(bounds[3] - bounds[0]),
-                          static_cast<float>(bounds[4] - bounds[1]),
-                          static_cast<float>(bounds[5] - bounds[2]),
+    float BBoxSize[4] = { static_cast<float>(bounds[1] - bounds[0]),
+                          static_cast<float>(bounds[3] - bounds[2]),
+                          static_cast<float>(bounds[5] - bounds[4]),
                           0.f };
 
     this->InstanceCulling->GetHelper().Program->SetUniform4f("BBoxSize", BBoxSize);

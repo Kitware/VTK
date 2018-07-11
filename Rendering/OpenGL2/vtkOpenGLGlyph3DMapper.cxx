@@ -457,7 +457,9 @@ void vtkOpenGLGlyph3DMapper::Render(
       ss = s->NewInstance();
       entry->DataObject = ss;
     }
-    if (numberOfSourcesChanged || s->GetMTime() > ss->GetMTime())
+    if (numberOfSourcesChanged ||
+      s->GetMTime() > ss->GetMTime() ||
+      this->GetMTime() > entry->BuildTime)
     {
       ss->ShallowCopy(s);
       entry->ClearMappers();
