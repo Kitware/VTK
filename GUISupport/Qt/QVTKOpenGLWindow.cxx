@@ -203,8 +203,8 @@ void QVTKOpenGLWindow::Frame()
   // VTK just did a render, tell Qt to swap buffers
   if(this->RenderWindow->GetSwapBuffers() || this->RenderWindow->GetDoubleBuffer() == 0)
   {
-    this->context()->swapBuffers(this->context()->surface());
     this->context()->makeCurrent(this->context()->surface());
+    this->context()->swapBuffers(this->context()->surface());
   }
 }
 
