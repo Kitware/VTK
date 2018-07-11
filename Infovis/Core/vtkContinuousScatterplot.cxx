@@ -63,13 +63,13 @@ vtkContinuousScatterplot::vtkContinuousScatterplot()
   this->Fields[0] = this->Fields[1] = nullptr;
 }
 //----------------------------------------------------------------------------
-void vtkContinuousScatterplot::SetField1(char* nm, vtkIdType xRes)
+void vtkContinuousScatterplot::SetField1(const char* nm, vtkIdType xRes)
 {
   this->Fields[0] = nm;
   this->ResX = xRes;
 }
 //----------------------------------------------------------------------------
-void vtkContinuousScatterplot::SetField2(char* nm, vtkIdType yRes)
+void vtkContinuousScatterplot::SetField2(const char* nm, vtkIdType yRes)
 {
   this->Fields[1] = nm;
   this->ResY = yRes;

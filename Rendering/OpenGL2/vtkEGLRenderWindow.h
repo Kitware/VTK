@@ -141,9 +141,9 @@ public:
   virtual void *GetGenericParentId() {return NULL;}
   virtual void *GetGenericContext();
   virtual void *GetGenericDrawable() {return NULL;}
-  virtual void SetWindowInfo(char *);
-  virtual void SetNextWindowInfo(char *) {}
-  virtual void SetParentInfo(char *) {}
+  virtual void SetWindowInfo(const char *);
+  virtual void SetNextWindowInfo(const char *) {}
+  virtual void SetParentInfo(const char *) {}
   //@}
 
   void     SetWindowName(const char *);

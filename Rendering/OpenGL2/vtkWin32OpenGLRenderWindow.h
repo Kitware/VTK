@@ -124,17 +124,17 @@ public:
   /**
    * Set this RenderWindow's window id to a pre-existing window.
    */
-  void SetWindowInfo(char *) override;
+  void SetWindowInfo(const char *) override;
 
   /**
    * Sets the WindowInfo that will be used after a WindowRemap.
    */
-  void SetNextWindowInfo(char *) override;
+  void SetNextWindowInfo(const char *) override;
 
   /**
    * Sets the HWND id of the window that WILL BE created.
    */
-  void SetParentInfo(char *) override;
+  void SetParentInfo(const char *) override;
 
   void *GetGenericDisplayId() override {return (void *)this->ContextId;}
   void *GetGenericWindowId() override {return (void *)this->WindowId;}

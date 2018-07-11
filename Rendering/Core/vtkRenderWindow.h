@@ -555,9 +555,9 @@ public:
   void *GetGenericParentId() override = 0;
   void *GetGenericContext() override = 0;
   void *GetGenericDrawable() override = 0;
-  void SetWindowInfo(char *) override = 0;
-  virtual void SetNextWindowInfo(char *) = 0;
-  void SetParentInfo(char *) override = 0;
+  void SetWindowInfo(const char *) override = 0;
+  virtual void SetNextWindowInfo(const char *) = 0;
+  void SetParentInfo(const char *) override = 0;
   //@}
 
   /**

@@ -193,13 +193,13 @@ public:
   * Specify the name of the first field to be used in subdividing the dataset.
   * Specify the resolution along x axis of the output image.
   */
-  void SetField1(char* fieldName, vtkIdType ResX);
+  void SetField1(const char* fieldName, vtkIdType ResX);
 
   /**
   * Specify the name of the second field to be used in subdividing the dataset.
   * Specify the resolution along y axis of the output image.
   */
-  void SetField2(char* fieldName, vtkIdType ResY);
+  void SetField2(const char* fieldName, vtkIdType ResY);
 
 protected:
   vtkContinuousScatterplot();
@@ -216,7 +216,7 @@ protected:
   double Epsilon;
 
   // Names of the scalar fields to be used in the filter.
-  char* Fields[2];
+  const char* Fields[2];
 
   // Resolution of the output image.
   vtkIdType ResX, ResY;

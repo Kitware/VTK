@@ -440,7 +440,7 @@ void vtkDataObjectToDataSetFilter::PrintSelf(ostream& os, vtkIndent indent)
 // Stuff related to points --------------------------------------------
 //
 void vtkDataObjectToDataSetFilter::SetPointComponent(int comp,
-                                                     char *arrayName,
+                                                     const char *arrayName,
                                                      int arrayComp,
                                                      int min, int max,
                                                      int normalize)
@@ -724,7 +724,7 @@ vtkIdType vtkDataObjectToDataSetFilter::ConstructPoints(vtkDataObject *input,
 //----------------------------------------------------------------------------
 // Stuff related to vtkPolyData --------------------------------------------
 //
-void vtkDataObjectToDataSetFilter::SetVertsComponent(char *arrayName,
+void vtkDataObjectToDataSetFilter::SetVertsComponent(const char *arrayName,
                                                      int arrayComp,
                                                      int min, int max)
 {
@@ -772,7 +772,7 @@ int vtkDataObjectToDataSetFilter::GetVertsComponentMaxRange()
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObjectToDataSetFilter::SetLinesComponent(char *arrayName,
+void vtkDataObjectToDataSetFilter::SetLinesComponent(const char *arrayName,
                                                      int arrayComp,
                                                      int min, int max)
 {
@@ -820,7 +820,7 @@ int vtkDataObjectToDataSetFilter::GetLinesComponentMaxRange()
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObjectToDataSetFilter::SetPolysComponent(char *arrayName,
+void vtkDataObjectToDataSetFilter::SetPolysComponent(const char *arrayName,
                                                      int arrayComp,
                                                      int min, int max)
 {
@@ -868,7 +868,7 @@ int vtkDataObjectToDataSetFilter::GetPolysComponentMaxRange()
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObjectToDataSetFilter::SetStripsComponent(char *arrayName,
+void vtkDataObjectToDataSetFilter::SetStripsComponent(const char *arrayName,
                                                       int arrayComp,
                                                       int min, int max)
 {
@@ -917,7 +917,7 @@ int vtkDataObjectToDataSetFilter::GetStripsComponentMaxRange()
 
 //----------------------------------------------------------------------------
 // Stuff related to vtkUnstructuredGrid --------------------------------------
-void vtkDataObjectToDataSetFilter::SetCellTypeComponent(char *arrayName, int arrayComp,
+void vtkDataObjectToDataSetFilter::SetCellTypeComponent(const char *arrayName, int arrayComp,
                                                         int min, int max)
 {
   vtkFieldDataToAttributeDataFilter::SetArrayName(
@@ -965,7 +965,7 @@ int vtkDataObjectToDataSetFilter::GetCellTypeComponentMaxRange()
 
 //----------------------------------------------------------------------------
 void vtkDataObjectToDataSetFilter::SetCellConnectivityComponent(
-  char *arrayName, int arrayComp, int min, int max)
+  const char *arrayName, int arrayComp, int min, int max)
 {
   vtkFieldDataToAttributeDataFilter::SetArrayName(
     this, this->CellConnectivityArray, arrayName);
@@ -1269,7 +1269,7 @@ vtkCellArray *vtkDataObjectToDataSetFilter::ConstructCellArray(
 //----------------------------------------------------------------------------
 // Alternative methods for Dimensions, Spacing, and Origin -------------------
 //
-void vtkDataObjectToDataSetFilter::SetDimensionsComponent(char *arrayName,
+void vtkDataObjectToDataSetFilter::SetDimensionsComponent(const char *arrayName,
                                                           int arrayComp,
                                                           int min, int max)
 {
@@ -1293,7 +1293,7 @@ void vtkDataObjectToDataSetFilter::SetDimensionsComponent(char *arrayName,
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObjectToDataSetFilter::SetSpacingComponent(char *arrayName,
+void vtkDataObjectToDataSetFilter::SetSpacingComponent(const char *arrayName,
                                                        int arrayComp,
                                                        int min, int max)
 {
@@ -1317,7 +1317,7 @@ void vtkDataObjectToDataSetFilter::SetSpacingComponent(char *arrayName,
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObjectToDataSetFilter::SetOriginComponent(char *arrayName,
+void vtkDataObjectToDataSetFilter::SetOriginComponent(const char *arrayName,
                                                       int arrayComp,
                                                       int min, int max)
 {

@@ -396,7 +396,7 @@ const char* vtkGraphLayoutView::GetIconArrayName()
 }
 
 //----------------------------------------------------------------------------
-void vtkGraphLayoutView::AddIconType(char *type, int index)
+void vtkGraphLayoutView::AddIconType(const char *type, int index)
 {
   this->GetGraphRepresentation()->AddVertexIconType(type, index);
 }

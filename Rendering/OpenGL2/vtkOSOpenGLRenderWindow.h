@@ -206,17 +206,17 @@ public:
   /**
    * Set this RenderWindow's X window id to a pre-existing window.
    */
-  void     SetWindowInfo(char *info);
+  void     SetWindowInfo(const char *info);
 
   /**
    * Set the window info that will be used after WindowRemap()
    */
-  void     SetNextWindowInfo(char *info);
+  void     SetNextWindowInfo(const char *info);
 
   /**
    * Sets the X window id of the window that WILL BE created.
    */
-  void     SetParentInfo(char *info);
+  void     SetParentInfo(const char *info);
 
   /**
    * Render without displaying the window.

@@ -258,8 +258,10 @@ const char *vtkWidgetEventTranslator::GetTranslation(const char *VTKEvent)
 
 //----------------------------------------------------------------------------
 unsigned long vtkWidgetEventTranslator::GetTranslation(unsigned long VTKEvent,
-                                                       int modifier, char keyCode,
-                                                       int repeatCount, char* keySym)
+                                                       int modifier,
+                                                       char keyCode,
+                                                       int repeatCount,
+                                                       const char* keySym)
 {
   EventMapIterator iter = this->EventMap->find(VTKEvent);
   if ( iter != this->EventMap->end() )
@@ -306,8 +308,9 @@ unsigned long vtkWidgetEventTranslator::GetTranslation(vtkEvent *VTKEvent)
 
 //----------------------------------------------------------------------------
 int vtkWidgetEventTranslator::RemoveTranslation(unsigned long VTKEvent,
-                                              int modifier, char keyCode,
-                                              int repeatCount, char* keySym)
+                                                int modifier, char keyCode,
+                                                int repeatCount,
+                                                const char* keySym)
 {
   vtkSmartPointer< vtkEvent > e = vtkSmartPointer< vtkEvent >::New();
   e->SetEventId(VTKEvent);

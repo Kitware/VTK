@@ -138,9 +138,9 @@ public:
    * provided which does not require setting the (min,max) component range or
    * the normalize flag (normalize is set to DefaulatNormalize value).
    */
-  void SetPointComponent(int comp, char *arrayName, int arrayComp,
+  void SetPointComponent(int comp, const char *arrayName, int arrayComp,
                          int min, int max, int normalize);
-  void SetPointComponent(int comp, char *arrayName, int arrayComp)
+  void SetPointComponent(int comp, const char *arrayName, int arrayComp)
     {this->SetPointComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);};
   const char *GetPointComponentArrayName(int comp);
   int GetPointComponentArrayComponent(int comp);
@@ -159,29 +159,29 @@ public:
    * points per cell, and then the cell connectivity. (This is the vtk file
    * format described in in the textbook or User's Guide.)
    */
-  void SetVertsComponent(char *arrayName, int arrayComp, int min, int max);
-  void SetVertsComponent(char *arrayName, int arrayComp)
+  void SetVertsComponent(const char *arrayName, int arrayComp, int min, int max);
+  void SetVertsComponent(const char *arrayName, int arrayComp)
     {this->SetVertsComponent(arrayName, arrayComp, -1, -1);};
   const char *GetVertsComponentArrayName();
   int GetVertsComponentArrayComponent();
   int GetVertsComponentMinRange();
   int GetVertsComponentMaxRange();
-  void SetLinesComponent(char *arrayName, int arrayComp, int min, int max);
-  void SetLinesComponent(char *arrayName, int arrayComp)
+  void SetLinesComponent(const char *arrayName, int arrayComp, int min, int max);
+  void SetLinesComponent(const char *arrayName, int arrayComp)
     {this->SetLinesComponent(arrayName, arrayComp, -1, -1);};
   const char *GetLinesComponentArrayName();
   int GetLinesComponentArrayComponent();
   int GetLinesComponentMinRange();
   int GetLinesComponentMaxRange();
-  void SetPolysComponent(char *arrayName, int arrayComp, int min, int max);
-  void SetPolysComponent(char *arrayName, int arrayComp)
+  void SetPolysComponent(const char *arrayName, int arrayComp, int min, int max);
+  void SetPolysComponent(const char *arrayName, int arrayComp)
     {this->SetPolysComponent(arrayName, arrayComp, -1, -1);};
   const char *GetPolysComponentArrayName();
   int GetPolysComponentArrayComponent();
   int GetPolysComponentMinRange();
   int GetPolysComponentMaxRange();
-  void SetStripsComponent(char *arrayName, int arrayComp, int min, int max);
-  void SetStripsComponent(char *arrayName, int arrayComp)
+  void SetStripsComponent(const char *arrayName, int arrayComp, int min, int max);
+  void SetStripsComponent(const char *arrayName, int arrayComp)
     {this->SetStripsComponent(arrayName, arrayComp, -1, -1);};
   const char *GetStripsComponentArrayName();
   int GetStripsComponentArrayComponent();
@@ -199,17 +199,17 @@ public:
    * then the cell connectivity. (This is the vtk file format described in
    * in the textbook or User's Guide.)
    */
-  void SetCellTypeComponent(char *arrayName, int arrayComp,
+  void SetCellTypeComponent(const char *arrayName, int arrayComp,
                             int min, int max);
-  void SetCellTypeComponent(char *arrayName, int arrayComp)
+  void SetCellTypeComponent(const char *arrayName, int arrayComp)
     {this->SetCellTypeComponent(arrayName, arrayComp, -1, -1);};
   const char *GetCellTypeComponentArrayName();
   int GetCellTypeComponentArrayComponent();
   int GetCellTypeComponentMinRange();
   int GetCellTypeComponentMaxRange();
-  void SetCellConnectivityComponent(char *arrayName, int arrayComp,
+  void SetCellConnectivityComponent(const char *arrayName, int arrayComp,
                                     int min, int max);
-  void SetCellConnectivityComponent(char *arrayName, int arrayComp)
+  void SetCellConnectivityComponent(const char *arrayName, int arrayComp)
     {this->SetCellConnectivityComponent(arrayName, arrayComp, -1, -1);};
   const char *GetCellConnectivityComponentArrayName();
   int GetCellConnectivityComponentArrayComponent();
@@ -262,14 +262,14 @@ public:
    * the component of the array, and the range of the array (min,max). These methods
    * will override the information given by the previous methods.
    */
-  void SetDimensionsComponent(char *arrayName, int arrayComp, int min, int max);
-  void SetDimensionsComponent(char *arrayName, int arrayComp)
+  void SetDimensionsComponent(const char *arrayName, int arrayComp, int min, int max);
+  void SetDimensionsComponent(const char *arrayName, int arrayComp)
     {this->SetDimensionsComponent(arrayName, arrayComp, -1, -1);};
-  void SetSpacingComponent(char *arrayName, int arrayComp, int min, int max);
-  void SetSpacingComponent(char *arrayName, int arrayComp)
+  void SetSpacingComponent(const char *arrayName, int arrayComp, int min, int max);
+  void SetSpacingComponent(const char *arrayName, int arrayComp)
     {this->SetSpacingComponent(arrayName, arrayComp, -1, -1);};
-  void SetOriginComponent(char *arrayName, int arrayComp, int min, int max);
-  void SetOriginComponent(char *arrayName, int arrayComp)
+  void SetOriginComponent(const char *arrayName, int arrayComp, int min, int max);
+  void SetOriginComponent(const char *arrayName, int arrayComp)
     {this->SetOriginComponent(arrayName, arrayComp, -1, -1);};
   //@}
 

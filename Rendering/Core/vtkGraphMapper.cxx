@@ -363,7 +363,7 @@ void vtkGraphMapper::SetEdgeLineWidth(float width)
 }
 
 //----------------------------------------------------------------------------
-void vtkGraphMapper::AddIconType(char *type, int index)
+void vtkGraphMapper::AddIconType(const char *type, int index)
 {
   this->IconTypeToIndex->AddToMap(type, index);
 }

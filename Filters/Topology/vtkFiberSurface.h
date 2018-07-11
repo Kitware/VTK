@@ -329,12 +329,12 @@ public:
   /**
   * Specify the first field name to be used in this filter.
   */
-  void SetField1(char* fieldName);
+  void SetField1(const char* fieldName);
 
   /**
   * Specify the second field name to be used in the filter.
   */
-  void SetField2(char* fieldName);
+  void SetField2(const char* fieldName);
 
   /**
   * This structure lists the vertices to use for the marching tetrahedra,
@@ -391,7 +391,7 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // name of the input array names.
-  char* Fields[2];
+  const char* Fields[2];
 
 private:
   vtkFiberSurface(const vtkFiberSurface&) = delete;

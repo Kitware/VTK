@@ -162,11 +162,11 @@ void* vtkGenericOpenGLRenderWindow::GetGenericDrawable()
   return nullptr;
 }
 
-void vtkGenericOpenGLRenderWindow::SetWindowInfo(char*)
+void vtkGenericOpenGLRenderWindow::SetWindowInfo(const char*)
 {
 }
 
-void vtkGenericOpenGLRenderWindow::SetParentInfo(char*)
+void vtkGenericOpenGLRenderWindow::SetParentInfo(const char*)
 {
 }
 
@@ -204,7 +204,7 @@ void vtkGenericOpenGLRenderWindow::SetNextWindowId(void*)
 {
 }
 
-void vtkGenericOpenGLRenderWindow::SetNextWindowInfo(char*)
+void vtkGenericOpenGLRenderWindow::SetNextWindowInfo(const char*)
 {
 }
 

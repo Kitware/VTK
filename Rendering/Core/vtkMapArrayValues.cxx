@@ -59,7 +59,7 @@ vtkMapArrayValues::~vtkMapArrayValues()
   delete this->Map;
 }
 
-void vtkMapArrayValues::AddToMap(char *from, int to)
+void vtkMapArrayValues::AddToMap(const char *from, int to)
 {
   vtkVariant fromVar(from);
   vtkVariant toVar(to);
@@ -77,7 +77,7 @@ void vtkMapArrayValues::AddToMap(int from, int to)
   this->Modified();
 }
 
-void vtkMapArrayValues::AddToMap(int from, char *to)
+void vtkMapArrayValues::AddToMap(int from, const char *to)
 {
   vtkVariant fromVar(from);
   vtkVariant toVar(to);
@@ -86,7 +86,7 @@ void vtkMapArrayValues::AddToMap(int from, char *to)
   this->Modified();
 }
 
-void vtkMapArrayValues::AddToMap(char *from, char *to)
+void vtkMapArrayValues::AddToMap(const char *from, const char *to)
 {
   vtkVariant fromVar(from);
   vtkVariant toVar(to);

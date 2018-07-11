@@ -151,7 +151,7 @@ public:
   }
 
   //------------------------------------------------------------------------
-  void PushImageToQueue(vtkImageData*& data, char* fileName)
+  void PushImageToQueue(vtkImageData*& data, const char* fileName)
   {
     this->InputsLock.Lock();
     {
@@ -375,7 +375,8 @@ void vtkThreadedImageWriter::Initialize()
 }
 
 //----------------------------------------------------------------------------
-void vtkThreadedImageWriter::EncodeAndWrite(vtkImageData* image, char* fileName)
+void vtkThreadedImageWriter::EncodeAndWrite(vtkImageData* image,
+                                            const char* fileName)
 {
   // Error checking
   if (image == nullptr)
@@ -388,7 +389,8 @@ void vtkThreadedImageWriter::EncodeAndWrite(vtkImageData* image, char* fileName)
 }
 
 //----------------------------------------------------------------------------
-void vtkThreadedImageWriter::PushImageToQueue(vtkImageData*& data, char* fileName)
+void vtkThreadedImageWriter::PushImageToQueue(vtkImageData*& data,
+                                              const char* fileName)
 {
   this->Internals->SharedData.PushImageToQueue(data, fileName);
   assert(data == nullptr);

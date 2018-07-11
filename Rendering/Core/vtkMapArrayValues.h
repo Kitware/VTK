@@ -116,9 +116,9 @@ public:
  */
   void AddToMap(vtkVariant from, vtkVariant to);
   void AddToMap(int from, int to);
-  void AddToMap(int from, char *to);
-  void AddToMap(char *from, int to);
-  void AddToMap(char *from, char *to);
+  void AddToMap(int from, const char *to);
+  void AddToMap(const char *from, int to);
+  void AddToMap(const char *from, const char *to);
 //@}
 
   /**

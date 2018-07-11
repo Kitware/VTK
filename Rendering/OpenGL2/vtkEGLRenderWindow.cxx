@@ -623,7 +623,7 @@ void vtkEGLRenderWindow::SetPosition(int x, int y)
 }
 
 // Set this RenderWindow to a pre-existing window.
-void vtkEGLRenderWindow::SetWindowInfo(char *)
+void vtkEGLRenderWindow::SetWindowInfo(const char *)
 {
   this->OwnWindow = 0;
   this->Mapped = 1;

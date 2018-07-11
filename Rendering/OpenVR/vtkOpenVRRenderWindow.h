@@ -260,9 +260,9 @@ public:
     //@}
 
   // implement required virtual functions
-  void SetWindowInfo(char *) {};
-  void SetNextWindowInfo(char *) {};
-  void SetParentInfo(char *) {};
+  void SetWindowInfo(const char *) {};
+  void SetNextWindowInfo(const char *) {};
+  void SetParentInfo(const char *) {};
   virtual void *GetGenericDisplayId() {return (void *)this->HelperWindow->GetGenericDisplayId();};
   virtual void *GetGenericWindowId()  {return (void *)this->HelperWindow->GetGenericWindowId();};
   virtual void *GetGenericParentId()  {return (void *)nullptr;};
