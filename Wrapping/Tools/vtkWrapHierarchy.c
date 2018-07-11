@@ -460,8 +460,7 @@ static char **append_namespace_contents(
       new_scope[n++] = ':';
       new_scope[n++] = ':';
     }
-    strncpy(&new_scope[n], data->Name, m);
-    new_scope[n+m] = '\0';
+    strncpy(&new_scope[n], data->Name, m + 1);
     scope = new_scope;
   }
   else if (m)
