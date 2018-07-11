@@ -1618,6 +1618,12 @@ void vtkCocoaRenderWindow::SetCurrentCursor(int shape)
     return;
   }
   this->Superclass::SetCurrentCursor(shape);
+
+  if (!this->Mapped)
+  {
+    return;
+  }
+
   NSCursor* cursor = nil;
   switch (shape)
   {

@@ -60,17 +60,20 @@ int TestGenericCell(int , char *[])
         m[1] += point[1];
         m[2] += point[2];
       }
-      m[0] /= numPts;
-      m[1] /= numPts;
-      m[2] /= numPts;
-      if( fabs( center[0] - m[0] ) > 1e-6
-       || fabs( center[1] - m[1] ) > 1e-6
-       || fabs( center[2] - m[2] ) > 1e-6)
+      if (numPts)
       {
-        cerr << "Cell: " << i << endl;
-        cerr << "Center: " << center[0] << "," << center[1] << "," << center[2] << endl;
-        cerr << "M     : " << m[0] << "," << m[1] << "," << m[2] << endl;
-        ++rval;
+        m[0] /= numPts;
+        m[1] /= numPts;
+        m[2] /= numPts;
+        if( fabs( center[0] - m[0] ) > 1e-6
+         || fabs( center[1] - m[1] ) > 1e-6
+         || fabs( center[2] - m[2] ) > 1e-6)
+        {
+          cerr << "Cell: " << i << endl;
+          cerr << "Center: " << center[0] << "," << center[1] << "," << center[2] << endl;
+          cerr << "M     : " << m[0] << "," << m[1] << "," << m[2] << endl;
+          ++rval;
+        }
       }
     }
     int p = cell->IsPrimaryCell();
