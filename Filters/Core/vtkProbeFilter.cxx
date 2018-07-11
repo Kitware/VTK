@@ -297,7 +297,10 @@ void vtkProbeFilter::InitializeForProbing(vtkDataSet* input,
   outPD->InterpolateAllocate((*this->PointList), numPts, numPts);
 
   vtkCellData* tempCellData = vtkCellData::New();
-  tempCellData->InterpolateAllocate( (*this->CellList), numPts, numPts);
+  // We're okay with copying global ids for cells. we just don't flag them as
+  // such.
+  tempCellData->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
+  tempCellData->CopyAllocate((*this->CellList), numPts, numPts);
 
   this->CellArrays->clear();
   int numCellArrays = tempCellData->GetNumberOfArrays();
