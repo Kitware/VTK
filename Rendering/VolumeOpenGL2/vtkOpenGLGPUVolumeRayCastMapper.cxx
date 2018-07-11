@@ -1398,11 +1398,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BeginPicking(
   if (selector && this->IsPicking)
   {
     selector->BeginRenderProp();
-
-    if (this->CurrentSelectionPass >= vtkHardwareSelector::ID_LOW24)
-    {
-      selector->RenderAttributeId(0);
-    }
   }
 }
 
@@ -1433,7 +1428,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::EndPicking(vtkRenderer* ren)
   vtkHardwareSelector* selector = ren->GetSelector();
   if (selector && this->IsPicking)
   {
-    if (this->CurrentSelectionPass >= vtkHardwareSelector::ID_LOW24)
+    if (this->CurrentSelectionPass >= vtkHardwareSelector::POINT_ID_LOW24)
     {
       // Only supported on single-input
       int extents[6];
@@ -1442,7 +1437,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::EndPicking(vtkRenderer* ren)
       // Tell the selector the maximum number of cells that the mapper could render
       unsigned int const numVoxels = (extents[1] - extents[0] + 1) *
         (extents[3] - extents[2] + 1) * (extents[5] - extents[4] + 1);
-      selector->RenderAttributeId(numVoxels);
+      selector->UpdateMaximumPointId(numVoxels);
+      selector->UpdateMaximumCellId(numVoxels);
     }
     selector->EndRenderProp();
   }
@@ -2800,15 +2796,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderPicking(
   {
     switch (this->Impl->CurrentSelectionPass)
     {
-      case vtkHardwareSelector::ID_LOW24:
+      case vtkHardwareSelector::CELL_ID_LOW24:
         vtkShaderProgram::Substitute(fragmentShader,
           "//VTK::Picking::Exit",
           vtkvolume::PickingIdLow24PassExit(ren, this, vol));
         break;
-      case vtkHardwareSelector::ID_MID24:
+      case vtkHardwareSelector::CELL_ID_HIGH24:
         vtkShaderProgram::Substitute(fragmentShader,
           "//VTK::Picking::Exit",
-          vtkvolume::PickingIdMid24PassExit(ren, this, vol));
+          vtkvolume::PickingIdHigh24PassExit(ren, this, vol));
         break;
       default: // ACTOR_PASS, PROCESS_PASS
         vtkShaderProgram::Substitute(fragmentShader,
@@ -3757,7 +3753,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetAdvancedShaderParameters(
   this->SetClippingPlanes(ren, prog, vol);
 
   // Picking
-  if (this->CurrentSelectionPass < vtkHardwareSelector::ID_LOW24)
+  if (this->CurrentSelectionPass < vtkHardwareSelector::POINT_ID_LOW24)
   {
     this->SetPickingId(ren);
   }

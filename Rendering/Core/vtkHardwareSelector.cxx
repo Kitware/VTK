@@ -73,6 +73,7 @@ public:
   // Ids for props that were hit.
   std::set<int> HitProps;
   std::map<int, vtkSmartPointer<vtkProp> > Props;
+  std::map<int, std::vector<unsigned int> > PropPixels;
 
   // state that's managed through the renderer
   double OriginalBackground[3];
@@ -189,9 +190,11 @@ vtkHardwareSelector::vtkHardwareSelector()
   this->Renderer = nullptr;
   this->Area[0] = this->Area[1] = this->Area[2] = this->Area[3] = 0;
   this->FieldAssociation = vtkDataObject::FIELD_ASSOCIATION_CELLS;
-  this->MaxAttributeId = 0;
+  this->MaximumPointId = 0;
+  this->MaximumCellId = 0;
   for (int cc=0; cc < 10; cc++)
   {
+    this->RawPixBuffer[cc] = nullptr;
     this->PixBuffer[cc] = nullptr;
   }
   this->CurrentPass = -1;
@@ -216,6 +219,8 @@ void vtkHardwareSelector::ReleasePixBuffers()
   {
     delete [] this->PixBuffer[cc];
     this->PixBuffer[cc] = nullptr;
+    delete [] this->RawPixBuffer[cc];
+    this->RawPixBuffer[cc] = nullptr;
   }
   //this->Internals->Props.clear();
 }
@@ -223,11 +228,13 @@ void vtkHardwareSelector::ReleasePixBuffers()
 //----------------------------------------------------------------------------
 void vtkHardwareSelector::BeginSelection()
 {
-  this->MaxAttributeId = 0;
+  this->MaximumPointId = 0;
+  this->MaximumCellId = 0;
   this->Renderer->Clear();
   this->Renderer->SetSelector(this);
   this->Internals->HitProps.clear();
   this->Internals->Props.clear();
+  this->Internals->PropPixels.clear();
   this->ReleasePixBuffers();
 }
 
@@ -280,19 +287,20 @@ bool vtkHardwareSelector::CaptureBuffers()
   this->Renderer->GradientBackgroundOff();
 
   this->BeginSelection();
-  for (this->CurrentPass = MIN_KNOWN_PASS;
-    this->CurrentPass < MAX_KNOWN_PASS; this->CurrentPass++)
+  for (this->Iteration = 0; this->Iteration < 2; this->Iteration++)
   {
-    if (!this->PassRequired(this->CurrentPass))
+    for (this->CurrentPass = MIN_KNOWN_PASS;
+      this->CurrentPass < MAX_KNOWN_PASS; this->CurrentPass++)
     {
-      continue;
+      if (!this->PassRequired(this->CurrentPass))
+      {
+        continue;
+      }
+
+      this->PreCapturePass(this->CurrentPass);
+      rwin->Render();
+      this->PostCapturePass(this->CurrentPass);
     }
-
-    this->PreCapturePass(this->CurrentPass);
-    rwin->Render();
-    this->PostCapturePass(this->CurrentPass);
-
-    this->SavePixelBuffer(this->CurrentPass);
   }
   this->EndSelection();
 
@@ -304,22 +312,39 @@ bool vtkHardwareSelector::CaptureBuffers()
   return true;
 }
 
+void vtkHardwareSelector::SetPropColorValue(vtkIdType val)
+{
+  float color[3];
+  vtkHardwareSelector::Convert(val + 1, color);
+  this->SetPropColorValue(color);
+}
+
 //----------------------------------------------------------------------------
 bool vtkHardwareSelector::PassRequired(int pass)
 {
   switch (pass)
   {
-  case PROCESS_PASS:
-    // skip process pass is pid < 0.
-    return (this->ProcessID >= 0);
+    case ACTOR_PASS:
+      // only on the first iteration
+      return (this->Iteration == 0);
 
-  case ID_MID24:
-    return (this->MaxAttributeId >= 0xffffff);
+    case PROCESS_PASS:
+      // skip process pass if pid < 0 or not the firts pass
+      return (this->ProcessID >= 0 && this->Iteration == 0);
 
-  case ID_HIGH16:
-    int upper = (0xffffff & (this->MaxAttributeId >> 24));
-    return (upper > 0);
+    case POINT_ID_LOW24:
+      return (this->MaximumPointId >= 0xffffff || this->Iteration == 0);
+
+    case POINT_ID_HIGH24:
+      return (this->MaximumPointId >= 0xffffff && this->Iteration == 0);
+
+    case CELL_ID_LOW24:
+      return (this->MaximumCellId >= 0xffffff || this->Iteration == 0);
+
+    case CELL_ID_HIGH24:
+      return (this->MaximumCellId >= 0xffffff && this->Iteration == 0);
   }
+
   return true;
 }
 
@@ -331,15 +356,37 @@ void vtkHardwareSelector::SavePixelBuffer(int passNo)
     this->Area[0], this->Area[1], this->Area[2], this->Area[3],
     (this->Renderer->GetRenderWindow()->GetSwapBuffers() == 1)? 1 : 0);
 
-  if (passNo == ACTOR_PASS)
+  // we save the raw buffers the first time we see them
+  if (!this->RawPixBuffer[passNo])
   {
-    this->BuildPropHitList(this->PixBuffer[passNo]);
+    size_t numpix = (this->Area[2] - this->Area[0] + 1)*(this->Area[3] - this->Area[1] + 1)*3;
+    this->RawPixBuffer[passNo] = new unsigned char [numpix];
+    memcpy(this->RawPixBuffer[passNo], this->PixBuffer[passNo], numpix);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkHardwareSelector::ProcessPixelBuffers()
+{
+  if (this->CurrentPass == ACTOR_PASS)
+  {
+    this->BuildPropHitList(this->RawPixBuffer[this->CurrentPass]);
+  }
+
+  for (int ai : this->Internals->HitProps)
+  {
+    vtkProp *prop = this->GetPropFromID(ai);
+    if (prop)
+    {
+      prop->ProcessSelectorPixelBuffers(this, this->Internals->PropPixels[ai]);
+    }
   }
 }
 
 //----------------------------------------------------------------------------
 void vtkHardwareSelector::BuildPropHitList(unsigned char* pixelbuffer)
 {
+  unsigned int offset = 0;
   for (int yy=0; yy <= static_cast<int>(this->Area[3]-this->Area[1]); yy++)
   {
     for (int xx=0; xx <= static_cast<int>(this->Area[2]-this->Area[0]); xx++)
@@ -353,7 +400,9 @@ void vtkHardwareSelector::BuildPropHitList(unsigned char* pixelbuffer)
         {
           this->Internals->HitProps.insert(val);
         }
+        this->Internals->PropPixels[val].push_back(offset*3);
       }
+      offset++;
     }
   }
 }
@@ -403,8 +452,7 @@ void vtkHardwareSelector::RenderCompositeIndex(unsigned int index)
 }
 
 //----------------------------------------------------------------------------
-// TODO: make inline
-void vtkHardwareSelector::RenderAttributeId(vtkIdType attribid)
+void vtkHardwareSelector::UpdateMaximumPointId(vtkIdType attribid)
 {
   if (attribid < 0)
   {
@@ -413,13 +461,22 @@ void vtkHardwareSelector::RenderAttributeId(vtkIdType attribid)
     return;
   }
 
-  this->MaxAttributeId = (attribid > this->MaxAttributeId)? attribid :
-    this->MaxAttributeId;
+  this->MaximumPointId = (attribid > this->MaximumPointId)? attribid :
+    this->MaximumPointId;
+}
 
-  if (this->CurrentPass < ID_LOW24 || this->CurrentPass > ID_HIGH16)
+//----------------------------------------------------------------------------
+void vtkHardwareSelector::UpdateMaximumCellId(vtkIdType attribid)
+{
+  if (attribid < 0)
   {
+    // negative attribid is valid. It happens when rendering higher order
+    // elements where new points are added for rendering smooth surfaces.
     return;
   }
+
+  this->MaximumCellId = (attribid > this->MaximumCellId)? attribid :
+    this->MaximumCellId;
 }
 
 //----------------------------------------------------------------------------
@@ -497,6 +554,12 @@ int vtkHardwareSelector::Render(vtkRenderer* renderer, vtkProp** propArray,
     }
   }
 
+  // loop over hit props and give them a chance to modify the
+  // buffer
+
+  this->SavePixelBuffer(this->CurrentPass);
+  this->ProcessPixelBuffers();
+
   return propsRendered;
 }
 
@@ -523,12 +586,14 @@ std::string vtkHardwareSelector::PassTypeToString(PassTypes type)
       return "ACTOR_PASS";
     case vtkHardwareSelector::COMPOSITE_INDEX_PASS:
       return "COMPOSITE_INDEX_PASS";
-    case vtkHardwareSelector::ID_LOW24:
-      return "ID_LOW24_PASS";
-    case vtkHardwareSelector::ID_MID24:
-      return "ID_MID24_PASS";
-    case vtkHardwareSelector::ID_HIGH16:
-      return "ID_HIGH16_PASS";
+    case vtkHardwareSelector::POINT_ID_LOW24:
+      return "POINT_ID_LOW24_PASS";
+    case vtkHardwareSelector::POINT_ID_HIGH24:
+      return "POINT_ID_HIGH24_PASS";
+    case vtkHardwareSelector::CELL_ID_LOW24:
+      return "CELL_ID_LOW24_PASS";
+    case vtkHardwareSelector::CELL_ID_HIGH24:
+      return "CELL_ID_HIGH24_PASS";
     default:
       return "Invalid Enum";
   }
@@ -587,12 +652,17 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
     }
     info.CompositeID = static_cast<unsigned int>(composite_id - ID_OFFSET);
 
-    int low24 = this->Convert(display_position, this->PixBuffer[ID_LOW24]);
-    int mid24 = this->Convert(display_position, this->PixBuffer[ID_MID24]);
-    int high16 = this->Convert(display_position, this->PixBuffer[ID_HIGH16]);
+    int low24 = this->Convert(display_position, this->PixBuffer[CELL_ID_LOW24]);
+    int high24 = this->Convert(display_position, this->PixBuffer[CELL_ID_HIGH24]);
+    if (this->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+    {
+      low24 = this->Convert(display_position, this->PixBuffer[POINT_ID_LOW24]);
+      high24 = this->Convert(display_position, this->PixBuffer[POINT_ID_HIGH24]);
+    }
+
 
     // id 0 is reserved for nothing present.
-    info.AttributeID = (this->GetID(low24, mid24, high16) - ID_OFFSET);
+    info.AttributeID = (this->GetID(low24, high24, 0) - ID_OFFSET);
     if (info.AttributeID < 0)
     {
       // the pixel did not hit any cell.

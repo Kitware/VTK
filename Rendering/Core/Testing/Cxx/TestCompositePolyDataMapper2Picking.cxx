@@ -328,7 +328,7 @@ int TestCompositePolyDataMapper2Picking(int argc, char* argv[])
   if (
       bPrims.find(48) == bPrims.end() ||
       std::find(bPrims[48].begin(), bPrims[48].end(), 14) == bPrims[48].end() ||
-      bPrims.find(97) == bPrims.end() ||
+      bPrims.find(82) == bPrims.end() ||
       std::find(bPrims[82].begin(), bPrims[82].end(), 114) == bPrims[82].end()
       )
   {

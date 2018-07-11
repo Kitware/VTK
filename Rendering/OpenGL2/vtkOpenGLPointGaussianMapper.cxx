@@ -1126,3 +1126,62 @@ void vtkOpenGLPointGaussianMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+
+void vtkOpenGLPointGaussianMapper::ProcessSelectorPixelBuffers(
+  vtkHardwareSelector *sel,
+  std::vector<unsigned int> &pixeloffsets,
+  vtkProp *prop)
+{
+  if (sel->GetCurrentPass() == vtkHardwareSelector::ACTOR_PASS)
+  {
+    this->PickPixels.clear();
+    return;
+  }
+
+  if (PickPixels.size() == 0 && pixeloffsets.size())
+  {
+    // preprocess the image to find matching pixels and
+    // store them in a map of vectors based on flat index
+    // this makes the block processing far faster as we just
+    // loop over the pixels for our block
+    unsigned char *compositedata =
+      sel->GetRawPixelBuffer(vtkHardwareSelector::COMPOSITE_INDEX_PASS);
+
+    if (!compositedata)
+    {
+      return;
+    }
+
+    int maxFlatIndex = 0;
+    for (auto hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
+    {
+      maxFlatIndex = ((*hiter)->FlatIndex > maxFlatIndex) ? (*hiter)->FlatIndex : maxFlatIndex;
+    }
+
+    this->PickPixels.resize(maxFlatIndex + 1);
+
+    for (auto pos : pixeloffsets)
+    {
+      int compval = compositedata[pos+2];
+      compval = compval << 8;
+      compval |= compositedata[pos+1];
+      compval = compval << 8;
+      compval |= compositedata[pos];
+      compval -= 1;
+      if (compval <= maxFlatIndex)
+      {
+        this->PickPixels[compval].push_back(pos);
+      }
+    }
+  }
+
+  // for each block update the image
+  for (auto hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
+  {
+    if (this->PickPixels[(*hiter)->FlatIndex].size())
+    {
+      (*hiter)->ProcessSelectorPixelBuffers(sel,
+        this->PickPixels[(*hiter)->FlatIndex], prop);
+    }
+  }
+}

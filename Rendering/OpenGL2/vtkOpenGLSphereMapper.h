@@ -52,6 +52,13 @@ public:
    */
   void Render(vtkRenderer *ren, vtkActor *act) override;
 
+  /**
+   * allows a mapper to update a selections color buffers
+   * Called from a prop which in turn is called from the selector
+   */
+  // void ProcessSelectorPixelBuffers(vtkHardwareSelector *sel,
+  //   int propid, vtkProp *prop) override;
+
 protected:
   vtkOpenGLSphereMapper();
   ~vtkOpenGLSphereMapper() override;
@@ -81,11 +88,6 @@ protected:
   void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) override;
 
   const char *ScaleArray;
-
-  /**
-   * Does the VBO/IBO need to be rebuilt
-   */
-  bool GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkActor *act) override;
 
   /**
    * Update the VBO to contain point based values

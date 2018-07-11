@@ -333,11 +333,6 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
       this->Primitives[i].IBO->Bind();
       for (vtkIdType inPtId = 0; inPtId < numPts; inPtId++)
       {
-        if (selector)
-        {
-          selector->RenderAttributeId(pickIds[inPtId]);
-        }
-
         // handle the middle
         vtkShaderProgram *program = this->Primitives[i].Program;
 
@@ -361,6 +356,13 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
 
         if (selector)
         {
+          if (selector->GetCurrentPass() == vtkHardwareSelector::POINT_ID_LOW24 ||
+              selector->GetCurrentPass() == vtkHardwareSelector::POINT_ID_HIGH24 ||
+              selector->GetCurrentPass() == vtkHardwareSelector::CELL_ID_LOW24 ||
+              selector->GetCurrentPass() == vtkHardwareSelector::CELL_ID_HIGH24)
+          {
+            selector->SetPropColorValue(pickIds[inPtId]);
+          }
           program->SetUniform3f("mapperIndex", selector->GetPropColorValue());
         }
 

@@ -258,41 +258,6 @@ void vtkOpenGLHardwareSelector::RenderCompositeIndex(unsigned int index)
 }
 
 //----------------------------------------------------------------------------
-// TODO: make inline
-void vtkOpenGLHardwareSelector::RenderAttributeId(vtkIdType attribid)
-{
-  if (attribid < 0)
-  {
-    vtkErrorMacro("Invalid id: " << attribid);
-    return;
-  }
-
-  this->MaxAttributeId = (attribid > this->MaxAttributeId)? attribid :
-    this->MaxAttributeId;
-
-  if (this->CurrentPass < ID_LOW24 || this->CurrentPass > ID_HIGH16)
-  {
-    return;
-  }
-
-  // 0 is reserved.
-  attribid += ID_OFFSET;
-
-  for (int cc=0; cc < 3; cc++)
-  {
-    int words24 = (0xffffff & attribid);
-    attribid = attribid >> 24;
-    if ((this->CurrentPass - ID_LOW24) == cc)
-    {
-      float color[3];
-      vtkHardwareSelector::Convert(words24, color);
-      this->SetPropColorValue(color);
-      break;
-    }
-  }
-}
-
-//----------------------------------------------------------------------------
 void vtkOpenGLHardwareSelector::RenderProcessId(unsigned int processid)
 {
   if (this->CurrentPass == PROCESS_PASS && this->UseProcessIdFromData)

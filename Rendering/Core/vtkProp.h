@@ -30,9 +30,11 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include <vector> // for method args
 
 class vtkAssemblyPath;
 class vtkAssemblyPaths;
+class vtkHardwareSelector;
 class vtkMatrix4x4;
 class vtkPropCollection;
 class vtkViewport;
@@ -404,6 +406,14 @@ public:
    */
   virtual bool GetSupportsSelection()
     { return false; }
+
+  /**
+   * allows a prop to update a selections color buffers
+   *
+   */
+  virtual void ProcessSelectorPixelBuffers(
+    vtkHardwareSelector * /* sel */,
+    std::vector<unsigned int> & /* pixeloffsets */) { };
 
   //@{
   /**

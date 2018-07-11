@@ -161,7 +161,7 @@ int TestCompositePolyDataMapper2CellScalars(int argc, char* argv[])
 
   timer->StartTimer();
 
-  int numFrames = (timeit ? 300 : 2);
+  int numFrames = (timeit ? 30 : 2);
   for (int i = 0; i <= numFrames; i++)
   {
     ren->GetActiveCamera()->Elevation(10.0/numFrames);

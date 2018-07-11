@@ -48,6 +48,13 @@ public:
    */
   vtkOpenGLSphereMapper *GetFastAtomMapper() {
       return this->FastAtomMapper; }
+  /**
+   * allows a mapper to update a selections color buffers
+   * Called from a prop which in turn is called from the selector
+   */
+  void ProcessSelectorPixelBuffers(vtkHardwareSelector *sel,
+    std::vector<unsigned int> &pixeloffsets,
+    vtkProp *prop) override;
 
 protected:
   vtkOpenGLMoleculeMapper();

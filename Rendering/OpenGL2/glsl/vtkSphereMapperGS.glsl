@@ -38,6 +38,9 @@ out vec3 centerVCGSOutput;
 // clipping plane vars
 //VTK::Clip::Dec
 
+// picking support
+//VTK::Picking::Dec
+
 void main()
 {
   radiusVCGSOutput = radiusVCVSOutput[0];
@@ -63,6 +66,8 @@ void main()
   //VTK::Color::Impl
 
   centerVCGSOutput = gl_in[0].gl_Position.xyz/gl_in[0].gl_Position.w;
+
+  //VTK::Picking::Impl
 
   // note 1.73205 = 2.0*cos(30)
 

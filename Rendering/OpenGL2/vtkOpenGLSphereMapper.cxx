@@ -254,21 +254,6 @@ void vtkOpenGLSphereMapper::CreateVBO(
 }
 
 //-------------------------------------------------------------------------
-bool vtkOpenGLSphereMapper::GetNeedToRebuildBufferObjects(
-  vtkRenderer *vtkNotUsed(ren),
-  vtkActor *act)
-{
-  // picking state does not require a rebuild, unlike our parent
-  if (this->VBOBuildTime < this->GetMTime() ||
-      this->VBOBuildTime < act->GetMTime() ||
-      this->VBOBuildTime < this->CurrentInput->GetMTime())
-  {
-    return true;
-  }
-  return false;
-}
-
-//-------------------------------------------------------------------------
 void vtkOpenGLSphereMapper::BuildBufferObjects(
   vtkRenderer *ren,
   vtkActor *act)

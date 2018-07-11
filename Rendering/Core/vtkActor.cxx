@@ -541,3 +541,14 @@ bool vtkActor::GetSupportsSelection()
 
   return false;
 }
+
+void vtkActor::ProcessSelectorPixelBuffers(
+  vtkHardwareSelector *sel,
+  std::vector<unsigned int> &pixeloffsets
+  )
+{
+  if (this->Mapper)
+  {
+    this->Mapper->ProcessSelectorPixelBuffers(sel, pixeloffsets, this);
+  }
+}

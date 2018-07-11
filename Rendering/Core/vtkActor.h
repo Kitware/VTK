@@ -200,6 +200,14 @@ public:
    */
   bool GetSupportsSelection() override;
 
+  /**
+   * allows a prop to update a selections color buffers
+   * Default just forwards to the Mapper
+   */
+  void ProcessSelectorPixelBuffers(
+    vtkHardwareSelector *sel,
+    std::vector<unsigned int> &pixeloffsets) override;
+
 protected:
   vtkActor();
   ~vtkActor() override;

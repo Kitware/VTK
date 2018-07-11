@@ -18,6 +18,7 @@
 
 in vec4 vertexMC;
 in float radiusMC;
+out float radiusVCVSOutput;
 
 // optional normal declaration
 //VTK::Normal::Dec
@@ -34,9 +35,8 @@ in float radiusMC;
 // camera and actor matrix values
 //VTK::Camera::Dec
 
+// picking support
 //VTK::Picking::Dec
-
-out float radiusVCVSOutput;
 
 void main()
 {

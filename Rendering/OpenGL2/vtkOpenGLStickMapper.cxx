@@ -192,7 +192,7 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(
   if (picking)
   {
     if (!selector ||
-        (this->LastSelectionState >= vtkHardwareSelector::ID_LOW24))
+        (this->LastSelectionState >= vtkHardwareSelector::POINT_ID_LOW24))
     {
       vtkShaderProgram::Substitute(VSSource,
         "//VTK::Picking::Dec",

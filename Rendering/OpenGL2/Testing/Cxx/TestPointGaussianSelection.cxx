@@ -114,7 +114,6 @@ int TestPointGaussianSelection(int argc, char *argv[])
     vtkIdTypeArray *selIds = vtkArrayDownCast<vtkIdTypeArray>(
         node->GetSelectionList());
 
-    // Separate the selection ids into atoms and bonds
     if (selIds)
     {
       vtkIdType numIds = selIds->GetNumberOfTuples();

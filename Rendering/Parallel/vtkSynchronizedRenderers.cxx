@@ -19,6 +19,7 @@
 #include "vtkCommand.h"
 #include "vtkCommunicator.h"
 #include "vtkFXAAOptions.h"
+#include "vtkHardwareSelector.h"
 #include "vtkImageData.h"
 #include "vtkMatrix4x4.h"
 #include "vtkMultiProcessController.h"
@@ -307,6 +308,12 @@ void vtkSynchronizedRenderers::PushImageToScreen()
   }
 
   rawImage.PushToViewport(this->Renderer);
+
+  vtkHardwareSelector *sel = this->Renderer->GetSelector();
+  if (sel)
+  {
+    sel->SavePixelBuffer(sel->GetCurrentPass());
+  }
 
   if (this->UseFXAA)
   {
@@ -772,6 +779,32 @@ bool vtkSynchronizedRenderers::vtkRawImage::Capture(vtkRenderer* ren)
     viewport_in_pixels[2], viewport_in_pixels[3],
     ren->GetRenderWindow()->GetDoubleBuffer()? 0 : 1,
     this->GetRawPtr());
+
+  // if selecting then pass the processed pixel buffer
+  vtkHardwareSelector *sel = ren->GetSelector();
+  if (sel)
+  {
+    unsigned char *passdata = sel->GetPixelBuffer(sel->GetCurrentPass());
+    unsigned char *destdata = static_cast<unsigned char *>(
+      this->GetRawPtr()->GetVoidPointer(0));
+    if (passdata && destdata)
+    {
+      unsigned int *area = sel->GetArea();
+      unsigned int passwidth = area[2] - area[0] + 1;
+      for (int y = 0; y < image_size[1]; ++y)
+      {
+        for (int x = 0; x < image_size[0]; ++x)
+        {
+          unsigned char *pdptr = passdata + (y * passwidth + x) * 3;
+          destdata[0] = pdptr[0];
+          destdata[1] = pdptr[1];
+          destdata[2] = pdptr[2];
+          destdata += 4;
+        }
+      }
+    }
+  }
+
   this->MarkValid();
   return true;
 }
