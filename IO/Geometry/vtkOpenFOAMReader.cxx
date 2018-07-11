@@ -6254,49 +6254,58 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
           break;
         }
       }
-
-      vtkTypeInt64 faceOwnerVal =
-          GetLabelValue(this->FaceOwner,
-                        static_cast<vtkIdType>(cellOppositeFaceI),
-                        use64BitLabels);
-      if (faceOwnerVal == cellId)
+      if (pivotPointI != 3)
       {
-        if (dupPoint2)
+        // We have found a pivot. We can process cell as a wedge
+        vtkTypeInt64 faceOwnerVal =
+            GetLabelValue(this->FaceOwner,
+                          static_cast<vtkIdType>(cellOppositeFaceI),
+                          use64BitLabels);
+        if (faceOwnerVal == cellId)
         {
-          pivotPointI = (pivotPointI + 2) % 3;
+          if (dupPoint2)
+          {
+            pivotPointI = (pivotPointI + 2) % 3;
+          }
+          int basePointI = 3;
+          for (int pointI = pivotPointI; pointI >= 0; pointI--)
+          {
+            cellPoints->SetId(basePointI++, oppositeFacePoints[pointI]);
+          }
+          for (int pointI = 2; pointI > pivotPointI; pointI--)
+          {
+            cellPoints->SetId(basePointI++, oppositeFacePoints[pointI]);
+          }
         }
-        int basePointI = 3;
-        for (int pointI = pivotPointI; pointI >= 0; pointI--)
+        else
         {
-          cellPoints->SetId(basePointI++, oppositeFacePoints[pointI]);
+          // shift the pivot point if the point corresponds to point 2
+          // of the base face
+          if (dupPoint2)
+          {
+            pivotPointI = (1 + pivotPointI) % 3;
+          }
+          // copy the face-point list of the opposite face to cell-point list
+          int basePointI = 3;
+          for (int pointI = pivotPointI; pointI < 3; pointI++)
+          {
+            cellPoints->SetId(basePointI++, oppositeFacePoints[pointI]);
+          }
+          for (int pointI = 0; pointI < pivotPointI; pointI++)
+          {
+            cellPoints->SetId(basePointI++, oppositeFacePoints[pointI]);
+          }
         }
-        for (int pointI = 2; pointI > pivotPointI; pointI--)
-        {
-          cellPoints->SetId(basePointI++, oppositeFacePoints[pointI]);
-        }
+
+        // create the wedge cell and insert it into the mesh
+        internalMesh->InsertNextCell(cellType, 6, cellPoints->GetPointer(0));
       }
       else
       {
-        // shift the pivot point if the point corresponds to point 2
-        // of the base face
-        if (dupPoint2)
-        {
-          pivotPointI = (1 + pivotPointI) % 3;
-        }
-        // copy the face-point list of the opposite face to cell-point list
-        int basePointI = 3;
-        for (int pointI = pivotPointI; pointI < 3; pointI++)
-        {
-          cellPoints->SetId(basePointI++, oppositeFacePoints[pointI]);
-        }
-        for (int pointI = 0; pointI < pivotPointI; pointI++)
-        {
-          cellPoints->SetId(basePointI++, oppositeFacePoints[pointI]);
-        }
+        // We did not find a pivot: this cell was suspected to be a wedge but it
+        // is not. Let's process it like a polyhedron instead.
+        cellType = VTK_POLYHEDRON;
       }
-
-      // create the wedge cell and insert it into the mesh
-      internalMesh->InsertNextCell(cellType, 6, cellPoints->GetPointer(0));
     }
 
     // OFpyramid | vtkPyramid || OFtet | vtkTetrahedron
@@ -6334,49 +6343,34 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
       vtkIdType apexPointI = adjacentFacePoints[0];
       for (size_t ptI = 0; ptI < adjacentFacePoints.size(); ++ptI)
       {
-          apexPointI = adjacentFacePoints[ptI];
-          bool foundDup = false;
-          for (size_t baseI = 0; baseI < baseFacePoints.size(); ++baseI)
-          {
-            foundDup = (apexPointI == baseFacePoints[baseI]);
-            if (foundDup)
-            {
-              break;
-            }
-          }
-
-          if (!foundDup)
+        apexPointI = adjacentFacePoints[ptI];
+        bool foundDup = false;
+        for (size_t baseI = 0; baseI < baseFacePoints.size(); ++baseI)
+        {
+          foundDup = (apexPointI == baseFacePoints[baseI]);
+          if (foundDup)
           {
             break;
           }
+        }
+        if (!foundDup)
+        {
+          break;
+        }
       }
 
       // Add base-face points (in order) to cell points
-      if
-      (
-          GetLabelValue(this->FaceOwner, cellBaseFaceId, use64BitLabels)
-       == cellId
-      )
+      if (GetLabelValue(this->FaceOwner, cellBaseFaceId, use64BitLabels) == cellId)
       {
         // if it is an owner face, flip the points (to point inwards)
-        for
-        (
-            vtkIdType j = 0;
-            j < static_cast<vtkIdType>(baseFacePoints.size());
-            ++j
-        )
+        for (vtkIdType j = 0; j < static_cast<vtkIdType>(baseFacePoints.size()); ++j)
         {
           cellPoints->SetId(j, baseFacePoints[baseFacePoints.size() - 1 - j]);
         }
       }
       else
       {
-        for
-        (
-            vtkIdType j = 0;
-            j < static_cast<vtkIdType>(baseFacePoints.size());
-            ++j
-        )
+        for (vtkIdType j = 0;j < static_cast<vtkIdType>(baseFacePoints.size()); ++j)
         {
           cellPoints->SetId(j, baseFacePoints[j]);
         }
@@ -6399,7 +6393,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
     }
 
     // OFpolyhedron || vtkConvexPointSet
-    else
+    if (cellType == VTK_POLYHEDRON)
     {
       if (additionalCells != nullptr) // decompose into tets and pyramids
       {
@@ -6563,6 +6557,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
             }
           }
         }
+
         nAdditionalPoints++;
         this->AdditionalCellIds->InsertNextValue(cellId);
         this->NumAdditionalCells->InsertNextValue(nAdditionalCells);
@@ -7867,8 +7862,8 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
   const vtkFoamEntry *bEntry = dict.Lookup("boundaryField");
   if (bEntry == nullptr)
   {
-    vtkErrorMacro(<< "boundaryField not found in object " << varName.c_str()
-        << " at time = " << this->TimeNames->GetValue(this->TimeStep).c_str());
+    vtkWarningMacro(<< "boundaryField not found in object " << varName.c_str()
+                    << " at time = " << this->TimeNames->GetValue(this->TimeStep).c_str());
     iData->Delete();
     if (acData != nullptr)
     {
@@ -7890,7 +7885,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
     const vtkFoamEntry *bEntryI = bEntry->Dictionary().Lookup(boundaryNameI);
     if (bEntryI == nullptr)
     {
-      vtkErrorMacro(<< "boundaryField " << boundaryNameI.c_str()
+      vtkWarningMacro(<< "boundaryField " << boundaryNameI.c_str()
           << " not found in object " << varName.c_str() << " at time = "
           << this->TimeNames->GetValue(this->TimeStep).c_str());
       iData->Delete();
@@ -7907,9 +7902,9 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
 
     if (bEntryI->FirstValue().GetType() != vtkFoamToken::DICTIONARY)
     {
-      vtkErrorMacro(<< "Type of boundaryField " << boundaryNameI.c_str()
-          << " is not a subdictionary in object " << varName.c_str()
-          << " at time = " << this->TimeNames->GetValue(this->TimeStep).c_str());
+      vtkWarningMacro(<< "Type of boundaryField " << boundaryNameI.c_str()
+                      << " is not a subdictionary in object " << varName.c_str()
+                      << " at time = " << this->TimeNames->GetValue(this->TimeStep).c_str());
       iData->Delete();
       if (acData != nullptr)
       {
