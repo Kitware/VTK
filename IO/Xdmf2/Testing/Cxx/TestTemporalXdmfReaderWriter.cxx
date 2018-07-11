@@ -77,6 +77,7 @@ int TestTemporalXdmfReaderWriter(int argc, char *argv[])
     "Data/XDMF/temporalStaticMeshes.xmf");
   vtkNew<vtkXdmfReader> reader;
   reader->SetFileName(filePath);
+  delete [] filePath;
   if (TestStaticMesh(reader) == VTK_ERROR)
   {
     std::cerr << "Error while reading " << reader->GetFileName() << std::endl;
