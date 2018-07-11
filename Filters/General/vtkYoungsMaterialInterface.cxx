@@ -2565,7 +2565,9 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 #endif
                                    )
   {
-    ALLOC_LOCAL_ARRAY( derivatives, REAL2, nv-1 );
+    // only need nv-1 derivs but allocate nv as gcc freaks out
+    // with nv-1 as an argument
+    ALLOC_LOCAL_ARRAY( derivatives, REAL2, nv );
     ALLOC_LOCAL_ARRAY( index, unsigned char, nv );
     ALLOC_LOCAL_ARRAY( rindex, unsigned char, nv );
 
