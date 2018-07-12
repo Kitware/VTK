@@ -1953,24 +1953,9 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
   }
 
   vtkHardwareSelector* selector = ren->GetSelector();
-  bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != nullptr);
-  if (picking && cellBO.Program->IsUniformUsed("mapperIndex"))
+  if (selector && cellBO.Program->IsUniformUsed("mapperIndex"))
   {
-    if (selector)
-    {
-      // if (selector->GetCurrentPass() < vtkHardwareSelector::POINT_ID_LOW24)
-      // {
-      //   cellBO.Program->SetUniform3f("mapperIndex", selector->GetPropColorValue());
-      // }
-      cellBO.Program->SetUniform3f("mapperIndex", selector->GetPropColorValue());
-    }
-    else
-    {
-      unsigned int idx = ren->GetCurrentPickId();
-      float color[3];
-      vtkHardwareSelector::Convert(idx, color);
-      cellBO.Program->SetUniform3f("mapperIndex", color);
-    }
+    cellBO.Program->SetUniform3f("mapperIndex", selector->GetPropColorValue());
   }
 
   if (this->GetNumberOfClippingPlanes() &&

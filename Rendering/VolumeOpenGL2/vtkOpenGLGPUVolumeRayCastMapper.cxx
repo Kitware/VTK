@@ -1413,11 +1413,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetPickingId(
     // query the selector for the appropriate id
     selector->GetPropColorValue(propIdColor);
   }
-  else // RenderWindow is picking
-  {
-    unsigned int const idx = ren->GetCurrentPickId();
-    vtkHardwareSelector::Convert(idx, propIdColor);
-  }
 
   this->ShaderProgram->SetUniform3f("in_propId", propIdColor);
 }

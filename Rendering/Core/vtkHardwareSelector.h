@@ -256,6 +256,26 @@ public:
 
   //@{
   /**
+   * Get/Set to only do the actor pass. If true all other passes will be
+   * skipped resulting in a faster pick.
+   */
+  vtkGetMacro(ActorPassOnly,bool);
+  vtkSetMacro(ActorPassOnly,bool);
+  //@}
+
+  //@{
+  /**
+   * Get/Set to capture the zvalue. If true the closest zvalue is
+   * stored for each prop that is in the selection. ZValue in this
+   * case is the value from the zbuffer which can be used in
+   * coordinate conversions
+   */
+  vtkGetMacro(CaptureZValues,bool);
+  vtkSetMacro(CaptureZValues,bool);
+  //@}
+
+  //@{
+  /**
    * Called by the mapper before and after rendering each prop.
    */
   virtual void BeginRenderProp();
@@ -377,6 +397,8 @@ protected:
   virtual void BeginRenderProp(vtkRenderWindow *) = 0;
   virtual void EndRenderProp(vtkRenderWindow *) = 0;
 
+  double GetZValue(int propid);
+
   int Convert(unsigned long offset, unsigned char* pb)
   {
     if (!pb)
@@ -481,6 +503,10 @@ protected:
   int InPropRender;
   int PropID;
   float PropColorValue[3];
+
+  bool ActorPassOnly;
+
+  bool CaptureZValues;
 
 private:
   vtkHardwareSelector(const vtkHardwareSelector&) = delete;

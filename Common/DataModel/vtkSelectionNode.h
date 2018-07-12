@@ -199,6 +199,11 @@ public:
   static vtkInformationDoubleKey* EPSILON();
 
   /**
+   * If present, closest zbuffer value of this selection
+   */
+  static vtkInformationDoubleKey* ZBUFFER_VALUE();
+
+  /**
    * This flag tells the extraction filter, when FIELD_TYPE==POINT, that
    * it should also extract the cells that contain any of the extracted points.
    */

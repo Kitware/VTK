@@ -46,6 +46,7 @@ vtkInformationKeyMacro(vtkSelectionNode,HIERARCHICAL_LEVEL,Integer);
 vtkInformationKeyMacro(vtkSelectionNode,HIERARCHICAL_INDEX,Integer);
 vtkInformationKeyMacro(vtkSelectionNode,FIELD_TYPE,Integer);
 vtkInformationKeyMacro(vtkSelectionNode,EPSILON,Double);
+vtkInformationKeyMacro(vtkSelectionNode,ZBUFFER_VALUE,Double);
 vtkInformationKeyMacro(vtkSelectionNode,CONTAINING_CELLS,Integer);
 vtkInformationKeyMacro(vtkSelectionNode,PIXEL_COUNT,Integer);
 vtkInformationKeyMacro(vtkSelectionNode,INVERSE,Integer);

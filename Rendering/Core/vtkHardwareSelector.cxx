@@ -74,6 +74,7 @@ public:
   std::set<int> HitProps;
   std::map<int, vtkSmartPointer<vtkProp> > Props;
   std::map<int, std::vector<unsigned int> > PropPixels;
+  std::map<int, double> ZValues;
 
   // state that's managed through the renderer
   double OriginalBackground[3];
@@ -111,6 +112,13 @@ public:
       }
       child->GetProperties()->Set(vtkSelectionNode::PROP_ID(), key.PropID);
       child->GetProperties()->Set(vtkSelectionNode::PROP(), key.Prop);
+
+      if (this->ZValues.find(key.PropID) != this->ZValues.end())
+      {
+        child->GetProperties()->Set(vtkSelectionNode::ZBUFFER_VALUE(),
+          this->ZValues[key.PropID]);
+      }
+
       PixelCountType::const_iterator pit = pixelCounts.find(key);
       child->GetProperties()->Set(vtkSelectionNode::PIXEL_COUNT(), pit->second);
       if (key.ProcessID >= 0)
@@ -202,6 +210,8 @@ vtkHardwareSelector::vtkHardwareSelector()
   this->PropColorValue[0] = this->PropColorValue[1] = this->PropColorValue[2] = 0;
   this->InPropRender = 0;
   this->UseProcessIdFromData = false;
+  this->ActorPassOnly = false;
+  this->CaptureZValues = false;
 }
 
 //----------------------------------------------------------------------------
@@ -233,6 +243,7 @@ void vtkHardwareSelector::BeginSelection()
   this->Renderer->Clear();
   this->Renderer->SetSelector(this);
   this->Internals->HitProps.clear();
+  this->Internals->ZValues.clear();
   this->Internals->Props.clear();
   this->Internals->PropPixels.clear();
   this->ReleasePixBuffers();
@@ -322,6 +333,11 @@ void vtkHardwareSelector::SetPropColorValue(vtkIdType val)
 //----------------------------------------------------------------------------
 bool vtkHardwareSelector::PassRequired(int pass)
 {
+  if (this->ActorPassOnly)
+  {
+    return (pass == ACTOR_PASS);
+  }
+
   switch (pass)
   {
     case ACTOR_PASS:
@@ -384,8 +400,17 @@ void vtkHardwareSelector::ProcessPixelBuffers()
 }
 
 //----------------------------------------------------------------------------
+// Also store the prop zvalues here as we traverse the images
 void vtkHardwareSelector::BuildPropHitList(unsigned char* pixelbuffer)
 {
+  // grab the zbuffer if requested
+  float *depthBuffer = nullptr;
+  if (this->CaptureZValues)
+  {
+    depthBuffer = this->Renderer->GetRenderWindow()->GetZbufferData(
+      this->Area[0], this->Area[1], this->Area[2], this->Area[3]);
+  }
+
   unsigned int offset = 0;
   for (int yy=0; yy <= static_cast<int>(this->Area[3]-this->Area[1]); yy++)
   {
@@ -399,12 +424,30 @@ void vtkHardwareSelector::BuildPropHitList(unsigned char* pixelbuffer)
           this->Internals->HitProps.end())
         {
           this->Internals->HitProps.insert(val);
+          this->Internals->ZValues[val] = 1.0;
+        }
+        if (depthBuffer)
+        {
+          if (depthBuffer[offset] < this->Internals->ZValues[val])
+          {
+            this->Internals->ZValues[val] = depthBuffer[offset];
+          }
         }
         this->Internals->PropPixels[val].push_back(offset*3);
       }
       offset++;
     }
   }
+}
+
+double vtkHardwareSelector::GetZValue(int val)
+{
+  auto zitr = this->Internals->ZValues.find(val);
+  if (zitr != this->Internals->ZValues.end())
+  {
+    return zitr->second;
+  }
+  return 1.0;
 }
 
 //----------------------------------------------------------------------------
@@ -509,7 +552,7 @@ int vtkHardwareSelector::Render(vtkRenderer* renderer, vtkProp** propArray,
   {
     // all props in propArray are already visible, hence no need to check again
     // (vtkRenderer ensures that).
-    if (!propArray[i]->GetPickable() || !propArray[i]->GetSupportsSelection())
+    if (!propArray[i]->GetPickable())
     {
       continue;
     }
@@ -524,7 +567,7 @@ int vtkHardwareSelector::Render(vtkRenderer* renderer, vtkProp** propArray,
   // Render props as volumetric data.
   for (int i = 0; i < propArrayCount; i++)
   {
-    if (!propArray[i]->GetPickable() || !propArray[i]->GetSupportsSelection())
+    if (!propArray[i]->GetPickable())
     {
       continue;
     }
@@ -542,7 +585,7 @@ int vtkHardwareSelector::Render(vtkRenderer* renderer, vtkProp** propArray,
   // SupportsSelection variables to decide whether to be included in this pass.
   for (int i = 0; i < propArrayCount; i++ )
   {
-    if (!propArray[i]->GetPickable() || !propArray[i]->GetSupportsSelection())
+    if (!propArray[i]->GetPickable())
     {
       continue;
     }
@@ -643,6 +686,10 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
     actorid--;
     info.PropID = actorid;
     info.Prop = this->GetPropFromID(actorid);
+    if (this->ActorPassOnly)
+    {
+      return info;
+    }
 
     int composite_id = this->Convert(display_position,
       this->PixBuffer[COMPOSITE_INDEX_PASS]);
@@ -659,7 +706,6 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
       low24 = this->Convert(display_position, this->PixBuffer[POINT_ID_LOW24]);
       high24 = this->Convert(display_position, this->PixBuffer[POINT_ID_HIGH24]);
     }
-
 
     // id 0 is reserved for nothing present.
     info.AttributeID = (this->GetID(low24, high24, 0) - ID_OFFSET);
@@ -835,5 +881,6 @@ void vtkHardwareSelector::PrintSelf(ostream& os, vtkIndent indent)
     << this->Area[2] << ", " << this->Area[3] << endl;
   os << indent << "Renderer: " << this->Renderer << endl;
   os << indent << "UseProcessIdFromData: " << this->UseProcessIdFromData << endl;
+  os << indent << "ActorPassOnly: " << this->ActorPassOnly << endl;
 }
 

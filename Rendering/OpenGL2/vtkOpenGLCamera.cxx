@@ -72,8 +72,7 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
     ostate->vtkglScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
   }
 
-  if ((ren->GetRenderWindow())->GetErase() && ren->GetErase()
-      && !ren->GetIsPicking())
+  if ((ren->GetRenderWindow())->GetErase() && ren->GetErase())
   {
     ren->Clear();
   }

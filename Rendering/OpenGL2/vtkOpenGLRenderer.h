@@ -145,21 +145,6 @@ protected:
    */
   int UpdateGeometry() override;
 
-  // Picking functions to be implemented by sub-classes
-  void DevicePickRender() override;
-  void StartPick(unsigned int pickFromSize) override;
-  void UpdatePickId() override;
-  void DonePick() override;
-  unsigned int GetPickedId() override;
-  unsigned int GetNumPickedIds() override;
-  int GetPickedIds(unsigned int atMost, unsigned int *callerBuffer) override;
-  double GetPickedZ() override;
-
-  // Ivars used in picking
-  class vtkGLPickInfo* PickInfo;
-
-  double PickedZ;
-
   friend class vtkOpenGLProperty;
   friend class vtkOpenGLTexture;
   friend class vtkOpenGLImageSliceMapper;
