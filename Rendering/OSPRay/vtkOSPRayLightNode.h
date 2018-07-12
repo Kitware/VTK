@@ -25,6 +25,8 @@
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkLightNode.h"
 
+#include <string> // for std::string
+
 class vtkInformationDoubleKey;
 class vtkInformationIntegerKey;
 class vtkLight;
