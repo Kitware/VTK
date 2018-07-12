@@ -46,7 +46,8 @@ int vtkCompositeDataProbeFilter::FillInputPortInformation(
   {
     // We have to save vtkDataObject since this filter can work on vtkDataSet
     // and vtkCompositeDataSet consisting of vtkDataSet leaf nodes.
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   }
   return 1;
 }
