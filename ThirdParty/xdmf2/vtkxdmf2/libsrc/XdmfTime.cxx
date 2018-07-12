@@ -98,6 +98,7 @@ XdmfInt32 XdmfTime::UpdateInformation(){
         istrstream Value_ist(const_cast<char*>(attribute), strlen(attribute) );
         Value_ist >> dValue;
         this->SetValue(dValue);
+        free((void*)attribute);
     }else{
         XdmfXmlNode     node;
 
