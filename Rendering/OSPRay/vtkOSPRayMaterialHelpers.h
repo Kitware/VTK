@@ -31,13 +31,9 @@
 #ifndef vtkOSPRayMaterialHelpers_h
 #define vtkOSPRayMaterialHelpers_h
 
-namespace osp {
-  struct Texture2D;
-  struct Renderer;
-  struct Material;
-}
-
 #include <map>
+
+#include "ospray/ospray.h" // for ospray handle types
 
 class vtkImageData;
 class vtkOSPRayRendererNode;
@@ -47,30 +43,30 @@ namespace vtkOSPRayMaterialHelpers {
   /**
    * Manufacture an ospray texture from a 2d vtkImageData
    */
-  osp::Texture2D* VTKToOSPTexture(vtkImageData *vColorTextureMap);
+  OSPTexture2D VTKToOSPTexture(vtkImageData *vColorTextureMap);
 
   /**
    * Construct a set of ospray materials for all of the material names.
    */
   void MakeMaterials(vtkOSPRayRendererNode *orn,
-                     osp::Renderer *oRenderer,
-                     std::map<std::string, osp::Material*> &mats);
+                     OSPRenderer oRenderer,
+                     std::map<std::string, OSPMaterial> &mats);
 
   /**
    * Construct one ospray material within the given renderer that
    * corresponds to the visual characteristics set out in the named
    * material in the material library.
    */
-  osp::Material* MakeMaterial(vtkOSPRayRendererNode *orn,
-                              osp::Renderer *oRenderer,
-                              std::string nickname);
+  OSPMaterial MakeMaterial(vtkOSPRayRendererNode *orn,
+                           OSPRenderer oRenderer,
+                           std::string nickname);
 
   /**
    * Wraps ospNewMaterial or ospNewMaterial2, depending on OSPRay version.
    */
-  osp::Material* NewMaterial(vtkOSPRayRendererNode *orn,
-                             osp::Renderer *oRenderer,
-                             std::string ospMatName);
+  OSPMaterial NewMaterial(vtkOSPRayRendererNode *orn,
+                          OSPRenderer oRenderer,
+                          std::string ospMatName);
 
 }
 #endif

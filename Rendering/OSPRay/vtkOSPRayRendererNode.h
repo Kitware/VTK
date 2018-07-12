@@ -26,6 +26,8 @@
 #include "vtkRendererNode.h"
 #include <vector> // for ivars
 
+#include "ospray/ospray.h" // for ospray handle types
+
 class vtkInformationDoubleKey;
 class vtkInformationDoubleVectorKey;
 class vtkInformationIntegerKey;
@@ -35,21 +37,6 @@ class vtkMatrix4x4;
 class vtkOSPRayRendererNodeInternals;
 class vtkOSPRayMaterialLibrary;
 class vtkRenderer;
-
-// ospray forward decs so that someone does not need to include ospray.h
-namespace osp {
-struct Model;
-struct Renderer;
-struct Light;
-struct Texture2D;
-struct FrameBuffer;
-}
-typedef osp::Model *OSPModel;
-typedef osp::Renderer *OSPRenderer;
-typedef osp::Light *OSPLight;
-typedef osp::FrameBuffer *OSPFrameBuffer;
-typedef osp::Texture2D* OSPTexture2D;
-typedef osp::FrameBuffer* OSPFrameBuffer;
 
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayRendererNode :
   public vtkRendererNode

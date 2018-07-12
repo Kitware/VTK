@@ -23,7 +23,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkOSPRayRendererNode.h"
 
-#include "ospray/ospray.h"
 #include "ospray/version.h"
 #include <vector>
 
@@ -113,11 +112,11 @@ double vtkOSPRayLightNode::GetRadius(vtkLight *light)
 }
 
 //----------------------------------------------------------------------------
-osp::Light* vtkOSPRayLightNode::NewLight(vtkOSPRayRendererNode *orn,
-                                         osp::Renderer *oRenderer,
-                                         const std::string& lightType)
+OSPLight vtkOSPRayLightNode::NewLight(vtkOSPRayRendererNode *orn,
+                                      OSPRenderer oRenderer,
+                                      const std::string& lightType)
 {
-  osp::Light *result;
+  OSPLight result;
 #if OSPRAY_VERSION_MAJOR == 1 && OSPRAY_VERSION_MINOR >= 5
   (void)oRenderer;
   const std::string rendererType = vtkOSPRayRendererNode::GetRendererType(orn->GetRenderer());

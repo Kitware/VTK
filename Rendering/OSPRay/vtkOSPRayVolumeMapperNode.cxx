@@ -34,8 +34,6 @@
 #include <algorithm>
 #include <vector>
 
-#include "ospray/ospray.h"
-
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayVolumeMapperNode);
 
@@ -90,7 +88,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     vtkRenderer *ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
     this->Cache->SetSize(vtkOSPRayRendererNode::GetTimeCacheSize(ren));
 
-    osp::Model* OSPRayModel = orn->GetOModel();
+    OSPModel OSPRayModel = orn->GetOModel();
 
     // make sure that we have scalar input and update the scalar input
     if ( mapper->GetDataSetInput() == nullptr )

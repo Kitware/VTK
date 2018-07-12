@@ -25,18 +25,14 @@
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkLightNode.h"
 
+#include "ospray/ospray.h" // for ospray handle types
+
 #include <string> // for std::string
 
 class vtkInformationDoubleKey;
 class vtkInformationIntegerKey;
 class vtkLight;
 class vtkOSPRayRendererNode;
-
-namespace osp
-{
-struct Light;
-struct Renderer;
-}
 
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayLightNode :
   public vtkLightNode
@@ -94,9 +90,9 @@ public:
   /**
    * Select the version-appropriate signature for ospNewLight.
    */
-  static osp::Light* NewLight(vtkOSPRayRendererNode *orn,
-                              osp::Renderer *oRenderer,
-                              const std::string& lightType);
+  static OSPLight NewLight(vtkOSPRayRendererNode *orn,
+                           OSPRenderer oRenderer,
+                           const std::string& lightType);
 
 protected:
   vtkOSPRayLightNode();

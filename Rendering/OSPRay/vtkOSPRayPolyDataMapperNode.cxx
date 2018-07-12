@@ -98,7 +98,7 @@ namespace vtkosp {
   //------------------------------------------------------------------------------
   void CellMaterials(
     vtkOSPRayRendererNode *orn,
-    osp::Renderer *oRenderer,
+    OSPRenderer oRenderer,
     vtkPolyData *poly,
     vtkMapper *mapper,
     vtkScalarsToColors *s2c,
@@ -294,7 +294,7 @@ namespace vtkosp {
     }
     else if (vColorTextureMap && _hastm)
     {
-      osp::Texture2D *t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(vColorTextureMap);
+      OSPTexture2D t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(vColorTextureMap);
       ospSetObject(actorMaterial, "map_Kd", ((OSPTexture2D)(t2d)));
       ospCommit(actorMaterial);
       ospSetMaterial(ospMesh, actorMaterial);
@@ -451,7 +451,7 @@ namespace vtkosp {
     }
     else if (vColorTextureMap && _hastm)
     {
-      osp::Texture2D *t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(vColorTextureMap);
+      OSPTexture2D t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(vColorTextureMap);
       ospSetObject(actorMaterial, "map_Kd", ((OSPTexture2D)(t2d)));
       ospCommit(actorMaterial);
       ospSetMaterial(ospMesh, actorMaterial);
@@ -574,7 +574,7 @@ namespace vtkosp {
     else if (vColorTextureMap && _hastm)
     {
       //Note: this will only have an affect on OBJMaterials
-      osp::Texture2D *t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(vColorTextureMap);
+      OSPTexture2D t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(vColorTextureMap);
       ospSetObject(actorMaterial, "map_Kd", ((OSPTexture2D)(t2d)));
       ospCommit(actorMaterial);
       ospSetMaterial(ospMesh, actorMaterial);

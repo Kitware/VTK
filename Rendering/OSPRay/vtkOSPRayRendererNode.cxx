@@ -49,7 +49,6 @@
 #include "vtkVolumeCollection.h"
 #include "vtkWeakPointer.h"
 
-#include "ospray/ospray.h"
 #include "ospray/version.h"
 
 #include <algorithm>
@@ -364,8 +363,7 @@ public:
         ochars[1] = bg1[1]*255;
         ochars[2] = bg1[2]*255;
       }
-      osp::Texture2D *t2d;
-      t2d = (osp::Texture2D*)ospNewTexture2D
+      OSPTexture2D t2d = ospNewTexture2D
         (
          osp::vec2i{jsize,isize},
          OSP_TEXTURE_RGB8,
@@ -735,7 +733,7 @@ void vtkOSPRayRendererNode::Traverse(int operation)
 
   this->Apply(operation,true);
 
-  OSPRenderer oRenderer = (osp::Renderer*)this->ORenderer;
+  OSPRenderer oRenderer = this->ORenderer;
 
   //camera
   //TODO: this repeated traversal to find things of particular types
@@ -916,14 +914,14 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     if (!this->ORenderer || previousType != type)
     {
       this->Traverse(invalidate);
-      ospRelease((osp::Renderer*)this->ORenderer);
-      oRenderer = (osp::Renderer*)ospNewRenderer(type.c_str());
+      ospRelease(this->ORenderer);
+      oRenderer = ospNewRenderer(type.c_str());
       this->ORenderer = oRenderer;
       previousType = type;
     }
     else
     {
-      oRenderer = (osp::Renderer*)this->ORenderer;
+      oRenderer = this->ORenderer;
     }
     ospSet1f(this->ORenderer, "maxContribution", 2.f);
     ospSet1f(this->ORenderer, "minContribution", 0.01f);
@@ -985,7 +983,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
   }
   else
   {
-    OSPRenderer oRenderer = (osp::Renderer*)this->ORenderer;
+    OSPRenderer oRenderer = this->ORenderer;
     ospCommit(oRenderer);
 
     osp::vec2i isize = {this->Size[0], this->Size[1]};

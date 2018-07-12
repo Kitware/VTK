@@ -30,10 +30,7 @@
 #include "vtkSystemIncludes.h" //dll warning suppression
 #include <map> // for stl
 
-namespace osp
-{
-  struct Volume;
-}
+#include "ospray/ospray.h" // for ospray handle types
 
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayVolumeCache {
 public:
@@ -43,13 +40,13 @@ public:
   /**
    * Insert a new volume into the cache.
    */
-  void AddToCache(double tstep, osp::Volume *payload);
+  void AddToCache(double tstep, OSPVolume payload);
 
   /**
    * Obtain a volume from the cache.
    * Return nullptr if none present at tstep.
    */
-  osp::Volume* GetFromCache(double tstep);
+  OSPVolume GetFromCache(double tstep);
 
   //@{
   /**
@@ -66,7 +63,7 @@ private:
   void Empty();
   int Size;
 
-  std::map<double, osp::Volume*> Contents;
+  std::map<double, OSPVolume> Contents;
 };
 
 #endif //vtkOSPRayVolumeCache_h

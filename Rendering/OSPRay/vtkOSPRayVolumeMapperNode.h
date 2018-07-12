@@ -25,17 +25,12 @@
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkVolumeMapperNode.h"
 
+#include "ospray/ospray.h" // for ospray handle types
+
 class vtkAbstractArray;
 class vtkDataSet;
 class vtkVolume;
 class vtkOSPRayVolumeCache;
-
-namespace osp
-{
-  struct TransferFunction;
-  struct Volume;
-  struct Geometry;
-}
 
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayVolumeMapperNode :
   public vtkVolumeMapperNode
@@ -74,9 +69,9 @@ protected:
   vtkTimeStamp BuildTime;
   vtkTimeStamp PropertyTime;
 
-  osp::Geometry* OSPRayIsosurface;
-  osp::Volume* OSPRayVolume;
-  osp::TransferFunction* TransferFunction;
+  OSPGeometry OSPRayIsosurface;
+  OSPVolume OSPRayVolume;
+  OSPTransferFunction TransferFunction;
   std::vector<float> TFVals;
   std::vector<float> TFOVals;
 
