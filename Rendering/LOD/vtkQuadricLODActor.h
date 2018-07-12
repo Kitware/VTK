@@ -162,19 +162,6 @@ public:
   vtkGetObjectMacro(LODFilter, vtkQuadricClustering);
   //@}
 
-  //@{
-  /**
-   * Specify the maximum display list size. This variable is used to determine
-   * whether to use display lists (ImmediateModeRenderingOff) or not.
-   * Controlling display list size is important to prevent program crashes (i.e.,
-   * overly large display lists on some graphics hardware will cause faults).
-   * The display list size is the length of the vtkCellArray representing the
-   * topology of the input vtkPolyData.
-   */
-  vtkSetClampMacro(MaximumDisplayListSize, int, 1000, VTK_INT_MAX);
-  vtkGetMacro(MaximumDisplayListSize, int);
-  //@}
-
   enum PropTypeEnum
   {
     FOLLOWER = 0,
@@ -253,18 +240,11 @@ protected:
   int PropType;
   vtkCamera *Camera;
 
-  // Control what size (in terms of number of graphics primitives)
-  // where display lists should be used.
-  int MaximumDisplayListSize;
-
   // Specify to defer construction of the LOD.
   vtkTypeBool DeferLODConstruction;
 
   // Keep track of building
   vtkTimeStamp BuildTime;
-
-  // Helper function determines display list size
-  vtkIdType GetDisplayListSize(vtkPolyData *pd);
 
 private:
   vtkQuadricLODActor(const vtkQuadricLODActor&) = delete;
