@@ -309,15 +309,12 @@ void vtkSeedWidget::DeleteAction(vtkAbstractWidget *w)
   vtkSeedRepresentation *rep =
     reinterpret_cast<vtkSeedRepresentation*>(self->WidgetRep);
   int removeId = rep->GetActiveHandle();
-  if ( removeId != -1 )
-  {
-    rep->RemoveActiveHandle();
-  }
-  else
-  {
-    rep->RemoveLastHandle();
-    removeId = static_cast<int>(self->Seeds->size())-1;
-  }
+  removeId =
+    removeId != -1 ? removeId : static_cast<int>(self->Seeds->size()) - 1;
+  // Invoke event for seed handle before actually deleting
+  self->InvokeEvent(vtkCommand::DeletePointEvent, &(removeId));
+
+  rep->RemoveHandle(removeId);
   self->DeleteSeed(removeId);
   // Got this event, abort processing if it
   self->EventCallbackCommand->SetAbortFlag(1);
