@@ -1185,7 +1185,7 @@ void preSig(const char *arg)
     if (n > 0)
     {
       memmove(&signature[n], signature, sigLength);
-      // we intentionally do not want /0 here
+      /* we intentionally do not want /0 here */
       memmove(signature, arg, n);
       sigLength += n;
     }

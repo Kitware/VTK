@@ -920,11 +920,11 @@ int vtkParseHierarchy_ExpandTypedefsInValue(
       }
 
       /* scope the name */
-      strncpy(cp, scope, n);
+      /* memmove here as we do not want the /0 */
+      memmove(cp, scope, n);
       cp[n++] = ':';
       cp[n++] = ':';
-      strncpy(&cp[n], val->Class, m);
-      cp[n+m] = '\0';
+      strncpy(&cp[n], val->Class, m + 1);
 
       entry = vtkParseHierarchy_FindEntry(info, cp);
 
@@ -988,9 +988,9 @@ int vtkParseHierarchy_ExpandTypedefsInValue(
           m = strlen(val->Class);
           m += (l - n);
           cp = (char *)malloc(m + 1);
-          strncpy(cp, prefix.Class, l);
-          strncpy(cp + l, &val->Class[n], m - l);
-          cp[m] = '\0';
+          /* memmove as we do not want the /0 here */
+          memmove(cp, prefix.Class, l);
+          strncpy(cp + l, &val->Class[n], m - l + 1);
           val->Class = vtkParse_CacheString(cache, cp, m);
           free(cp);
         }
@@ -1054,10 +1054,11 @@ const char *vtkParseHierarchy_ExpandTypedefsInName(
     }
 
     /* scope the name */
-    strncpy(cp, scope, n);
+    /* memmove as we do not want the /0 here */
+    memmove(cp, scope, n);
     cp[n++] = ':';
     cp[n++] = ':';
-    strncpy(&cp[n], name, m);
+    memmove(&cp[n], name, m);
     cp[n+m] = '\0';
 
     entry = vtkParseHierarchy_FindEntry(info, cp);
