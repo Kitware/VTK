@@ -30,7 +30,7 @@
 #include "vtkSystemIncludes.h" //dll warning suppression
 #include <map> // for stl
 
-#include "ospray/ospray.h"
+#include "ospray/ospray.h" // for ospray handle types
 
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayVolumeCache {
 public:

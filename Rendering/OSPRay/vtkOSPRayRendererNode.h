@@ -26,7 +26,7 @@
 #include "vtkRendererNode.h"
 #include <vector> // for ivars
 
-#include "ospray/ospray.h"
+#include "ospray/ospray.h" // for ospray handle types
 
 class vtkInformationDoubleKey;
 class vtkInformationDoubleVectorKey;

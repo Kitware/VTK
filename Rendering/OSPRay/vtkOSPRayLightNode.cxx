@@ -23,7 +23,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkOSPRayRendererNode.h"
 
-#include "ospray/ospray.h"
 #include "ospray/version.h"
 #include <vector>
 

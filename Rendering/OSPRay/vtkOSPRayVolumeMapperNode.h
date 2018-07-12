@@ -25,7 +25,7 @@
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkVolumeMapperNode.h"
 
-#include "ospray/ospray.h"
+#include "ospray/ospray.h" // for ospray handle types
 
 class vtkAbstractArray;
 class vtkDataSet;

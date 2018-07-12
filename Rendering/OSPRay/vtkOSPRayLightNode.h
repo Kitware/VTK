@@ -25,7 +25,7 @@
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkLightNode.h"
 
-#include "ospray/ospray.h"
+#include "ospray/ospray.h" // for ospray handle types
 
 #include <string> // for std::string
 
