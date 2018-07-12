@@ -1755,8 +1755,8 @@ const char *preproc_find_include_file(
             return NULL;
           }
         }
-
-        strncpy(output, directory, j);
+        // memmove as we intentionally are not copying /0
+        memmove(output, directory, j);
         if (directory[j-1] != '/') { output[j++] = '/'; }
         strncpy(&output[j], filename, m);
         output[j+m] = '\0';
@@ -4207,7 +4207,8 @@ const char *vtkParsePreprocess_ExpandMacro(
               rp = (char *)malloc(rs);
               memcpy(rp, tp, i);
             }
-            strncpy(&rp[i], text, l);
+            // memmove as we intentionally are not copying /0
+            memmove(&rp[i], text, l);
             vtkParsePreprocess_FreeProcessedString(info, text);
             if (tp && tp != stack_rp)
             {
@@ -4383,7 +4384,8 @@ const char *vtkParsePreprocess_ProcessString(
                 rp = (char *)realloc(rp, rs);
               }
             }
-            strncpy(&rp[i], processed, l);
+            // memmove as we intentionally are not copying /0
+            memmove(&rp[i], processed, l);
           }
           if (processed != expansion)
           {

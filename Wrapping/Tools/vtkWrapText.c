@@ -155,9 +155,8 @@ static void vtkWPString_Append(
     str->str = (char *)realloc(str->str, str->maxlen);
   }
 
-  strncpy(&str->str[str->len], text, n);
+  strncpy(&str->str[str->len], text, n + 1);
   str->len += n;
-  str->str[str->len] = '\0';
 }
 
 /* -- add a char ---------- */
