@@ -29,7 +29,7 @@
   OSPRAY_VERSION_PATCH
 
 //------------------------------------------------------------------------------
-osp::Texture2D *vtkOSPRayMaterialHelpers::VTKToOSPTexture
+OSPTexture2D vtkOSPRayMaterialHelpers::VTKToOSPTexture
   (vtkImageData *vColorTextureMap)
 {
   unsigned char *ochars = nullptr;
@@ -68,7 +68,7 @@ osp::Texture2D *vtkOSPRayMaterialHelpers::VTKToOSPTexture
   } else {
     obuffer = vColorTextureMap->GetScalarPointer();
   }
-  osp::Texture2D *t2d;
+  OSPTexture2D t2d;
   OSPTextureFormat ospformat = OSP_TEXTURE_RGB8;
   if (scalartype == VTK_FLOAT)
   {
@@ -100,7 +100,7 @@ osp::Texture2D *vtkOSPRayMaterialHelpers::VTKToOSPTexture
       ospformat = OSP_TEXTURE_RGBA8;
     }
   }
-  t2d = (osp::Texture2D*)ospNewTexture2D
+  t2d = ospNewTexture2D
     (
      osp::vec2i{xsize+1,
          ysize+1},
@@ -118,8 +118,8 @@ osp::Texture2D *vtkOSPRayMaterialHelpers::VTKToOSPTexture
 //------------------------------------------------------------------------------
 void vtkOSPRayMaterialHelpers::MakeMaterials
   (vtkOSPRayRendererNode *orn,
-   osp::Renderer *oRenderer,
-   std::map<std::string, osp::Material*> &mats)
+   OSPRenderer oRenderer,
+   std::map<std::string, OSPMaterial> &mats)
 {
   vtkOSPRayMaterialLibrary *ml = vtkOSPRayRendererNode::GetMaterialLibrary(orn->GetRenderer());
   if (!ml)
@@ -131,7 +131,7 @@ void vtkOSPRayMaterialHelpers::MakeMaterials
   std::set<std::string >::iterator it = nicknames.begin();
   while (it != nicknames.end())
   {
-    osp::Material* newmat = vtkOSPRayMaterialHelpers::MakeMaterial
+    OSPMaterial newmat = vtkOSPRayMaterialHelpers::MakeMaterial
       (orn, oRenderer, *it);
     mats[*it] = newmat;
     ++it;
@@ -177,16 +177,16 @@ void vtkOSPRayMaterialHelpers::MakeMaterials
   if (texname) \
   { \
     vtkImageData* vColorTextureMap = vtkImageData::SafeDownCast(texname->GetInput()); \
-    osp::Texture2D *t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(vColorTextureMap); \
+    OSPTexture2D t2d = vtkOSPRayMaterialHelpers::VTKToOSPTexture(vColorTextureMap); \
     ospSetObject(oMaterial, #texname, ((OSPTexture2D)(t2d))); \
   }
 
 //------------------------------------------------------------------------------
-osp::Material* vtkOSPRayMaterialHelpers::MakeMaterial
+OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
   (vtkOSPRayRendererNode *orn,
-  osp::Renderer* oRenderer, std::string nickname)
+  OSPRenderer oRenderer, std::string nickname)
 {
-  osp::Material* oMaterial;
+  OSPMaterial oMaterial;
   vtkOSPRayMaterialLibrary *ml = vtkOSPRayRendererNode::GetMaterialLibrary(orn->GetRenderer());
   if (!ml)
     {
@@ -359,11 +359,11 @@ osp::Material* vtkOSPRayMaterialHelpers::MakeMaterial
 }
 
 //------------------------------------------------------------------------------
-osp::Material *vtkOSPRayMaterialHelpers::NewMaterial(vtkOSPRayRendererNode *orn,
-                                                     osp::Renderer *oRenderer,
+OSPMaterial vtkOSPRayMaterialHelpers::NewMaterial(vtkOSPRayRendererNode *orn,
+                                                     OSPRenderer oRenderer,
                                                      std::string ospMatName)
 {
-  osp::Material *result;
+  OSPMaterial result;
 
 #if VTK_OSPRAY_VERSION >= 10500 // 1.5.0
 

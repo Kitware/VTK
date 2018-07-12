@@ -103,7 +103,7 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
     vtkRenderer *ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
     this->Cache->SetSize(vtkOSPRayRendererNode::GetTimeCacheSize(ren));
 
-    osp::Model* OSPRayModel = orn->GetOModel();
+    OSPModel OSPRayModel = orn->GetOModel();
     if (!OSPRayModel)
     {
       return;

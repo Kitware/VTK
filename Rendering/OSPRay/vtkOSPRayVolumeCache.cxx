@@ -15,8 +15,6 @@
 
 #include "vtkOSPRayVolumeCache.h"
 
-#include "ospray/ospray.h"
-
 //------------------------------------------------------------------------------
 vtkOSPRayVolumeCache::vtkOSPRayVolumeCache()
 {
@@ -30,19 +28,19 @@ vtkOSPRayVolumeCache::~vtkOSPRayVolumeCache()
 };
 
 //------------------------------------------------------------------------------
-void vtkOSPRayVolumeCache::AddToCache(double tstep, osp::Volume *payload)
+void vtkOSPRayVolumeCache::AddToCache(double tstep, OSPVolume payload)
 {
   if (static_cast<int>(this->Contents.size()) >= this->Size)
   {
     return;
   }
-  osp::Volume *content = this->GetFromCache(tstep);
+  OSPVolume content = this->GetFromCache(tstep);
   ospRelease(content);
   this->Contents[tstep] = payload;
 }
 
 //------------------------------------------------------------------------------
-osp::Volume* vtkOSPRayVolumeCache::GetFromCache(double tstep)
+OSPVolume vtkOSPRayVolumeCache::GetFromCache(double tstep)
 {
   auto ret = this->Contents.find(tstep);
   if (ret != this->Contents.end())
