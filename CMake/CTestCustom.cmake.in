@@ -274,6 +274,16 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "bootstrap class path not set in conjunction with -source"
   "1 warning"
 
+  # diy warnings
+  "vtkmdiy/io/utils.hpp\\(84\\): warning: result of call is not used"
+
+  # stephen and matt should be working on these. Suppress until they fix
+  # upstream and we update. Todo: check after Sept 1 2018 with Stephen and
+  # Matt if these are fixed.
+  #
+  "vtkmetaio/metaImage.cxx"
+  "vtkmetaio/metaArray.cxx"
+
   # 3-rd party warnings from double-conversion
   "vtkdoubleconversion.*unused function"
 
