@@ -45,7 +45,6 @@ vtkQuadricLODActor::vtkQuadricLODActor()
   this->LODFilter->UseInternalTrianglesOff();
 
   this->Static = 0;
-  this->MaximumDisplayListSize = 25000;
   this->DeferLODConstruction = 0;
   this->CollapseDimensionRatio = 0.05;
   this->DataConfiguration = UNKNOWN;
@@ -111,17 +110,6 @@ int vtkQuadricLODActor::RenderOpaqueGeometry(vtkViewport *vp)
   }
 
   return renderedSomething;
-}
-
-//----------------------------------------------------------------------------
-inline vtkIdType vtkQuadricLODActor::GetDisplayListSize(vtkPolyData *pd)
-{
-  vtkIdType numEntries = pd->GetVerts()->GetNumberOfConnectivityEntries();
-  numEntries += pd->GetLines()->GetNumberOfConnectivityEntries();
-  numEntries += pd->GetPolys()->GetNumberOfConnectivityEntries();
-  numEntries += pd->GetStrips()->GetNumberOfConnectivityEntries();
-
-  return numEntries;
 }
 
 //----------------------------------------------------------------------------
@@ -312,6 +300,10 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
     this->Texture->Render(ren);
   }
 
+  // The internal actor needs to share property keys. This allows depth peeling
+  // etc to work.
+  this->LODActor->SetPropertyKeys(this->GetPropertyKeys());
+
   // Store information on time it takes to render.
   // We might want to estimate time from the number of polygons in mapper.
   this->LODActor->Render(ren, bestMapper);
@@ -392,9 +384,6 @@ void vtkQuadricLODActor::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << "(none)\n";
   }
-
-  os << indent << "Maximum Display List Size: "
-     << this->MaximumDisplayListSize << "\n";
 
   os << indent << "Prop Type: ";
   if (this->PropType == FOLLOWER)
