@@ -124,11 +124,12 @@ public:
   /**
    * Add to the list of arrays that have entries.  For arrays that
    * already have entries, the settings are untouched.  For arrays
-   * that don't already have an entry, they are assumed to be enabled.
+   * that don't already have an entry, they are assumed to be enabled
+   * by default. The state can also be passed as the second argument.
    * This method should be called only by the filter owning this
    * object.
    */
-  int AddArray(const char* name);
+  int AddArray(const char* name, bool state=true);
 
   /**
    * Remove an array setting given its index.
