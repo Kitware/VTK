@@ -297,12 +297,11 @@ void vtkOpenGLSphereMapper::BuildBufferObjects(
   }
 
   float *scales;
-  vtkIdType ns = poly->GetPoints()->GetNumberOfPoints();
+  vtkIdType ns = numPts;
   if (this->ScaleArray != nullptr &&
       poly->GetPointData()->HasArray(this->ScaleArray))
   {
     scales = static_cast<float*>(poly->GetPointData()->GetArray(this->ScaleArray)->GetVoidPointer(0));
-    ns = numPts;
   }
   else
   {
