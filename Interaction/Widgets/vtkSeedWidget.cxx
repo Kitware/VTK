@@ -241,14 +241,6 @@ void vtkSeedWidget::MoveAction(vtkAbstractWidget *w)
 {
   vtkSeedWidget *self = reinterpret_cast<vtkSeedWidget*>(w);
 
-  // Do nothing if outside
-  if ( self->WidgetState == vtkSeedWidget::Start )
-  {
-    return;
-  }
-
-  // else we are moving a seed
-
   self->InvokeEvent(vtkCommand::MouseMoveEvent, nullptr);
 
   // set the cursor shape to a hand if we are near a seed.
