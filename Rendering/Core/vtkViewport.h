@@ -319,16 +319,13 @@ public:
   double GetPickY1() const {return this->PickY1;}
   double GetPickX2() const {return this->PickX2;}
   double GetPickY2() const {return this->PickY2;}
-  vtkGetMacro(IsPicking, int);
-  vtkGetMacro(CurrentPickId, unsigned int);
-  void SetCurrentPickId(unsigned int a) {this->CurrentPickId = a;};
   vtkGetObjectMacro(PickResultProps, vtkPropCollection);
   //@}
 
   /**
    * Return the Z value for the last picked Prop.
    */
-  virtual double GetPickedZ() = 0;
+  virtual double GetPickedZ() { return this->PickedZ; };
 
 protected:
   // Create a vtkViewport with a black background, a white ambient light,
@@ -337,35 +334,16 @@ protected:
   vtkViewport();
   ~vtkViewport() override;
 
-  // Picking functions to be implemented by sub-classes
-  // Perform the main picking loop
-  virtual void DevicePickRender() = 0;
-  // Enter a pick mode
-  virtual void StartPick(unsigned int pickFromSize) = 0;
-  // Set the pick id to the next id before drawing an object
-  virtual void UpdatePickId() = 0;
-  // Exit Pick mode
-  virtual void DonePick() = 0;
-  // Return the id of the picked object, only valid after a call to DonePick
-  virtual unsigned int GetPickedId() = 0;
-  // Return the number of objects picked, only valid after a call to DonePick
-  virtual unsigned int GetNumPickedIds() = 0;
-  // Put no more than atMost picked object ids into the callerBuffer and
-  // return the number of picked objects returned.
-  virtual int GetPickedIds(unsigned int atMost, unsigned int *callerBuffer) = 0;
-
   // Ivars for picking
   // Store a picked Prop (contained in an assembly path)
   vtkAssemblyPath* PickedProp;
   vtkPropCollection* PickFromProps;
   vtkPropCollection* PickResultProps;
-  // Boolean flag to determine if picking is enabled for this render
-  int IsPicking;
-  unsigned int CurrentPickId;
   double PickX1;
   double PickY1;
   double PickX2;
   double PickY2;
+  double PickedZ;
   // End Ivars for picking
 
   vtkPropCollection *Props;

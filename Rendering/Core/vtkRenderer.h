@@ -736,10 +736,6 @@ protected:
   vtkRenderer();
   ~vtkRenderer() override;
 
-  // internal method for doing a render for picking purposes
-  virtual void PickRender(vtkPropCollection *props);
-  virtual void PickGeometry();
-
   // internal method to expand bounding box to consider model transform
   // matrix or model view transform matrix based on whether or not deering
   // frustum is used.
@@ -758,16 +754,16 @@ protected:
   vtkRenderWindow    *RenderWindow;
   double              AllocatedRenderTime;
   double              TimeFactor;
-  vtkTypeBool                TwoSidedLighting;
-  int                AutomaticLightCreation;
-  vtkTypeBool                BackingStore;
+  vtkTypeBool         TwoSidedLighting;
+  int                 AutomaticLightCreation;
+  vtkTypeBool         BackingStore;
   unsigned char      *BackingImage;
-  int                BackingStoreSize[2];
-  vtkTimeStamp       RenderTime;
+  int                 BackingStoreSize[2];
+  vtkTimeStamp        RenderTime;
 
   double              LastRenderTimeInSeconds;
 
-  vtkTypeBool                LightFollowCamera;
+  vtkTypeBool         LightFollowCamera;
 
   // Allocate the time for each prop
   void               AllocateTime();
@@ -780,10 +776,6 @@ protected:
   // of all props when rendering
   vtkProp            **PropArray;
   int                PropArrayCount;
-
-  // A temporary list used for picking
-  vtkAssemblyPath    **PathArray;
-  int                PathArrayCount;
 
   // Indicates if the renderer should receive events from an interactor.
   // Typically only used in conjunction with transparent renderers.

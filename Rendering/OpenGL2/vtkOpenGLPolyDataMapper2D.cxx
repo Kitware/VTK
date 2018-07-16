@@ -300,7 +300,7 @@ void vtkOpenGLPolyDataMapper2D::BuildShaders(
   }
 
   vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
-  if (ren && ren->GetRenderWindow()->GetIsPicking())
+  if (ren && ren->GetSelector())
   {
     this->ReplaceShaderPicking(FSSource, ren, actor);
   }
@@ -405,13 +405,10 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
   }
 
   vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
-  bool picking = ren && ren->GetRenderWindow()->GetIsPicking();
-  if (picking && cellBO.Program->IsUniformUsed("mapperIndex"))
+  vtkHardwareSelector* selector = ren->GetSelector();
+  if (selector && cellBO.Program->IsUniformUsed("mapperIndex"))
   {
-    unsigned int idx = ren->GetCurrentPickId();
-    float color[3];
-    vtkHardwareSelector::Convert(idx, color);
-    cellBO.Program->SetUniform3f("mapperIndex", color);
+    cellBO.Program->SetUniform3f("mapperIndex", selector->GetPropColorValue());
   }
 }
 
@@ -772,7 +769,14 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   this->ResourceCallback->RegisterGraphicsResources(
     static_cast<vtkOpenGLRenderWindow *>(renWin));
 
-  int picking = renWin->GetIsPicking();
+  vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
+  vtkHardwareSelector* selector = ren->GetSelector();
+  if (selector)
+  {
+    selector->BeginRenderProp();
+  }
+
+  int picking = (selector ? 1 : 0);
   if (picking != this->LastPickState)
   {
     this->LastPickState = picking;
@@ -895,6 +899,11 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   if (this->LastBoundBO)
   {
     this->LastBoundBO->VAO->Release();
+  }
+
+  if (selector)
+  {
+    selector->EndRenderProp();
   }
 
   // this->VBOs->Release();

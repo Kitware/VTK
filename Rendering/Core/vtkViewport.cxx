@@ -73,12 +73,11 @@ vtkViewport::vtkViewport()
   this->PickedProp = nullptr;
   this->PickFromProps = nullptr;
   this->PickResultProps = nullptr;
-  this->IsPicking = 0;
-  this->CurrentPickId = 0;
   this->PickX1 = -1;
   this->PickY1 = -1;
   this->PickX2 = -1;
   this->PickY2 = -1;
+  this->PickedZ = 1.0;
 
   this->Props = vtkPropCollection::New();
   this->Actors2D = vtkActor2DCollection::New();
@@ -401,7 +400,7 @@ void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
      << " " << this->PickY1 << endl;
   os << indent << "Pick Position X2 Y2: " << this->PickX2
      << " " << this->PickY2 << endl;
-  os << indent << "IsPicking boolean: " << this->IsPicking << endl;
+  os << indent << "PickedZ: " << this->PickedZ << "\n";
   os << indent << "Props:\n";
   this->Props->PrintSelf(os,indent.GetNextIndent());
   os << indent << "PickResultProps:\n";
