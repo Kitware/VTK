@@ -233,7 +233,6 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderClip(
     if (numClipPlanes > 6)
     {
       vtkErrorMacro("OpenGL has a limit of 6 clipping planes");
-      numClipPlanes = 6;
     }
 
     vtkShaderProgram::Substitute(VSSource,

@@ -1213,7 +1213,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderClip(
     if (numClipPlanes > 6)
     {
       vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
-      numClipPlanes = 6;
     }
 
     // geometry shader impl
