@@ -4,6 +4,7 @@ vtk_module(vtkFiltersParallelGeometry
   GROUPS
     MPI
   TEST_DEPENDS
+    vtkFiltersParallelMPI
     vtkIOXML
     vtkIOParallel
     vtkIOParallelXML

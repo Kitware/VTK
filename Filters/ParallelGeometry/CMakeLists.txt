@@ -1,6 +1,7 @@
 include(vtkObjectFactory)
 
 set(Module_SRCS
+  vtkPConnectivityFilter.cxx
   vtkPDataSetGhostGenerator.cxx
   vtkPStructuredGridConnectivity.cxx
   vtkPStructuredGridGhostDataGenerator.cxx
@@ -11,6 +12,7 @@ set(Module_SRCS
 
 # Now to generate our object factory.
 vtk_add_override(vtkUnstructuredGridGhostCellsGenerator vtkPUnstructuredGridGhostCellsGenerator)
+vtk_add_override(vtkConnectivityFilter vtkPConnectivityFilter)
 vtk_object_factory_configure("${vtk_module_overrides}")
 
 vtk_module_library(vtkFiltersParallelGeometry ${Module_SRCS})

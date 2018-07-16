@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include "vtkPConnectivityFilter.h"
+#include "vtkConnectivityFilter.h"
 
 #include "vtkContourFilter.h"
 #include "vtkDataSetTriangleFilter.h"
@@ -29,19 +29,9 @@
 
 #include <mpi.h>
 
-int ParallelConnectivity(int argc, char* argv[])
+int RunParallelConnectivity(const char* fname, vtkAlgorithm::DesiredOutputPrecision precision, vtkMPIController* contr)
 {
   int returnValue = EXIT_SUCCESS;
-
-  MPI_Init(&argc, &argv);
-
-  // Note that this will create a vtkMPIController if MPI
-  // is configured, vtkThreadedController otherwise.
-  vtkMPIController *contr = vtkMPIController::New();
-  contr->Initialize(&argc, &argv, 1);
-
-  vtkMultiProcessController::SetGlobalController(contr);
-
   int me = contr->GetLocalProcessId();
 
   vtkNew<vtkStructuredPointsReader> reader;
@@ -49,12 +39,8 @@ int ParallelConnectivity(int argc, char* argv[])
   vtkSmartPointer<vtkUnstructuredGrid> ug = vtkSmartPointer<vtkUnstructuredGrid>::New();
   if (me == 0)
   {
-    char* fname =
-      vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ironProt.vtk");
     std::cout << fname << std::endl;
-
     reader->SetFileName(fname);
-    delete[] fname;
     reader->Update();
 
     ds = reader->GetOutput();
@@ -73,6 +59,7 @@ int ParallelConnectivity(int argc, char* argv[])
   vtkNew<vtkContourFilter> contour;
   contour->SetInputConnection(dd->GetOutputPort());
   contour->SetNumberOfContours(1);
+  contour->SetOutputPointsPrecision(precision);
   contour->SetValue(0, 240.0);
 
   vtkNew<vtkDataSetTriangleFilter> tetrahedralize;
@@ -84,7 +71,15 @@ int ParallelConnectivity(int argc, char* argv[])
   ghostCells->SetMinimumNumberOfGhostLevels(1);
   ghostCells->SetInputConnection(tetrahedralize->GetOutputPort());
 
-  vtkNew<vtkPConnectivityFilter> connectivity;
+  // Test factory override mechanism instantiated as a vtkPConnectivityFilter.
+  vtkNew<vtkConnectivityFilter> connectivity;
+  if (connectivity->IsA("vtkConnectivityFiltetr"))
+  {
+    std::cerr << "Expected vtkConnectivityFilter filter to be instantiated "
+              << "as a vtkPConnectivityFilter with MPI support enabled, but "
+              << "it is a " << connectivity->GetClassName() << " instead." << std::endl;
+  }
+
   connectivity->SetInputConnection(ghostCells->GetOutputPort());
   connectivity->Update();
 
@@ -133,6 +128,38 @@ int ParallelConnectivity(int argc, char* argv[])
       << "point extraction mode but got " << globalNumberOfCells << std::endl;
     returnValue = EXIT_FAILURE;
   }
+
+  return returnValue;
+}
+
+int ParallelConnectivity(int argc, char* argv[])
+{
+  int returnValue = EXIT_SUCCESS;
+
+  MPI_Init(&argc, &argv);
+
+  // Note that this will create a vtkMPIController if MPI
+  // is configured, vtkThreadedController otherwise.
+  vtkMPIController *contr = vtkMPIController::New();
+  contr->Initialize(&argc, &argv, 1);
+
+  vtkMultiProcessController::SetGlobalController(contr);
+
+  char* fname =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ironProt.vtk");
+
+  if (RunParallelConnectivity(fname, vtkAlgorithm::SINGLE_PRECISION, contr) != EXIT_SUCCESS)
+  {
+    std::cerr << "Error running with vtkAlgorithm::SINGLE_PRECISION" << std::endl;
+    returnValue = EXIT_FAILURE;
+  }
+  if (RunParallelConnectivity(fname, vtkAlgorithm::DOUBLE_PRECISION, contr) != EXIT_SUCCESS)
+  {
+    std::cerr << "Error running with vtkAlgorithm::DOUBLE_PRECISION" << std::endl;
+    returnValue = EXIT_FAILURE;
+  }
+
+  delete[] fname;
 
   contr->Finalize();
   contr->Delete();

@@ -27,12 +27,9 @@
  * Figure 2 shows, distributed pieces of each connected component may end up
  * with different labels.
  *
- * ![Figure 1: Pieces in a distributed data set colored by processor
- * rank.](vtkPConnectivityFilterFigure1.png)
+ * ![Figure 1: Pieces in a distributed data set colored by processor rank.](vtkPConnectivityFilterFigure1.png)
  *
- * ![Figure 2: Left). Incorrect parallel labeling yields three regions instead of
- * two, and contiguous regions have more than one region instead of one. Right).
- * Desired correct labeling.](vtkPConnectivityFilterFigure2.png)
+ * ![Figure 2: Left). Incorrect parallel labeling. Right). Correct labeling.](vtkPConnectivityFilterFigure2.png)
  *
  * The part missing from a fully parallel connectivity filter implementation is
  * the identification of which pieces on different ranks are actually connected.
@@ -42,14 +39,8 @@
  * ========
  *
  * Run vtkConnectivityFilter on each rank’s piece and resolve the connected
- * pieces afterwards. The implementation uses vtkMultiProcessController to
+ * pieces afterwards. The implementation uses vtkMPIProcessController to
  * communicate among processes.
- *
- * Input Requirements
- * ==================
- *
- * The vtkPConnectivityFilter requires Ghost Points, which can be generated with
- * the vtkPUnstructuredGridGhostCellsGenerator or vtkDistributedDataFilter.
  *
  * Steps in the vtkPConnectivityFilter
  * -----------------------------------
@@ -75,29 +66,26 @@
  * + Check for errors in superclass GenerateData() on any rank and exit the
  * algorithm if any encountered an error-indicating return code.
  *
- * ![Figure 3: Results after vtkConnectivityFilter superclass is called on each
- * piece.](vtkPConnectivityFilterFigure3.png)
+ * ![Figure 3: Results after vtkConnectivityFilter superclass is called on each piece.](vtkPConnectivityFilterFigure3.png)
  *
- * + AllGather the number of connected RegionIds from each rank and AllGatherv
- * the RegionIds themselves. (Optimization opportunity: We can skip the
- * AllGatherv of RegionIds if they are guaranteed to be contiguous on each
- * rank.)
+ * + AllGatherv the number of connected RegionIds from each rank and AllGatherv
+ * the RegionIds themselves.
  *
- * ![Figure 4: Ghost point and associated RegionId
- * exchange.](vtkPConnectivityFilterFigure4.png)
+ * + Gather all axis-aligned bounding boxes from all other ranks. This is used
+ * to compute potential neighbors with which each rank should exchange points and
+ * RegionIds.
  *
- * + Each rank gathers up ghost points and sends them to all other ranks as well
- * as the RegionId assigned to each point. (Optimization opportunity: We can do
- * a bounding box optimization to limit the sending of ghost points only to
- * potential neighbors.)
+ * ![Figure 4: Point and associated RegionId exchange.](vtkPConnectivityFilterFigure4.png)
  *
- * + Each rank runs through the ghost points and determines which points it owns
+ * + Each rank gathers up points potentially coincident with points on neighboring
+ * ranks and sends them to their neighbors as well
+ * as the RegionId assigned to each point.
+ *
+ * + Each rank runs through the received points and determines which points it owns
  * using a locator object. If a point is found on the local rank, add the
- * RegionId from the remote ghost point to a set associated with the local
+ * RegionId from the remote point to a set associated with the local
  * RegionId. This signifies that the local RegionId is connected to the remote
- * RegionId associated with the ghost point (Optimization opportunity: Instead
- * of using a locator object on the entire dataset piece on the rank, extract
- * the surface and create a locator for the surface instead).
+ * RegionId associated with the point.
  *
  * + Each rank gathers the local-RegionId-to-remote-RegionId links from all
  * other ranks.
@@ -108,8 +96,7 @@
  * the graph could be made distributed. This is just more complicated to
  * program, however).
  *
- * ![Figure 5: Connected region graph depicted by black line
- * segments.](vtkPConnectivityFilterFigure5.png)
+ * ![Figure 5: Connected region graph depicted by black line segments.](vtkPConnectivityFilterFigure5.png)
  *
  * + Run a connected components algorithm that relabels the RegionIds, yielding
  * the full connectivity graph across ranks. Figure 6 shows an example result.
@@ -117,14 +104,12 @@
  * + Relabel the remaining RegionIds by a contiguous set of RegionIds (e.g., go
  * from [0, 5, 8, 9] to [0, 1, 2, 3]).
  *
- * ![Figure 6: Connected components of graph linking RegionIds across
- * ranks.](vtkPConnectivityFilterFigure6.png)
+ * ![Figure 6: Connected components of graph linking RegionIds across ranks.](vtkPConnectivityFilterFigure6.png)
  *
  * + From the RegionId graph, relabel points and cells in the output. The result
  * is shown in Figure 7.
  *
- * ![Figure 7: Dataset relabeled with global connected
- * RegionIds.](vtkPConnectivityFilterFigure7.png)
+ * ![Figure 7: Dataset relabeled with global connected RegionIds.](vtkPConnectivityFilterFigure7.png)
  *
  * + Handle ScalarConnectivy option and ExtractionMode after full region
  * connectivity is determined by identifying the correct RegionId and extracting
@@ -145,10 +130,10 @@
 #ifndef vtkPConnectivityFilter_h
 #define vtkPConnectivityFilter_h
 
-#include "vtkFiltersParallelModule.h" // For export macro
+#include "vtkFiltersParallelGeometryModule.h" // For export macro
 #include "vtkConnectivityFilter.h"
 
-class VTKFILTERSPARALLEL_EXPORT vtkPConnectivityFilter : public vtkConnectivityFilter
+class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPConnectivityFilter : public vtkConnectivityFilter
 {
 public:
   vtkTypeMacro(vtkPConnectivityFilter,vtkConnectivityFilter);
