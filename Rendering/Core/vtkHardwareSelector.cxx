@@ -438,6 +438,8 @@ void vtkHardwareSelector::BuildPropHitList(unsigned char* pixelbuffer)
       offset++;
     }
   }
+
+  delete [] depthBuffer;
 }
 
 double vtkHardwareSelector::GetZValue(int val)
