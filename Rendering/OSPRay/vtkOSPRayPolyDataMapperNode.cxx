@@ -623,8 +623,6 @@ namespace vtkosp {
                                 const std::string& materialName)
   {
     useCustomMaterial = false;
-    const std::string rendererType =
-        vtkOSPRayRendererNode::GetRendererType(orn->GetRenderer());
     OSPMaterial oMaterial;
     if (pt_avail && property->GetMaterialName())
     {
