@@ -755,21 +755,14 @@ void vtkLagrangeTetra::JacobianInverse(const double pcoords[3], double**inverse,
     this->Points->GetPoint(j, x);
     for (i=0; i < 3; i++)
       {
-      for (k=0; k < this->GetCellDimension(); k++)
+      for (k=0; k < 3; k++)
         {
         m[k][i] += x[i] * derivs[numberOfPoints*k + j];
         }
       }
     }
 
-  // Compute third row vector in transposed Jacobian and normalize it, so that
-  // Jacobian determinant stays the same.
-  if (this->GetCellDimension() == 2)
-    {
-    vtkMath::Cross(m0,m1,m2);
-    }
-
-  if ( vtkMath::Normalize(m2) == 0.0 || !vtkMath::InvertMatrix(m,inverse,3))
+  if (!vtkMath::InvertMatrix(m,inverse,3))
     {
     vtkErrorMacro(<<"Jacobian inverse not found");
     return;
@@ -795,7 +788,7 @@ void vtkLagrangeTetra::Derivatives(int vtkNotUsed(subId),
   jI[0] = j0; jI[1] = j1; jI[2] = j2;
   this->JacobianInverse(pcoords, jI, fDs);
 
-  // now compute derivates of values provided
+  // now compute derivatives of values provided
   for (k=0; k < dim; k++) //loop over values per vertex
     {
     sum[0] = sum[1] = sum[2] = 0.0;
@@ -803,11 +796,12 @@ void vtkLagrangeTetra::Derivatives(int vtkNotUsed(subId),
       {
       sum[0] += fDs[i] * values[dim*i + k];
       sum[1] += fDs[numberOfPoints + i] * values[dim*i + k];
+      sum[2] += fDs[numberOfPoints*2 + i] * values[dim*i + k];
       }
     for (j=0; j < 3; j++) //loop over derivative directions
       {
       derivs[3*k + j] = 0.;
-      for (i=0; i < this->GetCellDimension(); i++)
+      for (i=0; i < 3; i++)
         {
         derivs[3*k + j] += sum[i]*jI[j][i];
         }
