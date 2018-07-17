@@ -119,15 +119,14 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(
     "  float d = b*b - 4.0*c;\n"
     "  vec3 normalVCVSOutput = vec3(0.0,0.0,1.0);\n"
     "  if (d < 0.0) { discard; }\n"
-    "  else {\n"
-    "    float t = (-b - invertedDepth*sqrt(d))*0.5;\n"
+    "  float t = (-b - invertedDepth*sqrt(d))*0.5;\n"
 
     // compute the normal, for unit sphere this is just
     // the intersection point
-    "    normalVCVSOutput = invertedDepth*normalize(EyePos + t*EyeDir);\n"
+    "  normalVCVSOutput = normalize(EyePos + t*EyeDir);\n"
     // compute the intersection point in VC
-    "    vertexVC.xyz = normalVCVSOutput*radiusVCVSOutput + centerVCVSOutput;\n"
-    "    }\n"
+    "  vertexVC.xyz = normalVCVSOutput*radiusVCVSOutput + centerVCVSOutput;\n"
+    "  normalVCVSOutput *= invertedDepth;\n"
     // compute the pixel's depth
    // " normalVCVSOutput = vec3(0,0,1);\n"
     "  vec4 pos = VCDCMatrix * vertexVC;\n"
