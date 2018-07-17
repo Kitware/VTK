@@ -67,7 +67,7 @@ vtkNIFTIImageWriter::vtkNIFTIImageWriter()
   const char *version = vtkVersion::GetVTKVersion();
   size_t l = strlen(version);
   this->Description = new char[l + 4];
-  strncpy(this->Description, "VTK", 3);
+  memcpy(this->Description, "VTK", 3);
   strncpy(&this->Description[3], version, l);
   this->Description[l + 3] = '\0';
   // Planar RGB (NIFTI doesn't allow this, it's here for Analyze)
@@ -498,7 +498,7 @@ int vtkNIFTIImageWriter::GenerateHeader(vtkInformation *info, bool singleFile)
   if (version == 2)
   {
     // version 2 has four bytes for newline transfer checks
-    strncpy(&hdr.magic[4], "\r\n\032\n", 4);
+    memcpy(&hdr.magic[4], "\r\n\032\n", 4);
   }
 
   // set the description
