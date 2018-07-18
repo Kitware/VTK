@@ -37,6 +37,12 @@ vtkSegYIOUtils* vtkSegYIOUtils::Instance()
 short vtkSegYIOUtils::readShortInteger(int pos, std::ifstream& in)
 {
   in.seekg(pos, in.beg);
+  return readShortInteger(in);
+}
+
+//----------------------------------------------------------------------------
+short vtkSegYIOUtils::readShortInteger(std::ifstream& in)
+{
   char buffer[2];
   in.read(buffer, sizeof(buffer));
 
@@ -54,18 +60,7 @@ short vtkSegYIOUtils::readShortInteger(int pos, std::ifstream& in)
 int vtkSegYIOUtils::readLongInteger(int pos, std::ifstream& in)
 {
   in.seekg(pos, in.beg);
-  char buffer[4];
-  in.read(buffer, sizeof(buffer));
-
-  if (!this->IsBigEndian)
-  {
-    swap(buffer, buffer + 3);
-    swap(buffer + 1, buffer + 2);
-  }
-
-  int num;
-  memcpy(&num, buffer, 4);
-  return num;
+  return readLongInteger(in);
 }
 
 //----------------------------------------------------------------------------
