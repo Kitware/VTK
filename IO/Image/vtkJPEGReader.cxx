@@ -300,14 +300,18 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
     JDIMENSION linesRead = jpeg_read_scanlines(&cinfo, row_pointers, maxChunk);
 
     // copy the data into the outPtr
-    OT *outPtr2 = outPtr + (cinfo.output_height - cinfo.output_scanline)*outInc[1];
+    long destLine = cinfo.output_height - cinfo.output_scanline;
     for (unsigned int i = 0; i < linesRead; ++i)
     {
-      memcpy(outPtr2,
-             row_pointers[linesRead - i - 1]
-             + outExt[0]*cinfo.output_components,
-             outSize);
-      outPtr2 += outInc[1];
+      if (destLine >= outExt[2] && destLine <= outExt[3])
+      {
+        OT *outPtr2 = outPtr + (destLine - outExt[2])*outInc[1];
+        memcpy(outPtr2,
+               row_pointers[linesRead - i - 1]
+               + outExt[0]*cinfo.output_components,
+               outSize);
+      }
+      destLine++;
     }
   }
 
