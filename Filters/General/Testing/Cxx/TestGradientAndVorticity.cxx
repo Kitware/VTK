@@ -19,13 +19,20 @@
 
 #include "vtkCell.h"
 #include "vtkCellData.h"
+#include "vtkCellType.h"
+#include "vtkCellTypeSource.h"
 #include "vtkDoubleArray.h"
+#include "vtkElevationFilter.h"
+#include "vtkFloatArray.h"
+#include "vtkGeneralTransform.h"
 #include "vtkGradientFilter.h"
+#include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridReader.h"
+#include "vtkTransformFilter.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
@@ -414,5 +421,155 @@ int TestGradientAndVorticity(int argc, char *argv[])
     ug->InsertNextCell(cell->GetCellType(), cell->GetPointIds());
   }
 
-  return PerformTest(ug);
+  if(PerformTest(ug))
+  {
+    return EXIT_FAILURE;
+  }
+
+  // now test gradient of a variety of cell types using the cell type source. we scale
+  // and rotate the grid to make sure that we don't have the cells conveniently
+  // set up to their parametric coordinate system and then compare to an analytic
+  // function (f=x) such that the gradient is (1, 0, 0).
+  vtkNew<vtkCellTypeSource> cellTypeSource;
+  cellTypeSource->SetBlocksDimensions(3, 3, 3); // make sure we have an interior cell
+  cellTypeSource->SetCellOrder(3);
+  vtkNew<vtkTransformFilter> transformFilter;
+  transformFilter->SetInputConnection(cellTypeSource->GetOutputPort());
+  vtkNew<vtkGeneralTransform> generalTransform;
+  generalTransform->Scale(2, 3, 4);
+  transformFilter->SetTransform(generalTransform);
+  vtkNew<vtkElevationFilter> elevationFilter;
+  elevationFilter->SetLowPoint(0, 0, 0);
+  elevationFilter->SetHighPoint(1, 0, 0);
+  elevationFilter->SetScalarRange(0, 1);
+  elevationFilter->SetInputConnection(transformFilter->GetOutputPort());
+  vtkNew<vtkGradientFilter> gradientFilter;
+  gradientFilter->SetInputConnection(elevationFilter->GetOutputPort());
+  gradientFilter->SetInputScalars(
+    vtkDataObject::FIELD_ASSOCIATION_POINTS, "Elevation");
+  int oneDCells[] =
+    {
+      VTK_LINE,
+      // VTK_QUADRATIC_EDGE, Derivatives() not implemented
+      VTK_CUBIC_LINE,
+      VTK_LAGRANGE_CURVE,
+      -1 // mark as end
+    };
+  transformFilter->Update();
+  vtkDataSet* output = transformFilter->GetOutput();
+  double bounds[6];
+  output->GetBounds(bounds);
+  elevationFilter->SetLowPoint(bounds[0], 0, 0);
+  elevationFilter->SetHighPoint(bounds[1], 0, 0);
+  elevationFilter->SetScalarRange(bounds[0], bounds[1]);
+  for (i=0;oneDCells[i+1]!=-1;i++)
+  {
+    cellTypeSource->SetCellType(oneDCells[i]);
+    gradientFilter->Update();
+    vtkFloatArray* result = vtkFloatArray::SafeDownCast(gradientFilter->GetOutput()->GetPointData()->GetArray("Gradients"));
+    double range[2];
+    result->GetRange(range, 0);
+    if (range[0] < .99 || range[1] > 1.01)
+    {
+      vtkGenericWarningMacro("Incorrect gradient for cell type " << oneDCells[i]);
+      return EXIT_FAILURE;
+    }
+    for (int j=1;j<3;j++)
+    {
+      result->GetRange(range, j);
+      if (range[0] < -.01 || range[1] > .01)
+      {
+        vtkGenericWarningMacro("Incorrect gradient for cell type " << oneDCells[i]);
+        return EXIT_FAILURE;
+      }
+    }
+  }
+  int twoDCells[] =
+    {
+      VTK_TRIANGLE,
+      VTK_QUAD,
+      VTK_QUADRATIC_TRIANGLE,
+      VTK_QUADRATIC_QUAD,
+      VTK_LAGRANGE_TRIANGLE,
+      VTK_LAGRANGE_QUADRILATERAL,
+      -1 // mark as end
+    };
+  cellTypeSource->SetCellType(twoDCells[0]);
+  generalTransform->RotateZ(30);
+  transformFilter->Update();
+  output = transformFilter->GetOutput();
+  output->GetBounds(bounds);
+  elevationFilter->SetLowPoint(bounds[0], 0, 0);
+  elevationFilter->SetHighPoint(bounds[1], 0, 0);
+  elevationFilter->SetScalarRange(bounds[0], bounds[1]);
+  for (i=0;twoDCells[i+1]!=-1;i++)
+  {
+    cellTypeSource->SetCellType(twoDCells[i]);
+    gradientFilter->Update();
+    vtkFloatArray* result = vtkFloatArray::SafeDownCast(gradientFilter->GetOutput()->GetPointData()->GetArray("Gradients"));
+    double range[2];
+    result->GetRange(range, 0);
+    if (range[0] < .99 || range[1] > 1.01)
+    {
+      vtkGenericWarningMacro("Incorrect gradient for cell type " << twoDCells[i]);
+      return EXIT_FAILURE;
+    }
+    for (int j=1;j<3;j++)
+    {
+      result->GetRange(range, j);
+      if (range[0] < -.01 || range[1] > .01)
+      {
+        vtkGenericWarningMacro("Incorrect gradient for cell type " << twoDCells[i]);
+        return EXIT_FAILURE;
+      }
+    }
+  }
+  int threeDCells[] =
+    {
+      VTK_TETRA,
+      VTK_HEXAHEDRON,
+      VTK_WEDGE,
+      VTK_PYRAMID,
+      VTK_QUADRATIC_TETRA,
+      VTK_QUADRATIC_HEXAHEDRON,
+      VTK_QUADRATIC_WEDGE,
+      //VTK_QUADRATIC_PYRAMID,
+      VTK_LAGRANGE_TETRAHEDRON,
+      VTK_LAGRANGE_HEXAHEDRON,
+      VTK_LAGRANGE_WEDGE,
+      -1 // mark as end
+    };
+  cellTypeSource->SetCellType(threeDCells[0]);
+  generalTransform->RotateX(20);
+  generalTransform->RotateY(40);
+  transformFilter->Update();
+  output = transformFilter->GetOutput();
+  output->GetBounds(bounds);
+  elevationFilter->SetLowPoint(bounds[0], 0, 0);
+  elevationFilter->SetHighPoint(bounds[1], 0, 0);
+  elevationFilter->SetScalarRange(bounds[0], bounds[1]);
+  for (i=0;threeDCells[i+1]!=-1;i++)
+  {
+    cellTypeSource->SetCellType(threeDCells[i]);
+    gradientFilter->Update();
+    vtkFloatArray* result = vtkFloatArray::SafeDownCast(gradientFilter->GetOutput()->GetPointData()->GetArray("Gradients"));
+    double range[2];
+    result->GetRange(range, 0);
+    if (range[0] < .99 || range[1] > 1.01)
+    {
+      vtkGenericWarningMacro("Incorrect gradient for cell type " << threeDCells[i]);
+      return EXIT_FAILURE;
+    }
+    for (int j=1;j<3;j++)
+    {
+      result->GetRange(range, j);
+      if (range[0] < -.01 || range[1] > .01)
+      {
+        vtkGenericWarningMacro("Incorrect gradient for cell type " << threeDCells[i]);
+        return EXIT_FAILURE;
+      }
+    }
+  }
+
+  return EXIT_SUCCESS;
 }

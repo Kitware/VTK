@@ -530,7 +530,7 @@ void vtkLagrangeHexahedron::Derivatives(
   int dim,
   double* derivs)
 {
-  this->Interp->Tensor3EvaluateDerivative(this->Order, pcoords, values, dim, derivs);
+  this->Interp->Tensor3EvaluateDerivative(this->Order, pcoords, this->GetPoints(), values, dim, derivs);
 }
 
 double* vtkLagrangeHexahedron::GetParametricCoords()
