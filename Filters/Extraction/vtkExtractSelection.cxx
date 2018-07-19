@@ -296,7 +296,13 @@ int vtkExtractSelection::RequestData(
       for (auto nodeIter = selectors.begin(); nodeIter != selectors.end(); ++nodeIter)
       {
         auto name = nodeIter->first;
-        auto array = outputBlock->GetAttributes(assoc)->GetArray(name.c_str());
+        auto fieldData = outputBlock->GetAttributes(assoc);
+        if (!fieldData)
+        {
+          arrayMap[name] = nullptr;
+          continue;
+        }
+        auto array = fieldData->GetArray(name.c_str());
         auto insidednessArray = vtkSignedCharArray::SafeDownCast(array);
 
         auto node = selection->GetNode(name.c_str());
@@ -420,6 +426,10 @@ vtkSmartPointer<vtkDataObject> vtkExtractSelection::ExtractElements(
   else if (type == vtkDataObject::ROW)
   {
     vtkTable* input = vtkTable::SafeDownCast(block);
+    if (!input)
+    {
+      return nullptr;
+    }
     vtkTable* output = vtkTable::New();
     this->ExtractSelectedRows(input, output, insidednessArray);
     return vtkSmartPointer<vtkTable>::Take(output);

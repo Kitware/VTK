@@ -129,7 +129,11 @@ bool vtkSelector::ComputeSelectedElementsForCompositeDataSet(
       insidednessArray->SetName(this->InsidednessArrayName.c_str());
       association = vtkDataObject::CELL;
     }
-    outputBlock->GetAttributes(association)->AddArray(insidednessArray);
+    auto fieldData = outputBlock->GetAttributes(association);
+    if (fieldData)
+    {
+      fieldData->AddArray(insidednessArray);
+    }
   }
 
   return true;

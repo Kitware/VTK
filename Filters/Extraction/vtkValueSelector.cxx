@@ -362,7 +362,9 @@ private:
             darray, vtkDataArray::SafeDownCast(this->SelectionList), worker))
       {
         // should we use slow data array API?
-        vtkGenericWarningMacro("Mismatch in selection list and field array.");
+        vtkGenericWarningMacro("Type mismatch in selection list ("
+          << this->SelectionList->GetClassName() << ") and field array ("
+          << darray->GetClassName() << ").");
         return false;
       }
     }
@@ -373,7 +375,9 @@ private:
             darray, vtkDataArray::SafeDownCast(this->SelectionList), worker))
       {
         // should we use slow data array API?
-        vtkGenericWarningMacro("Mismatch in selection list and field array.");
+        vtkGenericWarningMacro("Type mismatch in selection list ("
+          << this->SelectionList->GetClassName() << ") and field array ("
+          << darray->GetClassName() << ").");
         return false;
       }
     }
@@ -394,7 +398,8 @@ private:
             vtkDataArray::SafeDownCast(this->SelectionList), worker))
       {
         // should we use slow data array API?
-        vtkGenericWarningMacro("Mismatch in selection list and field array.");
+        vtkGenericWarningMacro("Unsupported selection list array type ("
+          << this->SelectionList->GetClassName() << ").");
         return false;
       }
     }
@@ -405,7 +410,8 @@ private:
             vtkDataArray::SafeDownCast(this->SelectionList), worker))
       {
         // should we use slow data array API?
-        vtkGenericWarningMacro("Mismatch in selection list and field array.");
+        vtkGenericWarningMacro("Unsupported selection list array type ("
+          << this->SelectionList->GetClassName() << ").");
         return false;
       }
     }
