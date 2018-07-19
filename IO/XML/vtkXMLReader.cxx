@@ -981,7 +981,8 @@ void vtkXMLReader::ReadFieldData()
         }
         fieldData->AddArray(array);
         array->Delete();
-        if (!this->ReadArrayValues(eNested, 0, array, 0, numTuples*array->GetNumberOfComponents()))
+        if (!this->ReadArrayValues(eNested, 0, array, 0, numTuples*array->GetNumberOfComponents())
+            && numTuples)
         {
           this->DataError = 1;
         }

@@ -896,7 +896,10 @@ size_t vtkXMLDataParser::ReadAsciiData(void* buffer,
   this->UpdateProgress(0.5);
 
   // Copy the data from the pre-parsed ascii data buffer.
-  memcpy(buffer, this->AsciiDataBuffer+startByte, actualBytes);
+  if (buffer && actualBytes)
+  {
+    memcpy(buffer, this->AsciiDataBuffer+startByte, actualBytes);
+  }
 
   this->UpdateProgress(1);
 
