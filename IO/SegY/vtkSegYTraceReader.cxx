@@ -121,6 +121,13 @@ void vtkSegYTraceReader::ReadTrace(int& startPos,
       trace->Data.push_back(value);
     }
     break;
+  case 3:
+    for (int i = 0; i < numSamples; i++)
+    {
+      value = vtkSegYIOUtils::Instance()->readShortInteger(in);
+      trace->Data.push_back(value);
+    }
+    break;
   case 5:
     for (int i = 0; i < numSamples; i++)
     {
