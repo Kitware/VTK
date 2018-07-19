@@ -1,5 +1,4 @@
 find_package(OSPRay REQUIRED)
-include_directories(${OSPRAY_INCLUDE_DIRS})
 
 set(Module_SRCS
   vtkOSPRayActorNode.cxx
@@ -30,6 +29,7 @@ list(APPEND Module_SRCS
 vtk_module_library(vtkRenderingOSPRay ${Module_SRCS})
 
 target_link_libraries(${vtk-module} LINK_PUBLIC ${OSPRAY_LIBRARIES})
+target_include_directories(${vtk-module} PUBLIC ${OSPRAY_INCLUDE_DIRS})
 
 # OSPRay_Core uses MMTime which is in it's own special library.
 if(WIN32)
