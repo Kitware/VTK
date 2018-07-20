@@ -17,7 +17,7 @@
  * @brief   Axis aligned hyper tree grid clip
  *
  *
- * Clip an hyper tree grid along an axis aligned plane or box and output
+ * Clip a hyper tree grid along an axis aligned plane or box and output
  * a hyper tree grid with same dimensionality.
  * This filter also allows for reversal of the direction of what is inside
  * versus what is outside by setting the InsideOut instance variable.

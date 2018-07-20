@@ -14,11 +14,11 @@
 =========================================================================*/
 /**
  * @class   vtkHyperTreeGridPlaneCutter
- * @brief   cut an hyper tree grid volume with
+ * @brief   cut a hyper tree grid volume with
  * a plane and generate a polygonal cut surface.
  *
  *
- * vtkHyperTreeGridPlaneCutter is a filter that takes as input an hyper tree
+ * vtkHyperTreeGridPlaneCutter is a filter that takes as input a hyper tree
  * grid and a single plane and generates the polygonal data intersection surface.
  * This cut is computed at the leaf cells of the hyper tree.
  * It is left as an option to decide whether the cut should be computed over

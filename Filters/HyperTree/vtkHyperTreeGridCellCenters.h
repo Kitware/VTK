@@ -18,7 +18,7 @@
  * tree grid leaf cell centers.
  *
  *
- * vtkHyperTreeGridCellCenters is a filter that takes as input an hyper
+ * vtkHyperTreeGridCellCenters is a filter that takes as input a hyper
  * tree grid and generates on output points at the center of the leaf
  * cells in the hyper tree grid.
  * These points can be used for placing glyphs (vtkGlyph3D) or labeling
