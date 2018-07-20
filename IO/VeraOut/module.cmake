@@ -1,0 +1,12 @@
+vtk_module(vtkIOVeraOut
+  GROUPS
+    StandAlone
+  KIT
+    vtkIO
+  DEPENDS
+    vtkCommonExecutionModel
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkhdf5
+  )
