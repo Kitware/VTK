@@ -18,12 +18,12 @@
  * exactly either 2^d or 3^d children.
  *
  *
- * An hypertree is a dataset where each node has either exactly f^d
+ * A hypertree is a dataset where each node has either exactly f^d
  * children or no child at all if the node is a leaf, where f in {2,3}
  * is the branching factor of the tree and d in {1,2,3} is the
  * dimension of the dataset.
  * Such trees have particular names when f=2: bintree (d=1), quadtree
- * (d=2), and octree (d=2). When f=3, we respectively call them
+ * (d=2), and octree (d=3). When f=3, we respectively call them
  * 3-tree, 9-tree, and 27-tree.
  *
  * The original octree class name came from the following paper:
@@ -43,13 +43,13 @@
  * Each node is a cell. Attributes are associated with cells, not with points.
  * The geometry is implicitly given by the size of the root node on each axis
  * and position of the center and the orientation. (TODO: review center
- * position and orientation). The geometry is then not limited to an hybercube
+ * position and orientation). The geometry is then not limited to a hybercube
  * but can have a rectangular shape.
  * Attributes are associated with leaves. For LOD (Level-Of-Detail) purpose,
  * attributes can be computed on none-leaf nodes by computing the average
  * values from its children (which can be leaves or not).
  *
- * By construction, an hypertree is efficient in memory usage when the
+ * By construction, a hypertree is efficient in memory usage when the
  * geometry is sparse. The LOD feature allows for quick culling of part of the
  * dataset.
  *
