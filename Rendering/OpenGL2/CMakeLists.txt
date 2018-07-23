@@ -312,6 +312,10 @@ elseif(VTK_USE_COCOA)
   vtk_module_link_libraries(${vtk-module} LINK_PUBLIC "-framework Cocoa")
 endif()
 
+if (WIN32 AND MSVC)
+  vtk_module_link_libraries(${vtk-module} LINK_PRIVATE dbghelp)
+endif()
+
 if(ANDROID)
   target_link_libraries(${vtk-module}
     LINK_PUBLIC ${OPENGL_egl_LIBRARY}

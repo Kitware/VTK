@@ -67,6 +67,7 @@ class vtkOpenGLRenderWindow;
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLState
 {
 public:
+  vtkOpenGLState(); // set initial values
 
   //@{
   // cached OpenGL methods. By calling these the context will check
@@ -186,6 +187,9 @@ protected:
   void ColorMask(std::array<unsigned char, 4> val);
   void Scissor(std::array<int, 4> val);
   void Viewport(std::array<int, 4> val);
+
+  // debugging
+  void CheckState();
 
   class VTKRENDERINGOPENGL2_EXPORT GLState
   {
