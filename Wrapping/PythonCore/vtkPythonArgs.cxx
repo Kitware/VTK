@@ -90,12 +90,46 @@ bool vtkPythonGetUnsignedLongLongValue(PyObject *o, T &a)
 }
 
 
-template <class T> inline
-bool vtkPythonGetStringValue(PyObject *o, T *&a, const char *exctext)
+Py_ssize_t vtkPythonGetStringSize(PyObject *o)
+{
+  if (PyBytes_Check(o))
+  {
+    return PyBytes_GET_SIZE(o);
+  }
+  else if (PyByteArray_Check(o))
+  {
+    return PyByteArray_GET_SIZE(o);
+  }
+#ifdef Py_USING_UNICODE
+  else if (PyUnicode_Check(o))
+  {
+#if PY_VERSION_HEX >= 0x03030000
+    Py_ssize_t size;
+    PyUnicode_AsUTF8AndSize(o, &size);
+    return size;
+#else
+    PyObject *s = _PyUnicode_AsDefaultEncodedString(o, nullptr);
+    if (s)
+    {
+      return PyBytes_GET_SIZE(s);
+    }
+#endif
+  }
+#endif
+  return 0;
+}
+
+
+bool vtkPythonGetStringValue(PyObject *o, const char *&a, const char *exctext)
 {
   if (PyBytes_Check(o))
   {
     a = PyBytes_AS_STRING(o);
+    return true;
+  }
+  else if (PyByteArray_Check(o))
+  {
+    a = PyByteArray_AS_STRING(o);
     return true;
   }
 #ifdef Py_USING_UNICODE
@@ -112,12 +146,19 @@ bool vtkPythonGetStringValue(PyObject *o, T *&a, const char *exctext)
       return true;
     }
 
-    exctext = "(unicode conversion error)";
+    if (exctext)
+    {
+      // set a more specific error message
+      exctext = "(unicode conversion error)";
+    }
 #endif
   }
 #endif
 
-  PyErr_SetString(PyExc_TypeError, exctext);
+  if (exctext)
+  {
+    PyErr_SetString(PyExc_TypeError, exctext);
+  }
   return false;
 }
 
@@ -292,18 +333,8 @@ bool vtkPythonGetValue(
   return r;
 }
 
-
 inline
 bool vtkPythonGetValue(PyObject *o, const char *&a)
-{
-  a = nullptr;
-
-  return (o == Py_None ||
-          vtkPythonGetStringValue(o, a, "string or None required"));
-}
-
-inline
-bool vtkPythonGetValue(PyObject *o, char *&a)
 {
   a = nullptr;
 
@@ -575,6 +606,53 @@ bool vtkPythonGetArray(PyObject *o, T *a, int n)
   return true;
 }
 
+inline bool vtkPythonGetArray(PyObject *o, char *a, int n)
+{
+  if (a)
+  {
+    Py_ssize_t m = n;
+    const char *b;
+
+    if (vtkPythonGetStringValue(o, b, nullptr))
+    {
+      m = vtkPythonGetStringSize(o);
+      if (m == n)
+      {
+        for (int i = 0; i < n; i++)
+        {
+          a[i] = b[i];
+        }
+        // terminate so it can be used as a C string
+        a[n] = '\0';
+        return true;
+      }
+    }
+    else if (PySequence_Check(o))
+    {
+      m = PySequence_Size(o);
+      if (m == n)
+      {
+        bool r = true;
+        for (int i = 0; i < n && r; i++)
+        {
+          r = false;
+          PyObject *s = PySequence_GetItem(o, i);
+          if (s && vtkPythonGetValue(s, a[i]))
+          {
+            Py_DECREF(s);
+            r = true;
+          }
+        }
+        return r;
+      }
+    }
+
+    return vtkPythonSequenceError(o, n, m);
+  }
+
+  return true;
+}
+
 //--------------------------------------------------------------------
 // Method for setting an n-dimensional C++ arrays from a Python sequence.
 
@@ -680,6 +758,51 @@ bool vtkPythonSetArray(PyObject *o, const T *a, int n)
           }
         }
         return r;
+      }
+    }
+    else if (PySequence_Check(o))
+    {
+      m = PySequence_Size(o);
+      if (m == n)
+      {
+        bool r = true;
+        for (int i = 0; i < n && r; i++)
+        {
+          r = false;
+          PyObject *s = vtkPythonArgs::BuildValue(a[i]);
+          if (s)
+          {
+            r = (PySequence_SetItem(o, i, s) != -1);
+            Py_DECREF(s);
+          }
+        }
+        return r;
+      }
+    }
+
+    return vtkPythonSequenceError(o, n, m);
+  }
+
+  return true;
+}
+
+inline bool vtkPythonSetArray(PyObject *o, const char *a, int n)
+{
+  if (a)
+  {
+    Py_ssize_t m = n;
+
+    if (PyByteArray_Check(o))
+    {
+      m = PyByteArray_GET_SIZE(o);
+      if (m == n)
+      {
+        char *b = PyByteArray_AS_STRING(o);
+        for (int i = 0; i < n; i++)
+        {
+          b[i] = a[i];
+        }
+        return true;
       }
     }
     else if (PySequence_Check(o))
@@ -985,7 +1108,6 @@ bool vtkPythonArgs::GetValue(PyObject *o, T &a) \
   return vtkPythonGetValue(o, a); \
 }
 
-VTK_PYTHON_GET_ARG(char *)
 VTK_PYTHON_GET_ARG(const char *)
 VTK_PYTHON_GET_ARG(std::string)
 VTK_PYTHON_GET_ARG(vtkUnicodeString)
@@ -1411,6 +1533,23 @@ int vtkPythonArgs::GetArgSize(int i)
   {
     PyObject *o = PyTuple_GET_ITEM(this->Args, this->M + i);
     if (PySequence_Check(o))
+    {
+      size = static_cast<int>(PySequence_Size(o));
+    }
+  }
+  return size;
+}
+
+//--------------------------------------------------------------------
+// Checking size of string arg.
+int vtkPythonArgs::GetStringSize(int i)
+{
+  int size = 0;
+  if (this->M + i < this->N)
+  {
+    PyObject *o = PyTuple_GET_ITEM(this->Args, this->M + i);
+    size = static_cast<int>(vtkPythonGetStringSize(o));
+    if (size == 0 && PySequence_Check(o))
     {
       size = static_cast<int>(PySequence_Size(o));
     }
