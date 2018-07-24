@@ -45,6 +45,7 @@ set(headers
   vtkmGradient.h
   vtkmPointElevation.h
   vtkmPolyDataNormals.h
+  vtkmProbe.h
   vtkmTriangleMeshPointNormals.h
   )
 
@@ -66,6 +67,7 @@ set(cpu_accelerator_srcs
   vtkmGradient.cxx
   vtkmPointElevation.cxx
   vtkmPolyDataNormals.cxx
+  vtkmProbe.cxx
   vtkmTriangleMeshPointNormals.cxx
   vtkmlib/Portals.cxx
   vtkmlib/ImplicitFunctionConverter.cxx
@@ -89,6 +91,7 @@ set(cuda_accelerator_srcs
   vtkmGradient.cu
   vtkmPointElevation.cu
   vtkmPolyDataNormals.cu
+  vtkmProbe.cu
   vtkmTriangleMeshPointNormals.cu
   vtkmlib/Portals.cu
   vtkmlib/ImplicitFunctionConverter.cu
