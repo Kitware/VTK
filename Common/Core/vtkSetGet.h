@@ -484,10 +484,13 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(const char*);
 // This macro is used to print out errors
 // vtkErrorWithObjectMacro(self, << "Error message" << variable);
 // self can be null
+// Using two casts here so that nvcc compiler can handle const this
+// pointer properly
 //
 #define vtkErrorWithObjectMacro(self, x)                             \
 {                                                                    \
-  vtkObject* _object = self;                                         \
+  vtkObject* _object = const_cast<vtkObject*>(static_cast            \
+<const vtkObject*>(self));                                           \
   if (vtkObject::GetGlobalWarningDisplay())                          \
   {                                                                  \
     vtkOStreamWrapper::EndlType endl;                                \
@@ -515,10 +518,13 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(const char*);
 // This macro is used to print out warnings
 // vtkWarningWithObjectMacro(self, "Warning message" << variable);
 // self can be null
+// Using two casts here so that nvcc compiler can handle const this
+// pointer properly
 //
 #define vtkWarningWithObjectMacro(self, x)                           \
 {                                                                    \
-  vtkObject* _object = self;                                         \
+  vtkObject* _object = const_cast<vtkObject*>(static_cast            \
+<const vtkObject*>(self));                                           \
   if (vtkObject::GetGlobalWarningDisplay())                          \
   {                                                                  \
     vtkOStreamWrapper::EndlType endl;                                \
@@ -547,13 +553,16 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(const char*);
  * This macro is used to print out debug message
  * vtkDebugWithObjectMacro(self, "Warning message" << variable);
  * self can be null
+ * Using two casts here so that nvcc compiler can handle const this
+ * pointer properly
  */
 #ifdef NDEBUG
 # define vtkDebugWithObjectMacro(self, x)
 #else
 # define vtkDebugWithObjectMacro(self, x)                                        \
 {                                                                                \
-   vtkObject* _object = self;                                                    \
+  vtkObject* _object = const_cast<vtkObject*>(static_cast                        \
+<const vtkObject*>(self));                                                       \
   if ((!_object || _object->GetDebug()) && vtkObject::GetGlobalWarningDisplay()) \
   {                                                                              \
     vtkOStreamWrapper::EndlType endl;                                            \
