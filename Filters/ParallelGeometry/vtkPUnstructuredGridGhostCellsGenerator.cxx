@@ -837,6 +837,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndSendGhostCells(
     extractCells->SetCellList(cellIdsList);
     extractCells->Update();
     vtkUnstructuredGrid* extractGrid = extractCells->GetOutput();
+    extractGrid->GetCellData()->RemoveArray("vtkOriginalCellIds");
 
     // Send the extracted grid to the neighbor rank asynchronously
     if (vtkCommunicator::MarshalDataObject(extractGrid, c.SendBuffer))
@@ -1015,7 +1016,10 @@ void vtkPUnstructuredGridGhostCellsGenerator::ReceiveAndMergeGhostCells(int ghos
   // Then merge ghost grid from neighbor ranks
   for (std::size_t i = 0; i < neighborGrids.size(); i++)
   {
-    mergeCells->MergeDataSet(neighborGrids[i]);
+    if (neighborGrids[i]->GetNumberOfCells())
+    {
+      mergeCells->MergeDataSet(neighborGrids[i]);
+    }
     neighborGrids[i]->Delete();
   }
 
