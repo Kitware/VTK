@@ -65,10 +65,13 @@ class vtkRenderWindowInteractor;
  * An alternative is to call update() on the widget instance to trigger a
  * render once the context gets validated;
  *
- * QVTKOpenGLWidget is targeted for Qt version 5.9 and above.
+ * QVTKOpenGLWidget is compatible with Qt version 5.6 and above,
+ * but it is mainly tested on Qt 5.9 and above.
  *
  * QVTKOpenGLWidget does not support to be a native widget,
  * for native widget, please use QVTKOpenGLSimpleWidget.
+ * Beware, uses of this widget in a QScrollArea or in
+ * a QMDIArea will force it to be native, which is unsupported.
  *
  * @sa QVTKOpenGLWindow QVTKOpenGLSimpleWidget
  */
@@ -125,6 +128,11 @@ public:
    */
   virtual void setEnableHiDPI(bool enable);
   virtual bool enableHiDPI() { return this->EnableHiDPI; }
+
+  /**
+   * Set the cursor on this widget.
+   */
+  void setQVTKCursor(const QCursor &cursor);
 
   /**
    * Returns true if the internal QOpenGLWindow's is valid, i.e. if OpenGL

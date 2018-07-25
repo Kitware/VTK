@@ -145,6 +145,12 @@ void QVTKOpenGLWidget::setEnableHiDPI(bool enable)
 }
 
 //-----------------------------------------------------------------------------
+void QVTKOpenGLWidget::setQVTKCursor(const QCursor &cursor)
+{
+  this->qVTKOpenGLWindowInternal->setCursor(cursor);
+}
+
+//-----------------------------------------------------------------------------
 void QVTKOpenGLWidget::windowEvent(QEvent* e)
 {
   QApplication::sendEvent(this, e);
