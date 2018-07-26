@@ -112,7 +112,7 @@ protected:
 //-----------------------------------------------------------------------------
 QVTKOpenGLSimpleWidget::QVTKOpenGLSimpleWidget(QWidget* parentWdg, Qt::WindowFlags f)
   : Superclass(parentWdg, f)
-  , InteractorAdaptor(nullptr)
+  , InteractorAdapter(nullptr)
   , EnableHiDPI(false)
   , OriginalDPI(0)
   , FBO(nullptr)
@@ -127,8 +127,8 @@ QVTKOpenGLSimpleWidget::QVTKOpenGLSimpleWidget(QWidget* parentWdg, Qt::WindowFla
 
   this->setUpdateBehavior(QOpenGLWidget::PartialUpdate);
 
-  this->InteractorAdaptor = new QVTKInteractorAdapter(this);
-  this->InteractorAdaptor->SetDevicePixelRatio(this->devicePixelRatio());
+  this->InteractorAdapter = new QVTKInteractorAdapter(this);
+  this->InteractorAdapter->SetDevicePixelRatio(this->devicePixelRatio());
 
   this->setMouseTracking(true);
 
@@ -146,7 +146,7 @@ QVTKOpenGLSimpleWidget::~QVTKOpenGLSimpleWidget()
   this->cleanupContext();
   this->SetRenderWindow(static_cast<vtkGenericOpenGLRenderWindow*>(nullptr));
   this->Observer->SetTarget(nullptr);
-  delete this->InteractorAdaptor;
+  delete this->InteractorAdapter;
   delete this->Logger;
 }
 
@@ -313,6 +313,12 @@ void QVTKOpenGLSimpleWidget::setEnableHiDPI(bool enable)
 }
 
 //-----------------------------------------------------------------------------
+void QVTKOpenGLSimpleWidget::setQVTKCursor(const QCursor &cursor)
+{
+  this->setCursor(cursor);
+}
+
+//-----------------------------------------------------------------------------
 void QVTKOpenGLSimpleWidget::recreateFBO()
 {
   vtkQVTKOpenGLSimpleWidgetDebugMacro("recreateFBO");
@@ -344,7 +350,7 @@ void QVTKOpenGLSimpleWidget::recreateFBO()
 
   // This is as good an opportunity as any to communicate size to the render
   // window.
-  this->InteractorAdaptor->SetDevicePixelRatio(devicePixelRatio_);
+  this->InteractorAdapter->SetDevicePixelRatio(devicePixelRatio_);
   if (vtkRenderWindowInteractor* iren = this->RenderWindow->GetInteractor())
   {
     iren->SetSize(deviceSize.width(), deviceSize.height());
@@ -611,7 +617,7 @@ bool QVTKOpenGLSimpleWidget::event(QEvent* evt)
     case QEvent::MouseButtonRelease:
     case QEvent::MouseButtonDblClick:
       // skip events that are explicitly handled by overrides to avoid duplicate
-      // calls to InteractorAdaptor->ProcessEvent().
+      // calls to InteractorAdapter->ProcessEvent().
       break;
 
     case QEvent::Resize:
@@ -622,7 +628,7 @@ bool QVTKOpenGLSimpleWidget::event(QEvent* evt)
     default:
       if (this->RenderWindow && this->RenderWindow->GetInteractor())
       {
-        this->InteractorAdaptor->ProcessEvent(evt, this->RenderWindow->GetInteractor());
+        this->InteractorAdapter->ProcessEvent(evt, this->RenderWindow->GetInteractor());
       }
   }
   return this->Superclass::event(evt);
@@ -635,7 +641,7 @@ void QVTKOpenGLSimpleWidget::mousePressEvent(QMouseEvent* event)
 
   if (this->RenderWindow && this->RenderWindow->GetInteractor())
   {
-    this->InteractorAdaptor->ProcessEvent(event,
+    this->InteractorAdapter->ProcessEvent(event,
                                           this->RenderWindow->GetInteractor());
   }
 }
@@ -647,7 +653,7 @@ void QVTKOpenGLSimpleWidget::mouseMoveEvent(QMouseEvent* event)
 
   if (this->RenderWindow && this->RenderWindow->GetInteractor())
   {
-    this->InteractorAdaptor->ProcessEvent(event,
+    this->InteractorAdapter->ProcessEvent(event,
                                           this->RenderWindow->GetInteractor());
   }
 }
@@ -659,7 +665,7 @@ void QVTKOpenGLSimpleWidget::mouseReleaseEvent(QMouseEvent* event)
 
   if (this->RenderWindow && this->RenderWindow->GetInteractor())
   {
-    this->InteractorAdaptor->ProcessEvent(event,
+    this->InteractorAdapter->ProcessEvent(event,
                                           this->RenderWindow->GetInteractor());
   }
 }
@@ -671,7 +677,7 @@ void QVTKOpenGLSimpleWidget::mouseDoubleClickEvent(QMouseEvent* event)
 
   if (this->RenderWindow && this->RenderWindow->GetInteractor())
   {
-    this->InteractorAdaptor->ProcessEvent(event,
+    this->InteractorAdapter->ProcessEvent(event,
                                           this->RenderWindow->GetInteractor());
   }
 }
