@@ -1435,6 +1435,24 @@ void vtkChartXY::SetSelectionMethod(int method)
 }
 
 //-----------------------------------------------------------------------------
+void vtkChartXY::RemovePlotSelections()
+{
+  std::vector<vtkPlot*>::iterator it = this->ChartPrivate->plots.begin();
+  for (; it != this->ChartPrivate->plots.end(); ++it)
+  {
+    vtkPlot* plot = *it;
+    if (!plot)
+      {
+      continue;
+      }
+    vtkNew<vtkIdTypeArray> emptySelectionArray;
+    emptySelectionArray->Initialize();
+    plot->SetSelection(emptySelectionArray);
+  }
+  this->InvokeEvent(vtkCommand::SelectionChangedEvent);
+}
+
+//-----------------------------------------------------------------------------
 bool vtkChartXY::Hit(const vtkContextMouseEvent& mouse)
 {
   if (!this->Interactive)
@@ -1887,34 +1905,39 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
       return true;
     }
   }
-  if (mouse.GetButton() > vtkContextMouseEvent::NO_BUTTON &&
-    mouse.GetButton() <= vtkContextMouseEvent::RIGHT_BUTTON)
+
+  this->MouseBox.SetWidth(mouse.GetPos().GetX() - this->MouseBox.GetX());
+  this->MouseBox.SetHeight(mouse.GetPos().GetY() - this->MouseBox.GetY());
+  if ((fabs(this->MouseBox.GetWidth()) < 0.5 && fabs(this->MouseBox.GetHeight()) < 0.5 &&
+      mouse.GetButton() == this->Actions.Select()) ||
+      (this->SelectionPolygon.GetNumberOfPoints() < 3 && mouse.GetButton() == this->Actions.SelectPolygon()) ||
+      mouse.GetButton() == this->Actions.Pan())
   {
-    this->MouseBox.SetWidth(mouse.GetPos().GetX() - this->MouseBox.GetX());
-    this->MouseBox.SetHeight(mouse.GetPos().GetY() - this->MouseBox.GetY());
-    if ((fabs(this->MouseBox.GetWidth()) < 0.5 && fabs(this->MouseBox.GetHeight()) < 0.5) &&
-      (mouse.GetButton() == this->Actions.Select() || mouse.GetButton() == this->Actions.Pan()))
+    this->MouseBox.SetWidth(0.0);
+    this->MouseBox.SetHeight(0.0);
+    this->SelectionPolygon.Clear();
+    this->DrawBox = false;
+    this->DrawSelectionPolygon = false;
+    if (mouse.GetButton() == this->ActionsClick.Notify())
     {
-      // Invalid box size - treat as a single clicke event
-      this->MouseBox.SetWidth(0.0);
-      this->MouseBox.SetHeight(0.0);
-      this->DrawBox = false;
-      if (mouse.GetButton() == this->ActionsClick.Notify())
-      {
-        this->LocatePointInPlots(mouse, vtkCommand::InteractionEvent);
-        return true;
-      }
-      else if (mouse.GetButton() == this->ActionsClick.Select())
-      {
-        this->LocatePointInPlots(mouse, vtkCommand::SelectionChangedEvent);
-        return true;
-      }
-      else
-      {
-        return false;
-      }
+      this->LocatePointInPlots(mouse, vtkCommand::InteractionEvent);
+    }
+    if (mouse.GetButton() == this->ActionsClick.Select())
+    {
+      this->LocatePointInPlots(mouse, vtkCommand::SelectionChangedEvent);
+      this->InvokeEvent(vtkCommand::SelectionChangedEvent);
+    }
+    if (mouse.GetButton() != this->ActionsClick.Notify() &&
+      mouse.GetButton() != this->ActionsClick.Select())
+    {
+      return false;
+    }
+    else
+    {
+      return true;
     }
   }
+
   if (mouse.GetButton() == this->Actions.Select() ||
     mouse.GetButton() == this->Actions.SelectPolygon())
   {
@@ -2083,7 +2106,6 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
               {
                 selected = plot->SelectPoints(min, max);
               }
-              vtkNew<vtkIdTypeArray> plotsSelection;
               if (selected)
               {
                 int idx = 1; // y

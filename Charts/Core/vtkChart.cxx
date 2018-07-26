@@ -388,17 +388,32 @@ int vtkChart::GetActionToButton(int action)
 
 void vtkChart::SetClickActionToButton(int action, int button)
 {
-  if (action < vtkChart::SELECT || action > vtkChart::NOTIFY)
+  if (action != vtkChart::SELECT && action != vtkChart::NOTIFY)
   {
-    vtkErrorMacro("Error, invalid action value supplied: " << action)
+    vtkErrorMacro("Error, invalid click action value supplied: " << action)
     return;
   }
-  this->Actions[action - 2] = button;
+
+  if (action == vtkChart::NOTIFY)
+  {
+    this->ActionsClick[0] = button;
+  }
+  else if (action == vtkChart::SELECT)
+  {
+    this->ActionsClick[1] = button;
+  }
 }
 
 int vtkChart::GetClickActionToButton(int action)
 {
-  return this->Actions[action - 2];
+  if (action == vtkChart::NOTIFY)
+  {
+    return this->ActionsClick[0];
+  }
+  else if (action == vtkChart::SELECT)
+  {
+    return this->ActionsClick[1];
+  }
 }
 
 //-----------------------------------------------------------------------------
