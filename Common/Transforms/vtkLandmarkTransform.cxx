@@ -179,6 +179,17 @@ void vtkLandmarkTransform::InternalUpdate()
     sb += b[0]*b[0]+b[1]*b[1]+b[2]*b[2];
   }
 
+  // if source or destination is degenerate then only report
+  // translation
+  if (sa == 0.0 || sb == 0.0)
+  {
+    this->Matrix->Identity();
+    this->Matrix->Element[0][3] = target_centroid[0] - source_centroid[0];
+    this->Matrix->Element[1][3] = target_centroid[1] - source_centroid[1];
+    this->Matrix->Element[2][3] = target_centroid[2] - source_centroid[2];
+    return;
+  }
+
   if(this->Mode == VTK_LANDMARK_AFFINE)
   {
     // AAT = (a.a^t)^-1
