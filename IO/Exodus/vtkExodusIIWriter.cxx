@@ -1624,19 +1624,31 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
     em->SetNodeSetNames (nodeSetNames);
 
     int *nodeSetIds_a = new int[nodeSetIds->GetNumberOfTuples ()];
-    memcpy (nodeSetIds_a, nodeSetIds->GetPointer (0), nodeSetIds->GetNumberOfTuples () * sizeof(int));
+    if (nodeSetIds->GetPointer (0))
+    {
+      memcpy (nodeSetIds_a, nodeSetIds->GetPointer (0), nodeSetIds->GetNumberOfTuples () * sizeof(int));
+    }
     em->SetNodeSetIds (nodeSetIds_a);
 
     int *nodeSetSizes_a = new int[nodeSetSizes->GetNumberOfTuples ()];
-    memcpy (nodeSetSizes_a, nodeSetSizes->GetPointer (0), nodeSetSizes->GetNumberOfTuples () * sizeof(int));
+    if (nodeSetSizes->GetPointer (0))
+    {
+      memcpy (nodeSetSizes_a, nodeSetSizes->GetPointer (0), nodeSetSizes->GetNumberOfTuples () * sizeof(int));
+    }
     em->SetNodeSetSize (nodeSetSizes_a);
 
     int *nodeSetNumDF_a = new int[nodeSetNumDF->GetNumberOfTuples ()];
-    memcpy (nodeSetNumDF_a, nodeSetNumDF->GetPointer (0), nodeSetNumDF->GetNumberOfTuples () * sizeof(int));
+    if (nodeSetNumDF->GetPointer (0))
+    {
+      memcpy (nodeSetNumDF_a, nodeSetNumDF->GetPointer (0), nodeSetNumDF->GetNumberOfTuples () * sizeof(int));
+    }
     em->SetNodeSetNumberOfDistributionFactors (nodeSetNumDF_a);
 
     int *nodeIds_a = new int[nodeIds->GetNumberOfTuples ()];
-    memcpy (nodeIds_a, nodeIds->GetPointer (0), nodeIds->GetNumberOfTuples() * sizeof(int));
+    if (nodeIds->GetPointer (0))
+    {
+      memcpy (nodeIds_a, nodeIds->GetPointer (0), nodeIds->GetNumberOfTuples() * sizeof(int));
+    }
     em->SetNodeSetNodeIdList (nodeIds_a);
 
     em->SetNumberOfSideSets (numSideSets);
@@ -1644,23 +1656,38 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
     em->SetSideSetNames (sideSetNames);
 
     int *sideSetIds_a = new int[sideSetIds->GetNumberOfTuples ()];
-    memcpy (sideSetIds_a, sideSetIds->GetPointer (0), sideSetIds->GetNumberOfTuples() * sizeof(int));
+    if (sideSetIds->GetPointer (0))
+    {
+      memcpy (sideSetIds_a, sideSetIds->GetPointer (0), sideSetIds->GetNumberOfTuples() * sizeof(int));
+    }
     em->SetSideSetIds (sideSetIds_a);
 
     int *sideSetSizes_a = new int[sideSetSizes->GetNumberOfTuples ()];
-    memcpy (sideSetSizes_a, sideSetSizes->GetPointer (0), sideSetSizes->GetNumberOfTuples() * sizeof(int));
+    if (sideSetSizes->GetPointer (0))
+    {
+      memcpy (sideSetSizes_a, sideSetSizes->GetPointer (0), sideSetSizes->GetNumberOfTuples() * sizeof(int));
+    }
     em->SetSideSetSize (sideSetSizes_a);
 
     int *sideSetNumDF_a = new int[sideSetNumDF->GetNumberOfTuples ()];
-    memcpy (sideSetNumDF_a, sideSetNumDF->GetPointer (0), sideSetNumDF->GetNumberOfTuples() * sizeof(int));
+    if (sideSetNumDF->GetPointer (0))
+    {
+      memcpy (sideSetNumDF_a, sideSetNumDF->GetPointer (0), sideSetNumDF->GetNumberOfTuples() * sizeof(int));
+    }
     em->SetSideSetNumDFPerSide (sideSetNumDF_a);
 
     int *sideSetElementList_a = new int[sideSetElementList->GetNumberOfTuples ()];
-    memcpy (sideSetElementList_a, sideSetElementList->GetPointer (0), sideSetElementList->GetNumberOfTuples() * sizeof(int));
+    if (sideSetElementList->GetPointer (0))
+    {
+      memcpy (sideSetElementList_a, sideSetElementList->GetPointer (0), sideSetElementList->GetNumberOfTuples() * sizeof(int));
+    }
     em->SetSideSetElementList (sideSetElementList_a);
 
     int *sideSetSideList_a = new int[sideSetSideList->GetNumberOfTuples ()];
-    memcpy (sideSetSideList_a, sideSetSideList->GetPointer (0), sideSetSideList->GetNumberOfTuples() * sizeof(int));
+    if (sideSetSideList->GetPointer (0))
+    {
+      memcpy (sideSetSideList_a, sideSetSideList->GetPointer (0), sideSetSideList->GetNumberOfTuples() * sizeof(int));
+    }
     em->SetSideSetSideList (sideSetSideList_a);
   }
   return 1;
