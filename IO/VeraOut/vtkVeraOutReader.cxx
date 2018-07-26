@@ -805,7 +805,7 @@ private:
   vtkNew<vtkFloatArray> XCoordinates;
   vtkNew<vtkFloatArray> YCoordinates;
 
-  vtkSmartPointer<vtkObject> Owner;
+  vtkObject* Owner;
   vtkSmartPointer<vtkDataArray> ZCoordinates;
   vtkSmartPointer<vtkDataArray> CoreMap;
 
@@ -847,7 +847,7 @@ int vtkVeraOutReader::RequestInformation(
   if (!this->Superclass::RequestInformation(reqInfo, inVector, outVector))
     return 0;
 
-  if (!this->FileName)
+  if (!this->FileName || this->FileName[0] == '\0')
   {
     vtkErrorMacro("No filename specified");
     return 0;
@@ -885,6 +885,12 @@ int vtkVeraOutReader::RequestInformation(
 int vtkVeraOutReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
   vtkInformationVector** vtkNotUsed(inVector), vtkInformationVector* outVector)
 {
+  if (!this->FileName || this->FileName[0] == '\0')
+  {
+    vtkErrorMacro("No filename specified");
+    return 0;
+  }
+
   vtkDebugMacro(<< "In vtkVeraOutReader::RequestData" << endl);
   vtkInformation* outInfo = outVector->GetInformationObject(0);
   vtkRectilinearGrid* output =
