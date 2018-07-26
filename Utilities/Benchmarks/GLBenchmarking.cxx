@@ -71,7 +71,7 @@ public:
   {
   }
 
-  virtual vtkIdType Build(vtkRenderer *renderer, const vtkVector2i &res)
+  vtkIdType Build(vtkRenderer *renderer, const vtkVector2i &res) override
   {
     //vtkVector2i res(20, 50);
     vtkNew<vtkParametricBoy> parametricShape;

@@ -156,7 +156,7 @@ struct Writer::WriterImpl
     { }
 
     virtual ~ScalarValueT() { }
-    virtual uint64_t GetInt() { return static_cast<uint64_t>(this->ValueT); }
+    uint64_t GetInt() override { return static_cast<uint64_t>(this->ValueT); }
 
     const T ValueT;
   };

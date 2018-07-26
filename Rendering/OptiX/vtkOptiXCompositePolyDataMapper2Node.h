@@ -42,7 +42,7 @@ public:
   /**
    * Make OptiX calls for rendering.
    */
-  virtual void Render(bool prepass);
+  void Render(bool prepass) override;
 
 protected:
   vtkOptiXCompositePolyDataMapper2Node();
