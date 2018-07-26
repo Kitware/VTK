@@ -1,0 +1,20 @@
+vtk_module(vtkIOCityGML
+  GROUPS
+    StandAlone
+  TEST_DEPENDS
+    vtkTestingCore
+    vtkRenderingOpenGL2
+    vtkTestingRendering
+    vtkInteractionStyle
+  KIT
+    vtkIO
+  DEPENDS
+    vtkCommonCore
+    vtkCommonExecutionModel
+    vtkFiltersGeneral
+    vtkFiltersModeling
+    vtkpugixml
+  PRIVATE_DEPENDS
+  vtkCommonDataModel
+  vtksys
+)
