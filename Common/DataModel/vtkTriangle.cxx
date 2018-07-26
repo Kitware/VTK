@@ -1056,22 +1056,42 @@ int CoplanarTrianglesIntersect(double p1[2], double q1[2], double r1[2],
     return 1;
   }
 
-  // If we have reached this point, then either
-  // 1. Two orientations are counterclockwise and one is clockwise, or
-  // 2. Two orientations are clockwise and one is counterclockwise.
+  // If we have reached this point, then
+  // 1.  Two orientations are counterclockwise and one is clockwise, or
+  // 2.a Two orientations are clockwise and one is counterclockwise, or
+  // 2.b One orientation is counterclockwise, one is clockwise and one colinear.
   // Equivalently, from "Faster Triangle-Triangle Intersection Tests":
-  // 1. p1 belongs to region R1
-  // 2. p1 belongs to region R2
-  // We permute T2 so that we have the following orienatation pattern:
-  // (counterclockwise, either orientation, clockwise).
-  // This orientation corresponds to p1 lying in either region R1 or R2
+  // 1.  p1 belongs to region R1
+  // 2.a p1 belongs to region R2
+  // 2.b p1 belongs to boundary of R2
+  // We permute T2 so that we have the following orientation pattern:
+  // (counterclockwise, either orientation, clockwise/colinear).
+  // This orientation corresponds to p1 lying in either region R1 or R2/boundary
   int index;
   for (index = 0; index < 3; index++)
   {
-    if (p1Orientation[index] == Counterclockwise &&
-        p1Orientation[(index+2)%3] == Clockwise)
+    if (p1Orientation[index] == Counterclockwise)
     {
-      break;
+      if (p1Orientation[(index+1)%3] == Counterclockwise &&
+          p1Orientation[(index+2)%3] == Clockwise)
+      {
+        break; // R1 ++-
+      }
+      if (p1Orientation[(index+1)%3] == Clockwise &&
+          p1Orientation[(index+2)%3] == Clockwise)
+      {
+        break; // R2 +--
+      }
+      if (p1Orientation[(index+1)%3] == Colinear &&
+          p1Orientation[(index+2)%3] == Clockwise)
+      {
+        break; // R2 boundary +0-
+      }
+      if (p1Orientation[(index+1)%3] == Clockwise &&
+          p1Orientation[(index+2)%3] == Colinear)
+      {
+        break; // R2 boundary +-0
+      }
     }
   }
 
