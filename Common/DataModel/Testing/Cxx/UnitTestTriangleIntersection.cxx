@@ -580,6 +580,51 @@ int TestReciprocalResult(vtkRandom* seq, unsigned nTests)
   return EXIT_SUCCESS;
 }
 
+int TestIssue17092()
+{
+  // An instance where triangle intersection failed was reported here:
+  // https://gitlab.kitware.com/vtk/vtk/issues/17092. It was fixed here:
+  // https://gitlab.kitware.com/vtk/vtk/merge_requests/3886
+
+  double t1[3][3] = {{ 0., 0., 0.}, {5., 0., 0.}, {0., 5., 0.}};
+  double t2[3][3] = {{ 10., 5., 0.}, {5., 10., 0.}, {1., 1., 0.}};
+
+  int returnValue = vtkTriangle::TrianglesIntersect( t1[0], t1[1], t1[2],
+                                                     t2[0], t2[1], t2[2] );
+
+  if (returnValue != VTK_YES_INTERSECTION)
+  {
+    std::cout<<"Triangle "<<TriangleToString(t1[0],t1[1],t1[2])<<std::endl;
+    std::cout<<" does not intersect "<<TriangleToString(t2[0],t2[1],t2[2])
+             <<" and should."<<std::endl;
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
+}
+
+int TestMR4529()
+{
+  // An instance where triangle intersection failed (along with its fix) was
+  // reported here: https://gitlab.kitware.com/vtk/vtk/merge_requests/4529
+
+  double t1[3][3] = {{ 1.751, -.993, 0.}, {-3.021, 2.885, 0.}, {4.14, -4.025, 0.}};
+  double t2[3][3] = {{ 1.751, -.5, 0.}, {1.751, 1.326, 0.}, {-3.382, 2.276, 0.}};
+
+  int returnValue = vtkTriangle::TrianglesIntersect( t1[0], t1[1], t1[2],
+                                                     t2[0], t2[1], t2[2] );
+
+  if (returnValue != VTK_YES_INTERSECTION)
+  {
+    std::cout<<"Triangle "<<TriangleToString(t1[0],t1[1],t1[2])<<std::endl;
+    std::cout<<" does not intersect "<<TriangleToString(t2[0],t2[1],t2[2])
+             <<" and should."<<std::endl;
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
+}
+
 int TestTriangleIntersection(vtkRandom* seq, unsigned nTests)
 {
   if (TestPositiveResult(seq,nTests) == EXIT_FAILURE)
@@ -599,6 +644,14 @@ int TestTriangleIntersection(vtkRandom* seq, unsigned nTests)
     return EXIT_FAILURE;
   }
   if (TestReciprocalResult(seq, nTests) == EXIT_FAILURE)
+  {
+    return EXIT_FAILURE;
+  }
+  if (TestIssue17092() == EXIT_FAILURE)
+  {
+    return EXIT_FAILURE;
+  }
+  if (TestMR4529() == EXIT_FAILURE)
   {
     return EXIT_FAILURE;
   }
