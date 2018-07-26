@@ -53,9 +53,10 @@ public:
     for (int i = 0; i < nDensityValues; i++)
     {
       this->DensityMapValues.push_back(densityValues[i]);
-      double* rgb = vtkMath::HSVToRGB(densityValues[i], 1, 0.75);
+      double r, g, b;
+      vtkMath::HSVToRGB(densityValues[i], 1, 0.75, &r, &g, &b);
       this->DensityMapColorMap.insert(
-        std::make_pair(densityValues[i], vtkColor4ub(rgb[0] * 255, rgb[1] * 255, rgb[2] * 255)));
+        std::make_pair(densityValues[i], vtkColor4ub(r * 255, g * 255, b * 255)));
     }
   }
   ~DensityMapSettings() {}

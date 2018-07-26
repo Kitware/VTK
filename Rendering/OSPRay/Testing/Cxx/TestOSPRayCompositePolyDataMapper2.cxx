@@ -104,8 +104,10 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
           // test not setting it on some
           if (block % 11)
           {
-            mapper->SetBlockColor(parent+numLeaves+1,
-              vtkMath::HSVToRGB(0.8*block/nblocks, 0.2 + 0.8*((parent - levelStart) % 8)/7.0, 1.0));
+            double hsv[3] = {0.8*block/nblocks, 0.2 + 0.8*((parent - levelStart) % 8)/7.0, 1.0};
+            double rgb[3];
+            vtkMath::HSVToRGB(hsv, rgb);
+            mapper->SetBlockColor(parent+numLeaves+1, rgb);
             mapper->SetBlockOpacity(parent+numLeaves, (block + 3) % 7 == 0 ? 0.3 : 1.0);
             mapper->SetBlockVisibility(parent+numLeaves, (block % 7) != 0);
           }

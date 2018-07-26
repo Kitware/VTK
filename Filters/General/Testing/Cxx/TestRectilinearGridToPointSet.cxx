@@ -50,8 +50,8 @@ static vtkSmartPointer<vtkRectilinearGrid> MakeRectilinearGrid()
   int extent[6];
   for (int i = 0; i < 6; i += 2)
   {
-    extent[i] = vtkMath::Round(vtkMath::Random(-10, 10));
-    extent[i+1] = extent[i] + vtkMath::Round(vtkMath::Random(0, 10));
+    extent[i] = std::lround(vtkMath::Random(-10, 10));
+    extent[i+1] = extent[i] + std::lround(vtkMath::Random(0, 10));
   }
 
   grid->SetExtent(extent);

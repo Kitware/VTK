@@ -23,10 +23,6 @@
 #include <vector>
 
 static int TestPi();
-#if 0
-static int TestDoublePi();
-static int TestDoubleTwoPi();
-#endif
 static int TestDegreesFromRadians();
 static int TestRound();
 static int TestFloor();
@@ -97,11 +93,6 @@ int UnitTestMath(int,char *[])
   int status = 0;
 
   status += TestPi();
-
-#if 0
-  status += TestDoublePi(); // legacy
-  status += TestDoubleTwoPi(); // legacy
-#endif
 
   status += TestDegreesFromRadians();
   status += TestRound();
@@ -201,56 +192,6 @@ int TestPi()
   }
   return status;
 }
-
-#if 0
-// Validate by comparing to atan/4
-int TestDoublePi()
-{
-  int status = 0;
-  std::cout << "DoublePi..";
-
-  if (vtkMath::DoublePi() != std::atan(1.0) * 4.0)
-  {
-    std::cout << "Expected " << vtkMath::Pi()
-              << " but got " << std::atan(1.0) * 4.0;
-    ++status;
-  }
-
-  if (status)
-  {
-    std::cout << "..FAILED" << std::endl;
-  }
-  else
-  {
-    std::cout << ".PASSED" << std::endl;
-  }
-  return status;
-}
-
-// Validate by comparing to atan/4 * 2
-int TestDoubleTwoPi()
-{
-  int status = 0;
-  std::cout << "DoubleTwoPi..";
-
-  if (vtkMath::DoubleTwoPi() != std::atan(1.0) * 4.0 * 2.0)
-  {
-    std::cout << "Expected " << vtkMath::Pi() * 2.0
-              << " but got " << std::atan(1.0) * 4.0 * 2.0;
-    ++status;
-  }
-
-  if (status)
-  {
-    std::cout << "..FAILED" << std::endl;
-  }
-  else
-  {
-    std::cout << ".PASSED" << std::endl;
-  }
-  return status;
-}
-#endif
 
 // Validate against RadiansFromDegress
 int TestDegreesFromRadians()

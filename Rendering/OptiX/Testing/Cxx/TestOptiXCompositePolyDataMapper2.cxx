@@ -141,10 +141,11 @@ int TestOptiXCompositePolyDataMapper2(int argc, char* argv[])
 
   // comment the following in/out for worst/best case
   // for (int i = 0; i < 20000; ++i)
-  //   {
-  //   mapper->SetBlockColor(i,
-  //     vtkMath::HSVToRGB(0.8*(i%100)/100.0, 1.0, 1.0));
-  //   }
+  // {
+  //   double r, g, b;
+  //   vtkMath::HSVToRGB(0.8*(i%100)/100.0, 1.0, 1.0, &r, &g, &b);
+  //   mapper->SetBlockColor(i, r, g, b);
+  // }
 
 #endif
 
