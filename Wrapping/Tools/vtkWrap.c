@@ -1021,15 +1021,11 @@ void vtkWrap_DeclareVariable(
       fprintf(fp,"const ");
     }
   }
-  /* do the same for "const char *" with initializer */
+  /* do the same for "const char *" arguments */
   else
   {
     if ((val->Type & VTK_PARSE_CONST) != 0 &&
-        aType == VTK_PARSE_CHAR_PTR &&
-        val->Value &&
-        strcmp(val->Value, "0") != 0 &&
-        strcmp(val->Value, "nullptr") != 0 &&
-        strcmp(val->Value, "NULL") != 0)
+        aType == VTK_PARSE_CHAR_PTR)
     {
       fprintf(fp,"const ");
     }

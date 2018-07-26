@@ -464,7 +464,7 @@ int vtkPythonOverload::CheckArg(
 #endif
       }
 #endif
-      else if (!PyBytes_Check(arg))
+      else if (!PyBytes_Check(arg) && !PyByteArray_Check(arg))
       {
         penalty = VTK_PYTHON_INCOMPATIBLE;
       }

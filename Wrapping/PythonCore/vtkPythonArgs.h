@@ -127,6 +127,14 @@ public:
   bool NoArgsLeft() { return (this->I >= this->N); }
 
   /**
+   * Get the size of an arg, if it is a string.
+   * The returned size does not include the null byte.
+   * If the arg is out of range, or is not a string,
+   * then it returns 0 but doesn't set error.
+   */
+  int GetStringSize(int i);
+
+  /**
    * Get the size of an arg, if it is a sequence.
    * If no size is available, or if the arg is out of range,
    * then it returns 0 but doesn't set error.
@@ -303,8 +311,6 @@ public:
    */
   bool GetValue(const char *&v);
   static bool GetValue(PyObject *o, const char *&v);
-  bool GetValue(char *&v);
-  static bool GetValue(PyObject *o, char *&v);
   bool GetValue(std::string &v);
   static bool GetValue(PyObject *o, std::string &v);
   bool GetValue(vtkUnicodeString &v);

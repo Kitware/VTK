@@ -641,7 +641,7 @@ static void vtkWrapPython_CustomMethods(
             "  vtkObjectBase *vp = ap.GetSelfPointer(self, args);\n"
             "  %s *op = static_cast<%s *>(vp);\n"
             "\n"
-            "  char *temp0s = nullptr;\n"
+            "  const char *temp0s = nullptr;\n"
             "  int temp0i = 0;\n"
             "  PyObject *temp1 = nullptr;\n"
             "  float temp2 = 0.0f;\n"
@@ -742,7 +742,7 @@ static void vtkWrapPython_CustomMethods(
       "z", "", "i", "d", "V *vtkObjectBase" };
 
     static const char *callBackTypeDecl[] = {
-      "  char *calldata = nullptr;\n",
+      "  const char *calldata = nullptr;\n",
       "",
       "  long calldata;\n",
       "  double calldata;\n",
@@ -756,7 +756,7 @@ static void vtkWrapPython_CustomMethods(
       " &&\n      ap.GetVTKObject(calldata, \"vtkObject\")" };
 
     static const char *methodCallSecondHalf[] = {
-      ", calldata",
+      ", const_cast<char *>(calldata)",
       "",
       ", &calldata",
       ", &calldata",
@@ -766,7 +766,7 @@ static void vtkWrapPython_CustomMethods(
     static const char *eventTypeString[] = { "L", "z" };
     static const char *eventTypeDecl[] = {
       "  unsigned long event;\n",
-      "  char *event = nullptr;\n" };
+      "  const char *event = nullptr;\n" };
 
     int callBackIdx, eventIdx;
 
@@ -890,7 +890,7 @@ static void vtkWrapPython_CustomMethods(
             "  vtkObjectBase *vp = ap.GetSelfPointer(self, args);\n"
             "  %s *op = static_cast<%s *>(vp);\n"
             "\n"
-            "  char *temp0;\n"
+            "  const char *temp0;\n"
             "  char tempr[256];\n"
             "  PyObject *result = nullptr;\n"
             "\n"
