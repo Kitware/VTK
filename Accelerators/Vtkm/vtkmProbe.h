@@ -43,9 +43,8 @@
 
 #ifndef vtkmProbe_h
 #define vtkmProbe_h
-#include <algorithm>
-#include <utility>
-#include <vector>
+
+#include <string> // for std::string
 
 #include "vtkAcceleratorsVTKmModule.h" //required for export
 #include "vtkDataSetAlgorithm.h"
