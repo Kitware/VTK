@@ -774,8 +774,13 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
       this->Private->Interactor->DestroyTimer(this->Private->TimerId);
       this->Private->TimerId = 0;
       this->Private->TimerCallbackInitialized = false;
+      this->Animating = false;
+
+      // Make sure the active plot is redrawn completelly after the animation
+      this->Modified();
+      this->ActivePlotValid = false;
+      this->Update();
     }
-    this->Animating = false;
   }
 }
 
