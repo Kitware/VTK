@@ -643,9 +643,12 @@ void vtkCubeAxesActor::AdjustAxes(double bounds[6],
     zRange[1] = range[5];
   }
 
-  const double xScale = (xRange[1] - xRange[0])/(bounds[1] - bounds[0]);
-  const double yScale = (yRange[1] - yRange[0])/(bounds[3] - bounds[2]);
-  const double zScale = (zRange[1] - zRange[0])/(bounds[5] - bounds[4]);
+  const double xScale =
+    (bounds[1] - bounds[0]) != 0.0 ? (xRange[1] - xRange[0])/(bounds[1] - bounds[0]) : 1.0;
+  const double yScale =
+    (bounds[3] - bounds[2]) != 0.0 ? (yRange[1] - yRange[0])/(bounds[3] - bounds[2]) : 1.0;
+  const double zScale =
+    (bounds[5] - bounds[4]) != 0.0 ? (zRange[1] - zRange[0])/(bounds[5] - bounds[4]) : 1.0;
 
   // Pull back the corners if specified
   if (this->CornerOffset > 0.0)
@@ -1951,7 +1954,7 @@ inline int vtkCubeAxesActor::FRound(double value)
 inline int vtkCubeAxesActor::GetNumTicks(double range, double fxt)
 {
   // Find the number of integral points in the interval.
-  double fnt  = range/fxt;
+  double fnt  = fxt != 0.0 ? range/fxt : 0.0;
   fnt  = this->FFix(fnt);
   return this->FRound(fnt);
 }
@@ -1993,44 +1996,6 @@ void vtkCubeAxesActor::AdjustTicksComputeRange(vtkAxisActor *axes[NUMBER_OF_ALIG
 
   range = sortedRange[1] - sortedRange[0];
 
-  // Find the integral points.
-  double pow10 = log10(range);
-
-  // Build in numerical tolerance
-  if (pow10 != 0.)
-  {
-    double eps = 10.0e-10;
-    pow10 = this->FSign((fabs(pow10) + eps), pow10);
-  }
-
-  // FFix move you in the wrong direction if pow10 is negative.
-  if (pow10 < 0.)
-  {
-    pow10 = pow10 - 1.;
-  }
-
-  fxt = pow(10., this->FFix(pow10));
-
-  numTicks = this->GetNumTicks(range, fxt);
-
-  div = 1.;
-  if (numTicks < 5)
-  {
-    div = 2.;
-  }
-  if (numTicks <= 2)
-  {
-    div = 5.;
-  }
-
-  // If there aren't enough major tick points in this decade, use the next
-  // decade.
-  major = fxt;
-  if (div != 1.)
-  {
-    major /= div;
-  }
-
   int axis = 0;
   switch(axes[0]->GetAxisType())
   {
@@ -2046,21 +2011,76 @@ void vtkCubeAxesActor::AdjustTicksComputeRange(vtkAxisActor *axes[NUMBER_OF_ALIG
   }
   customizedLabels = this->AxisLabels[axis];
 
-  if (customizedLabels == nullptr)
+  if (range == 0.0)
   {
-    // Figure out the first major tick locations, relative to the
-    // start of the axis.
-    if (sortedRange[0] <= 0.)
+    majorStart = sortedRange[0];
+    minorStart = sortedRange[0];
+    major = 1.0;
+    minor = 1.0;
+    for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
-      majorStart = major*(this->FFix(sortedRange[0]*(1./major)) + 0.);
+      axes[i]->SetMinorRangeStart(minorStart);
+      axes[i]->SetMajorRangeStart(majorStart);
+      axes[i]->SetDeltaRangeMinor(minor);
+      axes[i]->SetDeltaRangeMajor(major);
     }
-    else
-    {
-      majorStart = major*(this->FFix(sortedRange[0]*(1./major)) + 1.);
-    }
+
   }
   else
   {
+    // Find the integral points.
+    double pow10 = log10(range);
+
+    // Build in numerical tolerance
+    if (pow10 != 0.)
+    {
+      double eps = 10.0e-10;
+      pow10 = this->FSign((fabs(pow10) + eps), pow10);
+    }
+
+    // FFix move you in the wrong direction if pow10 is negative.
+    if (pow10 < 0.)
+    {
+      pow10 = pow10 - 1.;
+    }
+
+    fxt = pow(10., this->FFix(pow10));
+
+    numTicks = this->GetNumTicks(range, fxt);
+
+    div = 1.;
+    if (numTicks < 5)
+    {
+      div = 2.;
+    }
+    if (numTicks <= 2)
+    {
+      div = 5.;
+    }
+
+    // If there aren't enough major tick points in this decade, use the next
+    // decade.
+    major = fxt;
+    if (div != 1.)
+    {
+      major /= div;
+    }
+
+    if (customizedLabels == nullptr)
+    {
+      // Figure out the first major tick locations, relative to the
+      // start of the axis.
+      if (sortedRange[0] <= 0.)
+      {
+        majorStart = major*(this->FFix(sortedRange[0]*(1./major)) + 0.);
+      }
+      else
+      {
+        majorStart = major*(this->FFix(sortedRange[0]*(1./major)) + 1.);
+      }
+    }
+    else
+    {
       // If we have custom labels, they are supposed to be uniformly distributed
       // inside the values range.
       majorStart = sortedRange[0];
@@ -2070,36 +2090,37 @@ void vtkCubeAxesActor::AdjustTicksComputeRange(vtkAxisActor *axes[NUMBER_OF_ALIG
       {
         major = range / (labelsCount - 1.);
       }
-  }
+    }
 
-  minor = major / 10.;
-  // Figure out the first minor tick locations, relative to the
-  // start of the axis.
-  if (sortedRange[0] <= 0.)
-  {
-    minorStart = minor*(this->FFix(sortedRange[0]*(1./minor)) + 0.);
-  }
-  else
-  {
-    minorStart = minor*(this->FFix(sortedRange[0]*(1./minor)) + 1.);
-  }
+    minor = major / 10.;
+    // Figure out the first minor tick locations, relative to the
+    // start of the axis.
+    if (sortedRange[0] <= 0.)
+    {
+      minorStart = minor*(this->FFix(sortedRange[0]*(1./minor)) + 0.);
+    }
+    else
+    {
+      minorStart = minor*(this->FFix(sortedRange[0]*(1./minor)) + 1.);
+    }
 
-  for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
-  {
-    axes[i]->SetMinorRangeStart(minorStart);
-    axes[i]->SetMajorRangeStart(majorStart);
-    axes[i]->SetDeltaRangeMinor(minor);
-    axes[i]->SetDeltaRangeMajor(major);
-  }
+    for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
+    {
+      axes[i]->SetMinorRangeStart(minorStart);
+      axes[i]->SetMajorRangeStart(majorStart);
+      axes[i]->SetDeltaRangeMinor(minor);
+      axes[i]->SetDeltaRangeMajor(major);
+    }
 
-  double t;
-  t = (minorStart - sortedRange[0])/range;
-  minorStart = t * boundsMax + (1-t) * boundsMin;
-  t = (majorStart - sortedRange[0])/range;
-  majorStart = t * boundsMax + (1-t) * boundsMin;
-  const double scale = (boundsMax - boundsMin) / range;
-  minor *= scale;
-  major *= scale;
+    double t;
+    t = (minorStart - sortedRange[0])/range;
+    minorStart = t * boundsMax + (1-t) * boundsMin;
+    t = (majorStart - sortedRange[0])/range;
+    majorStart = t * boundsMax + (1-t) * boundsMin;
+    const double scale = (boundsMax - boundsMin) / range;
+    minor *= scale;
+    major *= scale;
+  }
 
   // Set major start and delta for the corresponding cube axis
   switch(axes[0]->GetAxisType())
