@@ -130,7 +130,7 @@ public:
   ifstream* stream;
   mrc_file_header header;
 
-  vtkInternal() : stream(nullptr) {}
+  vtkInternal() : stream(nullptr), header() {}
 
   ~vtkInternal()
   {

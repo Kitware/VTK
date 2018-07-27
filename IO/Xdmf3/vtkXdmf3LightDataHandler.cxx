@@ -67,7 +67,18 @@ shared_ptr<vtkXdmf3LightDataHandler> vtkXdmf3LightDataHandler::New(
 vtkXdmf3LightDataHandler::~vtkXdmf3LightDataHandler() {}
 
 //------------------------------------------------------------------------------
-vtkXdmf3LightDataHandler::vtkXdmf3LightDataHandler() {}
+vtkXdmf3LightDataHandler::vtkXdmf3LightDataHandler()
+{
+  SILBuilder = nullptr;
+  FieldArrays = nullptr;
+  CellArrays = nullptr;
+  PointArrays = nullptr;
+  GridsCache = nullptr;
+  SetsCache = nullptr;
+  MaxDepth = 0;
+  Rank = 0;
+  NumProcs = 0;
+}
 
 //------------------------------------------------------------------------------
 void vtkXdmf3LightDataHandler::InspectXDMF

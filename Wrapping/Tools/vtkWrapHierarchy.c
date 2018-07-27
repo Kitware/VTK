@@ -454,12 +454,9 @@ static char **append_namespace_contents(
   if (m && n)
   {
     new_scope = (char *)malloc(m + n + 3);
-    if (n)
-    {
-      strncpy(new_scope, scope, n);
-      new_scope[n++] = ':';
-      new_scope[n++] = ':';
-    }
+    strncpy(new_scope, scope, n);
+    new_scope[n++] = ':';
+    new_scope[n++] = ':';
     strncpy(&new_scope[n], data->Name, m + 1);
     scope = new_scope;
   }
