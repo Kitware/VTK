@@ -50,6 +50,12 @@ if (NOT f2c_defined)
                   -DPyMPI_MISSING_MPI_Status_c2f)
 endif()
 
+# SGI's MPT mpi library is missing MPI_CONVERSION_FN_NULL
+check_function_exists(MPI_CONVERSION_FN_NULL conversion_fn_defined)
+if (NOT conversion_fn_defined)
+  add_definitions(-DPyMPI_MISSING_MPI_CONVERSION_FN_NULL)
+endif()
+
 # -----------------------------------------------------------------------------
 # Note: In ParaView FindPythonLibs.cmake module is additionally defined in VTK
 # and overides the default module from CMake. As a consequence PYTHON_ADD_MODULE
