@@ -1910,7 +1910,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
   this->MouseBox.SetHeight(mouse.GetPos().GetY() - this->MouseBox.GetY());
   if ((fabs(this->MouseBox.GetWidth()) < 0.5 && fabs(this->MouseBox.GetHeight()) < 0.5 &&
       mouse.GetButton() == this->Actions.Select()) ||
-      (this->SelectionPolygon.GetNumberOfPoints() < 3 && mouse.GetButton() == this->Actions.SelectPolygon()) ||
+      (this->SelectionPolygon.GetNumberOfPoints() < 2 && mouse.GetButton() == this->Actions.SelectPolygon()) ||
       mouse.GetButton() == this->Actions.Pan())
   {
     this->MouseBox.SetWidth(0.0);
