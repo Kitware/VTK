@@ -496,9 +496,7 @@ static int vtkWrapPython_IsValueWrappable(
       if (baseType != VTK_PARSE_UNKNOWN &&
           baseType != VTK_PARSE_OBJECT &&
           baseType != VTK_PARSE_QOBJECT &&
-          baseType != VTK_PARSE_CHAR &&
-          baseType != VTK_PARSE_STRING &&
-          baseType != VTK_PARSE_UNICODE_STRING)
+          baseType != VTK_PARSE_CHAR)
       {
         for (j = 0; wrappableTypes[j] != 0; j++)
         {

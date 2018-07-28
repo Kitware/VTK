@@ -376,6 +376,8 @@ public:
   bool GetArray(unsigned long *v, size_t n);
   bool GetArray(long long *v, size_t n);
   bool GetArray(unsigned long long *v, size_t n);
+  bool GetArray(std::string *v, size_t n);
+  bool GetArray(vtkUnicodeString *v, size_t n);
   //@}
 
   //@{
@@ -556,6 +558,8 @@ public:
   static PyObject *BuildTuple(const unsigned long *v, size_t n);
   static PyObject *BuildTuple(const long long *v, size_t n);
   static PyObject *BuildTuple(const unsigned long long *v, size_t n);
+  static PyObject *BuildTuple(const std::string *v, size_t n);
+  static PyObject *BuildTuple(const vtkUnicodeString *v, size_t n);
   //@}
 
   /**

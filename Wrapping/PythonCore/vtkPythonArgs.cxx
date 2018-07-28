@@ -965,6 +965,8 @@ VTK_PYTHON_BUILD_TUPLE(long)
 VTK_PYTHON_BUILD_TUPLE(unsigned long)
 VTK_PYTHON_BUILD_TUPLE(long long)
 VTK_PYTHON_BUILD_TUPLE(unsigned long long)
+VTK_PYTHON_BUILD_TUPLE(std::string)
+VTK_PYTHON_BUILD_TUPLE(vtkUnicodeString)
 
 //--------------------------------------------------------------------
 // If "self" is a class, get real "self" from arg list
@@ -1156,6 +1158,8 @@ VTK_PYTHON_GET_ARRAY_ARG(long)
 VTK_PYTHON_GET_ARRAY_ARG(unsigned long)
 VTK_PYTHON_GET_ARRAY_ARG(long long)
 VTK_PYTHON_GET_ARRAY_ARG(unsigned long long)
+VTK_PYTHON_GET_ARRAY_ARG(std::string)
+VTK_PYTHON_GET_ARRAY_ARG(vtkUnicodeString)
 
 //--------------------------------------------------------------------
 // Define all the GetNArray methods in the class.
