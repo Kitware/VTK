@@ -115,7 +115,7 @@ void vtkWrapPython_DeclareVariables(
       {
         /* prepare for "char *" arg for non-const char pointer */
         fprintf(fp,
-              "  int size%d = ap.GetStringSize(%d);\n"
+              "  size_t size%d = ap.GetStringSize(%d);\n"
               "  vtkPythonArgs::Array<char> store%d(%ssize%d + 1);\n"
               "  char *temp%d = store%d.Data();\n",
               i, i,
@@ -132,7 +132,7 @@ void vtkWrapPython_DeclareVariables(
       {
         /* prepare for "T *" arg, where T is a plain type */
         fprintf(fp,
-              "  int size%d = ap.GetArgSize(%d);\n"
+              "  size_t size%d = ap.GetArgSize(%d);\n"
               "  vtkPythonArgs::Array<%s> store%d(%ssize%d);\n"
               "  %s *temp%d = store%d.Data();\n",
               i, i,
@@ -150,7 +150,7 @@ void vtkWrapPython_DeclareVariables(
       {
         /* prepare for "T a[n] = nullptr" arg (array with default of NULL) */
         fprintf(fp,
-              "  int size%d = 0;\n"
+              "  size_t size%d = 0;\n"
               "  %s store%d[%s%d];\n"
               "  %s *temp%d = nullptr;\n",
               i,
@@ -226,7 +226,7 @@ void vtkWrapPython_DeclareVariables(
         !theFunc->ReturnValue->CountHint)
     {
       fprintf(fp,
-              "  int sizer = %d;\n",
+              "  size_t sizer = %d;\n",
               theFunc->ReturnValue->Count);
     }
   }
@@ -1282,7 +1282,7 @@ void vtkWrapPython_GenerateOneMethod(
       if (theOccurrence->ReturnValue && theOccurrence->ReturnValue->CountHint)
       {
         fprintf(fp,
-            "    int sizer = ");
+            "    size_t sizer = ");
         vtkWrapPython_SubstituteCode(fp, data, theOccurrence,
                                      theOccurrence->ReturnValue->CountHint);
         fprintf(fp, ";\n");
