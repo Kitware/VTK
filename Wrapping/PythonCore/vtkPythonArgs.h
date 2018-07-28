@@ -474,6 +474,12 @@ public:
   //@}
 
   /**
+   * Set the contents of the specified argument from a sequence,
+   * the same as doing "arg[:] = seq" in Python.
+   */
+  bool SetContents(int i, PyObject *seq);
+
+  /**
    * Build a value of None.
    */
   static PyObject *BuildNone();

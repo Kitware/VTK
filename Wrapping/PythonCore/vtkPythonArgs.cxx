@@ -1414,6 +1414,24 @@ VTK_PYTHON_SET_NARRAY_ARG(long long)
 VTK_PYTHON_SET_NARRAY_ARG(unsigned long long)
 
 //--------------------------------------------------------------------
+// Replace the contents of an argument, arg[:] = seq
+bool vtkPythonArgs::SetContents(int i, PyObject *seq)
+{
+  if (this->M + i < this->N)
+  {
+    PyObject *o = PyTuple_GET_ITEM(this->Args, this->M + i);
+    Py_ssize_t l = PySequence_Size(o);
+    if (l >= 0 && PySequence_SetSlice(o, 0, l, seq) != -1)
+    {
+      return true;
+    }
+    this->RefineArgTypeError(i);
+    return false;
+  }
+  return true;
+}
+
+//--------------------------------------------------------------------
 // Raise an exception about incorrect arg count.
 bool vtkPythonArgs::ArgCountError(int m, int n)
 {

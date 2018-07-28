@@ -193,6 +193,12 @@ void vtkWrapPython_DeclareVariables(
         }
       }
     }
+    else if (vtkWrap_IsStdVector(arg))
+    {
+      fprintf(fp,
+        "  %s temp%d(ap.GetArgSize(%d));\n",
+        arg->Class, i, i);
+    }
     else
     {
       /* make a "temp" variable for any other kind of argument */
@@ -350,6 +356,11 @@ void vtkWrapPython_GetSingleArgument(
            vtkWrap_IsCharPointer(arg))
   {
     fprintf(fp, "%sGetArray(%stemp%d, size%d)",
+            prefix, argname, i, i);
+  }
+  else if (vtkWrap_IsStdVector(arg))
+  {
+    fprintf(fp, "%sGetArray(%stemp%d.data(), temp%d.size())",
             prefix, argname, i, i);
   }
 }
@@ -595,6 +606,7 @@ void vtkWrapPython_ReturnValue(
 {
   char pythonname[1024];
   const char *deref = "";
+  const char *member = ".";
   const char *prefix = "ap.";
 
   if (static_call)
@@ -615,6 +627,7 @@ void vtkWrapPython_ReturnValue(
   if (val && vtkWrap_IsRef(val))
   {
     deref = "*";
+    member = "->";
   }
 
   if (vtkWrap_IsVoid(val))
@@ -690,6 +703,19 @@ void vtkWrapPython_ReturnValue(
     fprintf(fp,
             "      result = %sBuildTuple(tempr, sizer);\n",
             prefix);
+  }
+  else if (vtkWrap_IsStdVector(val))
+  {
+    fprintf(fp,
+            "      if (tempr%ssize() == 0)\n"
+            "      {\n"
+            "        result = PyTuple_New(0);\n"
+            "      }\n"
+            "      else\n"
+            "      {\n"
+            "        result = %sBuildTuple(tempr%sdata(), tempr%ssize());\n"
+            "      }\n",
+            member, prefix, member, member);
   }
   else
   {
@@ -1032,6 +1058,7 @@ static void vtkWrapPython_WriteBackToArgs(
     }
 
     if (vtkWrap_IsNonConstRef(arg) &&
+        !vtkWrap_IsStdVector(arg) &&
         !vtkWrap_IsObject(arg))
     {
       fprintf(fp,
@@ -1105,6 +1132,20 @@ static void vtkWrapPython_WriteBackToArgs(
       fprintf(fp,
               "    }\n"
               "\n");
+    }
+    else if (vtkWrap_IsStdVector(arg) && !vtkWrap_IsConst(arg))
+    {
+      fprintf(fp,
+              "    if (!ap.ErrorOccurred())\n"
+              "    {\n"
+              "      PyObject *vec = (temp%d.size() == 0 ?\n"
+              "        PyTuple_New(0) :\n"
+              "        ap.BuildTuple(temp%d.data(), temp%d.size()));\n"
+              "      ap.SetContents(%d, vec);\n"
+              "      Py_DECREF(vec);\n"
+              "    }\n"
+              "\n",
+              i, i, i, i);
     }
   }
 }

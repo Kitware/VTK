@@ -81,6 +81,12 @@ int vtkWrap_IsZeroCopyPointer(ValueInfo *val)
   return (vtkWrap_IsPointer(val) && (val->Type & VTK_PARSE_ZEROCOPY) != 0);
 }
 
+int vtkWrap_IsStdVector(ValueInfo *val)
+{
+  return ((val->Type & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN &&
+          val->Class && strncmp(val->Class, "std::vector<", 12) == 0);
+}
+
 int vtkWrap_IsVTKObject(ValueInfo *val)
 {
   unsigned int t = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
