@@ -37,6 +37,7 @@ resulting in wrapper code that is faster and more compact.
 #include "vtkUnicodeString.h"
 
 #include <string>
+#include <cstring>
 
 class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs
 {
@@ -555,19 +556,15 @@ public:
    * Copy an array.
    */
   template<class T>
-  static void SaveArray(const T *a, T *b, size_t n) {
-    for (size_t i = 0; i < n; i++) {
-      b[i] = a[i]; } }
+  static void Save(const T *a, T *b, size_t n) {
+    memcpy(b, a, n*sizeof(T)); }
 
   /**
    * Check if an array has changed.
    */
   template<class T>
-  static bool ArrayHasChanged(const T *a, const T *b, size_t n) {
-    for (size_t i = 0; i < n; i++) {
-      if (a[i] != b[i]) {
-        return true; } }
-    return false; }
+  static bool HasChanged(const T *a, const T *b, size_t n) {
+    return (memcmp(a, b, n*sizeof(T)) != 0); }
 
   /**
    * Get the argument count.

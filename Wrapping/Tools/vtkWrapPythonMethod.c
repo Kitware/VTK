@@ -41,7 +41,7 @@ static void vtkWrapPython_CheckPreconds(
   FILE *fp, ClassInfo *data, FunctionInfo *currentFunction);
 
 /* save the contents of all arrays prior to calling the function */
-static void vtkWrapPython_SaveArrayArgs(
+static void vtkWrapPython_SaveArgs(
   FILE *fp, FunctionInfo *currentFunction);
 
 /* generate the code that calls the C++ method */
@@ -750,7 +750,7 @@ static int vtkWrapPython_CountAllOccurrences(
 /* -------------------------------------------------------------------- */
 /* Save a copy of each non-const array arg, so that we can check
  * if they were changed by the method call */
-void vtkWrapPython_SaveArrayArgs(FILE *fp, FunctionInfo *currentFunction)
+void vtkWrapPython_SaveArgs(FILE *fp, FunctionInfo *currentFunction)
 {
   const char *asterisks = "**********";
   ValueInfo *arg;
@@ -784,7 +784,7 @@ void vtkWrapPython_SaveArrayArgs(FILE *fp, FunctionInfo *currentFunction)
       noneDone = 0;
 
       fprintf(fp,
-              "    ap.SaveArray(%.*stemp%d, %.*ssave%d, ",
+              "    ap.Save(%.*stemp%d, %.*ssave%d, ",
               (n-1), asterisks, i, (n-1), asterisks, i);
 
       if (vtkWrap_IsNArray(arg))
@@ -1070,7 +1070,7 @@ static void vtkWrapPython_WriteBackToArgs(
              !vtkWrap_IsSetVectorMethod(currentFunction))
     {
       fprintf(fp,
-              "    if (ap.ArrayHasChanged(%.*stemp%d, %.*ssave%d, ",
+              "    if (ap.HasChanged(%.*stemp%d, %.*ssave%d, ",
               (n-1), asterisks, i, (n-1), asterisks, i);
 
       if (vtkWrap_IsNArray(arg))
@@ -1289,7 +1289,7 @@ void vtkWrapPython_GenerateOneMethod(
       }
 
       /* save a copy of all non-const array arguments */
-      vtkWrapPython_SaveArrayArgs(fp, theOccurrence);
+      vtkWrapPython_SaveArgs(fp, theOccurrence);
 
       /* generate the code that calls the C++ method */
       vtkWrapPython_GenerateMethodCall(fp, theOccurrence, data, hinfo,
