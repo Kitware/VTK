@@ -65,7 +65,8 @@ int vtkWrap_IsVoidPointer(ValueInfo *val)
 int vtkWrap_IsCharPointer(ValueInfo *val)
 {
   unsigned int t = (val->Type & VTK_PARSE_BASE_TYPE);
-  return (t == VTK_PARSE_CHAR && vtkWrap_IsPointer(val));
+  return (t == VTK_PARSE_CHAR && vtkWrap_IsPointer(val) &&
+          (val->Type & VTK_PARSE_ZEROCOPY) == 0);
 }
 
 int vtkWrap_IsPODPointer(ValueInfo *val)
