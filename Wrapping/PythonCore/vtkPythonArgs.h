@@ -37,6 +37,7 @@ resulting in wrapper code that is faster and more compact.
 #include "vtkUnicodeString.h"
 
 #include <string>
+#include <cstring>
 
 class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs
 {
@@ -132,21 +133,21 @@ public:
    * If the arg is out of range, or is not a string,
    * then it returns 0 but doesn't set error.
    */
-  int GetStringSize(int i);
+  size_t GetStringSize(int i);
 
   /**
    * Get the size of an arg, if it is a sequence.
    * If no size is available, or if the arg is out of range,
    * then it returns 0 but doesn't set error.
    */
-  int GetArgSize(int i);
+  size_t GetArgSize(int i);
 
   /**
    * If arg i exists, and if m is not equal to the expected value n,
    * then set an error for arg i and return false.  In all other
    * cases, return true.
    */
-  bool CheckSizeHint(int i, Py_ssize_t m, Py_ssize_t n);
+  bool CheckSizeHint(int i, size_t m, size_t n);
 
   //@{
   /**
@@ -361,40 +362,40 @@ public:
   /**
    * Get the next argument as an array.
    */
-  bool GetArray(float *v, int n);
-  bool GetArray(double *v, int n);
-  bool GetArray(bool *v, int n);
-  bool GetArray(char *v, int n);
-  bool GetArray(signed char *v, int n);
-  bool GetArray(unsigned char *v, int n);
-  bool GetArray(short *v, int n);
-  bool GetArray(unsigned short *v, int n);
-  bool GetArray(int *v, int n);
-  bool GetArray(unsigned int *v, int n);
-  bool GetArray(long *v, int n);
-  bool GetArray(unsigned long *v, int n);
-  bool GetArray(long long *v, int n);
-  bool GetArray(unsigned long long *v, int n);
+  bool GetArray(float *v, size_t n);
+  bool GetArray(double *v, size_t n);
+  bool GetArray(bool *v, size_t n);
+  bool GetArray(char *v, size_t n);
+  bool GetArray(signed char *v, size_t n);
+  bool GetArray(unsigned char *v, size_t n);
+  bool GetArray(short *v, size_t n);
+  bool GetArray(unsigned short *v, size_t n);
+  bool GetArray(int *v, size_t n);
+  bool GetArray(unsigned int *v, size_t n);
+  bool GetArray(long *v, size_t n);
+  bool GetArray(unsigned long *v, size_t n);
+  bool GetArray(long long *v, size_t n);
+  bool GetArray(unsigned long long *v, size_t n);
   //@}
 
   //@{
   /**
    * Get the next argument as a multi-dimensional array.
    */
-  bool GetNArray(float *v, int ndims, const int *dims);
-  bool GetNArray(double *v, int ndims, const int *dims);
-  bool GetNArray(bool *v, int ndims, const int *dims);
-  bool GetNArray(char *v, int ndims, const int *dims);
-  bool GetNArray(signed char *v, int ndims, const int *dims);
-  bool GetNArray(unsigned char *v, int ndims, const int *dims);
-  bool GetNArray(short *v, int ndims, const int *dims);
-  bool GetNArray(unsigned short *v, int ndims, const int *dims);
-  bool GetNArray(int *v, int ndims, const int *dims);
-  bool GetNArray(unsigned int *v, int ndims, const int *dims);
-  bool GetNArray(long *v, int ndims, const int *dims);
-  bool GetNArray(unsigned long *v, int ndims, const int *dims);
-  bool GetNArray(long long *v, int ndims, const int *dims);
-  bool GetNArray(unsigned long long *v, int ndims, const int *dims);
+  bool GetNArray(float *v, int ndims, const size_t *dims);
+  bool GetNArray(double *v, int ndims, const size_t *dims);
+  bool GetNArray(bool *v, int ndims, const size_t *dims);
+  bool GetNArray(char *v, int ndims, const size_t *dims);
+  bool GetNArray(signed char *v, int ndims, const size_t *dims);
+  bool GetNArray(unsigned char *v, int ndims, const size_t *dims);
+  bool GetNArray(short *v, int ndims, const size_t *dims);
+  bool GetNArray(unsigned short *v, int ndims, const size_t *dims);
+  bool GetNArray(int *v, int ndims, const size_t *dims);
+  bool GetNArray(unsigned int *v, int ndims, const size_t *dims);
+  bool GetNArray(long *v, int ndims, const size_t *dims);
+  bool GetNArray(unsigned long *v, int ndims, const size_t *dims);
+  bool GetNArray(long long *v, int ndims, const size_t *dims);
+  bool GetNArray(unsigned long long *v, int ndims, const size_t *dims);
   //@}
 
   //@{
@@ -417,59 +418,59 @@ public:
   bool SetArgValue(int i, unsigned long v);
   bool SetArgValue(int i, long long v);
   bool SetArgValue(int i, unsigned long long v);
-  bool SetArgValue(int i, const float *v, int n);
-  bool SetArgValue(int i, const double *v, int n);
-  bool SetArgValue(int i, const bool *v, int n);
-  bool SetArgValue(int i, const signed char *v, int n);
-  bool SetArgValue(int i, const unsigned char *v, int n);
-  bool SetArgValue(int i, const short *v, int n);
-  bool SetArgValue(int i, const unsigned short *v, int n);
-  bool SetArgValue(int i, const int *v, int n);
-  bool SetArgValue(int i, const unsigned int *v, int n);
-  bool SetArgValue(int i, const long *v, int n);
-  bool SetArgValue(int i, const unsigned long *v, int n);
-  bool SetArgValue(int i, const long long *v, int n);
-  bool SetArgValue(int i, const unsigned long long *v, int n);
+  bool SetArgValue(int i, const float *v, size_t n);
+  bool SetArgValue(int i, const double *v, size_t n);
+  bool SetArgValue(int i, const bool *v, size_t n);
+  bool SetArgValue(int i, const signed char *v, size_t n);
+  bool SetArgValue(int i, const unsigned char *v, size_t n);
+  bool SetArgValue(int i, const short *v, size_t n);
+  bool SetArgValue(int i, const unsigned short *v, size_t n);
+  bool SetArgValue(int i, const int *v, size_t n);
+  bool SetArgValue(int i, const unsigned int *v, size_t n);
+  bool SetArgValue(int i, const long *v, size_t n);
+  bool SetArgValue(int i, const unsigned long *v, size_t n);
+  bool SetArgValue(int i, const long long *v, size_t n);
+  bool SetArgValue(int i, const unsigned long long *v, size_t n);
   //@}
 
   //@{
   /**
    * Set the values in an array argument.
    */
-  bool SetArray(int i, const float *v, int n);
-  bool SetArray(int i, const double *v, int n);
-  bool SetArray(int i, const bool *v, int n);
-  bool SetArray(int i, const char *v, int n);
-  bool SetArray(int i, const signed char *v, int n);
-  bool SetArray(int i, const unsigned char *v, int n);
-  bool SetArray(int i, const short *v, int n);
-  bool SetArray(int i, const unsigned short *v, int n);
-  bool SetArray(int i, const int *v, int n);
-  bool SetArray(int i, const unsigned int *v, int n);
-  bool SetArray(int i, const long *v, int n);
-  bool SetArray(int i, const unsigned long *v, int n);
-  bool SetArray(int i, const long long *v, int n);
-  bool SetArray(int i, const unsigned long long *v, int n);
+  bool SetArray(int i, const float *v, size_t n);
+  bool SetArray(int i, const double *v, size_t n);
+  bool SetArray(int i, const bool *v, size_t n);
+  bool SetArray(int i, const char *v, size_t n);
+  bool SetArray(int i, const signed char *v, size_t n);
+  bool SetArray(int i, const unsigned char *v, size_t n);
+  bool SetArray(int i, const short *v, size_t n);
+  bool SetArray(int i, const unsigned short *v, size_t n);
+  bool SetArray(int i, const int *v, size_t n);
+  bool SetArray(int i, const unsigned int *v, size_t n);
+  bool SetArray(int i, const long *v, size_t n);
+  bool SetArray(int i, const unsigned long *v, size_t n);
+  bool SetArray(int i, const long long *v, size_t n);
+  bool SetArray(int i, const unsigned long long *v, size_t n);
   //@}
 
   //@{
   /**
    * Set the values in a multi-dimensional array argument.
    */
-  bool SetNArray(int i, const float *v, int n, const int *d);
-  bool SetNArray(int i, const double *v, int n, const int *d);
-  bool SetNArray(int i, const bool *v, int n, const int *d);
-  bool SetNArray(int i, const char *v, int n, const int *d);
-  bool SetNArray(int i, const signed char *v, int n, const int *d);
-  bool SetNArray(int i, const unsigned char *v, int n, const int *d);
-  bool SetNArray(int i, const short *v, int n, const int *d);
-  bool SetNArray(int i, const unsigned short *v, int n, const int *d);
-  bool SetNArray(int i, const int *v, int n, const int *d);
-  bool SetNArray(int i, const unsigned int *v, int n, const int *d);
-  bool SetNArray(int i, const long *v, int n, const int *d);
-  bool SetNArray(int i, const unsigned long *v, int n, const int *d);
-  bool SetNArray(int i, const long long *v, int n, const int *d);
-  bool SetNArray(int i, const unsigned long long *v, int n, const int *d);
+  bool SetNArray(int i, const float *v, int n, const size_t *d);
+  bool SetNArray(int i, const double *v, int n, const size_t *d);
+  bool SetNArray(int i, const bool *v, int n, const size_t *d);
+  bool SetNArray(int i, const char *v, int n, const size_t *d);
+  bool SetNArray(int i, const signed char *v, int n, const size_t *d);
+  bool SetNArray(int i, const unsigned char *v, int n, const size_t *d);
+  bool SetNArray(int i, const short *v, int n, const size_t *d);
+  bool SetNArray(int i, const unsigned short *v, int n, const size_t *d);
+  bool SetNArray(int i, const int *v, int n, const size_t *d);
+  bool SetNArray(int i, const unsigned int *v, int n, const size_t *d);
+  bool SetNArray(int i, const long *v, int n, const size_t *d);
+  bool SetNArray(int i, const unsigned long *v, int n, const size_t *d);
+  bool SetNArray(int i, const long long *v, int n, const size_t *d);
+  bool SetNArray(int i, const unsigned long long *v, int n, const size_t *d);
   //@}
 
   /**
@@ -530,44 +531,40 @@ public:
   /**
    * Build a bytes object (or string).
    */
-  static PyObject *BuildBytes(const char *v, int n);
+  static PyObject *BuildBytes(const char *v, size_t n);
 
   //@{
   /**
    * Build a tuple for a return value.
    */
-  static PyObject *BuildTuple(const float *v, int n);
-  static PyObject *BuildTuple(const double *v, int n);
-  static PyObject *BuildTuple(const bool *v, int n);
-  static PyObject *BuildTuple(const signed char *v, int n);
-  static PyObject *BuildTuple(const unsigned char *v, int n);
-  static PyObject *BuildTuple(const short *v, int n);
-  static PyObject *BuildTuple(const unsigned short *v, int n);
-  static PyObject *BuildTuple(const int *v, int n);
-  static PyObject *BuildTuple(const unsigned int *v, int n);
-  static PyObject *BuildTuple(const long *v, int n);
-  static PyObject *BuildTuple(const unsigned long *v, int n);
-  static PyObject *BuildTuple(const long long *v, int n);
-  static PyObject *BuildTuple(const unsigned long long *v, int n);
+  static PyObject *BuildTuple(const float *v, size_t n);
+  static PyObject *BuildTuple(const double *v, size_t n);
+  static PyObject *BuildTuple(const bool *v, size_t n);
+  static PyObject *BuildTuple(const signed char *v, size_t n);
+  static PyObject *BuildTuple(const unsigned char *v, size_t n);
+  static PyObject *BuildTuple(const short *v, size_t n);
+  static PyObject *BuildTuple(const unsigned short *v, size_t n);
+  static PyObject *BuildTuple(const int *v, size_t n);
+  static PyObject *BuildTuple(const unsigned int *v, size_t n);
+  static PyObject *BuildTuple(const long *v, size_t n);
+  static PyObject *BuildTuple(const unsigned long *v, size_t n);
+  static PyObject *BuildTuple(const long long *v, size_t n);
+  static PyObject *BuildTuple(const unsigned long long *v, size_t n);
   //@}
 
   /**
    * Copy an array.
    */
   template<class T>
-  static void SaveArray(const T *a, T *b, int n) {
-    for (int i = 0; i < n; i++) {
-      b[i] = a[i]; } }
+  static void Save(const T *a, T *b, size_t n) {
+    memcpy(b, a, n*sizeof(T)); }
 
   /**
    * Check if an array has changed.
    */
   template<class T>
-  static bool ArrayHasChanged(const T *a, const T *b, int n) {
-    for (int i = 0; i < n; i++) {
-      if (a[i] != b[i]) {
-        return true; } }
-    return false; }
+  static bool HasChanged(const T *a, const T *b, size_t n) {
+    return (memcmp(a, b, n*sizeof(T)) != 0); }
 
   /**
    * Get the argument count.
@@ -599,14 +596,14 @@ public:
   class Array
   {
   public:
-    Array(Py_ssize_t n);
+    Array(size_t n);
 
     ~Array() { if (Pointer != Storage) { delete [] Pointer; } }
 
     T *Data() { return Pointer; }
 
   private:
-    static const Py_ssize_t basicsize = 6;
+    static const size_t basicsize = 6;
     T *Pointer;
     T Storage[basicsize];
   };
@@ -919,9 +916,9 @@ PyObject *vtkPythonArgs::BuildValue(long a)
 inline
 PyObject *vtkPythonArgs::BuildValue(unsigned long a)
 {
-  if ((long)(a) >= 0)
+  if (static_cast<long>(a) >= 0)
   {
-    return PyInt_FromLong((long)(a));
+    return PyInt_FromLong(static_cast<long>(a));
   }
   return PyLong_FromUnsignedLong(a);
 }
@@ -939,7 +936,7 @@ PyObject *vtkPythonArgs::BuildValue(unsigned long long a)
 }
 
 inline
-PyObject *vtkPythonArgs::BuildBytes(const char *a, int n)
+PyObject *vtkPythonArgs::BuildBytes(const char *a, size_t n)
 {
   return PyBytes_FromStringAndSize(a, n);
 }

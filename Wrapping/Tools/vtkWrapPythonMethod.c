@@ -41,7 +41,7 @@ static void vtkWrapPython_CheckPreconds(
   FILE *fp, ClassInfo *data, FunctionInfo *currentFunction);
 
 /* save the contents of all arrays prior to calling the function */
-static void vtkWrapPython_SaveArrayArgs(
+static void vtkWrapPython_SaveArgs(
   FILE *fp, FunctionInfo *currentFunction);
 
 /* generate the code that calls the C++ method */
@@ -115,7 +115,7 @@ void vtkWrapPython_DeclareVariables(
       {
         /* prepare for "char *" arg for non-const char pointer */
         fprintf(fp,
-              "  int size%d = ap.GetStringSize(%d);\n"
+              "  size_t size%d = ap.GetStringSize(%d);\n"
               "  vtkPythonArgs::Array<char> store%d(%ssize%d + 1);\n"
               "  char *temp%d = store%d.Data();\n",
               i, i,
@@ -132,7 +132,7 @@ void vtkWrapPython_DeclareVariables(
       {
         /* prepare for "T *" arg, where T is a plain type */
         fprintf(fp,
-              "  int size%d = ap.GetArgSize(%d);\n"
+              "  size_t size%d = ap.GetArgSize(%d);\n"
               "  vtkPythonArgs::Array<%s> store%d(%ssize%d);\n"
               "  %s *temp%d = store%d.Data();\n",
               i, i,
@@ -150,7 +150,7 @@ void vtkWrapPython_DeclareVariables(
       {
         /* prepare for "T a[n] = nullptr" arg (array with default of NULL) */
         fprintf(fp,
-              "  int size%d = 0;\n"
+              "  size_t size%d = 0;\n"
               "  %s store%d[%s%d];\n"
               "  %s *temp%d = nullptr;\n",
               i,
@@ -226,7 +226,7 @@ void vtkWrapPython_DeclareVariables(
         !theFunc->ReturnValue->CountHint)
     {
       fprintf(fp,
-              "  int sizer = %d;\n",
+              "  size_t sizer = %d;\n",
               theFunc->ReturnValue->Count);
     }
   }
@@ -750,7 +750,7 @@ static int vtkWrapPython_CountAllOccurrences(
 /* -------------------------------------------------------------------- */
 /* Save a copy of each non-const array arg, so that we can check
  * if they were changed by the method call */
-void vtkWrapPython_SaveArrayArgs(FILE *fp, FunctionInfo *currentFunction)
+void vtkWrapPython_SaveArgs(FILE *fp, FunctionInfo *currentFunction)
 {
   const char *asterisks = "**********";
   ValueInfo *arg;
@@ -784,7 +784,7 @@ void vtkWrapPython_SaveArrayArgs(FILE *fp, FunctionInfo *currentFunction)
       noneDone = 0;
 
       fprintf(fp,
-              "    ap.SaveArray(%.*stemp%d, %.*ssave%d, ",
+              "    ap.Save(%.*stemp%d, %.*ssave%d, ",
               (n-1), asterisks, i, (n-1), asterisks, i);
 
       if (vtkWrap_IsNArray(arg))
@@ -1070,7 +1070,7 @@ static void vtkWrapPython_WriteBackToArgs(
              !vtkWrap_IsSetVectorMethod(currentFunction))
     {
       fprintf(fp,
-              "    if (ap.ArrayHasChanged(%.*stemp%d, %.*ssave%d, ",
+              "    if (ap.HasChanged(%.*stemp%d, %.*ssave%d, ",
               (n-1), asterisks, i, (n-1), asterisks, i);
 
       if (vtkWrap_IsNArray(arg))
@@ -1282,14 +1282,14 @@ void vtkWrapPython_GenerateOneMethod(
       if (theOccurrence->ReturnValue && theOccurrence->ReturnValue->CountHint)
       {
         fprintf(fp,
-            "    int sizer = ");
+            "    size_t sizer = ");
         vtkWrapPython_SubstituteCode(fp, data, theOccurrence,
                                      theOccurrence->ReturnValue->CountHint);
         fprintf(fp, ";\n");
       }
 
       /* save a copy of all non-const array arguments */
-      vtkWrapPython_SaveArrayArgs(fp, theOccurrence);
+      vtkWrapPython_SaveArgs(fp, theOccurrence);
 
       /* generate the code that calls the C++ method */
       vtkWrapPython_GenerateMethodCall(fp, theOccurrence, data, hinfo,
