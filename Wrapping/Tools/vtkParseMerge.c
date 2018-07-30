@@ -655,25 +655,13 @@ void vtkParseMerge_MergeHelper(
 
   /* get extra class info from the hierarchy file */
   nspacename = data->Name;
-  if (nspacename && classname[0] != ':')
-  {
-    size_t l1 = strlen(nspacename);
-    size_t l2 = strlen(classname);
-    char *ncp = (char *)malloc(l1 + l2 + 3);
-    strcpy(ncp, data->Name);
-    ncp[l1] = ':';
-    ncp[l1 + 1] = ':';
-    strcpy(&ncp[l1+2], classname);
-    entry = vtkParseHierarchy_FindEntry(hinfo, ncp);
-    free(ncp);
-  }
-  if (!entry && classname[0] == ':' && classname[1] == ':')
+  if (classname[0] == ':' && classname[1] == ':')
   {
     entry = vtkParseHierarchy_FindEntry(hinfo, &classname[2]);
   }
-  if (!entry)
+  else
   {
-    entry = vtkParseHierarchy_FindEntry(hinfo, classname);
+    entry = vtkParseHierarchy_FindEntryEx(hinfo, classname, nspacename);
   }
 
   if (entry && entry->NumberOfTemplateParameters > 0)
