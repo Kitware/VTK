@@ -36,6 +36,51 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLState.h"
 
+#ifdef __APPLE__
+#include "QVTKOpenGLWidget.h"
+#include <QTimer>
+
+/**
+ * Unused except on MacOS.
+ * In an application using both QVTKOpenGLWidget
+ * and QVTKOpenGLSimpleWidget, this bug can appear:
+ * https://bugreports.qt.io/browse/QTBUG-69644
+ */
+namespace
+{
+  /**
+   * It is needed to switch the visibility of currently visible QVTKOpenGLWidget
+   * back and forth (ie hide then show). Just after initialization of QVTKOpenGLSimpleWidget
+   * (ie when we receive WindowActivate event, or PolishRequest event)
+   * This method takes care of it.
+   */
+  void QVTKOpenGLWidgetMacOSCheck(QWidget* window)
+  {
+    // Used a static to ensure the fix is done only once
+    static bool QVTKOpenGLWidgetMacOSFixed = false;
+
+    if (QVTKOpenGLWidgetMacOSFixed || !window)
+    {
+      return;
+    }
+
+    // Switch visibility back and forth of visible QVTKOpenGLWidgets
+    // that share the same window as this QVTKOpenGLSimpleWidget.
+    // This ensures they come back on the front after the Qt bug happens.
+    auto widgets = window->findChildren<QVTKOpenGLWidget*>();
+    for (auto qvglWidget : widgets)
+    {
+      if (qvglWidget->isVisible())
+      {
+        qvglWidget->hide();
+        qvglWidget->show();
+        QVTKOpenGLWidgetMacOSFixed = true;
+      }
+    }
+  }
+}
+#endif // __APPLE__
+
 // #define DEBUG_QVTKOPENGL_WIDGET
 #ifdef DEBUG_QVTKOPENGL_WIDGET
 #define vtkQVTKOpenGLSimpleWidgetDebugMacro(msg)                                                         \
@@ -624,6 +669,21 @@ bool QVTKOpenGLSimpleWidget::event(QEvent* evt)
       // we don't let QVTKInteractorAdapter process resize since we handle it
       // in this->recreateFBO().
       break;
+
+#ifdef __APPLE__
+    // On MacOS, because of https://bugreports.qt.io/browse/QTBUG-69644
+    // It is needed to hide/show currently visible QVTKOpenGLWidget
+    // Just after initialization of QVTKOpenGLSimpleWidget
+    // This triggers a timer so as soon as Qt is able to process events,
+    // it will fix the broken QVTKOpenGLWidgets.
+    case QEvent::WindowActivate:
+    case QEvent::PolishRequest:
+    {
+      QWidget* window = this->window();
+      QTimer::singleShot(1, [window]() {::QVTKOpenGLWidgetMacOSCheck(window);});
+    }
+    break;
+#endif // __APPLE__
 
     default:
       if (this->RenderWindow && this->RenderWindow->GetInteractor())
