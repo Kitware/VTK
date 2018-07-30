@@ -1442,9 +1442,9 @@ void vtkChartXY::RemovePlotSelections()
   {
     vtkPlot* plot = *it;
     if (!plot)
-      {
+    {
       continue;
-      }
+    }
     vtkNew<vtkIdTypeArray> emptySelectionArray;
     emptySelectionArray->Initialize();
     plot->SetSelection(emptySelectionArray);
@@ -1906,18 +1906,25 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
     }
   }
 
+  // Check single action click interaction/selection
+  // First check that the selection actions are invalid or it is a pan selection
   this->MouseBox.SetWidth(mouse.GetPos().GetX() - this->MouseBox.GetX());
   this->MouseBox.SetHeight(mouse.GetPos().GetY() - this->MouseBox.GetY());
-  if ((fabs(this->MouseBox.GetWidth()) < 0.5 && fabs(this->MouseBox.GetHeight()) < 0.5 &&
-      mouse.GetButton() == this->Actions.Select()) ||
-      (this->SelectionPolygon.GetNumberOfPoints() < 2 && mouse.GetButton() == this->Actions.SelectPolygon()) ||
-      mouse.GetButton() == this->Actions.Pan())
+  bool isActionSelectInvalid = fabs(this->MouseBox.GetWidth()) < 0.5 &&
+    fabs(this->MouseBox.GetHeight()) < 0.5 &&
+    mouse.GetButton() == this->Actions.Select();
+  bool isActionSelectPolygonInvalid = this->SelectionPolygon.GetNumberOfPoints() < 2 &&
+    mouse.GetButton() == this->Actions.SelectPolygon();
+  bool isActionPan = mouse.GetButton() == this->Actions.Pan();
+
+  if (isActionSelectInvalid || isActionSelectPolygonInvalid || isActionPan)
   {
     this->MouseBox.SetWidth(0.0);
     this->MouseBox.SetHeight(0.0);
     this->SelectionPolygon.Clear();
     this->DrawBox = false;
     this->DrawSelectionPolygon = false;
+    // Find the relative interaction/selection point
     if (mouse.GetButton() == this->ActionsClick.Notify())
     {
       this->LocatePointInPlots(mouse, vtkCommand::InteractionEvent);
