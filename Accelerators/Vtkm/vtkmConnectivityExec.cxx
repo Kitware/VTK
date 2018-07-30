@@ -165,5 +165,11 @@ template class ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagTBB>;
 template class ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagTBB>;
 #endif
 
+#ifdef VTKM_ENABLE_OPENMP
+template class ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagOpenMP>;
+template class ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagOpenMP>;
+template class ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagOpenMP>;
+#endif
+
 }
 }
