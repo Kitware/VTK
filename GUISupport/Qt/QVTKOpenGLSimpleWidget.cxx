@@ -424,6 +424,7 @@ void QVTKOpenGLSimpleWidget::recreateFBO()
   // have to keep vtk state up to date as well
   ostate->vtkglDisable(GL_SCISSOR_TEST);
   ostate->vtkglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  ostate->vtkglViewport(0, 0, deviceSize.width(), deviceSize.height());
   f->glDisable(GL_SCISSOR_TEST);
   f->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   f->glClear(GL_COLOR_BUFFER_BIT);
