@@ -2668,6 +2668,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
       int numComp = this->Colors->GetNumberOfComponents();
       unsigned char *colorPtr = this->Colors->GetPointer(0);
       assert(numComp == 4);
+      newColors.reserve(numComp*this->CellCellMap.size());
       // use a single color value?
       if (this->FieldDataTupleId > -1 &&
           this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA)
@@ -2696,6 +2697,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
     {
       // create the cell scalar array adjusted for ogl Cells
       vtkDataArray *n = this->CurrentInput->GetCellData()->GetNormals();
+      newNorms.reserve(4*this->CellCellMap.size());
       for (size_t i = 0; i < this->CellCellMap.size(); i++)
       {
         // RGB32F requires a later version of OpenGL than 3.2
