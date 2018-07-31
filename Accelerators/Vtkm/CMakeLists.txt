@@ -48,6 +48,7 @@ set(headers
   vtkmProbe.h
   vtkmThreshold.h
   vtkmTriangleMeshPointNormals.h
+  vtkmWarpScalar.h
   )
 
 #implementation of the algorithms for cpu accelerators
@@ -71,6 +72,7 @@ set(cpu_accelerator_srcs
   vtkmProbe.cxx
   vtkmThreshold.cxx
   vtkmTriangleMeshPointNormals.cxx
+  vtkmWarpScalar.cxx
   vtkmlib/Portals.cxx
   vtkmlib/ImplicitFunctionConverter.cxx
   )
@@ -96,6 +98,7 @@ set(cuda_accelerator_srcs
   vtkmProbe.cu
   vtkmThreshold.cu
   vtkmTriangleMeshPointNormals.cu
+  vtkmWarpScalar.cu
   vtkmlib/Portals.cu
   vtkmlib/ImplicitFunctionConverter.cu
   )
