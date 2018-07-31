@@ -34,9 +34,10 @@
  * alpha, tuple 2: re, tuple 3: time). In addition, the solution file contains
  * the flow density (scalar), flow momentum (vector), and flow energy (scalar).
  *
- * Note that this reader does not support time series data which is usually
- * stored as a series of Q and optionally XYZ files. If you want to read such
- * a file series, use vtkPlot3DMetaReader.
+ * This reader supports a limited form of time series data which are stored
+ * as a series of Q files. Using the AddFileName() method provided by the
+ * superclass, one can define a file series. For other cases, for example where
+ * the XYZ or function files vary over time, use vtkPlot3DMetaReader.
  *
  * The reader can generate additional scalars and vectors (or "functions")
  * from this information. To use vtkMultiBlockPLOT3DReader, you must specify the
@@ -88,7 +89,7 @@
 
 #include <vector>  // For holding function-names
 #include "vtkIOParallelModule.h" // For export macro
-#include "vtkMultiBlockDataSetAlgorithm.h"
+#include "vtkParallelReader.h"
 
 class vtkDataArray;
 class vtkDataSetAttributes;
@@ -98,6 +99,7 @@ class vtkMultiProcessController;
 class vtkStructuredGrid;
 class vtkUnsignedCharArray;
 struct vtkMultiBlockPLOT3DReaderInternals;
+class vtkMultiBlockDataSet;
 
 namespace Functors
 {
@@ -120,7 +122,7 @@ namespace Functors
 }
 
 
-class VTKIOPARALLEL_EXPORT vtkMultiBlockPLOT3DReader : public vtkMultiBlockDataSetAlgorithm
+class VTKIOPARALLEL_EXPORT vtkMultiBlockPLOT3DReader : public vtkParallelReader
 {
 friend class Functors::ComputeFunctor;
 friend class Functors::ComputeTemperatureFunctor;
@@ -140,8 +142,17 @@ friend class Functors::ComputeVorticityFunctor;
 friend class Functors::ComputeStrainRateFunctor;
 public:
   static vtkMultiBlockPLOT3DReader *New();
-  vtkTypeMacro(vtkMultiBlockPLOT3DReader,vtkMultiBlockDataSetAlgorithm);
+  vtkTypeMacro(vtkMultiBlockPLOT3DReader,vtkParallelReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  //@{
+  /**
+   * Get the output data object for a port on this algorithm.
+   */
+  vtkMultiBlockDataSet* GetOutput();
+  vtkMultiBlockDataSet* GetOutput(int);
+  //@}
+
 
   //@{
   /**
@@ -149,16 +160,24 @@ public:
    */
   void SetFileName(const char* name) { this->SetXYZFileName(name); }
   const char* GetFileName() { return this->GetXYZFileName(); }
+  const char* GetFileName(int i) { return this->vtkParallelReader::GetFileName(i); }
   virtual void SetXYZFileName( const char* );
   vtkGetStringMacro(XYZFileName);
   //@}
 
   //@{
   /**
-   * Set/Get the PLOT3D solution filename.
+   * Set/Get the PLOT3D solution filename. This adds a filename
+   * using the superclass' AddFileName() method. To read a series
+   * of q files, use the AddFileName() interface directly to add
+   * multiple q filenames in the appropriate order. If the files
+   * are of Overflow format, the reader will read the time values
+   * from the files. Otherwise, it will use an integer sequence.
+   * Use a meta reader to support time values for non-Overflow file
+   * sequences.
    */
-  vtkSetStringMacro(QFileName);
-  vtkGetStringMacro(QFileName);
+  void SetQFileName(const char* name);
+  const char* GetQFileName();
   //@}
 
   //@{
@@ -357,15 +376,55 @@ public:
     FILE_LITTLE_ENDIAN=1
   };
 
+  //@{
+  /**
+  * These methods have to be overwritten from superclass
+  * because Plot3D actually uses the XYZ file to read these.
+  * This is not recognized by the superclass which returns
+  * an error when a filename (Q filename) is not set.
+  */
+  int ReadMetaData(vtkInformation* metadata) override;
+  int ReadMesh(
+    int piece, int npieces, int nghosts, int timestep,
+    vtkDataObject* output) override;
+  int ReadPoints(
+    int piece, int npieces, int nghosts, int timestep,
+    vtkDataObject* output) override;
+  int ReadArrays(
+    int piece, int npieces, int nghosts, int timestep,
+    vtkDataObject* output) override;
+  //@}
+
 protected:
   vtkMultiBlockPLOT3DReader();
   ~vtkMultiBlockPLOT3DReader() override;
+
+  //@{
+  /**
+  * Overridden from superclass to do actual reading.
+  */
+  double GetTimeValue(const std::string& fname) override;
+  int ReadMesh(const std::string& fname,
+               int piece,
+               int npieces,
+               int nghosts,
+               vtkDataObject* output) override;
+  int ReadPoints(const std::string& fname,
+                 int piece,
+                 int npieces,
+                 int nghosts,
+                 vtkDataObject* output) override;
+  int ReadArrays(const std::string& fname,
+                 int piece,
+                 int npieces,
+                 int nghosts,
+                 vtkDataObject* output) override;
+  //@}
 
   vtkDataArray* CreateFloatArray();
 
   int CheckFile(FILE*& fp, const char* fname);
   int CheckGeometryFile(FILE*& xyzFp);
-  int CheckSolutionFile(FILE*& qFp);
   int CheckFunctionFile(FILE*& fFp);
 
   int GetByteCountSize();
@@ -478,12 +537,7 @@ protected:
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestData(vtkInformation*,
-                          vtkInformationVector**,
-                          vtkInformationVector*) override;
-  int RequestInformation(vtkInformation*,
-                                 vtkInformationVector**,
-                                 vtkInformationVector*) override;
+  virtual vtkExecutive* CreateDefaultExecutive() override;
 
   vtkMultiBlockPLOT3DReaderInternals* Internal;
 
