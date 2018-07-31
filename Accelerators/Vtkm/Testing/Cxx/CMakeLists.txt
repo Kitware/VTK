@@ -18,6 +18,7 @@ vtk_add_test_cxx(vtkAcceleratorsVtkmCxxTests tests
   TestVTKMThreshold2.cxx
   TestVTKMTriangleMeshPointNormals.cxx
   TestVTKMWarpScalar.cxx
+  TestVTKMWarpVector.cxx
   )
 vtk_test_cxx_executable(vtkAcceleratorsVtkmCxxTests tests
   RENDERING_FACTORY
