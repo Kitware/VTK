@@ -188,6 +188,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   # warnings from some Open MPI headers/libs, cannot fix:
   "/openmpi/.*request_inln.h.*warning: declaration .struct MPI::Grequest_intercept_t. does not declare anything"
   "openmpi.*comm_inln.h.*warning: unused parameter"
+  "openmpi.*/cxx/op_inln.h.*warning: cast between incompatible function types from"
 
   # remove the next line once this class is removed probably VTK 9.1
   "vtkExtractArraysOverTime"
