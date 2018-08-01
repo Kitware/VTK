@@ -287,7 +287,7 @@ int vtkRasterReprojectionFilter::RequestInformation(
   //           << ", " << inputOrigin[1]
   //           << ", " << inputOrigin[2] << std::endl;
 
-  // InputProjection can be overriden, so only get from pipeline if needed
+  // InputProjection can be overridden, so only get from pipeline if needed
   if (!this->InputProjection)
   {
     if (!inInfo->Has(vtkGDAL::MAP_PROJECTION()))

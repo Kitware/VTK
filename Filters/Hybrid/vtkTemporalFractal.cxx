@@ -882,7 +882,7 @@ void vtkTemporalFractal::Traverse(int &blockId,
   z1 = z2-1;
 
   if (x3-x2-x1+x0 > 2)
-  { // balance asymetric blocks.
+  { // balance asymmetric blocks.
     x2 += 2;
     x1 += 2;
   }

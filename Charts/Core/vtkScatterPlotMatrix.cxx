@@ -776,7 +776,7 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
       this->Private->TimerCallbackInitialized = false;
       this->Animating = false;
 
-      // Make sure the active plot is redrawn completelly after the animation
+      // Make sure the active plot is redrawn completely after the animation
       this->Modified();
       this->ActivePlotValid = false;
       this->Update();

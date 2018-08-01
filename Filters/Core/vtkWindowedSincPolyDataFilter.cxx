@@ -202,7 +202,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
         {
           Verts[pts[j]].type = VTK_FIXED_VERTEX;
         }
-        // Inbetween point
+        // In between point
         else //is edge vertex (unless already edge vertex!)
         {
           Verts[pts[j]].type = VTK_FEATURE_EDGE_VERTEX;

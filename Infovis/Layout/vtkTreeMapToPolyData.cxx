@@ -105,9 +105,9 @@ int vtkTreeMapToPolyData::RequestData(
     outputPoints->SetPoint(index+2, coords[1], coords[3], z);
     outputPoints->SetPoint(index+3, coords[0], coords[3], z);
 
-    // Create an asymetric gradient on the cells
+    // Create an asymmetric gradient on the cells
     // this gradient helps differentiate same colored
-    // cells from their neighbors. The asymetric
+    // cells from their neighbors. The asymmetric
     // nature of the gradient is required.
     normals->SetComponent(index,   0, 0);
     normals->SetComponent(index,   1, .707);
