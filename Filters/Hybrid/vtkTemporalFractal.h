@@ -123,8 +123,8 @@ public:
    * Test the case when the blocks do not have the same sizes.
    * Adds 2 to the x extent of the far x blocks (level 1).
    */
-  vtkSetMacro(Asymetric,int);
-  vtkGetMacro(Asymetric,int);
+  vtkSetMacro(Asymmetric,int);
+  vtkGetMacro(Asymmetric,int);
   //@}
 
   //@{
@@ -234,7 +234,7 @@ protected:
 
   void InternalImageDataCopy(vtkTemporalFractal *src);
 
-  int Asymetric;
+  int Asymmetric;
   int MaximumLevel;
   int Dimensions;
   float FractalValue;
