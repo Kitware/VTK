@@ -867,9 +867,9 @@ void vtkOpenGLState::vtkglClear(GLbitfield val)
 // initialize all state values. This is important so that in
 // ::Initialize we can just set the state to the current
 // values (knowing that they are set). The reason we want
-// Initilize to set to the current values is to reduce
+// Initialize to set to the current values is to reduce
 // OpenGL churn in cases where application call Initialize
-// often whithout really changing many of the values. For example
+// often without really changing many of the values. For example
 //
 // viewport(0,0,100,100);
 // Initialize(0,0,1,1); // using hardcoded initialization

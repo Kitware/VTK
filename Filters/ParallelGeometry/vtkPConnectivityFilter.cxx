@@ -211,7 +211,7 @@ struct AssemblePointsAndRegionIdsWorker : public WorkerBase
     this->RegionStarts = &regionStarts;
     this->LocalResult = localResult;
 
-    // Ouptut
+    // Output
     this->PointsForMyNeighbors = &pointsForMyNeighbors;
     this->RegionIdsForMyNeighbors = &regionIdsForMyNeighbors;
 

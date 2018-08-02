@@ -141,7 +141,7 @@ vtkTemporalFractal::vtkTemporalFractal()
 
   this->Levels = vtkIntArray::New();
   this->TwoDimensional = 1;
-  this->Asymetric = 1;
+  this->Asymmetric = 1;
 
   this->TopLevelSpacing[0] = 1.0;
   this->TopLevelSpacing[1] = 1.0;
@@ -622,7 +622,7 @@ int vtkTemporalFractal
   int ext[6];
   ext[0] = ext[2] = ext[4] = 0;
   ext[1] = ext[3] = ext[5] = this->Dimensions - 1;
-  if (this->Asymetric)
+  if (this->Asymmetric)
   { // The changes to an extra 2 in the next level.
     ext[1] += 1;
   }
@@ -882,7 +882,7 @@ void vtkTemporalFractal::Traverse(int &blockId,
   z1 = z2-1;
 
   if (x3-x2-x1+x0 > 2)
-  { // balance asymetric blocks.
+  { // balance asymmetric blocks.
     x2 += 2;
     x1 += 2;
   }
@@ -1618,7 +1618,7 @@ void vtkTemporalFractal::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FractalValue: " << this->FractalValue << endl;
   os << indent << "MaximumLevel: " << this->MaximumLevel << endl;
   os << indent << "GhostLevels: " << this->GhostLevels << endl;
-  os << indent << "Asymetric: " << this->Asymetric << endl;
+  os << indent << "Asymmetric: " << this->Asymmetric << endl;
   os << indent << "GenerateRectilinearGrids: "
      << (this->GenerateRectilinearGrids ? "True" : "False") << endl;
 }

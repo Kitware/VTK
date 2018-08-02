@@ -1068,7 +1068,7 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(
   // which pass are we processing ?
   int currPass = sel->GetCurrentPass();
 
-  // get some common usefull values
+  // get some common useful values
   bool pointPicking =
     sel->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS;
   vtkPointData *pd = poly->GetPointData();

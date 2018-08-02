@@ -1147,7 +1147,7 @@ int vtkParallelopipedRepresentation
       this->HandleRepresentations[this->CurrentHandleIdx]
                                  ->GetWorldPosition(handleWorldPos);
 
-      // The new handle poistion, will lie on a plane that passes through the
+      // The new handle position, will lie on a plane that passes through the
       // current world position and is parallel to the focal plane.
       // To compute this, we will use the help of the focal plane point placer,
       // and supply it with the offset of the handle's distance from the
