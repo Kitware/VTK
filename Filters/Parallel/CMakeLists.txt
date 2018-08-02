@@ -10,6 +10,7 @@ set(Module_SRCS
   vtkExtractPolyDataPiece.cxx
   vtkExtractUnstructuredGridPiece.cxx
   vtkExtractUserDefinedPiece.cxx
+  vtkIntegrateAttributes.cxx
   vtkPassThroughFilter.cxx
   vtkPCellDataToPointData.cxx
   vtkPeriodicFilter.cxx
