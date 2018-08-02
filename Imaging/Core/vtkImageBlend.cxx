@@ -760,7 +760,7 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
           r = opacity * (static_cast<double>(inPtr[1]) - minA);
           if (r > threshold)
           {
-            tmpPtr[0] = static_cast<double>(*inPtr) * r;
+            tmpPtr[0] += static_cast<double>(*inPtr) * r;
             tmpPtr[1] += r;
           }
           tmpPtr += 2;
@@ -773,7 +773,7 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
       {
         while (tmpPtr != tmpSpanEndPtr)
         {
-          tmpPtr[0] = static_cast<double>(*inPtr) * r;
+          tmpPtr[0] += static_cast<double>(*inPtr) * r;
           tmpPtr[1] += r;
           tmpPtr += 2;
           inPtr++;
