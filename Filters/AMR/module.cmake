@@ -5,7 +5,6 @@ vtk_module(vtkFiltersAMR
     vtkImagingCore
     vtkIOAMR
     vtkTestingCore
-    vtkTestingRendering
   KIT
     vtkParallel
   DEPENDS
