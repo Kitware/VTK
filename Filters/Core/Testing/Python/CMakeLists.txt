@@ -20,6 +20,7 @@ vtk_add_test_python(
   TestDecimatePolylineMaximumError.py
   TestElevationFilter.py
   TestFlyingEdges2D.py
+  TestFlyingEdges2D2.py
   TestFlyingEdges3D.py
   TestFlyingEdges3DWithInterpolation.py
   TestFlyingEdgesExtents.py
