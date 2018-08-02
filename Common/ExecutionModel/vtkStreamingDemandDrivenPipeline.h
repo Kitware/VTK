@@ -37,6 +37,7 @@ class vtkInformationDoubleVectorKey;
 class vtkInformationIdTypeKey;
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
+class vtkInformationIterator;
 class vtkInformationObjectBaseKey;
 class vtkInformationStringKey;
 class vtkInformationStringKey;
@@ -318,6 +319,9 @@ protected:
   int ContinueExecuting;
 
   vtkInformation *UpdateExtentRequest;
+  vtkInformation *UpdateTimeRequest;
+  vtkInformation *TimeDependentInformationRequest;
+  vtkInformationIterator *InformationIterator;
 
   // did the most recent PUE do anything ?
   int LastPropogateUpdateExtentShortCircuited;
