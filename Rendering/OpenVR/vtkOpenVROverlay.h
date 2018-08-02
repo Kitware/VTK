@@ -24,6 +24,7 @@
 #include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkObject.h"
 #include <openvr.h> // for ivars
+#include <map> // ivars
 #include <vector> // ivars
 #include "vtkNew.h" // for ivars
 #include "vtkWeakPointer.h" // for ivars
@@ -104,7 +105,7 @@ public:
     return this->DashboardImageFileName; }
   //@}
 
-  vtkOpenVRCameraPose *GetSavedCameraPose(size_t i);
+  vtkOpenVRCameraPose *GetSavedCameraPose(int i);
   virtual void WriteCameraPoses(ostream& os);
   virtual void WriteCameraPoses();
   virtual void ReadCameraPoses();
@@ -113,7 +114,7 @@ public:
   virtual void SaveCameraPose(int num);
   virtual void LoadCameraPose(int num);
   virtual void LoadNextCameraPose();
-  virtual std::vector<vtkOpenVRCameraPose> &GetSavedCameraPoses() {
+  virtual std::map<int, vtkOpenVRCameraPose> &GetSavedCameraPoses() {
     return this->SavedCameraPoses; }
 
   // not used for dashboard overlays
@@ -142,7 +143,7 @@ protected:
 
   std::string SessionName;
   std::string DashboardImageFileName;
-  std::vector<vtkOpenVRCameraPose> SavedCameraPoses;
+  std::map<int,vtkOpenVRCameraPose> SavedCameraPoses;
 
   vtkWeakPointer<vtkOpenVRRenderWindow> Window;
   int LastCameraPoseIndex;
