@@ -152,7 +152,7 @@ public:
    * position enum, valid values are vtkAxis::LEFT, vtkAxis::BOTTOM,
    * vtkAxis::RIGHT and vtkAxis::TOP.
    */
-  virtual void SetAxis(int axisIndex, vtkAxis*);
+  virtual void SetAxis(int axisIndex, vtkAxis*) override;
 
   /**
    * Set whether the chart should draw a legend.
