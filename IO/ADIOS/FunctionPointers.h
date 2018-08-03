@@ -111,7 +111,7 @@ public:
 
   virtual ~MemberFunction3Args() { }
 
-  virtual TReturn operator() ()
+  TReturn operator() () override
   {
     return (this->Instance->*this->FunctionPtr)
       (this->Arg1, this->Arg2, this->Arg3);

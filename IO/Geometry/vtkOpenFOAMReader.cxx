@@ -4463,6 +4463,9 @@ vtkOpenFOAMReaderPrivate::vtkOpenFOAMReaderPrivate()
   this->AdditionalCellIds = nullptr;
   this->NumAdditionalCells = nullptr;
   this->AdditionalCellPoints = nullptr;
+
+  this->NumTotalAdditionalCells = 0;
+  this->Parent = nullptr;
 }
 
 vtkOpenFOAMReaderPrivate::~vtkOpenFOAMReaderPrivate()
