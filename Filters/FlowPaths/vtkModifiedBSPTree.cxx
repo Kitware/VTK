@@ -1066,10 +1066,7 @@ vtkIdListCollection *vtkModifiedBSPTree::GetLeafNodeCellInformation()
     ns.pop();
     if (node->mChild[0])
     { // this must be a parent node
-      if (node->mChild[0])
-      {
-        ns.push(node->mChild[0]);
-      }
+      ns.push(node->mChild[0]);
       if (node->mChild[1])
       {
         ns.push(node->mChild[1]);

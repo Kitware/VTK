@@ -352,9 +352,9 @@ bool vtkLargeInteger::IsGreater(const vtkLargeInteger& n) const
 
 bool vtkLargeInteger::operator<(const vtkLargeInteger& n) const
 {
-    if (this->Negative & !n.Negative) // try to make judgement using signs
+    if (this->Negative && !n.Negative) // try to make judgement using signs
         return true;
-    else if ((!this->Negative) & n.Negative)
+    else if ((!this->Negative) && n.Negative)
         return false;
     else if (this->Negative)
         return !this->IsSmaller(n);
