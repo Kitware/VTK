@@ -146,6 +146,11 @@ vtkAxis* vtkChart::GetAxis(int)
 }
 
 //-----------------------------------------------------------------------------
+void vtkChart::SetAxis(int, vtkAxis*)
+{
+}
+
+//-----------------------------------------------------------------------------
 vtkIdType vtkChart::GetNumberOfAxes()
 {
   return 0;

@@ -148,6 +148,13 @@ public:
   vtkAxis* GetAxis(int axisIndex) override;
 
   /**
+   * Set the axis specified by axisIndex. This is specified with the vtkAxis
+   * position enum, valid values are vtkAxis::LEFT, vtkAxis::BOTTOM,
+   * vtkAxis::RIGHT and vtkAxis::TOP.
+   */
+  virtual void SetAxis(int axisIndex, vtkAxis*) override;
+
+  /**
    * Set whether the chart should draw a legend.
    */
   void SetShowLegend(bool visible) override;
