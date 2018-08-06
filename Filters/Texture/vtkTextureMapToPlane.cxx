@@ -100,10 +100,7 @@ int vtkTextureMapToPlane::RequestData(
         this->Origin[2] == 0.0 && this->Point1[0] == 0.0 &&
         this->Point1[1] == 0.0 && this->Point1[2] == 0.0) )
   {
-    if ( this->AutomaticPlaneGeneration )
-    {
-      this->ComputeNormal(output);
-    }
+    this->ComputeNormal(output);
 
     vtkMath::Normalize (this->Normal);
 

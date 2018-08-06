@@ -14,22 +14,22 @@ SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
         interactive = 1;
         continue;
         }
-      if (strcmp(av[ii], \"-V\") == 0 && ii < ac-1)
+      if (ii < ac-1 && strcmp(av[ii], \"-V\") == 0)
         {
         vtkTestingInteractor::ValidBaseline = std::string(av[++ii]);
         continue;
         }
-      if (strcmp(av[ii], \"-T\") == 0 && ii < ac-1)
+      if (ii < ac-1 && strcmp(av[ii], \"-T\") == 0)
         {
         vtkTestingInteractor::TempDirectory = std::string(av[++ii]);
         continue;
         }
-      if (strcmp(av[ii], \"-D\") == 0 && ii < ac-1)
+      if (ii < ac-1 && strcmp(av[ii], \"-D\") == 0)
         {
         vtkTestingInteractor::DataDirectory = std::string(av[++ii]);
         continue;
         }
-      if (strcmp(av[ii], \"-E\") == 0 && ii < ac-1)
+      if (ii < ac-1 && strcmp(av[ii], \"-E\") == 0)
         {
         vtkTestingInteractor::ErrorThreshold =
             static_cast<double>(atof(av[++ii]));

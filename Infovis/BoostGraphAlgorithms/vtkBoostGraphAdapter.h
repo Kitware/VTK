@@ -188,7 +188,7 @@ namespace boost {
   {
     public:
       explicit vtk_edge_iterator(vtkGraph *g = 0, vtkIdType v = 0) :
-        directed(false), vertex(v), lastVertex(v), iter(0), end(0), graph(g)
+        directed(false), vertex(v), lastVertex(v), iter(nullptr), end(nullptr), graph(g)
       {
         if (graph)
         {
@@ -219,20 +219,23 @@ namespace boost {
             // edges
             vtkIdType nedges;
             graph->GetOutEdges(vertex, iter, nedges);
-            end = iter + nedges;
-
-            if (!directed)
+            if (iter)
             {
-              while(iter != 0
-                    && (// Skip non-local edges
-                        (helper && helper->GetEdgeOwner(iter->Id) != myRank)
-                        // Skip entirely-local edges where Source > Target
-                        || (((helper
-                              && myRank == helper->GetVertexOwner(iter->Target))
-                             || !helper)
-                            && vertex > iter->Target)))
+              end = iter + nedges;
+
+              if (!directed)
               {
-                this->inc();
+                while(iter != 0
+                      && (// Skip non-local edges
+                          (helper && helper->GetEdgeOwner(iter->Id) != myRank)
+                          // Skip entirely-local edges where Source > Target
+                          || (((helper
+                                && myRank == helper->GetVertexOwner(iter->Target))
+                               || !helper)
+                              && vertex > iter->Target)))
+                {
+                  this->inc();
+                }
               }
             }
           }

@@ -170,6 +170,13 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
   typedef std::vector<vtkTransformFeedback::VaryingMetaData> VarVector;
   const VarVector &vars = tfc->GetVaryings();
   unsigned char *data = static_cast<unsigned char *>(tfc->GetBufferData());
+
+  if (!data)
+  {
+    vtkErrorMacro("TransformFeedback buffer is nullptr.");
+    return;
+  }
+
   unsigned char *dataEnd = data + tfc->GetBufferSize();
   size_t vertexSize = tfc->GetBytesPerVertex();
   (void)vertexSize; // Only used in asserts
@@ -180,11 +187,6 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
   float pointSize = this->PointSize * this->PointSizeFactor;
   float lineWidth = this->LineWidth * this->LineWidthFactor;
 
-  if (!data)
-  {
-    vtkErrorMacro("TransformFeedback buffer is nullptr.");
-    return;
-  }
 
   // Info to transform clip --> display coords
   double renVp[4];

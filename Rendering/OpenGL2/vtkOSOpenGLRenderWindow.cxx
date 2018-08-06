@@ -173,9 +173,9 @@ void vtkOSOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
     this->Internal->OffScreenWindow = vtkOSMesaCreateWindow(width,height);
     this->OwnWindow = 1;
   }
+#if (OSMESA_MAJOR_VERSION * 100 + OSMESA_MINOR_VERSION >= 1102) && defined(OSMESA_CONTEXT_MAJOR_VERSION)
   if (!this->Internal->OffScreenContextId)
   {
-#if (OSMESA_MAJOR_VERSION * 100 + OSMESA_MINOR_VERSION >= 1102) && defined(OSMESA_CONTEXT_MAJOR_VERSION)
     static const int attribs[] = {
        OSMESA_FORMAT, OSMESA_RGBA,
        OSMESA_DEPTH_BITS, 32,
@@ -194,12 +194,12 @@ void vtkOSOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
     {
       this->Internal->OffScreenContextId = OSMesaCreateContextAttribs(attribs, nullptr);
     }
+  }
 #endif
-    // if we still have no context fall back to the generic signature
-    if (!this->Internal->OffScreenContextId)
-    {
-      this->Internal->OffScreenContextId = OSMesaCreateContext(GL_RGBA, nullptr);
-    }
+  // if we still have no context fall back to the generic signature
+  if (!this->Internal->OffScreenContextId)
+  {
+    this->Internal->OffScreenContextId = OSMesaCreateContext(GL_RGBA, nullptr);
   }
   this->MakeCurrent();
 
