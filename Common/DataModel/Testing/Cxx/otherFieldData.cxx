@@ -43,9 +43,8 @@ int otherFieldData(int,char *[])
   // Coverage
   vtkFieldData::Iterator it(fd);
   vtkFieldData::Iterator it2(it);
-
-  it = it;
-  it2 = it;
+  (void)it;
+  (void)it2;
 
   fd->Allocate(20);
   fd->CopyFieldOff("Array0");
