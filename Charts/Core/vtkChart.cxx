@@ -419,6 +419,8 @@ int vtkChart::GetClickActionToButton(int action)
   {
     return this->ActionsClick[1];
   }
+
+  return -1;
 }
 
 //-----------------------------------------------------------------------------
