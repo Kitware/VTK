@@ -45,7 +45,7 @@
  * points repeated.
  *
  * The output of this filter are sorted points and associated point
- * attributes represented by a vtkPolyData. In addition, an offest integral
+ * attributes represented by a vtkPolyData. In addition, an offset integral
  * array is associated with the field data of the output, providing offsets
  * into the points list via a breadth-first traversal order. Metadata
  * describing the output is provided in the field data. Convenience functions

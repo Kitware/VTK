@@ -19,7 +19,7 @@
  *
  * vtkShepardKernel is an interpolation kernel that uses the method of
  * Shepard to perform interpolation. The weights are computed as 1/r^p, where
- * r is the distance to a neighbor point within the kernal radius R; and p
+ * r is the distance to a neighbor point within the kernel radius R; and p
  * (the power parameter) is a positive exponent (typically p=2).
  *
  * @warning

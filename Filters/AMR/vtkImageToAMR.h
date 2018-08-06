@@ -55,7 +55,7 @@ public:
 
   //@{
   /**
-   * Set the maximun number of blocks in the output
+   * Set the maximum number of blocks in the output
    */
   vtkSetClampMacro(MaximumNumberOfBlocks, int, 1, VTK_INT_MAX);
   vtkGetMacro(MaximumNumberOfBlocks, int);

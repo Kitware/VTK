@@ -17,7 +17,7 @@
  * @brief   Convolution of an image with a kernel.
  *
  * vtkImageConvolve convolves the image with a 3D NxNxN kernel or a
- * 2D NxN kernal.  The output image is cropped to the same size as
+ * 2D NxN kernel.  The output image is cropped to the same size as
  * the input.
 */
 
