@@ -202,5 +202,17 @@ template VTKACCELERATORSVTKM_EXPORT
     vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagTBB,
       vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
 #endif
+
+#ifdef VTKM_ENABLE_OPENMP
+template VTKACCELERATORSVTKM_EXPORT
+  vtkm::exec::ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagOpenMP>
+    vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagOpenMP,
+      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
+
+template VTKACCELERATORSVTKM_EXPORT
+  vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagOpenMP>
+    vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagOpenMP,
+      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
+#endif
 }
 }

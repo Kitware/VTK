@@ -7,10 +7,19 @@ set(vtk_using_tbb OFF)
 if (VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "TBB")
   set(vtk_using_tbb ON)
 endif()
-
 if(NOT VTKm_ENABLE_TBB)
   set(VTKm_ENABLE_TBB ${vtk_using_tbb} CACHE BOOL "Set to match VTK" FORCE)
 endif()
+
+set(vtk_using_openmp OFF)
+if (VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "OpenMP")
+  set(vtk_using_openmp ON)
+endif()
+if(NOT VTKm_ENABLE_OPENMP)
+  set(VTKm_ENABLE_OPENMP ${vtk_using_openmp} CACHE BOOL "Set to match VTK" FORCE)
+  message(STATUS "enabled OpenMP")
+endif()
+
 
 # VTK only hides symbols for shared libraries (see
 # vtkModuleMacros::vtk_module_library), and uses default visiblity for static

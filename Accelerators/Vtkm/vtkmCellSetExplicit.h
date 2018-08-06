@@ -225,6 +225,18 @@ extern template VTKACCELERATORSVTKM_TEMPLATE_EXPORT
       vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
 #endif
 
+#ifdef VTKM_ENABLE_OPENMP
+extern template VTKACCELERATORSVTKM_TEMPLATE_EXPORT
+  vtkm::exec::ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagOpenMP>
+    vtkmCellSetExplicitAOS::PrepareForInput(vtkm::cont::DeviceAdapterTagOpenMP,
+      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
+
+extern template VTKACCELERATORSVTKM_TEMPLATE_EXPORT
+  vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagOpenMP>
+    vtkmCellSetExplicitAOS::PrepareForInput(vtkm::cont::DeviceAdapterTagOpenMP,
+      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
+#endif
+
 #if defined(VTKM_ENABLE_CUDA) && defined(VTKM_CUDA)
 extern template VTKACCELERATORSVTKM_TEMPLATE_EXPORT
   vtkm::exec::ConnectivityVTKAOS<vtkm::cont::DeviceAdapterTagCuda>
