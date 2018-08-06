@@ -229,8 +229,9 @@ void QVTKOpenGLWindow::MakeCurrent()
   //
   // The end result is that MakeCurrent shoudl not rely on
   // Qt's version of isCurrent to short circuit as it cannot be trusted.
+  // We rely on vtkRenderWindow::IsCurrent instead.
   //
-  if (!this->context())
+  if (!this->context() || this->RenderWindow->IsCurrent())
   {
     return;
   }

@@ -25,8 +25,20 @@
 #include "vtkTesting.h"
 
 #include <QApplication>
+#include <QEventLoop>
 #include <QImage>
 #include <QSurfaceFormat>
+#include <QTimer>
+
+void WaitQtEventLoop(int msec)
+{
+  QTimer timer;
+  timer.setSingleShot(true);
+  QEventLoop loop;
+  QObject::connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
+  timer.start(msec);
+  loop.exec();
+}
 
 int TestQVTKOpenGLSimpleWidgetWithDisabledInteractor(int argc, char* argv[])
 {
@@ -70,7 +82,11 @@ int TestQVTKOpenGLSimpleWidgetWithDisabledInteractor(int argc, char* argv[])
 
   // Resize widget to trigger recreating FBO
   widget.resize(150, 150);
-  app.processEvents();
+
+  // Due to the asynchronous implementation
+  // of events in qt, wait a while to make
+  // sure the resize is taken into account.
+  WaitQtEventLoop(200);
 
   // Get output image filename
   const std::string tempDir(vtktesting->GetTempDirectory());

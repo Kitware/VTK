@@ -36,6 +36,51 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLState.h"
 
+#ifdef __APPLE__
+#include "QVTKOpenGLWidget.h"
+#include <QTimer>
+
+/**
+ * Unused except on MacOS.
+ * In an application using both QVTKOpenGLWidget
+ * and QVTKOpenGLSimpleWidget, this bug can appear:
+ * https://bugreports.qt.io/browse/QTBUG-69644
+ */
+namespace
+{
+  /**
+   * It is needed to switch the visibility of currently visible QVTKOpenGLWidget
+   * back and forth (ie hide then show). Just after initialization of QVTKOpenGLSimpleWidget
+   * (ie when we receive WindowActivate event, or PolishRequest event)
+   * This method takes care of it.
+   */
+  void QVTKOpenGLWidgetMacOSCheck(QWidget* window)
+  {
+    // Used a static to ensure the fix is done only once
+    static bool QVTKOpenGLWidgetMacOSFixed = false;
+
+    if (QVTKOpenGLWidgetMacOSFixed || !window)
+    {
+      return;
+    }
+
+    // Switch visibility back and forth of visible QVTKOpenGLWidgets
+    // that share the same window as this QVTKOpenGLSimpleWidget.
+    // This ensures they come back on the front after the Qt bug happens.
+    auto widgets = window->findChildren<QVTKOpenGLWidget*>();
+    for (auto qvglWidget : widgets)
+    {
+      if (qvglWidget->isVisible())
+      {
+        qvglWidget->hide();
+        qvglWidget->show();
+        QVTKOpenGLWidgetMacOSFixed = true;
+      }
+    }
+  }
+}
+#endif // __APPLE__
+
 // #define DEBUG_QVTKOPENGL_WIDGET
 #ifdef DEBUG_QVTKOPENGL_WIDGET
 #define vtkQVTKOpenGLSimpleWidgetDebugMacro(msg)                                                         \
@@ -112,7 +157,7 @@ protected:
 //-----------------------------------------------------------------------------
 QVTKOpenGLSimpleWidget::QVTKOpenGLSimpleWidget(QWidget* parentWdg, Qt::WindowFlags f)
   : Superclass(parentWdg, f)
-  , InteractorAdaptor(nullptr)
+  , InteractorAdapter(nullptr)
   , EnableHiDPI(false)
   , OriginalDPI(0)
   , FBO(nullptr)
@@ -127,8 +172,8 @@ QVTKOpenGLSimpleWidget::QVTKOpenGLSimpleWidget(QWidget* parentWdg, Qt::WindowFla
 
   this->setUpdateBehavior(QOpenGLWidget::PartialUpdate);
 
-  this->InteractorAdaptor = new QVTKInteractorAdapter(this);
-  this->InteractorAdaptor->SetDevicePixelRatio(this->devicePixelRatio());
+  this->InteractorAdapter = new QVTKInteractorAdapter(this);
+  this->InteractorAdapter->SetDevicePixelRatio(this->devicePixelRatio());
 
   this->setMouseTracking(true);
 
@@ -146,7 +191,7 @@ QVTKOpenGLSimpleWidget::~QVTKOpenGLSimpleWidget()
   this->cleanupContext();
   this->SetRenderWindow(static_cast<vtkGenericOpenGLRenderWindow*>(nullptr));
   this->Observer->SetTarget(nullptr);
-  delete this->InteractorAdaptor;
+  delete this->InteractorAdapter;
   delete this->Logger;
 }
 
@@ -313,6 +358,12 @@ void QVTKOpenGLSimpleWidget::setEnableHiDPI(bool enable)
 }
 
 //-----------------------------------------------------------------------------
+void QVTKOpenGLSimpleWidget::setQVTKCursor(const QCursor &cursor)
+{
+  this->setCursor(cursor);
+}
+
+//-----------------------------------------------------------------------------
 void QVTKOpenGLSimpleWidget::recreateFBO()
 {
   vtkQVTKOpenGLSimpleWidgetDebugMacro("recreateFBO");
@@ -344,7 +395,7 @@ void QVTKOpenGLSimpleWidget::recreateFBO()
 
   // This is as good an opportunity as any to communicate size to the render
   // window.
-  this->InteractorAdaptor->SetDevicePixelRatio(devicePixelRatio_);
+  this->InteractorAdapter->SetDevicePixelRatio(devicePixelRatio_);
   if (vtkRenderWindowInteractor* iren = this->RenderWindow->GetInteractor())
   {
     iren->SetSize(deviceSize.width(), deviceSize.height());
@@ -373,6 +424,7 @@ void QVTKOpenGLSimpleWidget::recreateFBO()
   // have to keep vtk state up to date as well
   ostate->vtkglDisable(GL_SCISSOR_TEST);
   ostate->vtkglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  ostate->vtkglViewport(0, 0, deviceSize.width(), deviceSize.height());
   f->glDisable(GL_SCISSOR_TEST);
   f->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   f->glClear(GL_COLOR_BUFFER_BIT);
@@ -611,7 +663,7 @@ bool QVTKOpenGLSimpleWidget::event(QEvent* evt)
     case QEvent::MouseButtonRelease:
     case QEvent::MouseButtonDblClick:
       // skip events that are explicitly handled by overrides to avoid duplicate
-      // calls to InteractorAdaptor->ProcessEvent().
+      // calls to InteractorAdapter->ProcessEvent().
       break;
 
     case QEvent::Resize:
@@ -619,10 +671,25 @@ bool QVTKOpenGLSimpleWidget::event(QEvent* evt)
       // in this->recreateFBO().
       break;
 
+#ifdef __APPLE__
+    // On MacOS, because of https://bugreports.qt.io/browse/QTBUG-69644
+    // It is needed to hide/show currently visible QVTKOpenGLWidget
+    // Just after initialization of QVTKOpenGLSimpleWidget
+    // This triggers a timer so as soon as Qt is able to process events,
+    // it will fix the broken QVTKOpenGLWidgets.
+    case QEvent::WindowActivate:
+    case QEvent::PolishRequest:
+    {
+      QWidget* window = this->window();
+      QTimer::singleShot(1, [window]() {::QVTKOpenGLWidgetMacOSCheck(window);});
+    }
+    break;
+#endif // __APPLE__
+
     default:
       if (this->RenderWindow && this->RenderWindow->GetInteractor())
       {
-        this->InteractorAdaptor->ProcessEvent(evt, this->RenderWindow->GetInteractor());
+        this->InteractorAdapter->ProcessEvent(evt, this->RenderWindow->GetInteractor());
       }
   }
   return this->Superclass::event(evt);
@@ -635,7 +702,7 @@ void QVTKOpenGLSimpleWidget::mousePressEvent(QMouseEvent* event)
 
   if (this->RenderWindow && this->RenderWindow->GetInteractor())
   {
-    this->InteractorAdaptor->ProcessEvent(event,
+    this->InteractorAdapter->ProcessEvent(event,
                                           this->RenderWindow->GetInteractor());
   }
 }
@@ -647,7 +714,7 @@ void QVTKOpenGLSimpleWidget::mouseMoveEvent(QMouseEvent* event)
 
   if (this->RenderWindow && this->RenderWindow->GetInteractor())
   {
-    this->InteractorAdaptor->ProcessEvent(event,
+    this->InteractorAdapter->ProcessEvent(event,
                                           this->RenderWindow->GetInteractor());
   }
 }
@@ -659,7 +726,7 @@ void QVTKOpenGLSimpleWidget::mouseReleaseEvent(QMouseEvent* event)
 
   if (this->RenderWindow && this->RenderWindow->GetInteractor())
   {
-    this->InteractorAdaptor->ProcessEvent(event,
+    this->InteractorAdapter->ProcessEvent(event,
                                           this->RenderWindow->GetInteractor());
   }
 }
@@ -671,7 +738,7 @@ void QVTKOpenGLSimpleWidget::mouseDoubleClickEvent(QMouseEvent* event)
 
   if (this->RenderWindow && this->RenderWindow->GetInteractor())
   {
-    this->InteractorAdaptor->ProcessEvent(event,
+    this->InteractorAdapter->ProcessEvent(event,
                                           this->RenderWindow->GetInteractor());
   }
 }

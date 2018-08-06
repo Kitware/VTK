@@ -141,6 +141,11 @@ public:
   //@}
 
   /**
+   * Get the QEvent to VTK events translator.
+   */
+  virtual QVTKInteractorAdapter* GetInteractorAdapter() { return this->InteractorAdapter; }
+
+  /**
    * Get the QVTKInteractor that was either created by default or set by the user.
    */
   virtual QVTKInteractor* GetInteractor();
@@ -166,6 +171,12 @@ public:
    * Enable or disable support for HiDPI displays.
    */
   virtual void setEnableHiDPI(bool enable);
+  virtual bool enableHiDPI() { return this->EnableHiDPI; }
+
+  /**
+   * Set the cursor on this widget.
+   */
+  void setQVTKCursor(const QCursor &cursor);
 
 signals:
   /**
@@ -236,7 +247,7 @@ protected:
 
 protected:
   vtkSmartPointer<vtkGenericOpenGLRenderWindow> RenderWindow;
-  QVTKInteractorAdapter* InteractorAdaptor;
+  QVTKInteractorAdapter* InteractorAdapter;
 
   bool EnableHiDPI;
   int OriginalDPI;
