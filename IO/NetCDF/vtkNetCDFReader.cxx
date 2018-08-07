@@ -45,6 +45,7 @@
 #include <algorithm>
 #include <map>
 #include <set>
+#include <sstream>
 #include <string>
 
 #include <vtksys/SystemTools.hxx>
@@ -451,6 +452,33 @@ int vtkNetCDFReader::RequestData(vtkInformation *vtkNotUsed(request),
     const char *name = this->VariableArraySelection->GetArrayName(arrayIndex);
 
     if (!this->LoadVariable(ncFD, name, time, output)) return 0;
+  }
+
+  // Add time units and time calendar as field arrays
+  if (this->TimeUnits)
+  {
+    vtkNew<vtkStringArray> arr;
+    arr->SetName("time_units");
+    arr->InsertNextValue(this->TimeUnits);
+    output->GetFieldData()->AddArray(arr);
+  }
+  if (this->Calendar)
+  {
+    vtkNew<vtkStringArray> arr;
+    arr->SetName("time_calendar");
+    arr->InsertNextValue(this->Calendar);
+    output->GetFieldData()->AddArray(arr);
+  }
+
+  // Add data array units as field arrays
+  for (auto pair : this->Private->ArrayUnits)
+  {
+    vtkNew<vtkStringArray> arr;
+    std::stringstream ss;
+    ss << pair.first << "_units";
+    arr->SetName(ss.str().c_str());
+    arr->InsertNextValue(pair.second);
+    output->GetFieldData()->AddArray(arr);
   }
 
   CALL_NETCDF(nc_close(ncFD));
