@@ -1512,7 +1512,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
   this->FBO->Bind(GL_FRAMEBUFFER);
   this->FBO->InitializeViewport(computeTexSize[0], computeTexSize[1]);
 
-  // initialize the buffer mananger. Textures are assigned
+  // initialize the buffer manager. Textures are assigned
   // and bound to individual units. These textures and units
   // are active and bound for the remainder of this execution.
   vtkLICPingPongBufferManager bufs(

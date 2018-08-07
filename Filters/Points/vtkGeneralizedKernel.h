@@ -51,7 +51,7 @@
  * @warning
  * Some kernels, like the Voronoi kernel, cannot be subclasses of this class
  * because their definition inherently defines the basis style. For example,
- * the Voronoi kernel is simply the single closest point. SPH kernals are
+ * the Voronoi kernel is simply the single closest point. SPH kernels are
  * similar, because they implicitly depend on a particle distribution
  * consistent with simulation constraints such as conservation of mass, etc.
  *

@@ -1767,7 +1767,7 @@ void vtkStaticPointLocator::BuildLocator()
     this->H[i] = (this->Bounds[2*i+1] - this->Bounds[2*i]) / static_cast<double>(ndivs[i]);
   }
 
-  // Instantiate the locator. The type is related to the maximun point id.
+  // Instantiate the locator. The type is related to the maximum point id.
   // This is done for performance (e.g., the sort is faster) and significant
   // memory savings.
   //

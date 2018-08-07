@@ -48,7 +48,7 @@ public:
   static bool StrictlySmaller(const int ext[6], const int wholeExt[6]);
 
   /**
-   * Returns if \c ext fits within \c wholeExt. Unline StrictlySmaller, this
+   * Returns if \c ext fits within \c wholeExt. Unlike StrictlySmaller, this
    * method returns true even if \c ext == \c wholeExt.
    */
   static bool Smaller(const int ext[6], const int wholeExt[6]);

@@ -1227,7 +1227,7 @@ void vtkExtractCTHPart::ExecuteCellDataToPointData(
 //  vtkIdType counter = 0;
 
   int index=0;
-  // Loop thorugh the cells.
+  // Loop through the cells.
   for (k = 0; k < kEnd; ++k)
   {
     for (j = 0; j < jEnd; ++j)
