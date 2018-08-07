@@ -61,17 +61,31 @@ vtkLagrangeTriangle::~vtkLagrangeTriangle()
 //----------------------------------------------------------------------------
 vtkCell *vtkLagrangeTriangle::GetEdge(int edgeId)
 {
+  this->Edge->PointIds->Reset();
+  this->Edge->Points->Reset();
+
   vtkIdType order = this->GetOrder();
 
   vtkIdType bindex[3] = {0,0,0};
   bindex[(edgeId+2)%3] = order;
+
   for (vtkIdType i=0;i<=order;i++)
-    {
-    this->EdgeIds[i] = this->PointIds->GetId(this->ToIndex(bindex));
+  {
+    vtkIdType triangleIndex = this->ToIndex(bindex);
+
+    // The ordering for points in vtkLagrangeCurve are: first point, then last
+    // point, and then the remaining points in sequence. This loop iterates over
+    // the edge in sequence starting with the first point. The following value
+    // maps from this iteration loop to the edge's ordering.
+    vtkIdType edgeIndex = (i == 0 ? 0 : (i == order ? 1 : i + 1));
+
+    this->Edge->GetPointIds()->InsertId(edgeIndex, this->PointIds->GetId(triangleIndex));
+    this->Edge->GetPoints()->InsertPoint(edgeIndex, this->Points->GetPoint(triangleIndex));
+
     bindex[(edgeId+2)%3]--;
     bindex[edgeId]++;
-    }
-  this->Edge->vtkCell::Initialize(order + 1, this->EdgeIds, this->Points);
+  }
+
   return this->Edge;
 }
 
