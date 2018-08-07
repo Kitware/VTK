@@ -457,12 +457,23 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
     "    endPoint = NDCToTextureCoords * endPoint;\n"
     "    g_terminatePos = endPoint.xyz / endPoint.w;\n"
     "  }\n"
-    "\n"
+    "\n";
+
+  const std::string pathCheck =
     "  // Make sure that we're sampling consistently across boundaries:\n"
     "  g_dataPos = ClampToSampleLocation(rayOrigin, g_dirStep, g_dataPos, true /*ceil*/);\n"
     "\n"
+    "  // Ensure end is not located before start. This could be the case\n"
+    "  // if end lies outside of the volume's bounding box. In those cases\n"
+    "  // a transparent color is returned.\n"
+    "  vec3 rgrif = g_terminatePos.xyz - g_dataPos.xyz;\n"
+    "  if (dot(rgrif, g_dirStep) < 0)\n"
+    "  {\n"
+    "    return vec4(0.f);\n"
+    "  }\n"
+    "\n"
     "  // Compute the number of steps and reinitialize the step counter.\n"
-    "  g_terminatePointMax = length(g_terminatePos - g_dataPos) / length(g_dirStep);\n"
+    "  g_terminatePointMax = length(rgrif) / length(g_dirStep);\n"
     "  g_currentT = 0.0;\n"
     "  g_fragColor = vec4(0.0);\n"
     "  g_dataPos += g_rayJitter;\n"
@@ -575,16 +586,8 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
       vtkShaderProgram::Substitute(fragmentShader,
             "//VTK::DepthPeeling::Ray::Init", rayInit);
 
-      vtkShaderProgram::Substitute(fragmentShader, "//VTK::DepthPeeling::Ray::PathCheck",
-            "  // Ensure end is not located before start. This could be the case\n"
-            "  // if end lies outside of the volume's bounding box. In those cases\n"
-            "  // a transparent color is returned.\n"
-            "  vec3 rgrif = g_terminatePos.xyz - g_dataPos.xyz;\n"
-            "  if (dot(rgrif, g_dirStep) < 0)\n"
-            "  {\n"
-            "    return vec4(0.f);\n"
-            "  }\n"
-            );
+      vtkShaderProgram::Substitute(fragmentShader,
+            "//VTK::DepthPeeling::Ray::PathCheck", pathCheck);
 
       return true;
 
@@ -684,6 +687,9 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
       vtkShaderProgram::Substitute(fragmentShader,
             "//VTK::DepthPeeling::Ray::Init", rayInit);
 
+      vtkShaderProgram::Substitute(fragmentShader,
+            "//VTK::DepthPeeling::Ray::PathCheck", pathCheck);
+
       break;
 
     case vtkDualDepthPeelingPass::AlphaBlending:
@@ -714,6 +720,10 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
 
       vtkShaderProgram::Substitute(fragmentShader,
             "//VTK::DepthPeeling::Ray::Init", rayInit);
+
+      vtkShaderProgram::Substitute(fragmentShader,
+            "//VTK::DepthPeeling::Ray::PathCheck", pathCheck);
+
       break;
 
     default:
