@@ -435,7 +435,7 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
     "\n"
     "  // Initialize g_dataPos as if startPoint lies Inside (b.)\n"
     "  vec3 rayOrigin = ip_textureCoords;\n"
-    "  g_dataPos = startPoint.xyz;\n"
+    "  g_dataPos = startPoint.xyz + g_rayJitter;\n"
     "\n"
     "  bool isInsideBBox = !(any(greaterThan(g_dataPos, in_texMax[0])) ||\n"
     "                        any(lessThan(g_dataPos, in_texMin[0])));\n"
@@ -448,7 +448,7 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
     "      return vec4(0.0);\n"
     "    }\n"
     "    // startPoint lies in-front (a.)\n"
-    "    g_dataPos = rayOrigin;\n"
+    "    g_dataPos = rayOrigin + g_rayJitter;\n"
     "  }\n"
     "\n"
     "  // End point\n"
@@ -458,6 +458,9 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
     "    g_terminatePos = endPoint.xyz / endPoint.w;\n"
     "  }\n"
     "\n";
+
+  // Clipping (vtkVolumeShaderComposer::ClippingImplementation) goes between
+  // rayInit and pathCheck
 
   const std::string pathCheck =
     "  // Make sure that we're sampling consistently across boundaries:\n"
@@ -476,7 +479,6 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
     "  g_terminatePointMax = length(rgrif) / length(g_dirStep);\n"
     "  g_currentT = 0.0;\n"
     "  g_fragColor = vec4(0.0);\n"
-    "  g_dataPos += g_rayJitter;\n"
     "\n";
 
   switch (this->CurrentStage)
