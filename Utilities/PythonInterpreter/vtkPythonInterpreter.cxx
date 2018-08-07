@@ -128,13 +128,13 @@ char* vtk_Py_EncodeLocale(const wchar_t* arg, size_t* size)
 }
 #endif
 
-static std::vector<vtkWeakPointer<vtkPythonInterpreter> > GlobalInterpreters;
+static std::vector<vtkWeakPointer<vtkPythonInterpreter> > * GlobalInterpreters;
 static std::vector<std::string> PythonPaths;
 
 void NotifyInterpreters(unsigned long eventid, void* calldata = nullptr)
 {
   std::vector<vtkWeakPointer<vtkPythonInterpreter> >::iterator iter;
-  for (iter = GlobalInterpreters.begin(); iter != GlobalInterpreters.end(); ++iter)
+  for (iter = GlobalInterpreters->begin(); iter != GlobalInterpreters->end(); ++iter)
   {
     if (iter->GetPointer())
     {
@@ -167,6 +167,25 @@ inline void vtkSafePrependPythonPath(const std::string& pathtoadd)
 }
 }
 
+// Schwarz counter idiom for GlobalInterpreters object
+static unsigned int vtkPythonInterpretersCounter;
+vtkPythonGlobalInterpreters::vtkPythonGlobalInterpreters()
+{
+  if (vtkPythonInterpretersCounter++ == 0)
+  {
+    GlobalInterpreters = new std::vector<vtkWeakPointer<vtkPythonInterpreter> >();
+  };
+}
+
+vtkPythonGlobalInterpreters::~vtkPythonGlobalInterpreters()
+{
+  if (--vtkPythonInterpretersCounter == 0)
+  {
+    delete GlobalInterpreters;
+    GlobalInterpreters = nullptr;
+  }
+}
+
 bool vtkPythonInterpreter::InitializedOnce = false;
 bool vtkPythonInterpreter::CaptureStdin = false;
 bool vtkPythonInterpreter::ConsoleBuffering = false;
@@ -178,18 +197,27 @@ vtkStandardNewMacro(vtkPythonInterpreter);
 //----------------------------------------------------------------------------
 vtkPythonInterpreter::vtkPythonInterpreter()
 {
-  GlobalInterpreters.push_back(this);
+  GlobalInterpreters->push_back(this);
 }
 
 //----------------------------------------------------------------------------
 vtkPythonInterpreter::~vtkPythonInterpreter()
 {
+  // We need to check that GlobalInterpreters has not been deleted yet. It can be
+  // deleted prior to a call to this destructor if another static object with a
+  // reference to a vtkPythonInterpreter object deletes that object after
+  // GlobalInterpreters has been destructed. It all depends on the destruction order
+  // of the other static object and GlobalInterpreters.
+  if (!GlobalInterpreters)
+  {
+    return;
+  }
   std::vector<vtkWeakPointer<vtkPythonInterpreter> >::iterator iter;
-  for (iter = GlobalInterpreters.begin(); iter != GlobalInterpreters.end(); ++iter)
+  for (iter = GlobalInterpreters->begin(); iter != GlobalInterpreters->end(); ++iter)
   {
     if (*iter == this)
     {
-      GlobalInterpreters.erase(iter);
+      GlobalInterpreters->erase(iter);
       break;
     }
   }
