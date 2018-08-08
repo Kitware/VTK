@@ -196,4 +196,15 @@ private:
   static int PythonVerboseFlag;
 };
 
+// For tracking global interpreters
+class VTKPYTHONINTERPRETER_EXPORT vtkPythonGlobalInterpreters
+{
+public:
+  vtkPythonGlobalInterpreters();
+  ~vtkPythonGlobalInterpreters();
+};
+
+// This is here to implement the Schwarz counter idiom.
+static vtkPythonGlobalInterpreters vtkPythonInterpreters;
+
 #endif
