@@ -921,6 +921,7 @@ void vtkOpenGLPointGaussianMapper::Render(
   {
     vtkOpenGLState *ostate = static_cast<vtkOpenGLRenderer *>(ren)->GetState();
     vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
+    ostate->vtkglDepthMask( GL_FALSE );
     ostate->vtkglBlendFunc( GL_SRC_ALPHA, GL_ONE);  // additive for emissive sources
     this->RenderInternal(ren,actor);
   }
@@ -1016,7 +1017,7 @@ bool vtkOpenGLPointGaussianMapper::GetIsOpaque()
 {
   if (this->Emissive)
   {
-    return false;
+    return true;
   }
   return this->Superclass::GetIsOpaque();
 }
