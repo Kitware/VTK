@@ -509,7 +509,7 @@ protected:
   // mapper has identified a texture map as well.
   bool ForceTextureCoordinates;
 
-  void BuildCellTextures(
+  virtual void BuildCellTextures(
     vtkRenderer *ren,
     vtkActor *,
     vtkCellArray *prims[4],
