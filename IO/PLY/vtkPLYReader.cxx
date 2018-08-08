@@ -67,6 +67,8 @@ typedef struct _plyFace {
   unsigned char alpha;
   unsigned char nverts;   // number of vertex indices in list
   int *verts;             // vertex index list
+  unsigned char ntexcoord;   // number of texcoord in list
+  float *texcoord;             // texcoord list
 } plyFace;
 }
 
@@ -110,6 +112,9 @@ int vtkPLYReader::RequestData(
     { "green", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace, green)), 0, 0, 0, 0 },
     { "blue", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace, blue)), 0, 0, 0, 0 },
     { "alpha", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace, alpha)), 0, 0, 0, 0 },
+    { "texcoord", PLY_FLOAT, PLY_FLOAT,
+     static_cast<int>(offsetof(plyFace,texcoord)),
+     1, PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,ntexcoord))},
   };
 
   if (!this->FileName)
@@ -192,26 +197,40 @@ int vtkPLYReader::RequestData(
 
   bool RGBPointsAvailable = false;
   bool RGBPointsHaveAlpha = false;
-  vtkSmartPointer<vtkUnsignedCharArray> RGBPoints = nullptr;
-  if ( (elem = vtkPLY::find_element (ply, "vertex")) != nullptr &&
-       vtkPLY::find_property (elem, "red", &index) != nullptr &&
-       vtkPLY::find_property (elem, "green", &index) != nullptr &&
-       vtkPLY::find_property (elem, "blue", &index) != nullptr )
+  vtkSmartPointer<vtkUnsignedCharArray> RGBPoints = NULL;
+  if ((elem = vtkPLY::find_element(ply, "vertex")) != NULL)
   {
-    RGBPointsAvailable = true;
-    RGBPoints = vtkSmartPointer<vtkUnsignedCharArray>::New();
-    if (vtkPLY::find_property(elem, "alpha", &index) != nullptr)
+    if (vtkPLY::find_property(elem, "red", &index) != NULL &&
+        vtkPLY::find_property(elem, "green", &index) != NULL &&
+        vtkPLY::find_property(elem, "blue", &index) != NULL)
     {
-      RGBPoints->SetName("RGBA");
-      RGBPoints->SetNumberOfComponents(4);
-      RGBPointsHaveAlpha = true;
+      RGBPointsAvailable = true;
     }
-    else
+    else if (vtkPLY::find_property(elem, "diffuse_red", &index) != NULL &&
+             vtkPLY::find_property(elem, "diffuse_green", &index) != NULL &&
+             vtkPLY::find_property(elem, "diffuse_blue", &index) != NULL)
     {
-      RGBPoints->SetName("RGB");
-      RGBPoints->SetNumberOfComponents(3);
+      RGBPointsAvailable = true;
+      vertProps[8].name = "diffuse_red";
+      vertProps[9].name = "diffuse_green";
+      vertProps[10].name = "diffuse_blue";
     }
-    output->GetPointData()->SetScalars(RGBPoints);
+    if (RGBPointsAvailable)
+    {
+      RGBPoints = vtkSmartPointer<vtkUnsignedCharArray>::New();
+      if (vtkPLY::find_property(elem, "alpha", &index) != nullptr)
+      {
+        RGBPoints->SetName("RGBA");
+        RGBPoints->SetNumberOfComponents(4);
+        RGBPointsHaveAlpha = true;
+      }
+      else
+      {
+        RGBPoints->SetName("RGB");
+        RGBPoints->SetNumberOfComponents(3);
+      }
+      output->GetPointData()->SetScalars(RGBPoints);
+    }
   }
 
   bool NormalPointsAvailable=false;
@@ -254,6 +273,18 @@ int vtkPLYReader::RequestData(
     }
   }
 
+  bool TexCoordsPointsAvailableFace = false;
+  if ((elem = vtkPLY::find_element(ply, "face")) != NULL && !TexCoordsPointsAvailable)
+  {
+    if (vtkPLY::find_property(elem, "texcoord", &index) != NULL)
+    {
+      TexCoordsPointsAvailableFace = true;
+      TexCoordsPoints = vtkSmartPointer<vtkFloatArray>::New();
+      TexCoordsPoints->SetName("TCoords");
+      TexCoordsPoints->SetNumberOfComponents(2);
+      output->GetPointData()->SetTCoords(TexCoordsPoints);
+    }
+  }
   // Okay, now we can grab the data
   int numPts = 0, numPolys = 0;
   for (int i = 0; i < nelems; i++)
@@ -361,6 +392,11 @@ int vtkPLYReader::RequestData(
         }
         RGBCells->SetNumberOfTuples(numPolys);
       }
+      if (TexCoordsPointsAvailableFace)
+      {
+        vtkPLY::ply_get_property(ply, elemName, &faceProps[6]);
+        TexCoordsPoints->SetNumberOfTuples(numPts);
+      }
 
       // grab all the face elements
       for (int j=0; j < numPolys; j++)
@@ -392,6 +428,18 @@ int vtkPLYReader::RequestData(
             RGBCells->SetValue(3 * j, face.red);
             RGBCells->SetValue(3 * j + 1, face.green);
             RGBCells->SetValue(3 * j + 2, face.blue);
+          }
+        }
+        if (TexCoordsPointsAvailableFace)
+        {
+          //Test to know if there is a texcoord for every vertex
+          if (face.nverts == (face.ntexcoord / 2))
+          {
+            for (int k = 0; k < face.nverts; k++)
+            {
+              TexCoordsPoints->SetTuple2(vtkVerts[k], face.texcoord[k * 2], face.texcoord[(k * 2) + 1]);
+            }
+            free(face.texcoord);
           }
         }
       }
