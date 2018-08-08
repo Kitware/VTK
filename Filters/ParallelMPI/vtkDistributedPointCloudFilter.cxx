@@ -29,6 +29,7 @@
 #include "vtkPoints.h"
 
 #include <algorithm>
+#include <thread>
 
 // Histogram precision to divide space in two
 static const int HISTOGRAM_SIZE = 1024;
@@ -360,13 +361,15 @@ bool vtkDistributedPointCloudFilter::OptimizeBoundingBox(vtkPointSet* pointCloud
     vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast(
       this->KdTreeRound[round].controller->GetCommunicator());
     vtkMPICommunicator::Request request;
+    const int EXCHANGE_POINT_TAG = 524821;
+
     if (partnerNumPts > 0)
     {
-      com->NoBlockSend(partnerPts.data(), 3 * partnerNumPts, partner, this->KdTreeRound[round].rank, request);
+      com->NoBlockSend(partnerPts.data(), static_cast<int>(3 * partnerNumPts), partner, EXCHANGE_POINT_TAG, request);
     }
     if (toReceive > 0)
     {
-      com->ReceiveVoidArray(&pts[3 * newNumPts], 3 * toReceive, VTK_DOUBLE, partner, partner);
+      com->ReceiveVoidArray(&pts[3 * newNumPts], static_cast<int>(3 * toReceive), VTK_DOUBLE, partner, EXCHANGE_POINT_TAG);
     }
 
     // non even number of processes: 0 receive from the last one.
@@ -397,6 +400,14 @@ bool vtkDistributedPointCloudFilter::OptimizeBoundingBox(vtkPointSet* pointCloud
       {
         localLowerBound[j] = std::min(localLowerBound[j], pts[3 * i + j]);
         localUpperBound[j] = std::max(localUpperBound[j], pts[3 * i + j]);
+      }
+    }
+
+    if (partnerNumPts > 0)
+    {
+      while (!request.Test())
+      {
+        std::this_thread::yield();
       }
     }
 
