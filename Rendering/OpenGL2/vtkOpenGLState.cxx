@@ -612,6 +612,38 @@ void vtkOpenGLState::SetEnumState(GLenum cap, bool val)
   vtkCheckOpenGLErrorsWithStack("glEnable/Disable");
 }
 
+void vtkOpenGLState::ResetEnumState(GLenum cap)
+{
+  GLboolean params;
+  ::glGetBooleanv(cap, &params);
+
+  switch (cap)
+  {
+    case GL_BLEND:
+      this->CurrentState.Blend = params != 0;
+      break;
+    case GL_DEPTH_TEST:
+      this->CurrentState.DepthTest = params != 0;
+      break;
+    case GL_CULL_FACE:
+      this->CurrentState.CullFace = params != 0;
+      break;
+#ifdef GL_MULTISAMPLE
+    case GL_MULTISAMPLE:
+      this->CurrentState.MultiSample = params != 0;
+      break;
+#endif
+    case GL_SCISSOR_TEST:
+      this->CurrentState.ScissorTest = params != 0;
+      break;
+    case GL_STENCIL_TEST:
+      this->CurrentState.StencilTest = params != 0;
+      break;
+    default:
+      break;
+    }
+}
+
 void vtkOpenGLState::vtkglEnable(GLenum cap)
 {
   this->SetEnumState(cap, true);
@@ -857,6 +889,97 @@ void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow *)
     &this->CurrentState.MajorVersion);
   ::glGetIntegerv(GL_MINOR_VERSION,
     &this->CurrentState.MinorVersion);
+}
+
+void vtkOpenGLState::ResetGlClearColorState()
+{
+  GLfloat fparams[4];
+  ::glGetFloatv(GL_COLOR_CLEAR_VALUE, fparams);
+  this->CurrentState.ClearColor[0] = fparams[0];
+  this->CurrentState.ClearColor[1] = fparams[1];
+  this->CurrentState.ClearColor[2] = fparams[2];
+  this->CurrentState.ClearColor[3] = fparams[3];
+}
+
+void vtkOpenGLState::ResetGlClearDepthState()
+{
+  GLfloat fparams;
+  ::glGetFloatv(GL_DEPTH_CLEAR_VALUE, &fparams);
+  this->CurrentState.ClearDepth = fparams;
+}
+
+void vtkOpenGLState::ResetGlDepthFuncState()
+{
+  GLint iparams;
+  ::glGetIntegerv(GL_DEPTH_FUNC, &iparams);
+  this->CurrentState.DepthFunc = static_cast<unsigned int>(iparams);
+}
+
+void vtkOpenGLState::ResetGlDepthMaskState()
+{
+  GLboolean params;
+  ::glGetBooleanv(GL_DEPTH_WRITEMASK, &params);
+  this->CurrentState.DepthMask = params;
+}
+
+void vtkOpenGLState::ResetGlColorMaskState()
+{
+  GLboolean params[4];
+  ::glGetBooleanv(GL_COLOR_WRITEMASK, params);
+  this->CurrentState.ColorMask[0] = params[0];
+  this->CurrentState.ColorMask[1] = params[1];
+  this->CurrentState.ColorMask[2] = params[2];
+  this->CurrentState.ColorMask[3] = params[3];
+
+}
+
+void vtkOpenGLState::ResetGlViewportState()
+{
+  GLint iparams[4];
+  ::glGetIntegerv(GL_VIEWPORT, iparams);
+  this->CurrentState.Viewport[0] = iparams[0];
+  this->CurrentState.Viewport[1] = iparams[1];
+  this->CurrentState.Viewport[2] = iparams[2];
+  this->CurrentState.Viewport[3] = iparams[3];
+}
+
+void vtkOpenGLState::ResetGlScissorState()
+{
+  GLint iparams[4];
+  ::glGetIntegerv(GL_SCISSOR_BOX, iparams);
+  this->CurrentState.Scissor[0] = iparams[0];
+  this->CurrentState.Scissor[1] = iparams[1];
+  this->CurrentState.Scissor[2] = iparams[2];
+  this->CurrentState.Scissor[3] = iparams[3];
+}
+
+void vtkOpenGLState::ResetGlBlendFuncState()
+{
+  GLint iparams;
+  ::glGetIntegerv(GL_BLEND_SRC_RGB, &iparams);
+  this->CurrentState.BlendFunc[0] = static_cast<unsigned int>(iparams);
+  ::glGetIntegerv(GL_BLEND_SRC_ALPHA, &iparams);
+  this->CurrentState.BlendFunc[2] = static_cast<unsigned int>(iparams);
+  ::glGetIntegerv(GL_BLEND_DST_RGB, &iparams);
+  this->CurrentState.BlendFunc[1] = static_cast<unsigned int>(iparams);
+  ::glGetIntegerv(GL_BLEND_DST_ALPHA, &iparams);
+  this->CurrentState.BlendFunc[3] = static_cast<unsigned int>(iparams);
+}
+
+void vtkOpenGLState::ResetGlBlendEquationState()
+{
+  GLint iparams;
+  ::glGetIntegerv(GL_BLEND_EQUATION_RGB, &iparams);
+  this->CurrentState.BlendEquationValue1 = static_cast<unsigned int>(iparams);
+  ::glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &iparams);
+  this->CurrentState.BlendEquationValue2 = static_cast<unsigned int>(iparams);
+}
+
+void vtkOpenGLState::ResetGlCullFaceState()
+{
+  GLint iparams;
+  ::glGetIntegerv(GL_CULL_FACE_MODE, &iparams);
+  this->CurrentState.CullFaceMode = static_cast<unsigned int>(iparams);
 }
 
 void vtkOpenGLState::vtkglClear(GLbitfield val)
