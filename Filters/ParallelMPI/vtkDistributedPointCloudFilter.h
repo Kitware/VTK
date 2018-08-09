@@ -18,9 +18,9 @@
  * @brief Distributes points among MPI processors.
  *
  * This filter distributes points among processors into spatially
- * contiguous vtkPointSet, containing an equivalent number of points.
- * Algorithm : Point cloud is recursively splitted in two, among MPI groups.
- * Note Input cells are ignored.
+ * contiguous point set, containing an equivalent number of points.
+ * Algorithm: point set is recursively splitted in two, among MPI groups.
+ * Note: input cells are ignored. Output is a vtkPolyData.
  *
  * @par Thanks:
  * This class has been written by Kitware SAS from an initial work made by
@@ -37,15 +37,9 @@
 
 #include <vector> // for vector
 
+class vtkMPIController;
 class vtkMultiProcessController;
 class vtkPointSet;
-
-struct KdTreeBuildRound
-{
-  vtkMultiProcessController* controller;
-  int np;
-  int rank;
-};
 
 class VTKFILTERSPARALLELMPI_EXPORT vtkDistributedPointCloudFilter : public vtkPointSetAlgorithm
 {
@@ -54,11 +48,28 @@ public:
   vtkTypeMacro(vtkDistributedPointCloudFilter, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  //@{
+  /**
+   * Set/Get the communicator object
+   */
+  void SetController(vtkMultiProcessController*);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  //@}
+
 protected:
   vtkDistributedPointCloudFilter();
-  ~vtkDistributedPointCloudFilter() = default;
+  ~vtkDistributedPointCloudFilter() override;
+
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
+  struct KdTreeBuildRound
+  {
+    vtkMPIController *controller;
+    int np;
+    int rank;
+  };
 
   /**
    * Optimize bounding box following this rules:
@@ -68,22 +79,20 @@ protected:
    * Return false if input pointSet is nullptr or if no communicator was found.
    * Return true otherwise.
    */
-  bool OptimizeBoundingBox(vtkPointSet* poly, double bounds[6]);
+  bool OptimizeBoundingBox(std::vector<KdTreeBuildRound>&, vtkPointSet*, double bounds[6]);
 
   /**
    * Initialize KdTreeRound: creates subControllers from Controller.
    * Delete old values if any.
    * Return false if KdTree cannot be initialized.
    */
-  bool InitializeKdTree();
+  bool InitializeKdTree(std::vector<KdTreeBuildRound>&);
 
 private:
   vtkDistributedPointCloudFilter(const vtkDistributedPointCloudFilter&) = delete;
   void operator=(const vtkDistributedPointCloudFilter&) = delete;
 
   vtkMultiProcessController* Controller;
-
-  std::vector<KdTreeBuildRound> KdTreeRound;
 };
 
 #endif
