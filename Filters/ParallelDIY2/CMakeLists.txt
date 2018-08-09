@@ -3,12 +3,14 @@ if (NOT WIN32)
   include(vtkObjectFactory)
 
   set(Module_SRCS
+    vtkDIYAggregateDataSetFilter.cxx
     vtkPResampleToImage.cxx
     vtkPResampleWithDataSet.cxx
     )
 
   vtk_add_override(vtkResampleToImage vtkPResampleToImage)
   vtk_add_override(vtkResampleWithDataSet vtkPResampleWithDataSet)
+  vtk_add_override(vtkAggregateDataSetFilter vtkDIYAggregateDataSetFilter)
 
   vtk_object_factory_configure("${vtk_module_overrides}")
   list(APPEND Module_SRCS

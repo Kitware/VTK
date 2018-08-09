@@ -17,7 +17,8 @@
  * @brief   Aggregates data sets to a reduced number of processes.
  *
  * This class allows polydata and unstructured grids to be aggregated
- * over a smaller set of processes.
+ * over a smaller set of processes. The derived vtkDIYAggregateDataSetFilter
+ * will operate on image data, rectilinear grids and structured grids.
 */
 
 #ifndef vtkAggregateDataSetFilter_h

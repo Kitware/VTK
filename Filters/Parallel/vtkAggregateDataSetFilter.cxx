@@ -27,7 +27,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkStandardNewMacro(vtkAggregateDataSetFilter);
+vtkObjectFactoryNewMacro(vtkAggregateDataSetFilter);
 
 //-----------------------------------------------------------------------------
 vtkAggregateDataSetFilter::vtkAggregateDataSetFilter()
@@ -179,5 +179,4 @@ void vtkAggregateDataSetFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "NumberOfTargetProcesses: " << this->NumberOfTargetProcesses << endl;
-  os << endl;
 }
