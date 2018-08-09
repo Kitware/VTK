@@ -1005,20 +1005,20 @@ int TestErrors()
   parser->IsScalarResult();
   status += errorObserver->CheckErrorMessage("the if function expects the second and third arguments to be either 2 vectors or 2 scalars");
 
-  // Trying to take a natural logarithm of a negative value
+  // Trying to take a natural logarithm of a non-positive value
   parser->SetFunction("ln(s)");
   parser->IsScalarResult();
-  status += errorObserver->CheckErrorMessage("Trying to take a natural logarithm of a negative value");
+  status += errorObserver->CheckErrorMessage("Trying to take a natural logarithm of a non-positive value");
 
-  // Trying to take a natural logarithm of a negative value
+  // Trying to take a natural logarithm of a non-positive value
   parser->SetFunction("ln(s)");
   parser->IsScalarResult();
-  status += errorObserver->CheckErrorMessage("Trying to take a natural logarithm of a negative value");
+  status += errorObserver->CheckErrorMessage("Trying to take a natural logarithm of a non-positive value");
 
-  // Trying to take a log10 of a negative value
+  // Trying to take a log10 of a non-positive value
   parser->SetFunction("log10(s)");
   parser->IsScalarResult();
-  status += errorObserver->CheckErrorMessage("Trying to take a log10 of a negative value");
+  status += errorObserver->CheckErrorMessage("Trying to take a log10 of a non-positive value");
 
   // Trying to take a square root of a negative value
   parser->SetFunction("sqrt(s)");

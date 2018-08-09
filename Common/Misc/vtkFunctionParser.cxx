@@ -515,7 +515,7 @@ bool vtkFunctionParser::Evaluate()
           }
           else
           {
-            vtkErrorMacro("Trying to take a log of a negative value");
+            vtkErrorMacro("Trying to take a log of a non-positive value");
             return false;
           }
         }
@@ -533,7 +533,7 @@ bool vtkFunctionParser::Evaluate()
           }
           else
           {
-            vtkErrorMacro("Trying to take a natural logarithm of a negative value");
+            vtkErrorMacro("Trying to take a natural logarithm of a non-positive value");
             return false;
           }
         }
@@ -551,7 +551,7 @@ bool vtkFunctionParser::Evaluate()
           }
           else
           {
-            vtkErrorMacro("Trying to take a log10 of a negative value");
+            vtkErrorMacro("Trying to take a log10 of a non-positive value");
             return false;
           }
         }
