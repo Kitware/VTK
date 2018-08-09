@@ -39,7 +39,6 @@
 
 class vtkMPIController;
 class vtkMultiProcessController;
-class vtkPointSet;
 
 class VTKFILTERSPARALLELMPI_EXPORT vtkDistributedPointCloudFilter : public vtkPointSetAlgorithm
 {
@@ -56,6 +55,13 @@ public:
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   //@}
 
+  /**
+ * Get the points that are inside innerBounds and put them in output DataSet.
+ * Ask other MPI ranks for their corresponding points.
+ */
+  static void GetPointsInsideBounds(vtkMPIController*,
+    vtkPointSet *input, vtkPointSet *output, const double innerBounds[6]);
+
 protected:
   vtkDistributedPointCloudFilter();
   ~vtkDistributedPointCloudFilter() override;
@@ -63,13 +69,6 @@ protected:
   int FillOutputPortInformation(int port, vtkInformation *info) override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-
-  struct KdTreeBuildRound
-  {
-    vtkMPIController *controller;
-    int np;
-    int rank;
-  };
 
   /**
    * Optimize bounding box following this rules:
@@ -79,14 +78,14 @@ protected:
    * Return false if input pointSet is nullptr or if no communicator was found.
    * Return true otherwise.
    */
-  bool OptimizeBoundingBox(std::vector<KdTreeBuildRound>&, vtkPointSet*, double bounds[6]);
+  bool OptimizeBoundingBox(std::vector<vtkMPIController*> &, vtkPointSet *, double bounds[6]);
 
   /**
    * Initialize KdTreeRound: creates subControllers from Controller.
    * Delete old values if any.
    * Return false if KdTree cannot be initialized.
    */
-  bool InitializeKdTree(std::vector<KdTreeBuildRound>&);
+  bool InitializeKdTree(std::vector<vtkMPIController*> &);
 
 private:
   vtkDistributedPointCloudFilter(const vtkDistributedPointCloudFilter&) = delete;
