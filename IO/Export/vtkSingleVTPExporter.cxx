@@ -325,6 +325,7 @@ vtkPolyData *vtkSingleVTPExporter::FixTextureCoordinates(vtkPolyData *ipd)
       // does this triangle go outside of 0 to 1.5 in tcoords?
       this->ProcessTriangle(pts, opd);
     }
+    newPolys->Delete();
     ptIds->Delete();
   }
 
@@ -862,15 +863,15 @@ void vtkSingleVTPExporter::WriteTexture(
             }
             break;
             case 4:
-            for (int x = 0; x < rdims[0]*4; ++x)
+            for (int x = 0; x < rdims[0]; ++x)
             {
               if (x == dims[0])
               {
                 ipos -= dims[0]*4;
               }
-              *opos = *ipos;
-              opos++;
-              ipos++;
+              memcpy(opos, ipos, 4);
+              opos += 4;
+              ipos += 4;
             }
             break;
           }
