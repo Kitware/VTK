@@ -94,6 +94,21 @@ public:
   //@}
 
   //@{
+  // Methods to reset the state to the current OpenGL context value.
+  //
+  void ResetGlClearColorState();
+  void ResetGlClearDepthState();
+  void ResetGlDepthFuncState();
+  void ResetGlDepthMaskState();
+  void ResetGlColorMaskState();
+  void ResetGlViewportState();
+  void ResetGlScissorState();
+  void ResetGlBlendFuncState();
+  void ResetGlBlendEquationState();
+  void ResetGlCullFaceState();
+  //@}
+
+  //@{
   // OpenGL functions that we provide an API for even though they may
   // not hold any state.
   void vtkglClear(unsigned int mask);
@@ -117,9 +132,13 @@ public:
   // as opposed to a unsigned char
   bool GetEnumState(unsigned int name);
 
-
   // convenience method to set a enum (glEnable/glDisable)
   void SetEnumState(unsigned int name, bool value);
+
+  /**
+   * convenience method to reset an enum state from current openGL context
+   */
+  void ResetEnumState(unsigned int name);
 
   // superclass for Scoped subclasses
   template <typename T>
@@ -177,9 +196,10 @@ public:
       bool Value;
   };
 
-  // initialize both OpenGL and these state ivars to known
-  // and consistent values
-  void Initialize(vtkOpenGLRenderWindow *);
+  /**
+   * Initialize OpenGL context using current state
+   */
+  void Initialize(vtkOpenGLRenderWindow*);
 
 protected:
   void BlendFuncSeparate(std::array<unsigned int, 4> val);
@@ -188,7 +208,10 @@ protected:
   void Scissor(std::array<int, 4> val);
   void Viewport(std::array<int, 4> val);
 
-  // debugging
+  /**
+   * Check that this OpenGL state has consistent values
+   * with the current OpenGL context
+   */
   void CheckState();
 
   class VTKRENDERINGOPENGL2_EXPORT GLState

@@ -8,6 +8,10 @@
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkRenderWindowInteractor.h"
 
+#ifdef __APPLE__
+#include "vtkOpenGLState.h"
+#endif
+
 // Qt headers include
 #include <QMouseEvent>
 #include <QtGui/QOffscreenSurface>
@@ -253,6 +257,16 @@ void QVTKOpenGLWindow::MakeCurrent()
     }
     this->context()->makeCurrent(this->OffscreenSurface);
   }
+
+  // Reset the viewport on the OpenGL state. This is necessary only on
+  // MacOS when HiDPI is supported. Enabling HiDPI has the side effect that
+  // Cocoa will start overriding any glViewport calls in application code.
+  // For reference, see QCocoaWindow::initialize().
+#ifdef __APPLE__
+  vtkOpenGLState *ostate = this->RenderWindow->GetState();
+  ostate->ResetGlViewportState();
+#endif
+
 }
 
 //-----------------------------------------------------------------------------
