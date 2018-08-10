@@ -1984,6 +1984,13 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   this->MakeCurrent();
   this->OpenGLInit();
 
+  // make sure OPenGL initialized correctly before proceeding
+  if (!this->Initialized)
+  {
+    this->DestroyWindow();
+    return 0;
+  }
+
   int result = this->CreateHardwareOffScreenBuffers(width, height);
   if (!result)
   {
