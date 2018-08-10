@@ -202,6 +202,9 @@ class VTKPYTHONINTERPRETER_EXPORT vtkPythonGlobalInterpreters
 public:
   vtkPythonGlobalInterpreters();
   ~vtkPythonGlobalInterpreters();
+private:
+  vtkPythonGlobalInterpreters(const vtkPythonGlobalInterpreters&);
+  vtkPythonGlobalInterpreters& operator=(const vtkPythonGlobalInterpreters&);
 };
 
 // This is here to implement the Schwarz counter idiom.
