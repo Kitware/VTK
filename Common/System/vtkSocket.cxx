@@ -350,7 +350,7 @@ int vtkSocket::SelectSockets(const int* sockets_to_select, int size,
     if (msec>0)
     {
       tval.tv_sec = msec / 1000;
-      tval.tv_usec = msec % 1000;
+      tval.tv_usec = (msec % 1000)*1000;
       tvalptr = &tval;
     }
 
