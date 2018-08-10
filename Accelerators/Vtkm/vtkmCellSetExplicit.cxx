@@ -22,48 +22,187 @@
 #include "vtkmCellSetExplicit.h"
 #include "vtkmConnectivityExec.h"
 
-#include <vtkm/cont/ArrayHandleCast.h>
-#include <vtkm/cont/ArrayHandleCounting.h>
-#include <vtkm/cont/ArrayHandleConstant.h>
+#include <vtkm/cont/ArrayHandleImplicit.h>
+#include <vtkm/cont/internal/ReverseConnectivityBuilder.h>
 #include <vtkm/worklet/WorkletMapField.h>
 #include <vtkm/worklet/DispatcherMapField.h>
 
-namespace {
-class ComputeReverseMapping : public vtkm::worklet::WorkletMapField
+#include <utility>
+
+namespace
 {
-public:
-  typedef void ControlSignature(FieldIn<IdType> cellId,
-                                FieldIn<IdType> offset,
-                                WholeArrayIn<IdType> connectivity,
-                                WholeArrayOut<IdType> pointIds,
-                                WholeArrayOut<IdType> cellIds);
-  typedef void ExecutionSignature(_1, _2, _3, _4, _5);
-  typedef _1 InputDomain;
 
+// Converts [0, rconnSize) to [0, connSize), skipping cell length entries.
+template <typename Device>
+struct ExplicitRConnToConn
+{
+  using OffsetsArray = vtkm::cont::ArrayHandle<vtkm::Id, tovtkm::vtkAOSArrayContainerTag>;
+  using OffsetsPortal = decltype(std::declval<OffsetsArray>().PrepareForInput(Device()));
 
-  VTKM_SUPPRESS_EXEC_WARNINGS
-  template <typename ConnPortalType, typename PortalType>
-  VTKM_EXEC void operator()(const vtkm::Id& cellId,
-                            const vtkm::Id& read_offset,
-                            const ConnPortalType& connectivity,
-                            const PortalType& pointIdKey,
-                            const PortalType& pointIdValue) const
+  // Functor that modifies the offsets array so we can compute point id indices
+  // Output is:
+  // modOffset[i] = offsets[i] - i
+  struct OffsetsModifier
   {
-    //We can compute the correct write_offset by looking at the current
-    //read_offset and subtracting the number of cells we already processed
-    //which is equivalent to our cellid.
-    //This properly removes from read_offset the vtk cell padding that is
-    //added to the connectivity array
-    const vtkm::Id write_offset = read_offset - cellId;
-    const vtkm::Id numIndices = connectivity.Get(read_offset);
-    for (vtkm::Id i = 0; i < numIndices; i++)
+    OffsetsPortal Offsets;
+
+    VTKM_CONT
+    OffsetsModifier(const OffsetsPortal& offsets = OffsetsPortal{})
+      : Offsets(offsets)
     {
-      pointIdKey.Set(write_offset + i, connectivity.Get(read_offset + i + 1) );
-      pointIdValue.Set(write_offset + i, cellId);
     }
+
+    VTKM_EXEC
+    vtkm::Id operator()(vtkm::Id inIdx) const
+    {
+      return this->Offsets.Get(inIdx) - inIdx;
+    }
+  };
+
+  using ModOffsetsArray = vtkm::cont::ArrayHandleImplicit<OffsetsModifier>;
+  using ModOffsetsPortal = decltype(std::declval<ModOffsetsArray>().PrepareForInput(Device()));
+
+  VTKM_CONT
+  ExplicitRConnToConn(const ModOffsetsPortal& offsets)
+    : Offsets(offsets)
+  {
+  }
+
+  VTKM_EXEC
+  vtkm::Id operator()(vtkm::Id rConnIdx) const
+  {
+    // Compute the connectivity array index (skipping cell length entries)
+    // The number of cell length entries can be found by taking the index of
+    // the upper bound of inIdx in Offsets and adding it to inIdx.
+    //
+    // Example:
+    // Conn:  |  3  X  X  X  |  4  X  X  X  X  |  3  X  X  X  |  2  X  X  |
+    // Idx:   |  0  1  2  3  |  4  5  6  7  8  |  9  10 11 12 |  13 14 15 |
+    // InIdx:       0  1  2        3  4  5  6  |     7  8  9        10 11
+    //
+    // ModOffset[i] = Offsets[i] - i:
+    // Offsets:     0  4  9  13 (16)
+    // ModOffsets:  0  3  7  10 (12)
+    //
+    // Define UB(x) to return the index of the upper bound of x in ModOffsets,
+    // the i'th point index's location in Conn is computed as:
+    // OutId = UB(InIdx) + InIdx
+    //
+    // This gives us the expected out indices:
+    // InIdx:     0  1  2  3  4  5  6  7  8  9  10 11
+    // UB(InIdx): 1  1  1  2  2  2  2  3  3  3  4  4
+    // OutIdx:    1  2  3  5  6  7  8  10 11 12 14 15
+    const vtkm::Id uBIdx = this->UpperBoundIdx(rConnIdx);
+    const vtkm::Id connIdx = rConnIdx + uBIdx;
+    return connIdx;
+  }
+
+private:
+
+  ModOffsetsPortal Offsets;
+
+  VTKM_EXEC
+  vtkm::Id UpperBoundIdx(vtkm::Id inIdx) const
+  {
+    vtkm::Id first = 0;
+    vtkm::Id length = this->Offsets.GetNumberOfValues();
+
+    while (length > 0)
+    {
+      vtkm::Id half = length / 2;
+      vtkm::Id pos = first + half;
+      vtkm::Id val = this->Offsets.Get(pos);
+      if (val <= inIdx)
+      {
+        first = pos + 1;
+        length -= half + 1;
+      }
+      else
+      {
+        length = half;
+      }
+    }
+
+    return first;
   }
 };
-} //namespace
+
+// Converts a connectivity index to a cell id:
+template <typename Device>
+struct ExplicitCellIdCalc
+{
+  using OffsetsArray = vtkm::cont::ArrayHandle<vtkm::Id, tovtkm::vtkAOSArrayContainerTag>;
+  using OffsetsPortal = decltype(std::declval<OffsetsArray>().PrepareForInput(Device()));
+
+  vtkm::Id ConnSize;
+  OffsetsPortal Offsets;
+
+  VTKM_CONT
+  ExplicitCellIdCalc(vtkm::Id connSize, const OffsetsPortal& offsets)
+    : ConnSize(connSize)
+    , Offsets(offsets)
+  {
+  }
+
+  // Computes the cellid of the connectivity index i.
+  //
+  // For a mixed-cell connectivity, the offset table is used to compute
+  // the cell id.
+  //
+  // Example:
+  // Conn:   |  3  X  X  X  |  4  X  X  X  X  |  3  X  X  X  |  2  X  X  |
+  // Idx:    |     1  2  3  |     5  6  7  8  |     10 11 12 |     14 15 |
+  //
+  // Offsets:    0  4  9  13
+  // ModOffsets: 4  9  13 16
+  //
+  // Computing the index of the lower bound in ModOffsets for each Idx gives
+  // the expected cell id values:
+  // CellId: |     0  0  0  |     1  1  1  1  |     2  2  2  |     3  3  |
+  VTKM_EXEC
+  vtkm::Id operator()(vtkm::Id i) const
+  {
+    return this->LowerBound(i);
+  }
+
+private:
+  /// Returns the i+1 offset, or the full size of the connectivity if at end.
+  VTKM_EXEC
+  vtkm::Id GetModifiedOffset(vtkm::Id i) const
+  {
+    ++i;
+    return (i >= this->Offsets.GetNumberOfValues()) ? this->ConnSize
+                                                    : this->Offsets.Get(i);
+  }
+
+  VTKM_EXEC
+  vtkm::Id LowerBound(vtkm::Id inVal) const
+  {
+    vtkm::Id first = 0;
+    vtkm::Id length = this->Offsets.GetNumberOfValues();
+
+    while (length > 0)
+    {
+      vtkm::Id half = length / 2;
+      vtkm::Id pos = first + half;
+      vtkm::Id val = this->GetModifiedOffset(pos);
+      if (val < inVal)
+      {
+        first = pos + 1;
+        length -= half + 1;
+      }
+      else
+      {
+        length = half;
+      }
+    }
+
+    return first;
+
+  }
+};
+
+} // end anon namespace
 
 namespace vtkm {
 namespace cont {
@@ -127,38 +266,32 @@ typename vtkm::exec::ReverseConnectivityVTK<Device>
   //#2 as it easier to construct
   if(!this->ReverseConnectivityBuilt)
   {
-    const vtkm::Id numberOfCells = this->GetNumberOfCells();
+    const vtkm::Id numberOfPoints = this->GetNumberOfPoints();
     const vtkm::Id connectivityLength = this->Connectivity.GetNumberOfValues();
     const vtkm::Id rconnSize = connectivityLength - this->IndexOffsets.GetNumberOfValues();
 
-    // create a mapping of where each key is the point id and the value
-    // is the cell id.
-    using Algorithm = vtkm::cont::DeviceAdapterAlgorithm<Device>;
-    vtkm::cont::ArrayHandle<vtkm::Id> pointIdKey;
+    auto offsetsPortal = this->IndexOffsets.PrepareForInput(Device());
+    typename ExplicitRConnToConn<Device>::OffsetsModifier offsetModifier{offsetsPortal};
+    auto modOffsets = vtkm::cont::make_ArrayHandleImplicit(offsetModifier,
+                                                           this->IndexOffsets.GetNumberOfValues());
 
-    // We need to allocate pointIdKey and RConn to correct length.
-    // which for this is equal to connectivityLength - len(this->IndexOffsets)
-    pointIdKey.Allocate(rconnSize);
-    this->RConn.Allocate(rconnSize);
+    const ExplicitRConnToConn<Device> rconnToConnCalc{modOffsets.PrepareForInput(Device())};
+    const ExplicitCellIdCalc<Device> cellIdCalc{this->Connectivity.GetNumberOfValues(),
+                                                this->IndexOffsets.PrepareForInput(Device())};
 
-    vtkm::worklet::DispatcherMapField<ComputeReverseMapping, Device> dispatcher;
-    dispatcher.Invoke(vtkm::cont::make_ArrayHandleCounting<vtkm::Id>(0, 1, numberOfCells),
-      this->IndexOffsets, this->Connectivity, pointIdKey, this->RConn);
-    Algorithm::SortByKey(pointIdKey, this->RConn);
+    vtkm::cont::internal::ReverseConnectivityBuilder builder;
 
-    // now we can compute the NumIndices
-    vtkm::cont::ArrayHandle<vtkm::Id> reducedKeys;
-    Algorithm::ReduceByKey(pointIdKey,
-      vtkm::cont::make_ArrayHandleConstant(vtkm::IdComponent(1), rconnSize),
-      reducedKeys, this->RNumIndices, vtkm::Add());
+    builder.Run(this->Connectivity,
+                this->RConn,
+                this->RNumIndices,
+                this->RIndexOffsets,
+                rconnToConnCalc,
+                cellIdCalc,
+                numberOfPoints,
+                rconnSize,
+                Device{});
 
-    // than a scan exclusive will give us the index offsets
-    using CastedNumIndices = vtkm::cont::ArrayHandleCast<vtkm::Id,
-      vtkm::cont::ArrayHandle<vtkm::IdComponent>>;
-    Algorithm::ScanExclusive(
-      CastedNumIndices(this->RNumIndices), this->RIndexOffsets);
-
-    this->NumberOfPoints = reducedKeys.GetNumberOfValues();
+    this->NumberOfPoints = this->RIndexOffsets.GetNumberOfValues();
     this->ReverseConnectivityBuilt = true;
   }
 

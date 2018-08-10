@@ -193,11 +193,11 @@ int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
         zValues.push_back(input->GetPoints()->GetPoint(i)[2]);
       }
       vtkm::cont::DataSetFieldAdd::AddPointField(in, "scalarfactor", zValues);
-      warpScalar.SetScarlarFactorField("scalarfactor");
+      warpScalar.SetScalarFactorField("scalarfactor");
     }
     else
     {
-      warpScalar.SetScarlarFactorField(std::string(inScalars->GetName()));
+      warpScalar.SetScalarFactorField(std::string(inScalars->GetName()));
     }
 
     vtkmWarpScalarFilterPolicy policy;
