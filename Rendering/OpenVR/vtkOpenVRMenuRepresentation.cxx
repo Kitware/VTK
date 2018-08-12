@@ -164,10 +164,10 @@ void vtkOpenVRMenuRepresentation::ComplexInteraction(
     case vtkWidgetEvent::Select3D:
     {
       this->VisibilityOff();
-      int count = 0;
+      long count = 0;
       for (auto &menu : this->Menus)
       {
-        if (count == vtkMath::Round(this->CurrentOption))
+        if (count == std::lround(this->CurrentOption))
         {
           menu->Command->Execute(this, vtkWidgetEvent::Select3D,
             static_cast<void *>(const_cast<char *>(menu->Name.c_str())));
@@ -296,11 +296,11 @@ void vtkOpenVRMenuRepresentation::BuildRepresentation()
   //Frame position
   double frameCenter[3];
 
-  int count = 0;
+  long count = 0;
   for (auto &menu : this->Menus)
   {
     double shift = count - this->CurrentOption;
-    int icurr = vtkMath::Round(this->CurrentOption);
+    long icurr = std::lround(this->CurrentOption);
 
     if (count == icurr)
     {

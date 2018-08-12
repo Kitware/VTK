@@ -1120,8 +1120,8 @@ double vtkCellPicker::IntersectImageWithLine(const double p1[3],
     bounds[2*k+1] = (bounds[2*k+1] - origin[k])/spacing[k];
     // It should be a multiple of 0.5, so round to closest multiple of 0.5
     // (this reduces the impact of roundoff error from the above computation)
-    bounds[2*k] = 0.5*vtkMath::Round(2.0*(bounds[2*k]));
-    bounds[2*k+1] = 0.5*vtkMath::Round(2.0*(bounds[2*k+1]));
+    bounds[2*k] = 0.5*std::round(2.0*(bounds[2*k]));
+    bounds[2*k+1] = 0.5*std::round(2.0*(bounds[2*k+1]));
     // Reverse if spacing is negative
     if (spacing[k] < 0)
     {

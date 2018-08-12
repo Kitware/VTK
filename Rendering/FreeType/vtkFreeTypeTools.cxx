@@ -48,8 +48,9 @@ namespace {
 // Some helper functions:
 void rotateVector2i(vtkVector2i &vec, float sinTheta, float cosTheta)
 {
-  vec = vtkVector2i(vtkMath::Round(cosTheta * vec[0] - sinTheta * vec[1]),
-                    vtkMath::Round(sinTheta * vec[0] + cosTheta * vec[1]));
+  int x = static_cast<int>(std::round(cosTheta * vec[0] - sinTheta * vec[1]));
+  int y = static_cast<int>(std::round(sinTheta * vec[0] + cosTheta * vec[1]));
+  vec = vtkVector2i(x, y);
 }
 
 } // end anon namespace
@@ -1720,8 +1721,8 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
       {
         xShift /= 2;
       }
-      origin[0] += vtkMath::Round(c * xShift);
-      origin[1] += vtkMath::Round(s * xShift);
+      origin[0] += static_cast<int>(std::round(c * xShift));
+      origin[1] += static_cast<int>(std::round(s * xShift));
     }
 
     // Set line origin
@@ -1891,7 +1892,7 @@ inline bool getIntersectionParameter(const vtkVector2i &p1,
 inline int evaluateLineXOnly(const vtkVector2i &p, const vtkVector2i &v,
                              float t)
 {
-  return p.GetX() + vtkMath::Round(v.GetX() * t);
+  return p.GetX() + static_cast<int>(std::round(v.GetX() * t));
 }
 
 // Given the corners of a rectangle (TL, TR, BL, BR), the vectors that

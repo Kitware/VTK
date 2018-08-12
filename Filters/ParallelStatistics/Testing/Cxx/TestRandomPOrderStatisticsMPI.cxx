@@ -113,7 +113,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   // Store first integer value
   if ( ! args->skipInt )
   {
-    v[idx] = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
+    v[idx] = static_cast<int>( std::round( vtkMath::Gaussian() * args->stdev ) );
     intArray->InsertNextValue( v[idx] );
     ++ idx;
   }
@@ -143,7 +143,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
     // Store current integer value
     if ( ! args->skipInt )
     {
-      v[idx] = static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) );
+      v[idx] = static_cast<int>( std::round( vtkMath::Gaussian() * args->stdev ) );
       intArray->InsertNextValue( v[idx] );
       ++ idx;
     }

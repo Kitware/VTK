@@ -85,7 +85,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 
     for ( int r = 0; r < args->nVals; ++ r )
     {
-      intArray[c]->InsertNextValue( static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) ) );
+      intArray[c]->InsertNextValue( static_cast<int>( std::round( vtkMath::Gaussian() * args->stdev ) ) );
     }
 
     inputData->AddColumn( intArray[c] );

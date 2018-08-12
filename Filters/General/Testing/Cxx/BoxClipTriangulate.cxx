@@ -192,7 +192,7 @@ static vtkSmartPointer<vtkUnstructuredGrid> BuildInput(int type,
   while (!idsLeft.empty())
   {
     vtkIdType next
-      = vtkMath::Round(vtkMath::Random(-0.49, idsLeft.size() - 0.51));
+      = std::lround(vtkMath::Random(-0.49, idsLeft.size() - 0.51));
     std::vector<vtkIdType>::iterator nextp = idsLeft.begin() + next;
     idMap.push_back(*nextp);
     idsLeft.erase(nextp, nextp + 1);

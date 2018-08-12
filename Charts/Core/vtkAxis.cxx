@@ -1440,7 +1440,7 @@ vtkStdString vtkAxis::GenerateSimpleLabel(double val)
     if (regExp2.find(result))
     {
       vtkStdString tmp(result);
-      int num = vtkMath::Round(stof(regExp2.match(0)));
+      long num = std::lround(stof(regExp2.match(0)));
       result = std::to_string(num);
       vtkStdString::iterator it = tmp.begin();
       for (int i = 0; i < regExp2.end() - regExp2.start(); ++i)

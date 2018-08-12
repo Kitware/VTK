@@ -161,7 +161,7 @@ void vtkAngularPeriodicFilter::CreatePeriodicDataSet(
 
     case VTK_ITERATION_MODE_MAX:
     {
-      periodsNb = vtkMath::Round(360. / std::abs(angle));
+      periodsNb = static_cast<int>(std::round(360. / std::abs(angle)));
       break;
     }
 

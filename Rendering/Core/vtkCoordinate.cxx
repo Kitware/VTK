@@ -280,8 +280,8 @@ int *vtkCoordinate::GetComputedViewportValue(vtkViewport* viewport)
 {
   double *f = this->GetComputedDoubleViewportValue(viewport);
 
-  this->ComputedViewportValue[0] = vtkMath::Round(f[0]);
-  this->ComputedViewportValue[1] = vtkMath::Round(f[1]);
+  this->ComputedViewportValue[0] = static_cast<int>(std::round(f[0]));
+  this->ComputedViewportValue[1] = static_cast<int>(std::round(f[1]));
 
   return this->ComputedViewportValue;
 }
@@ -309,8 +309,8 @@ int *vtkCoordinate::GetComputedLocalDisplayValue(vtkViewport* viewport)
 
   viewport->DisplayToLocalDisplay(a[0],a[1]);
 
-  this->ComputedDisplayValue[0] = vtkMath::Round(a[0]);
-  this->ComputedDisplayValue[1] = vtkMath::Round(a[1]);
+  this->ComputedDisplayValue[0] = static_cast<int>(std::round(a[0]));
+  this->ComputedDisplayValue[1] = static_cast<int>(std::round(a[1]));
 
   vtkDebugMacro("Returning LocalDisplayValue of : " <<
                 this->ComputedDisplayValue[0] << " , " <<

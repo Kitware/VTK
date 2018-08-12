@@ -214,7 +214,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
 
           // Create bucket width based on target histogram size
           // FIXME: .5 is arbitrary at this point
-          double width = ( maxi - mini ) / vtkMath::Round(  Nq / 2. );
+          double width = ( maxi - mini ) / std::round(  Nq / 2. );
 
           // Now re-calculate histogram by quantizing values
           histogram.clear();
@@ -223,8 +223,8 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
           for ( vtkIdType r = 0; r < nRow; ++ r )
           {
             reading = dvals->GetTuple1( r );
-            quantum = mini + vtkMath::Round( ( reading - mini ) / width ) * width;
-            ++ histogram[quantum];
+            quantum = mini + std::round( ( reading - mini ) / width ) * width;
+            ++ histogram[static_cast<unsigned long>(quantum)];
           }
 
           // Update histogram size for conditional clause
@@ -461,7 +461,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       vtkIdType qIdx1;
       if ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
       {
-        qIdx1 = static_cast<vtkIdType>( vtkMath::Round( np ) );
+        qIdx1 = static_cast<vtkIdType>( std::round( np ) );
       }
       else
       {

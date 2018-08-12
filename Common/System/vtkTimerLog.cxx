@@ -532,8 +532,7 @@ void vtkTimerLog::DumpLogWithIndentsAndPercentages(std::ostream *os)
                                            : parentInfo.back();
 
     // Percentage of parent exec time, rounded to a single decimal:
-    float percentage =
-        vtkMath::Round(elapsedTime / parent.second * 1000.) / 10.f;
+    double percentage = std::round(elapsedTime / parent.second * 1000.) / 10.;
 
     *os << std::setw(12) << std::setprecision(6) << std::fixed
         << elapsedTime

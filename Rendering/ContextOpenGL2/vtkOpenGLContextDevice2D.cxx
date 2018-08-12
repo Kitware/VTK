@@ -2830,8 +2830,8 @@ void vtkOpenGLContextDevice2D::DrawImageGL2PS(const vtkRectf &rect,
 {
   int dims[3];
   image->GetDimensions(dims);
-  int width = vtkMath::Round(rect.GetWidth());
-  int height = vtkMath::Round(rect.GetHeight());
+  int width = static_cast<int>(std::round(rect.GetWidth()));
+  int height = static_cast<int>(std::round(rect.GetHeight()));
   if (width == dims[0] && height == dims[1])
   {
     this->DrawImageGL2PS(rect.GetBottomLeft().GetData(), image);
