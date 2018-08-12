@@ -1912,25 +1912,24 @@ void vtkAxis::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   if (this->Title)
   {
-    os << indent << "Axis title: \"" << *this->Title << "\"" << endl;
+    os << indent << "Title: \"" << *this->Title << "\"" << "\n";
   }
-  os << indent << "Minimum point: " << this->Point1[0] << ", "
-     << this->Point1[1] << endl;
-  os << indent << "Maximum point: " << this->Point2[0] << ", "
-     << this->Point2[1] << endl;
-  os << indent << "Range: " << this->Minimum << " - " << this->Maximum << endl;
-  os << indent << "Range limits: "
-    << this->MinimumLimit << " - " << this->MaximumLimit << endl;
-  os << indent << "Number of tick marks: " << this->NumberOfTicks << endl;
-  os << indent << "Tick length: " << this->TickLength << endl;
-  os << indent << "LogScale: " << (this->LogScale ? "TRUE" : "FALSE") << endl;
-  os << indent << "LogScaleActive: " << (this->LogScaleActive ? "TRUE" : "FALSE") << endl;
-  os << indent << "GridVisible: " << (this->GridVisible ? "TRUE" : "FALSE") << endl;
-  os << indent << "LabelsVisible: " << (this->LabelsVisible ? "TRUE" : "FALSE") << endl;
-  os << indent << "RangeLabelsVisible: " << (this->RangeLabelsVisible ? "TRUE" : "FALSE") << endl;
-  os << indent << "TicksVisible: " << (this->TicksVisible ? "TRUE" : "FALSE") << endl;
-  os << indent << "AxisVisible: " << (this->AxisVisible ? "TRUE" : "FALSE") << endl;
-  os << indent << "Precision: " << this->Precision << endl;
+  os << indent << "Point1: " << this->Point1[0] << ", " << this->Point1[1] << "\n";
+  os << indent << "Point2: " << this->Point2[0] << ", " << this->Point2[1] << "\n";
+  os << indent << "Minimum: " << this->Minimum << "\n";
+  os << indent << "Maximum: " << this->Maximum << "\n";
+  os << indent << "MinimumLimit: " << this->MinimumLimit << "\n";
+  os << indent << "MaximumLimit: " << this->MaximumLimit << "\n";
+  os << indent << "NumberOfTicks: " << this->NumberOfTicks << "\n";
+  os << indent << "TickLength: " << this->TickLength << "\n";
+  os << indent << "LogScale: " << (this->LogScale ? "TRUE" : "FALSE") << "\n";
+  os << indent << "LogScaleActive: " << (this->LogScaleActive ? "TRUE" : "FALSE") << "\n";
+  os << indent << "GridVisible: " << (this->GridVisible ? "TRUE" : "FALSE") << "\n";
+  os << indent << "LabelsVisible: " << (this->LabelsVisible ? "TRUE" : "FALSE") << "\n";
+  os << indent << "RangeLabelsVisible: " << (this->RangeLabelsVisible ? "TRUE" : "FALSE") << "\n";
+  os << indent << "TicksVisible: " << (this->TicksVisible ? "TRUE" : "FALSE") << "\n";
+  os << indent << "AxisVisible: " << (this->AxisVisible ? "TRUE" : "FALSE") << "\n";
+  os << indent << "Precision: " << this->Precision << "\n";
   os << indent << "Notation: ";
   switch (this->Notation)
   {
@@ -1954,8 +1953,8 @@ void vtkAxis::PrintSelf(ostream &os, vtkIndent indent)
       os << "<unknown>";
       break;
   }
-  os << endl;
-  os << indent << "LabelFormat: " << this->LabelFormat << endl;
+  os << "\n";
+  os << indent << "LabelFormat: " << this->LabelFormat << "\n";
   os << indent << "Behavior: ";
   switch (this->Behavior)
   {
@@ -1975,14 +1974,14 @@ void vtkAxis::PrintSelf(ostream &os, vtkIndent indent)
       os << "<unknown>";
       break;
   }
-  os << endl;
+  os << "\n";
 
-  os << indent << "Unscaled range: "
-    << this->UnscaledMinimum << " - " << this->UnscaledMaximum << endl;
-  os << indent << "Unscaled range limits: "
-    << this->UnscaledMinimumLimit << " - " << this->UnscaledMaximumLimit << endl;
-  os << indent << "Fallback unscaled range limits: "
-    << this->NonLogUnscaledMinLimit << " - " << this->NonLogUnscaledMaxLimit << endl;
-  os << indent << "ScalingFactor: " << this->ScalingFactor << endl;
-  os << indent << "Shift: " << this->Shift << endl;
+  os << indent << "UnscaledMinimum: " << this->UnscaledMinimum << "\n";
+  os << indent << "UnscaledMaximum: " << this->UnscaledMaximum << "\n";
+  os << indent << "UnscaledMinimumLimit: " << this->UnscaledMinimumLimit << "\n";
+  os << indent << "UnscaledMaximumLimit: " << this->UnscaledMaximumLimit << "\n";
+  os << indent << "NonLogUnscaledMinLimit: " << this->NonLogUnscaledMinLimit << "\n";
+  os << indent << "NonLogUnscaledMaxLimit: " << this->NonLogUnscaledMaxLimit << "\n";
+  os << indent << "ScalingFactor: " << this->ScalingFactor << "\n";
+  os << indent << "Shift: " << this->Shift << "\n";
 }
