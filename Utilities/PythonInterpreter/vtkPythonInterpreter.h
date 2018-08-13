@@ -203,8 +203,8 @@ public:
   vtkPythonGlobalInterpreters();
   ~vtkPythonGlobalInterpreters();
 private:
-  vtkPythonGlobalInterpreters(const vtkPythonGlobalInterpreters&);
-  vtkPythonGlobalInterpreters& operator=(const vtkPythonGlobalInterpreters&);
+  vtkPythonGlobalInterpreters(const vtkPythonGlobalInterpreters&) = delete;
+  vtkPythonGlobalInterpreters& operator=(const vtkPythonGlobalInterpreters&) = delete;
 };
 
 // This is here to implement the Schwarz counter idiom.
