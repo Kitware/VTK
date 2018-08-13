@@ -37,6 +37,7 @@ set(TestParallelCoordinatesDouble_ARGS
   )
 
 vtk_add_test_cxx(vtkChartsCoreCxxTests tests
+  TestAdjustLowerBoundForLogPlot.cxx
   TestContextScene.cxx,NO_DATA,NO_VALID
   TestControlPointsItem.cxx,NO_DATA,NO_VALID
   TestControlPointsItemEvents.cxx,NO_DATA,NO_VALID
