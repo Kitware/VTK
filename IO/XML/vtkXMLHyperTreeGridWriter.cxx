@@ -28,11 +28,13 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#define vtkXMLOffsetsManager_DoNotInclude
+#include "vtkXMLOffsetsManager.h"
+#undef vtkXMLOffsetsManager_DoNotInclude
+
+#include <cassert>
 
 vtkStandardNewMacro(vtkXMLHyperTreeGridWriter);
-
-//----------------------------------------------------------------------------
-vtkXMLHyperTreeGridWriter::~vtkXMLHyperTreeGridWriter() = default;
 
 //----------------------------------------------------------------------------
 void vtkXMLHyperTreeGridWriter::PrintSelf(ostream& os, vtkIndent indent)
@@ -106,6 +108,57 @@ int vtkXMLHyperTreeGridWriter::WriteData()
     return 0;
   }
 
+  if (this->DataMode == vtkXMLWriter::Appended)
+  {
+    vtkHyperTreeGrid* input = this->GetInput();
+
+    this->StartAppendedData();
+
+    if (this->FieldDataOM->GetNumberOfElements())
+    {
+      vtkNew<vtkFieldData> fieldDataCopy;
+      this->UpdateFieldData(fieldDataCopy);
+
+      // Write the field data arrays.
+      this->WriteFieldDataAppendedData(fieldDataCopy,
+                                       this->CurrentTimeIndex,
+                                       this->FieldDataOM);
+      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+        return 0;
+      }
+    }
+
+    if (this->CoordsOMG->GetNumberOfElements())
+    {
+      assert(this->CoordsOMG->GetNumberOfElements() == 3);
+
+      this->WriteAppendedArrayDataHelper(input->GetXCoordinates(),
+                                         this->CoordsOMG->GetElement(0));
+      this->WriteAppendedArrayDataHelper(input->GetYCoordinates(),
+                                         this->CoordsOMG->GetElement(1));
+      this->WriteAppendedArrayDataHelper(input->GetZCoordinates(),
+                                         this->CoordsOMG->GetElement(2));
+    }
+
+    if (this->MaterialMask)
+    {
+      this->WriteAppendedArrayDataHelper(this->MaterialMask,
+                                         *this->MaterialMaskOM);
+    }
+
+    this->WriteAppendedArrayDataHelper(this->Descriptor, *this->DescriptorOM);
+
+    this->WritePointDataAppendedData(input->GetPointData(),
+                                     this->CurrentTimeIndex,
+                                     this->AttributeDataOMG);
+
+    this->EndAppendedData();
+  }
+
+  // We're done with this once the appended data has been written out:
+  this->MaterialMask = nullptr;
+
   if (!this->EndFile())
   {
     return 0;
@@ -159,15 +212,37 @@ int vtkXMLHyperTreeGridWriter::WriteGridCoordinates(vtkIndent indent)
   ostream& os = *(this->Stream);
   os << indent << "<Coordinates>\n";
 
-  this->WriteArrayInline(input->GetXCoordinates(), indent.GetNextIndent(),
-                         "XCoordinates",
-                         input->GetXCoordinates()->GetNumberOfValues());
-  this->WriteArrayInline(input->GetYCoordinates(), indent.GetNextIndent(),
-                         "YCoordinates",
-                         input->GetYCoordinates()->GetNumberOfValues());
-  this->WriteArrayInline(input->GetZCoordinates(), indent.GetNextIndent(),
-                         "ZCoordinates",
-                         input->GetZCoordinates()->GetNumberOfValues());
+  if (this->DataMode == Appended)
+  {
+    this->CoordsOMG->Allocate(3, this->NumberOfTimeSteps);
+
+    this->WriteArrayAppended(input->GetXCoordinates(), indent.GetNextIndent(),
+                             this->CoordsOMG->GetElement(0),
+                             "XCoordinates",
+                             input->GetXCoordinates()->GetNumberOfTuples());
+
+    this->WriteArrayAppended(input->GetYCoordinates(), indent.GetNextIndent(),
+                             this->CoordsOMG->GetElement(1),
+                             "YCoordinates",
+                             input->GetYCoordinates()->GetNumberOfTuples());
+
+    this->WriteArrayAppended(input->GetZCoordinates(), indent.GetNextIndent(),
+                             this->CoordsOMG->GetElement(2),
+                             "ZCoordinates",
+                             input->GetZCoordinates()->GetNumberOfTuples());
+  }
+  else
+  {
+    this->WriteArrayInline(input->GetXCoordinates(), indent.GetNextIndent(),
+                           "XCoordinates",
+                           input->GetXCoordinates()->GetNumberOfValues());
+    this->WriteArrayInline(input->GetYCoordinates(), indent.GetNextIndent(),
+                           "YCoordinates",
+                           input->GetYCoordinates()->GetNumberOfValues());
+    this->WriteArrayInline(input->GetZCoordinates(), indent.GetNextIndent(),
+                           "ZCoordinates",
+                           input->GetZCoordinates()->GetNumberOfValues());
+  }
 
   os << indent << "</Coordinates>\n";
   os.flush();
@@ -180,7 +255,23 @@ int vtkXMLHyperTreeGridWriter::WriteGridCoordinates(vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-vtkXMLHyperTreeGridWriter::vtkXMLHyperTreeGridWriter() = default;
+vtkXMLHyperTreeGridWriter::vtkXMLHyperTreeGridWriter()
+  : CoordsOMG(new OffsetsManagerGroup)
+  , DescriptorOM(new OffsetsManager)
+  , MaterialMask(nullptr)
+  , MaterialMaskOM(new OffsetsManager)
+  , AttributeDataOMG(new OffsetsManagerGroup)
+{
+}
+
+//----------------------------------------------------------------------------
+vtkXMLHyperTreeGridWriter::~vtkXMLHyperTreeGridWriter()
+{
+  delete this->CoordsOMG;
+  delete this->DescriptorOM;
+  delete this->MaterialMaskOM;
+  delete this->AttributeDataOMG;
+}
 
 //----------------------------------------------------------------------------
 namespace {
@@ -229,11 +320,21 @@ int vtkXMLHyperTreeGridWriter::WriteDescriptor(vtkIndent indent)
   os << indent << "<Topology>\n";
 
   // All trees contained on this processor
-  vtkIdTypeArray* treeIds = input->GetMaterialMaskIndex();
-  if (treeIds)
+  this->MaterialMask = input->GetMaterialMaskIndex();
+  if (this->MaterialMask)
   {
-    this->WriteArrayInline(treeIds, indent.GetNextIndent(),
-                           "MaterialMaskIndex", numberOfTrees);
+    if (this->DataMode == Appended)
+    {
+      this->MaterialMaskOM->Allocate(NumberOfTimeSteps);
+      this->WriteArrayAppended(this->MaterialMask, indent.GetNextIndent(),
+                               *this->MaterialMaskOM,
+                               "MaterialMaskIndex", numberOfTrees);
+    }
+    else
+    {
+      this->WriteArrayInline(this->MaterialMask, indent.GetNextIndent(),
+                             "MaterialMaskIndex", numberOfTrees);
+    }
   }
 
   // Collect description by processing depth first and writing breadth first
@@ -253,7 +354,7 @@ int vtkXMLHyperTreeGridWriter::WriteDescriptor(vtkIndent indent)
   }
 
   // Build the BitArray from the level descriptors
-  vtkNew<vtkBitArray> descriptor;
+  this->Descriptor->Reset();
 
   std::string::const_iterator dit;
   for (int l = 0; l < maxLevels; l++)
@@ -263,11 +364,11 @@ int vtkXMLHyperTreeGridWriter::WriteDescriptor(vtkIndent indent)
       switch (*dit)
       {
         case 'R':    //  Refined cell
-          descriptor->InsertNextValue(1);
+          this->Descriptor->InsertNextValue(1);
           break;
 
         case '.':    // Leaf cell
-          descriptor->InsertNextValue(0);
+          this->Descriptor->InsertNextValue(0);
           break;
 
         default:
@@ -279,9 +380,22 @@ int vtkXMLHyperTreeGridWriter::WriteDescriptor(vtkIndent indent)
       }
     }
   }
-  descriptor->Squeeze();
-  this->WriteArrayInline(descriptor, indent.GetNextIndent(), "Descriptor",
-                         descriptor->GetNumberOfValues());
+  this->Descriptor->Squeeze();
+
+  if (this->DataMode == Appended)
+  {
+    this->DescriptorOM->Allocate(this->NumberOfTimeSteps);
+    this->WriteArrayAppended(this->Descriptor, indent.GetNextIndent(),
+                             *this->DescriptorOM,
+                             "Descriptor",
+                             this->Descriptor->GetNumberOfValues());
+  }
+  else
+  {
+    this->WriteArrayInline(this->Descriptor, indent.GetNextIndent(),
+                           "Descriptor",
+                           this->Descriptor->GetNumberOfValues());
+  }
 
   os << indent << "</Topology>\n";
 
@@ -310,7 +424,15 @@ int vtkXMLHyperTreeGridWriter::WriteAttributeData(vtkIndent indent)
   // Set the range of progress for the point data arrays.
   this->SetProgressRange(progressRange, 0, fractions);
 
-  this->WritePointDataInline(input->GetPointData(), indent);
+  if (this->DataMode == Appended)
+  {
+    this->WritePointDataAppended(input->GetPointData(), indent,
+                                 this->AttributeDataOMG);
+  }
+  else
+  {
+    this->WritePointDataInline(input->GetPointData(), indent);
+  }
 
   ostream& os = *(this->Stream);
   os.flush();
@@ -337,4 +459,25 @@ int vtkXMLHyperTreeGridWriter::FinishPrimaryElement(vtkIndent indent)
     return 0;
   }
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLHyperTreeGridWriter::WriteAppendedArrayDataHelper(vtkAbstractArray *array,
+                                                             OffsetsManager &offsets)
+{
+  this->WriteArrayAppendedData(array,
+                               offsets.GetPosition(this->CurrentTimeIndex),
+                               offsets.GetOffsetValue(this->CurrentTimeIndex));
+
+  vtkDataArray *dArray = vtkArrayDownCast<vtkDataArray>(array);
+  if (dArray)
+  {
+    double *range = dArray->GetRange(-1);
+    this->ForwardAppendedDataDouble(
+          offsets.GetRangeMinPosition(this->CurrentTimeIndex),
+          range[0], "RangeMin");
+    this->ForwardAppendedDataDouble(
+          offsets.GetRangeMaxPosition(this->CurrentTimeIndex),
+          range[1], "RangeMax");
+  }
 }
