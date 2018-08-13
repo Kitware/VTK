@@ -2770,7 +2770,7 @@ void vtkXMLWriter::WritePointDataAppendedData(vtkPointData* pd, int timestep,
     // Only write pd if MTime has changed
     vtkMTimeType &pdMTime = pdManager->GetElement(i).GetLastMTime();
     vtkAbstractArray* a = pd->GetAbstractArray(i);
-    if ( pdMTime != mtime )
+    if ( pdMTime != mtime || timestep == 0 )
     {
       pdMTime = mtime;
       this->WriteArrayAppendedData(a,
