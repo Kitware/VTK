@@ -357,12 +357,12 @@ namespace vtkvolume
         \n  {\
         \n    float jitterValue = texture2D(in_noiseSampler, gl_FragCoord.xy / textureSize(in_noiseSampler, 0)).x;\
         \n    g_rayJitter = g_dirStep * jitterValue;\
-        \n    g_dataPos += g_rayJitter;\
         \n  }\
         \n  else\
         \n  {\
-        \n    g_dataPos += g_dirStep;\
+        \n    g_rayJitter = g_dirStep;\
         \n  }\
+        \n  g_dataPos += g_rayJitter;\
         \n\
         \n  // Flag to deternmine if voxel should be considered for the rendering\
         \n  g_skip = false;");
@@ -2286,29 +2286,16 @@ namespace vtkvolume
       \n{ \
       \n  vec4 startPosObj = vec4(0.0);\
       \n  {\
-      \n    if (in_useJittering)\
-      \n    {\
-      \n      startPosObj = clip_texToObjMat * vec4(startPosTex - g_rayJitter, 1.0);\
-      \n    }\
-      \n    else\
-      \n    {\
-      \n      startPosObj = clip_texToObjMat * vec4(startPosTex - g_dirStep, 1.0);\
-      \n    }\
-      \n    if (startPosObj.w != 0.0)\
-      \n    {\
-      \n      startPosObj = startPosObj / startPosObj.w;\
-      \n      startPosObj.w = 1.0;\
-      \n    }\
+      \n    startPosObj = clip_texToObjMat * vec4(startPosTex - g_rayJitter, 1.0);\
+      \n    startPosObj = startPosObj / startPosObj.w;\
+      \n    startPosObj.w = 1.0;\
       \n  }\
       \n\
       \n  vec4 stopPosObj = vec4(0.0);\
       \n  {\
       \n    stopPosObj = clip_texToObjMat * vec4(stopPosTex, 1.0);\
-      \n    if (stopPosObj.w != 0.0)\
-      \n    {\
-      \n      stopPosObj = stopPosObj / stopPosObj.w;\
-      \n      stopPosObj.w = 1.0;\
-      \n    }\
+      \n    stopPosObj = stopPosObj / stopPosObj.w;\
+      \n    stopPosObj.w = 1.0;\
       \n  }\
       \n\
       \n  for (int i = 0; i < clip_numPlanes; i = i + 6)\
@@ -2344,19 +2331,9 @@ namespace vtkvolume
       \n      float rayScaledDist = startDistance / rayDotNormal;\
       \n      startPosObj = vec4(startPosObj.xyz + rayScaledDist * clip_rayDirObj, 1.0);\
       \n      vec4 newStartPosTex = clip_objToTexMat * vec4(startPosObj.xyz, 1.0);\
-      \n      if (newStartPosTex.w != 0.0)\
-      \n      {\
-      \n        newStartPosTex /= newStartPosTex.w;\
-      \n      }\
+      \n      newStartPosTex /= newStartPosTex.w;\
       \n      startPosTex = newStartPosTex.xyz;\
-      \n      if (in_useJittering)\
-      \n      {\
-      \n        startPosTex += g_rayJitter;\
-      \n      }\
-      \n      else\
-      \n      {\
-      \n        startPosTex += g_dirStep;\
-      \n      }\
+      \n      startPosTex += g_rayJitter;\
       \n    }\
       \n\
       \n    // Move the end position closer to the eye if needed:\
@@ -2368,10 +2345,7 @@ namespace vtkvolume
       \n      float rayScaledDist = stopDistance / rayDotNormal;\
       \n      stopPosObj = vec4(stopPosObj.xyz + rayScaledDist * clip_rayDirObj, 1.0);\
       \n      vec4 newStopPosTex = clip_objToTexMat * vec4(stopPosObj.xyz, 1.0);\
-      \n      if (newStopPosTex.w != 0.0)\
-      \n      {\
-      \n        newStopPosTex /= newStopPosTex.w;\
-      \n      }\
+      \n      newStopPosTex /= newStopPosTex.w;\
       \n      stopPosTex = newStopPosTex.xyz;\
       \n    }\
       \n  }\

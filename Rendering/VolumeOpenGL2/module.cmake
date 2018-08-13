@@ -11,6 +11,7 @@ vtk_module(vtkRenderingVolumeOpenGL2
     vtkImagingSources
     vtkImagingGeneral
     vtkInteractionStyle
+    vtkInteractionWidgets
     vtkIOLegacy
   KIT
     vtkOpenGL
