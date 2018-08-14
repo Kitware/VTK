@@ -23,4 +23,5 @@ vtk_add_test_python(
   Test3DCellsEvaluatePosition.py,NO_DATA,NO_VALID,NO_OUTPUT
   TestICPTransform.py,NO_RT
   TestMolecule.py,NO_VALID,NO_RT
+  TestClipPolyhedra.py
   )
