@@ -25,7 +25,11 @@
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"
+#include "vtkNew.h" // For ivar
 
+class OffsetsManagerGroup;
+class vtkBitArray;
+class vtkIdTypeArray;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridCursor;
 
@@ -75,6 +79,20 @@ protected:
 
   // </HyperTreeGrid>
   int FinishPrimaryElement(vtkIndent);
+
+  // Helper to simplify writing appended array data
+  void WriteAppendedArrayDataHelper(vtkAbstractArray *array,
+                                    OffsetsManager &offsets);
+
+  OffsetsManagerGroup *CoordsOMG;
+
+  vtkNew<vtkBitArray> Descriptor;
+  OffsetsManager *DescriptorOM;
+
+  vtkIdTypeArray *MaterialMask;
+  OffsetsManager *MaterialMaskOM;
+
+  OffsetsManagerGroup *AttributeDataOMG;
 
 private:
   vtkXMLHyperTreeGridWriter(const vtkXMLHyperTreeGridWriter&) = delete;

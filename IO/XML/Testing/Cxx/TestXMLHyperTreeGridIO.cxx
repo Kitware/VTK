@@ -38,7 +38,7 @@ int TestXMLHyperTreeGridIO(int argc, char* argv[])
 
   std::string ifname = std::string(data_dir) + std::string("/Data/") + fname;
 
-  cout << "- READ --------------------------------" << endl;
+  cout << "- READ INPUT --------------------------------" << endl;
   vtkNew<vtkXMLHyperTreeGridReader> reader;
   reader->SetFileName(ifname.c_str());
   reader->Update();
@@ -81,11 +81,12 @@ int TestXMLHyperTreeGridIO(int argc, char* argv[])
 
   std::string ofname = output_dir + "/" + fname;
 
-  cout << "- WRITE --------------------------------" << endl;
+  cout << "- WRITE BINARY --------------------------------" << endl;
 
   vtkNew<vtkXMLHyperTreeGridWriter> writer;
   writer->SetFileName(ofname.c_str());
   writer->SetInputData(read_in);
+  writer->SetDataModeToBinary();
   writer->Write();
 
   reader->SetFileName(ofname.c_str());
@@ -117,8 +118,41 @@ int TestXMLHyperTreeGridIO(int argc, char* argv[])
   read2 +="#POINTS "+std::to_string(wrote_out->GetNumberOfPoints())+"\n";
   cout << read2 << endl;
 
+  cout << "- WRITE APPENDED --------------------------------" << endl;
+
+  writer->SetDataModeToAppended();
+  writer->Write();
+
+  reader->Update();
+  wrote_out = reader->GetOutput();
+
+  std::string read3;
+  wrote_out->GetGridSize(size);
+  read3 += "SIZE "+std::to_string(size[0])+","+std::to_string(size[1])+","+std::to_string(size[2])+"\n";
+  read3 +="DIMS "+std::to_string(wrote_out->GetDimension())+"\n";
+  read3 +="#TREES "+std::to_string(wrote_out->GetNumberOfTrees())+"\n";
+  read3 +="ORIENTATION "+std::to_string(wrote_out->GetOrientation())+"\n";
+  read3 +="BRANCHFACTOR "+std::to_string(wrote_out->GetBranchFactor())+"\n";
+  coords = wrote_out->GetXCoordinates();
+  ntp = coords->GetNumberOfTuples();
+  read3 +="XCOORDS "+std::to_string(ntp)+":"+std::to_string(coords->GetTuple1(0))+"..."+std::to_string(coords->GetTuple1(ntp-1))+"\n";
+  coords = wrote_out->GetYCoordinates();
+  ntp = coords->GetNumberOfTuples();
+  read3 +="YCOORDS "+std::to_string(ntp)+":"+std::to_string(coords->GetTuple1(0))+"..."+std::to_string(coords->GetTuple1(ntp-1))+"\n";
+  coords = wrote_out->GetZCoordinates();
+  ntp = coords->GetNumberOfTuples();
+  read3 +="ZCOORDS "+std::to_string(ntp)+":"+std::to_string(coords->GetTuple1(0))+"..."+std::to_string(coords->GetTuple1(ntp-1))+"\n";
+  read3 +="TRANSPOSED "+std::to_string(wrote_out->GetTransposedRootIndexing())+"\n";
+  read3 +="#CHILDREN "+std::to_string(wrote_out->GetNumberOfChildren())+"\n";
+  read3 +="#LEVELS "+std::to_string(wrote_out->GetNumberOfLevels())+"\n";
+  read3 +="#VERTS "+std::to_string(wrote_out->GetNumberOfVertices())+"\n";
+  read3 +="#LEAVES "+std::to_string(wrote_out->GetNumberOfLeaves())+"\n";
+  read3 +="#CELLS "+std::to_string(wrote_out->GetNumberOfCells())+"\n";
+  read3 +="#POINTS "+std::to_string(wrote_out->GetNumberOfPoints())+"\n";
+  cout << read3 << endl;
+
   bool ret = VTK_FAILURE;
-  if (read1 == read2)
+  if (read1 == read2 && read1 == read3)
   {
     ret = VTK_SUCCESS;
     vtksys::SystemTools::RemoveADirectory(output_dir);
