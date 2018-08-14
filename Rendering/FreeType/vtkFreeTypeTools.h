@@ -58,8 +58,8 @@ public:
   vtkFreeTypeToolsCleanup();
   ~vtkFreeTypeToolsCleanup();
 private:
-  vtkFreeTypeToolsCleanup(const vtkFreeTypeToolsCleanup&);
-  vtkFreeTypeToolsCleanup& operator=(const vtkFreeTypeToolsCleanup&);
+  vtkFreeTypeToolsCleanup(const vtkFreeTypeToolsCleanup&) = delete;
+  vtkFreeTypeToolsCleanup& operator=(const vtkFreeTypeToolsCleanup&) = delete;
 };
 
 //----------------------------------------------------------------------------
