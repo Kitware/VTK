@@ -216,7 +216,7 @@ public:
 
 protected:
   vtkCellValidator();
-  ~vtkCellValidator() {}
+  ~vtkCellValidator() override {}
 
   double Tolerance;
 
