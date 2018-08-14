@@ -800,17 +800,30 @@ void vtkChartXY::RecalculatePlotBounds()
         return;
     }
 
-    if (this->AdjustLowerBoundForLogPlot && axis->GetLogScale() && range[0] <= 0.)
+    if (this->AdjustLowerBoundForLogPlot && axis->GetLogScale() &&
+        (range[0] <= 0.0 || vtkMath::IsNan(range[0])))
     {
-      if (range[1] <= 0.)
+      if (range[1] <= 0.0 || vtkMath::IsNan(range[1]))
       {
         // All of the data is negative, so we arbitrarily set the axis range to
         // be positive and show no data
         range[1] = 1.;
       }
+
       // The minimum value is set to either 4 decades below the max or to 1,
-      // regardless of the true minimum value (which is less than 0)
-      range[0] = (range[1] < 1.e4 ? range[1] / 1.e4 : 1.);
+      // regardless of the true minimum value (which is less than 0).
+      if (axis->GetLogScaleActive())
+      {
+        // Need to adjust in log (scaled) space
+        double candidateMin = range[1] - 4.0;
+        range[0] = (candidateMin < 0.0 ? candidateMin : 0.0);
+      }
+      else
+      {
+        // Need to adjust in unscaled space
+        double candidateMin = range[1] * 1.0e-4;
+        range[0] = (candidateMin < 1.0 ? candidateMin : 1.0);
+      }
     }
     if (this->ForceAxesToBounds)
     {
