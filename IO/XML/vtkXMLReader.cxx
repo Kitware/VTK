@@ -844,7 +844,6 @@ int vtkXMLReader::ReadArrayValues(
   }
   this->InReadData = 1;
   int result;
-  // All arrays types except vtkBitArray.
   vtkArrayIterator* iter = array->NewIterator();
   switch (array->GetDataType())
   {
