@@ -2183,12 +2183,12 @@ void vtkPolyhedron::Clip(double value,
       faceStream->InsertNextId(nFacePoints);
       for (int j = 0; j < nFacePoints; ++j)
       {
-        faceStream->InsertNextId(face->GetPointId(j));
         face->GetPoints()->GetPoint(j, x);
 
         vtkIdType id(-1);
         locator->InsertUniquePoint(x, id);
         outPd->CopyData(inPd, face->GetPointId(j), id);
+        faceStream->InsertNextId(id);
       }
     }
     if (nFaces > 0)
