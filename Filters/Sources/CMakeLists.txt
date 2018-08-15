@@ -23,6 +23,7 @@ set(Module_SRCS
   vtkPolyLineSource.cxx
   vtkProgrammableDataObjectSource.cxx
   vtkProgrammableSource.cxx
+  vtkRandomHyperTreeGridSource.cxx
   vtkRectangularButtonSource.cxx
   vtkRegularPolygonSource.cxx
   #vtkRRandomTableSource.cxx # Should be in R kit
