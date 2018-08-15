@@ -296,8 +296,21 @@ int vtkGradientFilter::RequestData(vtkInformation *vtkNotUsed(request),
     = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet *output
     = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
   vtkDataArray *array = this->GetInputArrayToProcess(0, inputVector);
+
+  if (input->GetNumberOfCells() == 0)
+  {
+    // need cells to compute the gradient so if we don't have cells. we can't compute anything.
+    // if we have points and an array with values provide a warning letting the user know that
+    // no gradient will be computed because of the lack of cells. otherwise the dataset is
+    // assumed empty and we can skip providing a warning message to the user.
+    if (input->GetNumberOfPoints() && array && array->GetNumberOfTuples())
+    {
+      vtkWarningMacro("Cannot compute gradient for datasets without cells");
+    }
+    output->ShallowCopy(input);
+    return 1;
+  }
 
   if (array == nullptr)
   {
