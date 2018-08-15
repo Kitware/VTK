@@ -174,9 +174,9 @@ protected:
                             void *clientdata, void *calldata);
 
   // ProcessEvents() dispatches to these methods.
-  void OnLeftButtonDown();
-  void OnLeftButtonUp();
-  void OnMouseMove();
+  virtual void OnLeftButtonDown();
+  virtual void OnLeftButtonUp();
+  virtual void OnMouseMove();
 
   // observer to update the renderer's camera
   vtkOrientationMarkerWidgetObserver *Observer;
@@ -207,10 +207,10 @@ protected:
 
   // use to determine what state the mouse is over, edge1 p1, etc.
   // returns a state from the WidgetState enum above
-  int ComputeStateBasedOnPosition(int X, int Y, int *pos1, int *pos2);
+  virtual int ComputeStateBasedOnPosition(int X, int Y, int *pos1, int *pos2);
 
   // set the cursor to the correct shape based on State argument
-  void SetCursor(int state);
+  virtual void SetCursor(int state);
 
   // adjust the viewport depending on state
   void MoveWidget(int X, int Y);
