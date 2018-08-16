@@ -106,7 +106,7 @@ public:
    * following methods are specific to structured grid
    */
   void SetDimensions(int i, int j, int k);
-  void SetDimensions(int dim[3]);
+  void SetDimensions(const int dim[3]);
   //@}
 
   //@{

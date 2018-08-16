@@ -176,7 +176,7 @@ void vtkPlotPie::SetDimensions(int arg1, int arg2, int arg3, int arg4)
   }
 }
 
-void vtkPlotPie::SetDimensions(int arg[4])
+void vtkPlotPie::SetDimensions(const int arg[4])
 {
   this->SetDimensions(arg[0],arg[1],arg[2],arg[3]);
 }

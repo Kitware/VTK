@@ -64,7 +64,7 @@ public:
    * Set the dimensions of the pie, elements 0 and 1 are the x and y coordinate
    * of the bottom corner. Elements 2 and 3 are the width and height.
    */
-  void SetDimensions(int arg[4]);
+  void SetDimensions(const int arg[4]);
 
   //@{
   /**
