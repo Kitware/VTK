@@ -348,7 +348,6 @@ bool vtkOpenVRRenderWindow::IsCurrent()
 // ----------------------------------------------------------------------------
 void vtkOpenVRRenderWindow::SetSize(int x, int y)
 {
-  static int resizing = 0;
   if ((this->Size[0] != x) || (this->Size[1] != y))
   {
     this->Superclass::SetSize(x, y);
@@ -369,8 +368,6 @@ int *vtkOpenVRRenderWindow::GetScreenSize(void)
 
 void vtkOpenVRRenderWindow::SetPosition(int x, int y)
 {
-  static int resizing = 0;
-
   if ((this->Position[0] != x) || (this->Position[1] != y))
   {
     this->Modified();

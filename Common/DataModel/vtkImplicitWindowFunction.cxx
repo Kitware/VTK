@@ -40,13 +40,13 @@ vtkImplicitWindowFunction::~vtkImplicitWindowFunction()
 // Evaluate window function.
 double vtkImplicitWindowFunction::EvaluateFunction(double x[3])
 {
-  static int beenWarned=0;
+  static bool beenWarned=false;
   double value, diff1, diff2, scaledRange;
 
   if ( ! this->ImplicitFunction && ! beenWarned )
   {
     vtkErrorMacro(<<"Implicit function must be defined");
-    beenWarned = 1;
+    beenWarned = true;
     return 0.0;
   }
 

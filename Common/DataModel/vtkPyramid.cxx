@@ -398,7 +398,7 @@ void vtkPyramid::Contour(double value, vtkDataArray *cellScalars,
                          vtkCellData *inCd, vtkIdType cellId,
                          vtkCellData *outCd)
 {
-  static int CASE_MASK[5] = {1,2,4,8,16};
+  static const int CASE_MASK[5] = {1,2,4,8,16};
   TRIANGLE_CASES *triCase;
   EDGE_LIST  *edge;
   int i, j, index, *vert, v1, v2, newCellId;

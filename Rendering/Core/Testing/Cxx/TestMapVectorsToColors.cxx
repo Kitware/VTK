@@ -56,7 +56,7 @@ int TestMapVectorsToColors(int argc, char *argv[])
       {
         for (int k = 0; k < 16; k++)
         {
-          static int f = 85;
+          static const int f = 85;
           cval[0] = ((k >> 2) & 3)*f;
           cval[1] = (k & 3)*f;
           cval[2] = ((j >> 2) & 3)*f;

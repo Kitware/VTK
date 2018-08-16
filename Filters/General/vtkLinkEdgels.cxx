@@ -129,13 +129,13 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
   double linkThresh, phiThresh;
   // these direction vectors are rotated 90 degrees
   // to convert gradient direction into edgel direction
-  static double directions[8][2] = {
+  static const double directions[8][2] = {
     {0,1},  {-0.707, 0.707},
     {-1,0}, {-0.707, -0.707},
     {0,-1}, {0.707, -0.707},
     {1,0},  {0.707, 0.707}};
-  static int xoffset[8] = {1,1,0,-1,-1,-1,0,1};
-  static int yoffset[8] = {0,1,1,1,0,-1,-1,-1};
+  static const int xoffset[8] = {1,1,0,-1,-1,-1,0,1};
+  static const int yoffset[8] = {0,1,1,1,0,-1,-1,-1};
   int length, start;
   int bestDirection = 0;
   double error, bestError;

@@ -1400,7 +1400,7 @@ void vtkCellTypeSource::GenerateLagrangeTets(vtkUnstructuredGrid* output, int ex
         output->GetPoint(corners[6], pt[6].GetData());
         output->GetPoint(corners[7], pt[7].GetData());
 
-        static int tetsOfHex[5][4] = {
+        static const int tetsOfHex[5][4] = {
           { 0, 1, 3, 4 },
           { 1, 2, 3, 6 },
           { 4, 7, 6, 3 },

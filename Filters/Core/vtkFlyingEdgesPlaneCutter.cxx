@@ -380,8 +380,8 @@ vtkFlyingEdgesPlaneCutterAlgorithm():XCases(nullptr),EdgeMetaData(nullptr),NewSc
                                      NewTris(nullptr),NewPoints(nullptr),NewNormals(nullptr)
 {
   int i, j, k, l, ii, eCase, index, numTris;
-  static int vertMap[8] = {0,1,3,2,4,5,7,6};
-  static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
+  static const int vertMap[8] = {0,1,3,2,4,5,7,6};
+  static const int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
   EDGE_LIST *edge;
   vtkMarchingCubesTriangleCases *triCase;
   unsigned char *edgeCase;

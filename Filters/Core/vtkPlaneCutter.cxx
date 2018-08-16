@@ -1213,7 +1213,7 @@ void CutStructuredGrid(T* pts,
   const double* planeNormal,
   bool generatePolygons)
 {
-  static int CASE_MASK[8] = { 1, 2, 4, 8, 16, 32, 64, 128 };
+  static const int CASE_MASK[8] = { 1, 2, 4, 8, 16, 32, 64, 128 };
   EDGE_LIST* edge;
   int i, j, index, *vert;
 

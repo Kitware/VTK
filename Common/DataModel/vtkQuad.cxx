@@ -417,7 +417,7 @@ void vtkQuad::Contour(double value, vtkDataArray *cellScalars,
                       vtkPointData *inPd, vtkPointData *outPd,
                       vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
 {
-  static int CASE_MASK[4] = {1,2,4,8};
+  static const int CASE_MASK[4] = {1,2,4,8};
   LINE_CASES *lineCase;
   EDGE_LIST  *edge;
   int i, j, index, *vert;
@@ -811,7 +811,7 @@ void vtkQuad::Clip(double value, vtkDataArray *cellScalars,
                    vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
                    int insideOut)
 {
-  static int CASE_MASK[4] = {1,2,4,8};
+  static const int CASE_MASK[4] = {1,2,4,8};
   QUAD_CASES *quadCase;
   QUAD_EDGE_LIST  *edge;
   int i, j, index, *vert;

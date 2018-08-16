@@ -392,7 +392,7 @@ void vtkTriangle::Contour(double value, vtkDataArray *cellScalars,
                           vtkCellData *inCd, vtkIdType cellId,
                           vtkCellData *outCd)
 {
-  static int CASE_MASK[3] = {1,2,4};
+  static const int CASE_MASK[3] = {1,2,4};
   LINE_CASES *lineCase;
   EDGE_LIST  *edge;
   int i, j, index, *vert;
@@ -867,7 +867,7 @@ void vtkTriangle::Clip(double value, vtkDataArray *cellScalars,
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
                        int insideOut)
 {
-  static int CASE_MASK[3] = {1,2,4};
+  static const int CASE_MASK[3] = {1,2,4};
   TRIANGLE_CASES *triangleCase;
   TRIANGLE_EDGE_LIST  *edge;
   int i, j, index, *vert;

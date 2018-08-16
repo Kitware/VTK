@@ -39,7 +39,7 @@ int main()
   int i, j, k, kOffset, jOffset, offset;
   float x[3], v[3], rMin=0.5, rMax=1.0, deltaRad, deltaZ;
   float radius, theta;
-  static int dims[3]={13,11,11};
+  static const int dims[3]={13,11,11};
 
   // Create the structured grid.
   vtkStructuredGrid *sgrid = vtkStructuredGrid::New();

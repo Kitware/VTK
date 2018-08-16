@@ -95,7 +95,7 @@ int ComparePointLocators(vtkAbstractPointLocator* locator1, vtkAbstractPointLoca
   int rval = 0;
   int i, j, k, kOffset, jOffset, offset;
   float x[3];
-  static int dims[3]={39,31,31};
+  static const int dims[3]={39,31,31};
 
   // Create the structured grid.
   vtkStructuredGrid *sgrid = vtkStructuredGrid::New();

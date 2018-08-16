@@ -34,7 +34,7 @@
 int TestThreadedSynchronizedTemplatesCutter3D(int, char *[])
 {
   static const int dim = 257;
-  static int ext[6] = { 0, dim - 1, 0, dim - 1, 0, dim - 1 };
+  static const int ext[6] = { 0, dim - 1, 0, dim - 1, 0, dim - 1 };
 
   //vtkSMPTools::Initialize(4);
   vtkNew<vtkTimerLog> tl;

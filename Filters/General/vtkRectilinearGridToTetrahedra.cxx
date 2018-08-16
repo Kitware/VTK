@@ -357,19 +357,19 @@ Want right handed Tetrahedra...
 */
 
   // Split voxel in 2 along diagonal, 3 tets on either side
- static int tet6[6][4] =
+ static const int tet6[6][4] =
    {
      {1,6,2,3}, {1,6,7,5}, {1,6,3,7},
      {1,6,0,2}, {1,6,5,4}, {1,6,4,0},
    };
 
- static int tet5[5][4]      =
+ static const int tet5[5][4]      =
    { {0,1,4,2},{1,4,7,5},{1,4,2,7},{1,2,3,7},{2,7,4,6} };
- static int tet5flip[5][4]  =
+ static const int tet5flip[5][4]  =
    { {3,1,0,5}, {0,3,6,2}, {3,5,6,7}, {0,6,5,4}, {0,3,5,6}};
 
   // 12 tet to confirm to tet5
-  static int tet12_conform[12][4] = {
+  static const int tet12_conform[12][4] = {
   /* Left side */
     {8,2,4,0},
     {8,4,2,6},

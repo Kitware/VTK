@@ -520,8 +520,8 @@ void vtkClipVolume::ClipVoxel(double value, vtkDataArray *cellScalars,
   static int edges[12][2] = { {0,1}, {2,3}, {4,5}, {6,7},
                               {0,2}, {1,3}, {4,6}, {5,7},
                               {0,4}, {1,5}, {2,6}, {3,7}};
-  static int order[2][8] = { {0,3,5,6,1,2,4,7},
-                             {1,2,4,7,0,3,5,6}};//injection order based on flip
+  static const int order[2][8] = { {0,3,5,6,1,2,4,7},
+                                   {1,2,4,7,0,3,5,6}};//injection order based on flip
 
   // compute bounds for voxel and initialize
   cellPts->GetPoint(0,voxelOrigin);
