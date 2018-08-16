@@ -12,4 +12,5 @@ vtk_module(vtkDomainsParallelChemistry
   PRIVATE_DEPENDS
     vtkCommonCore
     vtkParallelMPI
+    vtkFiltersParallelMPI
   )

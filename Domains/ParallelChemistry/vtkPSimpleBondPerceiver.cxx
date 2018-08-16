@@ -16,9 +16,9 @@
 #include "vtkPSimpleBondPerceiver.h"
 
 #include "vtkDataSetAttributes.h"
+#include "vtkDistributedPointCloudFilter.h"
 #include "vtkFloatArray.h"
 #include "vtkMPIController.h"
-#include "vtkMPIUtilities.h"
 #include "vtkMolecule.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -75,7 +75,7 @@ bool vtkPSimpleBondPerceiver::CreateGhosts(vtkMolecule* molecule)
   dataArray->DeepCopy(molecule->GetVertexData());
 
   vtkNew<vtkPolyData> outputPoly;
-  vtkMPIUtilities::GetPointsInsideBounds(
+  vtkDistributedPointCloudFilter::GetPointsInsideBounds(
     controller, inputPoly.Get(), outputPoly.Get(), outterBounds);
 
   molecule->Initialize(
