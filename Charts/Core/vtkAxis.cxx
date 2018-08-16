@@ -1322,7 +1322,7 @@ void vtkAxis::GenerateTickLabels(double min, double max)
       range = mult > 0.0 ? max - min : min - max;
       n = vtkContext2D::FloatToInt(range / this->TickInterval);
     }
-    for (int i = 0; i <= n && i < 200; ++i)
+    for (int i = 0; i <= n; ++i)
     {
       double value = 0.0;
       if (this->LogScaleActive)
