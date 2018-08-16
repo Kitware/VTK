@@ -348,7 +348,7 @@ bool vtkDistributedPointCloudFilter::OptimizeBoundingBox(
       pts.resize(3 * (newNumPts + toReceive));
       if (toReceive > 0)
       {
-        roundComm->ReceiveVoidArray(&pts[3 * newNumPts], 3 * toReceive, VTK_DOUBLE, partner, partner);
+        roundComm->ReceiveVoidArray(&pts[3 * newNumPts], 3 * toReceive, VTK_DOUBLE, partner, EXCHANGE_POINT_TAG);
       }
     }
 
