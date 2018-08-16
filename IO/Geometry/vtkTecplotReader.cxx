@@ -1644,25 +1644,32 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
 
       std::string format;
       std::string elemType;
+      std::string zoneType;
       std::string ZoneName = untitledZoneName;
 
       tok = this->Internal->GetNextToken();
-      while (  !( tok != "T"  &&
-                  tok != "I"  &&
-                  tok != "J"  &&
-                  tok != "K"  &&
-                  tok != "N"  &&
-                  tok != "E"  &&
-                  tok != "ET" &&
-                  tok != "F"  &&
-                  tok != "D"  &&
-                  tok != "DT" &&
-                  tok != "STRANDID"     &&
-                  tok != "SOLUTIONTIME" &&
-                  tok != "DATAPACKING"  &&
-                  tok != "VARLOCATION"
-                )
-            )
+      //while (  !( tok != "T"            &&
+      //            tok != "I"            &&
+      //            tok != "J"            &&
+      //            tok != "K"            &&
+      //            tok != "N"            &&
+      //            tok != "NODES"        &&
+      //            tok != "E"            &&
+      //            tok != "ELEMENTS"     &&
+      //            tok != "ET"           &&
+      //            tok != "ZONETYPE"     &&
+      //            tok != "F"            &&
+      //            tok != "D"            &&
+      //            tok != "DT"           &&
+      //            tok != "STRANDID"     &&
+      //            tok != "AUXDATA"      &&
+      //            tok != "SOLUTIONTIME" &&
+      //            tok != "DATAPACKING"  &&
+      //            tok != "VARLOCATION"
+      //          )
+      //      )
+      // instead of looking for known keywords, read the zone header until the first numeric token
+      while (!(tok.front() == '-') && !(tok.front() == '.') && !isdigit(tok.front()))
       {
         if ( tok == "T" )
         {
@@ -1686,17 +1693,21 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
         {
           numK = atoi( this->Internal->GetNextToken().c_str() );
         }
-        else if ( tok == "N" )
+        else if ( tok == "N" || tok == "NODES" )
         {
           numNodes = atoi( this->Internal->GetNextToken().c_str() );
         }
-        else if ( tok == "E" )
+        else if ( tok == "E" || tok == "ELEMENTS")
         {
           numElements = atoi( this->Internal->GetNextToken().c_str() );
         }
         else if ( tok == "ET" )
         {
           elemType = this->Internal->GetNextToken();
+        }
+        else if ( tok == "ZONETYPE" )
+        {
+          zoneType = this->Internal->GetNextToken();
         }
         else if ( tok == "F" || tok == "DATAPACKING" )
         {
@@ -1794,45 +1805,103 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
                          << "'SOLUTIONTIME' is currently unsupported." );
           this->Internal->GetNextToken();
         }
+        else if (tok == "AUXDATA")
+        {
+          while (READ_UNTIL_LINE_END)
+          {
+            // Skipping token
+            tok = this->Internal->GetNextToken();
+
+            // the READ_UNTIL_LINE_END macro does NOT read until a line ends
+            // but it reads until a next known keyword is encountered.
+            if (this->Internal->NextCharEOL)
+            {
+              break;
+            }
+          }
+        }
+        else
+        {
+          vtkDebugMacro( << this->FileName << "; encountered an unknown token: '"
+                         << tok << "'. This will be skipped.");
+        }
         tok = this->Internal->GetNextToken();
-      }
+      }  // end while loop looking for known tokens
 
       this->Internal->TokenBackup = tok;
 
       this->ZoneNames.push_back( ZoneName );
 
-      if ( format == "FEBLOCK" )
+      if (zoneType.empty())
       {
-        this->GetUnstructuredGridFromBlockPackingZone( numNodes, numElements,
-              elemType.c_str(), zoneIndex, ZoneName.c_str(),  multZone );
-      }
-      else if ( format == "FEPOINT" )
-      {
-        this->GetUnstructuredGridFromPointPackingZone( numNodes, numElements,
-              elemType.c_str(), zoneIndex, ZoneName.c_str(),  multZone );
-      }
-      else if ( format == "BLOCK" )
-      {
-        this->GetStructuredGridFromBlockPackingZone
-              ( numI, numJ, numK, zoneIndex, ZoneName.c_str(),  multZone );
-      }
-      else if ( format == "POINT" )
-      {
-        this->GetStructuredGridFromPointPackingZone
-              ( numI, numJ, numK, zoneIndex, ZoneName.c_str(),  multZone );
-      }
-      else if ( format.empty() )
-      {
-        // No format given; we will assume we got a POINT format
-        this->GetStructuredGridFromPointPackingZone
-              ( numI, numJ, numK, zoneIndex, ZoneName.c_str(),  multZone );
+        if ( format == "FEBLOCK" )
+        {
+          this->GetUnstructuredGridFromBlockPackingZone( numNodes, numElements,
+                elemType.c_str(), zoneIndex, ZoneName.c_str(),  multZone );
+        }
+        else if ( format == "FEPOINT" )
+        {
+          this->GetUnstructuredGridFromPointPackingZone( numNodes, numElements,
+                elemType.c_str(), zoneIndex, ZoneName.c_str(),  multZone );
+        }
+        else if ( format == "BLOCK" )
+        {
+          this->GetStructuredGridFromBlockPackingZone
+                ( numI, numJ, numK, zoneIndex, ZoneName.c_str(),  multZone );
+        }
+        else if ( format == "POINT" )
+        {
+          this->GetStructuredGridFromPointPackingZone
+                ( numI, numJ, numK, zoneIndex, ZoneName.c_str(),  multZone );
+        }
+        else if ( format.empty() )
+        {
+          // No format given; we will assume we got a POINT format
+          this->GetStructuredGridFromPointPackingZone
+                ( numI, numJ, numK, zoneIndex, ZoneName.c_str(),  multZone );
+        }
+        else
+        {
+          // UNKNOWN FORMAT
+          vtkErrorMacro( << this->FileName << ": The format " << format.c_str()
+                         << " found in the file is unknown." );
+          return;
+        }
       }
       else
       {
-        // UNKNOWN FORMAT
-        vtkErrorMacro( << this->FileName << ": The format " << format.c_str()
-                       << " found in the file is unknown." );
-        return;
+        if (zoneType == "ORDERED")
+        {
+          if (format == "POINT")
+          {
+            this->GetStructuredGridFromPointPackingZone
+                  (numI, numJ, numK, zoneIndex, ZoneName.c_str(), multZone);
+          }
+          else if (format == "BLOCK")
+          {
+            this->GetStructuredGridFromPointPackingZone
+                  (numI, numJ, numK, zoneIndex, ZoneName.c_str(), multZone);
+          }
+        }
+        else if (zoneType == "FETRIANGLE" || zoneType == "FEQUADRILATERAL" ||
+                 zoneType == "FEBRICK" || zoneType == "FETETRAHEDRON")
+        {
+          std::string elType = zoneType.substr(2);
+          if (format == "POINT")
+          {
+            this->GetUnstructuredGridFromPointPackingZone(numNodes, numElements,
+                  elType.c_str(), zoneIndex, ZoneName.c_str(), multZone);
+          }
+          else if (format == "BLOCK")
+          {
+            this->GetUnstructuredGridFromBlockPackingZone(numNodes, numElements,
+                  elType.c_str(), zoneIndex, ZoneName.c_str(), multZone);
+          }
+        }
+        else
+        {
+          vtkWarningMacro(<<" ZONETYPE '" << zoneType << "' is currently supported.")
+        }
       }
 
       zoneIndex ++;
