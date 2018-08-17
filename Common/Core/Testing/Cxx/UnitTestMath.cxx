@@ -245,6 +245,7 @@ int TestDegreesFromRadians()
   return status;
 }
 
+#ifndef VTK_LEGACY_REMOVE
 // Validate with http://en.wikipedia.org/wiki/Rounding#Rounding_to_integer
 int TestRound()
 {
@@ -309,6 +310,7 @@ int TestRound()
   }
   return status;
 }
+#endif
 
 // Validate with http://en.wikipedia.org/wiki/Floor_and_ceiling_functions
 int TestFloor()
