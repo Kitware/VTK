@@ -46,39 +46,35 @@ public:
   void PrintSelf(ostream &os, vtkIndent indent ) override;
 
   // Inline Gettters & Setters
-  vtkSetMacro(OffSetFromOrigin,double);
-  vtkGetMacro(OffSetFromOrigin,double);
 
   //@{
   /**
-   * Set/Get ForwardUpstream property
+   * Set/Get the offset-from-origin of the slicing plane.
    */
-  vtkSetMacro( ForwardUpstream, vtkTypeBool );
-  vtkGetMacro( ForwardUpstream, vtkTypeBool );
-  vtkBooleanMacro( ForwardUpstream, vtkTypeBool );
-  //@}
-
-  //@{
-  /**
-   * Set/Get EnablePrefetching property
-   */
-  vtkSetMacro( EnablePrefetching, vtkTypeBool );
-  vtkGetMacro( EnablePrefetching, vtkTypeBool );
-  vtkBooleanMacro( EnablePrefetching, vtkTypeBool );
+  vtkSetMacro(OffsetFromOrigin,double);
+  vtkGetMacro(OffsetFromOrigin,double);
   //@}
 
   //@{
   /**
    * Set/Get the maximum resolution used in this instance.
    */
-  vtkSetMacro(MaxResolution,int);
-  vtkGetMacro(MaxResolution,int);
+  vtkSetMacro(MaxResolution,unsigned int);
+  vtkGetMacro(MaxResolution,unsigned int);
   //@}
+
+  /**
+   * Tags to identify normals along the X, Y and Z directions.
+   */
+  enum NormalTag : int
+  {
+    X_NORMAL = 1, Y_NORMAL = 2, Z_NORMAL = 4
+  };
 
   //@{
   /**
-   * Set/Get the Axis normal. There are only 3 acceptable values
-   * 1-(X-Normal); 2-(Y-Normal); 3-(Z-Normal)
+   * Set/Get the Axis normal. The accpetable values are defined in the
+   * NormalTag enum.
    */
   vtkSetMacro(Normal,int);
   vtkGetMacro(Normal,int);
@@ -172,20 +168,10 @@ protected:
    */
   vtkPlane* GetCutPlane( vtkOverlappingAMR *input );
 
-  /**
-   * Initializes the off-set to be at the center of the input data-set.
-   */
-  void InitializeOffSet(
-    vtkOverlappingAMR *inp, double *min, double *max );
-
-  double OffSetFromOrigin;
-  int    Normal; // 1=>X-Normal, 2=>Y-Normal, 3=>Z-Normal
-  bool   initialRequest;
-  int    MaxResolution;
+  double OffsetFromOrigin;
+  int    Normal;
+  unsigned int MaxResolution;
   vtkMultiProcessController *Controller;
-
-  vtkTypeBool ForwardUpstream;
-  vtkTypeBool EnablePrefetching;
 
   std::vector< int > BlocksToLoad;
 
