@@ -42,6 +42,7 @@ int vtkEdgeSubdivisionCriterion::PassField( int sourceId, int sourceSize, vtkStr
   if ( sourceSize + this->FieldOffsets[ this->NumberOfFields ] > vtkStreamingTessellator::MaxFieldSize )
   {
     vtkErrorMacro( "PassField source size (" << sourceSize << ") was too large for vtkStreamingTessellator" );
+    return -1;
   }
 
   int off = this->GetOutputField( sourceId );
@@ -174,5 +175,3 @@ bool vtkEdgeSubdivisionCriterion::FixedFieldErrorEval( const double*, double* p1
 
   return false;
 }
-
-
