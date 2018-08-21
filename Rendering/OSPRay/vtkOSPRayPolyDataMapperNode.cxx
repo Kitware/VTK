@@ -15,6 +15,8 @@
 #include "vtkOSPRayPolyDataMapperNode.h"
 
 #include "vtkActor.h"
+#include "vtkMatrix3x3.h"
+#include "vtkMatrix4x4.h"
 #include "vtkOSPRayActorNode.h"
 #include "vtkOSPRayMaterialHelpers.h"
 #include "vtkOSPRayRendererNode.h"
@@ -80,13 +82,17 @@ namespace vtkosp {
   //------------------------------------------------------------------------------
   void VToOPointNormals(
     vtkDataArray *vNormals,
-    osp::vec3f *&normals)
+    osp::vec3f *&normals,
+    vtkMatrix3x3 *matrix)
   {
     int numNormals = vNormals->GetNumberOfTuples();
     normals = new osp::vec3f[numNormals];
     for (int i = 0; i < numNormals; i++)
     {
-      double *vNormal = vNormals->GetTuple(i);
+      double vNormal[3];
+      double *vtmp = vNormals->GetTuple(i);
+      matrix->MultiplyPoint(vtmp, vNormal);
+      vtkMath::Normalize(vNormal);
       normals[i] = osp::vec3f {
         static_cast<float>(vNormal[0]),
         static_cast<float>(vNormal[1]),
@@ -1119,8 +1125,21 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
           vtkDataArray *vNormals = poly->GetPointData()->GetNormals();
           if (vNormals)
           {
+            vtkSmartPointer<vtkMatrix4x4> m = vtkSmartPointer<vtkMatrix4x4>::New();
+            act->GetMatrix(m);
+            vtkSmartPointer<vtkMatrix3x3> mat3 = vtkSmartPointer<vtkMatrix3x3>::New();
+            for(int i = 0; i < 3; ++i)
+            {
+              for (int j = 0; j < 3; ++j)
+              {
+                mat3->SetElement(i, j, m->GetElement(i, j));
+              }
+            }
+            mat3->Invert();
+            mat3->Transpose();
+
             vtkosp::VToOPointNormals
-              (vNormals, normals);
+              (vNormals, normals, mat3);
             numNormals = vNormals->GetNumberOfTuples();
           }
         }
@@ -1222,8 +1241,21 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
           vtkDataArray *vNormals = poly->GetPointData()->GetNormals();
           if (vNormals)
           {
+            vtkSmartPointer<vtkMatrix4x4> m = vtkSmartPointer<vtkMatrix4x4>::New();
+            act->GetMatrix(m);
+            vtkSmartPointer<vtkMatrix3x3> mat3 = vtkSmartPointer<vtkMatrix3x3>::New();
+            for(int i = 0; i < 3; ++i)
+            {
+              for (int j = 0; j < 3; ++j)
+              {
+                mat3->SetElement(i, j, m->GetElement(i, j));
+              }
+            }
+            mat3->Invert();
+            mat3->Transpose();
+
             vtkosp::VToOPointNormals
-              (vNormals, normals);
+              (vNormals, normals, mat3);
             numNormals = vNormals->GetNumberOfTuples();
           }
         }
