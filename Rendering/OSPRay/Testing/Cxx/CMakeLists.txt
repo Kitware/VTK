@@ -17,6 +17,7 @@ vtk_add_test_cxx(vtkRenderingOSPRayCxxTests tests
   TestOSPRayOrthographic.cxx
   TestOSPRayPass.cxx
   TestOSPRayRenderMesh.cxx
+  TestOSPRayRotatedNormals.cxx
   TestOSPRayScalarBar.cxx
   TestOSPRayTetrahedraMapper.cxx
   TestOSPRayTetrahedraMapperMixedCells.cxx
