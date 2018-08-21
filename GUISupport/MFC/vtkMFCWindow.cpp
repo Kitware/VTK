@@ -192,7 +192,7 @@ void vtkMFCWindow::DrawDC(CDC* pDC)
   this->pvtkWin32OpenGLRW->Render();
 
   unsigned char *pixels =
-    this->pvtkWin32OpenGLRW->GetPixelData(0,0,size[0]-1,size[1]-1,0);
+    this->pvtkWin32OpenGLRW->GetPixelData(0,0,size[0]-1,size[1]-1,0,0);
 
   // now copy he result to the HDC
   int dataWidth = ((cxWindow*3+3)/4)*4;
