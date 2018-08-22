@@ -1812,7 +1812,10 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1,
         }
       }
     }
-
+    if (closestProp == nullptr)
+    {
+      return nullptr;
+    }
     closestProp->InitPathTraversal();
     this->PickedProp =  closestProp->GetNextPath();
     this->PickedProp->Register(this);
