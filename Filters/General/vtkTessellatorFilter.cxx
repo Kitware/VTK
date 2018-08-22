@@ -402,6 +402,11 @@ void vtkTessellatorFilter::SetupOutput(
     }
 
     vtkDataArray* array = fields->GetArray( a );
+    if (this->Subdivider->PassField( a, array->GetNumberOfComponents(), this->Tessellator ) == -1)
+    {
+      vtkErrorMacro( "Could not pass field (" << array->GetName() << ") because a compile-time limit of (" << vtkStreamingTessellator::MaxFieldSize<<") data values has been reached. Increase vtkStreamingTessellator::MaxFieldSize at compile time to pass more fields." );
+      continue;
+    }
     this->OutputAttributes[ attrib ] = vtkDataArray::CreateDataArray( array->GetDataType() );
     this->OutputAttributes[ attrib ]->SetNumberOfComponents( array->GetNumberOfComponents() );
     this->OutputAttributes[ attrib ]->SetName( array->GetName() );
@@ -411,7 +416,6 @@ void vtkTessellatorFilter::SetupOutput(
     if ( (attribType = fields->IsArrayAnAttribute( a )) != -1 )
       outarrays->SetActiveAttribute( this->OutputAttributeIndices[ attrib ], attribType );
 
-    this->Subdivider->PassField( a, array->GetNumberOfComponents(), this->Tessellator );
     ++attrib;
   }
 
