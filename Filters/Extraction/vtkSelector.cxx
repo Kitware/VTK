@@ -79,7 +79,10 @@ bool vtkSelector::ComputeSelectedElements(vtkDataObject* input, vtkDataObject* o
       association = vtkDataObject::CELL;
     }
 
-    output->GetAttributes(association)->AddArray(insidednessArray);
+    if (auto dsa = output->GetAttributes(association))
+    {
+      dsa->AddArray(insidednessArray);
+    }
     return computed;
   }
 }
