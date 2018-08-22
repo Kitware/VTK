@@ -22,9 +22,7 @@
 #include <vtk_pegtl.h>
 
 // for debugging
-#if MOTIONFX_DEBUG_GRAMMAR
 #include <vtkpegtl/include/tao/pegtl/contrib/tracer.hpp>
-#endif
 
 namespace MotionFX
 {
@@ -88,15 +86,10 @@ using namespace Common;
 // Rule that matches a Comment. Consume everything on the line following a ';'
 struct Comment : seq<string<';'>, until<eolf>> {};
 
-// rule for "<num> <num>...."
-struct Tuple : seq<one<'"'>, plus<pad<Number, space>>, one<'"'> > {};
-
 struct WS_Required : sor<Comment, eol, plus<space>> {};
 struct WS : star<WS_Required> {};
 
-struct StringValue : plus<sor<alnum, one<'.','_','-','/'>>> {};
-struct DoubleValue : sor<Number, Tuple> {};
-struct Value : sor<DoubleValue, StringValue> {};
+struct Value : plus<not_one<';', '}', '\r', '\n'>> {};
 
 struct ParameterName : identifier {};
 struct Statement : seq<ParameterName, WS_Required, Value> {};
