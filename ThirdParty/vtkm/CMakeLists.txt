@@ -17,7 +17,6 @@ if (VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "OpenMP")
 endif()
 if(NOT VTKm_ENABLE_OPENMP)
   set(VTKm_ENABLE_OPENMP ${vtk_using_openmp} CACHE BOOL "Set to match VTK" FORCE)
-  message(STATUS "enabled OpenMP")
 endif()
 
 
