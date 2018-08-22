@@ -66,6 +66,8 @@ protected:
   int NumColors;
   double SamplingRate;
   double SamplingStep;  //base sampling step of each voxel
+  bool UseSharedBuffers;
+  OSPData SharedData;
 
   vtkTimeStamp BuildTime;
   vtkTimeStamp PropertyTime;
