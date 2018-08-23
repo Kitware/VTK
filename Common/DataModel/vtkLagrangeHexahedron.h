@@ -12,9 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLagrangeHexahedron
-// .SECTION Description
-// .SECTION See Also
+/**
+ * @class   vtkLagrangeHexahedron
+ * @brief   A 3D cell that represents an arbitrary order Lagrange hex
+ *
+ * vtkLagrangeHexahedron is a concrete implementation of vtkCell to represent a
+ * 3D hexahedron using Lagrange shape functions of user specified order.
+ *
+ * @sa
+ * vtkHexahedron
+*/
 
 #ifndef vtkLagrangeHexahedron_h
 #define vtkLagrangeHexahedron_h

@@ -1,3 +1,20 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkLagrangeInterpolation.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .NAME vtkLagrangeInterpolation
+// .SECTION Description
+// .SECTION See Also
 #ifndef vtkLagrangeInterpolation_h
 #define vtkLagrangeInterpolation_h
 
@@ -38,25 +55,35 @@ public:
   static int Tensor3ShapeDerivatives(const int order[3], const double* pcoords, double* derivs);
 
   void Tensor3EvaluateDerivative(
-    const int order[4],
+    const int order[3],
     const double* pcoords,
+    vtkPoints* points,
     const double* fieldVals,
     int fieldDim,
     double* fieldDerivs);
 
-  static void WedgeShapeFunctions(const int order[4], const double* pcoords, double* shape);
-  static void WedgeShapeDerivatives(const int order[4], const double* pcoords, double* derivs);
+  static void WedgeShapeFunctions(const int order[3], const vtkIdType numberOfPoints, const double* pcoords, double* shape);
+  static void WedgeShapeDerivatives(const int order[3], const vtkIdType numberOfPoints, const double* pcoords, double* derivs);
+
+  /**
+   * Compute the inverse of the Jacobian and put the values in `inverse`. Returns
+   * 1 for success and 0 for failure (i.e. couldn't invert the Jacobian).
+   */
+  int JacobianInverse(vtkPoints* points, const double* derivs, double** inverse);
+  int JacobianInverseWedge(vtkPoints* points, const double* derivs, double** inverse);
 
   void WedgeEvaluate(
-    const int order[4],
+    const int order[3],
+    const vtkIdType numberOfPoints,
     const double* pcoords,
     double* fieldVals,
     int fieldDim,
     double* fieldAtPCoords);
 
   void WedgeEvaluateDerivative(
-    const int order[4],
+    const int order[3],
     const double* pcoords,
+    vtkPoints* points,
     const double* fieldVals,
     int fieldDim,
     double* fieldDerivs);
@@ -92,7 +119,7 @@ protected:
   vtkLagrangeInterpolation();
   ~vtkLagrangeInterpolation() override;
 
-  void PrepareForOrder(const int o[4]);
+  void PrepareForOrder(const int order[3], const vtkIdType numberOfPoints);
 
   std::vector<double> ShapeSpace;
   std::vector<double> DerivSpace;

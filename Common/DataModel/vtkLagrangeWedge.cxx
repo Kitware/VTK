@@ -596,7 +596,7 @@ void vtkLagrangeWedge::Derivatives(
   int dim,
   double* derivs)
 {
-  this->Interp->WedgeEvaluateDerivative(this->Order, pcoords, values, dim, derivs);
+  this->Interp->WedgeEvaluateDerivative(this->Order, pcoords, this->GetPoints(), values, dim, derivs);
 }
 
 double* vtkLagrangeWedge::GetParametricCoords()
@@ -696,13 +696,13 @@ const int* vtkLagrangeWedge::GetOrder()
 void vtkLagrangeWedge::InterpolateFunctions(
   const double pcoords[3], double* weights)
 {
-  vtkLagrangeInterpolation::WedgeShapeFunctions(this->GetOrder(), pcoords, weights);
+  vtkLagrangeInterpolation::WedgeShapeFunctions(this->GetOrder(), this->GetOrder()[3], pcoords, weights);
 }
 
 void vtkLagrangeWedge::InterpolateDerivs(
   const double pcoords[3], double* derivs)
 {
-  vtkLagrangeInterpolation::WedgeShapeDerivatives(this->GetOrder(), pcoords, derivs);
+  vtkLagrangeInterpolation::WedgeShapeDerivatives(this->GetOrder(), this->GetOrder()[3], pcoords, derivs);
 }
 
 /// A convenience method; see the overloaded variant for more information.
