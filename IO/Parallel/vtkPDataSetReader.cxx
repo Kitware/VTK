@@ -138,7 +138,7 @@ int vtkPDataSetReader::RequestDataObject(
   else if (type == 4 && strncmp(value, "# vtk DataFile Version", 22) == 0)
   {
     // This is a vtk file not a PVTK file.
-    this->ReadVTKFileInformation(file, request, inputVector, outputVector);
+    this->ReadVTKFileInformation(request, inputVector, outputVector);
     this->VTKFileFlag = 1;
   }
   else
@@ -640,201 +640,26 @@ void vtkPDataSetReader::ReadPVTKFileInformation(
 
 //----------------------------------------------------------------------------
 void vtkPDataSetReader::ReadVTKFileInformation(
-  ifstream *file,
   vtkInformation*,
   vtkInformationVector**,
   vtkInformationVector* outputVector)
 {
-  int i;
-  int dx, dy, dz;
-  float x, y, z;
-  char str[1024];
-
   vtkInformation* info = outputVector->GetInformationObject(0);
 
-  // Try to find the line that specifies the dataset type.
-  i = 0;
-  do
+  vtkNew<vtkDataSetReader> reader;
+  reader->SetFileName(this->FileName);
+  reader->UpdateInformation();
+  if (auto dobj = reader->GetOutputDataObject(0))
   {
-    file->getline(str, 1024);
-    ++i;
-  }
-  while (strncmp(str, "DATASET", 7) != 0 && i < 6);
-
-  if (strncmp(str, "DATASET POLYDATA", 16) == 0)
-  {
-    this->DataType = VTK_POLY_DATA;
-  }
-  else if (strncmp(str, "DATASET UNSTRUCTURED_GRID", 25) == 0)
-  {
-    this->DataType = VTK_UNSTRUCTURED_GRID;
-  }
-  else if (strncmp(str, "DATASET STRUCTURED_GRID", 23) == 0)
-  {
-    this->DataType = VTK_STRUCTURED_GRID;
-    file->getline(str, 1024, ' ');
-
-    if (! strncmp(str, "FIELD", 5))
-    {
-      this->SkipFieldData(file);
-      file->getline(str, 1024, ' ');
-      vtkErrorMacro(<< str);
-    }
-    if (strncmp(str, "DIMENSIONS", 10) != 0)
-    {
-      vtkErrorMacro("Expecting 'DIMENSIONS' instead of: " << str);
-      return;
-    }
-
-    *file >> dx;
-    *file >> dy;
-    *file >> dz;
-    info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-              0, dx-1, 0, dy-1, 0, dz-1);
-  }
-  else if (strncmp(str, "DATASET RECTILINEAR_GRID", 24) == 0)
-  {
-    this->DataType = VTK_RECTILINEAR_GRID;
-    file->getline(str, 1024, ' ');
-    if (strncmp(str, "DIMENSIONS", 10) != 0)
-    {
-      vtkErrorMacro("Expecting 'DIMENSIONS' instead of: " << str);
-      return;
-    }
-    *file >> dx;
-    *file >> dy;
-    *file >> dz;
-    info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-              0, dx-1, 0, dy-1, 0, dz-1);
-  }
-  else if (strncmp(str, "DATASET STRUCTURED_POINTS", 25) == 0)
-  {
-    this->DataType = VTK_IMAGE_DATA;
-    file->getline(str, 1024, ' ');
-    // hack to stop reading.
-    while (strncmp(str, "DIMENSIONS", 10) == 0 || strncmp(str, "SPACING", 7) == 0 ||
-           strncmp(str, "ASPECT_RATIO", 12) == 0 || strncmp(str, "ORIGIN", 6) == 0)
-    {
-      if (strncmp(str, "DIMENSIONS", 10) == 0)
-      {
-        *file >> dx;
-        *file >> dy;
-        *file >> dz;
-        info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-                  0, dx-1, 0, dy-1, 0, dz-1);
-      }
-      if (strncmp(str, "SPACING", 7) == 0 || strncmp(str, "ASPECT_RATIO", 12) == 0)
-      {
-        *file >> x;
-        *file >> y;
-        *file >> z;
-        info->Set(vtkDataObject::SPACING(), x, y, z);
-      }
-      if (strncmp(str, "ORIGIN", 6) == 0)
-      {
-        *file >> x;
-        *file >> y;
-        *file >> z;
-        info->Set(vtkDataObject::ORIGIN(), x, y, z);
-      }
-      file->getline(str, 1024);
-      file->getline(str, 1024, ' ');
-    }
+    this->DataType = dobj->GetDataObjectType();
+    using sddp = vtkStreamingDemandDrivenPipeline;
+    info->CopyEntry(reader->GetOutputInformation(0), sddp::WHOLE_EXTENT(), 1);
+    info->CopyEntry(reader->GetOutputInformation(0), vtkDataObject::SPACING(), 1);
+    info->CopyEntry(reader->GetOutputInformation(0), vtkDataObject::ORIGIN(), 1);
   }
   else
   {
-    vtkErrorMacro("I can not figure out what type of data set this is: " << str);
-    return;
-  }
-}
-
-void vtkPDataSetReader::SkipFieldData(ifstream *file)
-{
-  int i, numArrays;
-  char name[256], type[256];
-  int numComp, numTuples;
-
-  file->width(256);
-  *file >> name;
-  *file >> numArrays;
-
-  if (file->fail())
-  {
-    vtkErrorMacro("Could not read field.");
-    return;
-  }
-
-  // Read the number of arrays specified
-  for (i=0; i<numArrays; i++)
-  {
-    long length=0;
-    char buffer[256];
-    *file >> buffer;
-    *file >> numComp;
-    *file >> numTuples;
-    *file >> type;
-    // What a pain.
-    if (strcmp(type, "double") == 0)
-    {
-      length = sizeof(double) * numComp * numTuples;
-    }
-    if (strcmp(type, "float") == 0)
-    {
-      length = sizeof(float) * numComp * numTuples;
-    }
-    if (strcmp(type, "long") == 0)
-    {
-      length = sizeof(long) * numComp * numTuples;
-    }
-    if (strcmp(type, "unsigned long") == 0)
-    {
-      length = sizeof(unsigned long) * numComp * numTuples;
-    }
-    if (strcmp(type, "int") == 0)
-    {
-      length = sizeof(int) * numComp * numTuples;
-    }
-    if (strcmp(type, "unsigned int") == 0)
-    {
-      length = sizeof(unsigned int) * numComp * numTuples;
-    }
-    if (strcmp(type, "short") == 0)
-    {
-      length = sizeof(short) * numComp * numTuples;
-    }
-    if (strcmp(type, "unsigned short") == 0)
-    {
-      length = sizeof(unsigned short) * numComp * numTuples;
-    }
-    if (strcmp(type, "char") == 0)
-    {
-      length = sizeof(char) * numComp * numTuples;
-    }
-    if (strcmp(type, "unsigned char") == 0)
-    {
-      length = sizeof(unsigned char) * numComp * numTuples;
-    }
-
-    // suckup new line.
-    file->getline(name,256);
-
-    char *buf = new char[length];
-
-    //int t = file->tellg();
-    // this seek did not work for some reason.
-    // it passed too many characters.
-    //file->seekg(length, ios::cur);
-    file->read(buf, length);
-
-    delete [] buf;
-
-    // suckup new line.
-    file->getline(name,256);
-    if (file->fail())
-    {
-      vtkErrorMacro("Could not seek past field.");
-      return;
-    }
+    vtkErrorMacro("I can not figure out what type of data set this is");
   }
 }
 
@@ -1503,10 +1328,3 @@ void vtkPDataSetReader::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "DataType: " << this->DataType << endl;
 }
-
-
-
-
-
-
-

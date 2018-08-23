@@ -67,10 +67,9 @@ protected:
                                vtkInformation* request,
                                vtkInformationVector** inputVector,
                                vtkInformationVector* outputVector);
-  void ReadVTKFileInformation(ifstream *fp,
-                               vtkInformation* request,
-                               vtkInformationVector** inputVector,
-                               vtkInformationVector* outputVector);
+  void ReadVTKFileInformation(vtkInformation* request,
+    vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
 
   int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
@@ -100,8 +99,6 @@ protected:
   ifstream *OpenFile(const char *);
 
   int ReadXML(ifstream *file, char **block, char **param, char **value);
-  void SkipFieldData(ifstream *file);
-
   int VTKFileFlag;
   int StructuredFlag;
   char *FileName;
