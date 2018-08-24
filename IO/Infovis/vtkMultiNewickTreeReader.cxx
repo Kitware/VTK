@@ -68,57 +68,26 @@ void vtkMultiNewickTreeReader::SetOutput(vtkMultiPieceDataSet * output)
 }
 
 //----------------------------------------------------------------------------
-// I do not think this should be here, but I do not want to remove it now.
-int vtkMultiNewickTreeReader::RequestUpdateExtent(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
+int vtkMultiNewickTreeReader::ReadMeshSimple(const std::string& fname,
+                                             vtkDataObject* doOutput)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  int piece, numPieces;
-
-  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-
-  // make sure piece is valid
-  if (piece < 0 || piece >= numPieces)
-  {
-    return 1;
-  }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkMultiNewickTreeReader::RequestData(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
-{
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  if(outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
-  {
-    return 1;
-  }
-
   vtkDebugMacro(<<"Reading Multiple Newick trees ...");
 
-  if(this->GetFileName() == nullptr || strcmp(this->GetFileName(), "") == 0)
+  if(fname.empty() || fname == "")
   {
     vtkErrorMacro(<<"Input filename not set");
     return 1;
   }
 
-  std::ifstream ifs( this->GetFileName(), std::ifstream::in );
+  std::ifstream ifs( fname.c_str(), std::ifstream::in );
   if(!ifs.good())
   {
-    vtkErrorMacro(<<"Unable to open " << this->GetFileName() << " for reading");
+    vtkErrorMacro(<<"Unable to open " << fname << " for reading");
     return 1;
   }
 
   vtkMultiPieceDataSet * const output = vtkMultiPieceDataSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+    doOutput);
 
   // Read the input file into a char *
   int fileSize;
@@ -172,8 +141,6 @@ int vtkMultiNewickTreeReader::RequestData(
 
   return 1;
 }
-
-
 
 
 //----------------------------------------------------------------------------

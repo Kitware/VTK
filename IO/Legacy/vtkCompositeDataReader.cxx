@@ -66,32 +66,6 @@ void vtkCompositeDataReader::SetOutput(vtkCompositeDataSet *output)
 }
 
 //----------------------------------------------------------------------------
-int vtkCompositeDataReader::RequestUpdateExtent(
-  vtkInformation *, vtkInformationVector **, vtkInformationVector *outputVector)
-{
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  int piece, numPieces, ghostLevel;
-
-  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-  ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-
-  // make sure piece is valid
-  if (piece < 0 || piece >= numPieces)
-  {
-    return 1;
-  }
-
-  if (ghostLevel < 0)
-  {
-    return 1;
-  }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
 int vtkCompositeDataReader::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkCompositeDataSet");
@@ -99,39 +73,29 @@ int vtkCompositeDataReader::FillOutputPortInformation(int, vtkInformation* info)
 }
 
 //----------------------------------------------------------------------------
-int vtkCompositeDataReader::ProcessRequest(vtkInformation* request,
-  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+vtkDataObject* vtkCompositeDataReader::CreateOutput(vtkDataObject* currentOutput)
 {
-  // generate the data
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+  if (this->GetFileName() == nullptr &&
+      (this->GetReadFromInputString() == 0 ||
+       (this->GetInputArray() == nullptr && this->GetInputString() == nullptr)))
   {
-    return this->RequestDataObject(request, inputVector, outputVector);
+    vtkWarningMacro(<< "FileName must be set");
+    return nullptr;
   }
-  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
-}
 
-//----------------------------------------------------------------------------
-int vtkCompositeDataReader::RequestDataObject(vtkInformation *,
-  vtkInformationVector **, vtkInformationVector *outputVector)
-{
-  int output_type = this->ReadOutputType();
-  if (output_type < 0)
+  int outputType = this->ReadOutputType();
+  if (outputType < 0)
   {
     vtkErrorMacro("Failed to read data-type.");
     return 0;
   }
 
-  vtkDataObject* output = vtkDataObject::GetData(outputVector, 0);
-  if (!output ||
-    !output->IsA(vtkDataObjectTypes::GetClassNameFromTypeId(output_type)))
+  if (currentOutput && (currentOutput->GetDataObjectType() == outputType))
   {
-    output = vtkDataObjectTypes::NewDataObject(output_type);
-    outputVector->GetInformationObject(0)->Set(
-      vtkDataObject::DATA_OBJECT(),
-      output);
-    output->FastDelete();
+    return currentOutput;
   }
-  return 1;
+
+  return vtkDataObjectTypes::NewDataObject(outputType);
 }
 
 //----------------------------------------------------------------------------
@@ -200,22 +164,24 @@ int vtkCompositeDataReader::ReadOutputType()
 }
 
 //----------------------------------------------------------------------------
-int vtkCompositeDataReader::RequestData(vtkInformation *, vtkInformationVector **,
-  vtkInformationVector *outputVector)
+int vtkCompositeDataReader::ReadMeshSimple(const std::string& fname,
+                                           vtkDataObject* output)
 {
-  if (!(this->OpenVTKFile()) || !this->ReadHeader())
+  if (!this->OpenVTKFile(fname.c_str()) ||
+      !this->ReadHeader(fname.c_str()))
   {
     return 0;
   }
 
-  vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::GetData(outputVector, 0);
-  vtkMultiPieceDataSet* mp = vtkMultiPieceDataSet::GetData(outputVector, 0);
-  vtkHierarchicalBoxDataSet* hb = vtkHierarchicalBoxDataSet::GetData(outputVector, 0);
-  vtkOverlappingAMR* oamr = vtkOverlappingAMR::GetData(outputVector, 0);
-  vtkNonOverlappingAMR* noamr = vtkNonOverlappingAMR::GetData(outputVector, 0);
-  vtkPartitionedDataSet* pd = vtkPartitionedDataSet::GetData(outputVector, 0);
+  vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(output);
+  vtkMultiPieceDataSet* mp = vtkMultiPieceDataSet::SafeDownCast(output);
+  vtkHierarchicalBoxDataSet* hb =
+    vtkHierarchicalBoxDataSet::SafeDownCast(output);
+  vtkOverlappingAMR* oamr = vtkOverlappingAMR::SafeDownCast(output);
+  vtkNonOverlappingAMR* noamr = vtkNonOverlappingAMR::SafeDownCast(output);
+  vtkPartitionedDataSet* pd = vtkPartitionedDataSet::SafeDownCast(output);
   vtkPartitionedDataSetCollection* pdc =
-    vtkPartitionedDataSetCollection::GetData(outputVector, 0);
+    vtkPartitionedDataSetCollection::SafeDownCast(output);
 
   // Read the data-type description line which was already read in
   // RequestDataObject() so we just skip it here without any additional

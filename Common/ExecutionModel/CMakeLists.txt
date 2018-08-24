@@ -42,6 +42,7 @@ SET(Module_SRCS
   vtkRectilinearGridAlgorithm.cxx
   vtkScalarTree.cxx
   vtkSimpleImageToImageFilter.cxx
+  vtkSimpleReader.cxx
   vtkSimpleScalarTree.cxx
   vtkSpanSpace.cxx
   vtkSphereTree.cxx

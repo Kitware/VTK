@@ -26,16 +26,7 @@
 
 vtkStandardNewMacro(vtkStructuredPointsReader);
 
-vtkStructuredPointsReader::vtkStructuredPointsReader()
-{
-  vtkStructuredPoints *output = vtkStructuredPoints::New();
-  this->SetOutput(output);
-  // Releasing data for pipeline parallism.
-  // Filters will know it is empty.
-  output->ReleaseData();
-  output->Delete();
-}
-
+vtkStructuredPointsReader::vtkStructuredPointsReader() = default;
 vtkStructuredPointsReader::~vtkStructuredPointsReader() = default;
 
 //----------------------------------------------------------------------------
@@ -57,26 +48,15 @@ vtkStructuredPoints* vtkStructuredPointsReader::GetOutput(int idx)
 }
 
 //----------------------------------------------------------------------------
-// Default method performs Update to get information.  Not all the old
-// structured points sources compute information
-int vtkStructuredPointsReader::RequestInformation(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
-{
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  return this->ReadMetaData(outInfo);
-}
-
-//----------------------------------------------------------------------------
-int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
+int vtkStructuredPointsReader::ReadMetaDataSimple(
+  const std::string& fname, vtkInformation *metadata)
 {
   this->SetErrorCode( vtkErrorCode::NoError );
 
   char line[256];
   int dimsRead=0, arRead=0, originRead=0;
 
-  if (!this->OpenVTKFile() || !this->ReadHeader())
+  if (!this->OpenVTKFile(fname.c_str()) || !this->ReadHeader(fname.c_str()))
   {
     return 1;
   }
@@ -129,8 +109,8 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
           this->SetErrorCode( vtkErrorCode::FileFormatError );
           return 1;
         }
-        outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-                     0,dim[0]-1,0,dim[1]-1,0,dim[2]-1);
+        metadata->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                      0,dim[0]-1,0,dim[1]-1,0,dim[2]-1);
         dimsRead = 1;
       }
 
@@ -150,9 +130,9 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
           return 1;
         }
 
-        outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-                     extent[0], extent[1], extent[2], extent[3],
-                     extent[4], extent[5]);
+        metadata->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                      extent[0], extent[1], extent[2], extent[3],
+                      extent[4], extent[5]);
 
         dimsRead = 1;
       }
@@ -170,7 +150,7 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
           this->SetErrorCode( vtkErrorCode::FileFormatError );
           return 1;
         }
-        outInfo->Set(vtkDataObject::SPACING(), ar, 3);
+        metadata->Set(vtkDataObject::SPACING(), ar, 3);
         arRead = 1;
       }
 
@@ -186,7 +166,7 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
           this->SetErrorCode( vtkErrorCode::FileFormatError );
           return 1;
         }
-        outInfo->Set(vtkDataObject::ORIGIN(), origin, 3);
+        metadata->Set(vtkDataObject::ORIGIN(), origin, 3);
         originRead = 1;
       }
 
@@ -266,7 +246,7 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
               if (numComp < 1 || !this->ReadString(line))
               {
                 vtkErrorMacro(<<"Cannot read scalar header!" << " for file: "
-                              << (this->FileName?this->FileName:"(Null FileName)"));
+                              << fname);
                 return 1;
               }
             }
@@ -275,7 +255,7 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
               numComp = 1;
             }
 
-            vtkDataObject::SetPointDataActiveScalarInfo( outInfo, scalarType, numComp);
+            vtkDataObject::SetPointDataActiveScalarInfo( metadata, scalarType, numComp);
             break;
           }
           else if ( ! strncmp(this->LowerCase(line), "color_scalars", 13) )
@@ -286,7 +266,7 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
             if (numComp < 1)
             {
               vtkErrorMacro("Cannot read color_scalar header!" << " for file: "
-                            << (this->FileName?this->FileName:"(Null FileName)"));
+                            << fname);
               return 1;
             }
 
@@ -301,7 +281,7 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
               scalarType = VTK_FLOAT;
             }
 
-            vtkDataObject::SetPointDataActiveScalarInfo( outInfo, scalarType, numComp);
+            vtkDataObject::SetPointDataActiveScalarInfo( metadata, scalarType, numComp);
             break;
           }
         }
@@ -320,26 +300,23 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
   return 1;
 }
 
-int vtkStructuredPointsReader::RequestData(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
+int vtkStructuredPointsReader::ReadMeshSimple(
+  const std::string& fname, vtkDataObject* doOutput)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
   this->SetErrorCode( vtkErrorCode::NoError );
   vtkIdType numPts=0, numCells=0;
   char line[256];
   vtkIdType npts, ncells;
   int dimsRead=0, arRead=0, originRead=0;
-  vtkStructuredPoints *output = vtkStructuredPoints::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkStructuredPoints *output =
+    vtkStructuredPoints::SafeDownCast(doOutput);
 
   // ImageSource superclass does not do this.
   output->ReleaseData();
 
   vtkDebugMacro(<<"Reading vtk structured points file...");
 
-  if (!this->OpenVTKFile() || !this->ReadHeader())
+  if (!this->OpenVTKFile(fname.c_str()) || !this->ReadHeader(fname.c_str()))
   {
     return 1;
   }

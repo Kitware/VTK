@@ -90,29 +90,33 @@ public:
   virtual int ReadOutputType();
 
   /**
-   * See vtkAlgorithm for information.
+   * Read metadata from file.
    */
-  int ProcessRequest(vtkInformation *, vtkInformationVector **,
-                             vtkInformationVector *) override;
+  int ReadMetaDataSimple(const std::string& fname,
+                         vtkInformation* metadata) override;
+
+  /**
+   * Actual reading happens here
+   */
+  int ReadMeshSimple(const std::string& fname,
+                     vtkDataObject* output) override;
+
 
 protected:
   vtkGenericDataObjectReader();
   ~vtkGenericDataObjectReader() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
-  virtual int RequestDataObject(vtkInformation *, vtkInformationVector **,
-                                vtkInformationVector *);
+  vtkDataObject* CreateOutput(vtkDataObject* currentOutput) override;
+
   int FillOutputPortInformation(int, vtkInformation *) override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *) override;
 
 private:
   vtkGenericDataObjectReader(const vtkGenericDataObjectReader&) = delete;
   void operator=(const vtkGenericDataObjectReader&) = delete;
 
   template<typename ReaderT, typename DataT>
-    void ReadData(const char* dataClass, vtkDataObject* output);
+    void ReadData(
+      const char* fname, const char* dataClass, vtkDataObject* output);
 
   vtkSetStringMacro(Header);
 

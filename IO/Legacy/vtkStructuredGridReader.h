@@ -53,19 +53,21 @@ public:
   //@}
 
   /**
-   * Read the meta information from the file.  This needs to be public to it
-   * can be accessed by vtkDataSetReader.
+   * Read the meta information from the file (WHOLE_EXTENT).
    */
-  int ReadMetaData(vtkInformation *outInfo) override;
+  int ReadMetaDataSimple(const std::string& fname,
+                         vtkInformation *metadata) override;
+
+  /**
+   * Actual reading happens here
+   */
+  int ReadMeshSimple(const std::string& fname,
+                     vtkDataObject* output) override;
+
 
 protected:
   vtkStructuredGridReader();
   ~vtkStructuredGridReader() override;
-
-  int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *) override;
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
 
   int FillOutputPortInformation(int, vtkInformation*) override;
 private:

@@ -52,18 +52,16 @@ public:
   void SetOutput(vtkPolyData *output);
   //@}
 
+  /**
+   * Actual reading happens here
+   */
+  int ReadMeshSimple(const std::string& fname,
+                     vtkDataObject* output) override;
+
+
 protected:
   vtkPolyDataReader();
   ~vtkPolyDataReader() override;
-
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
-
-  // Update extent of PolyData is specified in pieces.
-  // Since all DataObjects should be able to set UpdateExent as pieces,
-  // just copy output->UpdateExtent all Inputs.
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
 
   int FillOutputPortInformation(int, vtkInformation*) override;
 

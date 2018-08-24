@@ -30,15 +30,7 @@ vtkStandardNewMacro(vtkUnstructuredGridReader);
 #endif
 
 //----------------------------------------------------------------------------
-vtkUnstructuredGridReader::vtkUnstructuredGridReader()
-{
-  vtkUnstructuredGrid *output = vtkUnstructuredGrid::New();
-  this->SetOutput(output);
-  // Releasing data for pipeline parallism.
-  // Filters will know it is empty.
-  output->ReleaseData();
-  output->Delete();
-}
+vtkUnstructuredGridReader::vtkUnstructuredGridReader() = default;
 
 //----------------------------------------------------------------------------
 vtkUnstructuredGridReader::~vtkUnstructuredGridReader() = default;
@@ -62,54 +54,22 @@ void vtkUnstructuredGridReader::SetOutput(vtkUnstructuredGrid *output)
 }
 
 //----------------------------------------------------------------------------
-// I do not think this should be here, but I do not want to remove it now.
-int vtkUnstructuredGridReader::RequestUpdateExtent(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
+int vtkUnstructuredGridReader::ReadMeshSimple(
+  const std::string& fname, vtkDataObject* doOutput)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  int piece, numPieces;
-
-  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-
-  // make sure piece is valid
-  if (piece < 0 || piece >= numPieces)
-  {
-    return 1;
-  }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkUnstructuredGridReader::RequestData(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
-{
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkIdType i, numPts=0, numCells=0;
   char line[256];
   vtkIdType npts, size = 0, ncells=0;
   int piece, numPieces, skip1, read2, skip3, tmp;
   vtkCellArray *cells=nullptr;
   int *types=nullptr;
-  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(doOutput);
   int *tempArray;
   vtkIdType *idArray;
 
-  // All of the data in the first piece.
-  if (outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
-  {
-    return 1;
-  }
-
   vtkDebugMacro(<<"Reading vtk unstructured grid...");
 
-  if (!this->OpenVTKFile() || !this->ReadHeader())
+  if (!this->OpenVTKFile(fname.c_str()) || !this->ReadHeader(fname.c_str()))
   {
     return 1;
   }
@@ -165,7 +125,7 @@ int vtkUnstructuredGridReader::RequestData(
           return 1;
         }
 
-        if (!this->ReadPoints(output, numPts))
+        if (!this->ReadPointCoordinates(output, numPts))
         {
           this->CloseVTKFile ();
           return 1;
@@ -174,8 +134,8 @@ int vtkUnstructuredGridReader::RequestData(
 
       else if ( !strncmp(line,"cells",5))
       {
-        piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-        numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+        piece = 0;
+        numPieces = 1;
         if (!(this->Read(&ncells) && this->Read(&size)))
         {
           vtkErrorMacro(<<"Cannot read cells!");
@@ -218,8 +178,8 @@ int vtkUnstructuredGridReader::RequestData(
 
       else if (!strncmp(line,"cell_types",10))
       {
-        piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-        numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+        piece = 0;
+        numPieces = 1;
         if (!this->Read(&ncells))
         {
           vtkErrorMacro(<<"Cannot read cell types!");

@@ -80,19 +80,26 @@ public:
    */
   virtual int ReadOutputType();
 
+  /**
+   * Read metadata from file.
+   */
+  int ReadMetaDataSimple(const std::string& fname,
+                         vtkInformation* metadata) override;
+
+  /**
+   * Actual reading happens here
+   */
+  int ReadMeshSimple(const std::string& fname,
+                     vtkDataObject* output) override;
+
+
 protected:
   vtkDataSetReader();
   ~vtkDataSetReader() override;
 
-  int ProcessRequest(vtkInformation *, vtkInformationVector **,
-                             vtkInformationVector *) override;
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
-  virtual int RequestDataObject(vtkInformation *, vtkInformationVector **,
-                                vtkInformationVector *);
+  vtkDataObject* CreateOutput(vtkDataObject* currentOutput) override;
+
   int FillOutputPortInformation(int, vtkInformation *) override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *) override;
 
 private:
   vtkDataSetReader(const vtkDataSetReader&) = delete;

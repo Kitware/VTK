@@ -32,70 +32,52 @@
 vtkStandardNewMacro(vtkDataSetReader);
 
 vtkDataSetReader::vtkDataSetReader() = default;
-
 vtkDataSetReader::~vtkDataSetReader() = default;
 
-int vtkDataSetReader::RequestDataObject(
-  vtkInformation *,
-  vtkInformationVector** vtkNotUsed(inputVector) ,
-  vtkInformationVector* outputVector)
+vtkDataObject* vtkDataSetReader::CreateOutput(vtkDataObject* currentOutput)
 {
   if (this->GetFileName() == nullptr &&
       (this->GetReadFromInputString() == 0 ||
        (this->GetInputArray() == nullptr && this->GetInputString() == nullptr)))
   {
     vtkWarningMacro(<< "FileName must be set");
-    return 0;
+    return nullptr;
   }
 
   int outputType = this->ReadOutputType();
 
-  vtkInformation* info = outputVector->GetInformationObject(0);
-  vtkDataSet *output = vtkDataSet::SafeDownCast(
-    info->Get(vtkDataObject::DATA_OBJECT()));
-
-  if (output && (output->GetDataObjectType() == outputType))
+  if (currentOutput && (currentOutput->GetDataObjectType() == outputType))
   {
-    return 1;
+    return currentOutput;
   }
 
-  if (!output || output->GetDataObjectType() != outputType)
+  vtkDataObject* output = nullptr;
+  switch (outputType)
   {
-    switch (outputType)
-    {
-      case VTK_POLY_DATA:
-        output = vtkPolyData::New();
-        break;
-      case VTK_STRUCTURED_POINTS:
-        output = vtkStructuredPoints::New();
-        break;
-      case VTK_STRUCTURED_GRID:
-        output = vtkStructuredGrid::New();
-        break;
-      case VTK_RECTILINEAR_GRID:
-        output = vtkRectilinearGrid::New();
-        break;
-      case VTK_UNSTRUCTURED_GRID:
-        output = vtkUnstructuredGrid::New();
-        break;
-      default:
-        return 0;
-    }
-
-    this->GetExecutive()->SetOutputData(0, output);
-    output->Delete();
+    case VTK_POLY_DATA:
+      output = vtkPolyData::New();
+      break;
+    case VTK_STRUCTURED_POINTS:
+      output = vtkStructuredPoints::New();
+      break;
+    case VTK_STRUCTURED_GRID:
+      output = vtkStructuredGrid::New();
+      break;
+    case VTK_RECTILINEAR_GRID:
+      output = vtkRectilinearGrid::New();
+      break;
+    case VTK_UNSTRUCTURED_GRID:
+      output = vtkUnstructuredGrid::New();
+      break;
   }
 
-  return 1;
+  return output;
 }
 
-int vtkDataSetReader::RequestInformation(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
+int vtkDataSetReader::ReadMetaDataSimple(const std::string& fname,
+                                        vtkInformation* metadata)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  if (this->GetFileName() == nullptr &&
+  if (fname.empty() &&
       (this->GetReadFromInputString() == 0 ||
        (this->GetInputArray() == nullptr && this->GetInputString() == nullptr)))
   {
@@ -128,25 +110,19 @@ int vtkDataSetReader::RequestInformation(
 
   if (reader)
   {
-    reader->SetFileName(this->GetFileName());
     reader->SetReadFromInputString(this->GetReadFromInputString());
     reader->SetInputArray(this->GetInputArray());
     reader->SetInputString(this->GetInputString());
-    retVal = reader->ReadMetaData(outInfo);
+    retVal = reader->ReadMetaDataSimple(fname.c_str(), metadata);
     reader->Delete();
     return retVal;
   }
   return 1;
 }
 
-int vtkDataSetReader::RequestData(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
+int vtkDataSetReader::ReadMeshSimple(const std::string& fname,
+                               vtkDataObject* output)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
-
   vtkDebugMacro(<<"Reading vtk dataset...");
 
   switch (this->ReadOutputType())
@@ -154,7 +130,7 @@ int vtkDataSetReader::RequestData(
     case VTK_POLY_DATA:
     {
       vtkPolyDataReader *preader = vtkPolyDataReader::New();
-      preader->SetFileName(this->GetFileName());
+      preader->SetFileName(fname.c_str());
       preader->SetInputArray(this->GetInputArray());
       preader->SetInputString(this->GetInputString(),
                               this->GetInputStringLength());
@@ -192,7 +168,7 @@ int vtkDataSetReader::RequestData(
     case VTK_STRUCTURED_POINTS:
     {
       vtkStructuredPointsReader *preader = vtkStructuredPointsReader::New();
-      preader->SetFileName(this->GetFileName());
+      preader->SetFileName(fname.c_str());
       preader->SetInputArray(this->GetInputArray());
       preader->SetInputString(this->GetInputString(),
                               this->GetInputStringLength());
@@ -219,7 +195,7 @@ int vtkDataSetReader::RequestData(
     case VTK_STRUCTURED_GRID:
     {
       vtkStructuredGridReader *preader = vtkStructuredGridReader::New();
-      preader->SetFileName(this->GetFileName());
+      preader->SetFileName(fname.c_str());
       preader->SetInputArray(this->GetInputArray());
       preader->SetInputString(this->GetInputString(),
                               this->GetInputStringLength());
@@ -257,7 +233,7 @@ int vtkDataSetReader::RequestData(
     case VTK_RECTILINEAR_GRID:
     {
       vtkRectilinearGridReader *preader = vtkRectilinearGridReader::New();
-      preader->SetFileName(this->GetFileName());
+      preader->SetFileName(fname.c_str());
       preader->SetInputArray(this->GetInputArray());
       preader->SetInputString(this->GetInputString(),
                               this->GetInputStringLength());
@@ -295,7 +271,7 @@ int vtkDataSetReader::RequestData(
     case VTK_UNSTRUCTURED_GRID:
     {
       vtkUnstructuredGridReader *preader = vtkUnstructuredGridReader::New();
-      preader->SetFileName(this->GetFileName());
+      preader->SetFileName(fname.c_str());
       preader->SetInputArray(this->GetInputArray());
       preader->SetInputString(this->GetInputString(),
                               this->GetInputStringLength());
@@ -331,7 +307,7 @@ int vtkDataSetReader::RequestData(
       return 1;
     }
     default:
-        vtkErrorMacro("Could not read file " << this->FileName);
+        vtkErrorMacro("Could not read file " << this->GetFileName());
   }
   return 0;
 }
@@ -449,16 +425,4 @@ int vtkDataSetReader::FillOutputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataSet");
   return 1;
-}
-
-int vtkDataSetReader::ProcessRequest(vtkInformation* request,
-                                     vtkInformationVector** inputVector,
-                                     vtkInformationVector* outputVector)
-{
-  // generate the data
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
-  {
-    return this->RequestDataObject(request, inputVector, outputVector);
-  }
-  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }

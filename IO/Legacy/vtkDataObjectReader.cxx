@@ -23,16 +23,7 @@
 
 vtkStandardNewMacro(vtkDataObjectReader);
 
-vtkDataObjectReader::vtkDataObjectReader()
-{
-  vtkDataObject *output = vtkDataObject::New();
-  this->SetOutput(output);
-  // Releasing data for pipeline parallism.
-  // Filters will know it is empty.
-  output->ReleaseData();
-  output->Delete();
-}
-
+vtkDataObjectReader::vtkDataObjectReader() = default;
 vtkDataObjectReader::~vtkDataObjectReader() = default;
 
 //----------------------------------------------------------------------------
@@ -53,20 +44,15 @@ void vtkDataObjectReader::SetOutput(vtkDataObject *output)
   this->GetExecutive()->SetOutputData(0, output);
 }
 
-int vtkDataObjectReader::RequestData(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
+int vtkDataObjectReader::ReadMeshSimple(
+  const std::string& fname, vtkDataObject* output)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
-
   char line[256];
   vtkFieldData *field=nullptr;
 
   vtkDebugMacro(<<"Reading vtk field data...");
 
-  if ( !(this->OpenVTKFile()) || !this->ReadHeader())
+  if ( !(this->OpenVTKFile(fname.c_str())) || !this->ReadHeader())
   {
     return 1;
   }

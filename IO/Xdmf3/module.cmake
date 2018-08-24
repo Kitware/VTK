@@ -7,7 +7,6 @@ vtk_module(vtkIOXdmf3
   DEPENDS
     vtkCommonCore
     vtkCommonExecutionModel
-    vtkIOLegacy
   PRIVATE_DEPENDS
     vtkCommonDataModel
     vtkCommonSystem

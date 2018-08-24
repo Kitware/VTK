@@ -35,18 +35,20 @@
 #define vtkXdmfReader_h
 
 #include "vtkIOXdmf2Module.h" // For export macro
-#include "vtkDataReader.h"
+#include "vtkDataObjectAlgorithm.h"
 #include <map> // for caching
+#include <string> // needed for string API
 
 class vtkXdmfArraySelection;
 class vtkXdmfDocument;
 class vtkGraph;
+class vtkCharArray;
 
-class VTKIOXDMF2_EXPORT vtkXdmfReader : public vtkDataReader
+class VTKIOXDMF2_EXPORT vtkXdmfReader : public vtkDataObjectAlgorithm
 {
 public:
   static vtkXdmfReader* New();
-  vtkTypeMacro(vtkXdmfReader, vtkDataReader);
+  vtkTypeMacro(vtkXdmfReader, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Until needed, multiple domains are not supported.
@@ -72,6 +74,14 @@ public:
   //// Returns the name for the active domain. Note that this may be different
   //// from what GetDomainName() returns if DomainName is nullptr or invalid.
   // vtkGetStringMacro(ActiveDomainName);
+
+  //@{
+  /**
+   * Name of the file to read.
+   */
+   vtkSetStringMacro(FileName);
+   vtkGetStringMacro(FileName);
+  //@}
 
   /**
    * Get information about point-based arrays. As is typical with readers this
@@ -183,14 +193,63 @@ public:
    */
   XdmfReaderCachedData& GetDataSetCache();
 
+  //@{
+  /**
+   * Enable reading from an InputString or InputArray instead of the default,
+   * a file.
+   */
+  vtkSetMacro(ReadFromInputString,bool);
+  vtkGetMacro(ReadFromInputString,bool);
+  vtkBooleanMacro(ReadFromInputString,bool);
+  //@}
+
+  //@{
+  /**
+   * Specify the vtkCharArray to be used  when reading from a string.
+   * If set, this array has precedence over InputString.
+   * Use this instead of InputString to avoid the extra memory copy.
+   * It should be noted that if the underlying char* is owned by the
+   * user ( vtkCharArray::SetArray(array, 1); ) and is deleted before
+   * the reader, bad things will happen during a pipeline update.
+   */
+  virtual void SetInputArray(vtkCharArray*);
+  vtkGetObjectMacro(InputArray, vtkCharArray);
+  //@}
+
+  //@{
+  /**
+   * Specify the InputString for use when reading from a character array.
+   * Optionally include the length for binary strings. Note that a copy
+   * of the string is made and stored. If this causes exceedingly large
+   * memory consumption, consider using InputArray instead.
+   */
+  void SetInputString(const char *in);
+  vtkGetStringMacro(InputString);
+  void SetInputString(const char *in, int len);
+  vtkGetMacro(InputStringLength, int);
+  void SetBinaryInputString(const char *, int len);
+  void SetInputString(const std::string& input)
+    { this->SetBinaryInputString(input.c_str(), static_cast<int>(input.length())); }
+  //@}
+
 protected:
   vtkXdmfReader();
   ~vtkXdmfReader() override;
 
+  char* FileName;
+
+  bool ReadFromInputString;
+
+  vtkCharArray* InputArray;
+
+  char *InputString;
+  int InputStringLength;
+  int InputStringPos;
+
   int ProcessRequest(vtkInformation *request,
     vtkInformationVector **inputVector,
     vtkInformationVector *outputVector) override;
-  virtual int RequestDataObject(vtkInformationVector *outputVector);
+  virtual int RequestDataObjectInternal(vtkInformationVector *outputVector);
   int RequestData(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *) override;
   int RequestInformation(vtkInformation *, vtkInformationVector **,

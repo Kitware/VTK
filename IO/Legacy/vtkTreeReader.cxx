@@ -32,15 +32,7 @@ vtkStandardNewMacro(vtkTreeReader);
 #endif
 
 //----------------------------------------------------------------------------
-vtkTreeReader::vtkTreeReader()
-{
-  vtkTree *output = vtkTree::New();
-  this->SetOutput(output);
-  // Releasing data for pipeline parallism.
-  // Filters will know it is empty.
-  output->ReleaseData();
-  output->Delete();
-}
+vtkTreeReader::vtkTreeReader() = default;
 
 //----------------------------------------------------------------------------
 vtkTreeReader::~vtkTreeReader() = default;
@@ -64,44 +56,12 @@ void vtkTreeReader::SetOutput(vtkTree *output)
 }
 
 //----------------------------------------------------------------------------
-// I do not think this should be here, but I do not want to remove it now.
-int vtkTreeReader::RequestUpdateExtent(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
+int vtkTreeReader::ReadMeshSimple(
+  const std::string& fname, vtkDataObject* doOutput)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  int piece, numPieces;
-
-  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-
-  // make sure piece is valid
-  if (piece < 0 || piece >= numPieces)
-  {
-    return 1;
-  }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkTreeReader::RequestData(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
-{
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  // Return all data in the first piece ...
-  if(outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
-  {
-    return 1;
-  }
-
   vtkDebugMacro(<<"Reading vtk tree ...");
 
-  if(!this->OpenVTKFile() || !this->ReadHeader())
+  if(!this->OpenVTKFile(fname.c_str()) || !this->ReadHeader())
   {
     return 1;
   }
@@ -136,8 +96,7 @@ int vtkTreeReader::RequestData(
     return 1;
   }
 
-  vtkTree* const output = vtkTree::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTree* const output = vtkTree::SafeDownCast(doOutput);
 
   vtkSmartPointer<vtkMutableDirectedGraph> builder =
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
@@ -167,7 +126,7 @@ int vtkTreeReader::RequestData(
         return 1;
       }
 
-      this->ReadPoints(builder, point_count);
+      this->ReadPointCoordinates(builder, point_count);
       continue;
     }
 

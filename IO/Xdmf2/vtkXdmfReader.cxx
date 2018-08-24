@@ -28,6 +28,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLParser.h"
 
+vtkCxxSetObjectMacro(vtkXdmfReader, InputArray, vtkCharArray);
+
 //============================================================================
 class vtkXdmfReaderTester : public vtkXMLParser
 {
@@ -104,6 +106,14 @@ vtkXdmfReader::vtkXdmfReader()
   this->CellArraysCache = new vtkXdmfArraySelection;
   this->GridsCache = new vtkXdmfArraySelection;
   this->SetsCache = new vtkXdmfArraySelection;
+
+  this->FileName = nullptr;
+  this->ReadFromInputString = false;
+  this->InputString = nullptr;
+  this->InputStringLength = 0;
+  this->InputStringPos = 0;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
@@ -119,6 +129,62 @@ vtkXdmfReader::~vtkXdmfReader()
   delete this->SetsCache;
 
   this->ClearDataSetCache();
+
+  this->SetFileName(nullptr);
+  delete [] this->InputString;
+}
+
+//----------------------------------------------------------------------------
+void vtkXdmfReader::SetInputString(const char *in)
+{
+  int len = 0;
+  if (in != nullptr)
+  {
+    len = static_cast<int>(strlen(in));
+  }
+  this->SetInputString(in, len);
+}
+
+//----------------------------------------------------------------------------
+void vtkXdmfReader::SetBinaryInputString(const char *in, int len)
+{
+  this->SetInputString(in, len);
+}
+
+//----------------------------------------------------------------------------
+void vtkXdmfReader::SetInputString(const char *in, int len)
+{
+  if (this->Debug)
+  {
+    vtkDebugMacro(<< "SetInputString len: " << len
+      << " in: " << (in ? in : "(null)"));
+  }
+
+  if (this->InputString && in && strncmp(in, this->InputString, len) == 0)
+  {
+    return;
+  }
+
+  delete [] this->InputString;
+
+  if (in && len>0)
+  {
+    // Add a nullptr terminator so that GetInputString
+    // callers (from wrapped languages) get a valid
+    // C string in *ALL* cases...
+    //
+    this->InputString = new char[len+1];
+    memcpy(this->InputString,in,len);
+    this->InputString[len] = 0;
+    this->InputStringLength = len;
+  }
+  else
+  {
+    this->InputString = nullptr;
+    this->InputStringLength = 0;
+  }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -146,7 +212,7 @@ int vtkXdmfReader::ProcessRequest(vtkInformation *request,
   // create the output
   if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
   {
-    return this->RequestDataObject(outputVector);
+    return this->RequestDataObjectInternal(outputVector);
   }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
@@ -233,7 +299,8 @@ bool vtkXdmfReader::PrepareDocument()
 }
 
 //----------------------------------------------------------------------------
-int vtkXdmfReader::RequestDataObject(vtkInformationVector *outputVector)
+int vtkXdmfReader::RequestDataObjectInternal(
+  vtkInformationVector *outputVector)
 {
   if (!this->PrepareDocument())
   {
@@ -616,6 +683,18 @@ void vtkXdmfReader::PassCachedSelections()
 //----------------------------------------------------------------------------
 void vtkXdmfReader::PrintSelf(ostream& os, vtkIndent indent)
 {
+  os << indent << "ReadFromInputString: " << (this->ReadFromInputString ? "On\n" : "Off\n");
+
+  if ( this->InputArray )
+  {
+    os << indent << "Input Array: "  << "\n";
+    this->InputArray->PrintSelf(os,indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "Input String: (None)\n";
+  }
+
   this->Superclass::PrintSelf(os, indent);
 }
 //----------------------------------------------------------------------------
