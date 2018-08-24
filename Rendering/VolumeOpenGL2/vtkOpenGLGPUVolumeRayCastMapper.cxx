@@ -3011,7 +3011,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren)
   geometryShader->Delete();
 
   this->Impl->ShaderBuildTime.Modified();
-  this->InvokeEvent(vtkCommand::UpdateShaderEvent, this->Impl->ShaderProgram);
 }
 
 //-----------------------------------------------------------------------------
@@ -3339,6 +3338,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     {
       // Bind the shader
       this->Impl->ShaderCache->ReadyShaderProgram(this->Impl->ShaderProgram);
+      this->InvokeEvent(vtkCommand::UpdateShaderEvent,
+                        this->Impl->ShaderProgram);
     }
 
     if (this->RenderToImage)
@@ -3442,6 +3443,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderWithDepthPass(
     }
 
     renWin->GetShaderCache()->ReadyShaderProgram(this->ShaderProgram);
+    this->Parent->InvokeEvent(vtkCommand::UpdateShaderEvent,
+                              this->ShaderProgram);
 
     this->DPDepthBufferTextureObject->Activate();
     this->ShaderProgram->SetUniformi("in_depthPassSampler",
