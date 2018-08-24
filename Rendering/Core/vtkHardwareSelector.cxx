@@ -278,6 +278,8 @@ bool vtkHardwareSelector::CaptureBuffers()
   }
 
   vtkRenderWindow *rwin = this->Renderer->GetRenderWindow();
+  rwin->MakeCurrent();
+
   int rgba[4];
   rwin->GetColorBufferSizes(rgba);
   if (rgba[0] < 8 || rgba[1] < 8 || rgba[2] < 8)
