@@ -17,6 +17,7 @@ if (NOT WIN32)
     DEPENDS
       vtkFiltersCore
       vtkFiltersParallel
+      vtkImagingCore
       vtkdiy2
     PRIVATE_DEPENDS
       vtkCommonCore
