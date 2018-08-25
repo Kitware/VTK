@@ -435,9 +435,16 @@ vtkOSPRayRendererNode::vtkOSPRayRendererNode()
   this->CompositeOnGL = false;
   this->Accumulate = true;
   this->AccumulateCount = 0;
+  this->ActorCount = 0;
   this->AccumulateTime = 0;
   this->AccumulateMatrix = vtkMatrix4x4::New();
   this->Internal = new vtkOSPRayRendererNodeInternals(this);
+
+#ifdef VTKOSPRAY_ENABLE_DENOISER
+    DenoiserDevice = oidn::newDevice();
+    DenoiserDevice.commit();
+    DenoiserFilter = DenoiserDevice.newFilter("RT");
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -860,10 +867,10 @@ void vtkOSPRayRendererNode::Traverse(int operation)
   it->Delete();
 
   if (!bgreused)
-    {
+  {
     //hack to ensure progressive rendering resets when background changes
     this->AccumulateTime = 0;
-    }
+  }
   this->Apply(operation,false);
 }
 
@@ -980,13 +987,27 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     {
       this->ImageX = this->Size[0];
       this->ImageY = this->Size[1];
+      const size_t size = this->ImageX*this->ImageY;
       ospRelease(this->OFrameBuffer);
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wextra"
       this->OFrameBuffer = ospNewFrameBuffer
         (isize,
+#ifdef VTKOSPRAY_ENABLE_DENOISER
+         OSP_FB_RGBA32F,
+#else
          OSP_FB_RGBA8,
-         OSP_FB_COLOR | (this->ComputeDepth? OSP_FB_DEPTH : 0) | (this->Accumulate? OSP_FB_ACCUM : 0));
+#endif
+         OSP_FB_COLOR | (this->ComputeDepth? OSP_FB_DEPTH : 0) | (this->Accumulate? OSP_FB_ACCUM : 0) |
+#ifdef VTKOSPRAY_ENABLE_DENOISER
+        OSP_FB_NORMAL | OSP_FB_ALBEDO |
+#endif
+         0);
+      this->DenoisedBuffer.resize(size);
+      this->ColorBuffer.resize(size);
+      this->NormalBuffer.resize(size);
+      this->AlbedoBuffer.resize(size);
+      DenoiserDirty = true;
       ospSet1f(this->OFrameBuffer, "gamma", 1.0f);
       ospCommit(this->OFrameBuffer);
       ospFrameBufferClear
@@ -1034,10 +1055,11 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       vtkMTimeType m = 0;
       vtkActorCollection *ac = ren->GetActors();
       int nitems = ac->GetNumberOfItems();
-      if (nitems != this->AccumulateCount)
+      if (nitems != this->ActorCount)
       {
         //TODO: need a hash or something to really check for added/deleted
-        this->AccumulateCount = nitems;
+        this->ActorCount = nitems;
+        this->AccumulateCount = 0;
         canReuse = false;
       }
       if (canReuse)
@@ -1130,6 +1152,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
            OSP_FB_COLOR |
            (this->ComputeDepth ? OSP_FB_DEPTH : 0) | OSP_FB_ACCUM);
 #pragma GCC diagnostic pop
+        this->AccumulateCount = 0;
       }
     }
     else if (!this->Accumulate)
@@ -1197,12 +1220,12 @@ void vtkOSPRayRendererNode::Render(bool prepass)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wextra"
     ospRenderFrame(this->OFrameBuffer, oRenderer,
-      OSP_FB_COLOR | (this->ComputeDepth ? OSP_FB_DEPTH : 0) | (this->Accumulate ? OSP_FB_ACCUM : 0));
+      OSP_FB_COLOR | (this->ComputeDepth ? OSP_FB_DEPTH : 0) | (this->Accumulate ? OSP_FB_ACCUM : 0) |
+#ifdef VTKOSPRAY_ENABLE_DENOISER
+                   OSP_FB_NORMAL | OSP_FB_ALBEDO |
+#endif
+    0);
 #pragma GCC diagnostic pop
-
-    const void* rgba = ospMapFrameBuffer(this->OFrameBuffer, OSP_FB_COLOR);
-    memcpy((void*)this->Buffer, rgba, this->Size[0]*this->Size[1]*sizeof(char)*4);
-    ospUnmapFrameBuffer(rgba, this->OFrameBuffer);
 
     if (this->ComputeDepth)
     {
@@ -1220,7 +1243,65 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       }
       ospUnmapFrameBuffer(Z, this->OFrameBuffer);
     }
+
+    this->AccumulateCount+=this->GetSamplesPerPixel(static_cast<vtkRenderer*>(this->Renderable));
+    const void* rgba = ospMapFrameBuffer(this->OFrameBuffer, OSP_FB_COLOR);
+#ifdef VTKOSPRAY_ENABLE_DENOISER
+    memcpy((void*)&this->ColorBuffer[0], rgba, this->Size[0]*this->Size[1]*4*sizeof(float));
+    if (UseDenoiser && this->AccumulateCount >= this->DenoiserThreshold)
+    {
+      Denoise();
+    }
+    //VTK appears to need an RGBA8 buffer, but the denoiser only supports floats right now.  Convert.
+    for (size_t i = 0; i < this->ImageX*this->ImageY; i++) {
+      const int bi = i*4;
+      this->Buffer[bi] = (unsigned char)std::min(this->ColorBuffer[i].x*255.f,255.f);
+      this->Buffer[bi+1] = (unsigned char)std::min(this->ColorBuffer[i].y*255.f,255.f);
+      this->Buffer[bi+2] = (unsigned char)std::min(this->ColorBuffer[i].z*255.f,255.f);
+      this->Buffer[bi+3] = 255;
+    }
+#else
+    memcpy((void*)this->Buffer, rgba, this->Size[0]*this->Size[1]*sizeof(char)*4);
+#endif
+    ospUnmapFrameBuffer(rgba, this->OFrameBuffer);
   }
+}
+
+void vtkOSPRayRendererNode::Denoise()
+{
+  this->DenoisedBuffer = ColorBuffer;
+  if (this->DenoiserDirty) {
+
+    this->DenoiserFilter.setImage("color", (void*)this->ColorBuffer.data(),
+        oidn::Format::Float3, this->ImageX, this->ImageY, 0, sizeof(osp::vec4f));
+
+    this->DenoiserFilter.setImage("normal", (void*)this->NormalBuffer.data(),
+        oidn::Format::Float3, this->ImageX, this->ImageY, 0, sizeof(osp::vec3f));
+
+    this->DenoiserFilter.setImage("albedo", (void*)this->AlbedoBuffer.data(),
+        oidn::Format::Float3, this->ImageX, this->ImageY, 0, sizeof(osp::vec3f));
+
+    this->DenoiserFilter.setImage("output", (void*)this->DenoisedBuffer.data(),
+        oidn::Format::Float3, this->ImageX, this->ImageY, 0, sizeof(osp::vec4f));
+
+    this->DenoiserFilter.commit();
+    this->DenoiserDirty = false;
+  }
+
+  const auto size = this->ImageX*this->ImageY;
+  const osp::vec4f* rgba = (const osp::vec4f*)ospMapFrameBuffer(this->OFrameBuffer, OSP_FB_COLOR);
+  std::copy(rgba, rgba+size, this->ColorBuffer.begin());
+  ospUnmapFrameBuffer(rgba, this->OFrameBuffer);
+  const osp::vec3f* normal = (const osp::vec3f*)ospMapFrameBuffer(this->OFrameBuffer, OSP_FB_NORMAL);
+  std::copy(normal, normal+size, this->NormalBuffer.begin());
+  ospUnmapFrameBuffer(normal, this->OFrameBuffer);
+  const osp::vec3f* albedo = (const osp::vec3f*)ospMapFrameBuffer(this->OFrameBuffer, OSP_FB_ALBEDO);
+  std::copy(albedo, albedo+size, this->AlbedoBuffer.begin());
+  ospUnmapFrameBuffer(albedo, this->OFrameBuffer);
+
+  this->DenoiserFilter.execute();
+  //Carson: not sure we need two buffers
+  this->ColorBuffer = this->DenoisedBuffer;
 }
 
 //----------------------------------------------------------------------------

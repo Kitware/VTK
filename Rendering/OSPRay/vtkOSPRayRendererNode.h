@@ -28,6 +28,12 @@
 
 #include "ospray/ospray.h" // for ospray handle types
 
+//#define VTKOSPRAY_ENABLE_DENOISER 1
+
+#ifdef VTKOSPRAY_ENABLE_DENOISER
+#include <OpenImageDenoise/oidn.hpp>
+#endif
+
 class vtkInformationDoubleKey;
 class vtkInformationDoubleVectorKey;
 class vtkInformationIntegerKey;
@@ -37,6 +43,7 @@ class vtkMatrix4x4;
 class vtkOSPRayRendererNodeInternals;
 class vtkOSPRayMaterialLibrary;
 class vtkRenderer;
+
 
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayRendererNode :
   public vtkRendererNode
@@ -222,9 +229,36 @@ public:
    */
   vtkRenderer *GetRenderer();
 
+  /**
+   * set accumulation threshold when image denoised.
+   */
+  void SetDenoiserThreshold(unsigned int threshold) { this->DenoiserThreshold = threshold; }
+
+  /**
+   * Enable/Disable denoiser (if supported).  Default is on when supported.
+   */
+  void EnableDenoiser(bool enabled) { this->UseDenoiser = enabled; }
+
+#ifdef VTKOSPRAY_ENABLE_DENOISER
+    oidn::DeviceRef DenoiserDevice;
+    oidn::FilterRef DenoiserFilter;
+#endif
+    bool UseDenoiser{true};
+    bool DenoiserDirty{true};
+    unsigned int DenoiserThreshold{4};
+    std::vector<osp::vec4f> ColorBuffer;
+    std::vector<osp::vec3f> NormalBuffer;
+    std::vector<osp::vec3f> AlbedoBuffer;
+    std::vector<osp::vec4f> DenoisedBuffer;
+
 protected:
   vtkOSPRayRendererNode();
   ~vtkOSPRayRendererNode();
+
+  /**
+   * Denoise the colors stored in ColorBuffer and put into Buffer
+   */
+  void Denoise();
 
   //internal structures
   unsigned char *Buffer;
@@ -241,6 +275,7 @@ protected:
   bool CompositeOnGL;
   float* ODepthBuffer;
   int AccumulateCount;
+  int ActorCount;
   vtkMTimeType AccumulateTime;
   vtkMatrix4x4 *AccumulateMatrix;
   vtkOSPRayRendererNodeInternals *Internal;
