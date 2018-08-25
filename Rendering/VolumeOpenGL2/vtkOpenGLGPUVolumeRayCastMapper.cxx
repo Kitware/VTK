@@ -61,6 +61,7 @@
 #include <vtkOpenGLShaderCache.h>
 #include "vtkOpenGLState.h"
 #include <vtkOpenGLVertexArrayObject.h>
+#include "vtkOpenGLUniforms.h"
 #include <vtkMultiVolume.h>
 #include <vtkPixelBufferObject.h>
 #include <vtkPixelExtent.h>
@@ -2429,6 +2430,21 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetShaderTemplate(
 }
 
 //-----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderCustomUniforms(
+  std::map<vtkShader::Type, vtkShader*>& shaders )
+{
+    vtkShader* vertexShader = shaders[vtkShader::Vertex];
+    vtkShaderProgram::Substitute(vertexShader,
+      "//VTK::CustomUniforms::Dec",
+      this->VertexCustomUniforms->GetDeclarations());
+
+    vtkShader* fragmentShader = shaders[vtkShader::Fragment];
+    vtkShaderProgram::Substitute(fragmentShader,
+      "//VTK::CustomUniforms::Dec",
+      this->FragmentCustomUniforms->GetDeclarations());
+}
+
+//-----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderBase(
   std::map<vtkShader::Type, vtkShader*>& shaders,
   vtkRenderer* ren,
@@ -2894,6 +2910,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderValues(
   // Render pass pre replacements
   //---------------------------------------------------------------------------
   this->ReplaceShaderRenderPass(shaders, vol, true);
+
+  // Custom uniform variables replacements
+  //---------------------------------------------------------------------------
+  this->ReplaceShaderCustomUniforms(shaders);
 
   // Base methods replacements
   //---------------------------------------------------------------------------
@@ -3375,6 +3395,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ShaderRebuildNeeded(vtkCamera
   return (this->NeedToInitializeResources ||
       this->VolumePropertyChanged ||
       this->Parent->GetMTime() > this->ShaderBuildTime.GetMTime() ||
+      this->Parent->GetFragmentCustomUniforms()->GetUniformListMTime() > this->ShaderBuildTime.GetMTime() ||
+      this->Parent->GetVertexCustomUniforms()->GetUniformListMTime() > this->ShaderBuildTime.GetMTime() ||
       cam->GetParallelProjection() != this->LastProjectionParallel ||
       this->SelectionStateTime.GetMTime() > this->ShaderBuildTime.GetMTime() ||
       renderPassTime > this->ShaderBuildTime ||
@@ -3861,6 +3883,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   {
     return;
   }
+
+  // Upload the value of user-defined uniforms in the program
+  this->VertexCustomUniforms->SetUniforms( prog );
+  this->FragmentCustomUniforms->SetUniforms( prog );
 
   this->SetShaderParametersRenderPass();
   if (!this->Impl->MultiVolume)
