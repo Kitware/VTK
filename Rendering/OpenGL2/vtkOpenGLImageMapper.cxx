@@ -450,13 +450,18 @@ void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *da
     int j = height;
 
     unsigned char *newPtr;
-    if (bpp < 4)
+    int nC = 4;
+    if (bpp == 1 || bpp == 3)
     {
-      newPtr = new unsigned char[vtkPadToFour(3*width*height)];
+      nC = 3;
+    }
+    if (nC == 3)
+    {
+      newPtr = new unsigned char[vtkPadToFour(nC*width*height)];
     }
     else
     {
-      newPtr = new unsigned char[4*width*height];
+      newPtr = new unsigned char[nC*width*height];
     }
 
     unsigned char *ptr = newPtr;
@@ -481,8 +486,9 @@ void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *da
           while (--i >= 0)
           {
             *ptr++ = tmp = *inPtr++;
-            *ptr++ = *inPtr++;
             *ptr++ = tmp;
+            *ptr++ = tmp;
+            *ptr++ = *inPtr++;
           }
           break;
 
@@ -509,7 +515,7 @@ void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *da
       inPtr1 += inInc1;
     }
 
-    self->DrawPixels(viewport, width, height, ((bpp < 4) ? 3 : 4), static_cast<void *>(newPtr));
+    self->DrawPixels(viewport, width, height, nC, static_cast<void *>(newPtr));
 
     delete [] newPtr;
   }
