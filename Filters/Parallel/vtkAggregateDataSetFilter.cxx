@@ -66,8 +66,7 @@ void vtkAggregateDataSetFilter::SetNumberOfTargetProcesses(int tp)
 //----------------------------------------------------------------------------
 int vtkAggregateDataSetFilter::FillInputPortInformation(int, vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
-  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
   return 1;
 }
@@ -96,6 +95,15 @@ int vtkAggregateDataSetFilter::RequestData(
       output->ShallowCopy(input);
     }
     return 1;
+  }
+
+  if (input->IsA("vtkImageData") || input->IsA("vtkRectilinearGrid") ||
+      input->IsA("vtkStructuredGrid"))
+  {
+    vtkErrorMacro("Must build with the vtkFiltersParallelDIY2 module enabled to "
+                  << "aggregate topologically regular grids with MPI");
+
+    return 0;
   }
 
   // create a subcontroller to simplify communication between the processes
