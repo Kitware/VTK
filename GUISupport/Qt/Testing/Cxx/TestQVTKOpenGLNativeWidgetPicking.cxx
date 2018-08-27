@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestQVTKOpenGLSimpleWidgetPicking.cxx
+  Module:    TestQVTKOpenGLNativeWidgetPicking.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// Tests picking actors with QVTKOpenGLSimpleWidget and vtkPropPicker.
+// Tests picking actors with QVTKOpenGLNativeWidget and vtkPropPicker.
 
-#include "QVTKOpenGLSimpleWidget.h"
+#include "QVTKOpenGLNativeWidget.h"
 #include "vtkActor2D.h"
 #include "vtkCamera.h"
 #include "vtkCoordinate.h"
@@ -33,15 +33,15 @@
 #include <cmath>
 #include <vector>
 
-int TestQVTKOpenGLSimpleWidgetPicking(int argc, char* argv[])
+int TestQVTKOpenGLNativeWidgetPicking(int argc, char* argv[])
 {
   // Disable multisampling
   vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(0);
-  QSurfaceFormat::setDefaultFormat(QVTKOpenGLSimpleWidget::defaultFormat());
+  QSurfaceFormat::setDefaultFormat(QVTKOpenGLNativeWidget::defaultFormat());
 
   QApplication app(argc, argv);
 
-  QVTKOpenGLSimpleWidget widget;
+  QVTKOpenGLNativeWidget widget;
   widget.resize(300, 300);
 
   auto renWin = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();

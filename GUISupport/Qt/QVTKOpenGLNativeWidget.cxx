@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    QVTKOpenGLSimpleWidget.cxx
+  Module:    QVTKOpenGLNativeWidget.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "QVTKOpenGLSimpleWidget.h"
+#include "QVTKOpenGLNativeWidget.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -43,14 +43,14 @@
 /**
  * Unused except on MacOS.
  * In an application using both QVTKOpenGLWidget
- * and QVTKOpenGLSimpleWidget, this bug can appear:
+ * and QVTKOpenGLNativeWidget, this bug can appear:
  * https://bugreports.qt.io/browse/QTBUG-69644
  */
 namespace
 {
   /**
    * It is needed to switch the visibility of currently visible QVTKOpenGLWidget
-   * back and forth (ie hide then show). Just after initialization of QVTKOpenGLSimpleWidget
+   * back and forth (ie hide then show). Just after initialization of QVTKOpenGLNativeWidget
    * (ie when we receive WindowActivate event, or PolishRequest event)
    * This method takes care of it.
    */
@@ -65,7 +65,7 @@ namespace
     }
 
     // Switch visibility back and forth of visible QVTKOpenGLWidgets
-    // that share the same window as this QVTKOpenGLSimpleWidget.
+    // that share the same window as this QVTKOpenGLNativeWidget.
     // This ensures they come back on the front after the Qt bug happens.
     auto widgets = window->findChildren<QVTKOpenGLWidget*>();
     for (auto qvglWidget : widgets)
@@ -83,24 +83,24 @@ namespace
 
 // #define DEBUG_QVTKOPENGL_WIDGET
 #ifdef DEBUG_QVTKOPENGL_WIDGET
-#define vtkQVTKOpenGLSimpleWidgetDebugMacro(msg)                                                         \
+#define vtkQVTKOpenGLNativeWidgetDebugMacro(msg)                                                         \
   cout << this << ": " msg << endl;                                                                \
   if (this->Logger)                                                                                \
   {                                                                                                \
     this->Logger->logMessage(                                                                      \
-      QOpenGLDebugMessage::createApplicationMessage(QStringLiteral("QVTKOpenGLSimpleWidget::" msg)));    \
+      QOpenGLDebugMessage::createApplicationMessage(QStringLiteral("QVTKOpenGLNativeWidget::" msg)));    \
   }
 #else
-#define vtkQVTKOpenGLSimpleWidgetDebugMacro(x)
+#define vtkQVTKOpenGLNativeWidgetDebugMacro(x)
 #endif
 
-class QVTKOpenGLSimpleWidgetObserver : public vtkCommand
+class QVTKOpenGLNativeWidgetObserver : public vtkCommand
 {
 public:
-  static QVTKOpenGLSimpleWidgetObserver* New() { return new QVTKOpenGLSimpleWidgetObserver(); }
-  vtkTypeMacro(QVTKOpenGLSimpleWidgetObserver, vtkCommand);
+  static QVTKOpenGLNativeWidgetObserver* New() { return new QVTKOpenGLNativeWidgetObserver(); }
+  vtkTypeMacro(QVTKOpenGLNativeWidgetObserver, vtkCommand);
 
-  void SetTarget(QVTKOpenGLSimpleWidget* target) { this->Target = target; }
+  void SetTarget(QVTKOpenGLNativeWidget* target) { this->Target = target; }
 
   void Execute(vtkObject*, unsigned long eventId, void* callData) override
   {
@@ -149,13 +149,13 @@ public:
   }
 
 protected:
-  QVTKOpenGLSimpleWidgetObserver() {}
-  ~QVTKOpenGLSimpleWidgetObserver() override {}
-  QPointer<QVTKOpenGLSimpleWidget> Target;
+  QVTKOpenGLNativeWidgetObserver() {}
+  ~QVTKOpenGLNativeWidgetObserver() override {}
+  QPointer<QVTKOpenGLNativeWidget> Target;
 };
 
 //-----------------------------------------------------------------------------
-QVTKOpenGLSimpleWidget::QVTKOpenGLSimpleWidget(QWidget* parentWdg, Qt::WindowFlags f)
+QVTKOpenGLNativeWidget::QVTKOpenGLNativeWidget(QWidget* parentWdg, Qt::WindowFlags f)
   : Superclass(parentWdg, f)
   , InteractorAdapter(nullptr)
   , EnableHiDPI(false)
@@ -183,9 +183,9 @@ QVTKOpenGLSimpleWidget::QVTKOpenGLSimpleWidget(QWidget* parentWdg, Qt::WindowFla
 }
 
 //-----------------------------------------------------------------------------
-QVTKOpenGLSimpleWidget::~QVTKOpenGLSimpleWidget()
+QVTKOpenGLNativeWidget::~QVTKOpenGLNativeWidget()
 {
-  vtkQVTKOpenGLSimpleWidgetDebugMacro("~QVTKOpenGLSimpleWidget");
+  vtkQVTKOpenGLNativeWidgetDebugMacro("~QVTKOpenGLNativeWidget");
   // essential to cleanup context so that the render window finalizes and
   // releases any graphics resources it may have allocated.
   this->cleanupContext();
@@ -196,19 +196,19 @@ QVTKOpenGLSimpleWidget::~QVTKOpenGLSimpleWidget()
 }
 
 //-----------------------------------------------------------------------------
-void QVTKOpenGLSimpleWidget::SetRenderWindow(vtkRenderWindow* win)
+void QVTKOpenGLNativeWidget::SetRenderWindow(vtkRenderWindow* win)
 {
   vtkGenericOpenGLRenderWindow* gwin = vtkGenericOpenGLRenderWindow::SafeDownCast(win);
   this->SetRenderWindow(gwin);
   if (gwin == nullptr && win != nullptr)
   {
-    qDebug() << "QVTKOpenGLSimpleWidget requires a `vtkGenericOpenGLRenderWindow`. `"
+    qDebug() << "QVTKOpenGLNativeWidget requires a `vtkGenericOpenGLRenderWindow`. `"
              << win->GetClassName() << "` is not supported.";
   }
 }
 
 //-----------------------------------------------------------------------------
-void QVTKOpenGLSimpleWidget::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
+void QVTKOpenGLNativeWidget::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
 {
   if (this->RenderWindow == win)
   {
@@ -256,9 +256,9 @@ void QVTKOpenGLSimpleWidget::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
 }
 
 //-----------------------------------------------------------------------------
-void QVTKOpenGLSimpleWidget::startEventCallback()
+void QVTKOpenGLNativeWidget::startEventCallback()
 {
-  vtkQVTKOpenGLSimpleWidgetDebugMacro("startEventCallback");
+  vtkQVTKOpenGLNativeWidgetDebugMacro("startEventCallback");
   this->makeCurrent();
   if (this->FBO)
   {
@@ -270,7 +270,7 @@ void QVTKOpenGLSimpleWidget::startEventCallback()
 }
 
 //-----------------------------------------------------------------------------
-vtkRenderWindow* QVTKOpenGLSimpleWidget::GetRenderWindow()
+vtkRenderWindow* QVTKOpenGLNativeWidget::GetRenderWindow()
 {
   if (!this->RenderWindow)
   {
@@ -283,13 +283,13 @@ vtkRenderWindow* QVTKOpenGLSimpleWidget::GetRenderWindow()
 }
 
 //-----------------------------------------------------------------------------
-QVTKInteractor* QVTKOpenGLSimpleWidget::GetInteractor()
+QVTKInteractor* QVTKOpenGLNativeWidget::GetInteractor()
 {
   return QVTKInteractor::SafeDownCast(this->GetRenderWindow()->GetInteractor());
 }
 
 //-----------------------------------------------------------------------------
-void QVTKOpenGLSimpleWidget::copyFromFormat(const QSurfaceFormat& format, vtkRenderWindow* win)
+void QVTKOpenGLNativeWidget::copyFromFormat(const QSurfaceFormat& format, vtkRenderWindow* win)
 {
   if (vtkOpenGLRenderWindow* oglWin = vtkOpenGLRenderWindow::SafeDownCast(win))
   {
@@ -303,7 +303,7 @@ void QVTKOpenGLSimpleWidget::copyFromFormat(const QSurfaceFormat& format, vtkRen
 }
 
 //-----------------------------------------------------------------------------
-void QVTKOpenGLSimpleWidget::copyToFormat(vtkRenderWindow* win, QSurfaceFormat& format)
+void QVTKOpenGLNativeWidget::copyToFormat(vtkRenderWindow* win, QSurfaceFormat& format)
 {
   if (vtkOpenGLRenderWindow* oglWin = vtkOpenGLRenderWindow::SafeDownCast(win))
   {
@@ -314,7 +314,7 @@ void QVTKOpenGLSimpleWidget::copyToFormat(vtkRenderWindow* win, QSurfaceFormat& 
 }
 
 //-----------------------------------------------------------------------------
-QSurfaceFormat QVTKOpenGLSimpleWidget::defaultFormat()
+QSurfaceFormat QVTKOpenGLNativeWidget::defaultFormat()
 {
   QSurfaceFormat fmt;
   fmt.setRenderableType(QSurfaceFormat::OpenGL);
@@ -336,7 +336,7 @@ QSurfaceFormat QVTKOpenGLSimpleWidget::defaultFormat()
 }
 
 //-----------------------------------------------------------------------------
-void QVTKOpenGLSimpleWidget::setEnableHiDPI(bool enable)
+void QVTKOpenGLNativeWidget::setEnableHiDPI(bool enable)
 {
   this->EnableHiDPI = enable;
 
@@ -358,15 +358,15 @@ void QVTKOpenGLSimpleWidget::setEnableHiDPI(bool enable)
 }
 
 //-----------------------------------------------------------------------------
-void QVTKOpenGLSimpleWidget::setQVTKCursor(const QCursor &cursor)
+void QVTKOpenGLNativeWidget::setQVTKCursor(const QCursor &cursor)
 {
   this->setCursor(cursor);
 }
 
 //-----------------------------------------------------------------------------
-void QVTKOpenGLSimpleWidget::recreateFBO()
+void QVTKOpenGLNativeWidget::recreateFBO()
 {
-  vtkQVTKOpenGLSimpleWidgetDebugMacro("recreateFBO");
+  vtkQVTKOpenGLNativeWidgetDebugMacro("recreateFBO");
   delete this->FBO;
   this->FBO = nullptr;
   if (!this->RenderWindow)
@@ -374,7 +374,7 @@ void QVTKOpenGLSimpleWidget::recreateFBO()
     return;
   }
 
-  // Since QVTKOpenGLSimpleWidget::initializeGL() cannot set multi-samples
+  // Since QVTKOpenGLNativeWidget::initializeGL() cannot set multi-samples
   // state on the RenderWindow correctly, we do it here.
   QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
   GLint samples;
@@ -431,7 +431,7 @@ void QVTKOpenGLSimpleWidget::recreateFBO()
 }
 
 //-----------------------------------------------------------------------------
-void QVTKOpenGLSimpleWidget::initializeGL()
+void QVTKOpenGLNativeWidget::initializeGL()
 {
   this->Superclass::initializeGL();
 
@@ -441,11 +441,11 @@ void QVTKOpenGLSimpleWidget::initializeGL()
   this->Logger->initialize(); // initializes in the current context.
 #endif
 
-  vtkQVTKOpenGLSimpleWidgetDebugMacro("initializeGL");
+  vtkQVTKOpenGLNativeWidgetDebugMacro("initializeGL");
   if (this->RenderWindow)
   {
     // use QSurfaceFormat for the widget, update ivars on the vtkRenderWindow.
-    QVTKOpenGLSimpleWidget::copyFromFormat(this->format(), this->RenderWindow);
+    QVTKOpenGLNativeWidget::copyFromFormat(this->format(), this->RenderWindow);
     // When a QOpenGLWidget is told to use a QSurfaceFormat with samples > 0,
     // QOpenGLWidget doesn't actually create a context with multi-samples and
     // internally changes the QSurfaceFormat to be samples=0. Thus, we can't
@@ -460,7 +460,7 @@ void QVTKOpenGLSimpleWidget::initializeGL()
 }
 
 //-----------------------------------------------------------------------------
-void QVTKOpenGLSimpleWidget::requireRenderWindowInitialization()
+void QVTKOpenGLNativeWidget::requireRenderWindowInitialization()
 {
   if (this->RenderWindow)
   {
@@ -469,14 +469,14 @@ void QVTKOpenGLSimpleWidget::requireRenderWindowInitialization()
 }
 
 //-----------------------------------------------------------------------------
-void QVTKOpenGLSimpleWidget::resizeGL(int w, int h)
+void QVTKOpenGLNativeWidget::resizeGL(int w, int h)
 {
-  vtkQVTKOpenGLSimpleWidgetDebugMacro("resizeGL");
+  vtkQVTKOpenGLNativeWidgetDebugMacro("resizeGL");
   this->Superclass::resizeGL(w, h);
 }
 
 //-----------------------------------------------------------------------------
-void QVTKOpenGLSimpleWidget::paintGL()
+void QVTKOpenGLNativeWidget::paintGL()
 {
   if (this->InPaintGL)
   {
@@ -499,9 +499,9 @@ void QVTKOpenGLSimpleWidget::paintGL()
 
   if (this->DoVTKRenderInPaintGL && !this->renderVTK())
   {
-    vtkQVTKOpenGLSimpleWidgetDebugMacro("paintGL:skipped-renderVTK");
+    vtkQVTKOpenGLNativeWidgetDebugMacro("paintGL:skipped-renderVTK");
     // This should be very rare, but it's conceivable that subclasses of
-    // QVTKOpenGLSimpleWidget are simply not ready to do a
+    // QVTKOpenGLNativeWidget are simply not ready to do a
     // render on VTK render window when widget is being painted.
     // Leave the buffer unchanged.
     return;
@@ -517,7 +517,7 @@ void QVTKOpenGLSimpleWidget::paintGL()
   this->makeCurrent();
 
   // blit from this->FBO to QOpenGLWidget's FBO.
-  vtkQVTKOpenGLSimpleWidgetDebugMacro("paintGL::blit-to-defaultFBO");
+  vtkQVTKOpenGLNativeWidgetDebugMacro("paintGL::blit-to-defaultFBO");
   QOpenGLFunctions_3_2_Core* f =
     QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_3_2_Core>();
   if (f)
@@ -554,7 +554,7 @@ void QVTKOpenGLSimpleWidget::paintGL()
 }
 
 //-----------------------------------------------------------------------------
-void QVTKOpenGLSimpleWidget::cleanupContext()
+void QVTKOpenGLNativeWidget::cleanupContext()
 {
   // logger gets uninitialized when this gets called. We get errors from
   // QOpenGLDebugLogger if logMessage is called here. So we just destroy the
@@ -562,7 +562,7 @@ void QVTKOpenGLSimpleWidget::cleanupContext()
   delete this->Logger;
   this->Logger = nullptr;
 
-  vtkQVTKOpenGLSimpleWidgetDebugMacro("cleanupContext");
+  vtkQVTKOpenGLNativeWidgetDebugMacro("cleanupContext");
 
   // QOpenGLWidget says when this slot is called, the context may not be current
   // and hence is a good practice to make it so.
@@ -582,10 +582,10 @@ void QVTKOpenGLSimpleWidget::cleanupContext()
 }
 
 //-----------------------------------------------------------------------------
-void QVTKOpenGLSimpleWidget::windowFrameEventCallback()
+void QVTKOpenGLNativeWidget::windowFrameEventCallback()
 {
   Q_ASSERT(this->RenderWindow);
-  vtkQVTKOpenGLSimpleWidgetDebugMacro("frame");
+  vtkQVTKOpenGLNativeWidgetDebugMacro("frame");
 
   if (!this->InPaintGL)
   {
@@ -602,18 +602,18 @@ void QVTKOpenGLSimpleWidget::windowFrameEventCallback()
     {
       // Means that the vtkRenderWindow rendered outside a paintGL call. That can
       // happen when application code call vtkRenderWindow::Render() directly,
-      // instead of calling QVTKOpenGLSimpleWidget::update() or letting Qt update the
+      // instead of calling QVTKOpenGLNativeWidget::update() or letting Qt update the
       // widget. In that case, since QOpenGLWidget rendering into an offscreen
       // FBO, the result still needs to be composed by Qt widget stack. We request
       // that using `update()`.
-      vtkQVTKOpenGLSimpleWidgetDebugMacro("update");
+      vtkQVTKOpenGLNativeWidgetDebugMacro("update");
       this->update();
 
       this->DoVTKRenderInPaintGL = false;
     }
     else
     {
-      vtkQVTKOpenGLSimpleWidgetDebugMacro("buffer bad -- do not show");
+      vtkQVTKOpenGLNativeWidgetDebugMacro("buffer bad -- do not show");
 
       // Since this->FBO right now is garbage, if paint event is received before
       // a Render request is made on the render window, we will have to Render
@@ -624,9 +624,9 @@ void QVTKOpenGLSimpleWidget::windowFrameEventCallback()
 }
 
 //-----------------------------------------------------------------------------
-bool QVTKOpenGLSimpleWidget::renderVTK()
+bool QVTKOpenGLNativeWidget::renderVTK()
 {
-  vtkQVTKOpenGLSimpleWidgetDebugMacro("renderVTK");
+  vtkQVTKOpenGLNativeWidgetDebugMacro("renderVTK");
   Q_ASSERT(this->FBO);
   Q_ASSERT(this->FBO->handle() == this->RenderWindow->GetDefaultFrameBufferId());
 
@@ -654,7 +654,7 @@ bool QVTKOpenGLSimpleWidget::renderVTK()
 }
 
 //-----------------------------------------------------------------------------
-bool QVTKOpenGLSimpleWidget::event(QEvent* evt)
+bool QVTKOpenGLNativeWidget::event(QEvent* evt)
 {
   switch (evt->type())
   {
@@ -674,7 +674,7 @@ bool QVTKOpenGLSimpleWidget::event(QEvent* evt)
 #ifdef __APPLE__
     // On MacOS, because of https://bugreports.qt.io/browse/QTBUG-69644
     // It is needed to hide/show currently visible QVTKOpenGLWidget
-    // Just after initialization of QVTKOpenGLSimpleWidget
+    // Just after initialization of QVTKOpenGLNativeWidget
     // This triggers a timer so as soon as Qt is able to process events,
     // it will fix the broken QVTKOpenGLWidgets.
     case QEvent::WindowActivate:
@@ -696,7 +696,7 @@ bool QVTKOpenGLSimpleWidget::event(QEvent* evt)
 }
 
 //-----------------------------------------------------------------------------
-void QVTKOpenGLSimpleWidget::mousePressEvent(QMouseEvent* event)
+void QVTKOpenGLNativeWidget::mousePressEvent(QMouseEvent* event)
 {
   emit mouseEvent(event);
 
@@ -708,7 +708,7 @@ void QVTKOpenGLSimpleWidget::mousePressEvent(QMouseEvent* event)
 }
 
 //-----------------------------------------------------------------------------
-void QVTKOpenGLSimpleWidget::mouseMoveEvent(QMouseEvent* event)
+void QVTKOpenGLNativeWidget::mouseMoveEvent(QMouseEvent* event)
 {
   emit mouseEvent(event);
 
@@ -720,7 +720,7 @@ void QVTKOpenGLSimpleWidget::mouseMoveEvent(QMouseEvent* event)
 }
 
 //-----------------------------------------------------------------------------
-void QVTKOpenGLSimpleWidget::mouseReleaseEvent(QMouseEvent* event)
+void QVTKOpenGLNativeWidget::mouseReleaseEvent(QMouseEvent* event)
 {
   emit mouseEvent(event);
 
@@ -732,7 +732,7 @@ void QVTKOpenGLSimpleWidget::mouseReleaseEvent(QMouseEvent* event)
 }
 
 //-----------------------------------------------------------------------------
-void QVTKOpenGLSimpleWidget::mouseDoubleClickEvent(QMouseEvent* event)
+void QVTKOpenGLNativeWidget::mouseDoubleClickEvent(QMouseEvent* event)
 {
   emit mouseEvent(event);
 

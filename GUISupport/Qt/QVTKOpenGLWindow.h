@@ -34,12 +34,12 @@ class vtkRenderWindow;
  * QVTKOpenGLWindow provides a way to display VTK data in a Qt OpenGL context.
  *
  * QVTKOpenGLWindow extends QOpenGLWindow to make it work with a
- * vtkGenericOpenGLRenderWindow. This is akin to QVTKOpenGLSimpleWidget except the
+ * vtkGenericOpenGLRenderWindow. This is akin to QVTKOpenGLNativeWidget except the
  * OpenGL context is created and managed by QOpenGLWindow (added in Qt 5.4).
  *
  * While QVTKOpenGLWindow is intended to be a replacement for
- * QVTKOpenGLSimpleWidget, there are a few difference between both.
- * Unlike QVTKOpenGLSimpleWidget, QVTKOpenGLWindow can target multiple framebuffers
+ * QVTKOpenGLNativeWidget, there are a few difference between both.
+ * Unlike QVTKOpenGLNativeWidget, QVTKOpenGLWindow can target multiple framebuffers
  * and thus allows for stereo-capable applications.
  * QVTKOpenGLWindow API was adapted from deprecated QVTKWidget2.
  *
@@ -73,7 +73,7 @@ class vtkRenderWindow;
  *
  * QVTKOpenGLWindow is targeted for Qt version 5.9 and above.
  *
- * @sa QVTKOpenGLWidget QVTKOpenGLSimpleWidget QVTKWidget2
+ * @sa QVTKOpenGLWidget QVTKOpenGLNativeWidget QVTKWidget2
  */
 class VTKGUISUPPORTQT_EXPORT QVTKOpenGLWindow : public QOpenGLWindow
 {

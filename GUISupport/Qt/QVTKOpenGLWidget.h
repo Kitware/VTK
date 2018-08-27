@@ -69,11 +69,11 @@ class vtkRenderWindowInteractor;
  * but it is mainly tested on Qt 5.9 and above.
  *
  * QVTKOpenGLWidget does not support to be a native widget,
- * for native widget, please use QVTKOpenGLSimpleWidget.
+ * for native widget, please use QVTKOpenGLNativeWidget.
  * Beware, uses of this widget in a QScrollArea or in
  * a QMDIArea will force it to be native, which is unsupported.
  *
- * @sa QVTKOpenGLWindow QVTKOpenGLSimpleWidget
+ * @sa QVTKOpenGLWindow QVTKOpenGLNativeWidget
  */
 class VTKGUISUPPORTQT_EXPORT QVTKOpenGLWidget : public QWidget
 {
