@@ -36,6 +36,7 @@ set(headers
   vtkmCleanGrid.h
   vtkmClip.h
   vtkmContour.h
+  vtkmCoordinateSystemTransform.h
   vtkmExternalFaces.h
   vtkmExtractVOI.h
   vtkmGradient.h
@@ -61,6 +62,7 @@ set(cpu_accelerator_srcs
   vtkmClip.cxx
   vtkmConnectivityExec.cxx
   vtkmContour.cxx
+  vtkmCoordinateSystemTransform.cxx
   vtkmExternalFaces.cxx
   vtkmExtractVOI.cxx
   vtkmGradient.cxx
@@ -89,6 +91,7 @@ set(cuda_accelerator_srcs
   vtkmClip.cu
   vtkmConnectivityExec.cu
   vtkmContour.cu
+  vtkmCoordinateSystemTransform.cu
   vtkmExternalFaces.cu
   vtkmExtractVOI.cu
   vtkmGradient.cu
