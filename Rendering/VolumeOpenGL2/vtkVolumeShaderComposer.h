@@ -53,6 +53,22 @@ namespace {
     return false;
   }
 
+  bool UseClippedVoxelIntensity(
+    vtkOpenGLGPUVolumeRayCastMapper::VolumeInputMap& inputs)
+  {
+    for (auto& item : inputs)
+    {
+      vtkVolumeProperty* volProp = item.second.Volume->GetProperty();
+      const bool useClippedVoxelIntensity =
+        volProp->GetUseClippedVoxelIntensity() == 1;
+      if (useClippedVoxelIntensity)
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+
   const std::string ArrayBaseName(const std::string& arrayName)
   {
     const std::string base = arrayName.substr(0, arrayName.length() - 3);
@@ -450,6 +466,7 @@ namespace vtkvolume
 
   //--------------------------------------------------------------------------
   std::string ComputeGradientDeclaration(
+    vtkOpenGLGPUVolumeRayCastMapper* mapper,
     vtkOpenGLGPUVolumeRayCastMapper::VolumeInputMap& inputs)
   {
     const bool hasLighting = HasLighting(inputs);
@@ -468,13 +485,62 @@ namespace vtkvolume
         "  vec3 xvec = vec3(in_cellStep[index].x, 0.0, 0.0);\n"
         "  vec3 yvec = vec3(0.0, in_cellStep[index].y, 0.0);\n"
         "  vec3 zvec = vec3(0.0, 0.0, in_cellStep[index].z);\n"
-        "  g1.x = texture3D(volume, vec3(texPos + xvec))[c];\n"
-        "  g1.y = texture3D(volume, vec3(texPos + yvec))[c];\n"
-        "  g1.z = texture3D(volume, vec3(texPos + zvec))[c];\n"
-        "  g2.x = texture3D(volume, vec3(texPos - xvec))[c];\n"
-        "  g2.y = texture3D(volume, vec3(texPos - yvec))[c];\n"
-        "  g2.z = texture3D(volume, vec3(texPos - zvec))[c];\n"
-        "\n"
+        "  vec3 texPosPvec[3];\n"
+        "  texPosPvec[0] = texPos + xvec;\n"
+        "  texPosPvec[1] = texPos + yvec;\n"
+        "  texPosPvec[2] = texPos + zvec;\n"
+        "  vec3 texPosNvec[3];\n"
+        "  texPosNvec[0] = texPos - xvec;\n"
+        "  texPosNvec[1] = texPos - yvec;\n"
+        "  texPosNvec[2] = texPos - zvec;\n"
+        "  g1.x = texture3D(volume, vec3(texPosPvec[0]))[c];\n"
+        "  g1.y = texture3D(volume, vec3(texPosPvec[1]))[c];\n"
+        "  g1.z = texture3D(volume, vec3(texPosPvec[2]))[c];\n"
+        "  g2.x = texture3D(volume, vec3(texPosNvec[0]))[c];\n"
+        "  g2.y = texture3D(volume, vec3(texPosNvec[1]))[c];\n"
+        "  g2.z = texture3D(volume, vec3(texPosNvec[2]))[c];\n"
+        "\n");
+      if (UseClippedVoxelIntensity(inputs) && mapper->GetClippingPlanes())
+      {
+        shaderStr += std::string(
+          "  vec4 g1ObjDataPos[3], g2ObjDataPos[3];\n"
+          "  for (int i = 0; i < 3; ++i)\n"
+          "  {\n"
+          "    g1ObjDataPos[i] = clip_texToObjMat * vec4(texPosPvec[i], 1.0);\n"
+          "    if (g1ObjDataPos[i].w != 0.0)\n"
+          "    {\n"
+          "      g1ObjDataPos[i] /= g1ObjDataPos[i].w;\n"
+          "    }\n"
+          "    g2ObjDataPos[i] = clip_texToObjMat * vec4(texPosNvec[i], 1.0);\n"
+          "    if (g2ObjDataPos[i].w != 0.0)\n"
+          "    {\n"
+          "      g2ObjDataPos[i] /= g2ObjDataPos[i].w;\n"
+          "    }\n"
+          "  }\n"
+          "\n"
+          "  for (int i = 0; i < clip_numPlanes && !g_skip; i = i + 6)\n"
+          "  {\n"
+          "    vec3 planeOrigin = vec3(in_clippingPlanes[i + 1],\n"
+          "                            in_clippingPlanes[i + 2],\n"
+          "                            in_clippingPlanes[i + 3]);\n"
+          "    vec3 planeNormal = normalize(vec3(in_clippingPlanes[i + 4],\n"
+          "                                      in_clippingPlanes[i + 5],\n"
+          "                                      in_clippingPlanes[i + 6]));\n"
+          "    for (int j = 0; j < 3; ++j)\n"
+          "    {\n"
+          "      if (dot(vec3(planeOrigin - g1ObjDataPos[j].xyz), planeNormal) > 0)\n"
+          "      {\n"
+          "        g1[j] = in_clippedVoxelIntensity;\n"
+          "      }\n"
+          "      if (dot(vec3(planeOrigin - g2ObjDataPos[j].xyz), planeNormal) > 0)\n"
+          "      {\n"
+          "        g2[j] = in_clippedVoxelIntensity;\n"
+          "      }\n"
+          "    }\n"
+          "  }\n"
+          "\n");
+      }
+      shaderStr += std::string(
         "  // Apply scale and bias to the fetched values.\n"
         "  g1 = g1 * in_volume_scale[index][c] + in_volume_bias[index][c];\n"
         "  g2 = g2 * in_volume_scale[index][c] + in_volume_bias[index][c];\n"
@@ -2272,6 +2338,7 @@ namespace vtkvolume
       \n /// The first value is the size of the data array for clipping\
       \n /// planes (origin, normal)\
       \n uniform float in_clippingPlanes[49];\
+      \n uniform float in_clippedVoxelIntensity;\
       \n\
       \n int clip_numPlanes;\
       \n vec3 clip_rayDirObj;\

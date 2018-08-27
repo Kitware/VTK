@@ -33,6 +33,9 @@ vtkVolumeProperty::vtkVolumeProperty()
 
   this->InterpolationType               = VTK_NEAREST_INTERPOLATION;
 
+  this->UseClippedVoxelIntensity = 0;
+  this->ClippedVoxelIntensity = VTK_DOUBLE_MIN;
+
   for ( int i = 0; i < VTK_MAX_VRCOMP; i++ )
   {
     this->ColorChannels[i]                   = 1;
@@ -106,6 +109,8 @@ void vtkVolumeProperty::DeepCopy(vtkVolumeProperty *p)
   this->SetIndependentComponents(p->GetIndependentComponents());
 
   this->SetInterpolationType(p->GetInterpolationType());
+  this->SetUseClippedVoxelIntensity(p->GetUseClippedVoxelIntensity());
+  this->SetClippedVoxelIntensity(p->GetClippedVoxelIntensity());
 
   for (int i = 0; i < VTK_MAX_VRCOMP; i++)
   {
@@ -697,6 +702,11 @@ void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Interpolation Type: "
      << this->GetInterpolationTypeAsString() << "\n";
+
+  os << indent << "Use Clipped Voxel Intensity: " <<
+    (this->UseClippedVoxelIntensity ? "On\n" : "Off\n");
+  os << indent << "Clipped Voxel Intensity: "
+     << this->GetClippedVoxelIntensity() << "\n";
 
   for ( int i = 0; i < VTK_MAX_VRCOMP; i++ )
   {
