@@ -65,6 +65,7 @@ protected:
   //TODO: SetAndGetters?
   int NumColors;
   double SamplingRate;
+  double SamplingStep;  //base sampling step of each voxel
 
   vtkTimeStamp BuildTime;
   vtkTimeStamp PropertyTime;

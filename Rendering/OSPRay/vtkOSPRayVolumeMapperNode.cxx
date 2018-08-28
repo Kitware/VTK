@@ -41,6 +41,7 @@ vtkStandardNewMacro(vtkOSPRayVolumeMapperNode);
 vtkOSPRayVolumeMapperNode::vtkOSPRayVolumeMapperNode()
 {
   this->SamplingRate=0.0;
+  this->SamplingStep=1.0;
   this->NumColors = 128;
   this->OSPRayVolume = nullptr;
   this->TransferFunction = nullptr;
@@ -209,6 +210,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
         ospSet3f(this->OSPRayVolume, "gridOrigin", origin[0], origin[1], origin[2]);
         ospSet3f(this->OSPRayVolume, "gridSpacing", scale[0], scale[1], scale[2]);
         ospSetString(this->OSPRayVolume, "voxelType", voxelType.c_str());
+        this->SamplingStep = std::min(scale[0],std::min(scale[1],scale[2]));
 
         osp::vec3i ll, uu;
         ll.x = 0, ll.y = 0, ll.z = 0;
@@ -283,6 +285,17 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
                         sa->GetRange()[1],
                         this->NumColors,
                         &this->TFVals[0]);
+
+      //TODO: samplingStep should be asjusted for AMR/unstructured
+      float scalarOpacityUnitDistance = volProperty->GetScalarOpacityUnitDistance();
+      if (scalarOpacityUnitDistance < 1e-29) //avoid div by 0
+      {
+        scalarOpacityUnitDistance = 1e-29;
+      }
+      for(int i=0; i < this->NumColors; i++)
+      {
+        this->TFOVals[i] = this->TFOVals[i]/scalarOpacityUnitDistance*this->SamplingStep;
+      }
 
       OSPData colorData = ospNewData(this->NumColors,
                                      OSP_FLOAT3,
