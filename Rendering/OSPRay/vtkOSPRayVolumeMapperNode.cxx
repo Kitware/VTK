@@ -46,12 +46,15 @@ vtkOSPRayVolumeMapperNode::vtkOSPRayVolumeMapperNode()
   this->OSPRayVolume = nullptr;
   this->TransferFunction = nullptr;
   this->Cache = new vtkOSPRayVolumeCache;
+  this->UseSharedBuffers = true;
+  this->SharedData = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkOSPRayVolumeMapperNode::~vtkOSPRayVolumeMapperNode()
 {
   ospRelease(this->TransferFunction);
+  ospRelease(this->SharedData);
   if (this->Cache->GetSize() == 0)
   {
     ospRelease(this->OSPRayVolume);
@@ -102,10 +105,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
 
     vtkImageData *data = vtkImageData::SafeDownCast(mapper->GetDataSetInput());
     if (!data)
-    {
-      //vtkErrorMacro("VolumeMapper's Input has no data!");
       return;
-    }
 
     int fieldAssociation;
     vtkDataArray *sa = vtkDataArray::SafeDownCast
@@ -156,25 +156,31 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
         }
 
         std::string voxelType;
+        OSPDataType ospVoxelType = OSP_UNKNOWN;
         if (ScalarDataType == VTK_FLOAT)
         {
           voxelType = "float";
+          ospVoxelType = OSP_FLOAT;
         }
         else if (ScalarDataType == VTK_UNSIGNED_CHAR)
         {
           voxelType = "uchar";
+          ospVoxelType = OSP_UCHAR;
         }
         else if (ScalarDataType == VTK_UNSIGNED_SHORT)
         {
           voxelType = "ushort";
+          ospVoxelType = OSP_USHORT;
         }
         else if (ScalarDataType == VTK_SHORT)
         {
           voxelType = "short";
+          ospVoxelType = OSP_SHORT;
         }
         else if (ScalarDataType == VTK_DOUBLE)
         {
           voxelType = "double";
+          ospVoxelType = OSP_DOUBLE;
         }
         else
         {
@@ -186,7 +192,14 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
         {
           ospRelease(this->OSPRayVolume);
         }
-        this->OSPRayVolume = ospNewVolume("block_bricked_volume");
+        if (this->UseSharedBuffers)
+        {
+          this->OSPRayVolume = ospNewVolume("shared_structured_volume");
+        }
+        else
+        {
+          this->OSPRayVolume = ospNewVolume("block_bricked_volume");
+        }
         this->Cache->AddToCache(tstep, this->OSPRayVolume);
         //
         // Send Volumetric data to OSPRay
@@ -212,11 +225,19 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
         ospSetString(this->OSPRayVolume, "voxelType", voxelType.c_str());
         this->SamplingStep = std::min(scale[0],std::min(scale[1],scale[2]));
 
-        osp::vec3i ll, uu;
-        ll.x = 0, ll.y = 0, ll.z = 0;
-        uu.x = dim[0], uu.y = dim[1], uu.z = dim[2];
-        ospSetRegion(this->OSPRayVolume, ScalarDataPointer, ll, uu);
-
+        if (this->UseSharedBuffers)
+        {
+          ospRelease(this->SharedData);
+          this->SharedData = ospNewData(dim[0]*dim[1]*dim[2], ospVoxelType, ScalarDataPointer, OSP_DATA_SHARED_BUFFER);
+          ospSetData(this->OSPRayVolume, "voxelData", this->SharedData);
+        }
+        else
+        {
+          osp::vec3i ll, uu;
+          ll.x = 0, ll.y = 0, ll.z = 0;
+          uu.x = dim[0], uu.y = dim[1], uu.z = dim[2];
+          ospSetRegion(this->OSPRayVolume, ScalarDataPointer, ll, uu);
+        }
         ospSet2f(this->TransferFunction, "valueRange",
                  sa->GetRange()[0], sa->GetRange()[1]);
         ospSetObject(this->OSPRayVolume, "transferFunction",
