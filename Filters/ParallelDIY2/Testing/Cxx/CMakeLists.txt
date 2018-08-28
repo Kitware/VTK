@@ -10,9 +10,7 @@ vtk_add_test_mpi(vtkFiltersParallelDIY2CxxTests-MPI tests
 )
 
 # We want 4 processes to test the vtkAggregateDataSetFilter
-# properly. Note that this test may fail if the MALLOC_PERTURB_ environment
-# variable is set due to what appear to be issues with MPI. This test has been disabled
-# on Taanab because of this.
+# properly.
 set (vtkFiltersParallelDIY2CxxTests-MPI_NUMPROCS 4)
 vtk_add_test_mpi(vtkFiltersParallelDIY2CxxTests-MPI no_data_tests_4_procs
   DIYAggregateDataSet.cxx

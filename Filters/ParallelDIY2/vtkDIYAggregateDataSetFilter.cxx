@@ -88,14 +88,6 @@ vtkDIYAggregateDataSetFilter::vtkDIYAggregateDataSetFilter()
 //-----------------------------------------------------------------------------
 vtkDIYAggregateDataSetFilter::~vtkDIYAggregateDataSetFilter() = default;
 
-//----------------------------------------------------------------------------
-int vtkDIYAggregateDataSetFilter::FillInputPortInformation(int, vtkInformation* info)
-{
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
-  info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-  return 1;
-}
-
 //-----------------------------------------------------------------------------
 int vtkDIYAggregateDataSetFilter::RequestInformation(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -424,11 +416,22 @@ int vtkDIYAggregateDataSetFilter::MoveData(int inputExtent[6], int wholeExtent[6
 
   std::vector<vtkMPICommunicator::Request> dataSendRequests(serializedDataSets.size());
   counter = 0;
+  // deal with problems with not being able to get direct access to the string's memory.
+  // in the future we may want to look at ways to make this more memory efficient. for
+  // now it's not too bad though in that it really only has 2 copies of the sent data
+  // to a single process since it clears out the string after it copies it over
+  // to sendData.
+  std::vector<std::vector<unsigned char> > sendData(serializedDataSets.size());
   for (auto it : serializedDataSets)
   {
     int size = static_cast<int>(it.second.size());
-    controller->NoBlockSend(reinterpret_cast<unsigned char*>(const_cast<char*>(it.second.c_str())),
-      size, it.first, 9319, dataSendRequests[counter]);
+    sendData[counter].resize(size);
+    for (int i=0;i<size;i++)
+    {
+      sendData[counter][i] = static_cast<unsigned char>(it.second[i]);
+    }
+    it.second.clear(); // clear out the data
+    controller->NoBlockSend(sendData[counter].data(), size, it.first, 9319, dataSendRequests[counter]);
     counter++;
   }
   controller->WaitAll(dataReceiveRequests.size(), dataReceiveRequests.data());
@@ -444,8 +447,6 @@ int vtkDIYAggregateDataSetFilter::MoveData(int inputExtent[6], int wholeExtent[6
         << receiveSizes[i] << " but is size " << receivedDataSets[i].size());
       return 0;
     }
-    // vtkWarningMacro("received data of size " << receivedDataSets[i].size() << " from " <<
-    // processesIReceiveFrom->GetId(i));
     delete[] dataArrays[i];
   }
 

@@ -45,7 +45,6 @@ protected:
 
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
-  int FillInputPortInformation(int port, vtkInformation* info) override;
   int RequestInformation(vtkInformation*,
                          vtkInformationVector**,
                          vtkInformationVector*) override;
