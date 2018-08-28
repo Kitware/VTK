@@ -60,7 +60,7 @@ protected:
   /**
    * updates internal OSPRay transfer function for volume
    */
-  void UpdateTransferFunction(vtkVolume* vol);
+  void UpdateTransferFunction(vtkVolume* vol, double *dataRange=nullptr);
 
   //TODO: SetAndGetters?
   int NumColors;
