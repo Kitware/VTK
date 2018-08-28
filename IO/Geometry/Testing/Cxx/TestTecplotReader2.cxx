@@ -39,8 +39,6 @@
 #include "vtkCallbackCommand.h"
 #include <string>
 
-// Visual Studio test command line arguments
-// TestTecplotReader2 -D $(SolutionDir)/ExternalData/Testing -T $(SolutionDir)/Testing/Temporary
 using namespace std;
 
 class vtkErrorObserver
@@ -95,7 +93,6 @@ int TestTecplotReader2( int argc, char *argv[] )
     {
       continue;
     }
-
 
     vtkErrorObserver::Reset();
     vtkNew<vtkTecplotReader> r;
