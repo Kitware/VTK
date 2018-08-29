@@ -9,6 +9,7 @@ vtk_module(vtkRenderingContext2D
   KIT
     vtkRendering
   DEPENDS
+    vtkCommonSystem
     vtkCommonCore
     vtkCommonDataModel
     vtkCommonExecutionModel
