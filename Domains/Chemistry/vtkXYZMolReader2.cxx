@@ -114,6 +114,10 @@ int vtkXYZMolReader2::RequestInformation(
         tmp >> timeValue;
         this->TimeSteps.push_back(timeValue);
       }
+      else
+      {
+        this->TimeSteps.push_back(this->NumberOfTimeSteps);
+      }
     }
     else
     {
