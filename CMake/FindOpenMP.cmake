@@ -93,6 +93,8 @@
 # ``yyyymm`` where ``yyyy`` and ``mm`` represents the year and month of
 # the OpenMP specification implemented by the ``<lang>`` compiler.
 
+cmake_minimum_required(VERSION 3.9)
+
 cmake_policy(PUSH)
 cmake_policy(SET CMP0012 NEW) # if() recognizes numbers and booleans
 cmake_policy(SET CMP0054 NEW) # if() quoted variables not dereferenced
