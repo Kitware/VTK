@@ -690,7 +690,8 @@ void vtkLagrangeInterpolation::WedgeShapeFunctions(const int order[3], const vtk
   {
     const double r = pcoords[0];
     const double s = pcoords[1];
-    const double t = 2 * pcoords[2] - 1.; // does this means that the parametric space is [-1,1] here?
+    // the parametric space along this axis is [-1,1] for these calculations
+    const double t = 2 * pcoords[2] - 1.;
     const double rsm = 1. - r - s;
     const double rs = r * s;
     const double tp = 1. + t;
@@ -783,6 +784,7 @@ void vtkLagrangeInterpolation::WedgeShapeDerivatives(const int order[3], const v
   // FIXME: Eventually needs to be varying length.
   double ll[vtkLagrangeInterpolation::MaxDegree + 1];
   double ld[vtkLagrangeInterpolation::MaxDegree + 1];
+  double tt[(vtkLagrangeInterpolation::MaxDegree + 1) * (vtkLagrangeInterpolation::MaxDegree + 2) / 2];
   double td[(vtkLagrangeInterpolation::MaxDegree + 1) * (vtkLagrangeInterpolation::MaxDegree + 2)];
   vtkLagrangeInterpolation::EvaluateShapeAndGradient(tOrder, pcoords[2], ll, ld);
   vtkVector3d triP(pcoords);
@@ -791,6 +793,7 @@ void vtkLagrangeInterpolation::WedgeShapeDerivatives(const int order[3], const v
   tri->GetPoints()->SetNumberOfPoints(numtripts);
   tri->GetPointIds()->SetNumberOfIds(numtripts);
   tri->Initialize();
+  tri->InterpolateFunctions(triP.GetData(), tt);
   tri->InterpolateDerivs(triP.GetData(), td);
 
   int numPts = numtripts * (tOrder + 1);
@@ -799,13 +802,12 @@ void vtkLagrangeInterpolation::WedgeShapeDerivatives(const int order[3], const v
   {
     const double r = pcoords[0];
     const double s = pcoords[1];
-    const double t = 2 * pcoords[2] - 1.; // does this means that the parametric space is [-1,1] here?
+    // the parametric space along this axis is [-1,1] for these calculations
+    const double t = 2 * pcoords[2] - 1.;
     const double tm = t - 1.;
     const double tp = t + 1.;
     const double rsm = 1. - r - s;
     const double rs = r * s;
-
-    // these derivatives should be checked since the derivatives below were incorrect!
 
     // dN/dr
     derivs[ 0] = 0.5*t*tm*(-3.0*rs + 2.0*r + 2.0*s + (3.0*s - 2.0)*rsm - 1.0);
@@ -854,27 +856,27 @@ void vtkLagrangeInterpolation::WedgeShapeDerivatives(const int order[3], const v
     derivs[41] =  27.0*r*tm*tp*(r + 2*s - 1);
 
     // dN/dt
-    derivs[42] = -0.5*(-2*t + 1)*rsm*(3.0*rs - 2.0*r - 2.0*s + 1.0);
-    derivs[43] =  0.5*r*(-2*t + 1)*(-2.0*r - 3.0*s*rsm + 1.0);
-    derivs[44] =  0.5*s*(-2*t + 1)*(-3.0*r*rsm - 2.0*s + 1.0);
-    derivs[45] =  0.5*(2*t + 1)*rsm*(3.0*rs - 2.0*r - 2.0*s + 1.0);
-    derivs[46] =  -0.5*r*(2*t + 1)*(-2.0*r - 3.0*s*rsm + 1.0);
-    derivs[47] =  -0.5*s*(2*t + 1)*(-3.0*r*rsm - 2.0*s + 1.0);
-    derivs[48] =  -0.5*r*(12.0*s - 4.0)*(2*t - 1)*rsm;
-    derivs[49] =  0.5*rs*(2*t - 1)*(12.0*r + 12.0*s - 8.0);
-    derivs[50] =  -0.5*s*(12.0*r - 4.0)*(2*t - 1)*rsm;
-    derivs[51] =  -0.5*r*(12.0*s - 4.0)*(2*t + 1)*rsm;
-    derivs[52] =  0.5*rs*(2*t + 1)*(12.0*r + 12.0*s - 8.0);
-    derivs[53] =  0.5*s*(12.0*r - 4.0)*(2*t + 1)*rsm;
-    derivs[54] =  -2*t*rsm*(3.0*rs - 2.0*r - 2.0*s + 1.0);
-    derivs[55] =  2*r*t*(-2.0*r + 3.0*s*rsm + 1.0);
-    derivs[56] =  2*s*t*(-3.0*r*rsm - 2.0*s + 1.0);
-    derivs[57] =  -13.5*rs*(-2*t + 1)*rsm;
-    derivs[58] =  13.5*rs*(2*t + 1)*rsm;
-    derivs[59] =  2*r*t*(12.0*s - 4.0)*rsm;
-    derivs[60] =  rs*t*(-24.0*r - 24.0*s + 16.0);
-    derivs[61] =  2*s*t*(12.0*r - 4.0)*rsm;
-    derivs[62] =  -54.0*rs*t*rsm;
+    derivs[42] = (2*t - 1)*rsm*(3.0*rs - 2.0*r - 2.0*s + 1.0);
+    derivs[43] =  r*(-2*t + 1)*(-2.0*r - 3.0*s*rsm + 1.0);
+    derivs[44] =  s*(-2*t + 1)*(-3.0*r*rsm - 2.0*s + 1.0);
+    derivs[45] =  (2*t + 1)*rsm*(3.0*rs - 2.0*r - 2.0*s + 1.0);
+    derivs[46] =  -r*(2*t + 1)*(-2.0*r - 3.0*s*rsm + 1.0);
+    derivs[47] =  -s*(2*t + 1)*(-3.0*r*rsm - 2.0*s + 1.0);
+    derivs[48] =  -r*(12.0*s - 4.0)*(2*t - 1)*rsm;
+    derivs[49] =  rs*(2*t - 1)*(12.0*r + 12.0*s - 8.0);
+    derivs[50] =  -s*(12.0*r - 4.0)*(2*t - 1)*rsm;
+    derivs[51] =  -r*(12.0*s - 4.0)*(2*t + 1)*rsm;
+    derivs[52] =  rs*(2*t + 1)*(12.0*r + 12.0*s - 8.0);
+    derivs[53] =  -s*(12.0*r - 4.0)*(2*t + 1)*rsm;
+    derivs[54] =  -4*t*rsm*(3.0*rs - 2.0*r - 2.0*s + 1.0);
+    derivs[55] =  4.*r*(1. - 3.*s + 3.*s*s + r*(-2. + 3.*s))*t;
+    derivs[56] =  4.*s*t*(-3.0*r*rsm - 2.0*s + 1.0);
+    derivs[57] =  -27.*rs*(-2*t + 1)*rsm;
+    derivs[58] =  27.*rs*(2*t + 1)*rsm;
+    derivs[59] =  4.*r*t*(12.0*s - 4.0)*rsm;
+    derivs[60] =  2.*rs*t*(-24.0*r - 24.0*s + 16.0);
+    derivs[61] =  4.*s*t*(12.0*r - 4.0)*rsm;
+    derivs[62] =  -108.*rs*t*rsm;
 
     return;
   }
@@ -893,9 +895,9 @@ void vtkLagrangeInterpolation::WedgeShapeDerivatives(const int order[3], const v
         {
           ijk[2] = rsOrder - ii - jj;
           int tOff = vtkLagrangeTriangle::Index(ijk, rsOrder);
-          derivs[sn] = td[tOff];
-          derivs[sn + numPts] = td[tOff+numtripts];
-          derivs[sn + 2 * numPts] = ld[kk];
+          derivs[sn] = td[tOff] * ll[kk];
+          derivs[sn + numPts] = td[tOff+numtripts] * ll[kk];
+          derivs[sn + 2 * numPts] = ld[kk] * tt[tOff];
         }
       }
     }
