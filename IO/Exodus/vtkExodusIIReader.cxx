@@ -2451,6 +2451,76 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       }
       ptr += binfop->BdsPerEntry[0] - binfop->PointsPerCell;
     }
+    else if (binfop->CellType == VTK_LAGRANGE_WEDGE && binfop->PointsPerCell == 21)
+    {
+      // Exodus orders edges like so:
+      //   r-dir @ -z, 1-r-s-dir @ -z, s-dir @ -z,
+      //   t-dir @ +1-r-s, t-dir @ +r, t-dir @ +s,
+      //   r-dir @ +z, 1-r-s-dir @ +z, s-dir @ +z,
+      // VTK orders edges like so:
+      //   r-dir @ -z, 1-r-s-dir @ -z, s-dir @ -z,
+      //   r-dir @ +z, 1-r-s-dir @ +z, s-dir @ +z,
+      //   t-dir @ +1-r-s, t-dir @ +r, t-dir @ +s,
+      int k;
+      int itmp[3];
+      for ( c = 0; c < iarr->GetNumberOfTuples(); ++c )
+      {
+        for (k = 0; k < 9; ++k, ++ptr)
+          *ptr = *ptr - 1;
+
+        for (k = 0; k < 3; ++k, ++ptr)
+        {
+          itmp[k] = *ptr;
+          *ptr = ptr[3] - 1;
+        }
+
+        for (k = 0; k < 3; ++k, ++ptr)
+        {
+          *ptr = itmp[k] - 1;
+        }
+        // The body-centered node immediately follows the edges in the
+        // Exodus file and is then followed by wedge face nodes,
+        // but not in the same order as VTK or the linear Exodus side-set
+        // ordering:
+        int ftmp[6];
+        static int wedgeMapping[6] = {1, 2, 5, 3, 4, 0};
+        for (k = 0; k < 6; ++k)
+        {
+          ftmp[k] = ptr[wedgeMapping[k]];
+        }
+        for (k = 0; k < 6; ++k, ++ptr)
+        {
+          *ptr = ftmp[k] - 1;
+        }
+      }
+      ptr += binfop->BdsPerEntry[0] - binfop->PointsPerCell;
+    }
+    else if (binfop->CellType == VTK_LAGRANGE_TETRAHEDRON && binfop->PointsPerCell == 15)
+    {
+      int k;
+      for ( c = 0; c < iarr->GetNumberOfTuples(); ++c )
+      {
+        // Tet corners and edges are ordered as expected
+        for (k = 0; k < 10; ++k, ++ptr)
+        {
+          *ptr = *ptr - 1;
+        }
+        // ... but the body-centered node is placed *before* the
+        // tet face nodes and the faces are not in the canonical
+        // side-set ordering.
+        static int tetMapping[5] = { 1, 4, 2, 3, 0 };
+        int ftmp[5];
+        for (k = 0; k < 5; ++k)
+        {
+          ftmp[k] = ptr[tetMapping[k]];
+        }
+        for (k = 0; k < 5; ++k, ++ptr)
+        {
+          *ptr = ftmp[k] - 1;
+        }
+      }
+      ptr += binfop->BdsPerEntry[0] - binfop->PointsPerCell;
+    }
     else
     {
       for ( c = 0; c <= iarr->GetMaxId(); ++c, ++ptr )
@@ -3134,8 +3204,12 @@ void vtkExodusIIReaderPrivate::DetermineVtkCellType( BlockInfoType& binfo )
     { binfo.CellType=VTK_QUADRATIC_TETRA;          binfo.PointsPerCell = 10; }
   else if ((elemType.substr(0,3) == "TET") &&      (binfo.BdsPerEntry[0] == 11))
     { binfo.CellType=VTK_QUADRATIC_TETRA;          binfo.PointsPerCell = 10; }
+  else if ((elemType.substr(0,3) == "TET") &&      (binfo.BdsPerEntry[0] == 15))
+    { binfo.CellType=VTK_LAGRANGE_TETRAHEDRON;     binfo.PointsPerCell = 15; }
   else if ((elemType.substr(0,3) == "WED") &&      (binfo.BdsPerEntry[0] == 15))
     { binfo.CellType=VTK_QUADRATIC_WEDGE;          binfo.PointsPerCell = 15; }
+  else if ((elemType.substr(0,3) == "WED") &&      (binfo.BdsPerEntry[0] == 21))
+    { binfo.CellType=VTK_LAGRANGE_WEDGE;           binfo.PointsPerCell = 21; }
   else if ((elemType.substr(0,3) == "HEX") &&      (binfo.BdsPerEntry[0] == 20))
     { binfo.CellType=VTK_QUADRATIC_HEXAHEDRON;     binfo.PointsPerCell = 20; }
   else if ((elemType.substr(0,3) == "HEX") &&      (binfo.BdsPerEntry[0] == 21))
