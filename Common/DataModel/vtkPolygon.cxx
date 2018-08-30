@@ -1404,7 +1404,7 @@ int vtkPolygon::EarCutTriangulation ()
   VertexQueue->Allocate(poly.NumberOfVerts);
   for (i=0, vtx=poly.Head; i < poly.NumberOfVerts; i++, vtx=vtx->next)
   {
-    //concave (negative measure) vertices are not elgible for removal
+    //concave (negative measure) vertices are not eligible for removal
     if ( poly.ComputeMeasure(vtx) > 0.0 )
     {
       VertexQueue->Insert(vtx->measure, vtx->id);

@@ -116,7 +116,7 @@ public:
 
   //@{
   /**
-   * Convienence for Viewer.  Pan 3D volume relative to spacing.
+   * Convenience for Viewer.  Pan 3D volume relative to spacing.
    * Zoom constant factor.
    */
   void Zoom(double factor);
@@ -124,7 +124,7 @@ public:
   //@}
 
   /**
-   * Convienence for Viewer.  Copy the OriginCX and the SpacingCX.
+   * Convenience for Viewer.  Copy the OriginCX and the SpacingCX.
    * What about other parameters ???
    */
   void CopyOriginAndSample(vtkImageMandelbrotSource *source);

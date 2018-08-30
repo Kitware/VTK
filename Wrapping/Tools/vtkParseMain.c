@@ -62,7 +62,7 @@ static void parse_print_help(FILE *fp, const char *cmd, int multi)
     "  @<file>           read arguments from a file\n",
     parse_exename(cmd));
 
-  /* args for describing a singe header file input */
+  /* args for describing a single header file input */
   if (!multi)
   {
     fprintf(fp,

@@ -9,7 +9,7 @@ math = vtk.vtkMath()
 # Controls size of test
 res = 15
 
-# Create an initial set of points and asssociated datatset
+# Create an initial set of points and associated datatset
 mandel = vtk.vtkImageMandelbrotSource()
 mandel.SetWholeExtent(-res,res,-res,res,-res,res)
 mandel.Update()

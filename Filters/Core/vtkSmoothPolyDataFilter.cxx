@@ -354,7 +354,7 @@ int vtkSmoothPolyDataFilter::RequestData(
     return 1;
   }
 
-  // Peform topological analysis. What we're gonna do is build a connectivity
+  // Perform topological analysis. What we're gonna do is build a connectivity
   // array of connected vertices. The outcome will be one of three
   // classifications for a vertex: VTK_SIMPLE_VERTEX, VTK_FIXED_VERTEX. or
   // VTK_EDGE_VERTEX. Simple vertices are smoothed using all connected

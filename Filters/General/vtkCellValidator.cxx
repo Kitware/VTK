@@ -340,7 +340,7 @@ namespace
 {
 // The convention for three-dimensional cells is that the normal of each face
 // cell is oriented outwards. Some cells break this convention and remain
-// inconsistent to maintain backwards compatiblity.
+// inconsistent to maintain backwards compatibility.
 bool outwardOrientation(int cellType)
 {
   if (cellType == VTK_QUADRATIC_LINEAR_WEDGE ||

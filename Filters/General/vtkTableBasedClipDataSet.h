@@ -166,7 +166,7 @@ public:
   /**
    * Set/Get flag GenerateClipScalars, with 0 as the default value. With this
    * flag on, the scalar point data values obtained by evaluating the implicit
-   * function will be exported to the output. Note that this flag requries that
+   * function will be exported to the output. Note that this flag requiries that
    * an implicit function be provided.
    */
   vtkSetMacro( GenerateClipScalars, vtkTypeBool );

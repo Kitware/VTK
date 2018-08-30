@@ -161,7 +161,7 @@ public:
   virtual int ActivateNode( int X, int Y );
   //@}
 
-  // Descirption:
+  // Description:
   // Move the active node to a specified world position.
   // Will return 0 if there is no active node or the node
   // could not be moved to that position. 1 will be returned
@@ -276,7 +276,7 @@ public:
    */
   virtual int  GetNthNodeSlope( int idx, double slope[3] );
 
-  // Descirption:
+  // Description:
   // For a given node n, get the number of intermediate
   // points between this node and the node at
   // (n+1). If n is the last node and the loop is
@@ -390,7 +390,7 @@ public:
     {this->SetCurrentOperation( vtkContourRepresentation::Scale ); }
   //@}
 
-  // Descirption:
+  // Description:
   // Set / get the Point Placer. The point placer is
   // responsible for converting display coordinates into
   // world coordinates according to some constraints, and

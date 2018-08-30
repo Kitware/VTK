@@ -210,7 +210,7 @@ public:
    * containing the point x. return false if out of domain,
    * return true and data to recover the cell if in domain.
    * does not filter out ghost cells.
-   * convienence method with less outputs.
+   * convenience method with less outputs.
    */
   virtual bool FindInLocators(double* x, vtkDataSet*& dataset, vtkIdType& cellId,
     vtkAbstractCellLocator*& loc, double*& weights);

@@ -46,7 +46,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSet.h"
 
-#include <map> // STL header for dual point coordinates ajustment
+#include <map> // STL header for dual point coordinates adjustment
 
 class vtkHyperTree;
 class vtkHyperTreeCursor;

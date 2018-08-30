@@ -21,7 +21,7 @@ else:
     res = 25
     numProbes = 5000
 
-# Create an initial set of points and asssociated datatset
+# Create an initial set of points and associated datatset
 mandel = vtk.vtkImageMandelbrotSource()
 mandel.SetWholeExtent(-res,res,-res,res,-res,res)
 mandel.Update()

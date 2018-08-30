@@ -332,7 +332,7 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
   {
     double spacing[3];
     amr->GetSpacing(level, spacing);
-    int coarsenRatio = (int)pow( static_cast<double>(this->RefinementRatio), static_cast<int>(numLevels- 1 - level));//againt the finest level
+    int coarsenRatio = (int)pow( static_cast<double>(this->RefinementRatio), static_cast<int>(numLevels- 1 - level));//against the finest level
     for(size_t i=0; i<amr->GetNumberOfDataSets(level);i++)
     {
       const vtkAMRBox& box = amr->GetAMRBox(level,static_cast<unsigned int>(i));

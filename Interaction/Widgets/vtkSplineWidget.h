@@ -162,7 +162,7 @@ public:
    * position. i.e., if ProjectionNormal is 0, all of the x-coordinate
    * values of the points are set to position. Any value can be passed (and is
    * ignored) to update the spline points when Projection normal is set to 3
-   * for arbritrary plane orientations.
+   * for arbitrary plane orientations.
    */
   void SetProjectionPosition(double position);
   vtkGetMacro(ProjectionPosition, double);

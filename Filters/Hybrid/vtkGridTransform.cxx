@@ -916,7 +916,7 @@ void vtkGridTransform::ForwardTransformDerivative(const float point[3],
 
 //----------------------------------------------------------------------------
 // We use Newton's method to iteratively invert the transformation.
-// This is actally quite robust as long as the Jacobian matrix is never
+// This is actually quite robust as long as the Jacobian matrix is never
 // singular.
 // Note that this is similar to vtkWarpTransform::InverseTransformPoint()
 // but has been optimized specifically for grid transforms.

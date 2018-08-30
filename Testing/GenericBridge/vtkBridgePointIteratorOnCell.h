@@ -91,7 +91,7 @@ protected:
    */
   ~vtkBridgePointIteratorOnCell() override;
 
-  vtkBridgeDataSet *DataSet; // the structure on which the objet iterates.
+  vtkBridgeDataSet *DataSet; // the structure on which the object iterates.
   vtkIdType Cursor; // current position
 
   vtkIdList *PtIds; // list of points of the cell

@@ -4031,7 +4031,7 @@ void vtkHyperTreeGrid::ShiftDualCornerFromMaskedLeaf2D( vtkHyperTreeGridCursor* 
        && cursorS->GetLevel() < level
        && ! mask->GetValue( idS ) )
   {
-    // Dual point must be adusted
+    // Dual point must be adjusted
     this->PointShifted[idS] = true;
     this->PointShifts[axisSN][idS] = cursorS->GetTree()->GetScale( axisSN )
       * this->ReductionFactors[cursorS->GetLevel()];
@@ -4042,7 +4042,7 @@ void vtkHyperTreeGrid::ShiftDualCornerFromMaskedLeaf2D( vtkHyperTreeGridCursor* 
        && cursorW->GetLevel() < level
        && ! mask->GetValue( idW ) )
   {
-    // Dual point must be adusted
+    // Dual point must be adjusted
     this->PointShifted[idW] = true;
     this->PointShifts[axisWE][idW] = cursorW->GetTree()->GetScale( axisWE )
       * this->ReductionFactors[cursorW->GetLevel()];
@@ -4053,7 +4053,7 @@ void vtkHyperTreeGrid::ShiftDualCornerFromMaskedLeaf2D( vtkHyperTreeGridCursor* 
        && cursorE->GetLevel() < level
        && ! mask->GetValue( idE ) )
   {
-    // Dual point must be adusted
+    // Dual point must be adjusted
     this->PointShifted[idE] = true;
     this->PointShifts[axisWE][idE] = - cursorE->GetTree()->GetScale( axisWE )
       * this->ReductionFactors[cursorE->GetLevel()];
@@ -4064,7 +4064,7 @@ void vtkHyperTreeGrid::ShiftDualCornerFromMaskedLeaf2D( vtkHyperTreeGridCursor* 
        && cursorN->GetLevel() < level
        && ! mask->GetValue( idN ) )
   {
-    // Dual point must be adusted
+    // Dual point must be adjusted
     this->PointShifted[idN] = true;
     this->PointShifts[axisSN][idN] = - cursorN->GetTree()->GetScale( axisSN )
       * this->ReductionFactors[cursorN->GetLevel()];
@@ -4076,7 +4076,7 @@ void vtkHyperTreeGrid::ShiftDualCornerFromMaskedLeaf2D( vtkHyperTreeGridCursor* 
        && ! mask->GetValue( idSE )
        && ! this->PointShifted[idSE] )
   {
-    // Dual point must be adusted
+    // Dual point must be adjusted
     double shift[3];
     cursorSE->GetTree()->GetScale( shift );
     double factor = this->ReductionFactors[cursorSE->GetLevel()];
@@ -4090,7 +4090,7 @@ void vtkHyperTreeGrid::ShiftDualCornerFromMaskedLeaf2D( vtkHyperTreeGridCursor* 
        && ! mask->GetValue( idSW )
        && ! this->PointShifted[idSW] )
   {
-    // Dual point must be adusted
+    // Dual point must be adjusted
     double shift[3];
     cursorSW->GetTree()->GetScale( shift );
     double factor = this->ReductionFactors[cursorSW->GetLevel()];
@@ -4104,7 +4104,7 @@ void vtkHyperTreeGrid::ShiftDualCornerFromMaskedLeaf2D( vtkHyperTreeGridCursor* 
        && ! mask->GetValue( idNW )
        && ! this->PointShifted[idNW] )
   {
-    // Dual point must be adusted
+    // Dual point must be adjusted
     double shift[3];
     cursorNW->GetTree()->GetScale( shift );
     double factor = this->ReductionFactors[cursorNW->GetLevel()];
@@ -4118,7 +4118,7 @@ void vtkHyperTreeGrid::ShiftDualCornerFromMaskedLeaf2D( vtkHyperTreeGridCursor* 
        && ! mask->GetValue( idNE )
        && ! this->PointShifted[idNE] )
   {
-    // Dual point must be adusted
+    // Dual point must be adjusted
     double shift[3];
     cursorNE->GetTree()->GetScale( shift );
     double factor = this->ReductionFactors[cursorNE->GetLevel()];
@@ -4184,7 +4184,7 @@ void vtkHyperTreeGrid::ShiftDualCornerFromMaskedLeaf3D( vtkHyperTreeGridCursor* 
                && cursorE->GetLevel() < level && ! mask->GetValue( idE )
                && ! this->PointShifted[idE] )
           {
-            // Dual point must be adusted
+            // Dual point must be adjusted
             this->PointShifted[idE] = true;
             double shift[3];
             cursorE->GetTree()->GetScale( shift );
@@ -4212,7 +4212,7 @@ void vtkHyperTreeGrid::ShiftDualCornerFromMaskedLeaf3D( vtkHyperTreeGridCursor* 
              && cursorC->GetLevel() < level && ! mask->GetValue( idC )
              && ! this->PointShifted[idC] )
         {
-          // Dual point must be adusted
+          // Dual point must be adjusted
           this->PointShifted[idC] = true;
           double shift[3];
           cursorC->GetTree()->GetScale( shift );
