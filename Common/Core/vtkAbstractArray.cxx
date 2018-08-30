@@ -310,10 +310,13 @@ int vtkAbstractArray::CopyInformation(vtkInformation* infoFrom, int deep)
 // call modified on superclass
 void vtkAbstractArray::Modified()
 {
-    vtkInformation *info = this->GetInformation();
-    // Clear key-value pairs that are now out of date.
-    info->Remove(PER_COMPONENT());
-    info->Remove(PER_FINITE_COMPONENT());
+    if ( this->HasInformation() )
+    {
+      vtkInformation *info = this->GetInformation();
+      // Clear key-value pairs that are now out of date.
+      info->Remove(PER_COMPONENT());
+      info->Remove(PER_FINITE_COMPONENT());
+    }
     this->Superclass::Modified();
 }
 
