@@ -41,7 +41,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
-  // Descirption:
+  // Description:
   // Given a renderer and a display position, compute
   // the world position and orientation. The orientation
   // computed by the placer will always line up with the

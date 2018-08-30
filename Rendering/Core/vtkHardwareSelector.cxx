@@ -347,7 +347,7 @@ bool vtkHardwareSelector::PassRequired(int pass)
       return (this->Iteration == 0);
 
     case PROCESS_PASS:
-      // skip process pass if pid < 0 or not the firts pass
+      // skip process pass if pid < 0 or not the first pass
       return (this->ProcessID >= 0 && this->Iteration == 0);
 
     case POINT_ID_LOW24:

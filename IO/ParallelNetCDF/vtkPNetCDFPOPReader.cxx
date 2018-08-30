@@ -670,7 +670,7 @@ void vtkPNetCDFPOPReader::SetReaderRanks(vtkIdList* ranks)
   if (readerRanks.empty())  // Either nobody set the env var or it had bogus values
                             //  in it.  Try to pick a reasonable default.
   {
-    // This is somewhat arbritrary:  below 24 processes, we'll use 4 readers.
+    // This is somewhat arbitrary:  below 24 processes, we'll use 4 readers.
     // More than 24 processes, we'll use 8.  (>24 processes, I'm assuming we're
     // running on Jaguar where 2 readers per OSS seems to work well).
     // All readers will be evenly spread across the range of processes that

@@ -76,7 +76,7 @@ public:
 
   /**
    * Set the seed of the random sequence. There is no extra internal
-   * ajustment. Only useful for writing correctness test.
+   * adjustment. Only useful for writing correctness test.
    * The following pre-condition is stated page 1197, second column
    * 2147483646=(2^31)-2
    * This method does not have this criterium as a pre-condition (ie it will

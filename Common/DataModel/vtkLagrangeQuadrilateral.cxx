@@ -403,7 +403,7 @@ const int* vtkLagrangeQuadrilateral::GetOrder()
 {
   // FIXME: The interpolation routines can handle different order along each axis
   //   but we cannot infer the order from the number of points in that case.
-  //   This method currrently assumes quads are of the same order on each axis.
+  //   This method currently assumes quads are of the same order on each axis.
   //   We populate the Order array for use with the interpolation class.
   vtkIdType npts = this->Points->GetNumberOfPoints();
   if (this->Order[2] != npts)

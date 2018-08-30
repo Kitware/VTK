@@ -90,7 +90,7 @@ protected:
    */
   ~vtkBridgePointIteratorOne() override;
 
-  vtkBridgeDataSet *DataSet; // the structure on which the objet iterates.
+  vtkBridgeDataSet *DataSet; // the structure on which the object iterates.
   vtkIdType Id; // the id at current position.
   int cIsAtEnd;
 

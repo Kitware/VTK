@@ -106,7 +106,7 @@ protected:
   ~vtkBridgeCellIteratorOne() override;
 
   int cIsAtEnd;
-  vtkBridgeDataSet *DataSet; // the structure on which the objet iterates.
+  vtkBridgeDataSet *DataSet; // the structure on which the object iterates.
   vtkIdType Id; // the id at current position.
   vtkBridgeCell *Cell; // cell at current position.
   vtkCell *InternalCell;

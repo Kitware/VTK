@@ -84,7 +84,7 @@ protected:
 
   int Dim; // Dimension of cells over which to iterate (-1 to 3)
 
-  vtkBridgeDataSet *DataSet; // the structure on which the objet iterates.
+  vtkBridgeDataSet *DataSet; // the structure on which the object iterates.
   vtkIdType Id; // the id at current position.
   vtkIdType Size; // size of the structure.
   vtkBridgeCell *Cell; // cell at current position.

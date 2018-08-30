@@ -102,7 +102,7 @@ void vtkWarpTransform::InternalTransformDerivative(const double input[3],
 
 //----------------------------------------------------------------------------
 // We use Newton's method to iteratively invert the transformation.
-// This is actally quite robust as long as the Jacobian matrix is never
+// This is actually quite robust as long as the Jacobian matrix is never
 // singular.
 template<class T>
 void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
