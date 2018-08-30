@@ -548,7 +548,7 @@ int TestGradientAndVorticity(int argc, char *argv[])
   elevationFilter->SetLowPoint(bounds[0], 0, 0);
   elevationFilter->SetHighPoint(bounds[1], 0, 0);
   elevationFilter->SetScalarRange(bounds[0], bounds[1]);
-  for (i=0;threeDCells[i+1]!=-1;i++)
+  for (i=0;threeDCells[i]!=-1;i++)
   {
     cellTypeSource->SetCellType(threeDCells[i]);
     gradientFilter->Update();
