@@ -1,4 +1,4 @@
-#include <QVTKOpenGLSimpleWidget.h>
+#include <QVTKOpenGLNativeWidget.h>
 #include <vtkNew.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
@@ -9,19 +9,19 @@
 #include <QSurfaceFormat>
 #include <QWidget>
 
-int TestQVTKOpenGLSimpleWidgetSwapWindows(int argc, char* argv[])
+int TestQVTKOpenGLNativeWidgetSwapWindows(int argc, char* argv[])
 {
-  QSurfaceFormat::setDefaultFormat(QVTKOpenGLSimpleWidget::defaultFormat());
+  QSurfaceFormat::setDefaultFormat(QVTKOpenGLNativeWidget::defaultFormat());
   QApplication app(argc, argv);
 
   // Set up frame with two horizontally stacked panels,
-  // Each containing a QVTKOpenGLSimpleWidget
+  // Each containing a QVTKOpenGLNativeWidget
   QWidget frame;
   QHBoxLayout *layout = new QHBoxLayout(&frame);
 
   QWidget *leftPanel = new QWidget(&frame);
   QVBoxLayout *leftLayout = new QVBoxLayout(leftPanel);
-  QVTKOpenGLSimpleWidget* leftVTKWidget = new QVTKOpenGLSimpleWidget(leftPanel);
+  QVTKOpenGLNativeWidget* leftVTKWidget = new QVTKOpenGLNativeWidget(leftPanel);
   vtkSmartPointer<vtkRenderer> leftRenderer = vtkSmartPointer<vtkRenderer>::New();
   leftRenderer->SetBackground(1, 0, 0);
   leftVTKWidget->GetRenderWindow()->AddRenderer(leftRenderer);
@@ -29,7 +29,7 @@ int TestQVTKOpenGLSimpleWidgetSwapWindows(int argc, char* argv[])
 
   QWidget *rightPanel = new QWidget(&frame);
   QVBoxLayout *rightLayout = new QVBoxLayout(rightPanel);
-  QVTKOpenGLSimpleWidget* rightVTKWidget = new QVTKOpenGLSimpleWidget(rightPanel);
+  QVTKOpenGLNativeWidget* rightVTKWidget = new QVTKOpenGLNativeWidget(rightPanel);
   vtkSmartPointer<vtkRenderer> rightRenderer = vtkSmartPointer<vtkRenderer>::New();
   rightRenderer->SetBackground(0, 1, 0);
   rightVTKWidget->GetRenderWindow()->AddRenderer(rightRenderer);
@@ -44,7 +44,7 @@ int TestQVTKOpenGLSimpleWidgetSwapWindows(int argc, char* argv[])
   rightVTKWidget->GetRenderWindow()->Render();
   app.processEvents();
 
-  // Swap QVTKOpenGLSimpleWidget
+  // Swap QVTKOpenGLNativeWidget
   rightLayout->removeWidget(rightVTKWidget);
   leftLayout->removeWidget(leftVTKWidget);
   rightVTKWidget->setParent(leftPanel);

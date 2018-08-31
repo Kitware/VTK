@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestQVTKOpenGLSimpleWidgetWithDisabledInteractor.cxx
+  Module:    TestQVTKOpenGLNativeWidgetWithDisabledInteractor.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// Tests QVTKOpenGLSimpleWidget with a vtkRenderWindowInteractor that has its
+// Tests QVTKOpenGLNativeWidget with a vtkRenderWindowInteractor that has its
 // EnableRender flag disabled.
 
-#include "QVTKOpenGLSimpleWidget.h"
+#include "QVTKOpenGLNativeWidget.h"
 #include "vtkActor.h"
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkPolyDataMapper.h"
@@ -40,18 +40,18 @@ void WaitQtEventLoop(int msec)
   loop.exec();
 }
 
-int TestQVTKOpenGLSimpleWidgetWithDisabledInteractor(int argc, char* argv[])
+int TestQVTKOpenGLNativeWidgetWithDisabledInteractor(int argc, char* argv[])
 {
   // Disable multisampling
   vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(0);
-  QSurfaceFormat::setDefaultFormat(QVTKOpenGLSimpleWidget::defaultFormat());
+  QSurfaceFormat::setDefaultFormat(QVTKOpenGLNativeWidget::defaultFormat());
 
   QApplication app(argc, argv);
 
   auto vtktesting = vtkSmartPointer<vtkTesting>::New();
   vtktesting->AddArguments(argc, argv);
 
-  QVTKOpenGLSimpleWidget widget;
+  QVTKOpenGLNativeWidget widget;
   widget.resize(100, 100);
 
   auto renWin = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    QVTKOpenGLSimpleWidget.h
+  Module:    QVTKOpenGLNativeWidget.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,38 +13,38 @@
 
 =========================================================================*/
 /**
- * @class QVTKOpenGLSimpleWidget
+ * @class QVTKOpenGLNativeWidget
  * @brief QOpenGLWidget subclass to house a vtkGenericOpenGLRenderWindow in a Qt
  * application.
  *
- * QVTKOpenGLSimpleWidget extends QOpenGLWidget to make it work with a
+ * QVTKOpenGLNativeWidget extends QOpenGLWidget to make it work with a
  * vtkGenericOpenGLRenderWindow. This is akin to QVTKWidget except it uses Qt to create and
  * manage the OpenGL context using QOpenGLWidget (added in Qt 5.4).
  *
- * While QVTKOpenGLSimpleWidget is intended to be a replacement for QVTKWidget when
- * using Qt 5, there are a few difference between QVTKOpenGLSimpleWidget and
+ * While QVTKOpenGLNativeWidget is intended to be a replacement for QVTKWidget when
+ * using Qt 5, there are a few difference between QVTKOpenGLNativeWidget and
  * QVTKWidget.
  *
- * Unlike QVTKWidget, QVTKOpenGLSimpleWidget only works with vtkGenericOpenGLRenderWindow.
+ * Unlike QVTKWidget, QVTKOpenGLNativeWidget only works with vtkGenericOpenGLRenderWindow.
  * This is necessary since QOpenGLWidget wants to take over the window management as
  * well as the OpenGL context creation. Getting that to work reliably with
  * vtkXRenderWindow or vtkWin32RenderWindow (and other platform specific
  * vtkRenderWindow subclasses) was tricky and fraught with issues.
  *
- * Since QVTKOpenGLSimpleWidget uses QOpenGLWidget to create the OpenGL context,
+ * Since QVTKOpenGLNativeWidget uses QOpenGLWidget to create the OpenGL context,
  * it uses QSurfaceFormat (set using `QOpenGLWidget::setFormat` or
  * `QSurfaceFormat::setDefaultFormat`) to create appropriate window and context.
- * You can use `QVTKOpenGLSimpleWidget::copyToFormat` to obtain a QSurfaceFormat
+ * You can use `QVTKOpenGLNativeWidget::copyToFormat` to obtain a QSurfaceFormat
  * appropriate for a vtkRenderWindow.
  *
- * A typical usage for QVTKOpenGLSimpleWidget is as follows:
+ * A typical usage for QVTKOpenGLNativeWidget is as follows:
  * @code{.cpp}
  *
  *  // before initializing QApplication, set the default surface format.
- *  QSurfaceFormat::setDefaultFormat(QVTKOpenGLSimpleWidget::defaultFormat());
+ *  QSurfaceFormat::setDefaultFormat(QVTKOpenGLNativeWidget::defaultFormat());
  *
  *  vtkNew<vtkGenericOpenGLRenderWindow> window;
- *  QPointer<QVTKOpenGLSimpleWidget> widget = new QVTKOpenGLSimpleWidget(...);
+ *  QPointer<QVTKOpenGLNativeWidget> widget = new QVTKOpenGLNativeWidget(...);
  *  widget->SetRenderWindow(window.Get());
  *
  *  // If using any of the standard view e.g. vtkContextView, then
@@ -59,11 +59,11 @@
  *
  * @section OpenGLContext OpenGL Context
  *
- * In QOpenGLWidget (superclass for QVTKOpenGLSimpleWidget), all rendering happens in a
+ * In QOpenGLWidget (superclass for QVTKOpenGLNativeWidget), all rendering happens in a
  * framebuffer object. Thus, care must be taken in the rendering code to never
  * directly re-bind the default framebuffer i.e. ID 0.
  *
- * QVTKOpenGLSimpleWidget creates an internal QOpenGLFramebufferObject, independent of the
+ * QVTKOpenGLNativeWidget creates an internal QOpenGLFramebufferObject, independent of the
  * one created by superclass, for vtkRenderWindow to do the rendering in. This
  * explicit double-buffering is useful in avoiding temporary back-buffer only
  * renders done in VTK (e.g. when making selections) from destroying the results
@@ -71,7 +71,7 @@
  *
  * @section RenderAndPaint Handling Render and Paint.
  *
- * QWidget subclasses (including `QOpenGLWidget` and `QVTKOpenGLSimpleWidget`) display
+ * QWidget subclasses (including `QOpenGLWidget` and `QVTKOpenGLNativeWidget`) display
  * their contents on the screen in `QWidget::paint` in response to a paint event.
  * `QOpenGLWidget` subclasses are expected to do OpenGL rendering in
  * `QOpenGLWidget::paintGL`. QWidget can receive paint events for various
@@ -86,26 +86,26 @@
  *
  * Since paint in Qt can be called more often then needed, we avoid potentially
  * expensive `vtkRenderWindow::Render` calls each time that happens. Instead,
- * QVTKOpenGLSimpleWidget relies on the VTK application calling
+ * QVTKOpenGLNativeWidget relies on the VTK application calling
  * `vtkRenderWindow::Render` on the render window when it needs to update the
  * rendering. `paintGL` simply passes on the result rendered by the most render
  * vtkRenderWindow::Render to Qt windowing system for composing on-screen.
  *
  * There may still be occasions when we may have to render in `paint` for
  * example if the window was resized or Qt had to recreate the OpenGL context.
- * In those cases, `QVTKOpenGLSimpleWidget::paintGL` can request a render by calling
- * `QVTKOpenGLSimpleWidget::renderVTK`.
+ * In those cases, `QVTKOpenGLNativeWidget::paintGL` can request a render by calling
+ * `QVTKOpenGLNativeWidget::renderVTK`.
  *
  * @section Caveats
- * QVTKOpenGLSimpleWidget only supports **OpenGL2** rendering backend.
- * QVTKOpenGLSimpleWidget does not support stereo,
+ * QVTKOpenGLNativeWidget only supports **OpenGL2** rendering backend.
+ * QVTKOpenGLNativeWidget does not support stereo,
  * please use QVTKOpenGLWidget if you need support for stereo rendering
  *
- * QVTKOpenGLSimpleWidget is targeted for Qt version 5.5 and above.
+ * QVTKOpenGLNativeWidget is targeted for Qt version 5.5 and above.
  *
  */
-#ifndef QVTKOpenGLSimpleWidget_h
-#define QVTKOpenGLSimpleWidget_h
+#ifndef QVTKOpenGLNativeWidget_h
+#define QVTKOpenGLNativeWidget_h
 
 #include <QOpenGLWidget>
 
@@ -118,16 +118,16 @@ class QOpenGLDebugLogger;
 class QOpenGLFramebufferObject;
 class QVTKInteractor;
 class QVTKInteractorAdapter;
-class QVTKOpenGLSimpleWidgetObserver;
+class QVTKOpenGLNativeWidgetObserver;
 class vtkGenericOpenGLRenderWindow;
 
-class VTKGUISUPPORTQT_EXPORT QVTKOpenGLSimpleWidget : public QOpenGLWidget
+class VTKGUISUPPORTQT_EXPORT QVTKOpenGLNativeWidget : public QOpenGLWidget
 {
   Q_OBJECT
   typedef QOpenGLWidget Superclass;
 public:
-  QVTKOpenGLSimpleWidget(QWidget* parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags());
-  ~QVTKOpenGLSimpleWidget() override;
+  QVTKOpenGLNativeWidget(QWidget* parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags());
+  ~QVTKOpenGLNativeWidget() override;
 
   //@{
   /**
@@ -162,7 +162,7 @@ public:
 
   /**
    * Returns a typical QSurfaceFormat suitable for most applications using
-   * QVTKOpenGLSimpleWidget. Note that this is not the QSurfaceFormat that gets used
+   * QVTKOpenGLNativeWidget. Note that this is not the QSurfaceFormat that gets used
    * if none is specified. That is set using `QSurfaceFormat::setDefaultFormat`.
    */
   static QSurfaceFormat defaultFormat();
@@ -217,7 +217,7 @@ protected:
 
   /**
    * This method is called to indicate that vtkRenderWindow needs to reinitialize
-   * itself before the next render (done in QVTKOpenGLSimpleWidget::paintGL).
+   * itself before the next render (done in QVTKOpenGLNativeWidget::paintGL).
    * This is needed when the context gets recreated
    * or the default FrameBufferObject gets recreated, for example.
    */
@@ -232,8 +232,8 @@ protected:
    * rendering.
    *
    * Default implementation never returns false. However, subclasses can return
-   * false to indicate to QVTKOpenGLSimpleWidget that it cannot generate a reasonable
-   * image to be displayed in QVTKOpenGLSimpleWidget. In which case, the `paintGL`
+   * false to indicate to QVTKOpenGLNativeWidget that it cannot generate a reasonable
+   * image to be displayed in QVTKOpenGLNativeWidget. In which case, the `paintGL`
    * call will return leaving the `defaultFramebufferObject` untouched.
    *
    * Since by default `QOpenGLWidget::UpdateBehavior` is set to
@@ -253,7 +253,7 @@ protected:
   int OriginalDPI;
 
 private:
-  Q_DISABLE_COPY(QVTKOpenGLSimpleWidget);
+  Q_DISABLE_COPY(QVTKOpenGLNativeWidget);
 
   /**
    * Called when vtkCommand::WindowFrameEvent is fired by the
@@ -264,8 +264,8 @@ private:
   QOpenGLFramebufferObject* FBO;
   bool InPaintGL;
   bool DoVTKRenderInPaintGL;
-  vtkNew<QVTKOpenGLSimpleWidgetObserver> Observer;
-  friend class QVTKOpenGLSimpleWidgetObserver;
+  vtkNew<QVTKOpenGLNativeWidgetObserver> Observer;
+  friend class QVTKOpenGLNativeWidgetObserver;
   QOpenGLDebugLogger* Logger;
 };
 

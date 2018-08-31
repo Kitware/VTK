@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestQVTKOpenGLSimpleWidgetPicking.cxx
+  Module:    TestQVTKOpenGLWidgetPicking.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// Tests picking actors with QVTKOpenGLSimpleWidget and vtkPropPicker.
+// Tests picking actors with QVTKOpenGLWidget and vtkPropPicker.
 
 #include "QVTKOpenGLWidget.h"
 #include "vtkActor2D.h"

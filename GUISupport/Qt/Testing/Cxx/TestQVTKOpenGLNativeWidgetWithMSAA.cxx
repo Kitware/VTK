@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestQVTKOpenGLSimpleWidget.cxx
+  Module:    TestQVTKOpenGLNativeWidgetWithMSAA.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,9 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// Tests QVTKOpenGLSimpleWidget
-
-#include "QVTKOpenGLSimpleWidget.h"
+// Tests QVTKOpenGLNativeWidget with MSAA (based on TestQVTKOpenGLNativeWidget)
+#include "QVTKOpenGLNativeWidget.h"
 #include "vtkActor.h"
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkNew.h"
@@ -26,28 +25,20 @@
 #include <QApplication>
 #include <QSurfaceFormat>
 
-int TestQVTKOpenGLSimpleWidget(int argc, char* argv[])
+int TestQVTKOpenGLNativeWidgetWithMSAA(int argc, char* argv[])
 {
-  // disable multisampling.
-  vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(0);
-  QSurfaceFormat::setDefaultFormat(QVTKOpenGLSimpleWidget::defaultFormat());
+  // enable multisampling.
+  vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(8);
+  QSurfaceFormat::setDefaultFormat(QVTKOpenGLNativeWidget::defaultFormat());
 
   QApplication app(argc, argv);
 
   vtkNew<vtkTesting> vtktesting;
   vtktesting->AddArguments(argc, argv);
 
-  QVTKOpenGLSimpleWidget widget;
-
-  {
-    vtkNew<vtkGenericOpenGLRenderWindow> window0;
-    widget.SetRenderWindow(window0);
-    widget.show();
-    app.processEvents();
-  }
-
-  // make sure rendering works correctly after switching to a new render window
   vtkNew<vtkGenericOpenGLRenderWindow> window;
+
+  QVTKOpenGLNativeWidget widget;
   widget.SetRenderWindow(window);
 
   vtkNew<vtkRenderer> ren;
@@ -62,18 +53,8 @@ int TestQVTKOpenGLSimpleWidget(int argc, char* argv[])
   actor->SetMapper(mapper);
   ren->AddActor(actor);
 
-  int* windowSize = window->GetSize();
-  int* screenSize = window->GetScreenSize();
-  if (screenSize[0] < windowSize[0] || screenSize[1] < windowSize[1])
-  {
-    std::cout << "Expected vtkGenericOpenGLRenderWindow::GetScreenSize() "
-      "dimensions to be larger than the render window size"
-      << std::endl;
-    return EXIT_FAILURE;
-  }
-
   vtktesting->SetRenderWindow(window);
-  widget.update();
+  widget.show();
   app.processEvents();
 
   int retVal = vtktesting->RegressionTest(10);
