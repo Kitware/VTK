@@ -38,6 +38,8 @@ class vtkRenderWindowInteractor;
  * pointer to an internal QVTKOpenGLWindow instance in order to display VTK
  * data in a Qt OpenGL context.
  *
+ * It was designed to support quad buffer stereo rendering.
+ *
  * A typical usage for QVTKOpenGLWidget is as follows:
  * @code{.cpp}
  *
@@ -68,10 +70,14 @@ class vtkRenderWindowInteractor;
  * QVTKOpenGLWidget is compatible with Qt version 5.6 and above,
  * but it is mainly tested on Qt 5.9 and above.
  *
- * QVTKOpenGLWidget does not support to be a native widget,
- * for native widget, please use QVTKOpenGLNativeWidget.
- * Beware, uses of this widget in a QScrollArea or in
- * a QMDIArea will force it to be native, which is unsupported.
+ * Due to Qt limitations, QVTKOpenGLWidget does not support being a
+ * native widget.
+ * But native widget are sometimes mandatory, for example within
+ * QScrollArea and QMDIArea, so the QVTKOpenGLNativeWidget should be
+ * used when in needs of VTK rendering in the context of Qt native widget.
+ *
+ * If a QVTKOpenGLWidget is used in a QScrollArea or in a QMDIArea, it
+ * will force it to be native and this is *NOT* supported.
  *
  * @sa QVTKOpenGLWindow QVTKOpenGLNativeWidget
  */
