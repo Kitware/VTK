@@ -312,19 +312,52 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
   {
     oMaterial = NewMaterial(orn, oRenderer, implname);
     OSPSET3F(baseColor);
-    OSPSET1F(metallic);
-    OSPSET3F(specular);
     OSPSET3F(edgeColor);
+    OSPSET1F(metallic);
+    OSPSET1F(diffuse);
+    OSPSET1F(specular);
+    OSPSET1F(ior);
     OSPSET1F(transmission);
+    OSPSET3F(transmissionColor);
+    OSPSET1F(transmissionDepth);
     OSPSET1F(roughness);
-    OSPSET1F(normalScale);
+    OSPSET1F(anisotropy);
+    OSPSET1F(rotation);
+    OSPSET1F(normal);
+    OSPSET1F(backlight);
     OSPSET1F(coat);
+    OSPSET1F(coatIor);
     OSPSET3F(coatColor);
     OSPSET1F(coatThickness);
     OSPSET1F(coatRoughness);
-    OSPSET1F(coatNormalScale);
-    OSPSET1F(ior);
-    OSPSET1F(iorOutside);
+    OSPSET1F(coatNormal);
+    OSPSET1F(sheen);
+    OSPSET3F(sheenColor);
+    OSPSET1F(sheenRoughness);
+
+    OSPSETTEXTURE(baseColorMap);
+    OSPSETTEXTURE(edgeColorMap);
+    OSPSETTEXTURE(metallicMap);
+    OSPSETTEXTURE(diffuseMap);
+    OSPSETTEXTURE(specularMap);
+    OSPSETTEXTURE(iorMap);
+    OSPSETTEXTURE(transmissionMap);
+    OSPSETTEXTURE(transmissionColorMap);
+    OSPSETTEXTURE(transmissionDepthMap);
+    OSPSETTEXTURE(roughnessMap);
+    OSPSETTEXTURE(anisotropyMap);
+    OSPSETTEXTURE(rotationMap);
+    OSPSETTEXTURE(normalMap);
+    OSPSETTEXTURE(backlightMap);
+    OSPSETTEXTURE(coatMap);
+    OSPSETTEXTURE(coatIorMap);
+    OSPSETTEXTURE(coatColorMap);
+    OSPSETTEXTURE(coatThicknessMap);
+    OSPSETTEXTURE(coatRoughnessMap);
+    OSPSETTEXTURE(coatNormalMap);
+    OSPSETTEXTURE(sheenMap);
+    OSPSETTEXTURE(sheenColorMap);
+    OSPSETTEXTURE(sheenRoughnessMap);
   }
   else if (implname == "CarPaint")
   {
