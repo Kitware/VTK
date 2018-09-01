@@ -841,7 +841,7 @@ void vtkWrap_ExpandTypedefs(
       for (j = 0; j < funcInfo->NumberOfParameters; j++)
       {
         vtkParseHierarchy_ExpandTypedefsInValue(
-          hinfo, funcInfo->Parameters[j], finfo->Strings, data->Name);
+          hinfo, funcInfo->Parameters[j], finfo->Strings, funcInfo->Class);
 #ifndef VTK_PARSE_LEGACY_REMOVE
         if (j < MAX_ARGS)
         {
@@ -865,7 +865,7 @@ void vtkWrap_ExpandTypedefs(
       if (funcInfo->ReturnValue)
       {
         vtkParseHierarchy_ExpandTypedefsInValue(
-          hinfo, funcInfo->ReturnValue, finfo->Strings, data->Name);
+          hinfo, funcInfo->ReturnValue, finfo->Strings, funcInfo->Class);
 #ifndef VTK_PARSE_LEGACY_REMOVE
         if (!vtkWrap_IsFunction(funcInfo->ReturnValue))
         {
