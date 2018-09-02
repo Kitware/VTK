@@ -964,6 +964,66 @@ const char *vtkParseHierarchy_GetProperty(
   return NULL;
 }
 
+/* Expand all unrecognized types in the template args of a type
+ * using the typedefs in the HierarchyInfo struct.
+ * Return a cached string (or the original string if no change). */
+const char *vtkParseHierarchy_ExpandTypedefsInTemplateArgs(
+  const HierarchyInfo *info, const char *name, StringCache *cache,
+  const char *scope)
+{
+  size_t i, l, n;
+  ValueInfo val;
+  char text[256];
+  size_t m = 256;
+
+  /* is the class templated? */
+  for (i = 0; name[i] != '<'; i++)
+  {
+    if (name[i] == '\0')
+    {
+      return name;
+    }
+  }
+
+  l = i;
+  memcpy(text, name, l);
+  text[l] = '<';
+
+  do
+  {
+    vtkParse_InitValue(&val);
+    i++;
+    i += vtkParse_ValueInfoFromString(&val, cache, &name[i]);
+    vtkParseHierarchy_ExpandTypedefsInValue(info, &val, cache, scope);
+    l++;
+    n = vtkParse_ValueInfoToString(&val, NULL, VTK_PARSE_EVERYTHING);
+    if (l + n >= m)
+    {
+      fprintf(stderr,
+              "In %s:%i expansion of templated type is too long: \"%s\"\n",
+              __FILE__, __LINE__, name);
+      exit(1);
+    }
+    l += vtkParse_ValueInfoToString(&val, &text[l], VTK_PARSE_EVERYTHING);
+    text[l] = ',';
+  }
+  while (name[i] == ',');
+
+  if (name[i] != '>')
+  {
+    return name;
+  }
+
+  while (text[l-1] == ' ')
+  {
+    l--;
+  }
+  text[l] = '>';
+  l++;
+
+  return vtkParse_CacheString(cache, text, l);
+}
+
 /* Expand all unrecognized types in a ValueInfo struct by
  * using the typedefs in the HierarchyInfo struct. */
 int vtkParseHierarchy_ExpandTypedefsInValue(
@@ -981,6 +1041,15 @@ int vtkParseHierarchy_ExpandTypedefsInValue(
           (val->Type & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN) &&
          val->Class != 0)
   {
+    if (strncmp(val->Class, "std::", 5) == 0)
+    {
+      /* check for template args, expand if necessary */
+      val->Class = vtkParseHierarchy_ExpandTypedefsInTemplateArgs(
+        info, val->Class, cache, scope);
+      result = 1;
+      break;
+    }
+
     entry = vtkParseHierarchy_FindEntryEx(info, val->Class, scope);
 
     if (entry && entry->IsTypedef)

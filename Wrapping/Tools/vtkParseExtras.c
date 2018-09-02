@@ -742,7 +742,7 @@ size_t vtkParse_BasicTypeFromString(
   if (classname_ptr)
   {
     *classname_ptr = classname;
-    if (len == 0)
+    if (classname && len == 0)
     {
       len = strlen(classname);
     }
@@ -813,6 +813,7 @@ size_t vtkParse_ValueInfoFromString(
   }
 
   /* look for array brackets */
+  /* (should also look for parenthesized parameter list, for func types) */
   if (*cp == '[')
   {
     count = 1;
