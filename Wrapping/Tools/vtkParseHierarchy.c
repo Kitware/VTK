@@ -970,6 +970,27 @@ int vtkParseHierarchy_ExpandTypedefsInValue(
     if (entry && entry->IsTypedef)
     {
       vtkParse_ExpandTypedef(val, entry->Typedef);
+
+      /* switch to the scope in which the typedef was defined */
+      if (scope_needs_free) { free((char *)scope); }
+      scope = 0;
+      l = vtkParse_UnscopedNameLength(entry->Name);
+      if (entry->Name[l] == ':' && entry->Name[l+1] == ':')
+      {
+        do
+        {
+           n = l;
+           l = n + 2 + vtkParse_UnscopedNameLength(&entry->Name[n+2]);
+        }
+        while (entry->Name[l] == ':' && entry->Name[l+1] == ':');
+
+        cp = (char *)malloc(n+1);
+        memcpy(cp, entry->Name, n);
+        cp[n] = '\0';
+        scope = cp;
+        scope_needs_free = 1;
+      }
+
       /* check if the typedef includes a scope operator */
       n = vtkParse_UnscopedNameLength(val->Class);
       if (val->Class[n] == ':' && val->Class[n+1] == ':')
