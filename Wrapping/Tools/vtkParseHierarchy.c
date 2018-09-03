@@ -191,11 +191,10 @@ HierarchyEntry *vtkParseHierarchy_FindEntryEx(
     }
 
     /* scope the name */
-    /* memmove here as we do not want the /0 */
     memmove(cp, scope, n);
     cp[n++] = ':';
     cp[n++] = ':';
-    strncpy(&cp[n], classname, m + 1);
+    strcpy(&cp[n], classname);
 
     entry = vtkParseHierarchy_FindEntry(info, cp);
 
