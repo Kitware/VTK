@@ -117,6 +117,35 @@ the wrappers will detect as utf-8, causing them to produce a string
 with incorrect characters.
 
 
+STL Containers
+-----------
+
+VTK provides conversion between 'std::vector' and Python sequences
+such as 'tuple' and 'list'.  If the C++ method returns a vector,
+the Python method will return a tuple:
+
+    C++: const std::vector<std::string>& GetPaths()
+    C++: std::vector<std::string> GetPaths()
+    Python: GetPaths() -> Tuple[str]
+
+If the C++ method accepts a vector, then the Python method can be
+passed any sequence with compatible values:
+
+    C++: void SetPaths(const std::vector<std::string>& paths)
+    C++: void SetPaths(std::vector<std::string> paths)
+    Python: SetPaths(paths: Sequence[str]) -> None
+
+Furthermore, if the C++ method accepts a non-const vector reference,
+then the Python method can be passed a mutable sequence (e.g. list):
+
+    C++: void GetPaths(std::vector<std::string>& paths)
+    Python: GetPaths(paths: MutableSequence[str]) -> None
+
+The value type of the std::vector must be std::string or a
+fundamental numeric type such as 'double' or 'int' (including
+'signed char' and 'unsigned char' but excluding 'char').
+
+
 Constants
 ---------
 
