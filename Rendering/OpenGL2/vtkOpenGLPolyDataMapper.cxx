@@ -220,8 +220,9 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
     this->AppleBugPrimIDBuffer->ReleaseGraphicsResources();
   }
   this->TimerQuery->ReleaseGraphicsResources();
-  this->VBOBuildString = "";
-  this->IBOBuildString = "";
+  this->VBOBuildState.Clear();
+  this->IBOBuildState.Clear();
+  this->CellTextureBuildState.Clear();
   this->Modified();
 }
 
@@ -2633,14 +2634,30 @@ void vtkOpenGLPolyDataMapper::UpdateBufferObjects(vtkRenderer *ren, vtkActor *ac
 bool vtkOpenGLPolyDataMapper::GetNeedToRebuildBufferObjects(
   vtkRenderer *vtkNotUsed(ren), vtkActor *act)
 {
-  // first do a coarse check
-  if (this->VBOBuildTime < this->GetMTime() ||
-      this->VBOBuildTime < act->GetMTime() ||
-      this->VBOBuildTime < this->CurrentInput->GetMTime()
-      )
+  // we use a state vector instead of just mtime because
+  // we do not want to check the actor's mtime.  Actor
+  // changes mtime every time it's position changes. But
+  // changing an actor's position does not require us to
+  // rebuild all the VBO/IBOs. So we only watch the mtime
+  // of the property/texture. But if someone changes the
+  // Property on an actor the mtime may actually go down
+  // because the new property has an older mtime. So
+  // we watch the actual mtime, to see if it changes as
+  // opposed to just checking if it is greater.
+  this->TempState.Clear();
+  this->TempState.Append(act->GetProperty()->GetMTime(),"actor mtime");
+  this->TempState.Append(
+    this->CurrentInput ? this->CurrentInput->GetMTime() : 0, "input mtime");
+  this->TempState.Append(
+    act->GetTexture() ? act->GetTexture()->GetMTime() : 0, "texture mtime");
+
+  if (this->VBOBuildState != this->TempState ||
+      this->VBOBuildTime < this->GetMTime())
   {
+    this->VBOBuildState = this->TempState;
     return true;
   }
+
   return false;
 }
 
@@ -2941,21 +2958,23 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
   // only rebuild what we need to
   // if the data or mapper or selection state changed
   // then rebuild the cell arrays
-  std::ostringstream toString;
-  toString.clear();
-  toString.str("");
-  toString << (prims[0]->GetNumberOfCells() ? prims[0]->GetMTime() : 0) <<
-    'A' << (prims[1]->GetNumberOfCells() ? prims[1]->GetMTime() : 0) <<
-    'B' << (prims[2]->GetNumberOfCells() ? prims[2]->GetMTime() : 0) <<
-    'C' << (prims[3]->GetNumberOfCells() ? prims[3]->GetMTime() : 0) <<
-    'D' << representation <<
-    'E' << this->LastSelectionState <<
-    'F' << poly->GetMTime() <<
-    'G' << this->GetMTime();
-  if (this->CellTextureBuildString != toString.str())
+  this->TempState.Clear();
+  this->TempState.Append(
+    prims[0]->GetNumberOfCells() ? prims[0]->GetMTime() : 0, "prim0 mtime");
+  this->TempState.Append(
+    prims[1]->GetNumberOfCells() ? prims[1]->GetMTime() : 0, "prim1 mtime");
+  this->TempState.Append(
+    prims[2]->GetNumberOfCells() ? prims[2]->GetMTime() : 0, "prim2 mtime");
+  this->TempState.Append(
+    prims[3]->GetNumberOfCells() ? prims[3]->GetMTime() : 0, "prim3 mtime");
+  this->TempState.Append(representation, "representation");
+  this->TempState.Append(this->LastSelectionState, "last selection state");
+  this->TempState.Append(poly->GetMTime(), "polydata mtime");
+  this->TempState.Append(this->GetMTime(), "this mtime");
+  if (this->CellTextureBuildState != this->TempState)
   {
+    this->CellTextureBuildState = this->TempState;
     this->BuildCellTextures(ren, act, prims, representation);
-    this->CellTextureBuildString = toString.str();
   }
 
   // on Apple Macs with the AMD PrimID bug <rdar://20747550>
@@ -3088,19 +3107,21 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
   // changed
 
   // So...polydata can return a dummy CellArray when there are no lines
-  std::ostringstream toString;
-  toString.str("");
-  toString.clear();
-  toString << (prims[0]->GetNumberOfCells() ? prims[0]->GetMTime() : 0) <<
-    'A' << (prims[1]->GetNumberOfCells() ? prims[1]->GetMTime() : 0) <<
-    'B' << (prims[2]->GetNumberOfCells() ? prims[2]->GetMTime() : 0) <<
-    'C' << (prims[3]->GetNumberOfCells() ? prims[3]->GetMTime() : 0) <<
-    'D' << representation <<
-    'E' << (ef ? ef->GetMTime() : 0) <<
-    'F' << draw_surface_with_edges;
+  this->TempState.Append(
+    prims[0]->GetNumberOfCells() ? prims[0]->GetMTime() : 0, "prim0 mtime");
+  this->TempState.Append(
+    prims[1]->GetNumberOfCells() ? prims[1]->GetMTime() : 0, "prim1 mtime");
+  this->TempState.Append(
+    prims[2]->GetNumberOfCells() ? prims[2]->GetMTime() : 0, "prim2 mtime");
+  this->TempState.Append(
+    prims[3]->GetNumberOfCells() ? prims[3]->GetMTime() : 0, "prim3 mtime");
+  this->TempState.Append(representation, "representation");
+  this->TempState.Append(ef ? ef->GetMTime() : 0, "edge flags mtime");
+  this->TempState.Append(draw_surface_with_edges, "draw surface with edges");
 
-  if (this->IBOBuildString != toString.str())
+  if (this->IBOBuildState != this->TempState)
   {
+    this->IBOBuildState = this->TempState;
     this->Primitives[PrimitivePoints].IBO->CreatePointIndexBuffer(prims[0]);
 
     if (representation == VTK_POINTS)
@@ -3177,8 +3198,6 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
       // for all 4 types of primitives add their verts into the IBO
       this->Primitives[PrimitiveVertices].IBO->CreateVertexIndexBuffer(prims);
     }
-
-    this->IBOBuildString = toString.str();
   }
 }
 
