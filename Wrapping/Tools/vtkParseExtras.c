@@ -493,7 +493,7 @@ size_t vtkParse_BasicTypeFromString(
     { 7,  "ssize_t", VTK_PARSE_SSIZE_T },
     { 7,  "ostream", VTK_PARSE_OSTREAM },
     { 7,  "istream", VTK_PARSE_ISTREAM },
-    { 8,  "string", VTK_PARSE_STRING },
+    { 6,  "string", VTK_PARSE_STRING },
     { 0, 0, 0 } };
 
   const char *cp = text;
@@ -661,7 +661,8 @@ size_t vtkParse_BasicTypeFromString(
 
         for (i = 0; stdtypes[i].len != 0; i++)
         {
-          if (n == stdtypes[i].len && strncmp(tmpcp, stdtypes[i].name, n) == 0)
+          if (n == m + stdtypes[i].len &&
+              strncmp(tmpcp, stdtypes[i].name, n - m) == 0)
           {
             classname = stdtypes[i].name;
             base_bits = stdtypes[i].type;
@@ -741,7 +742,7 @@ size_t vtkParse_BasicTypeFromString(
   if (classname_ptr)
   {
     *classname_ptr = classname;
-    if (len == 0)
+    if (classname && len == 0)
     {
       len = strlen(classname);
     }
@@ -812,6 +813,7 @@ size_t vtkParse_ValueInfoFromString(
   }
 
   /* look for array brackets */
+  /* (should also look for parenthesized parameter list, for func types) */
   if (*cp == '[')
   {
     count = 1;

@@ -81,6 +81,12 @@ int vtkWrap_IsZeroCopyPointer(ValueInfo *val)
   return (vtkWrap_IsPointer(val) && (val->Type & VTK_PARSE_ZEROCOPY) != 0);
 }
 
+int vtkWrap_IsStdVector(ValueInfo *val)
+{
+  return ((val->Type & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN &&
+          val->Class && strncmp(val->Class, "std::vector<", 12) == 0);
+}
+
 int vtkWrap_IsVTKObject(ValueInfo *val)
 {
   unsigned int t = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
@@ -835,7 +841,7 @@ void vtkWrap_ExpandTypedefs(
       for (j = 0; j < funcInfo->NumberOfParameters; j++)
       {
         vtkParseHierarchy_ExpandTypedefsInValue(
-          hinfo, funcInfo->Parameters[j], finfo->Strings, data->Name);
+          hinfo, funcInfo->Parameters[j], finfo->Strings, funcInfo->Class);
 #ifndef VTK_PARSE_LEGACY_REMOVE
         if (j < MAX_ARGS)
         {
@@ -859,7 +865,7 @@ void vtkWrap_ExpandTypedefs(
       if (funcInfo->ReturnValue)
       {
         vtkParseHierarchy_ExpandTypedefsInValue(
-          hinfo, funcInfo->ReturnValue, finfo->Strings, data->Name);
+          hinfo, funcInfo->ReturnValue, finfo->Strings, funcInfo->Class);
 #ifndef VTK_PARSE_LEGACY_REMOVE
         if (!vtkWrap_IsFunction(funcInfo->ReturnValue))
         {

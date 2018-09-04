@@ -1066,6 +1066,12 @@ void vtkWrapText_PythonName(const char *name, char *pname)
     /* put dots after namespaces */
     i = 0;
     cp = pname;
+    if (cp[0] == 'S' && cp[1] >= 'a' && cp[1] <= 'z')
+    {
+      /* keep std:: namespace abbreviations */
+      pname[j++] = *cp++;
+      pname[j++] = *cp++;
+    }
     while (*cp == 'N')
     {
       scoped++;

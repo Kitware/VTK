@@ -18,6 +18,7 @@
 #include "vtkWrapPythonMethod.h"
 #include "vtkWrapPythonOverload.h"
 
+#include "vtkParseExtras.h"
 #include "vtkWrap.h"
 #include "vtkWrapText.h"
 
@@ -478,6 +479,37 @@ static int vtkWrapPython_IsValueWrappable(
     {
       return 0;
     }
+  }
+
+  if (vtkWrap_IsStdVector(val))
+  {
+    size_t l, n;
+    const char *tname;
+    const char **args;
+    const char *defaults[2] = { NULL, "" };
+    int wrappable = 0;
+    vtkParse_DecomposeTemplatedType(val->Class, &tname, 2, &args, defaults);
+    l = vtkParse_BasicTypeFromString(args[0], &baseType, &aClass, &n);
+    /* check that type has no following '*', '[]', or '<>' decorators */
+    if (args[0][l] == '\0')
+    {
+      if (baseType != VTK_PARSE_UNKNOWN &&
+          baseType != VTK_PARSE_OBJECT &&
+          baseType != VTK_PARSE_QOBJECT &&
+          baseType != VTK_PARSE_CHAR)
+      {
+        for (j = 0; wrappableTypes[j] != 0; j++)
+        {
+          if (baseType == wrappableTypes[j])
+          {
+            wrappable = 1;
+            break;
+          }
+        }
+      }
+    }
+    vtkParse_FreeTemplateDecomposition(tname, 2, args);
+    return wrappable;
   }
 
   aClass = val->Class;

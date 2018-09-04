@@ -965,6 +965,8 @@ VTK_PYTHON_BUILD_TUPLE(long)
 VTK_PYTHON_BUILD_TUPLE(unsigned long)
 VTK_PYTHON_BUILD_TUPLE(long long)
 VTK_PYTHON_BUILD_TUPLE(unsigned long long)
+VTK_PYTHON_BUILD_TUPLE(std::string)
+VTK_PYTHON_BUILD_TUPLE(vtkUnicodeString)
 
 //--------------------------------------------------------------------
 // If "self" is a class, get real "self" from arg list
@@ -1156,6 +1158,8 @@ VTK_PYTHON_GET_ARRAY_ARG(long)
 VTK_PYTHON_GET_ARRAY_ARG(unsigned long)
 VTK_PYTHON_GET_ARRAY_ARG(long long)
 VTK_PYTHON_GET_ARRAY_ARG(unsigned long long)
+VTK_PYTHON_GET_ARRAY_ARG(std::string)
+VTK_PYTHON_GET_ARRAY_ARG(vtkUnicodeString)
 
 //--------------------------------------------------------------------
 // Define all the GetNArray methods in the class.
@@ -1412,6 +1416,24 @@ VTK_PYTHON_SET_NARRAY_ARG(long)
 VTK_PYTHON_SET_NARRAY_ARG(unsigned long)
 VTK_PYTHON_SET_NARRAY_ARG(long long)
 VTK_PYTHON_SET_NARRAY_ARG(unsigned long long)
+
+//--------------------------------------------------------------------
+// Replace the contents of an argument, arg[:] = seq
+bool vtkPythonArgs::SetContents(int i, PyObject *seq)
+{
+  if (this->M + i < this->N)
+  {
+    PyObject *o = PyTuple_GET_ITEM(this->Args, this->M + i);
+    Py_ssize_t l = PySequence_Size(o);
+    if (l >= 0 && PySequence_SetSlice(o, 0, l, seq) != -1)
+    {
+      return true;
+    }
+    this->RefineArgTypeError(i);
+    return false;
+  }
+  return true;
+}
 
 //--------------------------------------------------------------------
 // Raise an exception about incorrect arg count.

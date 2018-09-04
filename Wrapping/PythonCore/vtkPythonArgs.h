@@ -376,6 +376,8 @@ public:
   bool GetArray(unsigned long *v, size_t n);
   bool GetArray(long long *v, size_t n);
   bool GetArray(unsigned long long *v, size_t n);
+  bool GetArray(std::string *v, size_t n);
+  bool GetArray(vtkUnicodeString *v, size_t n);
   //@}
 
   //@{
@@ -474,6 +476,12 @@ public:
   //@}
 
   /**
+   * Set the contents of the specified argument from a sequence,
+   * the same as doing "arg[:] = seq" in Python.
+   */
+  bool SetContents(int i, PyObject *seq);
+
+  /**
    * Build a value of None.
    */
   static PyObject *BuildNone();
@@ -550,6 +558,8 @@ public:
   static PyObject *BuildTuple(const unsigned long *v, size_t n);
   static PyObject *BuildTuple(const long long *v, size_t n);
   static PyObject *BuildTuple(const unsigned long long *v, size_t n);
+  static PyObject *BuildTuple(const std::string *v, size_t n);
+  static PyObject *BuildTuple(const vtkUnicodeString *v, size_t n);
   //@}
 
   /**
