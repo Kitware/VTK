@@ -1513,17 +1513,10 @@ inline T vtkMath::ClampValue(const T & value, const T & min, const T & max)
 #if __cplusplus >= 201703L
   return std::clamp(value, min, max);
 #else
-  if (value < min)
-  {
-    return min;
-  }
-
-  if (max < value)
-  {
-    return max;
-  }
-
-  return value;
+  // compilers are good at optimizing the ternary operator,
+  // use '<' since it is preferred by STL for custom types
+  T v = (min < value ? value : min);
+  return (v < max ? v : max);
 #endif
 }
 
