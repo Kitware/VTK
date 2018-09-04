@@ -311,6 +311,8 @@ const char* vtkOpenGLRenderWindow::ReportCapabilities()
 // ----------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
 {
+  this->PushContext();
+
   // release the registered resources
   if (this->NoiseTextureObject)
   {
@@ -361,6 +363,8 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
   {
     this->TQuad2DVBO->ReleaseGraphicsResources();
   }
+
+  this->PopContext();
 
   delete this->State;
   this->State = new vtkOpenGLState();
