@@ -539,7 +539,6 @@ bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildBufferObjects(
   vtkRenderer *vtkNotUsed(ren),
   vtkActor *act)
 {
-  // picking state does not require a rebuild, unlike our parent
   if (this->VBOBuildTime < this->GetMTime() ||
       this->VBOBuildTime < act->GetMTime() ||
       this->VBOBuildTime < this->CurrentInput->GetMTime() ||
@@ -835,6 +834,7 @@ void vtkOpenGLPointGaussianMapper::Render(
 
   // the first step is to update the helpers if needed
   if (this->HelperUpdateTime < this->GetInputDataObject(0, 0)->GetMTime() ||
+      this->HelperUpdateTime < this->GetInputAlgorithm()->GetMTime() ||
       this->HelperUpdateTime < this->GetMTime())
   {
     // update tables

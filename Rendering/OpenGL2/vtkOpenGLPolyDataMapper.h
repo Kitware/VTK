@@ -27,6 +27,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkShader.h" // for methods
 #include "vtkOpenGLHelper.h" // used for ivars
+#include "vtkStateStorage.h" // used for ivars
 
 #include <vector> //for ivars
 #include <map> //for methods
@@ -489,9 +490,10 @@ protected:
 
   bool UsingScalarColoring;
   vtkTimeStamp VBOBuildTime; // When was the OpenGL VBO updated?
-  std::string VBOBuildString; // used for determining whento rebuild the VBO
-  std::string IBOBuildString; // used for determining whento rebuild the IBOs
-  std::string CellTextureBuildString;
+  vtkStateStorage VBOBuildState; // used for determining when to rebuild the VBO
+  vtkStateStorage IBOBuildState; // used for determining whento rebuild the IBOs
+  vtkStateStorage CellTextureBuildState;
+  vtkStateStorage TempState; // can be used to avoid constant allocs/deallocs
   vtkOpenGLTexture* InternalColorTexture;
 
   int PopulateSelectionSettings;

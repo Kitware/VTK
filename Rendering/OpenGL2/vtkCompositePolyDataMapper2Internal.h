@@ -98,10 +98,6 @@ protected:
     vtkRenderer *ren, vtkActor *act) override;
 
   // Description:
-  // Determine if the buffer objects need to be rebuilt
-  bool GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkActor *act) override;
-
-  // Description:
   // Build the VBO/IBO, called by UpdateBufferObjects
   void BuildBufferObjects(vtkRenderer *ren, vtkActor *act) override;
   virtual void AppendOneBufferObject(vtkRenderer *ren,
