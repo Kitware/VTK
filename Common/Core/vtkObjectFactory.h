@@ -263,7 +263,7 @@ private:
   /**
    * Load all dynamic libraries in the given path
    */
-  static void LoadLibrariesInPath( const char*);
+  static void LoadLibrariesInPath(const std::string&);
 
   // list of registered factories
   static vtkObjectFactoryCollection* RegisteredFactories;

@@ -68,8 +68,7 @@ vtkNIFTIImageWriter::vtkNIFTIImageWriter()
   size_t l = strlen(version);
   this->Description = new char[l + 4];
   memcpy(this->Description, "VTK", 3);
-  strncpy(&this->Description[3], version, l);
-  this->Description[l + 3] = '\0';
+  strcpy(&this->Description[3], version);
   // Planar RGB (NIFTI doesn't allow this, it's here for Analyze)
   this->PlanarRGB = false;
 }

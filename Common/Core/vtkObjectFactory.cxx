@@ -108,15 +108,18 @@ void vtkObjectFactory::LoadDynamicFactories()
 #ifndef _WIN32_WCE
   LoadPath = getenv("VTK_AUTOLOAD_PATH");
 #endif
-  if(LoadPath == nullptr || strlen(LoadPath) == 0)
+  if(LoadPath == nullptr || LoadPath[0] == 0)
   {
     return;
   }
-  char* CurrentPath = new char[strlen(LoadPath)+1];
+  std::string CurrentPath;
+  CurrentPath.reserve(strlen(LoadPath) + 1);
   char* SeparatorPosition = LoadPath; // initialize to env variable
   while(SeparatorPosition)
   {
-    size_t PathLength =0;
+    CurrentPath.clear();
+
+    size_t PathLength = 0;
     // find PathSeparator in LoadPath
     SeparatorPosition = strchr(LoadPath, PathSeparator);
     // if not found then use the whole string
@@ -129,23 +132,19 @@ void vtkObjectFactory::LoadDynamicFactories()
       PathLength = static_cast<size_t>(SeparatorPosition - LoadPath);
     }
     // copy the path out of LoadPath into CurrentPath
-    strncpy(CurrentPath, LoadPath, PathLength);
-    // add a null terminator
-    CurrentPath[PathLength] = 0;
+    CurrentPath.append(LoadPath, PathLength);
     // Get ready for the next path
-    LoadPath = SeparatorPosition+1;
+    LoadPath = SeparatorPosition + 1;
     // Load the libraries in the current path
     vtkObjectFactory::LoadLibrariesInPath(CurrentPath);
   }
-  // clean up memory
-  delete [] CurrentPath;
 }
 
 // A file scope helper function to concat path and file into
 // a full path
-static char* CreateFullPath(const char* path, const char* file)
+static char* CreateFullPath(const std::string& path, const char* file)
 {
-  size_t lenpath = strlen(path);
+  size_t lenpath = path.size();
   char* ret = new char[lenpath + strlen(file)+2];
 #ifdef _WIN32
   const char sep = '\\';
@@ -153,7 +152,7 @@ static char* CreateFullPath(const char* path, const char* file)
   const char sep = '/';
 #endif
   // make sure the end of path is a separator
-  strcpy(ret, path);
+  strcpy(ret, path.c_str());
   if(ret[lenpath-1] != sep)
   {
     ret[lenpath] = sep;
@@ -190,7 +189,7 @@ inline int vtkNameIsSharedLibrary(const char* name)
   return (ret != nullptr);
 }
 
-void vtkObjectFactory::LoadLibrariesInPath(const char* path)
+void vtkObjectFactory::LoadLibrariesInPath(const std::string& path)
 {
   vtksys::Directory dir;
   if(!dir.Load(path))
