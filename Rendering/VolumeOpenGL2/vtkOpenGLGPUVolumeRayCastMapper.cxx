@@ -1300,7 +1300,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetCroppingRegions(
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetClippingPlanes(
   vtkRenderer* vtkNotUsed(ren), vtkShaderProgram* prog,
-  vtkVolume* vtkNotUsed(vol))
+  vtkVolume* vol)
 {
   if (this->Parent->GetClippingPlanes())
   {
@@ -1331,6 +1331,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetClippingPlanes(
     prog->SetUniform1fv("in_clippingPlanes",
       static_cast<int>(clippingPlanes.size()),
       &clippingPlanes[0]);
+    float clippedVoxelIntensity =
+      static_cast<float>(vol->GetProperty()->GetClippedVoxelIntensity());
+    prog->SetUniformf("in_clippedVoxelIntensity", clippedVoxelIntensity);
   }
 }
 
@@ -2574,7 +2577,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderCompute(
 
   vtkShaderProgram::Substitute(fragmentShader,
     "//VTK::ComputeGradient::Dec",
-    vtkvolume::ComputeGradientDeclaration(this->AssembledInputs));
+    vtkvolume::ComputeGradientDeclaration(this, this->AssembledInputs));
 
   if (this->Impl->MultiVolume)
   {

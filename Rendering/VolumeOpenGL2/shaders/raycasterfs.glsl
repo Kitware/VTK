@@ -56,6 +56,8 @@ float g_terminatePointMax;
 
 //VTK::Cropping::Dec
 
+//VTK::Clipping::Dec
+
 //VTK::Shading::Dec
 
 //VTK::BinaryMask::Dec
@@ -86,8 +88,6 @@ float g_terminatePointMax;
 
 uniform float in_scale;
 uniform float in_bias;
-
-//VTK::Clipping::Dec
 
 //////////////////////////////////////////////////////////////////////////////
 ///

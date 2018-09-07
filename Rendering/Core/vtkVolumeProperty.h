@@ -435,6 +435,36 @@ public:
   vtkTimeStamp GetGrayTransferFunctionMTime()
     { return this->GetGrayTransferFunctionMTime(0); }
 
+  //@{
+  /**
+   * Set/Get whether to use a fixed intensity value for voxels in the clipped
+   * space for gradient calculations. When UseClippedVoxelIntensity is
+   * enabled, the ClippedVoxelIntensity value will be used as intensity of
+   * clipped voxels. By default, this is false.
+   *
+   * \note This property is only used by the vtkGPUVolumeRayCastMapper for now.
+   * \sa SetClippedVoxelIntensity
+   */
+  vtkSetMacro(UseClippedVoxelIntensity, int);
+  vtkGetMacro(UseClippedVoxelIntensity, int);
+  vtkBooleanMacro(UseClippedVoxelIntensity, int);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the intensity value for voxels in the clipped space for gradient
+   * computations (for shading and gradient based opacity modulation).
+   * By default, this is set to VTK_DOUBLE_MIN.
+   *
+   * \note This value is only used when UseClippedVoxelIntensity is true.
+   * \note This property is only used by the vtkGPUVolumeRayCastMapper for now.
+   * \sa SetUseClippedVoxelIntensity
+   */
+  vtkSetMacro(ClippedVoxelIntensity, double);
+  vtkGetMacro(ClippedVoxelIntensity, double);
+  //@}
+
+
 protected:
   vtkVolumeProperty();
   ~vtkVolumeProperty() override;
@@ -483,6 +513,9 @@ protected:
   double Diffuse[VTK_MAX_VRCOMP];
   double Specular[VTK_MAX_VRCOMP];
   double SpecularPower[VTK_MAX_VRCOMP];
+
+  double ClippedVoxelIntensity;
+  int UseClippedVoxelIntensity;
 
   /**
    * Contour values for isosurface blend mode

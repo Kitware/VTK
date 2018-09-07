@@ -50,6 +50,7 @@ set (VolumeCxxTests
   TestGPURayCastRenderDepthToImage.cxx
   TestGPURayCastRenderDepthToImage2.cxx
   TestGPURayCastRenderToTexture.cxx
+  TestGPURayCastShadedClipping.cxx
   TestGPURayCastThreeComponentsAdditive.cxx
   TestGPURayCastThreeComponentsIndependent.cxx
   TestGPURayCastTransfer2D.cxx
