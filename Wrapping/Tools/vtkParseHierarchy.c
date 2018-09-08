@@ -212,8 +212,8 @@ HierarchyEntry *vtkParseHierarchy_FindEntryEx(
         {
           if (scope_needs_free) { free((char *)scope); }
           scope = vtkParseHierarchy_ExpandTypedefsInName(
-            info, entry->SuperClasses[i], NULL);
-          scope_needs_free = (scope != entry->SuperClasses[i]);
+            info, scope_entry->SuperClasses[i], NULL);
+          scope_needs_free = (scope != scope_entry->SuperClasses[i]);
 
           /* recurse if more than one superclass */
           entry = vtkParseHierarchy_FindEntryEx(info, classname, scope);
