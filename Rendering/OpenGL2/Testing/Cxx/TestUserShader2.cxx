@@ -51,7 +51,7 @@ public:
 #if 0  // trippy mode
     float inputHSV[3];
     double theTime = vtkTimerLog::GetUniversalTime();
-    double twopi = 2.0*3.1415926;
+    double twopi = 2.0*vtkMath::Pi();
 
     inputHSV[0] = sin(twopi*fmod(theTime,3.0)/3.0)/4.0 + 0.25;
     inputHSV[1] = sin(twopi*fmod(theTime,4.0)/4.0)/2.0 + 0.5;

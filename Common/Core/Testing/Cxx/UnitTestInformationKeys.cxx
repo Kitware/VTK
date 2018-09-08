@@ -8,6 +8,7 @@
 #include "vtkNew.h"
 #include "vtkStdString.h"
 #include "vtkVariant.h"
+#include "vtkMath.h"
 
 template<typename T, typename V>
 int UnitTestScalarValueKey(vtkInformation* info, T* key, const V& val)
@@ -134,7 +135,7 @@ int UnitTestInformationKeys(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   int ok = 1;
   vtkNew<vtkInformation> info;
   vtkVariant tvval("foo");
-  double tdval = 3.14159;
+  double tdval = vtkMath::Pi();
   vtkStdString tsval = "bar";
 
   vtkInformationVariantKey* tvskey =

@@ -25,6 +25,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 #include "vtkTextProperty.h"
+#include "vtkMath.h"
 
 #include <string>
 
@@ -74,7 +75,7 @@ int TestChartUnicode(int argc, char *argv[])
   for (int i = 0; i < numPoints; ++i)
   {
     table->SetValue(i, 0, i * inc);
-    table->SetValue(i, 1, cos(i * inc) + sin(i * (inc - 3.14)));
+    table->SetValue(i, 1, cos(i * inc) + sin(i * (inc - vtkMath::Pi())));
   }
 
   // Add multiple line plots, setting the colors etc

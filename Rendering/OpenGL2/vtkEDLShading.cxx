@@ -94,8 +94,8 @@ vtkEDLShading::vtkEDLShading()
   for (int c = 0; c < 8; c++)
   {
     float x, y;
-    x = cos(2* 3.14159 * float (c)/8.);
-    y = sin(2*3.14159*float(c)/8.);
+    x = cos(2*vtkMath::Pi()*float(c)/8.);
+    y = sin(2*vtkMath::Pi()*float(c)/8.);
     this->EDLNeighbours[c][0] = x / sqrt(x*x+y*y);
     this->EDLNeighbours[c][1] = y / sqrt(x*x+y*y);
     this->EDLNeighbours[c][2] = 0.;

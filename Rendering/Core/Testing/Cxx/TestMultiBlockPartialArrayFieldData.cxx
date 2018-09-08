@@ -28,6 +28,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
+#include "vtkMath.h"
 
 // Test for multiblock data sets with field data arrays defined on
 // only a subset of the blocks. The expected behavior is to have
@@ -61,7 +62,7 @@ int TestMultiBlockPartialArrayFieldData(int argc, char* argv[])
   data->SetNumberOfBlocks(numBlocks);
 
   double radius = 10.0;
-  double deltaTheta = 2.0*3.1415926 / numBlocks;
+  double deltaTheta = 2.0*vtkMath::Pi() / numBlocks;
   for (int i = 0; i < numBlocks; ++i)
   {
     double theta = i * deltaTheta;

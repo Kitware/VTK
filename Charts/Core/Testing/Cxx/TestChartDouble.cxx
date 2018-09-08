@@ -23,6 +23,7 @@
 #include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkNew.h"
+#include "vtkMath.h"
 
 #include "vtkAxis.h"
 
@@ -57,7 +58,7 @@ int TestChartDouble(int, char *[])
   {
     double x(i * inc + 0.2);
     table->SetValue(i, 0, x);
-    table->SetValue(i, 1, 1.0e-80 * (cos(x - 1.0) + sin(x - 3.14 / 4.0)));
+    table->SetValue(i, 1, 1.0e-80 * (cos(x - 1.0) + sin(x - vtkMath::Pi() / 4.0)));
     table->SetValue(i, 2, 1.0e-80 * sin(x) * 1e-12);
     table->SetValue(i, 3, 1.0e-80 * sin(x - 1.0));
   }
