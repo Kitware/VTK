@@ -16,6 +16,7 @@
 #include "vtkImageData.h"
 #include "vtkInformationVector.h"
 #include "vtkInformation.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkSegYReaderInternal.h"
 #include "vtkSmartPointer.h"
@@ -38,7 +39,9 @@ vtkSegYReader::vtkSegYReader()
   this->FileName = nullptr;
   this->Is3D = false;
   std::fill(this->DataOrigin, this->DataOrigin + 3, 0.0);
-  std::fill(this->DataSpacing, this->DataSpacing + 3, 1.0);
+  std::fill(this->DataSpacing[0], this->DataSpacing[0] + 3, 1.0);
+  std::fill(this->DataSpacing[1], this->DataSpacing[1] + 3, 1.0);
+  std::fill(this->DataSpacing[2], this->DataSpacing[2] + 3, 1.0);
   std::fill(this->DataSpacingSign, this->DataSpacingSign + 3, 1);
   std::fill(this->DataExtent, this->DataExtent + 6, 0);
 
@@ -126,7 +129,7 @@ int vtkSegYReader::RequestData(vtkInformation* vtkNotUsed(request),
       return 1;
     }
   }
-  this->Reader->LoadTraces();
+  this->Reader->LoadTraces(this->DataExtent);
   this->UpdateProgress(0.5);
   if (this->Is3D && ! this->StructuredGrid)
   {
@@ -138,7 +141,7 @@ int vtkSegYReader::RequestData(vtkInformation* vtkNotUsed(request),
   else
   {
     vtkStructuredGrid* grid = vtkStructuredGrid::SafeDownCast(output);
-    this->Reader->ExportData(grid, this->DataExtent);
+    this->Reader->ExportData(grid, this->DataExtent, this->DataOrigin, this->DataSpacing);
     grid->Squeeze();
   }
   this->Reader->In.close();
@@ -161,8 +164,13 @@ int vtkSegYReader::RequestInformation(vtkInformation * vtkNotUsed(request),
                this->DataExtent, 6);
   if (this->Is3D && ! this->StructuredGrid)
   {
+    double spacing[3] = {
+      vtkMath::Norm(this->DataSpacing[0]),
+      vtkMath::Norm(this->DataSpacing[1]),
+      vtkMath::Norm(this->DataSpacing[2])
+    };
     outInfo->Set(vtkDataObject::ORIGIN(), this->DataOrigin, 3);
-    outInfo->Set(vtkDataObject::SPACING(), this->DataSpacing, 3);
+    outInfo->Set(vtkDataObject::SPACING(), spacing, 3);
   }
   return 1;
 }

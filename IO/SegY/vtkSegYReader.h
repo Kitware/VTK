@@ -33,7 +33,8 @@ class vtkSegYReaderInternal;
  * we create a vtkImageData for 3D data. This saves memory and may
  * speed-up certain algorithms, but the position and the shape of the
  * data may not be correct. The axes for the data are: crossline,
- * inline, depth
+ * inline, depth. For situations where traces are missing values of
+ * zero are used to fill in the dataset.
  */
 class VTKIOSEGY_EXPORT vtkSegYReader : public vtkDataSetAlgorithm
 {
@@ -135,7 +136,7 @@ protected:
   char *FileName;
   bool Is3D;
   double DataOrigin[3];
-  double DataSpacing[3];
+  double DataSpacing[3][3];
   int DataSpacingSign[3];
   int DataExtent[6];
 

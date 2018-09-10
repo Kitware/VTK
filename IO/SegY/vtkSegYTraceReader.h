@@ -53,11 +53,11 @@ public:
 
   void SetXYCoordBytePositions(int x, int y);
   void PrintTraceHeader(std::ifstream& in, int startPos);
-  void ReadTrace(int& startPos,
+  void ReadTrace(std::streamoff& startPos,
                  std::ifstream& in,
                  int formatCode,
                  vtkSegYTrace* trace);
-  void ReadInlineCrossline(int& startPos,
+  void ReadInlineCrossline(std::streamoff& startPos,
                            std::ifstream& in,
                            int formatCode,
                            int* inlineNumber, int* crosslineNumber,
