@@ -100,6 +100,7 @@ endif()
 
 set(${vtk-module}_HDRS
   vtkOpenGL.h
+  vtkStateStorage.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkTDxConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h
