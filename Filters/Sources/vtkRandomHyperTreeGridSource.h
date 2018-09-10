@@ -84,7 +84,7 @@ public:
 
 protected:
   vtkRandomHyperTreeGridSource();
-  ~vtkRandomHyperTreeGridSource();
+  ~vtkRandomHyperTreeGridSource() override;
 
   int RequestInformation(vtkInformation *req,
                          vtkInformationVector **inInfo,
