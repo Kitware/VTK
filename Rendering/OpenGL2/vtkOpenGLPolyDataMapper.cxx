@@ -597,7 +597,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderRenderPass(
 //------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
   std::map<vtkShader::Type, vtkShader *> shaders,
-  vtkRenderer *, vtkActor *actor)
+  vtkRenderer *ren, vtkActor *actor)
 {
   std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
   std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
@@ -623,6 +623,19 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
     colorImpl +=
       "  vec3 specularColor = specularIntensity * specularColorUniform;\n"
       "  float specularPower = specularPowerUniform;\n";
+  }
+
+  // for point picking we render primitives as points
+  // that means cell scalars will not have correct
+  // primitiveIds to lookup into the texture map
+  // so we must skip cell scalar coloring when point picking
+  // The boolean will be used in an else clause below
+  vtkHardwareSelector* selector = ren->GetSelector();
+  bool pointPicking = false;
+  if (selector &&
+      selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  {
+    pointPicking = true;
   }
 
   // handle color point attributes
@@ -660,7 +673,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
       "  float opacity = opacityUniform * texColor.a;";
   }
   // are we doing cell scalar coloring by texture?
-  else if (this->HaveCellScalars && !this->DrawingEdgesOrVertices)
+  else if (this->HaveCellScalars && !this->DrawingEdgesOrVertices && !pointPicking)
   {
     colorImpl +=
       "  vec4 texColor = texelFetchBuffer(textureC, gl_PrimitiveID + PrimitiveIDOffset);\n"
