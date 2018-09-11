@@ -338,7 +338,13 @@ int vtkExtractSelection::RequestData(
       selector->ComputeSelectedElements(input, output);
 
       // Set up a map from selection node name to insidedness array.
-      auto array = output->GetAttributes(assoc)->GetArray(name.c_str());
+      auto *attributes = output->GetAttributes(assoc);
+      if (!attributes)
+      {
+        arrayMap[name] = nullptr;
+        continue;
+      }
+      auto array = attributes->GetArray(name.c_str());
       auto insidednessArray = vtkSignedCharArray::SafeDownCast(array);
 
       auto node = selection->GetNode(name.c_str());
