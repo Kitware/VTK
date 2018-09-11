@@ -23,9 +23,9 @@ class vtkSegYIOUtils
 {
 public:
   char readChar(std::ifstream& in);
-  short readShortInteger(int pos, std::ifstream& in);
+  short readShortInteger(std::streamoff pos, std::ifstream& in);
   short readShortInteger(std::ifstream& in);
-  int readLongInteger(int pos, std::ifstream& in);
+  int readLongInteger(std::streamoff pos, std::ifstream& in);
   int readLongInteger(std::ifstream& in);
   float readFloat(std::ifstream& in);
   float readIBMFloat(std::ifstream& in);

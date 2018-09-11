@@ -90,7 +90,7 @@ void vtkSegYTraceReader::PrintTraceHeader(std::ifstream& in, int startPos)
 }
 
 //-----------------------------------------------------------------------------
-void vtkSegYTraceReader::ReadTrace(int& startPos,
+void vtkSegYTraceReader::ReadTrace(std::streamoff& startPos,
                                    std::ifstream& in,
                                    int formatCode,
                                    vtkSegYTrace* trace)
@@ -154,7 +154,7 @@ void vtkSegYTraceReader::ReadTrace(int& startPos,
 
 //-----------------------------------------------------------------------------
 void vtkSegYTraceReader::ReadInlineCrossline(
-  int& startPos,
+  std::streamoff& startPos,
   std::ifstream& in,
   int formatCode,
   int* inlineNumber, int* crosslineNumber,

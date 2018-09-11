@@ -60,7 +60,9 @@ vtkSegYReaderInternal::~vtkSegYReaderInternal()
   delete this->BinaryHeaderBytesPos;
   delete this->TraceReader;
   for (auto trace : this->Traces)
+  {
     delete trace;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -76,15 +78,33 @@ void vtkSegYReaderInternal::SetVerticalCRS(int v)
 }
 
 //-----------------------------------------------------------------------------
-void vtkSegYReaderInternal::LoadTraces()
+void vtkSegYReaderInternal::LoadTraces(int *extent)
 {
-  int traceStartPos = FIRST_TRACE_START_POS;
+  std::streamoff traceStartPos = FIRST_TRACE_START_POS;
   std::streamoff fileSize = vtkSegYIOUtils::Instance()->getFileSize(this->In);
+
+  // allocate traces vector
+  int dims[3] =
+  {
+    extent[1] - extent[0] + 1,
+    extent[3] - extent[2] + 1,
+    extent[5] - extent[4] + 1
+  };
+
+  bool is3d = (extent[3] - extent[2] > 1) ? true : false;
+  this->Traces.resize(dims[0]*dims[1],nullptr);
+  size_t traceCount = 0;
   while (traceStartPos + 240 < fileSize)
   {
     vtkSegYTrace* pTrace = new vtkSegYTrace();
     this->TraceReader->ReadTrace(traceStartPos, this->In, this->FormatCode, pTrace);
-    this->Traces.push_back(pTrace);
+    size_t loc = traceCount;
+    if (is3d)
+    {
+      loc = pTrace->CrosslineNumber - extent[0] + (pTrace->InlineNumber - extent[2])*dims[0];
+    }
+    this->Traces[loc] = pTrace;
+    traceCount++;
   }
 }
 
@@ -102,92 +122,162 @@ bool vtkSegYReaderInternal::ReadHeader()
 
 //-----------------------------------------------------------------------------
 bool vtkSegYReaderInternal::Is3DComputeParameters(
-  int* extent, double* origin, double* spacing, int* spacingSign)
+  int* extent, double origin[3], double spacing[3][3], int* spacingSign)
 {
   this->ReadHeader();
-  int traceStartPos = FIRST_TRACE_START_POS;
+  std::streamoff traceStartPos = FIRST_TRACE_START_POS;
   std::streamoff fileSize = vtkSegYIOUtils::Instance()->getFileSize(this->In);
-  int crosslineFirst, crosslineSecond, inlineFirst = 0,
-    inlineNumber = 0, crosslineNumber;
-  double coordFirst[3] = {0},
-    coordSecondX[3] = {0},
-    coordSecondY[3] = {0},
-    d[3];
+  int inlineNumber = 0, crosslineNumber;
   int xCoord = 0, yCoord = 0;
   short coordMultiplier = 0;
-  int prevTraceStartPos = traceStartPos;
-  int crosslineCount = 0;
-  if (traceStartPos + 240 < fileSize)
-  {
-    this->TraceReader->ReadInlineCrossline
-      (traceStartPos, this->In, this->FormatCode,
-       &inlineFirst, &crosslineFirst,
-       &xCoord, &yCoord, &coordMultiplier);
-    double coordinateMultiplier = decodeMultiplier(coordMultiplier);
-    coordFirst[0] = coordinateMultiplier * xCoord;
-    coordFirst[1] = coordinateMultiplier * yCoord;
-    coordFirst[2] = 0;
-    ++crosslineCount;
-  }
-  int traceSize = traceStartPos - prevTraceStartPos;
-  if (traceStartPos + 240 < fileSize)
-  {
-    this->TraceReader->ReadInlineCrossline
-      (traceStartPos, this->In, this->FormatCode,
-       &inlineNumber, &crosslineSecond,
-       &xCoord, &yCoord, &coordMultiplier);
-    double coordinateMultiplier = decodeMultiplier(coordMultiplier);
-    coordSecondX[0] = coordinateMultiplier * xCoord;
-    coordSecondX[1] = coordinateMultiplier * yCoord;
-    coordSecondX[2] = 0;
-    ++crosslineCount;
-  }
-  vtkMath::Subtract(coordSecondX, coordFirst, d);
-  spacingSign[0] = d[0] >= 0 ? 1 : -1;
-  float xStep = vtkMath::Norm(d);
-  while(inlineFirst == inlineNumber && traceStartPos + 240 < fileSize)
+
+  // compute the dimensions of the dataset, to be safe we
+  // look at all the traces and compute the set of inline
+  // and crossline indicies
+  std::set<int> crossLines;
+  std::map<int, std::array<double,3> > crossCoordinates;
+  std::set<int> inLines;
+
+  int basisPointCount = 0;
+  double basisCoords[3][3];
+  int basisIndex[3][2] = { { 0, 0}, {0, 0}, {0, 0} };
+  double iBasis[2][3];
+  double basisLength[2];
+  size_t traceCount = 0;
+  while(traceStartPos + 240 < fileSize)
   {
     this->TraceReader->ReadInlineCrossline
       (traceStartPos, this->In, this->FormatCode,
        &inlineNumber, &crosslineNumber,
        &xCoord, &yCoord, &coordMultiplier);
-    ++crosslineCount;
+    traceCount++;
+    double coordinateMultiplier = decodeMultiplier(coordMultiplier);
+
+    // store a third point, must have different basis from
+    // first two
+    if (basisPointCount == 2)
+    {
+      iBasis[1][0] = crosslineNumber - basisIndex[0][0];
+      iBasis[1][1] = inlineNumber - basisIndex[0][1];
+      iBasis[1][2] = 0.0;
+      basisLength[1] = vtkMath::Normalize(iBasis[1]);
+      if (fabs(vtkMath::Dot(iBasis[0], iBasis[1])) < 0.99)
+      {
+        basisCoords[basisPointCount][0] = coordinateMultiplier * xCoord;
+        basisCoords[basisPointCount][1] = coordinateMultiplier * yCoord;
+        basisCoords[basisPointCount][2] = 0;
+        basisIndex[basisPointCount][0] = crosslineNumber;
+        basisIndex[basisPointCount][1] = inlineNumber;
+        basisPointCount++;
+      }
+    }
+
+    // store a second point, just any point other than first
+    if (basisPointCount == 1)
+    {
+      basisCoords[basisPointCount][0] = coordinateMultiplier * xCoord;
+      basisCoords[basisPointCount][1] = coordinateMultiplier * yCoord;
+      basisCoords[basisPointCount][2] = 0;
+      basisIndex[basisPointCount][0] = crosslineNumber;
+      basisIndex[basisPointCount][1] = inlineNumber;
+      iBasis[0][0] = basisIndex[1][0] - basisIndex[0][0];
+      iBasis[0][1] = basisIndex[1][1] - basisIndex[0][1];
+      iBasis[0][2] = 0.0;
+      basisLength[0] = vtkMath::Normalize(iBasis[0]);
+      basisPointCount++;
+    }
+
+    // store a first point
+    if (basisPointCount == 0)
+    {
+      basisCoords[basisPointCount][0] = coordinateMultiplier * xCoord;
+      basisCoords[basisPointCount][1] = coordinateMultiplier * yCoord;
+      basisCoords[basisPointCount][2] = 0;
+      basisIndex[basisPointCount][0] = crosslineNumber;
+      basisIndex[basisPointCount][1] = inlineNumber;
+      basisPointCount++;
+    }
+
+    inLines.insert(inlineNumber);
+    crossLines.insert(crosslineNumber);
   }
-  if (traceStartPos + 240 < fileSize)
-  {
-    // we read a crossline from the next inline
-    --crosslineCount;
-  }
-  int inlineCount = (fileSize - FIRST_TRACE_START_POS) / traceSize / crosslineCount;
+
+  // find the min and max to get the extent
+  int startCross = *crossLines.begin();
+  int endCross = *crossLines.rbegin();
+  int crosslineCount = endCross - startCross + 1;
+  int startInline = *inLines.begin();
+  int endInline = *inLines.rbegin();
+  int inlineCount = endInline - startInline + 1;
+
   auto e = {
-    0, crosslineCount - 1,
-    0, inlineCount - 1,
+    startCross, endCross,
+    startInline, endInline,
     0, this->SampleCountPerTrace - 1,
   };
   std::copy(e.begin(), e.end(), extent);
-  if (traceStartPos + 240 >= fileSize)
+  if (inlineCount <= 1) // should really be 1 in either inline or crossline?
   {
     // this is a 2D dataset
+    // watch for cases where there are more traces than crosslines as
+    if (static_cast<int>(traceCount) > crosslineCount)
+    {
+      extent[0] = 0;
+      extent[1] = static_cast<int>(traceCount) - 1;
+    }
     return false;
   }
-  double coordinateMultiplier = decodeMultiplier(coordMultiplier);
-  coordSecondY[0] = coordinateMultiplier * xCoord;
-  coordSecondY[1] = coordinateMultiplier * yCoord;
-  coordSecondY[2] = 0;
-  vtkMath::Subtract(coordSecondY, coordFirst, d);
-  spacingSign[1] = d[1] >= 0 ? 1 : -1;
-  spacingSign[2] = (this->VerticalCRS == 0 ? -1 : 1); // goes
-  float yStep = vtkMath::Norm(d);
 
-  // The samples are uniformly placed at sample interval depths
-  // Dividing by 1000.0 to convert from microseconds to milliseconds.
-  float zStep = this->SampleInterval / 1000.0;
-  std::array<double, 3> o = {{coordFirst[0],
-                              coordFirst[1],
-                              - zStep * (this->SampleCountPerTrace - 1)}};
-  std::copy(o.begin(), o.end(), origin);
-  auto s = {xStep, yStep, zStep};
-  std::copy(s.begin(), s.end(), spacing);
+  // compute the mapping of indicies into coords if we have three
+  if (basisPointCount == 3)
+  {
+    // compute an orthogonal basis
+    double bDot = vtkMath::Dot(iBasis[0], iBasis[1]);
+    iBasis[1][0] -= bDot*iBasis[0][0];
+    iBasis[1][1] -= bDot*iBasis[0][1];
+    vtkMath::Normalize(iBasis[1]);
+
+    // coordinate vectors
+    double cBasis[2][3];
+    cBasis[0][0] = basisCoords[1][0] - basisCoords[0][0];
+    cBasis[0][1] = basisCoords[1][1] - basisCoords[0][1];
+    cBasis[0][2] = 0.0;
+    cBasis[1][0] = basisCoords[2][0] - basisCoords[0][0] - bDot*cBasis[0][0];
+    cBasis[1][1] = basisCoords[2][1] - basisCoords[0][1] - bDot*cBasis[0][1];
+    cBasis[1][2] = 0.0;
+
+    // spacing = (unitIndexDir . unitIndexBasis)*coordBasis/indexBasisLength;
+    spacing[0][0] = iBasis[0][0]*cBasis[0][0]/basisLength[0]
+      + iBasis[1][0]*cBasis[1][0]/basisLength[1];
+    spacing[0][1] = iBasis[0][0]*cBasis[0][1]/basisLength[0]
+      + iBasis[1][0]*cBasis[1][1]/basisLength[1];
+    spacing[0][2] = 0.0;
+
+    spacing[1][0] = iBasis[0][1]*cBasis[0][0]/basisLength[0]
+      + iBasis[1][1]*cBasis[1][0]/basisLength[1];
+    spacing[1][1] = iBasis[0][1]*cBasis[0][1]/basisLength[0]
+      + iBasis[1][1]*cBasis[1][1]/basisLength[1];
+    spacing[1][2] = 0.0;
+
+    // The samples are uniformly placed at sample interval depths
+    // Dividing by 1000.0 to convert from microseconds to milliseconds.
+    spacing[2][0] = 0.0;
+    spacing[2][1] = 0.0;
+    spacing[2][2] = this->SampleInterval / 1000.0;
+
+    spacingSign[0] = spacing[0][0] >= 0.0 ? 1.0 : -1.0;
+    spacingSign[1] = spacing[1][1] >= 0.0 ? 1.0 : -1.0;
+    spacingSign[2] = (this->VerticalCRS == 0 ? -1 : 1); // goes
+
+    origin[0] = (startCross - basisIndex[0][0]) * spacing[0][0]
+      + (startInline - basisIndex[0][1]) * spacing[1][0]
+       + basisCoords[0][0];
+    origin[1] = (startCross - basisIndex[0][0]) * spacing[0][1]
+      + (startInline - basisIndex[0][1]) * spacing[1][1]
+       + basisCoords[0][1];
+    origin[2] = - spacing[2][2] * (this->SampleCountPerTrace - 1);
+  }
+
   return true;
 }
 
@@ -197,11 +287,15 @@ bool vtkSegYReaderInternal::Is3DComputeParameters(
 //-----------------------------------------------------------------------------
 void vtkSegYReaderInternal::ExportData(
   vtkImageData* imageData,
-  int* extent, double* origin, double* spacing, int* spacingSign)
+  int* extent, double origin[3], double spacing[3][3], int* spacingSign)
 {
   imageData->SetExtent(extent);
   imageData->SetOrigin(origin);
-  imageData->SetSpacing(spacing);
+  imageData->SetSpacing(
+    vtkMath::Norm(spacing[0]),
+    vtkMath::Norm(spacing[1]),
+    vtkMath::Norm(spacing[2])
+  );
   int* dims = imageData->GetDimensions();
 
   vtkNew<vtkFloatArray> scalars;
@@ -221,14 +315,17 @@ void vtkSegYReaderInternal::ExportData(
       {
         destI = (spacingSign[0] > 0 ? i : dims[0] - i - 1);
         vtkSegYTrace* trace = this->Traces[destJ * dims[0] + destI];
-        scalars->SetValue(id++, trace->Data[destK]);
+        scalars->SetValue(id++, trace ? trace->Data[destK] : 0.0);
       }
     }
   }
 }
 
 //-----------------------------------------------------------------------------
-void vtkSegYReaderInternal::ExportData(vtkStructuredGrid* grid, int* extent)
+void vtkSegYReaderInternal::ExportData(vtkStructuredGrid* grid,
+  int* extent,
+  double origin[3],
+  double spacing[3][3])
 {
   if (!grid)
   {
@@ -252,15 +349,23 @@ void vtkSegYReaderInternal::ExportData(vtkStructuredGrid* grid, int* extent)
       for (int i = 0; i < dims[0]; ++i)
       {
         auto trace = this->Traces[j * dims[0] + i];
-        double coordinateMultiplier = decodeMultiplier(trace->CoordinateMultiplier);
-        double x = coordinateMultiplier * trace->XCoordinate;
-        double y = coordinateMultiplier * trace->YCoordinate;
+        double x = origin[0] + i*spacing[0][0] + j*spacing[1][0];
+        double y = origin[1] + i*spacing[0][1] + j*spacing[1][1];
+        double z = sign * k * spacing[2][2];
+        if (trace)
+        {
+          double coordinateMultiplier = decodeMultiplier(trace->CoordinateMultiplier);
+          x = coordinateMultiplier * trace->XCoordinate;
+          y = coordinateMultiplier * trace->YCoordinate;
+          z = sign * k * (trace->SampleInterval / 1000.0);
 
-        // The samples are uniformly placed at sample interval depths
-        // Dividing by 1000.0 to convert from microseconds to milliseconds.
-        double z = sign * k * (trace->SampleInterval / 1000.0);
+          scalars->InsertValue(id++, trace->Data[k]);
+        }
+        else
+        {
+          scalars->InsertValue(id++, 0.0);
+        }
         points->InsertNextPoint(x, y, z);
-        scalars->InsertValue(id++, trace->Data[k]);
       }
     }
   }

@@ -34,7 +34,7 @@ vtkSegYIOUtils* vtkSegYIOUtils::Instance()
 }
 
 //----------------------------------------------------------------------------
-short vtkSegYIOUtils::readShortInteger(int pos, std::ifstream& in)
+short vtkSegYIOUtils::readShortInteger(std::streamoff pos, std::ifstream& in)
 {
   in.seekg(pos, in.beg);
   return readShortInteger(in);
@@ -57,7 +57,7 @@ short vtkSegYIOUtils::readShortInteger(std::ifstream& in)
 }
 
 //----------------------------------------------------------------------------
-int vtkSegYIOUtils::readLongInteger(int pos, std::ifstream& in)
+int vtkSegYIOUtils::readLongInteger(std::streamoff pos, std::ifstream& in)
 {
   in.seekg(pos, in.beg);
   return readLongInteger(in);
