@@ -146,6 +146,11 @@ void vtkOpenGLState::CheckState()
   }
 
   GLint iparams[4];
+#if defined(__APPLE__)
+  // OSX systems seem to change the glViewport upon a window resize
+  // under the hood, so our viewport cache cannot be trusted
+  this->ResetGlViewportState();
+#endif
   ::glGetIntegerv(GL_VIEWPORT, iparams);
   if (
       iparams[0] != this->CurrentState.Viewport[0] ||
@@ -495,7 +500,7 @@ void vtkOpenGLState::vtkglViewport(GLint x, GLint y, GLsizei width, GLsizei heig
 {
   vtkOpenGLCheckStateMacro();
 
-#ifndef NO_CACHE
+#if !defined(NO_CACHE) && !defined(__APPLE__)
   if (this->CurrentState.Viewport[0] != x ||
       this->CurrentState.Viewport[1] != y ||
       this->CurrentState.Viewport[2] != width ||
