@@ -717,6 +717,12 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
     }//for all cells
   }//if not all visible
 
+  // Used for nonlinear cells only
+  vtkGenericCell *cell = vtkGenericCell::New();
+  vtkIdList *ipts = vtkIdList::New();
+  vtkPoints *coords = vtkPoints::New();
+  vtkIdList *icellIds = vtkIdList::New();;
+
   // These store the cell ids of the input that map to the
   // new vert/line/poly/strip cells, for copying cell data
   // in appropriate order.
@@ -1003,11 +1009,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
         case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
         case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
         {
-          vtkGenericCell *cell = vtkGenericCell::New();
           input->GetCell(cellId,cell);
-          vtkIdList *ipts = vtkIdList::New();
-          vtkPoints *coords = vtkPoints::New();
-          vtkIdList *icellIds = vtkIdList::New();
 
           if ( cell->GetCellDimension() == 1 )
           {
@@ -1053,15 +1055,20 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
               }
             }
           } //3d cell
-          icellIds->Delete();
-          coords->Delete();
-          ipts->Delete();
-          cell->Delete();
         }
           break; //done with quadratic cells
       } //switch
     } //if visible
   } //for all cells
+
+  icellIds->Delete();
+  icellIds = nullptr;
+  coords->Delete();
+  coords = nullptr;
+  ipts->Delete();
+  ipts = nullptr;
+  cell->Delete();
+  cell = nullptr;
 
   // Update ourselves and release memory
   //
