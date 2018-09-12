@@ -35,6 +35,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 #include "vtkIncrementalPointLocator.h"
+#include "vtkNew.h"
 
 
 vtkStandardNewMacro(vtkGeometryFilter);
@@ -718,10 +719,10 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   }//if not all visible
 
   // Used for nonlinear cells only
-  vtkGenericCell *cell = vtkGenericCell::New();
-  vtkIdList *ipts = vtkIdList::New();
-  vtkPoints *coords = vtkPoints::New();
-  vtkIdList *icellIds = vtkIdList::New();;
+  vtkNew<vtkGenericCell> cell;
+  vtkNew<vtkIdList> ipts;
+  vtkNew<vtkPoints> coords;
+  vtkNew<vtkIdList> icellIds;
 
   // These store the cell ids of the input that map to the
   // new vert/line/poly/strip cells, for copying cell data
@@ -1060,15 +1061,6 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       } //switch
     } //if visible
   } //for all cells
-
-  icellIds->Delete();
-  icellIds = nullptr;
-  coords->Delete();
-  coords = nullptr;
-  ipts->Delete();
-  ipts = nullptr;
-  cell->Delete();
-  cell = nullptr;
 
   // Update ourselves and release memory
   //
