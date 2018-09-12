@@ -481,7 +481,9 @@ static int vtkWrapPython_IsValueWrappable(
     }
   }
 
-  if (vtkWrap_IsStdVector(val))
+  /* wrap std::vector<T> (IsScalar means "not pointer or array") */
+  if (vtkWrap_IsStdVector(val) &&
+      vtkWrap_IsScalar(val))
   {
     size_t l, n;
     const char *tname;
