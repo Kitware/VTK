@@ -1,5 +1,10 @@
 include(CMakeDependentOption)
 
+if(POLICY CMP0072)
+  cmake_policy(PUSH)
+  cmake_policy(SET CMP0072 NEW) # prefer GLVND
+endif()
+
 # Logic to figure out what system libraries will be used by rendering, and
 # whether VTK can use OSMesa for rendering.
 set(default_use_x OFF)
@@ -179,3 +184,7 @@ function(vtk_opengl_link target)
     set_property(TARGET ${target} APPEND_STRING PROPERTY LINK_FLAGS "/DELAYLOAD:opengl32.dll")
   endif()
 endfunction()
+
+if(POLICY CMP0072)
+  cmake_policy(POP)
+endif()
