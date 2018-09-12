@@ -32,6 +32,7 @@ class vtkOpenGLFXAAFilter;
 class vtkRenderPass;
 class vtkOpenGLState;
 class vtkOpenGLTexture;
+class vtkOrderIndependentTranslucentPass;
 class vtkTextureObject;
 class vtkDepthPeelingPass;
 class vtkShaderProgram;
@@ -159,6 +160,11 @@ protected:
    * Depth peeling is delegated to an instance of vtkDepthPeelingPass
    */
   vtkDepthPeelingPass *DepthPeelingPass;
+
+  /**
+   * Fallback for transparency
+   */
+  vtkOrderIndependentTranslucentPass *TranslucentPass;
 
   /**
    * Shadows are delegated to an instance of vtkShadowMapPass

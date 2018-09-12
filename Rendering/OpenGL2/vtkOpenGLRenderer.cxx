@@ -31,6 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLFXAAFilter.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLState.h"
+#include "vtkOrderIndependentTranslucentPass.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
@@ -70,6 +71,7 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
 {
   this->FXAAFilter = nullptr;
   this->DepthPeelingPass = nullptr;
+  this->TranslucentPass = nullptr;
   this->ShadowMapPass = nullptr;
   this->DepthPeelingHigherLayer=0;
 
@@ -431,8 +433,26 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 
   if(!this->UseDepthPeeling)
   {
-    // just alpha blending
-    this->UpdateTranslucentPolygonalGeometry();
+    // old code
+    // this->UpdateTranslucentPolygonalGeometry();
+
+    // new approach
+    if (!this->TranslucentPass)
+    {
+      vtkOrderIndependentTranslucentPass *oit =
+        vtkOrderIndependentTranslucentPass::New();
+      this->TranslucentPass = oit;
+    }
+    vtkTranslucentPass *tp = vtkTranslucentPass::New();
+    this->TranslucentPass->SetTranslucentPass(tp);
+    tp->Delete();
+
+    vtkRenderState s(this);
+    s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
+    s.SetFrameBuffer(nullptr);
+    this->LastRenderingUsedDepthPeeling=0;
+    this->TranslucentPass->Render(&s);
+    this->NumberOfPropsRendered += this->TranslucentPass->GetNumberOfRenderedProps();
   }
   else   // depth peeling.
   {
@@ -639,6 +659,10 @@ void vtkOpenGLRenderer::ReleaseGraphicsResources(vtkWindow *w)
   {
     this->DepthPeelingPass->ReleaseGraphicsResources(w);
   }
+  if (w && this->TranslucentPass)
+  {
+    this->TranslucentPass->ReleaseGraphicsResources(w);
+  }
   if (w && this->ShadowMapPass)
   {
     this->ShadowMapPass->ReleaseGraphicsResources(w);
@@ -670,6 +694,12 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
   {
     this->DepthPeelingPass->Delete();
     this->DepthPeelingPass = nullptr;
+  }
+
+  if (this->TranslucentPass)
+  {
+    this->TranslucentPass->Delete();
+    this->TranslucentPass = nullptr;
   }
 }
 

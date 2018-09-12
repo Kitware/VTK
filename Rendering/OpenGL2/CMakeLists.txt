@@ -69,6 +69,7 @@ set(Module_SRCS
   vtkOpenGLVertexBufferObject.cxx
   vtkOpenGLVertexBufferObjectCache.cxx
   vtkOpenGLVertexBufferObjectGroup.cxx
+  vtkOrderIndependentTranslucentPass.cxx
   vtkOverlayPass.cxx
   vtkPixelBufferObject.cxx
   vtkPointFillPass.cxx
@@ -117,6 +118,7 @@ set(shader_files
   glsl/vtkGaussianBlurPassFS.glsl
   glsl/vtkGaussianBlurPassVS.glsl
   glsl/vtkGlyph3DVS.glsl
+  glsl/vtkOrderIndependentTranslucentPassFinalFS.glsl
   glsl/vtkPointGaussianVS.glsl
   glsl/vtkPointGaussianGS.glsl
   glsl/vtkPointFillPassFS.glsl

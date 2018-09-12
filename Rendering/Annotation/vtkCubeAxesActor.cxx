@@ -2781,21 +2781,27 @@ int vtkCubeAxesActor::RenderGeometry(
     this->DetermineRenderAxes(viewport);
   }
 
+  // pass keys to sub props
+  vtkInformation *propKeys = this->GetPropertyKeys();
+
   // Render the axes
   for (i = 0; i < this->NumberOfAxesX; i++)
   {
+    this->XAxes[this->RenderAxesX[i]]->SetPropertyKeys(propKeys);
     renderedSomething +=
         (this->XAxes[this->RenderAxesX[i]]->*renderMethod)(viewport);
   }
 
   for (i = 0; i < this->NumberOfAxesY; i++)
   {
+    this->YAxes[this->RenderAxesY[i]]->SetPropertyKeys(propKeys);
     renderedSomething +=
         (this->YAxes[this->RenderAxesY[i]]->*renderMethod)(viewport);
   }
 
   for (i = 0; i < this->NumberOfAxesZ; i++)
   {
+    this->ZAxes[this->RenderAxesZ[i]]->SetPropertyKeys(propKeys);
     renderedSomething +=
         (this->ZAxes[this->RenderAxesZ[i]]->*renderMethod)(viewport);
   }
