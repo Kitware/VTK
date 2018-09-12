@@ -224,7 +224,6 @@ vtkCocoaRenderWindow::vtkCocoaRenderWindow()
   this->CursorHidden = 0;
   this->ForceMakeCurrent = 0;
   this->OnScreenInitialized = 0;
-  this->OffScreenInitialized = 0;
   this->WantsBestResolution = true;
 }
 
@@ -259,11 +258,6 @@ vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::Finalize()
 {
-  if(this->OffScreenInitialized)
-  {
-    this->OffScreenInitialized = 0;
-    this->DestroyOffScreenWindow();
-  }
   if(this->OnScreenInitialized)
   {
     this->OnScreenInitialized = 0;
@@ -299,6 +293,7 @@ void vtkCocoaRenderWindow::DestroyWindow()
   this->SetRootWindow(nullptr);
   this->WindowCreated = 0;
   this->ViewCreated = 0;
+  this->Mapped = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -336,16 +331,6 @@ bool vtkCocoaRenderWindow::InitializeFromCurrentContext()
 int vtkCocoaRenderWindow::GetEventPending()
 {
   return 0;
-}
-
-//----------------------------------------------------------------------------
-// Initialize the rendering process.
-void vtkCocoaRenderWindow::Start()
-{
-  this->Initialize();
-
-  // set the current window
-  this->MakeCurrent();
 }
 
 //----------------------------------------------------------------------------
@@ -522,7 +507,10 @@ void vtkCocoaRenderWindow::SetSize(int x, int y)
   if ((this->Size[0] != x) || (this->Size[1] != y) || (this->GetParentId()))
   {
     this->Superclass::SetSize(x, y);
-    if (this->GetParentId() && this->GetWindowId() && this->Mapped)
+    if (!this->UseOffScreenBuffers &&
+        this->GetParentId() &&
+        this->GetWindowId() &&
+        this->Mapped)
     {
       // Set the NSView size, not the window size.
       if (!resizing)
@@ -549,7 +537,7 @@ void vtkCocoaRenderWindow::SetSize(int x, int y)
         resizing = false;
       }
     }
-    else if (this->GetRootWindow() && this->Mapped)
+    else if (!this->UseOffScreenBuffers && this->GetRootWindow() && this->Mapped)
     {
       if (!resizing)
       {
@@ -563,20 +551,6 @@ void vtkCocoaRenderWindow::SetSize(int x, int y)
         [window setContentSize:newRect.size];
 
         resizing = false;
-      }
-    }
-
-    if (this->OffScreenInitialized)
-    {
-      if (!resizing)
-      {
-      resizing = true;
-      // we don't call DestroyOffScreenWindow/CreateOffScreenWindow here since
-      // those method destroy/release all graphics resources too which is not
-      // needed for a resize. All we want is to resize the FBO.
-      this->DestroyHardwareOffScreenWindow();
-      this->CreateHardwareOffScreenWindow(x, y);
-      resizing = false;
       }
     }
   }
@@ -795,8 +769,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
     this->WindowCreated = 1;
 
     // makeKeyAndOrderFront: will show the window
-    // we don't want this if offscreen was requested
-    if(!this->OffScreenRendering)
+    if(this->ShowWindow)
     {
       [theWindow makeKeyAndOrderFront:nil];
       [theWindow setAcceptsMouseMovedEvents:YES];
@@ -1055,44 +1028,42 @@ void vtkCocoaRenderWindow::CreateGLContext()
 }
 
 //----------------------------------------------------------------------------
+// Initialize the rendering process.
+void vtkCocoaRenderWindow::Start()
+{
+  this->Superclass::Start();
+
+  // make sure the hardware is up to date otherwise
+  // the backing sotre may not match the current window
+  // no clue what is really going on here but the old code
+  // called Initialize every render to do this
+  if((this->OnScreenInitialized) && (this->Mapped))
+  {
+    // the error "invalid drawable" in the console from this call can appear
+    // but only early in the app's lifetime (ie sometime during launch)
+    // IMPORTANT: this is necessary to update the context here in case of
+    // onscreen rendering
+    NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
+    [context setView:(NSView*)this->GetWindowId()];
+
+    [context update];
+  }
+
+  // set the current window
+  this->MakeCurrent();
+}
+
+
+//----------------------------------------------------------------------------
 // Initialize the rendering window.
 void vtkCocoaRenderWindow::Initialize ()
 {
-  if(this->OffScreenRendering)
+  if(!this->OnScreenInitialized)
   {
-    // destroy on screen
-    if(this->OnScreenInitialized)
-    {
-      this->DestroyWindow();
-      this->OnScreenInitialized = 0;
-    }
-    // create off screen
-    if(!this->OffScreenInitialized)
-    {
-      int width=((this->Size[0]>0) ? this->Size[0] : 300);
-      int height=((this->Size[1]>0) ? this->Size[1] : 300);
-      if(!this->CreateHardwareOffScreenWindow(width,height))
-      {
-        // no other offscreen mode available, do on screen rendering
-        this->CreateAWindow();
-      }
-      this->OffScreenInitialized = 1;
-    }
+    this->OnScreenInitialized = 1;
+    this->CreateAWindow();
   }
-  else
-  {
-    // destroy off screen
-    if(this->OffScreenInitialized)
-    {
-      this->DestroyOffScreenWindow();
-    }
-    // create on screen
-    if(!this->OnScreenInitialized)
-    {
-      this->OnScreenInitialized = 1;
-      this->CreateAWindow();
-    }
-  }
+
   if((this->OnScreenInitialized) && (this->Mapped))
   {
     // the error "invalid drawable" in the console from this call can appear
@@ -1106,26 +1077,12 @@ void vtkCocoaRenderWindow::Initialize ()
   }
 }
 
-//-----------------------------------------------------------------------------
-void vtkCocoaRenderWindow::DestroyOffScreenWindow()
-{
-  if(this->OffScreenUseFrameBuffer)
-  {
-    this->DestroyHardwareOffScreenWindow();
-  }
-  else
-  {
-    // on screen
-    this->DestroyWindow();
-  }
-}
-
 //----------------------------------------------------------------------------
 // Get the current size of the window in pixels.
 int *vtkCocoaRenderWindow::GetSize()
 {
   // if we aren't mapped then just return the ivar (which is in pixels)
-  if (!this->Mapped)
+  if (!this->Mapped || this->UseOffScreenBuffers)
   {
     return this->Superclass::GetSize();
   }

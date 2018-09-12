@@ -28,7 +28,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkConeSource.h"
 
-int TestOSConeCxx(int argc, char* argv[])
+int TestOnAndOffScreenConeCxx(int argc, char* argv[])
 {
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   //renWin->SetShowWindow(false);

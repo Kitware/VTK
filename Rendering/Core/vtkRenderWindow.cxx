@@ -78,7 +78,8 @@ vtkRenderWindow::vtkRenderWindow()
   this->UseSRGBColorSpace = false;
 
 #ifdef VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN
-  this->OffScreenRendering = 1;
+  this->ShowWindow = false;
+  this->UseOffScreenBuffers = true;
 #endif
   this->DeviceIndex = 0;
   this->SharedRenderWindow = nullptr;

@@ -315,6 +315,11 @@ public:
                      int internalFormat);
 
   /**
+   * Create a 2D septh stencil texture but does not initialize its values.
+   */
+  bool AllocateDepthStencil(unsigned int width, unsigned int height);
+
+  /**
    * Create a 1D color texture but does not initialize its values.
    * Internal format is deduced from numComps and vtkType.
    */

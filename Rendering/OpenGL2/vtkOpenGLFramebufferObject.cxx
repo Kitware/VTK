@@ -1875,7 +1875,8 @@ bool vtkOpenGLFramebufferObject::PopulateFramebuffer(
     int colorDataType,
     bool wantDepthAttachment,
     int depthBitplanes,
-    int multisamples)
+    int multisamples,
+    bool wantStencilAttachment)
 {
   // MAX_DEPTH_TEXTURE_SAMPLES
   this->Bind();
@@ -1908,21 +1909,28 @@ bool vtkOpenGLFramebufferObject::PopulateFramebuffer(
       depth->SetWrapT(vtkTextureObject::Repeat);
       depth->SetMinificationFilter(vtkTextureObject::Nearest);
       depth->SetMagnificationFilter(vtkTextureObject::Nearest);
-      switch (depthBitplanes)
+      if (wantStencilAttachment)
       {
-        case 16:
-          depth->AllocateDepth(this->LastSize[0], this->LastSize[1],
-            vtkTextureObject::Fixed16);
-          break;
-        case 32:
-          depth->AllocateDepth(this->LastSize[0], this->LastSize[1],
-            vtkTextureObject::Float32);
-          break;
-        case 24:
-        default:
-          depth->AllocateDepth(this->LastSize[0], this->LastSize[1],
-            vtkTextureObject::Fixed24);
-          break;
+        depth->AllocateDepthStencil(this->LastSize[0], this->LastSize[1]);
+      }
+      else
+      {
+        switch (depthBitplanes)
+        {
+          case 16:
+            depth->AllocateDepth(this->LastSize[0], this->LastSize[1],
+              vtkTextureObject::Fixed16);
+            break;
+          case 32:
+            depth->AllocateDepth(this->LastSize[0], this->LastSize[1],
+              vtkTextureObject::Float32);
+            break;
+          case 24:
+          default:
+            depth->AllocateDepth(this->LastSize[0], this->LastSize[1],
+              vtkTextureObject::Fixed24);
+            break;
+        }
       }
       this->AddDepthAttachment(this->GetBothMode(), depth);
       depth->Delete();
@@ -1953,23 +1961,31 @@ bool vtkOpenGLFramebufferObject::PopulateFramebuffer(
     {
       vtkRenderbuffer *depth = vtkRenderbuffer::New();
       depth->SetContext(this->Context);
-      switch (depthBitplanes)
+      if (wantStencilAttachment)
       {
-        case 16:
-          depth->Create(GL_DEPTH_COMPONENT16,
-            this->LastSize[0], this->LastSize[1], multisamples);
-          break;
-#ifdef GL_DEPTH_COMPONENT32
-        case 32:
-          depth->Create(GL_DEPTH_COMPONENT32,
-            this->LastSize[0], this->LastSize[1], multisamples);
-          break;
-#endif
-        case 24:
-        default:
-          depth->Create(GL_DEPTH_COMPONENT24,
-            this->LastSize[0], this->LastSize[1], multisamples);
-          break;
+        depth->Create(GL_DEPTH_STENCIL,
+          this->LastSize[0], this->LastSize[1], multisamples);
+      }
+      else
+      {
+        switch (depthBitplanes)
+        {
+          case 16:
+            depth->Create(GL_DEPTH_COMPONENT16,
+              this->LastSize[0], this->LastSize[1], multisamples);
+            break;
+  #ifdef GL_DEPTH_COMPONENT32
+          case 32:
+            depth->Create(GL_DEPTH_COMPONENT32,
+              this->LastSize[0], this->LastSize[1], multisamples);
+            break;
+  #endif
+          case 24:
+          default:
+            depth->Create(GL_DEPTH_COMPONENT24,
+              this->LastSize[0], this->LastSize[1], multisamples);
+            break;
+        }
       }
       this->AddDepthAttachment(this->GetBothMode(), depth);
       depth->Delete();

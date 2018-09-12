@@ -349,7 +349,9 @@ public:
     int colorDataType,
     bool wantDepthAttachment,
     int depthBitplanes,
-    int multisamples);
+    int multisamples,
+    bool wantStencilAttachment = false
+    );
   //@}
 
   /**
@@ -416,7 +418,9 @@ public:
         unsigned int mode,
         const char *&desc);
 
-    /**
+  vtkGetMacro(FBOIndex, unsigned int);
+
+  /**
    * Copy from the currently bound READ FBO to the currently
    * bound DRAW FBO. The method is static so that one doesn't
    * need to ccreate an instance when transferring between attachments

@@ -87,7 +87,6 @@ void QVTKOpenGLWindow::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
   {
     this->RenderWindow->Finalize();
     this->RenderWindow->SetReadyForRendering(false);
-    this->RenderWindow->SetMapped(0);
     this->EventSlotConnector->Disconnect(this->RenderWindow, vtkCommand::WindowMakeCurrentEvent,this, SLOT(MakeCurrent()));
     this->EventSlotConnector->Disconnect(this->RenderWindow, vtkCommand::WindowIsCurrentEvent, this, SLOT(IsCurrent(vtkObject*, unsigned long, void*, void*)));
     this->EventSlotConnector->Disconnect(this->RenderWindow, vtkCommand::WindowFrameEvent, this, SLOT(Frame()));
@@ -113,7 +112,6 @@ void QVTKOpenGLWindow::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
   this->RenderWindow->SetForceMaximumHardwareLineWidth(1);
   // if it is mapped somewhere else, unmap it
   this->RenderWindow->Finalize();
-  this->RenderWindow->SetMapped(1);
 
   // tell the vtk window what the size of this window is
   const qreal devicePixelRatio_ = this->devicePixelRatio();

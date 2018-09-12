@@ -207,8 +207,7 @@ int vtkProp3DButtonRepresentation
 ::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
   this->InteractionState = vtkButtonRepresentation::Outside;
-  if (!this->Renderer ||
-      !this->Renderer->GetRenderWindow()->GetMapped())
+  if (!this->Renderer)
   {
     return this->InteractionState;
   }

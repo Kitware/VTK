@@ -24,7 +24,8 @@
 // buffering turned on.
 vtkWindow::vtkWindow()
 {
-  this->OffScreenRendering = 0;
+  this->ShowWindow = true;
+  this->UseOffScreenBuffers = false;
   this->Size[0] = this->Size[1] = 0;
   this->Position[0] = this->Position[1] = 0;
   this->Mapped = 0;
@@ -133,7 +134,8 @@ void vtkWindow::PrintSelf(ostream& os, vtkIndent indent)
   //  temp = this->GetSize();
   os << indent << "Size: (" << this->Size[0] << ", " << this->Size[1] << ")\n";
   os << indent << "Mapped: " << this->Mapped << "\n";
-  os << indent << "OffScreenRendering: " << this->OffScreenRendering << "\n";
+  os << indent << "ShowWindow: " << this->ShowWindow << "\n";
+  os << indent << "UseOffScreenBuffers: " << this->UseOffScreenBuffers << "\n";
   os << indent << "Double Buffered: " << this->DoubleBuffer << "\n";
   os << indent << "DPI: " << this->DPI << "\n";
   os << indent << "TileScale: (" << this->TileScale[0] << ", "

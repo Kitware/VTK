@@ -74,6 +74,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestStereoBackgroundLeft.cxx
   TestStereoBackgroundRight.cxx
   TestOSConeCxx.cxx
+  TestOnAndOffScreenConeCxx.cxx
   TestPickTextActor.cxx,NO_VALID
   TestPointSelection.cxx,NO_VALID
   TestPointSelectionWithCellData.cxx,NO_VALID
