@@ -119,12 +119,12 @@ int vtkMergePoints::InsertUniquePoint(const double x[3], vtkIdType &id)
       f[0] = static_cast<float>(x[0]);
       f[1] = static_cast<float>(x[1]);
       f[2] = static_cast<float>(x[2]);
-      vtkFloatArray *floatArray = static_cast<vtkFloatArray *>(dataArray);
+      float *floatArray = static_cast<vtkFloatArray *>(dataArray)->GetPointer(0);
       float *pt;
-      for (vtkIdType i=0; i < nbOfIds; i++)
+      for (vtkIdType i=0; i < nbOfIds; ++i)
       {
         ptId = idArray[i];
-        pt = floatArray->GetPointer(0) + 3*ptId;
+        pt = floatArray + 3*ptId;
         if ( f[0] == pt[0] && f[1] == pt[1] && f[2] == pt[2] )
         {
           // point is already in the list, return 0 and set the id parameter
@@ -137,7 +137,7 @@ int vtkMergePoints::InsertUniquePoint(const double x[3], vtkIdType &id)
     {
       // Using the double interface
       double *pt;
-      for (vtkIdType i=0; i < nbOfIds; i++)
+      for (vtkIdType i=0; i < nbOfIds; ++i)
       {
         ptId = idArray[i];
         pt = dataArray->GetTuple(ptId);
