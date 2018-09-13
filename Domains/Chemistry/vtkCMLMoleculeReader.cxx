@@ -25,6 +25,8 @@
 #include "vtkPeriodicTable.h"
 #include "vtkXMLParser.h"
 
+#include "vtksys/SystemTools.hxx"
+
 #include <string>
 #include <vector>
 
@@ -254,11 +256,12 @@ void vtkCMLParser::NewBond(const char **attr)
     // Get names of bonded atoms
     if (strcmp(cur, "atomRefs2") == 0)
     {
-      char atomRefs[128];
-      strncpy(atomRefs, attr[++attrInd], 128);
+      std::string atomRefs = attr[++attrInd];
+      std::vector<std::string> words;
       // Parse out atom names:
-      const char *nameChar = strtok(atomRefs, " ");
-      while (nameChar != nullptr)
+      vtksys::SystemTools::Split(atomRefs, words, ' ');
+      std::vector<std::string>::const_iterator words_iter = words.begin();
+      while (words_iter != words.end())
       {
         vtkIdType currentAtomId;
         bool found = false;
@@ -266,7 +269,7 @@ void vtkCMLParser::NewBond(const char **attr)
              currentAtomId < static_cast<vtkIdType>(this->AtomNames.size());
              ++currentAtomId)
         {
-          if (this->AtomNames[currentAtomId].compare(nameChar) == 0)
+          if (this->AtomNames[currentAtomId].compare(*words_iter) == 0)
           {
             found = true;
             break;
@@ -282,10 +285,10 @@ void vtkCMLParser::NewBond(const char **attr)
             allAtomNames.push_back(' ');
           }
           vtkWarningMacro(<< "NewBond(): unknown atom name '"
-                          << nameChar << "'. Known atoms:\n"
-                          << allAtomNames.c_str());
+                          << *words_iter << "'. Known atoms:\n"
+                          << allAtomNames);
 
-          nameChar = strtok(nullptr, " ");
+          ++words_iter;
           continue;
         }
         else if (atomId1 == -1)
@@ -302,7 +305,7 @@ void vtkCMLParser::NewBond(const char **attr)
                           << atomRefs);
         }
 
-        nameChar = strtok(nullptr, " ");
+        ++words_iter;
       }
     }
 
