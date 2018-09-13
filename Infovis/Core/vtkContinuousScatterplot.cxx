@@ -357,7 +357,7 @@ int vtkContinuousScatterplot::RequestData(
     // Initialise the scalar values in this tetrahedral cell.
     for (vtkIdType cellIndex = 0; cellIndex < cell->GetNumberOfIds(); cellIndex++)
     {
-      int pointId = cell->GetId(cellIndex);
+      vtkIdType pointId = cell->GetId(cellIndex);
       pointLocator->InsertNextPoint(inputGridPoints->GetPoint(pointId));
       tetraF1->SetComponent(
         cellIndex, 0, inPD->GetArray(this->Fields[0])->GetComponent(pointId, 0));

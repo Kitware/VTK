@@ -132,9 +132,9 @@ int vtkConnectivityFilter::RequestData(
 
   vtkIdType numPts, numCells, cellId, i, j, pt;
   vtkPoints *newPts;
-  int id;
-  int maxCellsInRegion;
-  int largestRegionId = 0;
+  vtkIdType id;
+  vtkIdType maxCellsInRegion;
+  vtkIdType largestRegionId = 0;
   vtkPointData *pd=input->GetPointData(), *outputPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outputCD=output->GetCellData();
 

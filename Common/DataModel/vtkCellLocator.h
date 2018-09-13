@@ -176,7 +176,7 @@ protected:
                              int prevMinLevel[3], int prevMaxLevel[3]);
 
   void ClearCellHasBeenVisited();
-  void ClearCellHasBeenVisited(int id);
+  void ClearCellHasBeenVisited(vtkIdType id);
 
   double Distance2ToBucket(const double x[3], int nei[3]);
   double Distance2ToBounds(const double x[3], double bounds[6]);

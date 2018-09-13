@@ -170,7 +170,7 @@ private:
 
   static int RemoveExtras(double *pts, int n);
   static double Distance(double *p1, double *p2);
-  static int PositionInHull(double *base, double *top, double *pt);
+  static vtkIdType PositionInHull(double *base, double *top, double *pt);
   static int OutsideLine(double hmin, double hmax,
            double vmin, double vmax, double *p0, double *p1, double *insidePt);
   static int OutsideHorizontalLine(double vmin, double vmax,
@@ -179,7 +179,7 @@ private:
            double *p1, double *insidePt);
 
   double *Pts;
-  int Npts;
+  vtkIdType Npts;
   vtkTimeStamp PtsTime;
 
   double *CCWHull[3];

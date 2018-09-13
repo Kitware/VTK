@@ -800,14 +800,13 @@ void vtkUniformGrid::ComputeScalarRange()
     double ptRange[2];
     double cellRange[2];
     double s;
-    int id, num;
 
-    ptRange[0] =  VTK_DOUBLE_MAX;
-    ptRange[1] =  VTK_DOUBLE_MIN;
+    ptRange[0] = VTK_DOUBLE_MAX;
+    ptRange[1] = VTK_DOUBLE_MIN;
     if ( ptScalars )
     {
-      num = this->GetNumberOfPoints();
-      for (id=0; id < num; id++)
+      vtkIdType num = this->GetNumberOfPoints();
+      for (vtkIdType id=0; id < num; ++id)
       {
         if ( this->IsPointVisible(id) )
         {
@@ -824,12 +823,12 @@ void vtkUniformGrid::ComputeScalarRange()
       }
     }
 
-    cellRange[0] =  ptRange[0];
-    cellRange[1] =  ptRange[1];
+    cellRange[0] = ptRange[0];
+    cellRange[1] = ptRange[1];
     if ( cellScalars )
     {
-      num = this->GetNumberOfCells();
-      for (id=0; id < num; id++)
+      vtkIdType num = this->GetNumberOfCells();
+      for (vtkIdType id=0; id < num; ++id)
       {
         if ( this->IsCellVisible(id) )
         {

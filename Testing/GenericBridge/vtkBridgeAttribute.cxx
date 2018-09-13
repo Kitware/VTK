@@ -329,7 +329,6 @@ void vtkBridgeAttribute::GetComponent(int i,vtkGenericCellIterator *c, double *v
   assert("pre: c_valid" && !c->IsAtEnd());
 
   int j;
-  int id;
   int size;
   vtkBridgeCellIterator *c2=static_cast<vtkBridgeCellIterator *>(c);
 
@@ -339,7 +338,7 @@ void vtkBridgeAttribute::GetComponent(int i,vtkGenericCellIterator *c, double *v
     size=c2->GetCell()->GetNumberOfPoints();
     while(j<size)
     {
-      id=static_cast<vtkBridgeCell *>(c2->GetCell())->Cell->GetPointId(j);
+      vtkIdType id=static_cast<vtkBridgeCell *>(c2->GetCell())->Cell->GetPointId(j);
       values[j]=this->Data->GetArray(this->AttributeNumber)->GetComponent(id,i);
       ++j;
     }

@@ -1302,7 +1302,7 @@ int vtkYoungsMaterialInterface::RequestData(
                 {
                   // An original point is encountered (not an edge intersection)
                   DBG_ASSERT( pointIndex>=0 && pointIndex<cell.np );
-                  int ptId = cell.pointIds[ pointIndex ];
+                  vtkIdType ptId = cell.pointIds[ pointIndex ];
                   if( ptId >= 0 )
                   {
                     // Interface from a previous iteration

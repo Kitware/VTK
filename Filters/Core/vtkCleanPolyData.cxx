@@ -162,7 +162,7 @@ int vtkCleanPolyData::RequestData(
 
   // we'll be needing these
   vtkIdType inCellID, newId;
-  int i;
+  vtkIdType i;
   vtkIdType ptId;
   vtkIdType npts = 0;
   vtkIdType *pts = nullptr;
@@ -199,7 +199,7 @@ int vtkCleanPolyData::RequestData(
   else
   {
     pointMap = new vtkIdType [numPts];
-    for (i=0; i < numPts; i++)
+    for (i=0; i < numPts; ++i)
     {
       pointMap[i] = -1; //initialize unused
     }
@@ -235,7 +235,7 @@ int vtkCleanPolyData::RequestData(
     for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts);
          inCellID++)
     {
-      for ( numNewPts=0, i=0; i < npts; i++ )
+      for ( numNewPts=0, i=0; i < npts; ++i )
       {
         inPts->GetPoint(pts[i],x);
         this->OperateOnPoint(x, newx);
@@ -537,28 +537,28 @@ int vtkCleanPolyData::RequestData(
 
   // Now transfer all CellData from Lines/Polys/Strips into final
   // Cell data output
-  int CombinedCellID = vertIDcounter;
+  vtkIdType combinedCellID = vertIDcounter;
   if (newLines)
   {
-    for (i=0; i<lineIDcounter; i++, CombinedCellID++)
+    for (i=0; i<lineIDcounter; ++i, ++combinedCellID)
     {
-      outputCD->CopyData(outLineData, i, CombinedCellID);
+      outputCD->CopyData(outLineData, i, combinedCellID);
     }
     outLineData->Delete();
   }
   if (newPolys)
   {
-    for (i=0; i<polyIDcounter; i++, CombinedCellID++)
+    for (i=0; i<polyIDcounter; ++i, ++combinedCellID)
     {
-      outputCD->CopyData(outPolyData, i, CombinedCellID);
+      outputCD->CopyData(outPolyData, i, combinedCellID);
     }
     outPolyData->Delete();
   }
   if (newStrips)
   {
-    for (i=0; i<strpIDcounter; i++, CombinedCellID++)
+    for (i=0; i<strpIDcounter; ++i, ++combinedCellID)
     {
-      outputCD->CopyData(outStrpData, i, CombinedCellID);
+      outputCD->CopyData(outStrpData, i, combinedCellID);
     }
     outStrpData->Delete();
   }

@@ -36,10 +36,12 @@ vtkPointsProjectedHull::vtkPointsProjectedHull()
 {
   this->InitFlags();
 }
+
 vtkPointsProjectedHull::~vtkPointsProjectedHull()
 {
   this->ClearAllocations();
 }
+
 void vtkPointsProjectedHull::Initialize()
 {
   this->ClearAllocations();
@@ -47,11 +49,13 @@ void vtkPointsProjectedHull::Initialize()
 
   vtkPoints::Initialize();
 }
+
 void vtkPointsProjectedHull::Update()
 {
   this->ClearAllocations();
   this->InitFlags();
 }
+
 void vtkPointsProjectedHull::InitFlags()
 {
   int i;
@@ -203,10 +207,10 @@ extern "C"
   int vtkPointsProjectedHullIncrVertAxis(const void *p1, const void *p2);
   int vtkPointsProjectedHullCCW(const void *p1, const void *p2);
 }
+
 int vtkPointsProjectedHull::GrahamScanAlgorithm(int dir)
 {
-int horizAxis = 0, vertAxis = 0;
-int i,j;
+  int horizAxis = 0, vertAxis = 0;
 
   if ((this->Npts == 0) || (this->GetMTime() > this->PtsTime))
   {
@@ -242,7 +246,7 @@ int i,j;
 
   double *hullPts = new double[this->Npts*2];
 
-  for (i=0; i<this->Npts; i++)
+  for (vtkIdType i=0; i<this->Npts; ++i)
   {
     hullPts[i*2]     = this->Pts[i*3 + horizAxis];
     hullPts[i*2 + 1] = this->Pts[i*3 + vertAxis];
@@ -252,7 +256,7 @@ int i,j;
 
   int firstId = 0;
 
-  for (i=1; i<this->Npts; i++)
+  for (vtkIdType i=1; i<this->Npts; ++i)
   {
     if (hullPts[i*2 + 1] != hullPts[1]) break;
 
@@ -275,9 +279,9 @@ int i,j;
   // If there are duplicates of the first point in the
   // projection, the vtkPointsProjectedHullCCW sort will fail.
 
-  int dups = 0;
+  vtkIdType dups = 0;
 
-  for (j=1, i=1; j < this->Npts; j++)
+  for (vtkIdType j=1, i=1; j < this->Npts; ++j)
   {
     if ( !dups && (hullPts[j*2+1] != hullPts[1])) break;
 
@@ -288,14 +292,14 @@ int i,j;
         hullPts[i*2]   = hullPts[j*2];
         hullPts[i*2+1] = hullPts[j*2+1];
       }
-      i++;
+      ++i;
     }
     else
     {
       dups++;
     }
   }
-  int nHullPts = this->Npts - dups;
+  vtkIdType nHullPts = this->Npts - dups;
 
   // I'm not sure what I'm doing here but the current code is clearly screwed
   // up and doesn't handle some degenerate cases
@@ -323,9 +327,9 @@ int i,j;
 
   int top = 1;
 
-  for (i=2; i<nHullPts; i++)
+  for (vtkIdType i=2; i<nHullPts; ++i)
   {
-    int newpos = PositionInHull(hullPts, hullPts + top*2, hullPts + i*2);
+    vtkIdType newpos = PositionInHull(hullPts, hullPts + top*2, hullPts + i*2);
 
     hullPts[newpos*2]    = hullPts[i*2];
     hullPts[newpos*2+ 1] = hullPts[i*2+ 1];
@@ -341,7 +345,7 @@ int i,j;
   double y0 = hullPts[1];
   double y1 = hullPts[1];
 
-  for (i=1; i<nHullPts; i++)
+  for (vtkIdType i=1; i<nHullPts; ++i)
   {
     if (hullPts[2*i] < x0)
     {
@@ -380,10 +384,12 @@ int i,j;
 
   return 0;
 }
+
 double vtkPointsProjectedHull::Distance(double *p1, double *p2)
 {
   return (p1[0] - p2[0])*(p1[0] - p2[0]) + (p1[1] - p2[1])*(p1[1] - p2[1]);
 }
+
 int vtkPointsProjectedHull::RemoveExtras(double *pts, int n)
 {
   int i, prev, skipMe, coord;
@@ -440,10 +446,11 @@ int vtkPointsProjectedHull::RemoveExtras(double *pts, int n)
 
   return prev+1;   // size of new list
 }
-int vtkPointsProjectedHull::PositionInHull(double *base, double *top, double *pt)
+
+vtkIdType vtkPointsProjectedHull::PositionInHull(double *base, double *top, double *pt)
 {
-double *p1, *p2;
-double where;
+  double *p1, *p2;
+  double where;
 
   p2 = top;
   p1 = p2 - 2;
@@ -476,16 +483,15 @@ double where;
 
   return ((p2 - base) / 2) + 1;
 }
+
 void vtkPointsProjectedHull::GetPoints()
 {
-  int i;
-
   delete [] this->Pts;
   this->Npts = this->Data->GetNumberOfTuples();
 
   this->Pts = new double [this->Npts*3];
 
-  for (i=0; i<this->Npts; i++)
+  for (vtkIdType i=0; i<this->Npts; ++i)
   {
     this->Pts[i*3]     = this->Data->GetComponent(i, 0);
     this->Pts[i*3 + 1] = this->Data->GetComponent(i, 1);
@@ -494,6 +500,7 @@ void vtkPointsProjectedHull::GetPoints()
 
   this->PtsTime.Modified();
 }
+
 int vtkPointsProjectedHull::
 RectangleBoundingBoxIntersection(double hmin, double hmax,
                                 double vmin, double vmax, int dim)
@@ -538,6 +545,7 @@ OutsideHorizontalLine(double vmin, double vmax,
     }
   }
 }
+
 int vtkPointsProjectedHull::
 OutsideVerticalLine(double hmin, double hmax,
                       double *p0, double *, double *insidePt)
@@ -565,6 +573,7 @@ OutsideVerticalLine(double hmin, double hmax,
     }
   }
 }
+
 int vtkPointsProjectedHull::
 OutsideLine(double hmin, double hmax, double vmin, double vmax,
             double *p0, double *p1, double *insidePt)
@@ -606,12 +615,11 @@ OutsideLine(double hmin, double hmax, double vmin, double vmax,
 
   return 1;
 }
+
 int vtkPointsProjectedHull::RectangleOutside(double hmin, double hmax,
                                   double vmin, double vmax, int dir)
 {
-  int i;
-
-  int npts = this->HullSize[dir];
+  vtkIdType npts = this->HullSize[dir];
 
   if (npts == 2)
   {
@@ -646,7 +654,7 @@ int vtkPointsProjectedHull::RectangleOutside(double hmin, double hmax,
   // polygon, determine if rectangle is entirely outside that line.
   // If so, it must be outside the polygon.
 
-  for (i=0; i < npts-1; i++)
+  for (vtkIdType i=0; i < npts-1; ++i)
   {
     if (OutsideLine(hmin,hmax,vmin,vmax,
                   this->CCWHull[dir] + 2*i,
@@ -677,6 +685,7 @@ int vtkPointsProjectedHull::RectangleOutside(double hmin, double hmax,
 
   return 0;
 }
+
 int vtkPointsProjectedHull::RectangleOutside1DPolygon(double hmin, double hmax,
                                   double vmin, double vmax, int dir)
 {

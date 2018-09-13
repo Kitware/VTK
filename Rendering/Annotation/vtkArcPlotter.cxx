@@ -85,7 +85,7 @@ int vtkArcPlotter::RequestData(
   int j;
   vtkIdType numPts, i;
   double x[3], normal[3], point[3], aveNormal[3];
-  int id;
+  vtkIdType id;
   vtkIdType *pts = nullptr;
   vtkIdType npts = 0;
   double x1[3], x2[3], x21[3], n[3];
@@ -361,7 +361,7 @@ int vtkArcPlotter::ProcessComponents(vtkIdType numPts, vtkPointData *pd)
 }
 
 
-int  vtkArcPlotter::OffsetPoint(vtkIdType ptId, vtkPoints *inPts, double n[3],
+vtkIdType vtkArcPlotter::OffsetPoint(vtkIdType ptId, vtkPoints *inPts, double n[3],
                                 vtkPoints *newPts, double offset,
                                 double *range, double v)
 {
