@@ -4732,7 +4732,7 @@ void doxygen_comment()
     }
     if (l < 256)
     {
-      linetext[l++] = c2;
+      linetext[l++] = (char)c2;
     }
     if (c2 == '\n' || (c1 == '*' && c2 == '/'))
     {
