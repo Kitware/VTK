@@ -128,7 +128,7 @@ public:
   //@}
 
   /**
-   * Set the name for a component. Must be >= 1.
+   * Set the name for a component. `component` must be >= 0.
    */
   void SetComponentName( vtkIdType component, const char *name );
 

@@ -105,6 +105,11 @@ int vtkSplitColumnComponents::RequestData(
         vtkAbstractArray* newCol = vtkAbstractArray::CreateArray(col->GetDataType());
         newCol->SetName(component_label.c_str());
         newCol->SetNumberOfTuples(colSize);
+        // pass component name overrides, if provided.
+        if (col->HasAComponentName())
+        {
+          newCol->SetComponentName(0, col->GetComponentName(j));
+        }
         // Now copy the components into their new columns
         switch(col->GetDataType())
         {
@@ -113,7 +118,6 @@ int vtkSplitColumnComponents::RequestData(
                             static_cast<VTK_TT*>(newCol->GetVoidPointer(0)),
                             components, j, colSize));
         }
-
         output->AddColumn(newCol);
         newCol->Delete();
       }

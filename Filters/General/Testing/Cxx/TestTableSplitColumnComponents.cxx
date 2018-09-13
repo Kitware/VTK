@@ -13,23 +13,32 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
-#include "vtkTable.h"
 #include "vtkIntArray.h"
+#include "vtkNew.h"
+#include "vtkSmartPointer.h"
 #include "vtkSplitColumnComponents.h"
+#include "vtkTable.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define GET_ARRAYS(arrays, out)                                                                    \
+  for (int cc = 0; cc < 9; ++cc)                                                                   \
+  {                                                                                                \
+    arrays[cc] = vtkArrayDownCast<vtkIntArray>(out->GetColumn(cc));                                \
+    if (arrays[cc] == nullptr)                                                                     \
+    {                                                                                              \
+      vtkGenericWarningMacro(<< cc << ": one of the output arrays was zero - type change?");       \
+      return EXIT_FAILURE;                                                                         \
+    }                                                                                              \
+  }
 
 int TestTableSplitColumnComponents(int, char*[])
 {
   // Create a single column array, and a three component array
-  VTK_CREATE(vtkIntArray, single);
+  vtkNew<vtkIntArray> single;
   single->SetNumberOfComponents(1);
   single->SetNumberOfTuples(5);
   single->SetName("Single");
 
-  VTK_CREATE(vtkIntArray, multi);
+  vtkNew<vtkIntArray> multi;
   multi->SetNumberOfComponents(3);
   multi->SetNumberOfTuples(5);
   multi->SetName("Multi");
@@ -41,32 +50,32 @@ int TestTableSplitColumnComponents(int, char*[])
     multi->InsertTypedTuple(i, ints);
   }
 
-  VTK_CREATE(vtkTable, table);
+  vtkNew<vtkIntArray> multinamed;
+  multinamed->DeepCopy(multi);
+  multinamed->SetName("Multinamed");
+  multinamed->SetComponentName(0, "zero");
+  multinamed->SetComponentName(1, "one");
+  multinamed->SetComponentName(2, "two");
+
+  vtkNew<vtkTable> table;
   table->AddColumn(single);
   table->AddColumn(multi);
+  table->AddColumn(multinamed);
 
   // Merge the two tables
-  VTK_CREATE(vtkSplitColumnComponents, split);
+  vtkNew<vtkSplitColumnComponents> split;
   split->SetInputData(table);
   split->Update();
 
   vtkTable* out = split->GetOutput(0);
-  if (out->GetNumberOfColumns() != 5)
+  if (out->GetNumberOfColumns() != 9) // 1 + (1+3) + (1+3)
   {
     vtkGenericWarningMacro(<< "Incorrect column count: "
                            << out->GetNumberOfColumns());
     return EXIT_FAILURE;
   }
-  vtkIntArray* arrays[4];
-  arrays[0] = vtkArrayDownCast<vtkIntArray>(out->GetColumn(0));
-  arrays[1] = vtkArrayDownCast<vtkIntArray>(out->GetColumn(1));
-  arrays[2] = vtkArrayDownCast<vtkIntArray>(out->GetColumn(2));
-  arrays[3] = vtkArrayDownCast<vtkIntArray>(out->GetColumn(3));
-  if (arrays[0] == nullptr || arrays[1] == nullptr || arrays[2] == nullptr || arrays[3] == nullptr)
-  {
-    vtkGenericWarningMacro(<< "One of the output arrays was zero - type change?");
-    return EXIT_FAILURE;
-  }
+  vtkIntArray* arrays[9];
+  GET_ARRAYS(arrays, out);
 
   for (int i = 0; i < 5; ++i)
   {
@@ -90,8 +99,13 @@ int TestTableSplitColumnComponents(int, char*[])
   split->SetNamingModeToNumberWithUnderscores();
   split->Update();
   out = split->GetOutput(0);
-  arrays[1] = vtkArrayDownCast<vtkIntArray>(out->GetColumn(1));
+  GET_ARRAYS(arrays, out);
   if (strcmp(arrays[1]->GetName(), "Multi_0") != 0)
+  {
+    vtkGenericWarningMacro("Incorrect name. NamingMode not being respected correctly.");
+    return EXIT_FAILURE;
+  }
+  if (strcmp(arrays[5]->GetName(), "Multinamed_0") != 0)
   {
     vtkGenericWarningMacro("Incorrect name. NamingMode not being respected correctly.");
     return EXIT_FAILURE;
@@ -100,8 +114,13 @@ int TestTableSplitColumnComponents(int, char*[])
   split->SetNamingModeToNamesWithParens();
   split->Update();
   out = split->GetOutput(0);
-  arrays[1] = vtkArrayDownCast<vtkIntArray>(out->GetColumn(1));
+  GET_ARRAYS(arrays, out);
   if (strcmp(arrays[1]->GetName(), "Multi (X)") != 0)
+  {
+    vtkGenericWarningMacro("Incorrect name. NamingMode not being respected correctly.");
+    return EXIT_FAILURE;
+  }
+  if (strcmp(arrays[5]->GetName(), "Multinamed (zero)") != 0)
   {
     vtkGenericWarningMacro("Incorrect name. NamingMode not being respected correctly.");
     return EXIT_FAILURE;
@@ -110,8 +129,13 @@ int TestTableSplitColumnComponents(int, char*[])
   split->SetNamingModeToNamesWithUnderscores();
   split->Update();
   out = split->GetOutput(0);
-  arrays[1] = vtkArrayDownCast<vtkIntArray>(out->GetColumn(1));
+  GET_ARRAYS(arrays, out);
   if (strcmp(arrays[1]->GetName(), "Multi_X") != 0)
+  {
+    vtkGenericWarningMacro("Incorrect name. NamingMode not being respected correctly.");
+    return EXIT_FAILURE;
+  }
+  if (strcmp(arrays[5]->GetName(), "Multinamed_zero") != 0)
   {
     vtkGenericWarningMacro("Incorrect name. NamingMode not being respected correctly.");
     return EXIT_FAILURE;
