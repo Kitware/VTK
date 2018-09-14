@@ -502,7 +502,7 @@ int vtkLagrangeTetra::EvaluatePosition(const double x[3], double closestPoint[3]
                                        int& subId, double pcoords[3],
                                        double& minDist2, double weights[])
 {
-  double pc[3], dist2, tempWeights[3], closest[3];
+  double pc[3], dist2, tempWeights[4], closest[3];
   double pcoordsMin[3] = {0., 0., 0.};
   int returnStatus=0, status, ignoreId;
   vtkIdType minBIndices[4][4], bindices[4][4], pointIndices[4];
