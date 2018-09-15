@@ -310,7 +310,7 @@ void AdjustWindowRectForBorders(HWND hwnd, DWORD style, const int x, const int y
 // ----------------------------------------------------------------------------
 void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
 {
-  static int resizing = 0;
+  static bool resizing = false;
   if ((this->Size[0] != x) || (this->Size[1] != y))
   {
     this->Superclass::SetSize(x, y);
@@ -326,10 +326,10 @@ void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
       {
         if (!resizing)
         {
-          resizing = 1;
+          resizing = true;
           this->CleanUpOffScreenRendering();
           this->CreateOffScreenWindow(x,y);
-          resizing = 0;
+          resizing = false;
         }
       }
     }
@@ -338,7 +338,7 @@ void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
     {
       if (!resizing)
       {
-        resizing = 1;
+        resizing = true;
 
         if (this->ParentId)
         {
@@ -356,7 +356,7 @@ void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
                        r.bottom - r.top,
                        SWP_NOMOVE | SWP_NOZORDER);
         }
-        resizing = 0;
+        resizing = false;
       }
     }
   }
@@ -364,7 +364,7 @@ void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
 
 void vtkWin32OpenGLRenderWindow::SetPosition(int x, int y)
 {
-  static int resizing = 0;
+  static bool resizing = false;
 
   if ((this->Position[0] != x) || (this->Position[1] != y))
   {
@@ -375,11 +375,11 @@ void vtkWin32OpenGLRenderWindow::SetPosition(int x, int y)
     {
       if (!resizing)
       {
-        resizing = 1;
+        resizing = true;
 
         SetWindowPos(this->WindowId,HWND_TOP,x,y,
                      0, 0, SWP_NOSIZE | SWP_NOZORDER);
-        resizing = 0;
+        resizing = false;
       }
     }
   }

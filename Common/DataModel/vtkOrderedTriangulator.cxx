@@ -747,7 +747,7 @@ inline static int IsAPoint(OTTetra *t, vtkIdType id)
 // Given two tetra face neighbors, assign the neighbor pointers to each tetra.
 static void AssignNeighbors(OTTetra* t1, OTTetra* t2)
 {
-  static int CASE_MASK[4] = {1,2,4,8};
+  static const int CASE_MASK[4] = {1,2,4,8};
   int i, index;
 
   for (i=0, index=0; i<4; ++i)

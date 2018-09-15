@@ -876,7 +876,7 @@ void vtkRectilinearGrid::SetDimensions(int i, int j, int k)
 
 //----------------------------------------------------------------------------
 // Set dimensions of rectilinear grid dataset.
-void vtkRectilinearGrid::SetDimensions(int dim[3])
+void vtkRectilinearGrid::SetDimensions(const int dim[3])
 {
   this->SetExtent(0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1);
 }

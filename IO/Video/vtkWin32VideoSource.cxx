@@ -1117,8 +1117,8 @@ void vtkWin32VideoSource::DoVFWFormatCheck()
 //----------------------------------------------------------------------------
 void vtkWin32VideoSource::DoVFWFormatSetup()
 {
-  static int colorBits[3] = { 24, 32, 16 };
-  static int greyBits[3] = { 8, 4, 1 };
+  static const int colorBits[3] = { 24, 32, 16 };
+  static const int greyBits[3] = { 8, 4, 1 };
   int i, bytesPerRow, bitCount;
 
   // get the real video format

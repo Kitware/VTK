@@ -375,7 +375,7 @@ void vtkSignedDistance::SetDimensions(int i, int j, int k)
 }
 
 //----------------------------------------------------------------------------
-void vtkSignedDistance::SetDimensions(int dim[3])
+void vtkSignedDistance::SetDimensions(const int dim[3])
 {
   int dataDim, i;
 

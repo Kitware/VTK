@@ -110,7 +110,7 @@ void vtkContourImage(T *scalars, vtkDataArray *newScalars, int roi[6], int dir[3
   double t, *x1, *x2, x[3], xp, yp;
   double pts[4][3], min, max;
   int contNum, jOffset, idx, ii, jj, index, *vert;
-  static int CASE_MASK[4] = {1,2,8,4};
+  static const int CASE_MASK[4] = {1,2,8,4};
   vtkMarchingSquaresLineCases *lineCase, *lineCases;
   static int edges[4][2] = { {0,1}, {1,3}, {2,3}, {0,2} };
   EDGE_LIST  *edge;

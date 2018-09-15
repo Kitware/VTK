@@ -343,10 +343,7 @@ namespace {
 #define VTK_RESIZE_CONVERT_INT_CLAMP(T, minval, maxval) \
 void vtkImageResizeConvert(double v, T &u) \
 { \
-  static double vmin = minval; \
-  static double vmax = maxval; \
-  v = (v > vmin ? v : vmin); \
-  v = (v < vmax ? v : vmax); \
+  v = vtkMath::ClampValue(v, minval, maxval); \
   u = vtkInterpolationMath::Round(v); \
 }
 

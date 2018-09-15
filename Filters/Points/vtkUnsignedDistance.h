@@ -92,7 +92,7 @@ public:
    */
   vtkGetVectorMacro(Dimensions,int,3);
   void SetDimensions(int i, int j, int k);
-  void SetDimensions(int dim[3]);
+  void SetDimensions(const int dim[3]);
   //@}
 
   //@{

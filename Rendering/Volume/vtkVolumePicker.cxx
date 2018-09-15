@@ -326,7 +326,7 @@ int vtkVolumePicker::ClipLineWithCroppingRegion(
         // Need to know if the ray is entering the volume, i.e. whether
         // the adjacent block that the ray is coming from is "off", because
         // we can't define a clip plane unless it is off.
-        static int blockInc[3] = {1, 3, 9};
+        static const int blockInc[3] = {1, 3, 9};
         int noPlane = 1;
 
         if (xi[k] == 1)

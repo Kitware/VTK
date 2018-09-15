@@ -57,10 +57,7 @@ bool vtkImageInterpolator::IsSeparable()
 //----------------------------------------------------------------------------
 void vtkImageInterpolator::SetInterpolationMode(int mode)
 {
-  static int minmode = VTK_NEAREST_INTERPOLATION;
-  static int maxmode = VTK_CUBIC_INTERPOLATION;
-  mode = ((mode > minmode) ? mode : minmode);
-  mode = ((mode < maxmode) ? mode : maxmode);
+  mode = vtkMath::ClampValue(mode, VTK_NEAREST_INTERPOLATION, VTK_CUBIC_INTERPOLATION);
   if (this->InterpolationMode != mode)
   {
     this->InterpolationMode = mode;

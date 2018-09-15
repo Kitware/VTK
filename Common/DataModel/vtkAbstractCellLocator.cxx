@@ -184,12 +184,12 @@ vtkIdType vtkAbstractCellLocator::FindCell(
   vtkIdType returnVal=-1;
   int       subId;
   //
-  static int warning_shown = 0;
+  static bool warning_shown = false;
   if (!warning_shown)
   {
     vtkWarningMacro(<<this->GetClassName() << " Does not implement FindCell"
       << " Reverting to slow DataSet implementation");
-    warning_shown = 1;
+    warning_shown = true;
   }
   //
   if (this->DataSet)

@@ -450,7 +450,7 @@ void vtkUnsignedDistance::SetDimensions(int i, int j, int k)
 }
 
 //----------------------------------------------------------------------------
-void vtkUnsignedDistance::SetDimensions(int dim[3])
+void vtkUnsignedDistance::SetDimensions(const int dim[3])
 {
   int dataDim, i;
 

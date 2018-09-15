@@ -224,7 +224,7 @@ void vtkPixel::Contour(double value, vtkDataArray *cellScalars,
                        vtkPointData *inPd, vtkPointData *outPd,
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
 {
-  static int CASE_MASK[4] = {1,2,8,4}; //note differenceom quad!
+  static const int CASE_MASK[4] = {1,2,8,4}; //note differenceom quad!
   vtkMarchingSquaresLineCases *lineCase;
   EDGE_LIST  *edge;
   int i, j, index, *vert;
@@ -553,7 +553,7 @@ void vtkPixel::Clip(double value, vtkDataArray *cellScalars,
                    vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
                    int insideOut)
 {
-  static int CASE_MASK[4] = {1,2,8,4}; //note difference from quad!
+  static const int CASE_MASK[4] = {1,2,8,4}; //note difference from quad!
   PIXEL_CASES *pixelCase;
   PIXEL_EDGE_LIST  *edge;
   int i, j, index, *vert;

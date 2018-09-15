@@ -558,7 +558,7 @@ int vtkDelaunay3D::RequestData(
     int hasNei, j, k;
     double x1[3], x2[3], x3[3];
     vtkDelaunayTetra *tetra;
-    static int edge[6][2] = {{0,1},{1,2},{2,0},{0,3},{1,3},{2,3}};
+    static const int edge[6][2] = {{0,1},{1,2},{2,0},{0,3},{1,3},{2,3}};
 
     edges = vtkEdgeTable::New();
     edges->InitEdgeInsertion(numPoints+6);

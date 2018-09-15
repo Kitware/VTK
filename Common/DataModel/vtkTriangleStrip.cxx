@@ -96,7 +96,7 @@ void vtkTriangleStrip::EvaluateLocation(int& subId, const double pcoords[3],
                                         double x[3], double *weights)
 {
   int i;
-  static int idx[2][3]={{0,1,2},{1,0,2}};
+  static const int idx[2][3]={{0,1,2},{1,0,2}};
   int order = subId % 2;
 
   double pt1[3], pt2[3], pt3[3];
@@ -118,7 +118,7 @@ void vtkTriangleStrip::EvaluateLocation(int& subId, const double pcoords[3],
 //----------------------------------------------------------------------------
 int vtkTriangleStrip::CellBoundary(int subId, const double pcoords[3], vtkIdList *pts)
 {
-  static int idx[2][3]={{0,1,2},{1,0,2}};
+  static const int idx[2][3]={{0,1,2},{1,0,2}};
   int order;
 
   order = subId % 2;
@@ -226,7 +226,7 @@ int vtkTriangleStrip::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 {
   int numTris = this->Points->GetNumberOfPoints()-2;
   int i, order;
-  static int idx[2][3]={{0,1,2},{1,0,2}};
+  static const int idx[2][3]={{0,1,2},{1,0,2}};
 
   pts->Reset();
   ptIds->Reset();

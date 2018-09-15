@@ -75,11 +75,11 @@ void addViews (vtkRenderWindow* renWin, int typeIndex)
     arr->SetNumberOfTuples(6400);
 
     // luminance conversion factors
-    static float a = 0.30;
-    static float b = 0.59;
-    static float c = 0.11;
-    static float d = 0.50;
-    static int f = 85;
+    static const float a = 0.30;
+    static const float b = 0.59;
+    static const float c = 0.11;
+    static const float d = 0.50;
+    static const int f = 85;
 
     BaseT cval[4];
     vtkIdType i = 0;

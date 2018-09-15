@@ -164,7 +164,7 @@ void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims
   double s[8], value;
   int i, j, k;
   vtkIdType sliceSize;
-  static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
+  static const int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
   vtkMarchingCubesTriangleCases *triCase, *triCases;
   EDGE_LIST  *edge;
   int contNum, jOffset, ii, index, *vert;

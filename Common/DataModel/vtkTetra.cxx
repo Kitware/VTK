@@ -257,7 +257,7 @@ void vtkTetra::Contour(double value, vtkDataArray *cellScalars,
                        vtkPointData *inPd, vtkPointData *outPd,
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
 {
-  static int CASE_MASK[4] = {1,2,4,8};
+  static const int CASE_MASK[4] = {1,2,4,8};
   TRIANGLE_CASES *triCase;
   EDGE_LIST  *edge;
   int i, j, index, *vert, v1, v2, newCellId;
@@ -830,7 +830,7 @@ void vtkTetra::Clip(double value, vtkDataArray *cellScalars,
                     vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD,
                     int insideOut)
 {
-  static int CASE_MASK[4] = {1,2,4,8};
+  static const int CASE_MASK[4] = {1,2,4,8};
   TETRA_CASES *tetraCase;
   TETRA_EDGE_LIST  *edge;
   int i, j, index, *vert, newCellId;

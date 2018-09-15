@@ -317,8 +317,8 @@ void vtkStructuredData::GetPointCells(vtkIdType ptId, vtkIdList *cellIds,
   int ptLoc[3], cellLoc[3];
   int i, j;
   vtkIdType cellId;
-  static int offset[8][3] = {{-1,0,0}, {-1,-1,0}, {-1,-1,-1}, {-1,0,-1},
-                             {0,0,0},  {0,-1,0},  {0,-1,-1},  {0,0,-1}};
+  static const int offset[8][3] = {{-1,0,0}, {-1,-1,0}, {-1,-1,-1}, {-1,0,-1},
+                                   {0,0,0},  {0,-1,0},  {0,-1,-1},  {0,0,-1}};
 
   for (i=0; i<3; i++)
   {
