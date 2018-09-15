@@ -475,18 +475,33 @@ int TestNearestPowerOfTwo()
 
   std::vector<vtkTypeUInt64> values;
   std::vector<int> expecteds;
-  int largestPower = std::numeric_limits<int>::digits;
+
+  values.push_back(0);
+  expecteds.push_back(1);
+
+  int numDigits = std::numeric_limits<int>::digits;
   vtkTypeUInt64 shifted = 1;
-  for ( int p = 1; p < largestPower; ++p)
+  for ( int p = 0; p < numDigits; ++p)
   {
-    shifted *= 2;
-    values.push_back(shifted); expecteds.push_back(shifted);
-    values.push_back(shifted + 1); expecteds.push_back(shifted * 2);
-    if (shifted !=2 )
+    values.push_back(shifted);
+    expecteds.push_back(shifted);
+    if (shifted <= INT_MAX/2 )
     {
-      values.push_back(shifted - 1); expecteds.push_back(shifted);
+      values.push_back(shifted + 1);
+      expecteds.push_back(shifted * 2);
     }
+    if (shifted != 2 )
+    {
+      values.push_back(shifted - 1);
+      expecteds.push_back(shifted);
+    }
+
+    shifted *= 2;
   }
+
+  values.push_back(INT_MAX);
+  expecteds.push_back(INT_MIN);
+
   for ( size_t i = 0; i < values.size(); ++i)
   {
     int result = vtkMath::NearestPowerOfTwo(values[i]);
