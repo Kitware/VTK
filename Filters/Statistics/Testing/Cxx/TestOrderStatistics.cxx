@@ -220,7 +220,7 @@ int TestOrderStatistics( int, char *[] )
       std::map<int,int> histoQuantiles;
       for ( vtkIdType r = 0; r < dataQuantArr->GetNumberOfTuples(); ++ r )
       {
-        int qIdx = static_cast<int>( vtkMath::Round( dataQuantArr->GetTuple1( r ) ) );
+        long qIdx = std::lround( dataQuantArr->GetTuple1( r ) );
         ++ histoQuantiles[qIdx];
       }
 

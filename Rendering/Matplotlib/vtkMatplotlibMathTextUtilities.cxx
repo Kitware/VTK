@@ -599,14 +599,14 @@ bool vtkMatplotlibMathTextUtilities::GetMetrics(
   metrics.BoundingBox[2] = vtkMath::Floor(bboxd[2]);
   metrics.BoundingBox[3] = vtkMath::Ceil(bboxd[3]);
 
-  metrics.TopLeft[0]     = vtkMath::Round(corners[0][0]);
-  metrics.TopLeft[1]     = vtkMath::Round(corners[0][1]);
-  metrics.TopRight[0]    = vtkMath::Round(corners[1][0]);
-  metrics.TopRight[1]    = vtkMath::Round(corners[1][1]);
-  metrics.BottomLeft[0]  = vtkMath::Round(corners[2][0]);
-  metrics.BottomLeft[1]  = vtkMath::Round(corners[2][1]);
-  metrics.BottomRight[0] = vtkMath::Round(corners[3][0]);
-  metrics.BottomRight[1] = vtkMath::Round(corners[3][1]);
+  metrics.TopLeft[0]     = static_cast<int>(std::round(corners[0][0]));
+  metrics.TopLeft[1]     = static_cast<int>(std::round(corners[0][1]));
+  metrics.TopRight[0]    = static_cast<int>(std::round(corners[1][0]));
+  metrics.TopRight[1]    = static_cast<int>(std::round(corners[1][1]));
+  metrics.BottomLeft[0]  = static_cast<int>(std::round(corners[2][0]));
+  metrics.BottomLeft[1]  = static_cast<int>(std::round(corners[2][1]));
+  metrics.BottomRight[0] = static_cast<int>(std::round(corners[3][0]));
+  metrics.BottomRight[1] = static_cast<int>(std::round(corners[3][1]));
 
   return true;
 }

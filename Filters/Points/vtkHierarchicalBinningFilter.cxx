@@ -772,7 +772,7 @@ int vtkHierarchicalBinningFilter::RequestData(
     {
       if ( i != min )
       {
-        divs[i]  = vtkMath::Round( divs[min]*h[i]/h[min] ) ;
+        divs[i] = static_cast<int>(std::round( divs[min]*h[i]/h[min] ));
         divs[i] = ( divs[i] <= 0 ? 1 : divs[i] );
       }
     }

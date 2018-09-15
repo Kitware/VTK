@@ -44,7 +44,8 @@ vtkAMRBox::vtkAMRBox(const double* origin, const int* dimensions, const double* 
   int lo[3], hi[3];
   for( int d=0; d<3; ++d )
   {
-    lo[d] = spacing[d]>0? vtkMath::Round( (origin[d] - globalOrigin[d])/spacing[d] ): 0;
+    lo[d] = spacing[d]>0.0 ?
+        static_cast<int>(std::round( (origin[d] - globalOrigin[d])/spacing[d] )) : 0;
     hi[d] = lo[d] + ndim[d]-1;
   }
 

@@ -112,9 +112,9 @@ public:
   /**
    * Rounds a float to the nearest integer.
    */
-  static int Round(float f) {
+  VTK_LEGACY(static int Round(float f)) {
     return static_cast<int>( f + ( f >= 0.0 ? 0.5 : -0.5 ) ); }
-  static int Round(double f) {
+  VTK_LEGACY(static int Round(double f)) {
     return static_cast<int>( f + ( f >= 0.0 ? 0.5 : -0.5 ) ); }
 
   /**

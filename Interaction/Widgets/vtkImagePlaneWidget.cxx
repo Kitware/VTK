@@ -2020,15 +2020,15 @@ int vtkImagePlaneWidget::GetSliceIndex()
 
   if ( this->PlaneOrientation == 2 )
   {
-    return vtkMath::Round((planeOrigin[2]-origin[2])/spacing[2]);
+    return static_cast<int>(std::round((planeOrigin[2]-origin[2])/spacing[2]));
   }
   else if ( this->PlaneOrientation == 1 )
   {
-    return vtkMath::Round((planeOrigin[1]-origin[1])/spacing[1]);
+    return static_cast<int>(std::round((planeOrigin[1]-origin[1])/spacing[1]));
   }
   else if ( this->PlaneOrientation == 0 )
   {
-    return vtkMath::Round((planeOrigin[0]-origin[0])/spacing[0]);
+    return static_cast<int>(std::round((planeOrigin[0]-origin[0])/spacing[0]));
   }
   else
   {
@@ -2273,7 +2273,7 @@ int vtkImagePlaneWidget::UpdateDiscreteCursor(double *q)
   for (int i = 0; i < 3; i++)
   {
   // compute world to image coords
-    iqtemp = vtkMath::Round((closestPt[i]-origin[i])/spacing[i]);
+    iqtemp = static_cast<int>(std::round((closestPt[i]-origin[i])/spacing[i]));
 
   // we have a valid pick already, just enforce bounds check
     iq[i] = (iqtemp < extent[2*i])?extent[2*i]:((iqtemp > extent[2*i+1])?extent[2*i+1]:iqtemp);

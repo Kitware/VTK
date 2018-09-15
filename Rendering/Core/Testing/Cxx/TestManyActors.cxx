@@ -51,18 +51,16 @@ int TestManyActors(int argc, char* argv[])
   source->Update();
   vtkSmartPointer<vtkRenderer> ren =
     vtkSmartPointer<vtkRenderer>::New();
-  int side1 = static_cast<int>(
-    vtkMath::Round(pow(static_cast<double>(numActors), 1.0/3.0)));
-  int side2 = static_cast<int>(
-    vtkMath::Round(sqrt(numActors/static_cast<double>(side1))));
-  int side3 = static_cast<int>(
+  long side1 = std::lround(pow(static_cast<double>(numActors), 1.0/3.0));
+  long side2 = std::lround(sqrt(numActors/static_cast<double>(side1)));
+  long side3 = static_cast<long>(
     ceil(static_cast<double>(numActors)/side1/side2));
   int actorId = 0;
-  for (int i = 0; i < side1; ++i)
+  for (long i = 0; i < side1; ++i)
   {
-    for (int j = 0; j < side2; ++j)
+    for (long j = 0; j < side2; ++j)
     {
-      for (int k = 0; k < side3; ++k)
+      for (long k = 0; k < side3; ++k)
       {
         vtkSmartPointer<vtkPolyDataMapper> mapper =
           vtkSmartPointer<vtkPolyDataMapper>::New();

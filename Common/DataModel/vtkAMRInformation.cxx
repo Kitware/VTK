@@ -464,7 +464,7 @@ void vtkAMRInformation::GenerateRefinementRatio()
       case VTK_YZ_PLANE: nonEmptyDimension = 1;break;
       case VTK_XZ_PLANE: nonEmptyDimension = 2;break;
     }
-    int ratio = vtkMath::Round(currentSpacing[nonEmptyDimension]/childSpacing[nonEmptyDimension]);
+    int ratio = static_cast<int>(std::round(currentSpacing[nonEmptyDimension]/childSpacing[nonEmptyDimension]));
 
     // Set the ratio at the last level, i.e., level numLevels-1, to be the
     // same as the ratio at the previous level,since the highest level
@@ -677,7 +677,7 @@ void vtkAMRInformation::CalculateParentChildRelationShip(
   unsigned int binsize[3];
   for (int i=0; i<3; i++)
   {
-    binsize[i] = vtkMath::Round(totalsize[i] / numParentDataSets);
+    binsize[i] = static_cast<int>(std::round(totalsize[i] / numParentDataSets));
     nbins[i] = (extents[2*i+1] - extents[2*i]) / binsize[i] + 1;
   }
 
