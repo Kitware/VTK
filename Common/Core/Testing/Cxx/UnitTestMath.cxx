@@ -24,7 +24,9 @@
 
 static int TestPi();
 static int TestDegreesFromRadians();
+#ifndef VTK_LEGACY_REMOVE
 static int TestRound();
+#endif
 static int TestFloor();
 static int TestCeil();
 static int TestCeilLog2();
@@ -95,7 +97,9 @@ int UnitTestMath(int,char *[])
   status += TestPi();
 
   status += TestDegreesFromRadians();
+#ifndef VTK_LEGACY_REMOVE
   status += TestRound();
+#endif
   status += TestFloor();
   status += TestCeil();
   status += TestCeilLog2();
