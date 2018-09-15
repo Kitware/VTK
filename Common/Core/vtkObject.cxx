@@ -106,8 +106,8 @@ public:
   int InvokeEvent(unsigned long event, void *callData, vtkObject *self);
   vtkCommand *GetCommand(unsigned long tag);
   unsigned long GetTag(vtkCommand*);
-  int HasObserver(unsigned long event);
-  int HasObserver(unsigned long event, vtkCommand *cmd);
+  vtkTypeBool HasObserver(unsigned long event);
+  vtkTypeBool HasObserver(unsigned long event, vtkCommand *cmd);
   void GrabFocus(vtkCommand *c1, vtkCommand *c2) {this->Focus1 = c1; this->Focus2 = c2;}
   void ReleaseFocus() {this->Focus1 = nullptr; this->Focus2 = nullptr;}
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -426,7 +426,7 @@ void vtkSubjectHelper::RemoveAllObservers()
 }
 
 //----------------------------------------------------------------------------
-int vtkSubjectHelper::HasObserver(unsigned long event)
+vtkTypeBool vtkSubjectHelper::HasObserver(unsigned long event)
 {
   vtkObserver *elem = this->Start;
   while (elem)
@@ -441,7 +441,7 @@ int vtkSubjectHelper::HasObserver(unsigned long event)
 }
 
 //----------------------------------------------------------------------------
-int vtkSubjectHelper::HasObserver(unsigned long event, vtkCommand *cmd)
+vtkTypeBool vtkSubjectHelper::HasObserver(unsigned long event, vtkCommand *cmd)
 {
   vtkObserver *elem = this->Start;
   while (elem)
@@ -794,7 +794,7 @@ int vtkObject::InvokeEvent(const char *event, void *callData)
 }
 
 //----------------------------------------------------------------------------
-int vtkObject::HasObserver(unsigned long event)
+vtkTypeBool vtkObject::HasObserver(unsigned long event)
 {
   if (this->SubjectHelper)
   {
@@ -804,13 +804,13 @@ int vtkObject::HasObserver(unsigned long event)
 }
 
 //----------------------------------------------------------------------------
-int vtkObject::HasObserver(const char *event)
+vtkTypeBool vtkObject::HasObserver(const char *event)
 {
   return this->HasObserver(vtkCommand::GetEventIdFromString(event));
 }
 
 //----------------------------------------------------------------------------
-int vtkObject::HasObserver(unsigned long event, vtkCommand *cmd)
+vtkTypeBool vtkObject::HasObserver(unsigned long event, vtkCommand *cmd)
 {
   if (this->SubjectHelper)
   {
@@ -820,7 +820,7 @@ int vtkObject::HasObserver(unsigned long event, vtkCommand *cmd)
 }
 
 //----------------------------------------------------------------------------
-int vtkObject::HasObserver(const char *event, vtkCommand *cmd)
+vtkTypeBool vtkObject::HasObserver(const char *event, vtkCommand *cmd)
 {
   return this->HasObserver(vtkCommand::GetEventIdFromString(event), cmd);
 }
