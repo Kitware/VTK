@@ -14,9 +14,18 @@
 =========================================================================*/
 #include "vtkNew.h"
 
+#ifdef _MSC_VER
+#  pragma push_macro("__TBB_NO_IMPLICIT_LINKAGE")
+#  define __TBB_NO_IMPLICIT_LINKAGE 1
+#endif
+
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_for.h>
 #include <tbb/parallel_sort.h>
+
+#ifdef _MSC_VER
+#  pragma pop_macro("__TBB_NO_IMPLICIT_LINKAGE")
+#endif
 
 namespace vtk
 {
