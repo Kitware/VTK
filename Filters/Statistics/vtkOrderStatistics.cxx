@@ -34,6 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVariantArray.h"
 
 #include <cstdlib>
+#include <cmath>
 #include <vector>
 #include <map>
 #include <set>
