@@ -682,7 +682,7 @@ int vtkConstrainedPointHandleRepresentation::RenderTranslucentPolygonalGeometry(
 }
 
 //-----------------------------------------------------------------------------
-int vtkConstrainedPointHandleRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkConstrainedPointHandleRepresentation::HasTranslucentPolygonalGeometry()
 {
   return this->Actor->HasTranslucentPolygonalGeometry();
 }

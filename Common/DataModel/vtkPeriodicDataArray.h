@@ -148,12 +148,12 @@ public:
   /**
    * Read only container, not supported.
    */
-  int Allocate(vtkIdType sz, vtkIdType ext) override;
+  vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext) override;
 
   /**
    * Read only container, not supported.
    */
-  int Resize(vtkIdType numTuples) override;
+  vtkTypeBool Resize(vtkIdType numTuples) override;
 
   /**
    * Read only container, not supported.

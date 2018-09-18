@@ -586,7 +586,7 @@ int vtkKdNode::IntersectsBox(double x0, double x1, double y0, double y1,
 int vtkKdNode::IntersectsSphere2(double x, double y, double z, double rSquared,
                                 int useDataBounds=0)
 {
-  int center = this->ContainsPoint(x, y, z, useDataBounds);
+  vtkTypeBool center = this->ContainsPoint(x, y, z, useDataBounds);
 
   if (center)
   {
@@ -636,7 +636,7 @@ int vtkKdNode::ContainsBox(double x0, double x1, double y0, double y1,
 }
 
 // ----------------------------------------------------------------------------
-int vtkKdNode::ContainsPoint(double x, double y, double z, int useDataBounds=0)
+vtkTypeBool vtkKdNode::ContainsPoint(double x, double y, double z, int useDataBounds=0)
 {
   double *min, *max;
 

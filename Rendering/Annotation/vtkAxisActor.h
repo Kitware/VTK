@@ -474,7 +474,7 @@ public:
   virtual int RenderTranslucentGeometry(vtkViewport* viewport);
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   int RenderOverlay(vtkViewport* viewport) override;
-  int HasTranslucentPolygonalGeometry() override;
+  vtkTypeBool HasTranslucentPolygonalGeometry() override;
   //@}
 
   /**

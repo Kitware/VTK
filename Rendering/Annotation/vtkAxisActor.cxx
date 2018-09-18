@@ -790,7 +790,7 @@ int vtkAxisActor::RenderOverlay(vtkViewport* viewport)
 }
 
 //-----------------------------------------------------------------------------*
-int vtkAxisActor::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkAxisActor::HasTranslucentPolygonalGeometry()
 {
   if (this->Visibility && !this->AxisHasZeroLength)
   {

@@ -251,13 +251,13 @@ void vtkImageViewer::Render()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageViewer::SetOffScreenRendering(int i)
+void vtkImageViewer::SetOffScreenRendering(vtkTypeBool i)
 {
   this->RenderWindow->SetOffScreenRendering(i);
 }
 
 //----------------------------------------------------------------------------
-int vtkImageViewer::GetOffScreenRendering()
+vtkTypeBool vtkImageViewer::GetOffScreenRendering()
 {
   return this->RenderWindow->GetOffScreenRendering();
 }

@@ -287,7 +287,7 @@ public:
    * polygonal geometry will return true.
    * Default implementation return false.
    */
-  virtual int HasTranslucentPolygonalGeometry()
+  virtual vtkTypeBool HasTranslucentPolygonalGeometry()
     { return 0; }
 
   /**

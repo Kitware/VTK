@@ -300,7 +300,7 @@ int vtkAnnotatedCubeActor::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkAnnotatedCubeActor::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkAnnotatedCubeActor::HasTranslucentPolygonalGeometry()
 {
   this->UpdateProps();
 

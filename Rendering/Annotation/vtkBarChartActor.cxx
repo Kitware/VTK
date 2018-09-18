@@ -270,7 +270,7 @@ int vtkBarChartActor::RenderOpaqueGeometry(vtkViewport *viewport)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkBarChartActor::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkBarChartActor::HasTranslucentPolygonalGeometry()
 {
   return 0;
 }

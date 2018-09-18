@@ -75,8 +75,8 @@ public:
    * This container is read only -- this method does nothing but print a
    * warning.
    */
-  int Allocate(vtkIdType sz, vtkIdType ext) override;
-  int Resize(vtkIdType numTuples) override;
+  vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext) override;
+  vtkTypeBool Resize(vtkIdType numTuples) override;
   void SetNumberOfTuples(vtkIdType number) override;
   void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source) override;
   void SetTuple(vtkIdType i, const float *source) override;

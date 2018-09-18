@@ -112,7 +112,7 @@ int vtkLightActor::RenderOpaqueGeometry(vtkViewport *viewport)
 // ----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry? No.
-int vtkLightActor::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkLightActor::HasTranslucentPolygonalGeometry()
 {
   return false;
 }

@@ -279,7 +279,7 @@ int vtkActor::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkActor::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkActor::HasTranslucentPolygonalGeometry()
 {
   if ( ! this->Mapper )
   {

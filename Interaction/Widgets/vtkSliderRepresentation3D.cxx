@@ -662,7 +662,7 @@ int vtkSliderRepresentation3D::RenderTranslucentPolygonalGeometry(
 }
 
 //-----------------------------------------------------------------------------
-int vtkSliderRepresentation3D::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkSliderRepresentation3D::HasTranslucentPolygonalGeometry()
 {
   this->BuildRepresentation();
   return this->WidgetAssembly->HasTranslucentPolygonalGeometry();

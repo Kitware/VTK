@@ -47,7 +47,7 @@ void vtkUnicodeStringArray::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 }
 
-int vtkUnicodeStringArray::Allocate(vtkIdType sz, vtkIdType)
+vtkTypeBool vtkUnicodeStringArray::Allocate(vtkIdType sz, vtkIdType)
 {
   this->Internal->Storage.reserve(sz);
   this->DataChanged();
@@ -295,7 +295,7 @@ void vtkUnicodeStringArray::Squeeze()
   this->DataChanged();
 }
 
-int vtkUnicodeStringArray::Resize(vtkIdType numTuples)
+vtkTypeBool vtkUnicodeStringArray::Resize(vtkIdType numTuples)
 {
   this->Internal->Storage.resize(numTuples);
   this->DataChanged();

@@ -330,7 +330,7 @@ int vtkCheckerboardRepresentation::RenderTranslucentPolygonalGeometry(
   return count;
 }
 //-----------------------------------------------------------------------------
-int vtkCheckerboardRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkCheckerboardRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = this->TopRepresentation->HasTranslucentPolygonalGeometry();
   result |= this->RightRepresentation->HasTranslucentPolygonalGeometry();

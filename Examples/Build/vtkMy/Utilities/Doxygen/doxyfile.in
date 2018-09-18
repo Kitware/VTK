@@ -142,8 +142,8 @@ PREDEFINED  = "vtkSetMacro(name,type)= \
                    virtual float *Get##name();" \
                "vtkTypeMacro(thisClass,superclass)= \
                    virtual const char *GetClassName(); \
-                   static int IsTypeOf(const char *type); \
-                   virtual int IsA(const char *type); \
+                   static vtkTypeBool IsTypeOf(const char *type); \
+                   virtual vtkTypeBool IsA(const char *type); \
                    static thisClass* SafeDownCast(vtkObject *o);"
 
 

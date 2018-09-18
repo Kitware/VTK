@@ -122,7 +122,7 @@ int vtkResliceCursorActor::RenderOpaqueGeometry(vtkViewport *viewport)
 // ----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry? No.
-int vtkResliceCursorActor::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkResliceCursorActor::HasTranslucentPolygonalGeometry()
 {
   return false;
 }

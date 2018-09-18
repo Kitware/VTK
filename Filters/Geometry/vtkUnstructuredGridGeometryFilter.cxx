@@ -668,7 +668,7 @@ public:
   }
 
   // Is the cursor at the end of the table? (ie. no more surfel?)
-  int IsAtEnd()
+  vtkTypeBool IsAtEnd()
   {
       return this->AtEnd;
   }

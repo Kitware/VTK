@@ -519,7 +519,7 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkCubeAxesActor2D::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkCubeAxesActor2D::HasTranslucentPolygonalGeometry()
 {
   return 0;
 }

@@ -45,7 +45,7 @@ public:
   /**
    * Is there no point at iterator position? (exit condition).
    */
-  int IsAtEnd() override;
+  vtkTypeBool IsAtEnd() override;
 
   /**
    * Move iterator to next position. (loop progression).

@@ -75,7 +75,7 @@ int vtkCameraActor::RenderOpaqueGeometry(vtkViewport *viewport)
 // ----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry? No.
-int vtkCameraActor::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkCameraActor::HasTranslucentPolygonalGeometry()
 {
   return false;
 }

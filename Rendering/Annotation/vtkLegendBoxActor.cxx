@@ -990,7 +990,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkLegendBoxActor::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkLegendBoxActor::HasTranslucentPolygonalGeometry()
 {
   return 0;
 }

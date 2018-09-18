@@ -44,7 +44,7 @@ public:
   vtkTypeMacro(vtkUnicodeStringArray,vtkAbstractArray);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  int Allocate(vtkIdType sz, vtkIdType ext=1000) override;
+  vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext=1000) override;
   void Initialize() override;
   int GetDataType() override;
   int GetDataTypeSize() override;
@@ -67,7 +67,7 @@ public:
     vtkIdType id1, vtkAbstractArray* source1,
     vtkIdType id2, vtkAbstractArray* source2, double t) override;
   void Squeeze() override;
-  int Resize(vtkIdType numTuples) override;
+  vtkTypeBool Resize(vtkIdType numTuples) override;
   void SetVoidArray(void *array, vtkIdType size, int save) override;
   void SetVoidArray(void *array, vtkIdType size, int save,
                     int deleteMethod) override;

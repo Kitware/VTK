@@ -178,8 +178,8 @@ PREDEFINED  = "vtkSetMacro(name,type)= \
                    private: \
                    virtual const char* GetClassNameInternal() const; \
                    public: \
-                   static int IsTypeOf(const char *type); \
-                   virtual int IsA(const char *type); \
+                   static vtkTypeBool IsTypeOf(const char *type); \
+                   virtual vtkTypeBool IsA(const char *type); \
                    static thisClass* SafeDownCast(vtkObjectBase *o); \
                    protected: \
                    virtual vtkObjectBase *NewInstanceInternal() const; \

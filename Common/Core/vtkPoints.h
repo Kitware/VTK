@@ -44,7 +44,7 @@ public:
   /**
    * Allocate initial memory size. ext is no longer used.
    */
-  virtual int Allocate(vtkIdType sz, vtkIdType ext = 1000);
+  virtual vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext = 1000);
 
   /**
    * Return object to instantiated state.
@@ -212,7 +212,7 @@ public:
    * Resize the internal array while conserving the data.  Returns 1 if
    * resizing succeeded and 0 otherwise.
    */
-  int Resize(vtkIdType numPoints);
+  vtkTypeBool Resize(vtkIdType numPoints);
 
   /**
    * Given a list of pt ids, return an array of points.
@@ -272,7 +272,7 @@ inline void vtkPoints::SetNumberOfPoints(vtkIdType numPoints)
   this->Modified();
 }
 
-inline int vtkPoints::Resize(vtkIdType numPoints)
+inline vtkTypeBool vtkPoints::Resize(vtkIdType numPoints)
 {
   this->Data->SetNumberOfComponents(3);
   this->Modified();

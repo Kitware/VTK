@@ -252,8 +252,8 @@ public:
   int GetDataType() override;
   int GetDataTypeSize() override;
   bool HasStandardMemoryLayout() override;
-  int Allocate(vtkIdType size, vtkIdType ext = 1000) override;
-  int Resize(vtkIdType numTuples) override;
+  vtkTypeBool Allocate(vtkIdType size, vtkIdType ext = 1000) override;
+  vtkTypeBool Resize(vtkIdType numTuples) override;
   void SetNumberOfComponents(int num) override;
   void SetNumberOfTuples(vtkIdType number) override;
   void Initialize() override;

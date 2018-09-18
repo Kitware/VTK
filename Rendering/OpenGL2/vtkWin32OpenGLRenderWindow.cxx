@@ -1203,7 +1203,7 @@ int *vtkWin32OpenGLRenderWindow::GetPosition(void)
 }
 
 // Change the window to fill the entire screen.
-void vtkWin32OpenGLRenderWindow::SetFullScreen(int arg)
+void vtkWin32OpenGLRenderWindow::SetFullScreen(vtkTypeBool arg)
 {
   int *temp;
 
@@ -1252,7 +1252,7 @@ void vtkWin32OpenGLRenderWindow::SetFullScreen(int arg)
 // Set the variable that indicates that we want a stereo capable window
 // be created. This method can only be called before a window is realized.
 //
-void vtkWin32OpenGLRenderWindow::SetStereoCapableWindow(int capable)
+void vtkWin32OpenGLRenderWindow::SetStereoCapableWindow(vtkTypeBool capable)
 {
   if (this->ContextId == 0)
   {
@@ -1414,7 +1414,7 @@ void vtkWin32OpenGLRenderWindow::Start(void)
 }
 
 
-void vtkWin32OpenGLRenderWindow::SetOffScreenRendering(int offscreen)
+void vtkWin32OpenGLRenderWindow::SetOffScreenRendering(vtkTypeBool offscreen)
 {
   if (offscreen == this->OffScreenRendering)
   {

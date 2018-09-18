@@ -59,7 +59,7 @@ void vtkImageProgressIterator<DType>::NextSpan()
 }
 
 template <class DType>
-int vtkImageProgressIterator<DType>::IsAtEnd()
+vtkTypeBool vtkImageProgressIterator<DType>::IsAtEnd()
 {
   if(this->Algorithm->GetAbortExecute())
   {

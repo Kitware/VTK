@@ -73,7 +73,7 @@ public:
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  int HasTranslucentPolygonalGeometry() override;
+  vtkTypeBool HasTranslucentPolygonalGeometry() override;
 
   /**
    * This causes the actor to be rendered. It in turn will render the actor's

@@ -81,7 +81,7 @@ public:
   * Methods supporting the rendering process.
   */
   void ReleaseGraphicsResources(vtkWindow*) override;
-  int HasTranslucentPolygonalGeometry() override;
+  vtkTypeBool HasTranslucentPolygonalGeometry() override;
   int RenderOverlay(vtkViewport*) override;
   //@}
 

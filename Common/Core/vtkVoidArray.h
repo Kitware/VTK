@@ -42,7 +42,7 @@ public:
    * Allocate memory for this array. Delete old storage only if necessary.
    * Note that the parameter ext is no longer used.
    */
-  int Allocate(vtkIdType sz, vtkIdType ext=1000);
+  vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext=1000);
 
   /**
    * Release storage and reset array to initial state.

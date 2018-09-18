@@ -245,7 +245,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> int vtkCPExodusIINodalCoordinatesTemplate<Scalar>
+template <class Scalar> vtkTypeBool vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::Allocate(vtkIdType, vtkIdType)
 {
   vtkErrorMacro("Read only container.")
@@ -253,7 +253,7 @@ template <class Scalar> int vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> int vtkCPExodusIINodalCoordinatesTemplate<Scalar>
+template <class Scalar> vtkTypeBool vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::Resize(vtkIdType)
 {
   vtkErrorMacro("Read only container.")

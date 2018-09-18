@@ -264,7 +264,7 @@ int vtkScalarBarRepresentation::RenderTranslucentPolygonalGeometry(
 }
 
 //-------------------------------------------------------------------------
-int vtkScalarBarRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkScalarBarRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = this->Superclass::HasTranslucentPolygonalGeometry();
   if (this->ScalarBarActor)

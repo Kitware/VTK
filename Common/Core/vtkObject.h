@@ -147,16 +147,16 @@ public:
   void RemoveObserver(vtkCommand*);
   void RemoveObservers(unsigned long event, vtkCommand *);
   void RemoveObservers(const char *event, vtkCommand *);
-  int HasObserver(unsigned long event, vtkCommand *);
-  int HasObserver(const char *event, vtkCommand *);
+  vtkTypeBool HasObserver(unsigned long event, vtkCommand *);
+  vtkTypeBool HasObserver(const char *event, vtkCommand *);
   //@}
 
   void RemoveObserver(unsigned long tag);
   void RemoveObservers(unsigned long event);
   void RemoveObservers(const char *event);
   void RemoveAllObservers(); //remove every last one of them
-  int HasObserver(unsigned long event);
-  int HasObserver(const char *event);
+  vtkTypeBool HasObserver(unsigned long event);
+  vtkTypeBool HasObserver(const char *event);
 
   //@{
   /**

@@ -221,7 +221,7 @@ void vtkEGLRenderWindow::Frame()
 // Set the variable that indicates that we want a stereo capable window
 // be created. This method can only be called before a window is realized.
 //
-void vtkEGLRenderWindow::SetStereoCapableWindow(int capable)
+void vtkEGLRenderWindow::SetStereoCapableWindow(vtkTypeBool capable)
 {
   vtkInternals* impl = this->Internals;
   if (impl->Display == EGL_NO_DISPLAY)
@@ -502,7 +502,7 @@ void vtkEGLRenderWindow::Finalize (void)
 }
 
 // Change the window to fill the entire screen.
-void vtkEGLRenderWindow::SetFullScreen(int vtkNotUsed(arg))
+void vtkEGLRenderWindow::SetFullScreen(vtkTypeBool vtkNotUsed(arg))
 {
   // window is always full screen
 }
@@ -665,13 +665,13 @@ void* vtkEGLRenderWindow::GetGenericContext()
 }
 
 //----------------------------------------------------------------------------
-void vtkEGLRenderWindow::SetOffScreenRendering (int)
+void vtkEGLRenderWindow::SetOffScreenRendering (vtkTypeBool)
 {
   // this is determined at compile time: ANDROID -> 0, otherwise -> 1
 }
 
 //----------------------------------------------------------------------------
-int vtkEGLRenderWindow::GetOffScreenRendering ()
+vtkTypeBool vtkEGLRenderWindow::GetOffScreenRendering ()
 {
   return this->OffScreenRendering;
 }

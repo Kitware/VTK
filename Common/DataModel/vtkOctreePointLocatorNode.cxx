@@ -520,7 +520,7 @@ double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
 }
 
 //----------------------------------------------------------------------------
-int vtkOctreePointLocatorNode::ContainsPoint(double x, double y, double z,
+vtkTypeBool vtkOctreePointLocatorNode::ContainsPoint(double x, double y, double z,
                                  int useDataBounds=0)
 {
   double *min, *max;

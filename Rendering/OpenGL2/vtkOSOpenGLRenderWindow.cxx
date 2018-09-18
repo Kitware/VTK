@@ -131,7 +131,7 @@ void vtkOSOpenGLRenderWindow::Frame()
 // Set the variable that indicates that we want a stereo capable window
 // be created. This method can only be called before a window is realized.
 //
-void vtkOSOpenGLRenderWindow::SetStereoCapableWindow(int capable)
+void vtkOSOpenGLRenderWindow::SetStereoCapableWindow(vtkTypeBool capable)
 {
   if (!this->Internal->OffScreenContextId)
   {
@@ -295,7 +295,7 @@ void vtkOSOpenGLRenderWindow::Finalize (void)
 }
 
 // Change the window to fill the entire screen.
-void vtkOSOpenGLRenderWindow::SetFullScreen(int arg)
+void vtkOSOpenGLRenderWindow::SetFullScreen(vtkTypeBool arg)
 {
   (void)arg;
   this->Modified();
@@ -544,7 +544,7 @@ void vtkOSOpenGLRenderWindow::SetNextWindowId(void *arg)
 // (mangled) from vtkOSOpenGLRenderWindow like the other OpenGL classes.
 //============================================================================
 
-void vtkOSOpenGLRenderWindow::SetOffScreenRendering(int i)
+void vtkOSOpenGLRenderWindow::SetOffScreenRendering(vtkTypeBool i)
 {
   if (this->OffScreenRendering == i)
   {

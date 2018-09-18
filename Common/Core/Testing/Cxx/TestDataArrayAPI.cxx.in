@@ -161,7 +161,7 @@ vtkSmartPointer<vtkDataArray> CreateDataArray()
 
 //------------------------vtkAbstactArray API-----------------------------------
 
-// int Allocate(vtkIdType numValues, vtkIdType ext=1000)
+// vtkTypeBool Allocate(vtkIdType numValues, vtkIdType ext=1000)
 // Sets MaxId == -1
 // Sets Size >= numValues
 // If numValues == 0, delete the array.
@@ -170,7 +170,7 @@ vtkSmartPointer<vtkDataArray> CreateDataArray()
 template <typename ScalarT, typename ArrayT>
 int Test_int_Allocate_numValues_ext()
 {
-  DataArrayAPIInit("int Allocate(vtkIdType numValues, vtkIdType ext)");
+  DataArrayAPIInit("vtkTypeBool Allocate(vtkIdType numValues, vtkIdType ext)");
   DataArrayAPICreateTestArray(array);
 
   int success = array->Allocate(0);
@@ -1381,13 +1381,13 @@ int Test_void_InterpolateTuple_i_id1_source1_id2_source2_t()
   DataArrayAPIFinish();
 }
 
-// int Resize(vtkIdType numTuples)
+// vtkTypeBool Resize(vtkIdType numTuples)
 // Preserve data
 // Return 1 on success, 0 otherwise
 template <typename ScalarT, typename ArrayT>
 int Test_int_Resize_numTuples()
 {
-  DataArrayAPIInit("int Resize(vtkIdType numTuples)");
+  DataArrayAPIInit("vtkTypeBool Resize(vtkIdType numTuples)");
   DataArrayAPICreateTestArray(array);
   int comps = 5;
   vtkIdType tuples = 0;

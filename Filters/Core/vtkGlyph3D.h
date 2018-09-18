@@ -346,7 +346,7 @@ protected:
 
   vtkPolyData **Source; // Geometry to copy to each point
   vtkTypeBool Scaling; // Determine whether scaling of geometry is performed
-  vtkTypeBool ScaleMode; // Scale by scalar value or vector magnitude
+  int ScaleMode; // Scale by scalar value or vector magnitude
   int ColorMode; // new scalars based on scale, scalar or vector
   double ScaleFactor; // Scale factor to use to scale geometry
   double Range[2]; // Range to use to perform scalar scaling

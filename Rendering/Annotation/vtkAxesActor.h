@@ -88,7 +88,7 @@ public:
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  int HasTranslucentPolygonalGeometry() override;
+  vtkTypeBool HasTranslucentPolygonalGeometry() override;
 
   /**
    * Shallow copy of an axes actor. Overloads the virtual vtkProp method.

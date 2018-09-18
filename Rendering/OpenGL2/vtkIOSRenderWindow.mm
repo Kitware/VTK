@@ -403,7 +403,7 @@ int *vtkIOSRenderWindow::GetPosition()
 
 //----------------------------------------------------------------------------
 // Change the window to fill the entire screen.
-void vtkIOSRenderWindow::SetFullScreen(int arg)
+void vtkIOSRenderWindow::SetFullScreen(vtkTypeBool arg)
 {
 }
 
@@ -412,7 +412,7 @@ void vtkIOSRenderWindow::SetFullScreen(int arg)
 // Set the variable that indicates that we want a stereo capable window
 // be created. This method can only be called before a window is realized.
 //
-void vtkIOSRenderWindow::SetStereoCapableWindow(int capable)
+void vtkIOSRenderWindow::SetStereoCapableWindow(vtkTypeBool capable)
 {
   if (this->GetContextId() == 0)
   {

@@ -140,8 +140,8 @@ public:
    * be supported for every type of window and on some windows you may
    * need to invoke this prior to the first render.
    */
-  void SetOffScreenRendering(int);
-  int GetOffScreenRendering();
+  void SetOffScreenRendering(vtkTypeBool);
+  vtkTypeBool GetOffScreenRendering();
   void OffScreenRenderingOn();
   void OffScreenRenderingOff();
   //@}

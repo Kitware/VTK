@@ -152,7 +152,7 @@ public:
    * ForceOpaqueOn(), which forces this method to return false, or
    * ForceTranslucentOn(), which forces this method to return true.
    */
-  int HasTranslucentPolygonalGeometry() override;
+  vtkTypeBool HasTranslucentPolygonalGeometry() override;
 
   //@{
   /**

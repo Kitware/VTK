@@ -78,14 +78,14 @@ public:
    * Is this a ray cast mapper? A subclass would return 1 if the
    * ray caster is needed to generate an image from this mapper.
    */
-  virtual int IsARayCastMapper()
+  virtual vtkTypeBool IsARayCastMapper()
     { return 0; }
 
   /**
    * Is this a "render into image" mapper? A subclass would return 1 if the
    * mapper produces an image by rendering into a software image buffer.
    */
-  virtual int IsARenderIntoImageMapper()
+  virtual vtkTypeBool IsARenderIntoImageMapper()
     { return 0; }
 
   /**

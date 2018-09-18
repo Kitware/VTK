@@ -147,7 +147,7 @@ int vtkGenericAdaptorCell::GetHighestOrderAttribute(vtkGenericAttributeCollectio
 // Does the attribute `a' have no higher-order interpolation for the cell?
 // \pre a_exists: a!=0
 // \post definition: result==(GetAttributeOrder()==1)
-int vtkGenericAdaptorCell::IsAttributeLinear(vtkGenericAttribute *a)
+vtkTypeBool vtkGenericAdaptorCell::IsAttributeLinear(vtkGenericAttribute *a)
 {
   return this->GetAttributeOrder(a) == 1;
 }

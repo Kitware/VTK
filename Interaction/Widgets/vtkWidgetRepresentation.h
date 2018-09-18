@@ -222,7 +222,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport *vtkNotUsed(viewport)) override {return 0;}
   int RenderTranslucentPolygonalGeometry(vtkViewport *vtkNotUsed(viewport)) override {return 0;}
   int RenderVolumetricGeometry(vtkViewport *vtkNotUsed(viewport)) override {return 0;}
-  int HasTranslucentPolygonalGeometry() override { return 0; }
+  vtkTypeBool HasTranslucentPolygonalGeometry() override { return 0; }
 
   /**
   * Register internal Pickers in the Picking Manager.

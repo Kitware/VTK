@@ -918,7 +918,7 @@ int vtkLODProp3D::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
 
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkLODProp3D::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkLODProp3D::HasTranslucentPolygonalGeometry()
 {
   // Check if the selected index is in range
   if (this->SelectedLODIndex < 0 ||

@@ -728,7 +728,7 @@ int vtkAbstractPolygonalHandleRepresentation3D::RenderTranslucentPolygonalGeomet
 }
 
 //-----------------------------------------------------------------------------
-int vtkAbstractPolygonalHandleRepresentation3D::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkAbstractPolygonalHandleRepresentation3D::HasTranslucentPolygonalGeometry()
 {
   int result=0;
   this->BuildRepresentation();

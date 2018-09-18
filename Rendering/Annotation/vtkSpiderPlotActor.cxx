@@ -320,7 +320,7 @@ int vtkSpiderPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkSpiderPlotActor::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkSpiderPlotActor::HasTranslucentPolygonalGeometry()
 {
   return 0;
 }

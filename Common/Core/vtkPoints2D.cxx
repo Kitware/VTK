@@ -126,7 +126,7 @@ void vtkPoints2D::GetBounds(double bounds[4])
   memcpy(bounds, this->Bounds, 4 * sizeof(double));
 }
 
-int vtkPoints2D::Allocate(vtkIdType sz, vtkIdType ext)
+vtkTypeBool vtkPoints2D::Allocate(vtkIdType sz, vtkIdType ext)
 {
   int numComp = this->Data->GetNumberOfComponents();
   return this->Data->Allocate(sz * numComp, ext * numComp);

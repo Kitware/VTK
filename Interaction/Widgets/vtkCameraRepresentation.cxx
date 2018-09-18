@@ -240,7 +240,7 @@ int vtkCameraRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *w)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkCameraRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkCameraRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = this->Superclass::HasTranslucentPolygonalGeometry();
   result |= this->Actor->HasTranslucentPolygonalGeometry();

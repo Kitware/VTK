@@ -156,7 +156,7 @@ int vtkBitArray::GetValue(vtkIdType id)
 
 //----------------------------------------------------------------------------
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkBitArray::Allocate(vtkIdType sz, vtkIdType vtkNotUsed(ext))
+vtkTypeBool vtkBitArray::Allocate(vtkIdType sz, vtkIdType vtkNotUsed(ext))
 {
   if ( sz > this->Size )
   {
@@ -310,7 +310,7 @@ unsigned char *vtkBitArray::ResizeAndExtend(vtkIdType sz)
 }
 
 //----------------------------------------------------------------------------
-int vtkBitArray::Resize(vtkIdType sz)
+vtkTypeBool vtkBitArray::Resize(vtkIdType sz)
 {
   unsigned char *newArray;
   vtkIdType newSize = sz*this->NumberOfComponents;

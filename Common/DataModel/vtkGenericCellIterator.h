@@ -57,7 +57,7 @@ public:
   /**
    * Is the iterator at the end of traversal?
    */
-  virtual int IsAtEnd() = 0;
+  virtual vtkTypeBool IsAtEnd() = 0;
 
   /**
    * Create an empty cell. The user is responsible for deleting it.

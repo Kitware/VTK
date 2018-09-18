@@ -86,7 +86,7 @@ public:
    * If numValues is 0, all memory will be freed.
    * Return 1 on success, 0 on failure.
    */
-  virtual int Allocate(vtkIdType numValues, vtkIdType ext=1000) = 0;
+  virtual vtkTypeBool Allocate(vtkIdType numValues, vtkIdType ext=1000) = 0;
 
   /**
    * Release storage and reset array to initial state.
@@ -302,7 +302,7 @@ public:
    * Requesting an array size of 0 will free all memory.
    * Returns 1 if resizing succeeded and 0 otherwise.
    */
-  virtual int Resize(vtkIdType numTuples) = 0;
+  virtual vtkTypeBool Resize(vtkIdType numTuples) = 0;
 
   //@{
   /**

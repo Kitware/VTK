@@ -82,7 +82,7 @@ public:
   /**
    * Does this prop have some translucent polygonal geometry? No.
    */
-  int HasTranslucentPolygonalGeometry() override;
+  vtkTypeBool HasTranslucentPolygonalGeometry() override;
 
   /**
    * Release any graphics resources that are being consumed by this actor.

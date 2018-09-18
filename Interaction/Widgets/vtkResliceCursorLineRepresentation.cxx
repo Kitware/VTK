@@ -583,7 +583,7 @@ int vtkResliceCursorLineRepresentation::RenderTranslucentPolygonalGeometry(
 }
 
 //-----------------------------------------------------------------------------
-int vtkResliceCursorLineRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkResliceCursorLineRepresentation::HasTranslucentPolygonalGeometry()
 {
   return (this->ResliceCursorActor->HasTranslucentPolygonalGeometry() ||
     (this->ImageActor->HasTranslucentPolygonalGeometry()

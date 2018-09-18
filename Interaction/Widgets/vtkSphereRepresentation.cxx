@@ -799,7 +799,7 @@ int vtkSphereRepresentation::RenderOverlay(vtkViewport *v)
 }
 
 //----------------------------------------------------------------------------
-int vtkSphereRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkSphereRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result=0;
   this->BuildRepresentation();

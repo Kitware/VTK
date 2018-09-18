@@ -301,7 +301,7 @@ int vtkPieChartActor::RenderOpaqueGeometry(vtkViewport *viewport)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkPieChartActor::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkPieChartActor::HasTranslucentPolygonalGeometry()
 {
   return 0;
 }

@@ -437,7 +437,7 @@ int vtkAngleRepresentation3D::RenderTranslucentPolygonalGeometry(vtkViewport *v)
 }
 
 //----------------------------------------------------------------------------
-int vtkAngleRepresentation3D::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkAngleRepresentation3D::HasTranslucentPolygonalGeometry()
 {
   int result=0;
   this->BuildRepresentation();

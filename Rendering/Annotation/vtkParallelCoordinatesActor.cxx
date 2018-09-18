@@ -320,7 +320,7 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkParallelCoordinatesActor::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkParallelCoordinatesActor::HasTranslucentPolygonalGeometry()
 {
   return 0;
 }

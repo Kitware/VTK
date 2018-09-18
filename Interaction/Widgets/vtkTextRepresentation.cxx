@@ -183,7 +183,7 @@ int vtkTextRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *w)
 }
 
 //-------------------------------------------------------------------------
-int vtkTextRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkTextRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = this->Superclass::HasTranslucentPolygonalGeometry();
   result |= this->TextActor->HasTranslucentPolygonalGeometry();

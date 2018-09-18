@@ -243,7 +243,7 @@ double vtkImageSlice::GetMaxZBound()
 
 //----------------------------------------------------------------------------
 // Does this prop have some translucent polygonal geometry?
-int vtkImageSlice::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkImageSlice::HasTranslucentPolygonalGeometry()
 {
   if (this->ForceTranslucent)
   {

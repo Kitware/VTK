@@ -83,7 +83,7 @@ public:
   /**
    * Defers to internal actor.
    */
-  int HasTranslucentPolygonalGeometry() override;
+  vtkTypeBool HasTranslucentPolygonalGeometry() override;
 
   /**
    * Check/update geometry/texture in opaque pass, since it only happens once.

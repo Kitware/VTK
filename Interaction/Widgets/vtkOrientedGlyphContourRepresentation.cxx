@@ -924,7 +924,7 @@ int vtkOrientedGlyphContourRepresentation::RenderTranslucentPolygonalGeometry(
 }
 
 //-----------------------------------------------------------------------------
-int vtkOrientedGlyphContourRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkOrientedGlyphContourRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result=0;
   result |= this->LinesActor->HasTranslucentPolygonalGeometry();

@@ -57,8 +57,8 @@ public:
   void GetTypedTuple(vtkIdType, ValueType*) const override {}
   vtkIdType InsertNextValue(ValueType) override { return 0; }
   void InsertValue(vtkIdType, ValueType) override {}
-  int Allocate(vtkIdType, vtkIdType) override { return 0; }
-  int Resize(vtkIdType) override { return 0; }
+  vtkTypeBool Allocate(vtkIdType, vtkIdType) override { return 0; }
+  vtkTypeBool Resize(vtkIdType) override { return 0; }
 };
 }
 

@@ -387,7 +387,7 @@ template <class Scalar> unsigned long int vtkPeriodicDataArray<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> int vtkPeriodicDataArray<Scalar>
+template <class Scalar> vtkTypeBool vtkPeriodicDataArray<Scalar>
 ::Allocate(vtkIdType, vtkIdType)
 {
   vtkErrorMacro("Read only container.");
@@ -395,7 +395,7 @@ template <class Scalar> int vtkPeriodicDataArray<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> int vtkPeriodicDataArray<Scalar>
+template <class Scalar> vtkTypeBool vtkPeriodicDataArray<Scalar>
 ::Resize(vtkIdType)
 {
   vtkErrorMacro("Read only container.");

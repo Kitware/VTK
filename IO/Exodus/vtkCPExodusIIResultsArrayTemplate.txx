@@ -267,7 +267,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> int vtkCPExodusIIResultsArrayTemplate<Scalar>
+template <class Scalar> vtkTypeBool vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::Allocate(vtkIdType, vtkIdType)
 {
   vtkErrorMacro("Read only container.")
@@ -275,7 +275,7 @@ template <class Scalar> int vtkCPExodusIIResultsArrayTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> int vtkCPExodusIIResultsArrayTemplate<Scalar>
+template <class Scalar> vtkTypeBool vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::Resize(vtkIdType)
 {
   vtkErrorMacro("Read only container.")

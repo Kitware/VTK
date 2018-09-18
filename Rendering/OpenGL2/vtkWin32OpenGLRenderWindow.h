@@ -72,7 +72,7 @@ public:
   /**
    * Change the window to fill the entire screen.
    */
-  void SetFullScreen(int) override;
+  void SetFullScreen(vtkTypeBool) override;
 
   /**
    * Remap the window.
@@ -196,7 +196,7 @@ public:
    * overrides the superclass method since this class can actually check
    * whether the window has been realized yet.
    */
-  void SetStereoCapableWindow(int capable) override;
+  void SetStereoCapableWindow(vtkTypeBool capable) override;
 
   /**
    * Make this windows OpenGL context the current context.
@@ -263,7 +263,7 @@ public:
    * Override the default implementation so that we can actively switch between
    * on and off screen rendering.
    */
-  void SetOffScreenRendering(int offscreen) override;
+  void SetOffScreenRendering(vtkTypeBool offscreen) override;
 
   //@{
   /**

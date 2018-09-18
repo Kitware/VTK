@@ -75,7 +75,7 @@ public:
   virtual int RenderOverlay(vtkViewport*);
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
-  virtual int HasTranslucentPolygonalGeometry();
+  virtual vtkTypeBool HasTranslucentPolygonalGeometry();
   //@}
 
   //@{

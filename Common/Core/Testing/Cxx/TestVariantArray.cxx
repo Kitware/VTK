@@ -134,11 +134,11 @@ int TestVariantArray(int, char*[])
   vector<double> vec;
 
   // Resizing
-  // * int Allocate(vtkIdType sz);
+  // * vtkTypeBool Allocate(vtkIdType sz);
   // * void Initialize();
   // * void SetNumberOfTuples(vtkIdType number);
   // * void Squeeze();
-  // * int Resize(vtkIdType numTuples);
+  // * vtkTypeBool Resize(vtkIdType numTuples);
   // * void SetNumberOfValues(vtkIdType number);
   // * void SetVoidArray(void *arr, vtkIdType size, int save);
   // * void SetArray(vtkVariant* arr, vtkIdType size, int save);

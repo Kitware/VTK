@@ -63,7 +63,7 @@ void vtkBridgePointIteratorOnDataSet::Begin()
 //-----------------------------------------------------------------------------
 // Description:
 // Is there no point at iterator position? (exit condition).
-int vtkBridgePointIteratorOnDataSet::IsAtEnd()
+vtkTypeBool vtkBridgePointIteratorOnDataSet::IsAtEnd()
 {
   return (this->Id<0) || (this->Id>=this->Size);
 }

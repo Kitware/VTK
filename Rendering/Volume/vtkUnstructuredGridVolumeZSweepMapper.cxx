@@ -1606,7 +1606,7 @@ public:
   }
 
   // Is the current state after the right point?
-  int IsAtEnd()
+  vtkTypeBool IsAtEnd()
   {
       return this->X>this->X1;
   }

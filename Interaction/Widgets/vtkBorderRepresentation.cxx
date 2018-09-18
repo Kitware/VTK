@@ -570,7 +570,7 @@ int vtkBorderRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *w)
 //-----------------------------------------------------------------------------
 // Description:
 // Does this prop have some translucent polygonal geometry?
-int vtkBorderRepresentation::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkBorderRepresentation::HasTranslucentPolygonalGeometry()
 {
   this->BuildRepresentation();
   if ( ! this->BWActor->GetVisibility() )

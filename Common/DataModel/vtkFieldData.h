@@ -68,7 +68,7 @@ public:
    * Allocate data for each array.
    * Note that ext is no longer used.
    */
-  int Allocate(vtkIdType sz, vtkIdType ext=1000);
+  vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext=1000);
 
   /**
    * Copy data array structure from a given field.  The same arrays

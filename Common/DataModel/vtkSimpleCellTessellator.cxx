@@ -483,7 +483,7 @@ public:
   }
 
   // Return true if (e1, e2) is an edge of the tri:
-  int IsAnEdge(vtkIdType e1, vtkIdType e2)
+  vtkTypeBool IsAnEdge(vtkIdType e1, vtkIdType e2)
   {
     int sum = 0;
     for(int i=0; i<3; i++)
@@ -718,7 +718,7 @@ public:
   vtkIdType GetPointId( int i ) { return this->PointId[i]; }
 
   // Return true if (e1, e2) is an edge of the tetra:
-  int IsAnEdge(vtkIdType e1, vtkIdType e2)
+  vtkTypeBool IsAnEdge(vtkIdType e1, vtkIdType e2)
   {
     int sum = 0;
     for(int i=0; i<4; i++)
