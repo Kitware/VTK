@@ -89,26 +89,28 @@ void vtkTransform::PrintSelf(ostream& os, vtkIndent indent)
 void vtkTransform::Identity()
 {
   this->Concatenation->Identity();
-  this->Modified();
 
   // support for the legacy hack in InternalUpdate
   if (this->Matrix->GetMTime() > this->MatrixUpdateMTime)
   {
     this->Matrix->Identity();
   }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkTransform::Inverse()
 {
   this->Concatenation->Inverse();
-  this->Modified();
 
   // for the legacy hack in InternalUpdate
   if (this->Matrix->GetMTime() > this->MatrixUpdateMTime)
   {
     this->Matrix->Invert();
   }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
