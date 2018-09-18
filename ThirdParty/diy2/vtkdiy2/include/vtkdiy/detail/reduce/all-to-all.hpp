@@ -1,6 +1,8 @@
 #ifndef DIY_DETAIL_ALL_TO_ALL_HPP
 #define DIY_DETAIL_ALL_TO_ALL_HPP
 
+#include "../block_traits.hpp"
+
 namespace diy
 {
 
@@ -9,6 +11,8 @@ namespace detail
   template<class Op>
   struct AllToAllReduce
   {
+    using Block = typename block_traits<Op>::type;
+
          AllToAllReduce(const Op& op_, const Assigner& assigner):
              op(op_)
     {
@@ -19,7 +23,7 @@ namespace detail
       }
     }
 
-    void operator()(void* b, const ReduceProxy& srp, const RegularSwapPartners& partners) const
+    void operator()(Block* b, const ReduceProxy& srp, const RegularSwapPartners& partners) const
     {
       int k_in  = srp.in_link().size();
       int k_out = srp.out_link().size();
@@ -128,7 +132,6 @@ namespace detail
         {
           MemoryBuffer& in = srp.incoming(srp.in_link().target(i).gid);
 
-          std::pair<int, int> range;
           load(in, range);
 
           std::pair<int, int> from_to;

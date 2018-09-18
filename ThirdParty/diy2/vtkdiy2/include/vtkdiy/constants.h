@@ -2,15 +2,10 @@
 #define DIY_CONSTANTS_H
 
 // Default DIY_MAX_DIM to 4, unless provided by the user
-// (used for static array size in various Bounds (bb_t in types.h))
+// (used for static min/max size in various Bounds)
 #ifndef DIY_MAX_DIM
 #define DIY_MAX_DIM 4
 #endif
-
-struct dir_t
-{
-    int x[DIY_MAX_DIM];
-};
 
 enum
 {
@@ -23,5 +18,7 @@ enum
   DIY_T0 = 0x40, /* minimum-side t (earlier) neighbor */
   DIY_T1 = 0x80  /* maximum-side t (later) neighbor */
 };
+
+#define DIY_UNUSED(expr) do { (void)(expr); } while (0)
 
 #endif

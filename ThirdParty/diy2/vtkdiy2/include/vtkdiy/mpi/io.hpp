@@ -1,6 +1,8 @@
 #ifndef DIY_MPI_IO_HPP
 #define DIY_MPI_IO_HPP
 
+#include "../constants.h"
+
 #include <vector>
 #include <string>
 
@@ -30,15 +32,12 @@ namespace io
       };
 
     public:
-                    file(const communicator&    comm,
-                         const std::string&     filename,
-                         int                    mode):
-                        comm_(comm)                         { MPI_File_open(comm, const_cast<char*>(filename.c_str()), mode, MPI_INFO_NULL, &fh); }
+      inline        file(const communicator& comm, const std::string& filename, int mode);
                     ~file()                                 { close(); }
-      void          close()                                 { if (fh != MPI_FILE_NULL) MPI_File_close(&fh); }
+      inline void   close();
 
-      offset        size() const                            { offset sz; MPI_File_get_size(fh, &sz); return sz; }
-      void          resize(offset size)                     { MPI_File_set_size(fh, size); }
+      inline offset size() const;
+      inline void   resize(offset size);
 
       inline void   read_at(offset o, char* buffer, size_t size);
       inline void   read_at_all(offset o, char* buffer, size_t size);
@@ -70,12 +69,68 @@ namespace io
 }
 }
 
+diy::mpi::io::file::
+file(const communicator& comm__, const std::string& filename, int mode)
+: comm_(comm__)
+{
+#ifndef DIY_NO_MPI
+  MPI_File_open(comm__, const_cast<char*>(filename.c_str()), mode, MPI_INFO_NULL, &fh);
+#else
+  DIY_UNUSED(comm__);
+  DIY_UNUSED(filename);
+  DIY_UNUSED(mode);
+  DIY_UNSUPPORTED_MPI_CALL(MPI_File_open);
+#endif
+}
+
 void
 diy::mpi::io::file::
-read_at(offset o, char* buffer, size_t size)
+close()
 {
+#ifndef DIY_NO_MPI
+  if (fh != MPI_FILE_NULL)
+    MPI_File_close(&fh);
+#endif
+}
+
+diy::mpi::io::offset
+diy::mpi::io::file::
+size() const
+{
+#ifndef DIY_NO_MPI
+  offset sz;
+  MPI_File_get_size(fh, &sz);
+  return sz;
+#else
+  DIY_UNSUPPORTED_MPI_CALL(MPI_File_get_size);
+#endif
+}
+
+void
+diy::mpi::io::file::
+resize(diy::mpi::io::offset size_)
+{
+#ifndef DIY_NO_MPI
+  MPI_File_set_size(fh, size_);
+#else
+  DIY_UNUSED(size_);
+  DIY_UNSUPPORTED_MPI_CALL(MPI_File_set_size);
+#endif
+}
+
+void
+diy::mpi::io::file::
+read_at(offset o, char* buffer, size_t size_)
+{
+#ifndef DIY_NO_MPI
   status s;
-  MPI_File_read_at(fh, o, buffer, size, detail::get_mpi_datatype<char>(), &s.s);
+  MPI_File_read_at(fh, o, buffer, static_cast<int>(size_), detail::get_mpi_datatype<char>(), &s.s);
+#else
+  DIY_UNUSED(o);
+  DIY_UNUSED(buffer);
+  DIY_UNUSED(size_);
+  DIY_UNSUPPORTED_MPI_CALL(MPI_File_read_at);
+#endif
 }
 
 template<class T>
@@ -88,10 +143,17 @@ read_at(offset o, std::vector<T>& data)
 
 void
 diy::mpi::io::file::
-read_at_all(offset o, char* buffer, size_t size)
+read_at_all(offset o, char* buffer, size_t size_)
 {
+#ifndef DIY_NO_MPI
   status s;
-  MPI_File_read_at_all(fh, o, buffer, size, detail::get_mpi_datatype<char>(), &s.s);
+  MPI_File_read_at_all(fh, o, buffer, static_cast<int>(size_), detail::get_mpi_datatype<char>(), &s.s);
+#else
+  DIY_UNUSED(o);
+  DIY_UNUSED(buffer);
+  DIY_UNUSED(size_);
+  DIY_UNSUPPORTED_MPI_CALL(MPI_File_read_at_all);
+#endif
 }
 
 template<class T>
@@ -104,10 +166,17 @@ read_at_all(offset o, std::vector<T>& data)
 
 void
 diy::mpi::io::file::
-write_at(offset o, const char* buffer, size_t size)
+write_at(offset o, const char* buffer, size_t size_)
 {
+#ifndef DIY_NO_MPI
   status s;
-  MPI_File_write_at(fh, o, (void *)buffer, size, detail::get_mpi_datatype<char>(), &s.s);
+  MPI_File_write_at(fh, o, (void *)buffer, static_cast<int>(size_), detail::get_mpi_datatype<char>(), &s.s);
+#else
+  DIY_UNUSED(o);
+  DIY_UNUSED(buffer);
+  DIY_UNUSED(size_);
+  DIY_UNSUPPORTED_MPI_CALL(MPI_File_write_at);
+#endif
 }
 
 template<class T>
@@ -120,10 +189,17 @@ write_at(offset o, const std::vector<T>& data)
 
 void
 diy::mpi::io::file::
-write_at_all(offset o, const char* buffer, size_t size)
+write_at_all(offset o, const char* buffer, size_t size_)
 {
+#ifndef DIY_NO_MPI
   status s;
-  MPI_File_write_at_all(fh, o, (void *)buffer, size, detail::get_mpi_datatype<char>(), &s.s);
+  MPI_File_write_at_all(fh, o, (void *)buffer, static_cast<int>(size_), detail::get_mpi_datatype<char>(), &s.s);
+#else
+  DIY_UNUSED(o);
+  DIY_UNUSED(buffer);
+  DIY_UNUSED(size_);
+  DIY_UNSUPPORTED_MPI_CALL(MPI_File_write_at_all);
+#endif
 }
 
 template<class T>
