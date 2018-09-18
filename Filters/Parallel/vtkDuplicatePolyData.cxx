@@ -156,7 +156,7 @@ void vtkDuplicatePolyData::InitializeSchedule(int numProcs)
             this->Schedule[i][j] = k;
             this->Schedule[k][j] = i;
             // Break the loop.
-            k = numProcs;
+            break;
           }
         }
       }
