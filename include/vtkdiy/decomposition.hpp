@@ -16,14 +16,17 @@ namespace diy
 {
 namespace detail
 {
-  template<class Bounds_>
+  template<class Bounds_, class Enable = void>
   struct BoundsHelper;
 
-  template<>
-  struct BoundsHelper<DiscreteBounds>
+  // discrete bounds
+  template<class Bounds>
+  struct BoundsHelper<Bounds, typename std::enable_if<std::is_integral<typename Bounds::Coordinate>::value>::type>
   {
-    static int      from(int i, int n, int min, int max, bool)          { return min + (max - min + 1)/n * i; }
-    static int      to(int i, int n, int min, int max, bool shared_face)
+    using Coordinate = typename Bounds::Coordinate;
+
+    static Coordinate   from(int i, int n, Coordinate min, Coordinate max, bool)          { return min + (max - min + 1)/n * i; }
+    static Coordinate   to  (int i, int n, Coordinate min, Coordinate max, bool shared_face)
     {
       if (i == n - 1)
         return max;
@@ -31,34 +34,37 @@ namespace detail
         return from(i+1, n, min, max, shared_face) - (shared_face ? 0 : 1);
     }
 
-    static int      lower(int x, int n, int min, int max, bool shared)
+    static int          lower(Coordinate x, int n, Coordinate min, Coordinate max, bool shared)
     {
-        int width = (max - min + 1)/n;
-        int res = (x - min)/width;
+        Coordinate width = (max - min + 1)/n;
+        Coordinate res = (x - min)/width;
         if (res >= n) res = n - 1;
 
         if (shared && x == from(res, n, min, max, shared))
             --res;
         return res;
     }
-    static int      upper(int x, int n, int min, int max, bool shared)
+    static int          upper(Coordinate x, int n, Coordinate min, Coordinate max, bool shared)
     {
-        int width = (max - min + 1)/n;
-        int res = (x - min)/width + 1;
+        Coordinate width = (max - min + 1)/n;
+        Coordinate res = (x - min)/width + 1;
         if (shared && x == from(res, n, min, max, shared))
             ++res;
         return res;
     }
   };
 
-  template<>
-  struct BoundsHelper<ContinuousBounds>
+  // continuous bounds
+  template<class Bounds>
+  struct BoundsHelper<Bounds, typename std::enable_if<std::is_floating_point<typename Bounds::Coordinate>::value>::type>
   {
-    static float    from(int i, int n, float min, float max, bool)      { return min + (max - min)/n * i; }
-    static float    to(int i, int n, float min, float max, bool)        { return min + (max - min)/n * (i+1); }
+    using Coordinate = typename Bounds::Coordinate;
 
-    static int      lower(float x, int n, float min, float max, bool)   { float width = (max - min)/n; float res = std::floor((x - min)/width); if (min + res*width == x) return (res - 1); else return res; }
-    static int      upper(float x, int n, float min, float max, bool)   { float width = (max - min)/n; float res = std::ceil ((x - min)/width); if (min + res*width == x) return (res + 1); else return res; }
+    static Coordinate   from(int i, int n, Coordinate min, Coordinate max, bool)      { return min + (max - min)/n * i; }
+    static Coordinate   to  (int i, int n, Coordinate min, Coordinate max, bool)      { return min + (max - min)/n * (i+1); }
+
+    static int          lower(Coordinate x, int n, Coordinate min, Coordinate max, bool)   { Coordinate width = (max - min)/n; Coordinate res = std::floor((x - min)/width); if (min + res*width == x) return (res - 1); else return res; }
+    static int          upper(Coordinate x, int n, Coordinate min, Coordinate max, bool)   { Coordinate width = (max - min)/n; Coordinate res = std::ceil ((x - min)/width); if (min + res*width == x) return (res + 1); else return res; }
   };
 }
 
@@ -71,6 +77,9 @@ namespace detail
     typedef         Bounds_                                         Bounds;
     typedef         typename BoundsValue<Bounds>::type              Coordinate;
     typedef         typename RegularLinkSelector<Bounds>::type      Link;
+
+    using Creator = std::function<void(int,      Bounds, Bounds, Bounds, Link)>;
+    using Updater = std::function<void(int, int, Bounds, Bounds, Bounds, Link)>;
 
     typedef         std::vector<bool>                               BoolVector;
     typedef         std::vector<Coordinate>                         CoordinateVector;
@@ -104,13 +113,11 @@ namespace detail
     }
 
     // Calls create(int gid, const Bounds& bounds, const Link& link)
-    template<class Creator>
-    void            decompose(int rank, const Assigner& assigner, const Creator& create);
+    void            decompose(int rank, const StaticAssigner& assigner, const Creator& create);
 
-    template<class Updater>
-    void            decompose(int rank, const Assigner& assigner, Master& master, const Updater& update);
+    void            decompose(int rank, const StaticAssigner& assigner, Master& master, const Updater& update);
 
-    void            decompose(int rank, const Assigner& assigner, Master& master);
+    void            decompose(int rank, const StaticAssigner& assigner, Master& master);
 
     // find lowest gid that owns a particular point
     template<class Point>
@@ -170,12 +177,12 @@ namespace detail
    *
    * `create(...)` is called with each block assigned to the local domain. See [decomposition example](#decomposition-example).
    */
-  template<class Bounds, class Creator>
-  void decompose(int                dim,
-                 int                rank,
-                 const Bounds&      domain,
-                 const Assigner&    assigner,
-                 const Creator&     create,
+  template<class Bounds>
+  void decompose(int                    dim,
+                 int                    rank,
+                 const Bounds&          domain,
+                 const StaticAssigner&  assigner,
+                 const typename RegularDecomposer<Bounds>::Creator&   create,
                  typename RegularDecomposer<Bounds>::BoolVector       share_face = typename RegularDecomposer<Bounds>::BoolVector(),
                  typename RegularDecomposer<Bounds>::BoolVector       wrap       = typename RegularDecomposer<Bounds>::BoolVector(),
                  typename RegularDecomposer<Bounds>::CoordinateVector ghosts     = typename RegularDecomposer<Bounds>::CoordinateVector(),
@@ -183,47 +190,6 @@ namespace detail
   {
     RegularDecomposer<Bounds>(dim, domain, assigner.nblocks(), share_face, wrap, ghosts, divs).decompose(rank, assigner, create);
   }
-
-namespace detail
-{
-  template<class Bounds>
-  struct AddBlock
-  {
-    typedef typename RegularDecomposer<Bounds>::Link        Link;
-
-            AddBlock(diy::Master* master):
-              master_(master)               {}
-
-    void    operator()(int gid, const Bounds& core, const Bounds& bounds, const Bounds& domain, const Link& link) const
-    {
-      void*     b = master_->create();
-      Link*     l = new Link(link);
-      master_->add(gid, b, l);
-    }
-
-    diy::Master* master_;
-  };
-
-  template<class Bounds, class Update>
-  struct Updater
-  {
-    typedef typename RegularDecomposer<Bounds>::Link        Link;
-
-            Updater(diy::Master* master, const Update& update):
-                master_(master), update_(update)                    {}
-
-    void    operator()(int gid, const Bounds& core, const Bounds& bounds, const Bounds& domain, const Link& link) const
-    {
-        int lid = master_->lid(gid);
-        Link* l = new Link(link);
-        master_->replace_link(lid, l);
-        update_(gid, lid, core, bounds, domain, *l);
-    }
-
-    diy::Master*    master_;
-    const Update&   update_;
-  };
-}
 
   /**
    * \ingroup Decomposition
@@ -242,11 +208,11 @@ namespace detail
    * `master` must have been supplied a create function in order for this function to work.
    */
   template<class Bounds>
-  void decompose(int                dim,
-                 int                rank,
-                 const Bounds&      domain,
-                 const Assigner&    assigner,
-                 Master&            master,
+  void decompose(int                    dim,
+                 int                    rank,
+                 const Bounds&          domain,
+                 const StaticAssigner&  assigner,
+                 Master&                master,
                  typename RegularDecomposer<Bounds>::BoolVector       share_face = typename RegularDecomposer<Bounds>::BoolVector(),
                  typename RegularDecomposer<Bounds>::BoolVector       wrap       = typename RegularDecomposer<Bounds>::BoolVector(),
                  typename RegularDecomposer<Bounds>::CoordinateVector ghosts     = typename RegularDecomposer<Bounds>::CoordinateVector(),
@@ -265,9 +231,9 @@ namespace detail
    * @param master     gets the blocks once this function returns
    */
   inline
-  void decompose(int                rank,
-                 const Assigner&    assigner,
-                 Master&            master)
+  void decompose(int                    rank,
+                 const StaticAssigner&  assigner,
+                 Master&                master)
   {
     std::vector<int>  local_gids;
     assigner.local_gids(rank, local_gids);
@@ -285,13 +251,13 @@ namespace detail
      * @param assigner   decides how processors are assigned to blocks (maps a gid to a rank)
      *                   also communicates the total number of blocks
      */
-  template<class Bounds, class Update>
-  void decompose(int                dim,
-                 int                rank,
-                 const Bounds&      domain,
-                 const Assigner&    assigner,
-                 Master&            master,
-                 const Update&      update,
+  template<class Bounds>
+  void decompose(int                    dim,
+                 int                    rank,
+                 const Bounds&          domain,
+                 const StaticAssigner&  assigner,
+                 Master&                master,
+                 const typename RegularDecomposer<Bounds>::Updater&   update,
                  typename RegularDecomposer<Bounds>::BoolVector       share_face =
                  typename RegularDecomposer<Bounds>::BoolVector(),
                  typename RegularDecomposer<Bounds>::BoolVector       wrap       =
@@ -313,16 +279,20 @@ namespace detail
 template<class Bounds>
 void
 diy::RegularDecomposer<Bounds>::
-decompose(int rank, const Assigner& assigner, Master& master)
+decompose(int rank, const StaticAssigner& assigner, Master& master)
 {
-  decompose(rank, assigner, detail::AddBlock<Bounds>(&master));
+  decompose(rank, assigner, [&master](int gid, const Bounds&, const Bounds&, const Bounds&, const Link& link)
+  {
+    void*     b = master.create();
+    Link*     l = new Link(link);
+    master.add(gid, b, l);
+  });
 }
 
 template<class Bounds>
-template<class Creator>
 void
 diy::RegularDecomposer<Bounds>::
-decompose(int rank, const Assigner& assigner, const Creator& create)
+decompose(int rank, const StaticAssigner& assigner, const Creator& create)
 {
   std::vector<int> gids;
   assigner.local_gids(rank, gids);
@@ -344,49 +314,49 @@ decompose(int rank, const Assigner& assigner, const Creator& create)
     while (!all(offsets, 1))
     {
       // next offset
-      int i;
-      for (i = 0; i < dim; ++i)
-        if (offsets[i] == 1)
-          offsets[i] = -1;
+      int j;
+      for (j = 0; j < dim; ++j)
+        if (offsets[j] == 1)
+          offsets[j] = -1;
         else
           break;
-      ++offsets[i];
+      ++offsets[j];
 
       if (all(offsets, 0)) continue;      // skip ourselves
 
       DivisionsVector     nhbr_coords(dim);
       Direction           dir, wrap_dir;
       bool                inbounds = true;
-      for (int i = 0; i < dim; ++i)
+      for (int k = 0; k < dim; ++k)
       {
-        nhbr_coords[i] = coords[i] + offsets[i];
+        nhbr_coords[k] = coords[k] + offsets[k];
 
         // wrap
-        if (nhbr_coords[i] < 0)
+        if (nhbr_coords[k] < 0)
         {
-          if (wrap[i])
+          if (wrap[k])
           {
-            nhbr_coords[i] = divisions[i] - 1;
-            wrap_dir[i] = -1;
+            nhbr_coords[k] = divisions[k] - 1;
+            wrap_dir[k] = -1;
           }
           else
             inbounds = false;
         }
 
-        if (nhbr_coords[i] >= divisions[i])
+        if (nhbr_coords[k] >= divisions[k])
         {
-          if (wrap[i])
+          if (wrap[k])
           {
-            nhbr_coords[i] = 0;
-            wrap_dir[i] = 1;
+            nhbr_coords[k] = 0;
+            wrap_dir[k] = 1;
           }
           else
             inbounds = false;
         }
 
         // NB: this needs to match the addressing scheme in dir_t (in constants.h)
-        if (offsets[i] == -1 || offsets[i] == 1)
-          dir[i] = offsets[i];
+        if (offsets[k] == -1 || offsets[k] == 1)
+          dir[k] = offsets[k];
       }
       if (!inbounds) continue;
 
@@ -408,12 +378,17 @@ decompose(int rank, const Assigner& assigner, const Creator& create)
 
 // decomposes domain but does not add blocks to master, assumes they were added already
 template<class Bounds>
-template<class Update>
 void
 diy::RegularDecomposer<Bounds>::
-decompose(int rank, const Assigner& assigner, Master& master, const Update& update)
+decompose(int rank, const StaticAssigner& assigner, Master& master, const Updater& update)
 {
-    decompose(rank, assigner, detail::Updater<Bounds,Update>(&master, update));
+    decompose(rank, assigner, [&master,&update](int gid, const Bounds& core, const Bounds& bounds, const Bounds& domain_, const Link& link)
+    {
+        int lid = master.lid(gid);
+        Link* l = new Link(link);
+        master.replace_link(lid, l);
+        update(gid, lid, core, bounds, domain_, *l);
+    });
 }
 
 template<class Bounds>
@@ -432,7 +407,7 @@ void
 diy::RegularDecomposer<Bounds>::
 gid_to_coords(int gid, DivisionsVector& coords, const DivisionsVector& divisions)
 {
-  int dim = divisions.size();
+  int dim = static_cast<int>(divisions.size());
   for (int i = 0; i < dim; ++i)
   {
     coords.push_back(gid % divisions[i]);
@@ -446,7 +421,7 @@ diy::RegularDecomposer<Bounds>::
 coords_to_gid(const DivisionsVector& coords, const DivisionsVector& divisions)
 {
   int gid = 0;
-  for (int i = coords.size() - 1; i >= 0; --i)
+  for (int i = static_cast<int>(coords.size()) - 1; i >= 0; --i)
   {
     gid *= divisions[i];
     gid += coords[i];
@@ -540,24 +515,21 @@ struct Div
 template<class Bounds>
 void
 diy::RegularDecomposer<Bounds>::
-fill_divisions(std::vector<int>& divisions) const
+fill_divisions(std::vector<int>& divisions_) const
 {
     // prod = number of blocks unconstrained by user; c = number of unconstrained dimensions
     int prod = 1; int c = 0;
     for (int i = 0; i < dim; ++i)
-        if (divisions[i] != 0)
+        if (divisions_[i] != 0)
         {
-            prod *= divisions[i];
+            prod *= divisions_[i];
             ++c;
         }
 
     if (nblocks % prod != 0)
-    {
-        fprintf(stderr, "Total number of blocks cannot be factored into provided divs\n");
-        return;
-    }
+        throw std::runtime_error("Total number of blocks cannot be factored into provided divs");
 
-    if (c == (int) divisions.size())               // nothing to do; user provided all divs
+    if (c == (int) divisions_.size())               // nothing to do; user provided all divs
         return;
 
     // factor number of blocks left in unconstrained dimensions
@@ -571,7 +543,7 @@ fill_divisions(std::vector<int>& divisions) const
     // init missing_divs
     for (int i = 0; i < dim; i++)
     {
-        if (divisions[i] == 0)
+        if (divisions_[i] == 0)
         {
             Div<Coordinate> div;
             div.dim = i;
@@ -620,7 +592,7 @@ fill_divisions(std::vector<int>& divisions) const
 
     // assign the divisions
     for (size_t i = 0; i < missing_divs.size(); i++)
-        divisions[missing_divs[i].dim] = missing_divs[i].nb;
+        divisions_[missing_divs[i].dim] = missing_divs[i].nb;
 }
 
 template<class Bounds>
