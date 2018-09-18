@@ -203,7 +203,7 @@ public:
    * Use the possibly smaller bounds of the points within the region
    * if useDataBounds is non-zero.
    */
-  int ContainsPoint(double x, double y, double z, int useDataBounds);
+  vtkTypeBool ContainsPoint(double x, double y, double z, int useDataBounds);
 
   /**
    * Calculate the distance squared from any point to the boundary of this

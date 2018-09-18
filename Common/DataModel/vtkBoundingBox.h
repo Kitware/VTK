@@ -189,8 +189,8 @@ public:
   /**
    * Returns 1 if the point is contained in the box else 0.
    */
-  int ContainsPoint(double p[3]) const;
-  int ContainsPoint(double px, double py, double pz) const;
+  vtkTypeBool ContainsPoint(double p[3]) const;
+  vtkTypeBool ContainsPoint(double px, double py, double pz) const;
   //@}
 
   /**
@@ -452,7 +452,7 @@ inline void vtkBoundingBox::GetMaxPoint(double &x, double &y, double &z) const
   z = this->MaxPnt[2];
 }
 
-inline int vtkBoundingBox::ContainsPoint(double px, double py,
+inline vtkTypeBool vtkBoundingBox::ContainsPoint(double px, double py,
                                          double pz) const
 {
   if ((px < this->MinPnt[0]) || (px > this->MaxPnt[0]))
@@ -470,7 +470,7 @@ inline int vtkBoundingBox::ContainsPoint(double px, double py,
   return 1;
 }
 
-inline int vtkBoundingBox::ContainsPoint(double p[3]) const
+inline vtkTypeBool vtkBoundingBox::ContainsPoint(double p[3]) const
 {
   return this->ContainsPoint(p[0], p[1], p[2]);
 }

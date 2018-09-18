@@ -155,13 +155,13 @@ public:
    * A point is in a node if and only if MinBounds[i] < p[i] <= MaxBounds[i],
    * which allows a node to be divided into eight non-overlapping children.
    */
-  int  ContainsPoint( const double pnt[3] );
+  vtkTypeBool ContainsPoint( const double pnt[3] );
 
   /**
    * A point is in a node, in terms of data, if and only if MinDataBounds[i]
    * <= p[i] <= MaxDataBounds[i].
    */
-  int  ContainsPointByData( const double pnt[3] );
+  vtkTypeBool ContainsPointByData( const double pnt[3] );
 
   /**
    * This function is called after a successful point-insertion check and
@@ -392,7 +392,7 @@ inline int vtkIncrementalOctreeNode::GetChildIndex( const double point[3] )
 }
 
 // In-lined for performance
-inline int vtkIncrementalOctreeNode::ContainsPoint( const double pnt[3] )
+inline vtkTypeBool vtkIncrementalOctreeNode::ContainsPoint( const double pnt[3] )
 {
   return (
             ( this->MinBounds[0] < pnt[0] && pnt[0] <= this->MaxBounds[0] &&
@@ -403,7 +403,7 @@ inline int vtkIncrementalOctreeNode::ContainsPoint( const double pnt[3] )
 }
 
 // In-lined for performance
-inline int vtkIncrementalOctreeNode::ContainsPointByData( const double pnt[3] )
+inline vtkTypeBool vtkIncrementalOctreeNode::ContainsPointByData( const double pnt[3] )
 {
   return
   (
