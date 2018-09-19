@@ -40,7 +40,11 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
-class vtkStdString;
+#include <string> // for std::strin
+
+class vtkInformationIntegerKey;
+class vtkInformationStringKey;
+
 class VTKFILTERSGENERAL_EXPORT vtkSplitColumnComponents : public vtkTableAlgorithm
 {
 public:
@@ -56,6 +60,7 @@ public:
    */
   vtkSetMacro(CalculateMagnitudes, bool);
   vtkGetMacro(CalculateMagnitudes, bool);
+  vtkBooleanMacro(CalculateMagnitudes, bool);
   //@}
 
   enum
@@ -83,6 +88,21 @@ public:
   vtkGetMacro(NamingMode, int);
   //@}
 
+  //@{
+  /**
+   * These are keys that get added to each output array to make it easier for
+   * downstream filters to know which output array were extracted from which
+   * input array.
+   *
+   * If either of these keys are missing, then the array was not extracted at
+   * all.
+   *
+   * `ORIGINAL_COMPONENT_NUMBER` of -1 indicates magnitude.
+   */
+  static vtkInformationStringKey* ORIGINAL_ARRAY_NAME();
+  static vtkInformationIntegerKey* ORIGINAL_COMPONENT_NUMBER();
+  //@}
+
 protected:
   vtkSplitColumnComponents();
   ~vtkSplitColumnComponents() override;
@@ -91,19 +111,19 @@ protected:
    * Returns the label to use for the specific component in the array based on
    * this->NamingMode. Use component_no==-1 for magnitude.
    */
-  vtkStdString GetComponentLabel(vtkAbstractArray* array, int component_no);
-
-  bool CalculateMagnitudes;
+  std::string GetComponentLabel(vtkAbstractArray* array, int component_no);
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
     vtkInformationVector*) override;
 
-  int NamingMode;
 private:
   vtkSplitColumnComponents(const vtkSplitColumnComponents&) = delete;
   void operator=(const vtkSplitColumnComponents&) = delete;
+
+  bool CalculateMagnitudes;
+  int NamingMode;
 };
 
 #endif

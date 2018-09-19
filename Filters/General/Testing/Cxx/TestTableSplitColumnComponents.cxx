@@ -13,6 +13,7 @@
 
 =========================================================================*/
 
+#include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
@@ -138,6 +139,16 @@ int TestTableSplitColumnComponents(int, char*[])
   if (strcmp(arrays[5]->GetName(), "Multinamed_zero") != 0)
   {
     vtkGenericWarningMacro("Incorrect name. NamingMode not being respected correctly.");
+    return EXIT_FAILURE;
+  }
+
+  auto a1info = arrays[1]->GetInformation();
+  if (!a1info->Has(vtkSplitColumnComponents::ORIGINAL_ARRAY_NAME()) ||
+    strcmp(a1info->Get(vtkSplitColumnComponents::ORIGINAL_ARRAY_NAME()), "Multi") != 0 ||
+    !a1info->Has(vtkSplitColumnComponents::ORIGINAL_COMPONENT_NUMBER()) ||
+    a1info->Get(vtkSplitColumnComponents::ORIGINAL_COMPONENT_NUMBER()) != 0)
+  {
+    vtkGenericWarningMacro("Missing array information about original name and component!");
     return EXIT_FAILURE;
   }
 
