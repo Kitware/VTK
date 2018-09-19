@@ -119,7 +119,8 @@ int vtkExtractUnstructuredGrid::RequestData(
   vtkIdType ptId;
   vtkPointData *pd = input->GetPointData();
   vtkCellData *cd = input->GetCellData();
-  int allVisible, numIds;
+  int allVisible;
+  vtkIdType numIds;
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   vtkIdType *pointMap = nullptr;

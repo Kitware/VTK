@@ -1115,7 +1115,7 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
 {
   vtkIdType i, j, numCells=cells->GetNumberOfIds();
   vtkIdType cellId;
-  int ptId;
+  vtkIdType ptId;
   vtkIdList *cellPts = vtkIdList::New();
   double size[3];
 

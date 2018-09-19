@@ -198,7 +198,7 @@ int vtkStaticCleanPolyData::RequestData(
 
   // we'll be needing these
   vtkIdType inCellID, newId;
-  int i;
+  vtkIdType i;
   vtkIdType ptId;
   vtkIdType npts = 0;
   vtkIdType *pts = nullptr;
@@ -536,28 +536,28 @@ int vtkStaticCleanPolyData::RequestData(
 
   // Now transfer all CellData from Lines/Polys/Strips into final
   // Cell data output
-  int CombinedCellID = vertIDcounter;
+  vtkIdType combinedCellID = vertIDcounter;
   if (newLines)
   {
-    for (i=0; i<lineIDcounter; i++, CombinedCellID++)
+    for (i=0; i<lineIDcounter; ++i, ++combinedCellID)
     {
-      outCD->CopyData(outLineData, i, CombinedCellID);
+      outCD->CopyData(outLineData, i, combinedCellID);
     }
     outLineData->Delete();
   }
   if (newPolys)
   {
-    for (i=0; i<polyIDcounter; i++, CombinedCellID++)
+    for (i=0; i<polyIDcounter; ++i, ++combinedCellID)
     {
-      outCD->CopyData(outPolyData, i, CombinedCellID);
+      outCD->CopyData(outPolyData, i, combinedCellID);
     }
     outPolyData->Delete();
   }
   if (newStrips)
   {
-    for (i=0; i<strpIDcounter; i++, CombinedCellID++)
+    for (i=0; i<strpIDcounter;++ i, ++combinedCellID)
     {
-      outCD->CopyData(outStrpData, i, CombinedCellID);
+      outCD->CopyData(outStrpData, i, combinedCellID);
     }
     outStrpData->Delete();
   }

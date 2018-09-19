@@ -457,8 +457,8 @@ vtkIdType vtkExtractCells::reMapPointIds(vtkDataSet *grid)
   }
   memset(temp, 0, totalPoints);
 
-  int numberOfIds = 0;
-  int i;
+  vtkIdType numberOfIds = 0;
+  vtkIdType i;
   vtkIdType id;
   vtkIdList *ptIds = vtkIdList::New();
   std::vector<vtkIdType>::const_iterator cellPtr;
@@ -475,13 +475,13 @@ vtkIdType vtkExtractCells::reMapPointIds(vtkDataSet *grid)
 
       vtkIdType *ptId = ptIds->GetPointer(0);
 
-      for (i=0; i<nIds; i++)
+      for (i=0; i<nIds; ++i)
       {
         id = *ptId++;
 
         if (temp[id] == 0)
         {
-          numberOfIds++;
+          ++numberOfIds;
           temp[id] = 1;
         }
       }
@@ -511,13 +511,13 @@ vtkIdType vtkExtractCells::reMapPointIds(vtkDataSet *grid)
 
       this->SubSetUGridCellArraySize += (1 + nIds);
 
-      for (i=0; i<nIds; i++)
+      for (i=0; i<nIds; ++i)
       {
         id = cellArray[loc++];
 
         if (temp[id] == 0)
         {
-          numberOfIds++;
+          ++numberOfIds;
           temp[id] = 1;
         }
       }

@@ -240,9 +240,9 @@ int vtkDataSetToDataObjectFilter::RequestData(
         vtkIdType numCells=input->GetNumberOfCells();
         vtkIntArray *types=vtkIntArray::New();
         types->SetNumberOfValues(numCells);
-        for (i=0; i<numCells; i++)
+        for (vtkIdType cellId=0; cellId<numCells; ++cellId)
         {
-          types->SetValue(i, input->GetCellType(i));
+          types->SetValue(cellId, input->GetCellType(cellId));
         }
         types->SetName("CellTypes");
         fd->AddArray( types );

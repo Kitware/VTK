@@ -43,7 +43,7 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
 
   if ( p ) // return the point in the neighborhood with the highest probability
   {
-    for (int i=0; i<numPts; ++i)
+    for (vtkIdType i=0; i<numPts; ++i)
     {
       if ( p[i] > highestProbability )
       {
@@ -56,7 +56,7 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
   else //return the closest point in the footprint provided
   {
     double y[3], d, minD=VTK_FLOAT_MAX;
-    for (int i=0; i<numPts; ++i)
+    for (vtkIdType i=0; i<numPts; ++i)
     {
       id = pIds->GetId(i);
       this->DataSet->GetPoint(id,y);

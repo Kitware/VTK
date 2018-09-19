@@ -105,7 +105,7 @@ int vtkReverseSense::RequestData(
     double n[3];
 
     progressInterval=numPoints/5+1;
-    for ( int ptId=0; ptId < numPoints; ptId++ )
+    for ( vtkIdType ptId=0; ptId < numPoints; ++ptId )
     {
       if ( ! (ptId % progressInterval) ) //manage progress / early abort
       {

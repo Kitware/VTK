@@ -239,7 +239,7 @@ struct VTile
     radii->SetNumberOfTuples(nPts);
     tile->InsertNextCell(static_cast<int>(nPts));
 
-    int i;
+    vtkIdType i;
     double r;
     VertexRingIterator tPtr;
     for ( i=0, tPtr=this->Verts.begin(); tPtr != this->Verts.end(); ++tPtr, ++i )

@@ -51,17 +51,15 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
                vtkDoubleArray *weights)
 {
   vtkIdType numPts = pIds->GetNumberOfIds();
-  int i;
-  vtkIdType id;
   double d2, y[3], sum = 0.0;
   weights->SetNumberOfTuples(numPts);
   double *p = (prob ? prob->GetPointer(0) : nullptr);
   double *w = weights->GetPointer(0);
   double f2=this->F2;
 
-  for (i=0; i<numPts; ++i)
+  for (vtkIdType i=0; i<numPts; ++i)
   {
-    id = pIds->GetId(i);
+    vtkIdType id = pIds->GetId(i);
     this->DataSet->GetPoint(id,y);
     d2 = vtkMath::Distance2BetweenPoints(x,y);
 
@@ -83,7 +81,7 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
   // Normalize
   if ( this->NormalizeWeights && sum != 0.0 )
   {
-    for (i=0; i<numPts; ++i)
+    for (vtkIdType i=0; i<numPts; ++i)
     {
       w[i] /= sum;
     }

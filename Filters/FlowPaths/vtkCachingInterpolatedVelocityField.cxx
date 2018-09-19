@@ -344,7 +344,7 @@ void vtkCachingInterpolatedVelocityField::FastCompute(
   {
     for (int j=0; j<numPts; j++)
     {
-      int id = data->Cell->PointIds->GetId(j);
+      vtkIdType id = data->Cell->PointIds->GetId(j);
       f[0] +=  dvectors[id*3 + 0] * this->Weights[j];
       f[1] +=  dvectors[id*3 + 1] * this->Weights[j];
       f[2] +=  dvectors[id*3 + 2] * this->Weights[j];
@@ -355,7 +355,7 @@ void vtkCachingInterpolatedVelocityField::FastCompute(
     float *fvectors = data->VelocityFloat;
     for (int j=0; j<numPts; j++)
     {
-      int id = data->Cell->PointIds->GetId(j);
+      vtkIdType id = data->Cell->PointIds->GetId(j);
       f[0] +=  fvectors[id*3 + 0] * this->Weights[j];
       f[1] +=  fvectors[id*3 + 1] * this->Weights[j];
       f[2] +=  fvectors[id*3 + 2] * this->Weights[j];

@@ -169,9 +169,9 @@ protected:
   ~vtkArcPlotter() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int  OffsetPoint(vtkIdType ptId, vtkPoints *inPts, double n[3],
-                   vtkPoints *newPts, double offset,
-                   double *range, double val);
+  vtkIdType OffsetPoint(vtkIdType ptId, vtkPoints *inPts, double n[3],
+                        vtkPoints *newPts, double offset,
+                        double *range, double val);
   int  ProcessComponents(vtkIdType numPts, vtkPointData *pd);
 
   vtkCamera *Camera;

@@ -322,7 +322,6 @@ void vtkStreamTracer::InitializeSeeds(vtkDataArray*& seeds,
 
   if (source)
   {
-    int i;
     vtkIdType numSeeds = source->GetNumberOfPoints();
     if (numSeeds > 0)
     {
@@ -331,7 +330,7 @@ void vtkStreamTracer::InitializeSeeds(vtkDataArray*& seeds,
       if (this->IntegrationDirection == BOTH)
       {
         seedIds->SetNumberOfIds(2*numSeeds);
-        for (i=0; i<numSeeds; i++)
+        for (vtkIdType i=0; i<numSeeds; ++i)
         {
           seedIds->SetId(i, i);
           seedIds->SetId(numSeeds + i, i);
@@ -340,7 +339,7 @@ void vtkStreamTracer::InitializeSeeds(vtkDataArray*& seeds,
       else
       {
         seedIds->SetNumberOfIds(numSeeds);
-        for (i=0; i<numSeeds; i++)
+        for (vtkIdType i=0; i<numSeeds; ++i)
         {
           seedIds->SetId(i, i);
         }
@@ -360,7 +359,7 @@ void vtkStreamTracer::InitializeSeeds(vtkDataArray*& seeds,
         seeds = vtkDoubleArray::New();
         seeds->SetNumberOfComponents(3);
         seeds->SetNumberOfTuples(numSeeds);
-        for (i=0; i<numSeeds; i++)
+        for (vtkIdType i=0; i<numSeeds; ++i)
         {
           seeds->SetTuple(i, source->GetPoint(i));
         }

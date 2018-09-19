@@ -1575,7 +1575,7 @@ void vtkCellLocator::ClearCellHasBeenVisited()
 }
 
 //----------------------------------------------------------------------------
-void vtkCellLocator::ClearCellHasBeenVisited(int id)
+void vtkCellLocator::ClearCellHasBeenVisited(vtkIdType id)
 {
   if (this->CellHasBeenVisited
       && this->DataSet && id < this->DataSet->GetNumberOfCells())

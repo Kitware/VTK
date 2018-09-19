@@ -144,10 +144,10 @@ void vtkPParticleTracerBase::AssignSeedsToProcessors(
   //
   // take points from the source object and create a particle list
   //
-  int numSeeds = source->GetNumberOfPoints();
+  vtkIdType numSeeds = source->GetNumberOfPoints();
   candidates.resize(numSeeds);
   //
-  for (int i=0; i<numSeeds; i++)
+  for (vtkIdType i=0; i<numSeeds; i++)
   {
     ParticleInformation &info = candidates[i];
     memcpy(info.CurrentPosition.x, source->GetPoint(i), sizeof(double)*3);
