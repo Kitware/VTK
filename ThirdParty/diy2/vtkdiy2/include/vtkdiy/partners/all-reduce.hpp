@@ -45,7 +45,7 @@ struct RegularAllReducePartners: public RegularMergePartners
   //! returns whether a given block in a given round has dropped out of the merge yet or not
   inline bool   active(int round, int gid, const Master& m) const { return Parent::active(parent_round(round), gid, m); }
   //! returns what the current round would be in the first or second parent merge reduction
-  int           parent_round(int round) const                   { return round < (int) Parent::rounds() ? round : rounds() - round; }
+  int           parent_round(int round) const                   { return round < (int) Parent::rounds() ? round : static_cast<int>(rounds()) - round; }
 
   // incoming is only valid for an active gid; it will only be called with an active gid
   inline void   incoming(int round, int gid, std::vector<int>& partners, const Master& m) const

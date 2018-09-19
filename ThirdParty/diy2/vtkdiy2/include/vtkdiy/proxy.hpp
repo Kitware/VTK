@@ -10,12 +10,12 @@ namespace diy
     template <class T>
     struct EnqueueIterator;
 
-                        Proxy(Master* master, int gid):
-                          gid_(gid),
-                          master_(master),
-                          incoming_(&master->incoming(gid)),
-                          outgoing_(&master->outgoing(gid)),
-                          collectives_(&master->collectives(gid))       {}
+                        Proxy(Master* master__, int gid__):
+                          gid_(gid__),
+                          master_(master__),
+                          incoming_(&master__->incoming(gid__)),
+                          outgoing_(&master__->outgoing(gid__)),
+                          collectives_(&master__->collectives(gid__))   {}
 
     int                 gid() const                                     { return gid_; }
 
@@ -53,6 +53,24 @@ namespace diy
                                 size_t          n,                                      //!< size in data elements (eg. ints)
                                 void (*load)(BinaryBuffer&, T&) = &::diy::load<T>       //!< optional serialization function
                                ) const;
+
+    //! Dequeue data whose size can be determined automatically (e.g., STL vector) and that was
+    //! previously enqueued so that diy knows its size when it is received.
+    //! In this case, diy will allocate the receive buffer; the user does not need to do so.
+    template<class T>
+    void                dequeue(const BlockID&  from,                                   //!< target block (gid,proc)
+                                T&              x,                                      //!< data (eg. STL vector)
+                                void (*load)(BinaryBuffer&, T&) = &::diy::load<T>       //!< optional serialization function
+                               ) const                                  { dequeue(from.gid, x, load); }
+
+    //! Dequeue an array of data whose size is given explicitly by the user.
+    //! In this case, the user needs to allocate the receive buffer prior to calling dequeue.
+    template<class T>
+    void                dequeue(const BlockID&  from,                                   //!< target block (gid,proc)
+                                T*              x,                                      //!< pointer to the data (eg. address of start of vector)
+                                size_t          n,                                      //!< size in data elements (eg. ints)
+                                void (*load)(BinaryBuffer&, T&) = &::diy::load<T>       //!< optional serialization function
+                               ) const                                  { dequeue(from.gid, x, n, load); }
 
     template<class T>
     EnqueueIterator<T>  enqueuer(const T& x,
@@ -134,21 +152,23 @@ namespace diy
   struct Master::ProxyWithLink: public Master::Proxy
   {
             ProxyWithLink(const Proxy&    proxy,
-                          void*           block,
-                          Link*           link):
+                          void*           block__,
+                          Link*           link__,
+                          IExchangeInfo*  iexchange__ = 0):
               Proxy(proxy),
-              block_(block),
-              link_(link)                                           {}
+              block_(block__),
+              link_(link__),
+              iexchange_(iexchange__)                               {}
 
       Link*   link() const                                          { return link_; }
       void*   block() const                                         { return block_; }
 
     private:
-      void*   block_;
-      Link*   link_;
+      void*             block_;
+      Link*             link_;
+      IExchangeInfo*    iexchange_;         // not used for iexchange presently, but later could trigger some special behavior
   };
-}
-
+}                                           // diy namespace
 
 void
 diy::Master::Proxy::
