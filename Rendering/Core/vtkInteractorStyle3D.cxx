@@ -252,8 +252,11 @@ void vtkInteractorStyle3D::Dolly3D(vtkEventData *ed)
   // movement can be determined from the camera scale.
   // movement speed is scaled by the touchpad
   // y coordinate
-
-  float *tpos = rwi->GetTouchPadPosition();
+  float tpos[3];
+  rwi->GetTouchPadPosition(
+    edd->GetDevice(),
+    vtkEventDataDeviceInput::Unknown,
+    tpos);
   // 2.0 so that the max is 2.0 times the average
   // motion factor
   double factor = tpos[1]*2.0*this->DollyMotionFactor/90.0;

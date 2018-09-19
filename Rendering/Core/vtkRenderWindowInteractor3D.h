@@ -33,6 +33,8 @@
 #include "vtkRenderWindowInteractor.h"
 
 class vtkCamera;
+enum class vtkEventDataDevice;
+enum class vtkEventDataDeviceInput;
 
 class VTKRENDERINGCORE_EXPORT vtkRenderWindowInteractor3D : public vtkRenderWindowInteractor
 {
@@ -227,10 +229,12 @@ public:
 
   //@{
   /**
-   * Set/Get the latest touchpad position
+   * Get the latest touchpad or joystick position for a device
    */
-  vtkSetVector2Macro(TouchPadPosition,float);
-  vtkGetVector2Macro(TouchPadPosition,float);
+  virtual void GetTouchPadPosition(
+    vtkEventDataDevice,
+    vtkEventDataDeviceInput,
+    float [3]) { };
   //@}
 
   //@{
@@ -264,7 +268,6 @@ protected:
 
   int     MouseInWindow;
   int     StartedMessageLoop;
-  float TouchPadPosition[2];
   double Translation3D[3];
   double LastTranslation3D[3];
 
