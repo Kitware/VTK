@@ -7,7 +7,6 @@
 
 #include "thread/fast_mutex.h"
 
-#if __cplusplus > 199711L           // C++11
 #include <thread>
 #include <mutex>
 
@@ -25,19 +24,6 @@ namespace diy
     using lock_guard = std::unique_lock<Mutex>;
 }
 
-#else
-#include "thread/tinythread.h"
-
-namespace diy
-{
-  using tthread::thread;
-  using tthread::mutex;
-  using tthread::fast_mutex;
-  using tthread::recursive_mutex;
-  using tthread::lock_guard;
-  namespace this_thread = tthread::this_thread;
-}
-#endif
 #endif
 
 #include "critical-resource.hpp"

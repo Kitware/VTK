@@ -701,8 +701,7 @@ inline bool ComparePointsByBlockId(const Point &p1, const Point &p2)
 }
 
 // Send input points that overlap remote's source bounds
-void FindPointsToSend(DiyBlock *block, const diy::Master::ProxyWithLink& cp,
-                      void*)
+void FindPointsToSend(DiyBlock *block, const diy::Master::ProxyWithLink& cp)
 {
   diy::Link *link = cp.link();
   for (int l = 0; l < link->size(); ++l)
@@ -809,9 +808,8 @@ private:
 
 // Perform resampling of local and remote input points
 void PerformResampling(DiyBlock *block, const diy::Master::ProxyWithLink& cp,
-                       void *probep)
+                       vtkCompositeDataProbeFilter *prober)
 {
-  vtkCompositeDataProbeFilter *prober = static_cast<vtkCompositeDataProbeFilter*>(probep);
   diy::Link *link = cp.link();
 
   // local points
@@ -1003,10 +1001,8 @@ private:
 
 // receive resampled points
 void ReceiveResampledPoints(DiyBlock *block, const diy::Master::ProxyWithLink &cp,
-                            void *maskArrayNamePtr)
+                            const char *maskArrayName)
 {
-  const char *maskArrayName = reinterpret_cast<char*>(maskArrayNamePtr);
-
   int numBlocks = block->InputBlocks.size();
   std::vector<std::map<std::string, int> > arrayReceiveCounts(numBlocks);
 
@@ -1175,17 +1171,16 @@ int vtkPResampleWithDataSet::RequestData(vtkInformation *request,
 
   this->Prober->SetSourceData(source);
   // find and send local points that overlap remote source blocks
-  master.foreach<DiyBlock>(&FindPointsToSend);
+  master.foreach(&FindPointsToSend);
   // the lookup structures are no longer required
   delete block.PointsLookup;
   block.PointsLookup = nullptr;
   master.exchange();
   // perform resampling on local and remote points
-  master.foreach<DiyBlock>(&PerformResampling, this->Prober.GetPointer());
+  master.foreach([&] (DiyBlock* block_, const diy::Master::ProxyWithLink& cp) { PerformResampling(block_, cp, this->Prober.GetPointer()); });
   master.exchange();
   // receive resampled points and set the values in output
-  master.foreach<DiyBlock>(&ReceiveResampledPoints,
-                           this->Prober->GetValidPointMaskArrayName());
+  master.foreach([&] (DiyBlock* block_, const diy::Master::ProxyWithLink& cp) { ReceiveResampledPoints(block_, cp, this->Prober->GetValidPointMaskArrayName()); });
 
   if (this->MarkBlankPointsAndCells)
   {

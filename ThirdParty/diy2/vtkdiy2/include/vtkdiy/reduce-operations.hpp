@@ -21,6 +21,8 @@ all_to_all(Master&              master,     //!< block owner
            int                  k = 2       //!< reduction fanout
           )
 {
+  auto scoped = master.prof.scoped("all_to_all");
+  (void)scoped;
   RegularDecomposer<DiscreteBounds> decomposer(1, interval(0,assigner.nblocks()-1), assigner.nblocks());
   RegularSwapPartners  partners(decomposer, k, false);
   reduce(master, assigner, partners, detail::AllToAllReduce<Op>(op, assigner), detail::SkipIntermediate(partners.rounds()));

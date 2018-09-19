@@ -4,14 +4,12 @@
 #include <string>
 #include <map>
 #include <fstream>
-
-#include <unistd.h>     // mkstemp() on Mac
-#include <cstdlib>      // mkstemp() on Linux
-#include <cstdio>       // remove()
 #include <fcntl.h>
 
 #include "serialization.hpp"
 #include "thread.hpp"
+#include "log.hpp"
+#include "io/utils.hpp"
 
 namespace diy
 {
@@ -25,9 +23,17 @@ namespace diy
                           FileBuffer(FILE* file_): file(file_), head(0), tail(0)    {}
 
       // TODO: add error checking
-      virtual inline void save_binary(const char* x, size_t count)    { fwrite(x, 1, count, file); head += count; }
-      virtual inline void load_binary(char* x, size_t count)          { fread(x, 1, count, file); }
-      virtual inline void load_binary_back(char* x, size_t count)     { fseek(file, tail, SEEK_END); fread(x, 1, count, file); tail += count; fseek(file, head, SEEK_SET); }
+      virtual inline void save_binary(const char* x, size_t count) override   { fwrite(x, 1, count, file); head += count; }
+      virtual inline void append_binary(const char* x, size_t count) override
+      {
+          size_t temp_pos = ftell(file);
+          fseek(file, static_cast<long>(tail), SEEK_END);
+          fwrite(x, 1, count, file);
+          tail += count;
+          fseek(file, temp_pos, SEEK_SET);
+      }
+      virtual inline void load_binary(char* x, size_t count) override         { fread(x, 1, count, file); }
+      virtual inline void load_binary_back(char* x, size_t count) override    { fseek(file, static_cast<long>(tail), SEEK_END); fread(x, 1, count, file); tail += count; fseek(file, static_cast<long>(head), SEEK_SET); }
 
       size_t              size() const                                { return head; }
 
@@ -65,19 +71,25 @@ namespace diy
                       filename_templates_(filename_templates),
                       count_(0), current_size_(0), max_size_(0)         {}
 
-      virtual int   put(MemoryBuffer& bb)
+      virtual int   put(MemoryBuffer& bb) override
       {
+        auto log = get_logger();
         std::string     filename;
         int fh = open_random(filename);
 
-        //fprintf(stdout, "FileStorage::put(): %s; buffer size: %lu\n", filename.c_str(), bb.size());
+        log->debug("FileStorage::put(): {}; buffer size: {}", filename, bb.size());
 
         size_t sz = bb.buffer.size();
-        size_t written = write(fh, &bb.buffer[0], sz);
-        if (written < sz || written == (size_t)-1)
-          fprintf(stderr, "Warning: could not write the full buffer to %s: written = %lu; size = %lu\n", filename.c_str(), written, sz);
-        fsync(fh);
-        close(fh);
+#if defined(_WIN32)
+        using r_type = int;
+        r_type written = _write(fh, &bb.buffer[0], static_cast<unsigned int>(sz));
+#else
+        using r_type = ssize_t;
+        r_type written = write(fh, &bb.buffer[0], sz);
+#endif
+        if (written < static_cast<r_type>(sz) || written == r_type(-1))
+          log->warn("Could not write the full buffer to {}: written = {}; size = {}", filename, written, sz);
+        io::utils::close(fh);
         bb.wipe();
 
 #if 0       // double-check the written file size: only for extreme debugging
@@ -85,56 +97,70 @@ namespace diy
         fseek(fp, 0L, SEEK_END);
         int fsz = ftell(fp);
         if (fsz != sz)
-            fprintf(stderr, "Warning: file size doesn't match the buffer size, %d vs %d\n", fsz, sz);
+            log->warn("file size doesn't match the buffer size, {} vs {}", fsz, sz);
         fclose(fp);
 #endif
 
         return make_file_record(filename, sz);
       }
 
-      virtual int    put(const void* x, detail::Save save)
+      virtual int    put(const void* x, detail::Save save) override
       {
         std::string     filename;
         int fh = open_random(filename);
-
+#if defined(_WIN32)
+        detail::FileBuffer fb(_fdopen(fh, "wb"));
+#else
         detail::FileBuffer fb(fdopen(fh, "w"));
+#endif
         save(x, fb);
         size_t sz = fb.size();
         fclose(fb.file);
-        fsync(fh);
+        io::utils::sync(fh);
 
         return make_file_record(filename, sz);
       }
 
-      virtual void   get(int i, MemoryBuffer& bb, size_t extra)
+      virtual void   get(int i, MemoryBuffer& bb, size_t extra) override
       {
         FileRecord fr = extract_file_record(i);
 
-        //fprintf(stdout, "FileStorage::get(): %s\n", fr.name.c_str());
+        get_logger()->debug("FileStorage::get(): {}", fr.name);
 
         bb.buffer.reserve(fr.size + extra);
         bb.buffer.resize(fr.size);
+#if defined(_WIN32)
+        int fh = -1;
+        _sopen_s(&fh, fr.name.c_str(), _O_RDONLY | _O_BINARY, _SH_DENYNO, _S_IREAD);
+        _read(fh, &bb.buffer[0], static_cast<unsigned int>(fr.size));
+#else
         int fh = open(fr.name.c_str(), O_RDONLY | O_SYNC, 0600);
         read(fh, &bb.buffer[0], fr.size);
-        close(fh);
-
+#endif
+        io::utils::close(fh);
         remove_file(fr);
       }
 
-      virtual void   get(int i, void* x, detail::Load load)
+      virtual void   get(int i, void* x, detail::Load load) override
       {
         FileRecord fr = extract_file_record(i);
 
         //int fh = open(fr.name.c_str(), O_RDONLY | O_SYNC, 0600);
+#if defined(_WIN32)
+        int fh = -1;
+        _sopen_s(&fh, fr.name.c_str(), _O_RDONLY | _O_BINARY, _SH_DENYNO, _S_IREAD);
+        detail::FileBuffer fb(_fdopen(fh, "rb"));
+#else
         int fh = open(fr.name.c_str(), O_RDONLY, 0600);
         detail::FileBuffer fb(fdopen(fh, "r"));
+#endif
         load(x, fb);
         fclose(fb.file);
 
         remove_file(fr);
       }
 
-      virtual void  destroy(int i)
+      virtual void  destroy(int i) override
       {
         FileRecord      fr;
         {
@@ -142,7 +168,7 @@ namespace diy
           fr = (*accessor)[i];
           accessor->erase(i);
         }
-        remove(fr.name.c_str());
+        io::utils::remove(fr.name);
         (*current_size_.access()) -= fr.size;
       }
 
@@ -156,7 +182,7 @@ namespace diy
                                            it != filenames_.const_access()->end();
                                          ++it)
         {
-          remove(it->second.name.c_str());
+          io::utils::remove(it->second.name);
         }
       }
 
@@ -168,15 +194,9 @@ namespace diy
         else
         {
             // pick a template at random (very basic load balancing mechanism)
-            filename  = filename_templates_[std::rand() % filename_templates_.size()].c_str();
+            filename  = filename_templates_[static_cast<size_t>(std::rand()) % filename_templates_.size()].c_str();
         }
-#ifdef __MACH__
-        // TODO: figure out how to open with O_SYNC
-        int fh = mkstemp(const_cast<char*>(filename.c_str()));
-#else
-        int fh = mkostemp(const_cast<char*>(filename.c_str()), O_WRONLY | O_SYNC);
-#endif
-
+        int fh = diy::io::utils::mkstemp(filename);
         return fh;
       }
 
@@ -206,7 +226,7 @@ namespace diy
 
       void          remove_file(const FileRecord& fr)
       {
-        remove(fr.name.c_str());
+        io::utils::remove(fr.name);
         (*current_size_.access()) -= fr.size;
       }
 

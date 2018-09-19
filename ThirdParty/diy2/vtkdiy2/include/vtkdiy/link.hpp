@@ -15,13 +15,15 @@ namespace diy
   class Link
   {
     public:
+      using Neighbors = std::vector<BlockID>;
+
       virtual   ~Link()                             {}  // need to be able to delete derived classes
 
-      int       size() const                        { return neighbors_.size(); }
+      int       size() const                        { return static_cast<int>(neighbors_.size()); }
       inline
       int       size_unique() const;
-      BlockID   target(int i) const                 { return neighbors_[i]; }
-      BlockID&  target(int i)                       { return neighbors_[i]; }
+      BlockID   target(int i) const                 { return neighbors_[static_cast<size_t>(i)]; }
+      BlockID&  target(int i)                       { return neighbors_[static_cast<size_t>(i)]; }
       inline
       int       find(int gid) const;
 
@@ -31,13 +33,18 @@ namespace diy
 
       void      swap(Link& other)                   { neighbors_.swap(other.neighbors_); }
 
+      const Neighbors&
+                neighbors() const                   { return neighbors_; }
+      Neighbors&
+                neighbors()                         { return neighbors_; }
+
       virtual void  save(BinaryBuffer& bb) const    { diy::save(bb, neighbors_); }
       virtual void  load(BinaryBuffer& bb)          { diy::load(bb, neighbors_); }
 
       virtual size_t id() const                     { return 0; }
 
     private:
-      std::vector<BlockID>  neighbors_;
+      Neighbors neighbors_;
   };
 
   template<class Bounds_>
@@ -77,8 +84,8 @@ namespace diy
       typedef   std::vector<Direction>              DirVec;
 
     public:
-                RegularLink(int dim, const Bounds& core, const Bounds& bounds):
-                  dim_(dim), core_(core), bounds_(bounds)            {}
+                RegularLink(int dim, const Bounds& core__, const Bounds& bounds__):
+                  dim_(dim), core_(core__), bounds_(bounds__) {}
 
       // dimension
       int       dimension() const                       { return dim_; }
@@ -99,7 +106,7 @@ namespace diy
       const Bounds& bounds() const                      { return bounds_; }
       Bounds&       bounds()                            { return bounds_; }
       const Bounds& bounds(int i) const                 { return nbr_bounds_[i]; }
-      void          add_bounds(const Bounds& bounds)    { nbr_bounds_.push_back(bounds); }
+      void          add_bounds(const Bounds& bounds__)  { nbr_bounds_.push_back(bounds__); }
 
       void      swap(RegularLink& other)                { Link::swap(other); dir_map_.swap(other.dir_map_); dir_vec_.swap(other.dir_vec_); nbr_bounds_.swap(other.nbr_bounds_); std::swap(dim_, other.dim_); wrap_.swap(other.wrap_); std::swap(core_, other.core_); std::swap(bounds_, other.bounds_); }
 
@@ -188,7 +195,7 @@ int
 diy::Link::
 find(int gid) const
 {
-    for (unsigned i = 0; i < (unsigned)size(); ++i)
+    for (int i = 0; i < size(); ++i)
   {
     if (target(i).gid == gid)
       return i;
@@ -201,7 +208,7 @@ size_unique() const
 {
     std::vector<BlockID> tmp(neighbors_.begin(), neighbors_.end());
     std::sort(tmp.begin(), tmp.end());
-    return std::unique(tmp.begin(), tmp.end()) - tmp.begin();
+    return static_cast<int>(std::unique(tmp.begin(), tmp.end()) - tmp.begin());
 }
 
 template<class Bounds>
