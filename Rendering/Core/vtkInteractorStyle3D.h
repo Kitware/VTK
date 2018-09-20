@@ -89,13 +89,11 @@ public:
   //@}
 
   /**
-   * Set the distance for the camera. The distance
-   * in VR represents the scaling from world
-   * to physical space. So when we set it to a new
-   * value we also adjust the HMD position to maintain
-   * the same relative position.
+   * Set the scaling factor from world to physical space.
+   * In VR when we set it to a new value we also adjust the
+   * HMD position to maintain the same relative position.
    */
-  void SetScale(vtkCamera *cam, double distance);
+  virtual void SetScale(vtkCamera *cam, double newScale);
 
   /**
   * Get the interaction picker

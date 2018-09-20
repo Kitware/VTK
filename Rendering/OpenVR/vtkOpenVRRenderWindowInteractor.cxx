@@ -97,7 +97,7 @@ void vtkOpenVRRenderWindowInteractor::ConvertPoseToWorldCoordinates(
 {
   vtkOpenVRRenderWindow *win =
     vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
-  double distance = win->GetPhysicalScale();
+  double physicalScale = win->GetPhysicalScale();
   double *trans = win->GetPhysicalTranslation();
 
   // Vive to world axes
@@ -129,7 +129,7 @@ void vtkOpenVRRenderWindowInteractor::ConvertPoseToWorldCoordinates(
   // now adjust for scale and translation
   for (int i = 0; i < 3; i++)
   {
-    pos[i] = ppos[i]*distance - trans[i];
+    pos[i] = ppos[i]*physicalScale - trans[i];
   }
 
   // convert axes to world coordinates

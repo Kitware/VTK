@@ -49,6 +49,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkEventData.h" // for enums
 
 class vtkCamera;
+class vtkMatrix4x4;
 class vtkOpenVRModel;
 class vtkOpenVROverlay;
 class vtkOpenGLVertexBufferObject;
@@ -80,7 +81,9 @@ public:
   //@}
 
   /**
-   * Update the HMD pose
+   * Update the HMD pose based on hardware pose and physical to world transform.
+   * VR camera properties are directly modified based on physical to world to
+   * simulate \sa PhysicalTranslation, \sa PhysicalScale, etc.
    */
   void UpdateHMDMatrixPose();
 
@@ -111,7 +114,7 @@ public:
     return this->TrackedDeviceToRenderModel[idx]; };
 
   /**
-  *Get the openVR Render Models
+  * Get the openVR Render Models
   */
   vr::IVRRenderModels * GetOpenVRRenderModels() {
     return this->OpenVRRenderModels; };
@@ -129,7 +132,7 @@ public:
     return this->TrackedDevicePose[idx]; };
 
   /**
-   * Initialize the Vive to World setting and camera settings so
+   * Initialize the HMD to World setting and camera settings so
    * that the VR world view most closely matched the view from
    * the provided camera. This method is useful for initialing
    * a VR world from an existing on screen window and camera.
@@ -140,7 +143,7 @@ public:
 
   //@{
   /**
-   * Control the Vive to World transformations. IN
+   * Control the HMD to World transformations. In
    * some cases users may not want the Y axis to be up
    * and these methods allow them to control it.
    */
@@ -153,6 +156,18 @@ public:
   vtkSetMacro(PhysicalScale, double);
   vtkGetMacro(PhysicalScale, double);
   //@}
+
+  /**
+  * Set physical to world transform matrix. Members calculated and set from the matrix:
+  * \sa PhysicalViewDirection, \sa PhysicalViewUp, \sa PhysicalTranslation, \sa PhysicalScale
+  * The x axis scale is used for \sa PhysicalScale
+  */
+  void SetPhysicalToWorldMatrix(vtkMatrix4x4* matrix);
+  /**
+  * Get physical to world transform matrix. Members used to calculate the matrix:
+  * \sa PhysicalViewDirection, \sa PhysicalViewUp, \sa PhysicalTranslation, \sa PhysicalScale
+  */
+  void GetPhysicalToWorldMatrix(vtkMatrix4x4* matrix);
 
   //@{
   /**
