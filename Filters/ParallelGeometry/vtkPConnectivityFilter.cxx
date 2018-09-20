@@ -81,6 +81,7 @@ struct ExchangeBoundsWorker : public WorkerBase
   ExchangeBoundsWorker(vtkMPIController* subController) :
     WorkerBase(subController)
   {
+    memset(this->Bounds, 0, sizeof(this->Bounds));
   }
 
   bool Execute(const double bounds[6], const vtkSmartPointer<vtkDataArray> & allBoundsArray)
@@ -128,8 +129,9 @@ protected:
 struct FindMyNeighborsWorker : public WorkerBase
 {
   FindMyNeighborsWorker(vtkMPIController* subController) :
-    WorkerBase(subController)
+    WorkerBase(subController), MyNeighbors(nullptr)
   {
+    memset(this->Bounds, 0, sizeof(this->Bounds));
   }
 
   bool Execute(const double bounds[6],
@@ -198,7 +200,8 @@ protected:
 struct AssemblePointsAndRegionIdsWorker : public WorkerBase
 {
   AssemblePointsAndRegionIdsWorker(vtkMPIController* subController) :
-    WorkerBase(subController)
+    WorkerBase(subController), RegionStarts(nullptr),
+    PointsForMyNeighbors(nullptr), RegionIdsForMyNeighbors(nullptr)
   {
   }
 
@@ -290,7 +293,8 @@ struct SendReceivePointsWorker : public WorkerBase
 {
 
   SendReceivePointsWorker(vtkMPIController* subController) :
-    WorkerBase(subController)
+    WorkerBase(subController), PointsFromMyNeighbors(nullptr),
+    RegionIdsFromMyNeighbors(nullptr)
   {
   }
 

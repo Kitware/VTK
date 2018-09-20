@@ -44,7 +44,7 @@ vtkCxxSetObjectMacro(vtkOrderIndependentTranslucentPass,TranslucentPass,vtkRende
 
 // ----------------------------------------------------------------------------
 vtkOrderIndependentTranslucentPass::vtkOrderIndependentTranslucentPass() :
-  Framebuffer(nullptr)
+  Framebuffer(nullptr), State(nullptr)
 {
   this->TranslucentPass=nullptr;
 

@@ -41,6 +41,9 @@ memsetClassFloat
 assertWithSideEffect
 argumentSize
 
+// Gives too many false positives with << stream operator.
+shiftNegative
+
 // There are *thousands* of these, too much to manage, so suppress all.
 variableScope
 
@@ -515,6 +518,9 @@ unreadVariable:Web/WebGLExporter/vtkWebGLWidget.cxx
 unreadVariable:Wrapping/PythonCore/PyVTKObject.cxx
 unreadVariable:Wrapping/PythonCore/vtkPythonOverload.cxx
 
+// 48 warnings
+noOperatorEq
+
 // Many warnings
 noCopyConstructor:Common/Core/Testing/Cxx/TestCxxFeatures.cxx
 noCopyConstructor:Common/DataModel/vtkDataObjectTreeIterator.cxx
@@ -606,6 +612,7 @@ uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
 syntaxError:Rendering/OpenGL2/vtkOpenGLGlyph3DMapper.cxx
 arrayIndexOutOfBoundsCond:IO/MINC/vtkMINCImageAttributes.cxx
 uninitMemberVar:GUISupport/Qt/QVTKOpenGLWidget.cxx
+unusedVariable:IO/SegY/vtkSegYReaderInternal.cxx
 
 // false positive: <https://trac.cppcheck.net/ticket/8346>
 syntaxError:Accelerators/Vtkm/vtkmlib/Portals.hxx
@@ -634,6 +641,7 @@ knownConditionTrueFalse:Filters/Parallel/Testing/Cxx/UnitTestPMaskPoints.cxx
 knownConditionTrueFalse:Rendering/OSPRay/vtkOSPRayRendererNode.cxx
 nullPointer:Wrapping/Tools/lex.yy.c
 passedByValue:Filters/General/vtkYoungsMaterialInterface.cxx
+uninitMemberVar:Common/DataModel/vtkStaticPointLocator2D.cxx
 
 // Style, not really problematic:
 duplicateAssignExpression:Rendering/Context2D/vtkMarkerUtilities.cxx

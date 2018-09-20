@@ -821,6 +821,7 @@ vtkStandardNewMacro(vtkVeraOutReader);
 vtkVeraOutReader::vtkVeraOutReader()
 {
   this->FileName = nullptr;
+  this->NumberOfTimeSteps = 0;
   this->TimeSteps.clear();
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);

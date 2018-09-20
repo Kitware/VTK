@@ -145,7 +145,9 @@ struct vtkBucketList2D
 // Utility class to store an array of ij values
 struct NeighborBuckets2D
 {
-  // Start with an array to avoid memory allocation overhead
+  // Start with an array to avoid memory allocation overhead.
+  // Initially, P will alias InitialBuffer, but could later
+  // be assigned dynamically allocated memory.
   int InitialBuffer[VTK_INITIAL_BUCKET_SIZE*2];
   int *P;
   vtkIdType Count;
