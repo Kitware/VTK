@@ -215,14 +215,16 @@ void vtkOpenVRInteractorStyle::OnMove3D(vtkEventData *edata)
   {
     return;
   }
-  int idev = static_cast<int>(edd->GetDevice());
 
-  //Set current state and interaction prop
-  this->InteractionProp = this->InteractionProps[idev];
+  // joystick moves?
+  int idev = static_cast<int>(edd->GetDevice());
 
   //Update current state
   int x = this->Interactor->GetEventPosition()[0];
   int y = this->Interactor->GetEventPosition()[1];
+
+  //Set current state and interaction prop
+  this->InteractionProp = this->InteractionProps[idev];
 
   switch (this->InteractionState[idev])
   {

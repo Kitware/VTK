@@ -172,22 +172,66 @@ void vtkOpenVRRenderWindowInteractor::ConvertPoseToWorldCoordinates(
   }
 }
 
-void vtkOpenVRRenderWindowInteractor::UpdateTouchPadPosition(
-  vr::IVRSystem *pHMD,
-   vr::TrackedDeviceIndex_t tdi)
+void vtkOpenVRRenderWindowInteractor::GetTouchPadPosition(
+  vtkEventDataDevice device,
+  vtkEventDataDeviceInput input,
+  float result[3]
+  )
 {
+  vtkOpenVRRenderWindow *renWin =
+    vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
+
+  vr::IVRSystem *pHMD = renWin->GetHMD();
+  if (!pHMD)
+  {
+    return;
+  }
+
+  auto tdi =
+    renWin->GetTrackedDeviceIndexForDevice(device);
+
   vr::VRControllerState_t cstate;
   pHMD->GetControllerState(tdi, &cstate, sizeof(cstate));
 
-  for (unsigned int i = 0; i < vr::k_unControllerStateAxisCount; i++)
+  // input Unknown defaults to Axis0
+  int offset = 0;
+  if (input == vtkEventDataDeviceInput::TrackPad)
   {
-    if (pHMD->GetInt32TrackedDeviceProperty(tdi,
-      static_cast<vr::ETrackedDeviceProperty>(vr::ETrackedDeviceProperty::Prop_Axis0Type_Int32 + i))
-      == vr::EVRControllerAxisType::k_eControllerAxis_TrackPad)
+    for (offset = 0; offset < vr::k_unControllerStateAxisCount; ++offset)
     {
-      this->SetTouchPadPosition(cstate.rAxis[i].x,cstate.rAxis[i].y);
+      auto axisType =
+        pHMD->GetInt32TrackedDeviceProperty(tdi,
+          static_cast<vr::ETrackedDeviceProperty>(
+            vr::ETrackedDeviceProperty::Prop_Axis0Type_Int32 + offset));
+      if (axisType == vr::EVRControllerAxisType::k_eControllerAxis_TrackPad)
+      {
+        break;
+      }
     }
   }
+
+  if (input == vtkEventDataDeviceInput::Joystick)
+  {
+    for (offset = 0; offset < vr::k_unControllerStateAxisCount; ++offset)
+    {
+      auto axisType =
+        pHMD->GetInt32TrackedDeviceProperty(tdi,
+          static_cast<vr::ETrackedDeviceProperty>(
+            vr::ETrackedDeviceProperty::Prop_Axis0Type_Int32 + offset));
+      if (axisType == vr::EVRControllerAxisType::k_eControllerAxis_Joystick)
+      {
+        break;
+      }
+    }
+  }
+
+  if (offset == vr::k_unControllerStateAxisCount)
+  {
+    return;
+  }
+
+  result[0] = cstate.rAxis[offset].x;
+  result[1] = cstate.rAxis[offset].y;
 }
 
 //----------------------------------------------------------------------------
@@ -287,19 +331,20 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
     {
       vr::TrackedDeviceIndex_t tdi = event.trackedDeviceIndex;
 
+      vr::ETrackedControllerRole role = pHMD->GetControllerRoleForTrackedDeviceIndex(tdi);
+
+      // 0 = right hand 1 = left
+      int pointerIndex =
+        (role == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? 0 : 1);
+
       // is it a controller button action?
       if (pHMD->GetTrackedDeviceClass(tdi) ==
           vr::ETrackedDeviceClass::TrackedDeviceClass_Controller &&
             (event.eventType == vr::VREvent_ButtonPress ||
-             event.eventType == vr::VREvent_ButtonUnpress))
+             event.eventType == vr::VREvent_ButtonUnpress ||
+             event.eventType == vr::VREvent_ButtonTouch ||
+             event.eventType <= vr::VREvent_ButtonUntouch))
       {
-        vr::ETrackedControllerRole role = pHMD->GetControllerRoleForTrackedDeviceIndex(tdi);
-
-        this->UpdateTouchPadPosition(pHMD,tdi);
-
-        // 0 = right hand 1 = left
-        int pointerIndex =
-          (role == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? 0 : 1);
         this->PointerIndexLookup[pointerIndex] = tdi;
 
         vr::TrackedDevicePose_t &tdPose = renWin->GetTrackedDevicePose(tdi);
@@ -324,31 +369,65 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
 
         vtkNew<vtkEventDataButton3D> ed;
         ed->SetDevice(pointerIndex ? vtkEventDataDevice::LeftController : vtkEventDataDevice::RightController);
-        ed->SetAction(event.eventType == vr::VREvent_ButtonPress
-          ? vtkEventDataAction::Press : vtkEventDataAction::Release);
+        switch(event.eventType)
+        {
+          default:
+          case vr::VREvent_ButtonPress:
+            ed->SetAction(vtkEventDataAction::Press);
+            break;
+          case vr::VREvent_ButtonUnpress:
+            ed->SetAction(vtkEventDataAction::Release);
+            break;
+          case vr::VREvent_ButtonTouch:
+            ed->SetAction(vtkEventDataAction::Touch);
+            break;
+          case vr::VREvent_ButtonUntouch:
+            ed->SetAction(vtkEventDataAction::Untouch);
+            break;
+        }
         ed->SetWorldPosition(pos);
         ed->SetWorldOrientation(wxyz);
         ed->SetWorldDirection(wdir);
 
+        bool knownButton = true;
         switch (event.data.controller.button)
         {
-          default:
           case vr::EVRButtonId::k_EButton_Axis1:
             ed->SetInput(vtkEventDataDeviceInput::Trigger);
             break;
           case vr::EVRButtonId::k_EButton_Axis0:
             ed->SetInput(vtkEventDataDeviceInput::TrackPad);
-            vr::VRControllerState_t cstate;
-            pHMD->GetControllerState(tdi, &cstate, sizeof(cstate));
-            for (unsigned int i = 0; i < vr::k_unControllerStateAxisCount; i++)
             {
-              if (pHMD->GetInt32TrackedDeviceProperty(tdi,
-                static_cast<vr::ETrackedDeviceProperty>(vr::ETrackedDeviceProperty::Prop_Axis0Type_Int32 + i))
-                == vr::EVRControllerAxisType::k_eControllerAxis_TrackPad)
+              // temporarily map joystick touch events on axis0 to button press/release
+              // until we add action into the logic for mapping events
+              // to actions in the interactorstyle
+              auto axisType =
+                pHMD->GetInt32TrackedDeviceProperty(tdi,
+                  static_cast<vr::ETrackedDeviceProperty>(
+                    vr::ETrackedDeviceProperty::Prop_Axis0Type_Int32));
+              if (axisType == vr::EVRControllerAxisType::k_eControllerAxis_Joystick)
               {
-                ed->SetTrackPadPosition(cstate.rAxis[i].x,cstate.rAxis[i].y);
+                if (ed->GetAction() == vtkEventDataAction::Touch)
+                {
+                  ed->SetAction(vtkEventDataAction::Press);
+                }
+                if (ed->GetAction() == vtkEventDataAction::Untouch)
+                {
+                  ed->SetAction(vtkEventDataAction::Release);
+                }
               }
             }
+            // vr::VRControllerState_t cstate;
+            // pHMD->GetControllerState(tdi, &cstate, sizeof(cstate));
+            // for (unsigned int i = 0; i < vr::k_unControllerStateAxisCount; i++)
+            // {
+            //   if (pHMD->GetInt32TrackedDeviceProperty(tdi,
+            //     static_cast<vr::ETrackedDeviceProperty>(vr::ETrackedDeviceProperty::Prop_Axis0Type_Int32 + i))
+            //     == vr::EVRControllerAxisType::k_eControllerAxis_TrackPad)
+            //   {
+            //     ed->SetTrackPadPosition(cstate.rAxis[i].x,cstate.rAxis[i].y);
+            //   }
+            // }
             break;
           case vr::EVRButtonId::k_EButton_Grip:
             ed->SetInput(vtkEventDataDeviceInput::Grip);
@@ -356,9 +435,12 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
           case vr::EVRButtonId::k_EButton_ApplicationMenu:
             ed->SetInput(vtkEventDataDeviceInput::ApplicationMenu);
             break;
+          default:
+            knownButton = false;
+            break;
         }
 
-        if (this->Enabled)
+        if (this->Enabled && knownButton && event.data.controller.button)
         {
           this->InvokeEvent(vtkCommand::Button3DEvent, ed);
           //----------------------------------------------------------------------------
@@ -419,11 +501,6 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
         (role == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? 0 : 1);
       this->PointerIndexLookup[pointerIndex] = unTrackedDevice;
       this->SetPointerIndex(pointerIndex);
-
-      if (this->PointersDown[pointerIndex])
-      {
-        this->UpdateTouchPadPosition(pHMD, unTrackedDevice);
-      }
 
       double pos[3];
       double ppos[3];

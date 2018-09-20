@@ -38,6 +38,7 @@ enum class vtkEventDataDeviceInput {
   Unknown = -1,
   Trigger,
   TrackPad,
+  Joystick,
   Grip,
   ApplicationMenu,
   NumberOfInputs
@@ -51,6 +52,8 @@ enum class vtkEventDataAction {
   Unknown = -1,
   Press,
   Release,
+  Touch,
+  Untouch,
   NumberOfActions
 };
 
@@ -94,6 +97,11 @@ class vtkEventDataForDevice : public vtkEventData
 {
 public:
   vtkTypeMacro(vtkEventDataForDevice,vtkEventData);
+  static vtkEventDataForDevice *New() {
+    vtkEventDataForDevice *ret = new vtkEventDataForDevice;
+    ret->InitializeObjectBase();
+    return ret;
+  };
 
   vtkEventDataDevice GetDevice() const { return this->Device; }
   vtkEventDataDeviceInput GetInput() const { return this->Input; }

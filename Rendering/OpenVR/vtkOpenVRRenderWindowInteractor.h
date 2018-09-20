@@ -97,12 +97,19 @@ public:
     double ppos[3],
     double wdir[3]);
 
+  //@{
+  /**
+   * Get the latest touchpad or joystick position for a device
+   */
+  void GetTouchPadPosition(
+    vtkEventDataDevice,
+    vtkEventDataDeviceInput,
+    float [3]) override;
+  //@}
+
 protected:
   vtkOpenVRRenderWindowInteractor();
   ~vtkOpenVRRenderWindowInteractor();
-
-  void UpdateTouchPadPosition(vr::IVRSystem *pHMD,
-     vr::TrackedDeviceIndex_t tdi);
 
   //@{
   /**
