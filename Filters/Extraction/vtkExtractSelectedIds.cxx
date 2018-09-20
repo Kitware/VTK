@@ -354,13 +354,9 @@ namespace
 
       // Advance through and mark all cells with a label EQUAL TO the
       // current selection id, as well as their points.
-      bool idEqualToLabel = false;
-      if (labelArrayIndex < numCells)
-      {
-        idEqualToLabel =
-          (id[idArrayIndex] == static_cast<T1>(label[labelArrayIndex]));
-      }
-      while ((labelArrayIndex < numCells) && idEqualToLabel)
+      bool idEqualToLabel =
+        (id[idArrayIndex] == static_cast<T1>(label[labelArrayIndex]));
+      while (idEqualToLabel)
       {
         vtkIdType cellId = idxArray->GetValue(labelArrayIndex);
         cellInArray->SetValue(cellId, flag);
@@ -503,13 +499,9 @@ namespace
 
       // Advance through and mark all points with a label EQUAL TO the
       // current selection id, as well as their cells.
-      bool idEqualToLabel = false;
-      if (labelArrayIndex < numPts)
-      {
-        idEqualToLabel =
-          (id[idArrayIndex] == static_cast<T1>(label[labelArrayIndex]));
-      }
-      while ((labelArrayIndex < numPts) && idEqualToLabel)
+      bool idEqualToLabel =
+        (id[idArrayIndex] == static_cast<T1>(label[labelArrayIndex]));
+      while (idEqualToLabel)
       {
         vtkIdType ptId = idxArray->GetValue(labelArrayIndex);
         pointInArray->SetValue(ptId, flag);
