@@ -119,14 +119,20 @@ void vtkCell3D::Contour(double value, vtkDataArray *cellScalars,
     // Currently all points are injected because of the possibility
     // of intersection point merging.
     s1 = cellScalars->GetComponent(i,0);
-    if ( (s1 >= value) || (s1 < value) )
-    {
-      type = 0; //inside
-    }
-    else
-    {
-      type = 4; //outside, its type might change later (nearby intersection)
-    }
+    type = 0; //inside
+
+    // Below is the old code since 2001. Will may take a look
+    // at this at some point and see if there is a place to
+    // improve it.
+    //
+    // if ( (s1 >= value) || (s1 < value) )
+    // {
+    //   type = 0; //inside
+    // }
+    // else
+    // {
+    //   type = 4; //outside, its type might change later (nearby intersection)
+    // }
 
     this->Points->GetPoint(i, x);
     if ( locator->InsertUniquePoint(x, id) )
