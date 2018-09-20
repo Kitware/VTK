@@ -11,6 +11,7 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastJittering.cxx
   TestGPURayCastTextureStreaming.cxx
   TestGPURayCastTextureStreamingMask.cxx
+  TestGPURayCastToggleJittering.cxx
   TestGPURayCastUserShader.cxx
   TestGPURayCastUserShader2.cxx
   )
