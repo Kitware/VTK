@@ -19,8 +19,10 @@
  * vtkCellDataToPointData is a filter that transforms cell data (i.e., data
  * specified per cell) into point data (i.e., data specified at cell
  * points). The method of transformation is based on averaging the data
- * values of all cells using a particular point. Optionally, the input cell
- * data can be passed through to the output as well.
+ * values of all cells using a particular point. For large datasets with
+ * several cell data arrays, the filter optionally supports selective
+ * processing to speed up processing. Optionally, the input cell data can
+ * be passed through to the output as well.
  * Unstructured grids and polydata can have cells of different dimensions.
  * To handle different use cases in this situation, the user can specify
  * which cells contribute to the computation. The options for this are
@@ -66,9 +68,9 @@ public:
    * on, then the input cell data is passed through to the output; otherwise,
    * only generated point data is placed into the output.
    */
-  vtkSetMacro(PassCellData,vtkTypeBool);
-  vtkGetMacro(PassCellData,vtkTypeBool);
-  vtkBooleanMacro(PassCellData,vtkTypeBool);
+  vtkSetMacro(PassCellData,bool);
+  vtkGetMacro(PassCellData,bool);
+  vtkBooleanMacro(PassCellData,bool);
   //@}
 
   //@{
@@ -80,9 +82,39 @@ public:
   vtkGetMacro(ContributingCellOption, int);
   //@}
 
+  //@{
+  /**
+   * Activate selective processing of arrays. If inactive, only arrays selected
+   * by the user will be considered by this filter. The default is true.
+   */
+  vtkSetMacro(ProcessAllArrays, bool);
+  vtkGetMacro(ProcessAllArrays, bool);
+  vtkBooleanMacro(ProcessAllArrays, bool);
+  //@}
+
+  /**
+   * Adds an array to be processed. This only has an effect if the
+   * ProcessAllArrays option is turned off. If a name is already present,
+   * nothing happens.
+   */
+  virtual void AddCellDataArray(const char *name);
+
+  /**
+   * Removes an array to be processed. This only has an effect if the
+   * ProcessAllArrays option is turned off. If the specified name is not
+   * present, nothing happens.
+   */
+  virtual void RemoveCellDataArray(const char *name);
+
+  /**
+   * Removes all arrays to be processed from the list. This only has an effect
+   * if the ProcessAllArrays option is turned off.
+   */
+  virtual void ClearCellDataArrays();
+
 protected:
   vtkCellDataToPointData();
-  ~vtkCellDataToPointData() override {}
+  ~vtkCellDataToPointData() override;
 
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
@@ -97,13 +129,13 @@ protected:
     (vtkInformation*, vtkInformationVector**, vtkInformationVector*);
   //@}
 
-  void InterpolatePointData(vtkDataSet *input, vtkDataSet *output);
+  int InterpolatePointData(vtkDataSet *input, vtkDataSet *output);
 
   //@{
   /**
    * Option to pass cell data arrays through to the output. Default is 0/off.
    */
-  vtkTypeBool PassCellData;
+  bool PassCellData;
   //@}
 
   //@{
@@ -113,6 +145,14 @@ protected:
    */
   int ContributingCellOption;
   //@}
+
+  /**
+   * Option to activate selective processing of arrays.
+   */
+  bool ProcessAllArrays;
+
+  class Internals;
+  Internals *Implementation;
 
 private:
   vtkCellDataToPointData(const vtkCellDataToPointData&) = delete;

@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <cassert>
 #include <limits>
+#include <set>
 #include <vector>
 
 #include "vtkCellData.h"
@@ -150,6 +151,12 @@ vtkIdType Histogram::IndexOfLargestBin()
 
 }
 
+class vtkPointDataToCellData::Internals
+{
+  public:
+    std::set<std::string> PointDataArrays;
+};
+
 
 vtkStandardNewMacro(vtkPointDataToCellData);
 
@@ -159,6 +166,50 @@ vtkPointDataToCellData::vtkPointDataToCellData()
 {
   this->PassPointData = 0;
   this->CategoricalData = 0;
+  this->ProcessAllArrays = true;
+  this->Implementation = new Internals();
+}
+
+//----------------------------------------------------------------------------
+vtkPointDataToCellData::~vtkPointDataToCellData()
+{
+  delete this->Implementation;
+}
+
+//----------------------------------------------------------------------------
+void vtkPointDataToCellData::AddPointDataArray(const char *name)
+{
+  if (!name)
+  {
+    vtkErrorMacro("name cannot be null.");
+    return;
+  }
+
+  this->Implementation->PointDataArrays.insert(std::string(name));
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkPointDataToCellData::RemovePointDataArray(const char *name)
+{
+  if (!name)
+  {
+    vtkErrorMacro("name cannot be null.");
+    return;
+  }
+
+  this->Implementation->PointDataArrays.erase(name);
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkPointDataToCellData::ClearPointDataArrays()
+{
+  if (!this->Implementation->PointDataArrays.empty())
+  {
+    this->Modified();
+  }
+  this->Implementation->PointDataArrays.clear();
 }
 
 //----------------------------------------------------------------------------
@@ -177,12 +228,33 @@ int vtkPointDataToCellData::RequestData(
 
   vtkIdType cellId, ptId, pointId;
   vtkIdType numCells, numPts;
-  vtkPointData *inPD=input->GetPointData();
+  vtkPointData *inputInPD = input->GetPointData();
+  vtkPointData *inPD;
   vtkCellData *outCD=output->GetCellData();
   int maxCellSize=input->GetMaxCellSize();
   vtkIdList *cellPts;
   double weight;
   double *weights;
+
+  if (!this->ProcessAllArrays)
+  {
+    inPD = vtkPointData::New();
+
+    for (const auto &name : this->Implementation->PointDataArrays)
+    {
+      vtkAbstractArray *arr = inputInPD->GetAbstractArray(name.c_str());
+      if (arr == nullptr)
+      {
+        vtkWarningMacro("point data array name not found.");
+        continue;
+      }
+      inPD->AddArray(arr);
+    }
+  }
+  else
+  {
+    inPD = inputInPD;
+  }
 
   vtkDebugMacro(<<"Mapping point data to cell data");
 
@@ -291,6 +363,11 @@ int vtkPointDataToCellData::RequestData(
 
   cellPts->Delete();
   delete [] weights;
+
+  if (!this->ProcessAllArrays)
+  {
+    inPD->Delete();
+  }
 
   return 1;
 }
