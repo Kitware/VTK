@@ -21,6 +21,8 @@ https://github.com/ValveSoftware/openvr/blob/master/LICENSE
 #include "vtkCommand.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
+#include "vtkMath.h"
+#include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
@@ -397,62 +399,83 @@ void vtkOpenVRRenderWindow::UpdateHMDMatrixPose()
       this->HMDTransform->Identity();
 
       // get the position and orientation of the HMD
-      vr::TrackedDevicePose_t &tdPose =
-        this->TrackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd];
-      double pos[3];
+      vr::TrackedDevicePose_t &tdPose = this->TrackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd];
 
-      // Vive to world axes
-      double *vup = this->PhysicalViewUp;
-      double *dop = this->PhysicalViewDirection;
-      double vright[3];
-      vtkMath::Cross(dop, vup, vright);
+      // Note: Scaling is applied through moving the camera closer to the focal point, because
+      // scaling of all actors is not feasible, and vtkCamera::ModelTransformMatrix is not supported
+      // throughout VTK (clipping issues etc.). To achieve this, a new coordinate system called
+      // NonScaledWorld is introduced. The relationship between Physical (in which the HMD pose
+      // is given by OpenVR) and NonScaledWorld is described by the PhysicalViewUp etc. member variables.
+      // After getting the HMD pose in Physical, those coordinates and axes are converted to the
+      // NonScaledWorld coordinate system, on which the PhysicalScaling trick of modifying the
+      // camera position is applied, resulting the World coordinate system.
 
-      // extract HMD axes
-      double hvright[3];
-      hvright[0] = tdPose.mDeviceToAbsoluteTracking.m[0][0];
-      hvright[1] = tdPose.mDeviceToAbsoluteTracking.m[1][0];
-      hvright[2] = tdPose.mDeviceToAbsoluteTracking.m[2][0];
-      double hvup[3];
-      hvup[0] = tdPose.mDeviceToAbsoluteTracking.m[0][1];
-      hvup[1] = tdPose.mDeviceToAbsoluteTracking.m[1][1];
-      hvup[2] = tdPose.mDeviceToAbsoluteTracking.m[2][1];
+      // construct physical to non-scaled world axes (scaling is used later to move camera closer)
+      double physicalZ_NonscaledWorld[3] = { -this->PhysicalViewDirection[0],
+                                             -this->PhysicalViewDirection[1],
+                                             -this->PhysicalViewDirection[2] };
+      double* physicalY_NonscaledWorld = this->PhysicalViewUp;
+      double physicalX_NonscaledWorld[3] = {0.0};
+      vtkMath::Cross(physicalY_NonscaledWorld, physicalZ_NonscaledWorld, physicalX_NonscaledWorld);
 
-      pos[0] = tdPose.mDeviceToAbsoluteTracking.m[0][3];
-      pos[1] = tdPose.mDeviceToAbsoluteTracking.m[1][3];
-      pos[2] = tdPose.mDeviceToAbsoluteTracking.m[2][3];
+      // extract HMD axes and position
+      double hmdX_Physical[3] = { tdPose.mDeviceToAbsoluteTracking.m[0][0],
+                                  tdPose.mDeviceToAbsoluteTracking.m[1][0],
+                                  tdPose.mDeviceToAbsoluteTracking.m[2][0] };
+      double hmdY_Physical[3] = { tdPose.mDeviceToAbsoluteTracking.m[0][1],
+                                  tdPose.mDeviceToAbsoluteTracking.m[1][1],
+                                  tdPose.mDeviceToAbsoluteTracking.m[2][1] };
+      double hmdZ_Physical[3] = {0.0};
+      double hmdPosition_Physical[3] = { tdPose.mDeviceToAbsoluteTracking.m[0][3],
+                                         tdPose.mDeviceToAbsoluteTracking.m[1][3],
+                                         tdPose.mDeviceToAbsoluteTracking.m[2][3] };
 
-      double distance = this->PhysicalScale;
-      double *trans = this->PhysicalTranslation;
-
-      // convert position to world coordinates
-      double npos[3];
-      npos[0] = pos[0]*vright[0] + pos[1]*vup[0] - pos[2]*dop[0];
-      npos[1] = pos[0]*vright[1] + pos[1]*vup[1] - pos[2]*dop[1];
-      npos[2] = pos[0]*vright[2] + pos[1]*vup[2] - pos[2]*dop[2];
+      // convert position to non-scaled world coordinates
+      double hmdPosition_NonscaledWorld[3];
+      hmdPosition_NonscaledWorld[0] = hmdPosition_Physical[0]*physicalX_NonscaledWorld[0] +
+                                      hmdPosition_Physical[1]*physicalY_NonscaledWorld[0] +
+                                      hmdPosition_Physical[2]*physicalZ_NonscaledWorld[0];
+      hmdPosition_NonscaledWorld[1] = hmdPosition_Physical[0]*physicalX_NonscaledWorld[1] +
+                                      hmdPosition_Physical[1]*physicalY_NonscaledWorld[1] +
+                                      hmdPosition_Physical[2]*physicalZ_NonscaledWorld[1];
+      hmdPosition_NonscaledWorld[2] = hmdPosition_Physical[0]*physicalX_NonscaledWorld[2] +
+                                      hmdPosition_Physical[1]*physicalY_NonscaledWorld[2] +
+                                      hmdPosition_Physical[2]*physicalZ_NonscaledWorld[2];
       // now adjust for scale and translation
+      double hmdPosition_World[3] = {0.0};
       for (int i = 0; i < 3; i++)
       {
-        pos[i] = npos[i]*distance - trans[i];
+        hmdPosition_World[i] = hmdPosition_NonscaledWorld[i]*this->PhysicalScale - this->PhysicalTranslation[i];
       }
 
-      // convert axes to world coordinates
-      double fvright[3]; // final vright
-      fvright[0] = hvright[0]*vright[0] + hvright[1]*vup[0] - hvright[2]*dop[0];
-      fvright[1] = hvright[0]*vright[1] + hvright[1]*vup[1] - hvright[2]*dop[1];
-      fvright[2] = hvright[0]*vright[2] + hvright[1]*vup[2] - hvright[2]*dop[2];
-      double fvup[3]; // final vup
-      fvup[0] = hvup[0]*vright[0] + hvup[1]*vup[0] - hvup[2]*dop[0];
-      fvup[1] = hvup[0]*vright[1] + hvup[1]*vup[1] - hvup[2]*dop[1];
-      fvup[2] = hvup[0]*vright[2] + hvup[1]*vup[2] - hvup[2]*dop[2];
-      double fdop[3];
-      vtkMath::Cross(fvup, fvright, fdop);
+      // convert axes to non-scaled world coordinate system
+      double hmdX_NonscaledWorld[3] = { hmdX_Physical[0]*physicalX_NonscaledWorld[0] +
+                                        hmdX_Physical[1]*physicalY_NonscaledWorld[0] +
+                                        hmdX_Physical[2]*physicalZ_NonscaledWorld[0],
+                                        hmdX_Physical[0]*physicalX_NonscaledWorld[1] +
+                                        hmdX_Physical[1]*physicalY_NonscaledWorld[1] +
+                                        hmdX_Physical[2]*physicalZ_NonscaledWorld[1],
+                                        hmdX_Physical[0]*physicalX_NonscaledWorld[2] +
+                                        hmdX_Physical[1]*physicalY_NonscaledWorld[2] +
+                                        hmdX_Physical[2]*physicalZ_NonscaledWorld[2] };
+      double hmdY_NonscaledWorld[3] = { hmdY_Physical[0]*physicalX_NonscaledWorld[0] +
+                                        hmdY_Physical[1]*physicalY_NonscaledWorld[0] +
+                                        hmdY_Physical[2]*physicalZ_NonscaledWorld[0],
+                                        hmdY_Physical[0]*physicalX_NonscaledWorld[1] +
+                                        hmdY_Physical[1]*physicalY_NonscaledWorld[1] +
+                                        hmdY_Physical[2]*physicalZ_NonscaledWorld[1],
+                                        hmdY_Physical[0]*physicalX_NonscaledWorld[2] +
+                                        hmdY_Physical[1]*physicalY_NonscaledWorld[2] +
+                                        hmdY_Physical[2]*physicalZ_NonscaledWorld[2] };
+      double hmdZ_NonscaledWorld[3] = {0.0};
+      vtkMath::Cross(hmdY_NonscaledWorld, hmdX_NonscaledWorld, hmdZ_NonscaledWorld);
 
-      cam->SetPosition(pos);
-      cam->SetFocalPoint(
-        pos[0] + fdop[0]*distance,
-        pos[1] + fdop[1]*distance,
-        pos[2] + fdop[2]*distance);
-      cam->SetViewUp(fvup);
+      cam->SetPosition(hmdPosition_World);
+      cam->SetFocalPoint( hmdPosition_World[0] + hmdZ_NonscaledWorld[0]*this->PhysicalScale,
+                          hmdPosition_World[1] + hmdZ_NonscaledWorld[1]*this->PhysicalScale,
+                          hmdPosition_World[2] + hmdZ_NonscaledWorld[2]*this->PhysicalScale );
+      cam->SetViewUp(hmdY_NonscaledWorld);
+
       ren->UpdateLightsGeometryToFollowCamera();
     }
   }
@@ -590,7 +613,6 @@ bool vtkOpenVRRenderWindow::CreateFrameBuffer( int nWidth, int nHeight, Framebuf
 // Initialize the rendering window.
 void vtkOpenVRRenderWindow::Initialize (void)
 {
-
   // Loading the SteamVR Runtime
   vr::EVRInitError eError = vr::VRInitError_None;
   this->HMD = vr::VR_Init( &eError, vr::VRApplication_Scene );
@@ -762,5 +784,57 @@ void vtkOpenVRRenderWindow::GetTrackedDevicePose(
   if (idx < vr::k_unMaxTrackedDeviceCount)
   {
     *pose = &(this->TrackedDevicePose[idx]);
+  }
+}
+
+void vtkOpenVRRenderWindow::SetPhysicalToWorldMatrix(vtkMatrix4x4* matrix)
+{
+  if (!matrix)
+  {
+    return;
+  }
+
+  vtkNew<vtkTransform> hmdToWorldTransform;
+  hmdToWorldTransform->SetMatrix(matrix);
+
+  hmdToWorldTransform->GetPosition(this->PhysicalTranslation);
+
+  double scale[3] = {0.0};
+  hmdToWorldTransform->GetScale(scale);
+  this->PhysicalScale = scale[0];
+
+  this->PhysicalViewUp[0] = matrix->GetElement(0,1);
+  this->PhysicalViewUp[1] = matrix->GetElement(1,1);
+  this->PhysicalViewUp[2] = matrix->GetElement(2,1);
+  vtkMath::Normalize(this->PhysicalViewUp);
+  this->PhysicalViewDirection[0] = (-1.0) * matrix->GetElement(0,2);
+  this->PhysicalViewDirection[1] = (-1.0) * matrix->GetElement(1,2);
+  this->PhysicalViewDirection[2] = (-1.0) * matrix->GetElement(2,2);
+  vtkMath::Normalize(this->PhysicalViewDirection);
+}
+
+void vtkOpenVRRenderWindow::GetPhysicalToWorldMatrix(vtkMatrix4x4* physicalToWorldMatrix)
+{
+  if (!physicalToWorldMatrix)
+  {
+    return;
+  }
+
+  physicalToWorldMatrix->Identity();
+
+  // construct physical to non-scaled world axes (scaling is applied later)
+  double physicalZ_NonscaledWorld[3] = { -this->PhysicalViewDirection[0],
+                                         -this->PhysicalViewDirection[1],
+                                         -this->PhysicalViewDirection[2] };
+  double* physicalY_NonscaledWorld = this->PhysicalViewUp;
+  double physicalX_NonscaledWorld[3] = {0.0};
+  vtkMath::Cross(physicalY_NonscaledWorld, physicalZ_NonscaledWorld, physicalX_NonscaledWorld);
+
+  for (int row=0;row<3;++row)
+  {
+    physicalToWorldMatrix->SetElement(row, 0, physicalX_NonscaledWorld[row]*this->PhysicalScale);
+    physicalToWorldMatrix->SetElement(row, 1, physicalY_NonscaledWorld[row]*this->PhysicalScale);
+    physicalToWorldMatrix->SetElement(row, 2, physicalZ_NonscaledWorld[row]*this->PhysicalScale);
+    physicalToWorldMatrix->SetElement(row, 3, this->PhysicalTranslation[row]);
   }
 }

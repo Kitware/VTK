@@ -246,7 +246,7 @@ void vtkInteractorStyle3D::Dolly3D(vtkEventData *ed)
 
   double *trans = rwi->GetPhysicalTranslation(
     this->CurrentRenderer->GetActiveCamera());
-  double distance = rwi->GetPhysicalScale();
+  double physicalScale = rwi->GetPhysicalScale();
 
   // The world coordinate speed of
   // movement can be determined from the camera scale.
@@ -262,9 +262,9 @@ void vtkInteractorStyle3D::Dolly3D(vtkEventData *ed)
   double factor = tpos[1]*2.0*this->DollyMotionFactor/90.0;
   rwi->SetPhysicalTranslation(
     this->CurrentRenderer->GetActiveCamera(),
-    trans[0]-vdir[0]*factor*distance,
-    trans[1]-vdir[1]*factor*distance,
-    trans[2]-vdir[2]*factor*distance);
+    trans[0]-vdir[0]*factor*physicalScale,
+    trans[1]-vdir[1]*factor*physicalScale,
+    trans[2]-vdir[2]*factor*physicalScale);
 
   if (this->AutoAdjustCameraClippingRange)
   {
@@ -272,40 +272,37 @@ void vtkInteractorStyle3D::Dolly3D(vtkEventData *ed)
   }
 }
 
-void vtkInteractorStyle3D::SetScale(vtkCamera *camera, double newDistance)
+void vtkInteractorStyle3D::SetScale(vtkCamera *camera, double newScale)
 {
   vtkRenderWindowInteractor3D *rwi =
     static_cast<vtkRenderWindowInteractor3D *>(this->Interactor);
 
   double *trans = rwi->GetPhysicalTranslation(camera);
-  double distance = rwi->GetPhysicalScale();
+  double physicalScale = rwi->GetPhysicalScale();
   double *dop = camera->GetDirectionOfProjection();
   double *pos = camera->GetPosition();
   double hmd[3];
-  hmd[0] = (pos[0] + trans[0])/distance;
-  hmd[1] = (pos[1] + trans[1])/distance;
-  hmd[2] = (pos[2] + trans[2])/distance;
-
-  // cerr << "dyf " << dyf << "\n";
-  // rwi->SetPhysicalTranslation(camera,
-  //   trans[0],  trans[1] - distance + newDistance, trans[2]);
-  // trans = rwi->GetPhysicalTranslation(camera);
+  hmd[0] = (pos[0] + trans[0])/physicalScale;
+  hmd[1] = (pos[1] + trans[1])/physicalScale;
+  hmd[2] = (pos[2] + trans[2])/physicalScale;
 
   double newPos[3];
-  newPos[0] = hmd[0]*newDistance - trans[0];
-  newPos[1] = hmd[1]*newDistance - trans[1];
-  newPos[2] = hmd[2]*newDistance - trans[2];
+  newPos[0] = hmd[0]*newScale - trans[0];
+  newPos[1] = hmd[1]*newScale - trans[1];
+  newPos[2] = hmd[2]*newScale - trans[2];
 
+  // Note: New camera properties are overridden by virtual reality render
+  // window if head-mounted display is tracked
   camera->SetFocalPoint(
-    newPos[0] + dop[0]*newDistance,
-    newPos[1] + dop[1]*newDistance,
-    newPos[2] + dop[2]*newDistance);
+    newPos[0] + dop[0]*newScale,
+    newPos[1] + dop[1]*newScale,
+    newPos[2] + dop[2]*newScale);
   camera->SetPosition(
     newPos[0],
     newPos[1],
     newPos[2]);
 
-  rwi->SetPhysicalScale(newDistance);
+  rwi->SetPhysicalScale(newScale);
 
   if (this->AutoAdjustCameraClippingRange && this->CurrentRenderer)
   {
