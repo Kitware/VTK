@@ -59,6 +59,7 @@ public:
    * number.
    */
   virtual void GetSeedWorldPosition( unsigned int seedNum, double pos[3] );
+  virtual void SetSeedWorldPosition( unsigned int seedNum, double pos[3] );
   virtual void SetSeedDisplayPosition( unsigned int seedNum, double pos[3] );
   virtual void GetSeedDisplayPosition( unsigned int seedNum, double pos[3] );
   //@}
@@ -118,6 +119,7 @@ public:
    * invoked from vtkSeedWidget.
    */
   virtual int GetActiveHandle();
+  virtual void SetActiveHandle( int handleId );
   // Returns the id of the seed created, -1 on failure. e is the display position.
   virtual int CreateHandle( double e[2] );
   // Delete last handle created
