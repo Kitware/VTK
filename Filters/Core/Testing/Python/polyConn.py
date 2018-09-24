@@ -7,6 +7,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 #
 ren1 = vtk.vtkRenderer()
 renWin = vtk.vtkRenderWindow()
+renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren1)
 iren = vtk.vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)

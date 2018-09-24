@@ -836,8 +836,7 @@ void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow *)
     ? ::glEnable(GL_CULL_FACE) : ::glDisable(GL_CULL_FACE);
 
 #ifdef GL_MULTISAMPLE
-  this->CurrentState.MultiSample
-    ?  glEnable(GL_MULTISAMPLE) : glDisable(GL_MULTISAMPLE);
+  this->CurrentState.MultiSample = glIsEnabled(GL_MULTISAMPLE) == GL_TRUE;
 #endif
 
   // initialize blending for transparency
