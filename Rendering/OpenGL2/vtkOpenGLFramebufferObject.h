@@ -306,7 +306,9 @@ public:
         unsigned int mode,
         unsigned int attId,
         vtkTextureObject* tex,
-        unsigned int zslice = 0);
+        unsigned int zslice = 0,
+        unsigned int format = 0,
+        unsigned int mipmapLevel = 0);
   void AddColorAttachment(
         unsigned int mode,
         unsigned int attId,
@@ -501,7 +503,7 @@ public:
 protected:
   void SetColorBuffer(unsigned int mode,
     unsigned int index, vtkTextureObject *texture,
-    unsigned int zslice=0);
+    unsigned int zslice=0, unsigned int format=0, unsigned int mipmapLevel=0);
   void SetColorBuffer(unsigned int mode,
     unsigned int index, vtkRenderbuffer *rb);
   void SetDepthBuffer(unsigned int mode, vtkTextureObject *depthTexture);

@@ -35,6 +35,8 @@ class vtkFOInfo
 {
 public:
   unsigned int Attachment;
+  unsigned int Target;
+  unsigned int MipmapLevel;
   bool Attached;
   unsigned int Mode;
   vtkTextureObject *Texture;
@@ -44,6 +46,8 @@ public:
 
   vtkFOInfo() {
     this->Attachment = 0;
+    this->Target = 0;
+    this->MipmapLevel = 0;
     this->Texture = nullptr;
     this->Renderbuffer = nullptr;
     this->CreatedByFO = false;
@@ -69,6 +73,8 @@ public:
       this->Renderbuffer = nullptr;
     }
     this->Attachment = 0;
+    this->Target = 0;
+    this->MipmapLevel = 0;
     this->CreatedByFO = false;
     this->ZSlice = 0;
     this->Attached = false;
@@ -101,9 +107,9 @@ public:
         glFramebufferTexture3D(
               (GLenum)this->Mode,
               this->Attachment,
-              this->Texture->GetTarget(),
+              this->Target,
               this->Texture->GetHandle(),
-              0,
+              this->MipmapLevel,
               this->ZSlice);
         this->Attached = true;
   #else
@@ -115,9 +121,9 @@ public:
         glFramebufferTexture2D(
             (GLenum)this->Mode,
             this->Attachment,
-            this->Texture->GetTarget(),
+            this->Target,
             this->Texture->GetHandle(),
-            0);
+            this->MipmapLevel);
         this->Attached = true;
       }
     }
@@ -133,7 +139,7 @@ public:
   }
 
   void SetTexture(vtkTextureObject *val,
-    unsigned int mode, unsigned int attachment) {
+    unsigned int mode, unsigned int attachment, unsigned int target = 0, unsigned int mipmapLevel = 0) {
 
     // always reset to false
     this->CreatedByFO = false;
@@ -159,6 +165,10 @@ public:
     this->Texture = val;
     this->Mode = mode;
     this->Attachment = attachment;
+    // if target not specified, used texture target
+    // a custom target is useful for cubemap
+    this->Target = target ? target : val->GetTarget();
+    this->MipmapLevel = mipmapLevel;
   }
 
   void SetRenderbuffer(vtkRenderbuffer *val,
@@ -194,8 +204,8 @@ public:
   {
     if (this->Texture)
     {
-      size[0] = this->Texture->GetWidth();
-      size[1] = this->Texture->GetHeight();
+      size[0] = this->Texture->GetWidth() >> this->MipmapLevel;
+      size[1] = this->Texture->GetHeight() >> this->MipmapLevel;
       return;
     }
     if (this->Renderbuffer)
@@ -1000,9 +1010,11 @@ void vtkOpenGLFramebufferObject::AddColorAttachment(
   unsigned int mode,
   unsigned int index,
   vtkTextureObject* tex,
-  unsigned int zslice)
+  unsigned int zslice,
+  unsigned int format,
+  unsigned int mipmapLevel)
 {
-  this->SetColorBuffer(mode, index, tex, zslice);
+  this->SetColorBuffer(mode, index, tex, zslice, format, mipmapLevel);
   this->Bind(mode);
   this->AttachColorBuffer(mode, index);
 }
@@ -1748,7 +1760,9 @@ void vtkOpenGLFramebufferObject::SetColorBuffer(
   unsigned int mode,
   unsigned int index,
   vtkTextureObject* tex,
-  unsigned int zslice)
+  unsigned int zslice,
+  unsigned int format,
+  unsigned int mipmapLevel)
 {
   // is the fbo size is not set do it here
   if (this->LastSize[0] == -1)
@@ -1765,7 +1779,7 @@ void vtkOpenGLFramebufferObject::SetColorBuffer(
       vtkFOInfo *foinfo = new vtkFOInfo;
       i = this->DrawColorBuffers.insert(std::make_pair(index, foinfo)).first;
     }
-    i->second->SetTexture(tex, mode, GL_COLOR_ATTACHMENT0 + index);
+    i->second->SetTexture(tex, mode, GL_COLOR_ATTACHMENT0 + index, format, mipmapLevel);
     i->second->ZSlice = zslice;
 
     i = this->ReadColorBuffers.find(index);
@@ -1774,7 +1788,7 @@ void vtkOpenGLFramebufferObject::SetColorBuffer(
       vtkFOInfo *foinfo = new vtkFOInfo;
       i = this->ReadColorBuffers.insert(std::make_pair(index, foinfo)).first;
     }
-    i->second->SetTexture(tex, mode, GL_COLOR_ATTACHMENT0 + index);
+    i->second->SetTexture(tex, mode, GL_COLOR_ATTACHMENT0 + index, format, mipmapLevel);
     i->second->ZSlice = zslice;
   }
   else if (mode == GL_DRAW_FRAMEBUFFER)
@@ -1785,7 +1799,7 @@ void vtkOpenGLFramebufferObject::SetColorBuffer(
       vtkFOInfo *foinfo = new vtkFOInfo;
       i = this->DrawColorBuffers.insert(std::make_pair(index, foinfo)).first;
     }
-    i->second->SetTexture(tex, mode, GL_COLOR_ATTACHMENT0 + index);
+    i->second->SetTexture(tex, mode, GL_COLOR_ATTACHMENT0 + index, format, mipmapLevel);
     i->second->ZSlice = zslice;
   }
   else if (mode == GL_READ_FRAMEBUFFER)
@@ -1796,7 +1810,7 @@ void vtkOpenGLFramebufferObject::SetColorBuffer(
       vtkFOInfo *foinfo = new vtkFOInfo;
       i = this->ReadColorBuffers.insert(std::make_pair(index, foinfo)).first;
     }
-    i->second->SetTexture(tex, mode, GL_COLOR_ATTACHMENT0 + index);
+    i->second->SetTexture(tex, mode, GL_COLOR_ATTACHMENT0 + index, format, mipmapLevel);
     i->second->ZSlice = zslice;
   }
 }

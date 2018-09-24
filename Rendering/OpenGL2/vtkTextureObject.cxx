@@ -1529,20 +1529,22 @@ bool vtkTextureObject::CreateCubeFromRaw(unsigned int width, unsigned int height
 
   for (int i = 0; i < 6; i++)
   {
-    if (data[i])
-    {
-      glTexImage2D(
-        GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-        0,
-        this->InternalFormat,
-        static_cast<GLsizei>(this->Width),
-        static_cast<GLsizei>(this->Height),
-        0,
-        this->Format,
-        this->Type,
-        static_cast<const GLvoid *>(data[i]));
-      vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
-    }
+    glTexImage2D(
+      GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+      0,
+      this->InternalFormat,
+      static_cast<GLsizei>(this->Width),
+      static_cast<GLsizei>(this->Height),
+      0,
+      this->Format,
+      this->Type,
+      data ? static_cast<const GLvoid *>(data[i]) : nullptr);
+    vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
+  }
+
+  if (this->GenerateMipmap)
+  {
+    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
   }
 
   this->Deactivate();
