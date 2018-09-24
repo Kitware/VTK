@@ -25,7 +25,6 @@ set(lib_srcs
   vtkmlib/UnstructuredGridConverter.cxx
   vtkmlib/ArrayConverters.cxx
   vtkmlib/CellSetConverters.cxx
-  vtkmlib/DataSetConverters.cxx
   vtkmlib/ImageDataConverter.cxx
   vtkmlib/Storage.cxx
   )
@@ -75,6 +74,7 @@ set(cpu_accelerator_srcs
   vtkmTriangleMeshPointNormals.cxx
   vtkmWarpScalar.cxx
   vtkmWarpVector.cxx
+  vtkmlib/DataSetConverters.cxx
   vtkmlib/Portals.cxx
   vtkmlib/ImplicitFunctionConverter.cxx
   )
@@ -102,6 +102,7 @@ set(cuda_accelerator_srcs
   vtkmTriangleMeshPointNormals.cu
   vtkmWarpScalar.cu
   vtkmWarpVector.cu
+  vtkmlib/DataSetConverters.cu
   vtkmlib/Portals.cu
   vtkmlib/ImplicitFunctionConverter.cu
   )
