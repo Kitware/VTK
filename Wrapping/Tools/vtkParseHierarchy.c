@@ -298,6 +298,7 @@ static int vtkParseHierarchy_ReadFileIntoInfo(
   unsigned int bits, pointers;
   static const char *delims = ">,=";
   int success = 1;
+  int lineno;
 
   fp = fopen(filename, "r");
 
@@ -309,7 +310,7 @@ static int vtkParseHierarchy_ReadFileIntoInfo(
 
   line = (char *)malloc(maxlen);
 
-  while (fgets(line, (int)maxlen, fp))
+  for (lineno = 1; fgets(line, (int)maxlen, fp); lineno++)
   {
     n = strlen(line);
 
@@ -648,6 +649,7 @@ static int vtkParseHierarchy_ReadFileIntoInfo(
 
   if (!feof(fp))
   {
+    fprintf(stderr, "%s:%d: error: <unspecified>.\n", filename, lineno);
     success = 0;
   }
 

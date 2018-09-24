@@ -609,6 +609,8 @@ int main(int argc, char *argv[])
   fprintf(fp,
           "}\n\n");
 
+  fclose(fp);
+
   free(name_from_file);
 
   vtkParse_Free(file_info);
