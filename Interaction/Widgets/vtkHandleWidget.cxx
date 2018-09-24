@@ -33,7 +33,7 @@ vtkStandardNewMacro(vtkHandleWidget);
 vtkHandleWidget::vtkHandleWidget()
 {
   // Set the initial state
-  this->WidgetState = vtkHandleWidget::Start;
+  this->WidgetState = vtkHandleWidget::Inactive;
 
   // Okay, define the events for this widget
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
@@ -86,6 +86,7 @@ vtkHandleWidget::vtkHandleWidget()
       this, vtkHandleWidget::MoveAction3D);
   }
 
+  this->ShowInactive = false;
   this->EnableAxisConstraint = 1;
   this->EnableTranslation = 1;
   this->AllowHandleResize    = 1;
@@ -365,5 +366,58 @@ void vtkHandleWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Enable Axis Constraint: "
      << (this->EnableAxisConstraint ? "On\n" : "Off\n");
 
+  os << indent << "Show Inactive: "
+     << (this->ShowInactive ? "On\n" : "Off\n");
   os << indent << "WidgetState: " << this->WidgetState << endl;
+}
+
+//-------------------------------------------------------------------------
+void vtkHandleWidget::SetEnabled(int enabling)
+{
+  if ( !this->ShowInactive )
+  {
+    // Forward to superclass
+    this->Superclass::SetEnabled(enabling);
+    if ( enabling )
+    {
+      this->WidgetState = vtkHandleWidget::Start;
+    }
+    else
+    {
+      this->WidgetState = vtkHandleWidget::Inactive;
+    }
+  }
+  else
+  {
+    if (enabling) //----------------
+    {
+      this->Superclass::SetEnabled(enabling);
+      this->WidgetState = vtkHandleWidget::Start;
+    }
+
+    else // disabling------------------
+    {
+      vtkDebugMacro(<< "Disabling widget");
+
+      if (!this->Enabled) // already disabled, just return
+      {
+        return;
+      }
+
+      this->Enabled = 0;
+
+      // don't listen for events any more
+      if (!this->Parent)
+      {
+        this->Interactor->RemoveObserver(this->EventCallbackCommand);
+      }
+      else
+      {
+        this->Parent->RemoveObserver(this->EventCallbackCommand);
+      }
+
+      this->WidgetState = vtkHandleWidget::Inactive;
+      this->InvokeEvent(vtkCommand::DisableEvent, nullptr);
+    }
+  }
 }
