@@ -32,7 +32,10 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkRenderWindowInteractor.h"
 
+#include "vtkNew.h" // ivars
+
 class vtkCamera;
+class vtkMatrix4x4;
 enum class vtkEventDataDevice;
 enum class vtkEventDataDeviceInput;
 
@@ -70,11 +73,9 @@ public:
 
   //@{
   /**
-   * With VR we know the world coordinate positions
-   * and orientations of events. These methods
-   * support querying them instead of going through
-   * a display X,Y coordinate approach as is standard
-   * for mouse/touch events
+   * With VR we know the world coordinate positions and orientations of events.
+   * These methods support querying them instead of going through a display X,Y
+   * coordinate approach as is standard for mouse/touch events
    */
   virtual double *GetWorldEventPosition(int pointerIndex)
   {
@@ -108,13 +109,15 @@ public:
     }
     return this->LastWorldEventOrientations[pointerIndex];
   }
+  virtual void GetWorldEventPose(vtkMatrix4x4* poseMatrix, int pointerIndex);
+  virtual void GetLastWorldEventPose(vtkMatrix4x4* poseMatrix, int pointerIndex);
   //@}
 
   //@{
   /**
    * With VR we know the physical/room coordinate positions
-   * and orientations of events. These methods
-   * support setting them.
+   * and orientations of events.
+   * These methods support setting them.
    */
   virtual void SetPhysicalEventPosition(double x, double y, double z, int pointerIndex)
   {
@@ -143,6 +146,18 @@ public:
       this->Modified();
     }
   }
+  virtual void SetPhysicalEventPose(vtkMatrix4x4* poseMatrix, int pointerIndex);
+  //@}
+
+  //@{
+  /**
+   * With VR we know the physical/room coordinate positions
+   * and orientations of events.
+   * These methods support getting them.
+   */
+  virtual void GetPhysicalEventPose(vtkMatrix4x4* poseMatrix, int pointerIndex);
+  virtual void GetLastPhysicalEventPose(vtkMatrix4x4* poseMatrix, int pointerIndex);
+  virtual void GetStartingPhysicalEventPose(vtkMatrix4x4* poseMatrix, int pointerIndex);
   //@}
 
   //@{
@@ -209,6 +224,7 @@ public:
       this->Modified();
     }
   }
+  virtual void SetWorldEventPose(vtkMatrix4x4* poseMatrix, int pointerIndex);
   //@}
 
   //@{
@@ -280,6 +296,11 @@ protected:
   double   StartingPhysicalEventPositions[VTKI_MAX_POINTERS][3];
   double   WorldEventOrientations[VTKI_MAX_POINTERS][4];
   double   LastWorldEventOrientations[VTKI_MAX_POINTERS][4];
+  vtkNew<vtkMatrix4x4> WorldEventPoses[VTKI_MAX_POINTERS];
+  vtkNew<vtkMatrix4x4> LastWorldEventPoses[VTKI_MAX_POINTERS];
+  vtkNew<vtkMatrix4x4> PhysicalEventPoses[VTKI_MAX_POINTERS];
+  vtkNew<vtkMatrix4x4> LastPhysicalEventPoses[VTKI_MAX_POINTERS];
+  vtkNew<vtkMatrix4x4> StartingPhysicalEventPoses[VTKI_MAX_POINTERS];
   void RecognizeGesture(vtkCommand::EventIds) override;
 
 private:

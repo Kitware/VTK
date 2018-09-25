@@ -25,9 +25,8 @@
 #include "vtkActor.h"
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
-#include "vtkNew.h"
-// #include "vtkPropPicker.h"
 #include "vtkMath.h"
+#include "vtkMatrix4x4.h"
 
 vtkStandardNewMacro(vtkRenderWindowInteractor3D);
 
@@ -344,4 +343,114 @@ void vtkRenderWindowInteractor3D::RightButtonReleaseEvent()
     }
   }
   this->InvokeEvent(vtkCommand::RightButtonReleaseEvent, nullptr);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor3D::SetPhysicalEventPose(vtkMatrix4x4* poseMatrix, int pointerIndex)
+{
+  if (!poseMatrix || pointerIndex < 0 || pointerIndex >= VTKI_MAX_POINTERS)
+  {
+    return;
+  }
+
+  bool poseDifferent = false;
+  for (int i = 0; i < 4; i++)
+  {
+    for (int j = 0; j < 4; j++)
+    {
+      if ( fabs(this->PhysicalEventPoses[pointerIndex]->GetElement(i, j) - poseMatrix->GetElement(i, j)) >= 1e-3 )
+      {
+        poseDifferent = true;
+        break;
+      }
+    }
+  }
+
+
+  if (poseDifferent)
+  {
+    this->LastPhysicalEventPoses[pointerIndex]->DeepCopy(PhysicalEventPoses[pointerIndex]);
+    this->PhysicalEventPoses[pointerIndex]->DeepCopy(poseMatrix);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor3D::SetWorldEventPose(vtkMatrix4x4* poseMatrix, int pointerIndex)
+{
+  if (!poseMatrix || pointerIndex < 0 || pointerIndex >= VTKI_MAX_POINTERS)
+  {
+    return;
+  }
+
+  bool poseDifferent = false;
+  for (int i = 0; i < 4; i++)
+  {
+    for (int j = 0; j < 4; j++)
+    {
+      if ( fabs(this->WorldEventPoses[pointerIndex]->GetElement(i, j) - poseMatrix->GetElement(i, j)) >= 1e-3 )
+      {
+        poseDifferent = true;
+        break;
+      }
+    }
+  }
+
+
+  if (poseDifferent)
+  {
+    this->LastWorldEventPoses[pointerIndex]->DeepCopy(WorldEventPoses[pointerIndex]);
+    this->WorldEventPoses[pointerIndex]->DeepCopy(poseMatrix);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor3D::GetWorldEventPose(vtkMatrix4x4* poseMatrix, int pointerIndex)
+{
+  if (pointerIndex >= VTKI_MAX_POINTERS || !poseMatrix)
+  {
+    return;
+  }
+  poseMatrix->DeepCopy(WorldEventPoses[pointerIndex]);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor3D::GetLastWorldEventPose(vtkMatrix4x4* poseMatrix, int pointerIndex)
+{
+  if (pointerIndex >= VTKI_MAX_POINTERS || !poseMatrix)
+  {
+    return;
+  }
+  poseMatrix->DeepCopy(LastWorldEventPoses[pointerIndex]);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor3D::GetPhysicalEventPose(vtkMatrix4x4* poseMatrix, int pointerIndex)
+{
+  if (pointerIndex >= VTKI_MAX_POINTERS || !poseMatrix)
+  {
+    return;
+  }
+  poseMatrix->DeepCopy(PhysicalEventPoses[pointerIndex]);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor3D::GetLastPhysicalEventPose(vtkMatrix4x4* poseMatrix, int pointerIndex)
+{
+  if (pointerIndex >= VTKI_MAX_POINTERS || !poseMatrix)
+  {
+    return;
+  }
+  poseMatrix->DeepCopy(LastPhysicalEventPoses[pointerIndex]);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor3D::GetStartingPhysicalEventPose(vtkMatrix4x4* poseMatrix, int pointerIndex)
+{
+  if (pointerIndex >= VTKI_MAX_POINTERS || !poseMatrix)
+  {
+    return;
+  }
+  poseMatrix->DeepCopy(StartingPhysicalEventPoses[pointerIndex]);
 }

@@ -394,21 +394,10 @@ void vtkOpenVRPanelRepresentation::ComputeMatrix(vtkRenderer *ren)
       rw->GetTrackedDevicePose(vtkEventDataDevice::LeftController, &tdPose);
       if (tdPose && tdPose->bPoseIsValid)
       {
-        double pos[3];
-        double ppos[3];
-        double wxyz[4];
-        double wdir[3];
+        vtkNew<vtkMatrix4x4> poseMatrixWorld;
         static_cast<vtkOpenVRRenderWindowInteractor *>(rw->GetInteractor())
-          ->ConvertPoseToWorldCoordinates(*tdPose, pos, wxyz, ppos, wdir);
-
-        double scale = rw->GetPhysicalScale();
-
-        this->TempTransform->Identity();
-        this->TempTransform->PreMultiply();
-        this->TempTransform->Translate(pos[0], pos[1], pos[2]);
-        this->TempTransform->Scale(scale, scale, scale);
-        this->TempTransform->RotateWXYZ(wxyz[0], wxyz[1], wxyz[2], wxyz[3]);
-        this->TextActor->GetUserMatrix()->DeepCopy(this->TempTransform->GetMatrix());
+          ->ConvertOpenVRPoseToMatrices(*tdPose, poseMatrixWorld);
+        this->TextActor->GetUserMatrix()->DeepCopy(poseMatrixWorld);
       }
     }
 
@@ -418,21 +407,10 @@ void vtkOpenVRPanelRepresentation::ComputeMatrix(vtkRenderer *ren)
       rw->GetTrackedDevicePose(vtkEventDataDevice::RightController, &tdPose);
       if (tdPose && tdPose->bPoseIsValid)
       {
-        double pos[3];
-        double ppos[3];
-        double wxyz[4];
-        double wdir[3];
+        vtkNew<vtkMatrix4x4> poseMatrixWorld;
         static_cast<vtkOpenVRRenderWindowInteractor *>(rw->GetInteractor())
-          ->ConvertPoseToWorldCoordinates(*tdPose, pos, wxyz, ppos, wdir);
-
-        double scale = rw->GetPhysicalScale();
-
-        this->TempTransform->Identity();
-        this->TempTransform->PreMultiply();
-        this->TempTransform->Translate(pos[0], pos[1], pos[2]);
-        this->TempTransform->Scale(scale, scale, scale);
-        this->TempTransform->RotateWXYZ(wxyz[0], wxyz[1], wxyz[2], wxyz[3]);
-        this->TextActor->GetUserMatrix()->DeepCopy(this->TempTransform->GetMatrix());
+          ->ConvertOpenVRPoseToMatrices(*tdPose, poseMatrixWorld);
+        this->TextActor->GetUserMatrix()->DeepCopy(poseMatrixWorld);
       }
     }
   }
