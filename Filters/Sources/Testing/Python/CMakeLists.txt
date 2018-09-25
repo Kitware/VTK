@@ -9,7 +9,7 @@ vtk_add_test_python(
   glyph2D.py
   TestPlatonicSolids.py,NO_RT
   TestGlyphScaling.py
-  TestEllipseArcSource.py
+  TestEllipseArcSourceResolution.py
   )
 if(VTK_USE_TK AND Module_vtkRenderingTk)
   vtk_add_test_python(
