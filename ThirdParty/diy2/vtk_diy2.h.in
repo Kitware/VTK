@@ -25,7 +25,7 @@
 
 #ifndef VTK_USE_SYSTEM_DIY2
 #  define VTK_DIY2_HEADER(header) VTK_DIY2_QUOTE_HEADER_NAME(header)
-#  define diy vtkdiy // mangle namespace diy
+#  define diy vtkdiy2 // mangle namespace diy
 #else
 #  define VTK_DIY2_HEADER(header) #header
 #endif
