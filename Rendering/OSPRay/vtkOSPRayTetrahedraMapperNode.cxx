@@ -20,7 +20,7 @@
 #include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkOSPRayRendererNode.h"
-#include "vtkOSPRayVolumeCache.h"
+#include "vtkOSPRayCache.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkRenderer.h"
@@ -44,7 +44,7 @@ vtkOSPRayTetrahedraMapperNode::vtkOSPRayTetrahedraMapperNode()
   this->NumColors = 128;
   this->OSPRayVolume = nullptr;
   this->TransferFunction = nullptr;
-  this->Cache = new vtkOSPRayVolumeCache;
+  this->Cache = new vtkOSPRayCache<vtkOSPRayCacheItemObject>();
 }
 
 vtkOSPRayTetrahedraMapperNode::~vtkOSPRayTetrahedraMapperNode()
@@ -134,10 +134,14 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
     if (mapper->GetDataSetInput()->GetMTime() > this->BuildTime)
     {
       double tstep = vtkOSPRayRendererNode::GetViewTime(ren);
-      auto cached_Volume = this->Cache->GetFromCache(tstep);
+      auto cached_entry = this->Cache->Get(tstep);
+      auto cached_Volume = cached_entry?
+                            this->Cache->Get(tstep)->object
+                            :
+                            nullptr;
       if (cached_Volume)
       {
-        this->OSPRayVolume = cached_Volume;
+        this->OSPRayVolume = (OSPVolume)cached_Volume;
       }
       else
       {
@@ -146,7 +150,11 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
           ospRelease(this->OSPRayVolume);
         }
         this->OSPRayVolume = ospNewVolume("unstructured_volume");
-        this->Cache->AddToCache(tstep, this->OSPRayVolume);
+        if (this->Cache->HasRoom())
+        {
+          auto cacheEntry = std::make_shared<vtkOSPRayCacheItemObject>(this->OSPRayVolume);
+          this->Cache->Set(tstep, cacheEntry);
+        }
 
         this->Vertices.clear();
         double point[3];

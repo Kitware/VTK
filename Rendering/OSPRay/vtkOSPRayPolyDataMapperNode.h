@@ -22,8 +22,9 @@
 #ifndef vtkOSPRayPolyDataMapperNode_h
 #define vtkOSPRayPolyDataMapperNode_h
 
-#include "vtkRenderingOSPRayModule.h" // For export macro
+#include "vtkOSPRayCache.h" // For common cache infrastructure
 #include "vtkPolyDataMapperNode.h"
+#include "vtkRenderingOSPRayModule.h" // For export macro
 
 class vtkOSPRayActorNode;
 class vtkPolyData;
@@ -50,19 +51,49 @@ protected:
   vtkOSPRayPolyDataMapperNode();
   ~vtkOSPRayPolyDataMapperNode();
 
-  void ORenderPoly(void *renderer, void *model,
+  void ORenderPoly(void *renderer,
                    vtkOSPRayActorNode *aNode, vtkPolyData * poly,
                    double *ambientColor,
                    double *diffuseColor,
                    double opacity,
                    std::string material);
 
-  void *OSPMeshes;
-  void CreateNewMeshes();
-  void AddMeshesToModel(void *arg);
+  class vtkOSPRayCacheItemGeometries
+  {
+  public:
 
+    vtkOSPRayCacheItemGeometries() = default;
+    vtkOSPRayCacheItemGeometries(const std::vector<OSPGeometry>& geometries_)
+      : Geometries(geometries_)
+    {}
+
+    ~vtkOSPRayCacheItemGeometries() = default;
+
+    std::vector<OSPGeometry> Geometries;
+  };
+
+  std::vector<OSPGeometry> Geometries;
+  void ClearGeometries();
+
+  vtkOSPRayCache<vtkOSPRayCacheItemGeometries >* GeometryCache{nullptr};
+  vtkOSPRayCache<vtkOSPRayCacheItemObject >* InstanceCache{nullptr};
+
+  /**
+   * @brief adds geometries to ospray cache
+   */
+  void PopulateCache();
+
+  /**
+   * @brief add computed ospray geometries to renderer model.
+   * Will grab from cache if cached.
+   */
+  void RenderGeometries();
+
+  bool UseInstanceCache;
+  bool UseGeometryCache;
 private:
   vtkOSPRayPolyDataMapperNode(const vtkOSPRayPolyDataMapperNode&) = delete;
   void operator=(const vtkOSPRayPolyDataMapperNode&) = delete;
 };
+
 #endif

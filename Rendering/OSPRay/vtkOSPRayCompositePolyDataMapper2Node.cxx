@@ -23,6 +23,7 @@
 #include "vtkOSPRayRendererNode.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
 //============================================================================
@@ -70,19 +71,22 @@ void vtkOSPRayCompositePolyDataMapper2Node::Render(bool prepass)
     vtkOSPRayRendererNode *orn =
       static_cast<vtkOSPRayRendererNode *>(
         this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
+    double tstep = vtkOSPRayRendererNode::GetViewTime(orn->GetRenderer());
+    vtkRenderer *ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
+    this->InstanceCache->SetSize(vtkOSPRayRendererNode::GetTimeCacheSize(ren));
+    this->GeometryCache->SetSize(vtkOSPRayRendererNode::GetTimeCacheSize(ren));
 
     //if there are no changes, just reuse last result
     vtkMTimeType inTime = aNode->GetMTime();
-    if (this->RenderTime >= inTime)
+    if (this->RenderTime >= inTime ||
+        (this->UseInstanceCache && this->InstanceCache->Contains(tstep)) ||
+        (this->UseGeometryCache && this->GeometryCache->Contains(tstep)))
     {
-      this->AddMeshesToModel(orn->GetOModel());
+      this->RenderGeometries();
       return;
     }
-
     this->RenderTime = inTime;
-
-    //something changed so make new meshes
-    this->CreateNewMeshes();
+    this->ClearGeometries();
 
     vtkProperty* prop = act->GetProperty();
 
@@ -120,6 +124,9 @@ void vtkOSPRayCompositePolyDataMapper2Node::Render(bool prepass)
     this->BlockState.DiffuseColor.pop();
     this->BlockState.SpecularColor.pop();
     this->BlockState.Material.pop();
+
+    this->PopulateCache();
+    this->RenderGeometries();
   }
 }
 
@@ -204,7 +211,7 @@ void vtkOSPRayCompositePolyDataMapper2Node::RenderBlock(
       std::string &material = this->BlockState.Material.top();
       cpdm->ClearColorArrays(); //prevents reuse of stale color arrays
       this->ORenderPoly(
-        orn->GetORenderer(), orn->GetOModel(),
+        orn->GetORenderer(),
         aNode, ds,
         aColor.GetData(),
         dColor.GetData(),

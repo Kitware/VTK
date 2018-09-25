@@ -24,12 +24,11 @@
 #ifndef vtkOSPRayTetrahedraMapperNode_h
 #define vtkOSPRayTetrahedraMapperNode_h
 
+#include "vtkOSPRayCache.h" // For common cache infrastructure
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkVolumeMapperNode.h"
 
 #include "ospray/ospray.h" // for ospray handle types
-
-class vtkOSPRayVolumeCache;
 
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayTetrahedraMapperNode : public vtkVolumeMapperNode
 
@@ -64,7 +63,7 @@ protected:
   std::vector<osp::vec3f> Vertices;
   std::vector<float> Field;
 
-  vtkOSPRayVolumeCache *Cache;
+  vtkOSPRayCache<vtkOSPRayCacheItemObject> *Cache;
 private:
   vtkOSPRayTetrahedraMapperNode(const vtkOSPRayTetrahedraMapperNode&) = delete;
   void operator=(const vtkOSPRayTetrahedraMapperNode &) = delete;

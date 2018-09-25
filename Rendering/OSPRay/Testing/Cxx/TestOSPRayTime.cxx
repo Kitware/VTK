@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestOSPRayDynamicScene.cxx
+  Module:    TestOSPRayTime.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -17,8 +17,6 @@
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
-
-//TODO: test broken by pre SC15 ospray caching
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
