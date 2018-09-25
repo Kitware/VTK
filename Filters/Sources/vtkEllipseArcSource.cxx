@@ -145,7 +145,7 @@ int vtkEllipseArcSource::RequestData(vtkInformation* vtkNotUsed(request),
     theta = theta - quotient * 2.0 * vtkMath::Pi();
 
     // result range: -pi/2, pi/2
-    thetaEllipse = atan(tan(theta) / this->Ratio);
+    thetaEllipse = atan(tan(theta) * this->Ratio);
 
     //theta range: 0, 2 * pi
     if (theta > vtkMath::Pi() / 2 && theta <= vtkMath::Pi())
