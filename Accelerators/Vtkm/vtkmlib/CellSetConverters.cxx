@@ -332,19 +332,15 @@ struct CellSetConverter
 
         CellInfoCopyWorklet worklet(&correctSize, connArray, this->Types,
                                     this->Locations);
-        vtkm::worklet::DispatcherMapTopology<CellInfoCopyWorklet,
-                                             vtkm::cont::DeviceAdapterTagSerial>
-            dispatcher(worklet);
-
+        vtkm::worklet::DispatcherMapTopology<CellInfoCopyWorklet> dispatcher(worklet);
+        dispatcher.SetDevice(vtkm::cont::DeviceAdapterTagSerial{});
         dispatcher.Invoke(cells);
       }
       else
       {
         CellConnCopyWorklet worklet(&correctSize, connArray);
-        vtkm::worklet::DispatcherMapTopology<CellConnCopyWorklet,
-                                             vtkm::cont::DeviceAdapterTagSerial>
-            dispatcher(worklet);
-
+        vtkm::worklet::DispatcherMapTopology<CellConnCopyWorklet> dispatcher(worklet);
+        dispatcher.SetDevice(vtkm::cont::DeviceAdapterTagSerial{});
         dispatcher.Invoke(cells);
       }
 
