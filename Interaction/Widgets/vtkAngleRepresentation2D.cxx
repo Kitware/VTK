@@ -215,12 +215,12 @@ void vtkAngleRepresentation2D::BuildRepresentation()
 
     // Local coordinate values
     double p1w[3], p2w[3], cw[3], p1d[3], p2d[3], cd[3], vector2[3], vector1[3];
-    this->Point1Representation->GetWorldPosition(p1w);
-    this->CenterRepresentation->GetWorldPosition(cw);
-    this->Point2Representation->GetWorldPosition(p2w);
-    this->Point1Representation->GetDisplayPosition(p1d);
-    this->CenterRepresentation->GetDisplayPosition(cd);
-    this->Point2Representation->GetDisplayPosition(p2d);
+    this->GetPoint1WorldPosition(p1w);
+    this->GetCenterWorldPosition(cw);
+    this->GetPoint2WorldPosition(p2w);
+    this->GetPoint1DisplayPosition(p1d);
+    this->GetCenterDisplayPosition(cd);
+    this->GetPoint2DisplayPosition(p2d);
 
     // Update the rays
     this->Ray1->GetPosition2Coordinate()->SetValue(p1w);
