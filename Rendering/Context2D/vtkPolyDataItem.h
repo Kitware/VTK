@@ -74,6 +74,9 @@ protected:
   vtkPolyDataItem();
   ~vtkPolyDataItem() override;
 
+  class DrawHintsHelper;
+  DrawHintsHelper* HintHelper;
+
   float Position[2];
 
   vtkPolyData* PolyData;
