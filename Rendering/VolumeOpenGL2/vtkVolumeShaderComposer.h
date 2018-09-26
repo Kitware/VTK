@@ -34,7 +34,8 @@ namespace {
     for (auto& item : inputs)
     {
       vtkVolumeProperty* volProp = item.second.Volume->GetProperty();
-      const bool gradOp = volProp->HasGradientOpacity();
+      const bool gradOp =
+        volProp->HasGradientOpacity() && !volProp->GetDisableGradientOpacity();
       if (gradOp)
         return true;
     }
@@ -473,7 +474,7 @@ namespace vtkvolume
     const bool hasGradientOp = HasGradientOpacity(inputs);
 
     std::string shaderStr;
-    if (hasLighting && !hasGradientOp)
+    if (hasLighting || hasGradientOp)
     {
       shaderStr += std::string(
         "// c is short for component\n"
@@ -544,62 +545,46 @@ namespace vtkvolume
         "  // Apply scale and bias to the fetched values.\n"
         "  g1 = g1 * in_volume_scale[index][c] + in_volume_bias[index][c];\n"
         "  g2 = g2 * in_volume_scale[index][c] + in_volume_bias[index][c];\n"
-        "\n"
-        "  // Central differences: (F_front - F_back) / 2h\n"
-        "  // This version of computeGradient() is only used for lighting\n"
-        "  // calculations (only direction matters), hence the difference is\n"
-        "  // not scaled by 2h and a dummy gradient mag is returned (-1.).\n"
-        "  return vec4((g1 - g2) / in_cellSpacing[index], -1.0);\n"
-        "}\n");
-    }
-    else if (hasGradientOp)
-    {
-      shaderStr += std::string(
-        "// c is short for component\n"
-        "vec4 computeGradient(in vec3 texPos, in int c, in sampler3D volume, in int index)\n"
-        "{\n"
-        "  // Approximate Nabla(F) derivatives with central differences.\n"
-        "  vec3 g1; // F_front\n"
-        "  vec3 g2; // F_back\n"
-        "  vec3 xvec = vec3(in_cellStep[index].x, 0.0, 0.0);\n"
-        "  vec3 yvec = vec3(0.0, in_cellStep[index].y, 0.0);\n"
-        "  vec3 zvec = vec3(0.0, 0.0, in_cellStep[index].z);\n"
-        "  g1.x = texture3D(volume, vec3(texPos + xvec))[c];\n"
-        "  g1.y = texture3D(volume, vec3(texPos + yvec))[c];\n"
-        "  g1.z = texture3D(volume, vec3(texPos + zvec))[c];\n"
-        "  g2.x = texture3D(volume, vec3(texPos - xvec))[c];\n"
-        "  g2.y = texture3D(volume, vec3(texPos - yvec))[c];\n"
-        "  g2.z = texture3D(volume, vec3(texPos - zvec))[c];\n"
-        "\n"
-        "  // Apply scale and bias to the fetched values.\n"
-        "  g1 = g1 * in_volume_scale[index][c] + in_volume_bias[index][c];\n"
-        "  g2 = g2 * in_volume_scale[index][c] + in_volume_bias[index][c];\n"
-        "\n"
-        "  // Scale values the actual scalar range.\n"
-        "  float range = in_scalarsRange[c][1] - in_scalarsRange[c][0];\n"
-        "  g1 = in_scalarsRange[c][0] + range * g1;\n"
-        "  g2 = in_scalarsRange[c][0] + range * g2;\n"
-        "\n"
-        "  // Central differences: (F_front - F_back) / 2h\n"
-        "  g2 = g1 - g2;\n"
-        "\n"
-        "  float avgSpacing = (in_cellSpacing[index].x +\n"
-        "   in_cellSpacing[index].y + in_cellSpacing[index].z) / 3.0;\n"
-        "  vec3 aspect = in_cellSpacing[index] * 2.0 / avgSpacing;\n"
-        "  g2 /= aspect;\n"
-        "  float grad_mag = length(g2);\n"
-        "\n"
-        "  // Handle normalizing with grad_mag == 0.0\n"
-        "  g2 = grad_mag > 0.0 ? normalize(g2) : vec3(0.0);\n"
-        "\n"
-        "  // Since the actual range of the gradient magnitude is unknown,\n"
-        "  // assume it is in the range [0, 0.25 * dataRange].\n"
-        "  range = range != 0 ? range : 1.0;\n"
-        "  grad_mag = grad_mag / (0.25 * range);\n"
-        "  grad_mag = clamp(grad_mag, 0.0, 1.0);\n"
-        "\n"
-        "  return vec4(g2.xyz, grad_mag);\n"
-        "}\n");
+        "\n");
+      if (!hasGradientOp)
+      {
+        shaderStr += std::string(
+          "  // Central differences: (F_front - F_back) / 2h\n"
+          "  // This version of computeGradient() is only used for lighting\n"
+          "  // calculations (only direction matters), hence the difference is\n"
+          "  // not scaled by 2h and a dummy gradient mag is returned (-1.).\n"
+          "  return vec4((g1 - g2) / in_cellSpacing[index], -1.0);\n"
+          "}\n");
+      }
+      else
+      {
+        shaderStr += std::string(
+          "  // Scale values the actual scalar range.\n"
+          "  float range = in_scalarsRange[c][1] - in_scalarsRange[c][0];\n"
+          "  g1 = in_scalarsRange[c][0] + range * g1;\n"
+          "  g2 = in_scalarsRange[c][0] + range * g2;\n"
+          "\n"
+          "  // Central differences: (F_front - F_back) / 2h\n"
+          "  g2 = g1 - g2;\n"
+          "\n"
+          "  float avgSpacing = (in_cellSpacing[index].x +\n"
+          "   in_cellSpacing[index].y + in_cellSpacing[index].z) / 3.0;\n"
+          "  vec3 aspect = in_cellSpacing[index] * 2.0 / avgSpacing;\n"
+          "  g2 /= aspect;\n"
+          "  float grad_mag = length(g2);\n"
+          "\n"
+          "  // Handle normalizing with grad_mag == 0.0\n"
+          "  g2 = grad_mag > 0.0 ? normalize(g2) : vec3(0.0);\n"
+          "\n"
+          "  // Since the actual range of the gradient magnitude is unknown,\n"
+          "  // assume it is in the range [0, 0.25 * dataRange].\n"
+          "  range = range != 0 ? range : 1.0;\n"
+          "  grad_mag = grad_mag / (0.25 * range);\n"
+          "  grad_mag = clamp(grad_mag, 0.0, 1.0);\n"
+          "\n"
+          "  return vec4(g2.xyz, grad_mag);\n"
+          "}\n");
+      }
     }
     else
     {
