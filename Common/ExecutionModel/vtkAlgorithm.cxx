@@ -1413,14 +1413,16 @@ vtkExecutive* vtkAlgorithm::GetInputExecutive(int port, int index)
 //----------------------------------------------------------------------------
 vtkAlgorithmOutput* vtkAlgorithm::GetInputConnection(int port, int index)
 {
-  if(index < 0 || index >= this->GetNumberOfInputConnections(port))
+  if(port < 0 || port >= this->GetNumberOfInputPorts())
   {
-#if !defined NDEBUG
-    vtkWarningMacro("Attempt to get connection index " << index
-                    << " for input port " << port << ", which has "
-                    << this->GetNumberOfInputConnections(port)
-                    << " connections.");
-#endif
+    vtkErrorMacro("Attempt to get connection index " << index
+                  << " for input port " << port << ", for an algorithm with "
+                  << this->GetNumberOfInputPorts()
+                  << " ports.");
+    return nullptr;
+  }
+  if (index < 0 || index >= this->GetNumberOfInputConnections(port))
+  {
     return nullptr;
   }
   if(vtkInformation* info =
