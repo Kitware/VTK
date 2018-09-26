@@ -46,6 +46,12 @@ MACRO(FFMPEG_FIND varname shortname headername)
         DOC "Location of FFMPEG Headers"
     )
 
+    # on windows sometimes ffmpeg is built as lib<name>.a files
+    if (WIN32)
+        list(APPEND CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+        list(APPEND CMAKE_FIND_LIBRARY_PREFIXES "lib")
+    endif()
+
     FIND_LIBRARY(FFMPEG_${varname}_LIBRARIES
         NAMES ${shortname}
         PATHS
@@ -107,6 +113,7 @@ FFMPEG_FIND(LIBAVFORMAT avformat avformat.h)
 FFMPEG_FIND(LIBAVDEVICE avdevice avdevice.h)
 FFMPEG_FIND(LIBAVCODEC  avcodec  avcodec.h)
 FFMPEG_FIND(LIBAVUTIL   avutil   avutil.h)
+FFMPEG_FIND(LIBSWRESAMPLE swresample swresample.h)
 FFMPEG_FIND(LIBSWSCALE  swscale  swscale.h)  # not sure about the header to look for here.
 
 SET(FFMPEG_FOUND "NO")

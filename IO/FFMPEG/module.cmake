@@ -2,12 +2,18 @@ vtk_module(vtkIOFFMPEG
   TEST_DEPENDS
     vtkTestingCore
     vtkImagingSources
+    vtkRenderingOpenGL2
+    vtkTestingRendering
+    vtkInteractionStyle
   KIT
     vtkIO
   DEPENDS
     vtkIOMovie
+    vtkIOVideo
   PRIVATE_DEPENDS
     vtkCommonCore
     vtkCommonDataModel
     vtkCommonMisc
+    vtkCommonSystem
+    vtksys
   )
