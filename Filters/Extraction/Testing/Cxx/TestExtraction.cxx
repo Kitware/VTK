@@ -29,6 +29,7 @@
 #include <vtkCellData.h>
 #include <vtkDataSetMapper.h>
 #include <vtkDoubleArray.h>
+#include <vtkFloatArray.h>
 #include <vtkIdList.h>
 #include <vtkIdTypeArray.h>
 #include <vtkImageData.h>
@@ -159,7 +160,7 @@ int TestExtraction(int argc, char *argv[])
   sampleData->SetSpacing(1.0,1.0,1.0);
   sampleData->SetOrigin(0.0,0.0,0.0);
   sampleData->SetDimensions(XCELLS+1,YCELLS+1,ZCELLS+1);
-  sampleData->AllocateScalars(VTK_DOUBLE, 1);
+  sampleData->AllocateScalars(VTK_FLOAT, 1);
 
   vtkIdTypeArray *pia = vtkIdTypeArray::New();
   pia->SetNumberOfComponents(1);
@@ -176,17 +177,17 @@ int TestExtraction(int argc, char *argv[])
   piaR->SetName("Reverse Point Ids");
   sampleData->GetPointData()->AddArray(piaR);
 
-  vtkDoubleArray *pxa = vtkDoubleArray::New();
+  vtkFloatArray *pxa = vtkFloatArray::New();
   pxa->SetNumberOfComponents(1);
   pxa->SetName("Point X");
   sampleData->GetPointData()->AddArray(pxa);
 
-  vtkDoubleArray *pya = vtkDoubleArray::New();
+  vtkFloatArray *pya = vtkFloatArray::New();
   pya->SetNumberOfComponents(1);
   pya->SetName("Point Y");
   sampleData->GetPointData()->AddArray(pya);
 
-  vtkDoubleArray *pza = vtkDoubleArray::New();
+  vtkFloatArray *pza = vtkFloatArray::New();
   pza->SetNumberOfComponents(1);
   pza->SetName("Point Z");
   sampleData->GetPointData()->AddArray(pza);
