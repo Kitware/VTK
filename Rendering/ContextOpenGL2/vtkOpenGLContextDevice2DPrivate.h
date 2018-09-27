@@ -554,6 +554,8 @@ public:
   , PointIds(nullptr)
   , Colors(nullptr)
   , NumPointsCell(0)
+  , lastPolysPolyDataAddr(nullptr)
+  , lastLinesPolyDataAddr(nullptr)
   {
   };
 
