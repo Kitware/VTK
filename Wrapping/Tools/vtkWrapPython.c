@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
 
 
 /* -------------------------------------------------------------------- */
@@ -335,7 +336,11 @@ int main(int argc, char *argv[])
 
   if (!fp)
   {
-    fprintf(stderr, "Error opening output file %s\n", options->OutputFileName);
+    int e = errno;
+    char *etext = strerror(e);
+    etext = (etext ? etext : "Unknown error");
+    fprintf(stderr, "Error %d opening output file %s: %s\n",
+            e, options->OutputFileName, etext);
     exit(1);
   }
 
