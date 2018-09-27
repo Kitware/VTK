@@ -746,10 +746,10 @@ int TestExtraction(int argc, char *argv[])
     vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::THRESHOLDS);
   sel->SetFieldType(vtkSelectionNode::CELL);
   vtkDoubleArray *cellThresh = vtkDoubleArray::New();
-  cellThresh->SetNumberOfComponents(1);
-  cellThresh->SetNumberOfTuples(2);
-  cellThresh->SetTuple1(0, 1.9); //the nine rightmost(+X) cells are in here
-  cellThresh->SetTuple1(1, 3.1);
+  cellThresh->SetNumberOfComponents(2);
+  cellThresh->SetNumberOfTuples(1);
+  cellThresh->SetComponent(0, 0, 1.9); //the nine rightmost(+X) cells are in here
+  cellThresh->SetComponent(0, 1, 3.1);
   sel->SetSelectionList(cellThresh);
   cellThresh->Delete();
 
@@ -795,10 +795,10 @@ int TestExtraction(int argc, char *argv[])
     vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::THRESHOLDS);
   sel->GetProperties()->Set(vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::POINT);
   vtkDoubleArray *pointThresh = vtkDoubleArray::New();
-  pointThresh->SetNumberOfComponents(1);
-  pointThresh->SetNumberOfTuples(2);
-  pointThresh->SetTuple1(0, 0.9);  //the 18 leftmost cells have points in here
-  pointThresh->SetTuple1(1, 1.1);
+  pointThresh->SetNumberOfComponents(2);
+  pointThresh->SetNumberOfTuples(1);
+  pointThresh->SetComponent(0, 0, 0.9);  //the 18 leftmost cells have points in here
+  pointThresh->SetComponent(0, 1, 1.1);
   sel->SetSelectionList(pointThresh);
   pointThresh->Delete();
 
