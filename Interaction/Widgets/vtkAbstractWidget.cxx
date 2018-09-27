@@ -133,7 +133,10 @@ void vtkAbstractWidget::SetEnabled(int enabling)
 
     // We're ready to enable
     this->Enabled = 1;
-    this->CreateDefaultRepresentation();
+    if (! this->WidgetRep )
+    {
+      this->CreateDefaultRepresentation();
+    }
     this->WidgetRep->SetRenderer(this->CurrentRenderer);
     this->WidgetRep->RegisterPickers();
 

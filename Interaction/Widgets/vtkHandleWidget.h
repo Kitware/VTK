@@ -143,8 +143,25 @@ public:
   vtkGetMacro( WidgetState, int );
   //@}
 
+  //@{
+  /**
+   * Allow the widget to be visible as an inactive representation when disabled.
+   * By default, this is false i.e. the representation is not visible when the
+   * widget is disabled.
+   */
+  vtkSetMacro( ShowInactive, vtkTypeBool );
+  vtkGetMacro( ShowInactive, vtkTypeBool );
+  vtkBooleanMacro( ShowInactive, vtkTypeBool );
+  //@}
+
   // Manage the state of the widget
-  enum _WidgetState {Start=0,Active};
+  enum _WidgetState {Start=0,Active,Inactive};
+
+  /**
+   * Enable/disable widget.
+   * Custom override for the SetEnabled method to allow for the inactive state.
+   **/
+  void SetEnabled(int enabling) override;
 
 protected:
   vtkHandleWidget();
@@ -169,6 +186,9 @@ protected:
 
   // Allow resizing of handles.
   vtkTypeBool AllowHandleResize;
+
+  // Keep representation visible when disabled
+  vtkTypeBool ShowInactive;
 
 private:
   vtkHandleWidget(const vtkHandleWidget&) = delete;

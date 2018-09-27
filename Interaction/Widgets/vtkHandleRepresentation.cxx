@@ -87,7 +87,7 @@ void vtkHandleRepresentation::GetDisplayPosition(double pos[3])
                            this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime)) )
   {
     int *p = this->WorldPosition->GetComputedDisplayValue(this->Renderer);
-    this->DisplayPosition->SetValue(p[0],p[1],0.0);
+    this->DisplayPosition->SetValue(p[0],p[1],p[2]);
   }
   this->DisplayPosition->GetValue(pos);
 }
@@ -104,7 +104,7 @@ double* vtkHandleRepresentation::GetDisplayPosition()
                            this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime)) )
   {
     int *p = this->WorldPosition->GetComputedDisplayValue(this->Renderer);
-    this->DisplayPosition->SetValue(p[0],p[1],0.0);
+    this->DisplayPosition->SetValue(p[0],p[1],p[2]);
   }
   return this->DisplayPosition->GetValue();
 }

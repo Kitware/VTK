@@ -102,6 +102,20 @@ void vtkSeedRepresentation::GetSeedWorldPosition(unsigned int seedNum, double po
   (*iter)->GetWorldPosition(pos);
 }
 
+//----------------------------------------------------------------------------
+void vtkSeedRepresentation::SetSeedWorldPosition(unsigned int seedNum,
+                                                 double pos[3])
+{
+  if (seedNum >= this->Handles->size())
+  {
+    vtkErrorMacro("Trying to access non-existent handle");
+    return;
+  }
+  vtkHandleListIterator iter = this->Handles->begin();
+  std::advance(iter, seedNum);
+  (*iter)->SetWorldPosition(pos);
+}
+
 //----------------------------------------------------------------------
 void vtkSeedRepresentation::SetSeedDisplayPosition(unsigned int seedNum, double pos[3])
 {
@@ -163,6 +177,16 @@ ComputeInteractionState(int vtkNotUsed(X), int vtkNotUsed(Y), int vtkNotUsed(mod
 int vtkSeedRepresentation::GetActiveHandle()
 {
   return this->ActiveHandle;
+}
+
+//----------------------------------------------------------------------
+void vtkSeedRepresentation::SetActiveHandle(int handleId)
+{
+  if (handleId >= static_cast<int>(this->Handles->size()))
+  {
+    return;
+  }
+  this->ActiveHandle = handleId;
 }
 
 //----------------------------------------------------------------------
