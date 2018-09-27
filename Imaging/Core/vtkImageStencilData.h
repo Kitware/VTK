@@ -126,7 +126,7 @@ public:
    * by vtkImageStencilSource, as it is part of the basic pipeline
    * functionality.
    */
-  void SetExtent(int extent[6]);
+  void SetExtent(const int extent[6]);
   void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
   vtkGetVector6Macro(Extent, int);
   //@}

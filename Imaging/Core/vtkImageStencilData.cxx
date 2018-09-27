@@ -362,7 +362,7 @@ void vtkImageStencilData::CopyOriginAndSpacingFromPipeline(vtkInformation* info)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageStencilData::SetExtent(int extent[6])
+void vtkImageStencilData::SetExtent(const int extent[6])
 {
   for (int i = 0; i < 6; i++)
   {
