@@ -100,10 +100,10 @@ public:
       case READ:
       {
         glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, reinterpret_cast<GLint*>(&this->LastFrameBuffer));
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, fb);
 #ifdef GL_READ_BUFFER
         glGetIntegerv(GL_READ_BUFFER, &this->LastColorBuffer);
 #endif
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, fb);
         glReadBuffer(buf);
       }
       break;
@@ -111,10 +111,10 @@ public:
       case DRAW:
       {
         glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, reinterpret_cast<GLint*>(&this->LastFrameBuffer));
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fb);
 #ifdef GL_DRAW_BUFFER
         glGetIntegerv(GL_DRAW_BUFFER, &this->LastColorBuffer);
 #endif
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fb);
         glDrawBuffer(buf);
       }
       break;
