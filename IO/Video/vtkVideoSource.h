@@ -316,7 +316,7 @@ protected:
   int Playing;
   float FrameRate;
   int FrameCount;
-  int FrameIndex;
+
   double StartTimeStamp;
   double FrameTimeStamp;
 
@@ -349,7 +349,16 @@ protected:
   int FrameBufferExtent[6];
 
   int FrameBufferSize;
+
+  // where the current frame is, note this decreases in time
+  // increasing values are older frames
   int FrameBufferIndex;
+
+  // number of frames from the beginning sort of,
+  // it does wrap, sometimes
+  int FrameIndex;
+
+
   void **FrameBuffer;
   double *FrameBufferTimeStamps;
 
