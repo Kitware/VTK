@@ -50,11 +50,6 @@ QVTKOpenGLWidget::QVTKOpenGLWidget(vtkGenericOpenGLRenderWindow* w,
   QOpenGLContext *shareContext, QWidget* parent, Qt::WindowFlags f)
   : QWidget(parent, f)
 {
-  // Work around for bug paraview/paraview#18285
-  // https://gitlab.kitware.com/paraview/paraview/issues/18285
-  // This ensure that kde will not grab the window
-  this->setProperty("_kde_no_window_grab", true);
-
   // Internal QVTKOpenGLWindow creation
   this->qVTKOpenGLWindowInternal = new QVTKOpenGLWindow(w, shareContext);
   QVBoxLayout* vBoxLayout = new QVBoxLayout(this);
@@ -83,6 +78,11 @@ QVTKOpenGLWidget::QVTKOpenGLWidget(vtkGenericOpenGLRenderWindow* w,
 
   // forward the original QWidget size to the internal window
   this->resize(Superclass::size());
+
+  // Work around for bug paraview/paraview#18285
+  // https://gitlab.kitware.com/paraview/paraview/issues/18285
+  // This ensure that kde will not grab the window
+  this->setProperty("_kde_no_window_grab", true);
 
   // enable qt gesture events
   grabGesture(Qt::PinchGesture);
