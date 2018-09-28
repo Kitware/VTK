@@ -49,8 +49,14 @@ public:
    */
   vtkGraph *GetOutput();
   vtkGraph *GetOutput(int idx);
-  void SetOutput(vtkGraph *output);
   //@}
+
+  /**
+   * Actual reading happens here
+   */
+  int ReadMeshSimple(const std::string& fname,
+                     vtkDataObject* output) override;
+
 
 protected:
   vtkGraphReader();
@@ -64,25 +70,10 @@ protected:
     Molecule
   };
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
-
-  // Override ProcessRequest to handle request data object event
-  int ProcessRequest(vtkInformation *, vtkInformationVector **,
-                             vtkInformationVector *) override;
-
-  // Since the Outputs[0] has the same UpdateExtent format
-  // as the generic DataObject we can copy the UpdateExtent
-  // as a default behavior.
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *) override;
-
-  // Create output (a directed or undirected graph).
-  virtual int RequestDataObject(vtkInformation *, vtkInformationVector **,
-                                vtkInformationVector *);
+  vtkDataObject* CreateOutput(vtkDataObject* currentOutput) override;
 
   // Read beginning of file to determine whether the graph is directed.
-  virtual int ReadGraphType(GraphType &type);
+  virtual int ReadGraphType(const char* fname, GraphType &type);
 
 
   int FillOutputPortInformation(int, vtkInformation*) override;

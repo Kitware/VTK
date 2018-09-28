@@ -70,53 +70,21 @@ void vtkBiomTableReader::SetOutput(vtkTable *output)
 }
 
 //----------------------------------------------------------------------------
-// I do not think this should be here, but I do not want to remove it now.
-int vtkBiomTableReader::RequestUpdateExtent(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
+int vtkBiomTableReader::ReadMeshSimple(const std::string& fname,
+                                       vtkDataObject* doOutput)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  int piece, numPieces;
-
-  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-
-  // make sure piece is valid
-  if (piece < 0 || piece >= numPieces)
-  {
-    return 1;
-  }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkBiomTableReader::RequestData(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
-{
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  // Return all data in the first piece ...
-  if(outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
-  {
-    return 1;
-  }
-
   vtkDebugMacro(<<"Reading biom table...");
 
-  if(this->GetFileName() == nullptr || strcmp(this->GetFileName(), "") == 0)
+  if(fname.empty())
   {
     vtkErrorMacro(<<"Input filename not set");
     return 1;
   }
 
-  std::ifstream ifs( this->GetFileName(), std::ifstream::in );
+  std::ifstream ifs( fname, std::ifstream::in );
   if(!ifs.good())
   {
-    vtkErrorMacro(<<"Unable to open " << this->GetFileName() << " for reading");
+    vtkErrorMacro(<<"Unable to open " << fname << " for reading");
     return 1;
   }
 
@@ -132,7 +100,8 @@ int vtkBiomTableReader::RequestData(
 
   vtkNew<vtkStringArray> rowNames;
   rowNames->SetName("name");
-  this->GetOutput()->AddColumn(rowNames);
+  vtkTable* output = vtkTable::SafeDownCast(doOutput);
+  output->AddColumn(rowNames);
   for ( int i = 1; i < this->NumberOfColumns + 1; ++i )
   {
     switch(this->DataType)
@@ -140,26 +109,26 @@ int vtkBiomTableReader::RequestData(
       case VTK_INT:
       {
         vtkNew<vtkIntArray> intCol;
-        this->GetOutput()->AddColumn(intCol);
+        output->AddColumn(intCol);
         break;
       }
       case VTK_FLOAT:
       {
         vtkNew<vtkFloatArray> floatCol;
-        this->GetOutput()->AddColumn(floatCol);
+        output->AddColumn(floatCol);
         break;
       }
       case VTK_STRING:
       {
         vtkNew<vtkStringArray> stringCol;
-        this->GetOutput()->AddColumn(stringCol);
+        output->AddColumn(stringCol);
         break;
       }
       default:
         break;
     }
   }
-  this->GetOutput()->SetNumberOfRows(this->NumberOfRows);
+  output->SetNumberOfRows(this->NumberOfRows);
 
   //row names are stored in another column.  add it before the rest of the data
   this->ParseRows();

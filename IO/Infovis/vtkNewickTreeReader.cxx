@@ -71,28 +71,6 @@ void vtkNewickTreeReader::SetOutput(vtkTree *output)
 }
 
 //----------------------------------------------------------------------------
-// I do not think this should be here, but I do not want to remove it now.
-int vtkNewickTreeReader::RequestUpdateExtent(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
-{
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  int piece, numPieces;
-
-  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-
-  // make sure piece is valid
-  if (piece < 0 || piece >= numPieces)
-  {
-    return 1;
-  }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
 int vtkNewickTreeReader:: ReadNewickTree(  const char *  buffer, vtkTree & tree)
 {
   // Read through the input file to count the number of nodes in the tree.
@@ -169,33 +147,23 @@ int vtkNewickTreeReader:: ReadNewickTree(  const char *  buffer, vtkTree & tree)
 }
 
 //----------------------------------------------------------------------------
-int vtkNewickTreeReader::RequestData(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
+int vtkNewickTreeReader::ReadMeshSimple(const std::string& fname,
+                                        vtkDataObject* doOutput)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  // Return all data in the first piece ...
-  if(outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
-  {
-    return 1;
-  }
-
   vtkDebugMacro(<<"Reading Newick tree ...");
 
   if( !this->ReadFromInputString)
   {
-    if(!this->GetFileName())
+    if(fname.empty())
     {
       vtkErrorMacro("FileName not set.");
       return 1;
     }
 
-    std::ifstream ifs( this->GetFileName(), std::ifstream::in );
+    std::ifstream ifs( fname, std::ifstream::in );
     if(!ifs.good())
     {
-      vtkErrorMacro(<<"Unable to open " << this->GetFileName() << " for reading");
+      vtkErrorMacro(<<"Unable to open " << fname << " for reading");
       return 1;
     }
 
@@ -216,8 +184,7 @@ int vtkNewickTreeReader::RequestData(
     }
   }
 
-  vtkTree* const output = vtkTree::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTree* const output = vtkTree::SafeDownCast(doOutput);
 
 
   if(!ReadNewickTree(this->InputString, *output))
@@ -543,8 +510,6 @@ int vtkNewickTreeReader::FillOutputPortInformation(int, vtkInformation* info)
 void vtkNewickTreeReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "FileName: "
-     << (this->FileName ? this->FileName : "(none)") << endl;
   os << indent << "InputString: "
      << (this->InputString ? this->InputString : "(none)") << endl;
   os << indent << "ReadFromInputString: "

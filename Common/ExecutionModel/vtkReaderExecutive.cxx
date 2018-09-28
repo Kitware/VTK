@@ -54,40 +54,62 @@ int vtkReaderExecutive::CallAlgorithm(vtkInformation* request, int direction,
   {
     return 0;
   }
-  if (request->Has(REQUEST_INFORMATION()))
+
+  using vtkSDDP = vtkStreamingDemandDrivenPipeline;
+  vtkInformation* reqs = outInfo->GetInformationObject(0);
+  int hasTime = reqs->Has(vtkSDDP::UPDATE_TIME_STEP());
+  double* steps =
+    reqs->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  int timeIndex = 0;
+  if (hasTime && steps)
+  {
+    double requestedTimeStep =
+      reqs->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+
+    int length =
+      reqs->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+
+    // find the first time value larger than requested time value
+    // this logic could be improved
+    int cnt = 0;
+    while (cnt < length-1 && steps[cnt] < requestedTimeStep)
+    {
+      cnt++;
+    }
+    timeIndex = cnt;
+  }
+
+  if (request->Has(REQUEST_DATA_OBJECT()))
+  {
+    vtkDataObject* currentOutput = vtkDataObject::GetData(outInfo);
+    vtkDataObject* output = reader->CreateOutput(currentOutput);
+    if (output)
+    {
+      result = 1;
+      if (output != currentOutput)
+      {
+        outInfo->GetInformationObject(0)->Set(
+          vtkDataObject::DATA_OBJECT(), output);
+        output->Delete();
+      }
+    }
+  }
+  else if (request->Has(REQUEST_INFORMATION()))
   {
     result = reader->ReadMetaData(outInfo->GetInformationObject(0));
   }
+  else if (request->Has(REQUEST_TIME_DEPENDENT_INFORMATION()))
+  {
+    result = reader->ReadTimeDependentMetaData(
+      timeIndex, outInfo->GetInformationObject(0));
+  }
   else if (request->Has(REQUEST_DATA()))
   {
-    typedef vtkStreamingDemandDrivenPipeline vtkSDDP;
-    vtkInformation* reqs = outInfo->GetInformationObject(0);
     int piece = reqs->Has(vtkSDDP::UPDATE_PIECE_NUMBER()) ?
                 reqs->Get(vtkSDDP::UPDATE_PIECE_NUMBER()) : 0 ;
     int npieces = reqs->Has(vtkSDDP::UPDATE_NUMBER_OF_PIECES()) ?
                   reqs->Get(vtkSDDP::UPDATE_NUMBER_OF_PIECES()) : 1;
     int nghosts = reqs->Get(UPDATE_NUMBER_OF_GHOST_LEVELS());
-    int hasTime = reqs->Has(vtkSDDP::UPDATE_TIME_STEP());
-    double* steps =
-      reqs->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    int timeIndex = 0;
-    if (hasTime && steps)
-    {
-      double requestedTimeStep =
-        reqs->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
-
-      int length =
-        reqs->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-
-      // find the first time value larger than requested time value
-      // this logic could be improved
-      int cnt = 0;
-      while (cnt < length-1 && steps[cnt] < requestedTimeStep)
-      {
-        cnt++;
-      }
-      timeIndex = cnt;
-    }
     vtkDataObject* output = vtkDataObject::GetData(outInfo);
     result = reader->ReadMesh(
       piece, npieces, nghosts, timeIndex, output);

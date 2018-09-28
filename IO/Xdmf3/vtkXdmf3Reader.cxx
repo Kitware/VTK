@@ -413,7 +413,7 @@ vtkStandardNewMacro(vtkXdmf3Reader);
 //----------------------------------------------------------------------------
 vtkXdmf3Reader::vtkXdmf3Reader()
 {
-  this->FileName = nullptr;
+  this->FileNameInternal = nullptr;
 
   this->Internal = new vtkXdmf3Reader::Internals();
   this->FileSeriesAsTime = true;
@@ -423,6 +423,8 @@ vtkXdmf3Reader::vtkXdmf3Reader()
   this->PointArraysCache = this->Internal->PointArrays;
   this->SetsCache = this->Internal->SetsCache;
   this->GridsCache = this->Internal->GridsCache;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
@@ -439,7 +441,7 @@ void vtkXdmf3Reader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "FileName: " <<
-    (this->FileName ? this->FileName : "(none)") << endl;
+    (this->FileNameInternal ? this->FileNameInternal : "(none)") << endl;
   os << indent << "FileSeriesAsTime: " <<
     (this->FileSeriesAsTime ? "True" : "False") << endl;
 }
@@ -450,7 +452,7 @@ void vtkXdmf3Reader::AddFileName(const char* filename)
   this->Internal->FileNames.push_back(filename);
   if (this->Internal->FileNames.size()==1)
   {
-    this->Superclass::SetFileName(filename);
+    this->SetFileNameInternal(filename);
   }
 }
 
@@ -462,7 +464,7 @@ void vtkXdmf3Reader::SetFileName(const char* filename)
   {
     this->Internal->FileNames.push_back(filename);
   }
-  this->Superclass::SetFileName(filename);
+  this->SetFileNameInternal(filename);
 }
 
 //----------------------------------------------------------------------------
@@ -506,18 +508,19 @@ int vtkXdmf3Reader::ProcessRequest(vtkInformation *request,
 {
   if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
   {
-    return this->RequestDataObject(outputVector);
+    return this->RequestDataObjectInternal(outputVector);
   }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
 //----------------------------------------------------------------------------
-int vtkXdmf3Reader::RequestDataObject(vtkInformationVector *outputVector)
+int vtkXdmf3Reader::RequestDataObjectInternal(
+  vtkInformationVector *outputVector)
 {
   vtkTimerLog::MarkStartEvent("X3R::RDO");
   //let libXdmf parse XML
-  if (!this->Internal->PrepareDocument(this, this->FileName,
+  if (!this->Internal->PrepareDocument(this, this->FileNameInternal,
                                        this->FileSeriesAsTime))
   {
     vtkTimerLog::MarkEndEvent("X3R::RDO");
@@ -556,7 +559,7 @@ int vtkXdmf3Reader::RequestInformation(vtkInformation *,
   vtkInformationVector *outputVector)
 {
   vtkTimerLog::MarkStartEvent("X3R::RI");
-  if (!this->Internal->PrepareDocument(this, this->FileName,
+  if (!this->Internal->PrepareDocument(this, this->FileNameInternal,
                                        this->FileSeriesAsTime))
   {
     vtkTimerLog::MarkEndEvent("X3R::RI");
@@ -653,7 +656,7 @@ int vtkXdmf3Reader::RequestData(vtkInformation *,
 {
   vtkTimerLog::MarkStartEvent("X3R::RD");
 
-  if (!this->Internal->PrepareDocument(this, this->FileName,
+  if (!this->Internal->PrepareDocument(this, this->FileNameInternal,
                                        this->FileSeriesAsTime))
   {
     vtkTimerLog::MarkEndEvent("X3R::RD");

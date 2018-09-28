@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkParallelReader.h
+  Module:    vtkSimpleReader.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,30 +13,25 @@
 
 =========================================================================*/
 /**
- * @class   vtkParallelReader
- * @brief   Superclass for algorithms that are parallel aware
+ * @class   vtkSimpleReader
+ * @brief   Superclass for algorithms that are not time or parallel aware
  *
- * vtkParallelReader is a vtkReaderAlgorithm subclass that provides
- * a specialized API to develop readers that are parallel aware (i.e.
- * can handle piece requests) but do not natively support time series.
- * This reader adds support for file series in order to support time
- * series.
 */
 
-#ifndef vtkParallelReader_h
-#define vtkParallelReader_h
+#ifndef vtkSimpleReader_h
+#define vtkSimpleReader_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkReaderAlgorithm.h"
 
 #include <string> // needed for std::string in the interface
 
-struct vtkParallelReaderInternal;
+struct vtkSimpleReaderInternal;
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkParallelReader : public vtkReaderAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkSimpleReader : public vtkReaderAlgorithm
 {
 public:
-  vtkTypeMacro(vtkParallelReader,vtkReaderAlgorithm);
+  vtkTypeMacro(vtkSimpleReader,vtkReaderAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -74,6 +69,8 @@ public:
   * to provide time support internally. Subclasses should
   * not normally have to override these methods.
   */
+  int ReadTimeDependentMetaData(
+    int timestep, vtkInformation* metadata) override;
   int ReadMetaData(vtkInformation* metadata) override;
   int ReadMesh(
     int piece, int npieces, int nghosts, int timestep,
@@ -86,19 +83,26 @@ public:
     vtkDataObject* output) override;
   //@}
 
-protected:
-  vtkParallelReader();
-  ~vtkParallelReader() override;
-
-  vtkExecutive* CreateDefaultExecutive() override;
-
   /**
   * A subclass can override this method to provide an actual
   * time value for a given file (this method is called for
   * each filename stored by the reader). If time values is not
-  * available, the subclass does not have to override.
+  * available, the subclass does not have to override. This
+  * will return vtkMath::NaN() if no time value is present
+  * in the file.
   */
   virtual double GetTimeValue(const std::string& fname);
+
+  /**
+  * A subclass can override this method to provide meta data
+  * specific to a particular file. In order for this method
+  * to be called, HasTemporalMetaData has to be set to true.
+  */
+  virtual int ReadMetaDataSimple(const std::string& /*fname*/,
+                                 vtkInformation* /*metadata*/)
+  {
+    return 1;
+  }
 
   /**
   * A method that needs to be override by the subclass to provide
@@ -106,11 +110,8 @@ protected:
   * method and should be used by the subclass. The subclass directly
   * adds the structure/topology to the provided data object.
   */
-  virtual int ReadMesh(const std::string& fname,
-                        int piece,
-                        int npieces,
-                        int nghosts,
-                        vtkDataObject* output) = 0;
+  virtual int ReadMeshSimple(const std::string& fname,
+                             vtkDataObject* output) = 0;
 
   /**
   * A method that needs to be override by the subclass to provide
@@ -118,11 +119,8 @@ protected:
   * method and should be used by the subclass. The subclass directly
   * adds the coordinates to the provided data object.
   */
-  virtual int ReadPoints(const std::string& fname,
-                         int piece,
-                         int npieces,
-                         int nghosts,
-                         vtkDataObject* output) = 0;
+  virtual int ReadPointsSimple(const std::string& fname,
+                               vtkDataObject* output) = 0;
 
   /**
   * A method that needs to be override by the subclass to provide
@@ -130,19 +128,24 @@ protected:
   * method and should be used by the subclass. The subclass directly
   * adds data arrays to the provided data object.
   */
-  virtual int ReadArrays(const std::string& fname,
-                         int piece,
-                         int npieces,
-                         int nghosts,
-                         vtkDataObject* output) = 0;
+  virtual int ReadArraysSimple(const std::string& fname,
+                               vtkDataObject* output) = 0;
+
+protected:
+  vtkSimpleReader();
+  ~vtkSimpleReader() override;
+
+  vtkExecutive* CreateDefaultExecutive() override;
+
 
   int CurrentFileIndex;
+  bool HasTemporalMetaData;
 
 private:
-  vtkParallelReader(const vtkParallelReader&) = delete;
-  void operator=(const vtkParallelReader&) = delete;
+  vtkSimpleReader(const vtkSimpleReader&) = delete;
+  void operator=(const vtkSimpleReader&) = delete;
 
-  vtkParallelReaderInternal* Internal;
+  vtkSimpleReaderInternal* Internal;
 };
 
 #endif

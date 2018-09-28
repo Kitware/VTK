@@ -537,8 +537,6 @@ protected:
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
-  virtual vtkExecutive* CreateDefaultExecutive() override;
-
   vtkMultiBlockPLOT3DReaderInternals* Internal;
 
   vtkMultiProcessController *Controller;

@@ -25,18 +25,7 @@
 
 vtkStandardNewMacro(vtkRectilinearGridReader);
 
-//----------------------------------------------------------------------------
-vtkRectilinearGridReader::vtkRectilinearGridReader()
-{
-  vtkRectilinearGrid *output = vtkRectilinearGrid::New();
-  this->SetOutput(output);
-  // Releasing data for pipeline parallism.
-  // Filters will know it is empty.
-  output->ReleaseData();
-  output->Delete();
-}
-
-//----------------------------------------------------------------------------
+vtkRectilinearGridReader::vtkRectilinearGridReader() = default;
 vtkRectilinearGridReader::~vtkRectilinearGridReader() = default;
 
 //----------------------------------------------------------------------------
@@ -58,24 +47,15 @@ void vtkRectilinearGridReader::SetOutput(vtkRectilinearGrid *output)
 }
 
 //----------------------------------------------------------------------------
-int vtkRectilinearGridReader::RequestInformation(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
-{
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  return this->ReadMetaData(outInfo);
-}
-
-//----------------------------------------------------------------------------
-int vtkRectilinearGridReader::ReadMetaData(vtkInformation *outInfo)
+int vtkRectilinearGridReader::ReadMetaDataSimple(
+  const std::string& fname, vtkInformation *outInfo)
 {
   char line[256];
   bool dimsRead=0;
 
   vtkDebugMacro(<<"Reading vtk rectilinear grid file info...");
 
-  if (!this->OpenVTKFile() || !this->ReadHeader())
+  if (!this->OpenVTKFile(fname.c_str()) || !this->ReadHeader(fname.c_str()))
   {
     return 1;
   }
@@ -167,17 +147,13 @@ int vtkRectilinearGridReader::ReadMetaData(vtkInformation *outInfo)
 }
 
 //----------------------------------------------------------------------------
-int vtkRectilinearGridReader::RequestData(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
+int vtkRectilinearGridReader::ReadMeshSimple(
+  const std::string& fname, vtkDataObject* doOutput)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkIdType numPts=0, npts, ncoords, numCells=0, ncells;
   char line[256];
   int dimsRead=0;
-  vtkRectilinearGrid *output = vtkRectilinearGrid::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkRectilinearGrid *output = vtkRectilinearGrid::SafeDownCast(doOutput);
 
   vtkDebugMacro(<<"Reading vtk rectilinear grid file...");
   if ( this->Debug )
@@ -189,7 +165,7 @@ int vtkRectilinearGridReader::RequestData(
     this->DebugOff();
   }
 
-  if (!this->OpenVTKFile() || !this->ReadHeader())
+  if (!this->OpenVTKFile(fname.c_str()) || !this->ReadHeader(fname.c_str()))
   {
     return 1;
   }

@@ -31,21 +31,22 @@
 #define vtkXdmf3Reader_h
 
 #include "vtkIOXdmf3Module.h" // For export macro
-#include "vtkDataReader.h"
+#include "vtkDataObjectAlgorithm.h"
 
 class vtkXdmf3ArraySelection;
+class vtkGraph;
 
-class VTKIOXDMF3_EXPORT vtkXdmf3Reader : public vtkDataReader
+class VTKIOXDMF3_EXPORT vtkXdmf3Reader : public vtkDataObjectAlgorithm
 {
 public:
   static vtkXdmf3Reader* New();
-  vtkTypeMacro(vtkXdmf3Reader, vtkDataReader);
+  vtkTypeMacro(vtkXdmf3Reader, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set tells the reader the name of a single top level xml file to read.
    */
-  void SetFileName(const char* filename) override;
+  void SetFileName(const char* filename);
 
   //@{
   /**
@@ -166,6 +167,9 @@ protected:
   vtkXdmf3Reader();
   ~vtkXdmf3Reader();
 
+  const char* FileNameInternal;
+  vtkSetStringMacro(FileNameInternal);
+
   //Overridden to announce that we make general DataObjects.
   int FillOutputPortInformation(int port, vtkInformation *info) override;
 
@@ -174,7 +178,7 @@ protected:
     vtkInformationVector *) override;
 
   //Overridden to create the correct vtkDataObject subclass for the file.
-  virtual int RequestDataObject(
+  virtual int RequestDataObjectInternal(
     vtkInformationVector *);
 
   //Overridden to announce temporal information and to participate in

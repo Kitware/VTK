@@ -52,12 +52,16 @@ public:
   void SetOutput(vtkDataObject *);
   //@}
 
+  /**
+   * Actual reading happens here
+   */
+  int ReadMeshSimple(const std::string& fname,
+                     vtkDataObject* output) override;
+
 protected:
   vtkDataObjectReader();
   ~vtkDataObjectReader() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
   int FillOutputPortInformation(int, vtkInformation*) override;
 private:
   vtkDataObjectReader(const vtkDataObjectReader&) = delete;

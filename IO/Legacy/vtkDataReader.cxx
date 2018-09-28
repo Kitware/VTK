@@ -83,7 +83,6 @@ vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
 vtkDataReader::vtkDataReader()
 {
   this->FileType = VTK_ASCII;
-  this->FileName = nullptr;
   this->ScalarsName = nullptr;
   this->VectorsName = nullptr;
   this->TensorsName = nullptr;
@@ -136,7 +135,6 @@ vtkDataReader::vtkDataReader()
 
 vtkDataReader::~vtkDataReader()
 {
-  delete [] this->FileName;
   delete [] this->ScalarsName;
   delete [] this->VectorsName;
   delete [] this->TensorsName;
@@ -151,6 +149,61 @@ vtkDataReader::~vtkDataReader()
   this->SetInputArray(nullptr);
   this->InitializeCharacteristics();
   delete this->IS;
+}
+
+void vtkDataReader::SetFileName(const char* fname)
+{
+  if (this->GetNumberOfFileNames() == 1 &&
+      this->GetFileName(0) &&
+      fname &&
+      strcmp(this->GetFileName(0), fname) == 0)
+  {
+    return;
+  }
+  this->ClearFileNames();
+  if (fname)
+  {
+    this->AddFileName(fname);
+  }
+  this->Modified();
+}
+
+const char* vtkDataReader::GetFileName() const
+{
+  if (this->GetNumberOfFileNames() < 1)
+  {
+    return nullptr;
+  }
+  return this->vtkSimpleReader::GetFileName(0);
+}
+
+int vtkDataReader::ReadTimeDependentMetaData(
+  int timestep, vtkInformation* metadata)
+{
+  if (this->ReadFromInputString)
+  {
+    return this->ReadMetaDataSimple(std::string(), metadata);
+  }
+
+  return this->Superclass::ReadTimeDependentMetaData(timestep, metadata);
+}
+
+int vtkDataReader::ReadMesh(
+    int piece, int npieces, int nghosts, int timestep, vtkDataObject* output)
+{
+  // Not a parallel reader. Cannot handle anything other than the first piece,
+  // which will have everyhing.
+  if (piece > 0)
+  {
+    return 1;
+  }
+
+  if (this->ReadFromInputString)
+  {
+    return this->ReadMeshSimple(std::string(), output);
+  }
+
+  return this->Superclass::ReadMesh(piece, npieces, nghosts, timestep, output);
 }
 
 void vtkDataReader::SetInputString(const char *in)
@@ -392,8 +445,14 @@ size_t vtkDataReader::Peek(char *str, size_t n)
 }
 
 // Open a vtk data file. Returns zero if error.
-int vtkDataReader::OpenVTKFile()
+int vtkDataReader::OpenVTKFile(const char* fname)
 {
+  if(!fname && this->GetNumberOfFileNames() >0)
+  {
+    fname = this->GetFileName(0);
+  }
+  this->CurrentFileName = fname?fname:std::string();
+
   if ( this->IS != nullptr )
   {
     this->CloseVTKFile ();
@@ -421,7 +480,7 @@ int vtkDataReader::OpenVTKFile()
   {
     vtkDebugMacro(<< "Opening vtk file");
 
-    if ( !this->FileName || (strlen(this->FileName) == 0))
+    if ( !fname || (strlen(fname) == 0))
     {
       vtkErrorMacro(<< "No file specified!");
       this->SetErrorCode( vtkErrorCode::NoFileNameError );
@@ -431,17 +490,17 @@ int vtkDataReader::OpenVTKFile()
     // first make sure the file exists, this prevents an empty file from
     // being created on older compilers
     vtksys::SystemTools::Stat_t fs;
-    if (vtksys::SystemTools::Stat(this->FileName, &fs) != 0)
+    if (vtksys::SystemTools::Stat(fname, &fs) != 0)
     {
-      vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
+      vtkErrorMacro(<< "Unable to open file: "<< fname);
       this->SetErrorCode( vtkErrorCode::CannotOpenFileError );
       return 0;
     }
 
-    this->IS = new ifstream(this->FileName, ios::in | ios::binary);
+    this->IS = new ifstream(fname, ios::in | ios::binary);
     if (this->IS->fail())
     {
-      vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
+      vtkErrorMacro(<< "Unable to open file: "<< fname);
       delete this->IS;
       this->IS = nullptr;
       this->SetErrorCode( vtkErrorCode::CannotOpenFileError );
@@ -454,8 +513,12 @@ int vtkDataReader::OpenVTKFile()
 }
 
 // Read the header of a vtk data file. Returns 0 if error.
-int vtkDataReader::ReadHeader()
+int vtkDataReader::ReadHeader(const char* fname)
 {
+  if (!fname && this->GetNumberOfFileNames() >0)
+  {
+    fname = this->GetFileName(0);
+  }
   char line[256];
 
   vtkDebugMacro(<< "Reading vtk file header");
@@ -465,7 +528,7 @@ int vtkDataReader::ReadHeader()
   if (!this->ReadLine(line))
   {
     vtkErrorMacro(<<"Premature EOF reading first line! " << " for file: "
-                  << (this->FileName?this->FileName:"(Null FileName)"));
+                  << (fname?fname:"(Null FileName)"));
     this->SetErrorCode( vtkErrorCode::PrematureEndOfFileError );
     return 0;
   }
@@ -473,7 +536,7 @@ int vtkDataReader::ReadHeader()
   if ( strncmp ("# vtk DataFile Version", line, VERSION_PREFIX_LENGTH) )
   {
     vtkErrorMacro(<< "Unrecognized file type: "<< line << " for file: "
-                  << (this->FileName?this->FileName:"(Null FileName)"));
+                  << (fname?fname:"(Null FileName)"));
 
     this->SetErrorCode( vtkErrorCode::UnrecognizedFileTypeError );
     return 0;
@@ -482,7 +545,7 @@ int vtkDataReader::ReadHeader()
               "%d.%d", &this->FileMajorVersion, &this->FileMinorVersion) != 2)
   {
     vtkWarningMacro(<< "Cannot read file version: " << line << " for file: "
-                    << (this->FileName?this->FileName:"(Null FileName)"));
+                    << (fname?fname:"(Null FileName)"));
     this->FileMajorVersion = 0;
     this->FileMinorVersion = 0;
   }
@@ -503,7 +566,7 @@ int vtkDataReader::ReadHeader()
   if (!this->ReadLine(line))
   {
     vtkErrorMacro(<<"Premature EOF reading title! " << " for file: "
-                  << (this->FileName?this->FileName:"(Null FileName)"));
+                  << (fname?fname:"(Null FileName)"));
     this->SetErrorCode( vtkErrorCode::PrematureEndOfFileError );
     return 0;
   }
@@ -518,7 +581,7 @@ int vtkDataReader::ReadHeader()
   if (!this->ReadString(line))
   {
     vtkErrorMacro(<<"Premature EOF reading file type!" << " for file: "
-                  << (this->FileName?this->FileName:"(Null FileName)"));
+                  << (fname?fname:"(Null FileName)"));
     this->SetErrorCode( vtkErrorCode::PrematureEndOfFileError );
     return 0;
   }
@@ -534,7 +597,7 @@ int vtkDataReader::ReadHeader()
   else
   {
     vtkErrorMacro(<< "Unrecognized file type: "<< line << " for file: "
-                  << (this->FileName?this->FileName:"(Null FileName)"));
+                  << (fname?fname:"(Null FileName)"));
     this->FileType = 0;
     this->SetErrorCode( vtkErrorCode::UnrecognizedFileTypeError );
     return 0;
@@ -548,13 +611,13 @@ int vtkDataReader::ReadHeader()
     delete this->IS;
     this->IS = nullptr;
 #ifdef _WIN32
-    this->IS = new ifstream(this->FileName, ios::in | ios::binary);
+    this->IS = new ifstream(fname, ios::in | ios::binary);
 #else
-    this->IS = new ifstream(this->FileName, ios::in);
+    this->IS = new ifstream(fname, ios::in);
 #endif
     if (this->IS->fail())
     {
-      vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
+      vtkErrorMacro(<< "Unable to open file: "<< fname);
       delete this->IS;
       this->IS = nullptr;
       this->SetErrorCode( vtkErrorCode::CannotOpenFileError );
@@ -766,8 +829,9 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, vtkIdType numCells)
 
     else
     {
+      const char* fname = this->CurrentFileName.c_str();
       vtkErrorMacro(<< "Unsupported cell attribute type: " << line
-                    << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+                    << " for file: " << (fname?fname:"(Null FileName)"));
       return 0;
     }
   }
@@ -935,8 +999,9 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, vtkIdType numPts)
 
     else
     {
+      const char* fname = this->CurrentFileName.c_str();
       vtkErrorMacro(<< "Unsupported point attribute type: " << line
-                    << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+                    << " for file: " << (fname?fname:"(Null FileName)"));
       return 0;
     }
   }
@@ -1092,8 +1157,9 @@ int vtkDataReader::ReadVertexData(vtkGraph *g, vtkIdType numVertices)
 
     else
     {
+      const char* fname = this->CurrentFileName.c_str();
       vtkErrorMacro(<< "Unsupported vertex attribute type: " << line
-                    << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+                    << " for file: " << (fname?fname:"(Null FileName)"));
       return 0;
     }
   }
@@ -1249,8 +1315,9 @@ int vtkDataReader::ReadEdgeData(vtkGraph *g, vtkIdType numEdges)
 
     else
     {
+      const char* fname = this->CurrentFileName.c_str();
       vtkErrorMacro(<< "Unsupported vertex attribute type: " << line
-                    << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+                    << " for file: " << (fname?fname:"(Null FileName)"));
       return 0;
     }
   }
@@ -1389,8 +1456,9 @@ int vtkDataReader::ReadRowData(vtkTable *t, vtkIdType numEdges)
     }
     else
     {
+      const char* fname = this->CurrentFileName.c_str();
       vtkErrorMacro(<< "Unsupported row attribute type: " << line
-                    << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+                    << " for file: " << (fname?fname:"(Null FileName)"));
       return 0;
     }
   }
@@ -2067,14 +2135,15 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
 }
 
 // Read point coordinates. Return 0 if error.
-int vtkDataReader::ReadPoints(vtkPointSet *ps, vtkIdType numPts)
+int vtkDataReader::ReadPointCoordinates(vtkPointSet *ps, vtkIdType numPts)
 {
   char line[256];
   vtkDataArray *data;
 
   if (!this->ReadString(line))
   {
-    vtkErrorMacro(<<"Cannot read points type!" << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+    const char* fname = this->CurrentFileName.c_str();
+    vtkErrorMacro(<<"Cannot read points type!" << " for file: " << (fname?fname:"(Null FileName)"));
     return 0;
   }
 
@@ -2101,14 +2170,15 @@ int vtkDataReader::ReadPoints(vtkPointSet *ps, vtkIdType numPts)
 }
 
 // Read point coordinates. Return 0 if error.
-int vtkDataReader::ReadPoints(vtkGraph *g, vtkIdType numPts)
+int vtkDataReader::ReadPointCoordinates(vtkGraph *g, vtkIdType numPts)
 {
   char line[256];
   vtkDataArray *data;
 
   if (!this->ReadString(line))
   {
-    vtkErrorMacro(<<"Cannot read points type!" << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+    const char* fname = this->CurrentFileName.c_str();
+    vtkErrorMacro(<<"Cannot read points type!" << " for file: " << (fname?fname:"(Null FileName)"));
     return 0;
   }
 
@@ -2144,8 +2214,9 @@ int vtkDataReader::ReadCoordinates(vtkRectilinearGrid *rg, int axes,
 
   if (!this->ReadString(line))
   {
+    const char* fname = this->CurrentFileName.c_str();
     vtkErrorMacro(<<"Cannot read coordinates type!" << " for file: "
-                  << (this->FileName?this->FileName:"(Null FileName)"));
+                  << (fname?fname:"(Null FileName)"));
     return 0;
   }
 
@@ -2189,8 +2260,9 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, vtkIdType numPts)
 
   if (!(this->ReadString(buffer) && this->ReadString(line)))
   {
+    const char* fname = this->CurrentFileName.c_str();
     vtkErrorMacro(<<"Cannot read scalar header!" << " for file: "
-    << (this->FileName?this->FileName:"(Null FileName)"));
+    << (fname?fname:"(Null FileName)"));
     return 0;
   }
 
@@ -2198,8 +2270,9 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, vtkIdType numPts)
 
   if (!this->ReadString(key))
   {
+    const char* fname = this->CurrentFileName.c_str();
     vtkErrorMacro(<<"Cannot read scalar header!" << " for file: "
-                  << (this->FileName?this->FileName:"(Null FileName)"));
+                  << (fname?fname:"(Null FileName)"));
     return 0;
   }
 
@@ -2209,8 +2282,9 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, vtkIdType numPts)
     numComp = atoi(key);
     if (numComp < 1 || !this->ReadString(key))
     {
+      const char* fname = this->CurrentFileName.c_str();
       vtkErrorMacro(<<"Cannot read scalar header!" << " for file: "
-      << (this->FileName?this->FileName:"(Null FileName)"));
+      << (fname?fname:"(Null FileName)"));
       return 0;
     }
   }
@@ -2224,8 +2298,9 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, vtkIdType numPts)
 
   if (!this->ReadString(tableName))
   {
+    const char* fname = this->CurrentFileName.c_str();
     vtkErrorMacro(<<"Cannot read scalar header!" << " for file: "
-                  << (this->FileName?this->FileName:"(Null FileName)"));
+                  << (fname?fname:"(Null FileName)"));
     return 0;
   }
 
@@ -2278,7 +2353,8 @@ int vtkDataReader::ReadVectorData(vtkDataSetAttributes *a, vtkIdType numPts)
 
   if (!(this->ReadString(buffer) && this->ReadString(line)))
   {
-    vtkErrorMacro(<<"Cannot read vector data!" << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+    const char* fname = this->CurrentFileName.c_str();
+    vtkErrorMacro(<<"Cannot read vector data!" << " for file: " << (fname?fname:"(Null FileName)"));
     return 0;
   }
   this->DecodeString(name, buffer);
@@ -2328,7 +2404,8 @@ int vtkDataReader::ReadNormalData(vtkDataSetAttributes *a, vtkIdType numPts)
 
   if (!(this->ReadString(buffer) && this->ReadString(line)))
   {
-    vtkErrorMacro(<<"Cannot read normal data!" << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+    const char* fname = this->CurrentFileName.c_str();
+    vtkErrorMacro(<<"Cannot read normal data!" << " for file: " << (fname?fname:"(Null FileName)"));
     return 0;
   }
   this->DecodeString(name, buffer);
@@ -2378,7 +2455,8 @@ int vtkDataReader::ReadTensorData(vtkDataSetAttributes *a, vtkIdType numPts, vtk
 
   if (!(this->ReadString(buffer) && this->ReadString(line)))
   {
-    vtkErrorMacro(<<"Cannot read tensor data!" << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+    const char* fname = this->CurrentFileName.c_str();
+    vtkErrorMacro(<<"Cannot read tensor data!" << " for file: " << (fname?fname:"(Null FileName)"));
     return 0;
   }
   this->DecodeString(name, buffer);
@@ -2426,8 +2504,9 @@ int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, vtkIdType numPts)
 
   if (!(this->ReadString(buffer) && this->Read(&numComp)))
   {
+    const char* fname = this->CurrentFileName.c_str();
     vtkErrorMacro(<<"Cannot read color scalar data!" << " for file: "
-                  << (this->FileName?this->FileName:"(Null FileName)"));
+                  << (fname?fname:"(Null FileName)"));
     return 0;
   }
   this->DecodeString(name, buffer);
@@ -2523,15 +2602,17 @@ int vtkDataReader::ReadTCoordsData(vtkDataSetAttributes *a, vtkIdType numPts)
   if (!(this->ReadString(buffer) && this->Read(&dim) &&
         this->ReadString(line)))
   {
-    vtkErrorMacro(<<"Cannot read texture data!" << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+    const char* fname = this->CurrentFileName.c_str();
+    vtkErrorMacro(<<"Cannot read texture data!" << " for file: " << (fname?fname:"(Null FileName)"));
     return 0;
   }
   this->DecodeString(name, buffer);
 
   if ( dim < 1 || dim > 3 )
   {
+    const char* fname = this->CurrentFileName.c_str();
     vtkErrorMacro(<< "Unsupported texture coordinates dimension: " << dim
-                  << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+                  << " for file: " << (fname?fname:"(Null FileName)"));
     return 0;
   }
 
@@ -2581,7 +2662,8 @@ int vtkDataReader::ReadGlobalIds(vtkDataSetAttributes *a, vtkIdType numPts)
 
   if (!(this->ReadString(buffer) && this->ReadString(line)))
   {
-    vtkErrorMacro(<<"Cannot read global id data" << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+    const char* fname = this->CurrentFileName.c_str();
+    vtkErrorMacro(<<"Cannot read global id data" << " for file: " << (fname?fname:"(Null FileName)"));
     return 0;
   }
   this->DecodeString(name, buffer);
@@ -2626,7 +2708,8 @@ int vtkDataReader::ReadPedigreeIds(vtkDataSetAttributes *a, vtkIdType numPts)
 
   if (!(this->ReadString(buffer) && this->ReadString(line)))
   {
-    vtkErrorMacro(<<"Cannot read global id data" << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+    const char* fname = this->CurrentFileName.c_str();
+    vtkErrorMacro(<<"Cannot read global id data" << " for file: " << (fname?fname:"(Null FileName)"));
     return 0;
   }
   this->DecodeString(name, buffer);
@@ -2670,7 +2753,8 @@ int vtkDataReader::ReadEdgeFlags(vtkDataSetAttributes *a, vtkIdType numPts)
 
   if (!(this->ReadString(buffer) && this->ReadString(line)))
   {
-    vtkErrorMacro(<<"Cannot read edge flags data" << " for file: " << (this->FileName?this->FileName:"(Null FileName)"));
+    const char* fname = this->CurrentFileName.c_str();
+    vtkErrorMacro(<<"Cannot read edge flags data" << " for file: " << (fname?fname:"(Null FileName)"));
     return 0;
   }
   this->DecodeString(name, buffer);
@@ -2991,8 +3075,9 @@ int vtkDataReader::ReadLutData(vtkDataSetAttributes *a)
 
   if (!(this->ReadString(name) && this->Read(&size)))
   {
+    const char* fname = this->CurrentFileName.c_str();
     vtkErrorMacro(<<"Cannot read lookup table data!" << " for file: "
-                  << (this->FileName?this->FileName:"(Null FileName)"));
+                  << (fname?fname:"(Null FileName)"));
     return 0;
   }
 
@@ -3014,8 +3099,9 @@ int vtkDataReader::ReadLutData(vtkDataSetAttributes *a)
     this->IS->read((char *)ptr,sizeof(unsigned char)*4*size);
     if (this->IS->eof())
     {
+      const char* fname = this->CurrentFileName.c_str();
       vtkErrorMacro(<<"Error reading binary lookup table!" << " for file: "
-                    << (this->FileName?this->FileName:"(Null FileName)"));
+                    << (fname?fname:"(Null FileName)"));
       return 0;
     }
   }
@@ -3027,8 +3113,9 @@ int vtkDataReader::ReadLutData(vtkDataSetAttributes *a)
       if (!(this->Read(rgba) && this->Read(rgba+1) &&
             this->Read(rgba+2) && this->Read(rgba+3)))
       {
+        const char* fname = this->CurrentFileName.c_str();
         vtkErrorMacro(<<"Error reading lookup table!" << " for file: "
-                      << (this->FileName?this->FileName:"(Null FileName)"));
+                      << (fname?fname:"(Null FileName)"));
         return 0;
       }
       lut->SetTableValue(i, rgba[0], rgba[1], rgba[2], rgba[3]);
@@ -3061,8 +3148,9 @@ int vtkDataReader::ReadCells(vtkIdType size, int *data)
     this->IS->read((char *)data,sizeof(int)*size);
     if (this->IS->eof())
     {
+      const char* fname = this->CurrentFileName.c_str();
       vtkErrorMacro(<<"Error reading binary cell data!" << " for file: "
-                    << (this->FileName?this->FileName:"(Null FileName)"));
+                    << (fname?fname:"(Null FileName)"));
       return 0;
     }
     vtkByteSwap::Swap4BERange(data,size);
@@ -3073,8 +3161,9 @@ int vtkDataReader::ReadCells(vtkIdType size, int *data)
     {
       if (!this->Read(data+i))
       {
+        const char* fname = this->CurrentFileName.c_str();
         vtkErrorMacro(<<"Error reading ascii cell data!" << " for file: "
-                      << (this->FileName?this->FileName:"(Null FileName)"));
+                      << (fname?fname:"(Null FileName)"));
         return 0;
       }
     }
@@ -3108,8 +3197,9 @@ int vtkDataReader::ReadCells(vtkIdType size, int *data,
     this->IS->read((char *)tmp,sizeof(int)*size);
     if (this->IS->eof())
     {
+      const char* fname = this->CurrentFileName.c_str();
       vtkErrorMacro(<<"Error reading binary cell data!" << " for file: "
-                    << (this->FileName?this->FileName:"(Null FileName)"));
+                    << (fname?fname:"(Null FileName)"));
       if (tmp != data)
       {
         delete [] tmp;
@@ -3152,8 +3242,9 @@ int vtkDataReader::ReadCells(vtkIdType size, int *data,
     {
       if (!this->Read(&numCellPts))
       {
+        const char* fname = this->CurrentFileName.c_str();
         vtkErrorMacro(<<"Error reading ascii cell data!" << " for file: "
-                      << (this->FileName?this->FileName:"(Null FileName)"));
+                      << (fname?fname:"(Null FileName)"));
         return 0;
       }
       while (numCellPts-- > 0)
@@ -3166,8 +3257,9 @@ int vtkDataReader::ReadCells(vtkIdType size, int *data,
     {
       if (!this->Read(data))
       {
+        const char* fname = this->CurrentFileName.c_str();
         vtkErrorMacro(<<"Error reading ascii cell data!" << " for file: "
-                      << (this->FileName?this->FileName:"(Null FileName)"));
+                      << (fname?fname:"(Null FileName)"));
         return 0;
       }
       numCellPts = *data++;
@@ -3181,8 +3273,9 @@ int vtkDataReader::ReadCells(vtkIdType size, int *data,
     {
       if (!this->Read(&numCellPts))
       {
+        const char* fname = this->CurrentFileName.c_str();
         vtkErrorMacro(<<"Error reading ascii cell data!" << " for file: "
-                      << (this->FileName?this->FileName:"(Null FileName)"));
+                      << (fname?fname:"(Null FileName)"));
         return 0;
       }
       while (numCellPts-- > 0)
@@ -3239,8 +3332,9 @@ vtkFieldData *vtkDataReader::ReadFieldData(FieldType fieldType)
 
   if ( !(this->ReadString(name) && this->Read(&numArrays)) )
   {
+    const char* fname = this->CurrentFileName.c_str();
     vtkErrorMacro(<<"Cannot read field header!" << " for file: "
-                  << (this->FileName?this->FileName:"(Null FileName)"));
+                  << (fname?fname:"(Null FileName)"));
     return nullptr;
   }
 
@@ -3584,10 +3678,6 @@ int vtkDataReader::ProcessRequest(vtkInformation* request,
 void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
-  os << indent << "File Name: "
-     << (this->FileName ? this->FileName : "(none)") << "\n";
-
 
   if ( this->FileType == VTK_BINARY )
   {

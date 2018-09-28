@@ -30,15 +30,7 @@ vtkStandardNewMacro(vtkTableReader);
 #endif
 
 //----------------------------------------------------------------------------
-vtkTableReader::vtkTableReader()
-{
-  vtkTable *output = vtkTable::New();
-  this->SetOutput(output);
-  // Releasing data for pipeline parallism.
-  // Filters will know it is empty.
-  output->ReleaseData();
-  output->Delete();
-}
+vtkTableReader::vtkTableReader() = default;
 
 //----------------------------------------------------------------------------
 vtkTableReader::~vtkTableReader() = default;
@@ -61,45 +53,13 @@ void vtkTableReader::SetOutput(vtkTable *output)
   this->GetExecutive()->SetOutputData(0, output);
 }
 
-//----------------------------------------------------------------------------
-// I do not think this should be here, but I do not want to remove it now.
-int vtkTableReader::RequestUpdateExtent(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
+//-----------------------------------------------------------------------------
+int vtkTableReader::ReadMeshSimple(
+  const std::string& fname, vtkDataObject* doOutput)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  int piece, numPieces;
-
-  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-
-  // make sure piece is valid
-  if (piece < 0 || piece >= numPieces)
-  {
-    return 1;
-  }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkTableReader::RequestData(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
-{
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  // Return all data in the first piece ...
-  if(outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
-  {
-    return 1;
-  }
-
   vtkDebugMacro(<<"Reading vtk table...");
 
-  if(!this->OpenVTKFile() || !this->ReadHeader())
+  if(!this->OpenVTKFile(fname.c_str()) || !this->ReadHeader())
   {
     return 1;
   }
@@ -134,8 +94,7 @@ int vtkTableReader::RequestData(
     return 1;
   }
 
-  vtkTable* const output = vtkTable::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTable* const output = vtkTable::SafeDownCast(doOutput);
 
   while(true)
   {

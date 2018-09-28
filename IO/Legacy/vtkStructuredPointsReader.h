@@ -53,24 +53,23 @@ public:
   //@}
 
   /**
-   * Read the meta information from the file.  This needs to be public to it
-   * can be accessed by vtkDataSetReader.
+   * Read the meta information from the file (WHOLE_EXTENT).
    */
-  int ReadMetaData(vtkInformation *outInfo) override;
+  int ReadMetaDataSimple(const std::string& fname,
+                         vtkInformation *metadata) override;
+
+  /**
+   * Actual reading happens here
+   */
+  int ReadMeshSimple(const std::string& fname,
+                     vtkDataObject* output) override;
 
 protected:
   vtkStructuredPointsReader();
   ~vtkStructuredPointsReader() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
-
-  // Default method performs Update to get information.  Not all the old
-  // structured points sources compute information
-  int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *) override;
-
   int FillOutputPortInformation(int, vtkInformation *) override;
+
 private:
   vtkStructuredPointsReader(const vtkStructuredPointsReader&) = delete;
   void operator=(const vtkStructuredPointsReader&) = delete;

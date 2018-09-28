@@ -43,8 +43,6 @@
 #include "vtkMultiBlockPLOT3DReaderInternals.h"
 #include "vtkSMPTools.h"
 
-#include "vtkReaderExecutive.h"
-
 vtkObjectFactoryNewMacro(vtkMultiBlockPLOT3DReader);
 vtkInformationKeyMacro(vtkMultiBlockPLOT3DReader, INTERMEDIATE_RESULT, Integer);
 vtkCxxSetObjectMacro(vtkMultiBlockPLOT3DReader,
@@ -1368,11 +1366,6 @@ vtkMultiBlockDataSet* vtkMultiBlockPLOT3DReader::GetOutput(int port)
 {
   vtkDataObject* output = this->GetOutputDataObject(port);
   return vtkMultiBlockDataSet::SafeDownCast(output);
-}
-
-vtkExecutive* vtkMultiBlockPLOT3DReader::CreateDefaultExecutive()
-{
-  return vtkReaderExecutive::New();
 }
 
 double vtkMultiBlockPLOT3DReader::GetTimeValue(const std::string& fname)

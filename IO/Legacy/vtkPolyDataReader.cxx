@@ -25,15 +25,7 @@
 vtkStandardNewMacro(vtkPolyDataReader);
 
 //----------------------------------------------------------------------------
-vtkPolyDataReader::vtkPolyDataReader()
-{
-  vtkPolyData *output = vtkPolyData::New();
-  this->SetOutput(output);
-  // Releasing data for pipeline parallism.
-  // Filters will know it is empty.
-  output->ReleaseData();
-  output->Delete();
-}
+vtkPolyDataReader::vtkPolyDataReader() = default;
 
 //----------------------------------------------------------------------------
 vtkPolyDataReader::~vtkPolyDataReader() = default;
@@ -56,53 +48,20 @@ void vtkPolyDataReader::SetOutput(vtkPolyData *output)
   this->GetExecutive()->SetOutputData(0, output);
 }
 
-
 //----------------------------------------------------------------------------
-int vtkPolyDataReader::RequestUpdateExtent(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
+int vtkPolyDataReader::ReadMeshSimple(
+  const std::string& fname, vtkDataObject* doOutput)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  int piece, numPieces, ghostLevel;
-
-  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-  ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-
-  // make sure piece is valid
-  if (piece < 0 || piece >= numPieces)
-  {
-    return 1;
-  }
-
-  if (ghostLevel < 0)
-  {
-    return 1;
-  }
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkPolyDataReader::RequestData(
-  vtkInformation *,
-  vtkInformationVector **,
-  vtkInformationVector *outputVector)
-{
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkIdType numPts=0;
   char line[256];
   vtkIdType npts, size = 0, ncells, i;
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(doOutput);
   int *tempArray;
   vtkIdType *idArray;
 
   vtkDebugMacro(<<"Reading vtk polygonal data...");
 
-  if ( !(this->OpenVTKFile()) || !this->ReadHeader())
+  if ( !(this->OpenVTKFile(fname.c_str())) || !this->ReadHeader(fname.c_str()))
   {
     return 1;
   }
@@ -159,7 +118,7 @@ int vtkPolyDataReader::RequestData(
           return 1;
         }
 
-        this->ReadPoints(output, numPts);
+        this->ReadPointCoordinates(output, numPts);
       }
 
       else if ( ! strncmp(line,"vertices",8) )

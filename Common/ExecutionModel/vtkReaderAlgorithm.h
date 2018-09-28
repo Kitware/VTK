@@ -41,11 +41,39 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Provide meta-data for the pipeline. These include things like
-   * time steps and whole extent. Subclasses may have specialized
+   * This can be overridden by a subclass to create an output that
+   * is determined by the file being read. If the output is known at
+   * compile time, it is easier to override FillOutputPortInformation()
+   * to set vtkDataObject::DATA_TYPE_NAME(). The subclass should compare
+   * the new output type with the type of the currentOutput argument and
+   * return currentOutput without changing its reference count if the
+   * types are same.
+   */
+  virtual vtkDataObject* CreateOutput(vtkDataObject* currentOutput)
+  {
+    return currentOutput;
+  }
+
+  /**
+   * Provide meta-data for the pipeline. This meta-data cannot vary over
+   * time as this method will not be called when only a request is changed.
+   * These include things like time steps. Subclasses may have specialized
    * interfaces making this simpler.
    */
   virtual int ReadMetaData(vtkInformation* metadata) = 0;
+
+  /**
+   * Provide meta-data for the pipeline. This meta-data can vary over time
+   * as this method will be called after a request is changed (such as time)
+   * These include things like whole extent. Subclasses may have specialized
+   * interfaces making this simpler.
+   */
+  virtual int ReadTimeDependentMetaData(
+    int /*timestep*/, vtkInformation* /*metadata*/)
+  {
+    return 1;
+  }
+
 
   /**
    * Read the mesh (connectivity) for a given set of data partitioning,
