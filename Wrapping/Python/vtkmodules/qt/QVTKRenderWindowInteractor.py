@@ -38,6 +38,9 @@ Changes by Alex Tsui, Apr. 2015
 
 Changes by Fabian Wenzel, Jan. 2016
  Support for Python3
+
+Changes by Tobias Hänel, Sep. 2018
+ Support for PySide2
 """
 
 # Check whether a specific PyQt implementation was chosen
@@ -65,14 +68,18 @@ if PyQtImpl is None:
         PyQtImpl = "PyQt5"
     except ImportError:
         try:
-            import PyQt4
-            PyQtImpl = "PyQt4"
+            import PySide2
+            PyQtImpl = "PySide2"
         except ImportError:
             try:
-                import PySide
-                PyQtImpl = "PySide"
+                import PyQt4
+                PyQtImpl = "PyQt4"
             except ImportError:
-                raise ImportError("Cannot load either PyQt or PySide")
+                try:
+                    import PySide
+                    PyQtImpl = "PySide"
+                except ImportError:
+                    raise ImportError("Cannot load either PyQt or PySide")
 
 if PyQtImpl == "PyQt5":
     if QVTKRWIBase == "QGLWidget":
@@ -86,6 +93,18 @@ if PyQtImpl == "PyQt5":
     from PyQt5.QtCore import QObject
     from PyQt5.QtCore import QSize
     from PyQt5.QtCore import QEvent
+elif PyQtImpl == "PySide2":
+    if QVTKRWIBase == "QGLWidget":
+        from PySide2.QtOpenGL import QGLWidget
+    from PySide2.QtWidgets import QWidget
+    from PySide2.QtWidgets import QSizePolicy
+    from PySide2.QtWidgets import QApplication
+    from PySide2.QtGui import QCursor
+    from PySide2.QtCore import Qt
+    from PySide2.QtCore import QTimer
+    from PySide2.QtCore import QObject
+    from PySide2.QtCore import QSize
+    from PySide2.QtCore import QEvent
 elif PyQtImpl == "PyQt4":
     if QVTKRWIBase == "QGLWidget":
         from PyQt4.QtOpenGL import QGLWidget
@@ -382,7 +401,7 @@ class QVTKRenderWindowInteractor(QVTKRWIBaseClass):
 
     @staticmethod
     def _getPixelRatio():
-        if PyQtImpl == "PyQt5":
+        if PyQtImpl in ["PyQt5", "PySide2"]:
             # Source: https://stackoverflow.com/a/40053864/3388962
             pos = QCursor.pos()
             for screen in QApplication.screens():

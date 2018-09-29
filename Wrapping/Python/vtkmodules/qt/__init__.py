@@ -25,7 +25,7 @@ import sys
 PyQtImpl = None
 
 # Has an implementation has been imported yet?
-for impl in ["PyQt5", "PyQt4", "PySide"]:
+for impl in ["PyQt5", "PySide2", "PyQt4", "PySide"]:
     if impl in sys.modules:
         PyQtImpl = impl
         break
