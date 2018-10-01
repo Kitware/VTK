@@ -34,6 +34,18 @@ PURPOSE.  See the above copyright notice for more information.
  * made to work with this but consider how overlays will appear in a
  * HMD if they do not track the viewpoint etc. This class is based on
  * sample code from the OpenVR project.
+ *
+ * OpenVR provides HMD and controller positions in "Physical" coordinate
+ * system.
+ * Origin: user's eye position at the time of calibration.
+ * Axis directions: x = user's right; y = user's up; z = user's back.
+ * Unit: meter.
+ *
+ * Renderer shows actors in World coordinate system. Transformation between
+ * Physical and World coordinate systems is defined by PhysicalToWorldMatrix.
+ * This matrix determines the user's position and orientation in the rendered
+ * scene and scaling (magnification) of rendered actors.
+ *
 */
 
 #ifndef vtkOpenVRRenderWindow_h
@@ -148,19 +160,56 @@ public:
 
   //@{
   /**
-   * Control the HMD to World transformations. In
-   * some cases users may not want the Y axis to be up
-   * and these methods allow them to control it.
+   * Set/get physical coordinate system in world coordinate system.
+   *
+   * View direction is the -Z axis of the physical coordinate system
+   * in world coordinate system.
+   * \sa SetPhysicalViewUp, \sa SetPhysicalTranslation,
+   * \sa SetPhysicalScale, \sa SetPhysicalToWorldMatrix
    */
   virtual void SetPhysicalViewDirection(double,double,double);
   virtual void SetPhysicalViewDirection(double[3]);
   vtkGetVector3Macro(PhysicalViewDirection, double);
+  //@}
+
+  //@{
+  /**
+   * Set/get physical coordinate system in world coordinate system.
+   *
+   * View up is the +Y axis of the physical coordinate system
+   * in world coordinate system.
+   * \sa SetPhysicalViewDirection, \sa SetPhysicalTranslation,
+   * \sa SetPhysicalScale, \sa SetPhysicalToWorldMatrix
+   */
   virtual void SetPhysicalViewUp(double,double,double);
   virtual void SetPhysicalViewUp(double[3]);
   vtkGetVector3Macro(PhysicalViewUp, double);
+  //@}
+
+  //@{
+  /**
+   * Set/get physical coordinate system in world coordinate system.
+   *
+   * Position of the physical coordinate system origin
+   * in world coordinates.
+   * \sa SetPhysicalViewDirection, \sa SetPhysicalViewUp,
+   * \sa SetPhysicalScale, \sa SetPhysicalToWorldMatrix
+   */
   virtual void SetPhysicalTranslation(double,double,double);
   virtual void SetPhysicalTranslation(double[3]);
   vtkGetVector3Macro(PhysicalTranslation, double);
+  //@}
+
+  //@{
+  /**
+   * Set/get physical coordinate system in world coordinate system.
+   *
+   * Ratio of distance in world coordinate and physical and system
+   * (PhysicalScale = distance_World / distance_Physical).
+   * Example: if world coordinate system is in mm then
+   * PhysicalScale = 1000.0 makes objects appear in real size.
+   * PhysicalScale = 100.0 makes objects appear 10x larger than real size.
+   */
   virtual void SetPhysicalScale(double);
   vtkGetMacro(PhysicalScale, double);
   //@}

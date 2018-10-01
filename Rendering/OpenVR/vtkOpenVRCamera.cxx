@@ -21,6 +21,7 @@
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLError.h"
 #include "vtkPerspectiveTransform.h"
+#include "vtkTimerLog.h"
 
 #include <cmath>
 

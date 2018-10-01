@@ -28,6 +28,7 @@
 #include "vtkQuaternion.h"
 #include "vtkRenderer.h"
 #include "vtkMatrix3x3.h"
+#include "vtkTimerLog.h"
 #include "vtkTransform.h"
 #include "vtkCamera.h"
 
@@ -44,7 +45,7 @@ vtkInteractorStyle3D::vtkInteractorStyle3D()
   this->AppliedTranslation[1] = 0;
   this->AppliedTranslation[2] = 0;
   this->TempTransform = vtkTransform::New();
-  this->DollyMotionFactor = 2.0;
+  this->DollyPhysicalSpeed = 1.6666;
 }
 
 //----------------------------------------------------------------------------
@@ -162,10 +163,10 @@ void vtkInteractorStyle3D::FindPickedActor(double pos[3], double orient[4])
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyle3D::Prop3DTransform(vtkProp3D *prop3D,
-                                                       double *boxCenter,
-                                                       int numRotation,
-                                                       double **rotate,
-                                                       double *scale)
+                                           double *boxCenter,
+                                           int numRotation,
+                                           double **rotate,
+                                           double *scale)
 {
   vtkMatrix4x4 *oldMatrix = this->TempMatrix4;
   prop3D->GetMatrix(oldMatrix);
@@ -241,30 +242,38 @@ void vtkInteractorStyle3D::Dolly3D(vtkEventData *ed)
   double elem[3][3];
   q1.ToMatrix3x3(elem);
   double vdir[3] = {0.0,0.0,-1.0};
-  vtkMatrix3x3::MultiplyPoint(
-    elem[0],vdir,vdir);
+  vtkMatrix3x3::MultiplyPoint(elem[0],vdir,vdir);
 
   double *trans = rwi->GetPhysicalTranslation(
     this->CurrentRenderer->GetActiveCamera());
-  double physicalScale = rwi->GetPhysicalScale();
 
-  // The world coordinate speed of
-  // movement can be determined from the camera scale.
-  // movement speed is scaled by the touchpad
-  // y coordinate
+  // scale speed by thumb position on the touchpad along Y axis
   float tpos[3];
   rwi->GetTouchPadPosition(
     edd->GetDevice(),
     vtkEventDataDeviceInput::Unknown,
     tpos);
-  // 2.0 so that the max is 2.0 times the average
-  // motion factor
-  double factor = tpos[1]*2.0*this->DollyMotionFactor/90.0;
+  if (fabs(tpos[0]) > fabs(tpos[1]))
+  {
+    // do not dolly if pressed direction is not up or down but left or right
+    return;
+  }
+  double speedScaleFactor = tpos[1]; // -1 to +1 (the Y axis of the trackpad)
+  double physicalScale = rwi->GetPhysicalScale();
+
+  this->LastDolly3DEventTime->StopTimer();
+  double distanceTravelled_World =
+    speedScaleFactor * this->DollyPhysicalSpeed /* m/sec */ *
+    physicalScale * /* world/physical */
+    this->LastDolly3DEventTime->GetElapsedTime() /* sec */;
+
+  this->LastDolly3DEventTime->StartTimer();
+
   rwi->SetPhysicalTranslation(
     this->CurrentRenderer->GetActiveCamera(),
-    trans[0]-vdir[0]*factor*physicalScale,
-    trans[1]-vdir[1]*factor*physicalScale,
-    trans[2]-vdir[2]*factor*physicalScale);
+    trans[0]-vdir[0]*distanceTravelled_World,
+    trans[1]-vdir[1]*distanceTravelled_World,
+    trans[2]-vdir[2]*distanceTravelled_World);
 
   if (this->AutoAdjustCameraClippingRange)
   {
