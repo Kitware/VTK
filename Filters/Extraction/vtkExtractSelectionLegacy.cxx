@@ -40,7 +40,7 @@ vtkStandardNewMacro(vtkExtractSelectionLegacy);
 //----------------------------------------------------------------------------
 vtkExtractSelectionLegacy::vtkExtractSelectionLegacy()
 {
-  VTK_LEGACY_BODY(vtkExtractSelectionLegacy::vtkExtractSelectionLegacy, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkExtractSelectionLegacy::vtkExtractSelectionLegacy, "VTK 8.2");
   this->BlockFilter = vtkExtractSelectedBlock::New();
   this->IdsFilter = vtkExtractSelectedIds::New();
   this->FrustumFilter = vtkExtractSelectedFrustum::New();
