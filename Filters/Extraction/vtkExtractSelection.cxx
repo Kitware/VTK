@@ -630,49 +630,49 @@ void vtkExtractSelection::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkExtractSelection::SetShowBounds(bool)
 {
-  VTK_LEGACY_BODY(vtkExtractSelection::SetShowBounds, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkExtractSelection::SetShowBounds, "VTK 8.2");
 }
 //----------------------------------------------------------------------------
 bool vtkExtractSelection::GetShowBounds()
 {
-  VTK_LEGACY_BODY(vtkExtractSelection::GetShowBounds, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkExtractSelection::GetShowBounds, "VTK 8.2");
   return false;
 }
 
 //----------------------------------------------------------------------------
 void vtkExtractSelection::ShowBoundsOn()
 {
-  VTK_LEGACY_BODY(vtkExtractSelection::ShowBoundsOn, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkExtractSelection::ShowBoundsOn, "VTK 8.2");
 }
 
 //----------------------------------------------------------------------------
 void vtkExtractSelection::ShowBoundsOff()
 {
-  VTK_LEGACY_BODY(vtkExtractSelection::ShowBoundsOff, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkExtractSelection::ShowBoundsOff, "VTK 8.2");
 }
 
 //----------------------------------------------------------------------------
 void vtkExtractSelection::SetUseProbeForLocations(bool)
 {
-  VTK_LEGACY_BODY(vtkExtractSelection::SetUseProbeForLocations, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkExtractSelection::SetUseProbeForLocations, "VTK 8.2");
 }
 
 //----------------------------------------------------------------------------
 bool vtkExtractSelection::GetUseProbeForLocations()
 {
-  VTK_LEGACY_BODY(vtkExtractSelection::GetUseProbeForLocations, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkExtractSelection::GetUseProbeForLocations, "VTK 8.2");
   return false;
 }
 
 //----------------------------------------------------------------------------
 void vtkExtractSelection::UseProbeForLocationsOn()
 {
-  VTK_LEGACY_BODY(vtkExtractSelection::UseProbeForLocationsOn, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkExtractSelection::UseProbeForLocationsOn, "VTK 8.2");
 }
 
 //----------------------------------------------------------------------------
 void vtkExtractSelection::UseProbeForLocationsOff()
 {
-  VTK_LEGACY_BODY(vtkExtractSelection::UseProbeForLocationsOff, "VTK 9.0");
+  VTK_LEGACY_BODY(vtkExtractSelection::UseProbeForLocationsOff, "VTK 8.2");
 }
 #endif
