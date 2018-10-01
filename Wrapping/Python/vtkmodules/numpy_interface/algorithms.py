@@ -192,8 +192,11 @@ def _global_func(impl, array, axis, controller):
     if axis is None or axis == 0:
         if controller is None and vtkMultiProcessController is not None:
             controller = vtkMultiProcessController.GetGlobalController()
-        if controller and controller.IsA("vtkMPIController"):
-            from mpi4py import MPI
+        if controller and controller.IsA("vtkMPIController") and controller.GetNumberOfProcesses() > 1:
+            try:
+                from mpi4py import MPI
+            except ImportError:
+                raise RuntimeError('MPI4Py is required to perform multi-rank operations')
             comm = vtkMPI4PyCommunicator.ConvertToPython(controller.GetCommunicator())
 
             max_dims, size = _reduce_dims(res, comm)
