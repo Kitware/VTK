@@ -25,7 +25,7 @@
  * the extraction.
  *
  * This class used to be called vtkExtractSelection but it was replaced in
- * VTK 9.0.  This is only provided for backwards compatibility and is therefore
+ * VTK 8.2.  This is only provided for backwards compatibility and is therefore
  * deprecated.
  *
  * @sa
