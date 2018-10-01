@@ -425,7 +425,6 @@ void vtkOpenVRRenderWindow::UpdateHMDMatrixPose()
       double hmdY_Physical[3] = { tdPose.mDeviceToAbsoluteTracking.m[0][1],
                                   tdPose.mDeviceToAbsoluteTracking.m[1][1],
                                   tdPose.mDeviceToAbsoluteTracking.m[2][1] };
-      double hmdZ_Physical[3] = {0.0};
       double hmdPosition_Physical[3] = { tdPose.mDeviceToAbsoluteTracking.m[0][3],
                                          tdPose.mDeviceToAbsoluteTracking.m[1][3],
                                          tdPose.mDeviceToAbsoluteTracking.m[2][3] };
@@ -787,6 +786,73 @@ void vtkOpenVRRenderWindow::GetTrackedDevicePose(
   }
 }
 
+void vtkOpenVRRenderWindow::SetPhysicalViewDirection(double x, double y, double z)
+{
+  if ( this->PhysicalViewDirection[0] != x
+    || this->PhysicalViewDirection[1] != y
+    || this->PhysicalViewDirection[2] != z )
+  {
+    this->PhysicalViewDirection[0] = x;
+    this->PhysicalViewDirection[1] = y;
+    this->PhysicalViewDirection[2] = z;
+    this->InvokeEvent(vtkOpenVRRenderWindow::PhysicalToWorldMatrixModified);
+    this->Modified();
+  }
+}
+
+void vtkOpenVRRenderWindow::SetPhysicalViewDirection(double dir[3])
+{
+  this->SetPhysicalViewDirection(dir[0], dir[1], dir[2]);
+}
+
+void vtkOpenVRRenderWindow::SetPhysicalViewUp(double x, double y, double z)
+{
+  if ( this->PhysicalViewUp[0] != x
+    || this->PhysicalViewUp[1] != y
+    || this->PhysicalViewUp[2] != z )
+  {
+    this->PhysicalViewUp[0] = x;
+    this->PhysicalViewUp[1] = y;
+    this->PhysicalViewUp[2] = z;
+    this->InvokeEvent(vtkOpenVRRenderWindow::PhysicalToWorldMatrixModified);
+    this->Modified();
+  }
+}
+
+void vtkOpenVRRenderWindow::SetPhysicalViewUp(double dir[3])
+{
+  this->SetPhysicalViewUp(dir[0], dir[1], dir[2]);
+}
+
+void vtkOpenVRRenderWindow::SetPhysicalTranslation(double x, double y, double z)
+{
+  if ( this->PhysicalTranslation[0] != x
+    || this->PhysicalTranslation[1] != y
+    || this->PhysicalTranslation[2] != z )
+  {
+    this->PhysicalTranslation[0] = x;
+    this->PhysicalTranslation[1] = y;
+    this->PhysicalTranslation[2] = z;
+    this->InvokeEvent(vtkOpenVRRenderWindow::PhysicalToWorldMatrixModified);
+    this->Modified();
+  }
+}
+
+void vtkOpenVRRenderWindow::SetPhysicalTranslation(double trans[3])
+{
+  this->SetPhysicalTranslation(trans[0], trans[1], trans[2]);
+}
+
+void vtkOpenVRRenderWindow::SetPhysicalScale(double scale)
+{
+  if (this->PhysicalScale != scale)
+  {
+    this->PhysicalScale = scale;
+    this->InvokeEvent(vtkOpenVRRenderWindow::PhysicalToWorldMatrixModified);
+    this->Modified();
+  }
+}
+
 void vtkOpenVRRenderWindow::SetPhysicalToWorldMatrix(vtkMatrix4x4* matrix)
 {
   if (!matrix)
@@ -797,7 +863,11 @@ void vtkOpenVRRenderWindow::SetPhysicalToWorldMatrix(vtkMatrix4x4* matrix)
   vtkNew<vtkTransform> hmdToWorldTransform;
   hmdToWorldTransform->SetMatrix(matrix);
 
-  hmdToWorldTransform->GetPosition(this->PhysicalTranslation);
+  double translation[3] = {0.0};
+  hmdToWorldTransform->GetPosition(translation);
+  this->PhysicalTranslation[0] = (-1.0) * translation[0];
+  this->PhysicalTranslation[1] = (-1.0) * translation[1];
+  this->PhysicalTranslation[2] = (-1.0) * translation[2];
 
   double scale[3] = {0.0};
   hmdToWorldTransform->GetScale(scale);
@@ -811,6 +881,9 @@ void vtkOpenVRRenderWindow::SetPhysicalToWorldMatrix(vtkMatrix4x4* matrix)
   this->PhysicalViewDirection[1] = (-1.0) * matrix->GetElement(1,2);
   this->PhysicalViewDirection[2] = (-1.0) * matrix->GetElement(2,2);
   vtkMath::Normalize(this->PhysicalViewDirection);
+
+  this->InvokeEvent(vtkOpenVRRenderWindow::PhysicalToWorldMatrixModified);
+  this->Modified();
 }
 
 void vtkOpenVRRenderWindow::GetPhysicalToWorldMatrix(vtkMatrix4x4* physicalToWorldMatrix)
@@ -835,6 +908,6 @@ void vtkOpenVRRenderWindow::GetPhysicalToWorldMatrix(vtkMatrix4x4* physicalToWor
     physicalToWorldMatrix->SetElement(row, 0, physicalX_NonscaledWorld[row]*this->PhysicalScale);
     physicalToWorldMatrix->SetElement(row, 1, physicalY_NonscaledWorld[row]*this->PhysicalScale);
     physicalToWorldMatrix->SetElement(row, 2, physicalZ_NonscaledWorld[row]*this->PhysicalScale);
-    physicalToWorldMatrix->SetElement(row, 3, this->PhysicalTranslation[row]);
+    physicalToWorldMatrix->SetElement(row, 3, -this->PhysicalTranslation[row]);
   }
 }

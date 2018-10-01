@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkWindow.h"
 #include "vtkCamera.h"
 #include "vtkLineSource.h"
-
+#include "vtkTransform.h"
 #include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkOpenVRControlsHelper);

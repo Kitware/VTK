@@ -28,7 +28,9 @@
 
 #include "vtkOpenVRRenderWindow.h" // ivars
 #include "vtkNew.h" // ivars
-#include "vtkTransform.h" // ivars
+
+class vtkTransform;
+class vtkMatrix4x4;
 
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRRenderWindowInteractor : public vtkRenderWindowInteractor3D
 {
@@ -84,12 +86,27 @@ public:
   virtual void DoOneEvent(vtkOpenVRRenderWindow *renWin, vtkRenderer *ren);
 
   /*
-   * returns the pointer index as a device
+   * Return the pointer index as a device
    */
   vtkEventDataDevice GetPointerDevice();
 
-  // converts a device pose to a world coordinate
-  // position and orientation
+  /*
+   * Convert a device pose to pose matrices
+   * \param poseMatrixPhysical Optional output pose matrix in physical frame
+   * \param poseMatrixWorld    Optional output pose matrix in world frame
+   */
+  void ConvertOpenVRPoseToMatrices(
+    const vr::TrackedDevicePose_t &tdPose,
+    vtkMatrix4x4* poseMatrixWorld,
+    vtkMatrix4x4* poseMatrixPhysical=nullptr);
+
+  /*
+   * Convert a device pose to a world coordinate position and orientation
+   * \param pos  Output world position
+   * \param wxyz Output world orientation quaternion
+   * \param ppos Output physical position
+   * \param wdir Output world view direction (-Z)
+   */
   void ConvertPoseToWorldCoordinates(
     const vr::TrackedDevicePose_t &tdPose,
     double pos[3],
@@ -106,6 +123,11 @@ public:
     vtkEventDataDeviceInput,
     float [3]) override;
   //@}
+
+  /*
+   * Return starting physical to world matrix
+   */
+  void GetStartingPhysicalToWorldMatrix(vtkMatrix4x4* startingPhysicalToWorldMatrix);
 
 protected:
   vtkOpenVRRenderWindowInteractor();
@@ -138,9 +160,6 @@ protected:
    */
   virtual void StartEventLoop();
 
-
-  vtkNew<vtkTransform> PoseTransform;
-
   /**
   * Handle multitouch events. Multitouch events recognition starts when
   * both controllers the trigger pressed.
@@ -148,6 +167,11 @@ protected:
   int DeviceInputDown[VTKI_MAX_POINTERS][2];
   int DeviceInputDownCount[2];
   void RecognizeComplexGesture(vtkEventDataDevice3D* edata);
+
+  /**
+   * Store physical to world matrix at the start of a multi-touch gesture
+   */
+  vtkNew<vtkMatrix4x4> StartingPhysicalToWorldMatrix;
 
 private:
   vtkOpenVRRenderWindowInteractor(const vtkOpenVRRenderWindowInteractor&) = delete;

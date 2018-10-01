@@ -23,16 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenVRRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSelection.h"
-
-// #include "vtkAssemblyNode.h"
-// #include "vtkAssemblyPath.h"
-// #include "vtkRenderer.h"
-// #include "vtkMath.h"
-// #include "vtkCamera.h"
-// #include "vtkBox.h"
-// #include "vtkRenderWindow.h"
-// #include "vtkRenderWindowInteractor3D.h"
-// #include "vtkTransform.h"
+#include "vtkTransform.h"
 
 vtkStandardNewMacro(vtkOpenVRHardwarePicker);
 
