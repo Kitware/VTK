@@ -406,7 +406,6 @@ vtkDataObject* vtkGraphReader::CreateOutput(vtkDataObject* currentOutput)
         return currentOutput;
       }
       return vtkDirectedGraph::New();
-      break;
 
     case vtkGraphReader::UndirectedGraph:
       if (currentOutput && currentOutput->IsA("vtkUndirectedGraph"))
@@ -414,7 +413,6 @@ vtkDataObject* vtkGraphReader::CreateOutput(vtkDataObject* currentOutput)
         return currentOutput;
       }
       return vtkUndirectedGraph::New();
-      break;
 
     case vtkGraphReader::Molecule:
       if (currentOutput && currentOutput->IsA("vtkMolecule"))
@@ -422,7 +420,6 @@ vtkDataObject* vtkGraphReader::CreateOutput(vtkDataObject* currentOutput)
         return currentOutput;
       }
       return vtkMolecule::New();
-      break;
 
     default:
       vtkErrorMacro("ReadGraphType returned invalid result.");
