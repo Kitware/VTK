@@ -9,9 +9,10 @@ function(add_data_array_test test_name array_header array_valuetype array_type)
   set(VTK_TESTDATAARRAYAPI_TESTNAME "TestDataArrayAPI_${test_name}")
   set(test_source "${VTK_TESTDATAARRAYAPI_TESTNAME}.cxx")
 
-  configure_file(TestDataArrayAPI.cxx.in "${test_source}")
+  configure_file(TestDataArrayAPI.cxx.in "${CMAKE_CURRENT_BINARY_DIR}/${test_source}")
 
-  set(data_array_tests ${data_array_tests} "${test_source}.cxx" PARENT_SCOPE)
+  #specify a custom test name as these files exist in the build directory
+  list(APPEND data_array_tests "${VTK_TESTDATAARRAYAPI_TESTNAME},${CMAKE_CURRENT_BINARY_DIR}/${test_source}" PARENT_SCOPE)
 endfunction()
 
 # Legacy -- test that the vtkDataArrayTemplate interface still works:
