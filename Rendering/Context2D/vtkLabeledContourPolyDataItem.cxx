@@ -946,8 +946,6 @@ bool vtkLabeledContourPolyDataItem::Private::SetViewInfo(vtkContextScene* contex
     return false;
   }
 
-  vtkMatrix4x4 *mat = cam->GetModelViewTransformMatrix();
-
   this->CameraRight.Set(1.0, 0.0, 0.0);
   this->CameraUp.Set(0.0, 1.0, 0.0);
   this->CameraForward.Set(0.0, 0.0, -1.0);
@@ -969,7 +967,7 @@ bool vtkLabeledContourPolyDataItem::Private::SetViewInfo(vtkContextScene* contex
 
   // Get the mvp (mcdc) matrix
   double mvp[16];
-  mat = cam->GetCompositeProjectionTransformMatrix(aspect, -1, 1);
+  vtkMatrix4x4 *mat = cam->GetCompositeProjectionTransformMatrix(aspect, -1, 1);
   vtkMatrix4x4::DeepCopy(mvp, mat);
 
   vtkTransform2D* xform2D = transform->GetTransform();
