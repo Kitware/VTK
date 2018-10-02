@@ -17,6 +17,7 @@ set(module_SRCS
   vtkContextTransform.cxx
   vtkImageItem.cxx
   vtkMarkerUtilities.cxx
+  vtkLabeledContourPolyDataItem.cxx
   vtkPen.cxx
 #  vtkPiecewisePointHandleItem.cxx
   vtkPolyDataItem.cxx
