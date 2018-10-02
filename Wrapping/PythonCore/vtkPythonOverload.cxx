@@ -52,10 +52,9 @@ public:
   void initialize(bool selfIsClass, const char *format);
   bool next(const char **format, const char **classname);
   bool optional() { return m_optional; }
-  int penalty() { return m_penalty; }
-  int penalty(int p) {
-    if (p > m_penalty) { m_penalty = p; }
-    return m_penalty; }
+  bool good() { return (m_penalty < VTK_PYTHON_INCOMPATIBLE); }
+  void addpenalty(int p);
+  bool betterthan(const vtkPythonOverloadHelper *other);
 
 private:
   const char *m_format;
@@ -139,6 +138,22 @@ bool vtkPythonOverloadHelper::next(
   m_format++;
 
   return true;
+}
+
+// Add the penalty to be associated with the current argument,
+// i.e. how well the argument matches the required parameter type
+void vtkPythonOverloadHelper::addpenalty(int p)
+{
+  if (p > m_penalty)
+  {
+    m_penalty = p;
+  }
+}
+
+// Are we better than the other?
+bool vtkPythonOverloadHelper::betterthan(const vtkPythonOverloadHelper *other)
+{
+  return (m_penalty < other->m_penalty);
 }
 
 //--------------------------------------------------------------------
@@ -826,41 +841,50 @@ PyObject *vtkPythonOverload::CallMethod(
       {
         helper = &helperArray[sig];
 
-        if (helper->penalty() != VTK_PYTHON_INCOMPATIBLE &&
-            helper->next(&format, &classname))
+        if (helper->good() && helper->next(&format, &classname))
         {
-          helper->penalty(vtkPythonOverload::CheckArg(arg, format, classname));
+          int argpenalty = vtkPythonOverload::CheckArg(arg, format, classname);
+          helper->addpenalty(argpenalty);
         }
         else
         {
-          helper->penalty(VTK_PYTHON_INCOMPATIBLE);
+          helper->addpenalty(VTK_PYTHON_INCOMPATIBLE);
         }
       }
     }
 
     // Loop through methods and identify the best match
-    int minPenalty = VTK_PYTHON_INCOMPATIBLE;
+    vtkPythonOverloadHelper *bestmatch = nullptr;
     meth = nullptr;
     matchCount = 0;
     for (sig = 0; sig < nsig; sig++)
     {
       helper = &helperArray[sig];
-      int penalty = helper->penalty();
+      // check whether all args matched the parameter types
+      if (!helper->good())
+      {
+        continue;
+      }
       // check whether too few args were passed for signature
       if (helper->next(&format, &classname) && !helper->optional())
       {
-        penalty = VTK_PYTHON_INCOMPATIBLE;
+        continue;
       }
-      // check if this signature has the minimum penalty
-      if (penalty <= minPenalty && penalty < VTK_PYTHON_INCOMPATIBLE)
+      // check if this signature is as good as the best
+      if (bestmatch == nullptr || !bestmatch->betterthan(helper))
       {
-        if (penalty < minPenalty)
+        if (bestmatch == nullptr || helper->betterthan(bestmatch))
         {
-          matchCount = 0;
-          minPenalty = penalty;
+          // this is the best match so far
+          matchCount = 1;
+          bestmatch = helper;
           meth = &methods[sig];
         }
-        matchCount++;
+        else
+        {
+          // so far, there is a tie between two or more signatures
+          matchCount++;
+        }
       }
     }
 
