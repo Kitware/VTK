@@ -53,6 +53,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSphereSource.h"
 #include "vtkStringArray.h"
 #include "vtkTextProperty.h"
+#include "vtkTimerLog.h"
 
 #include "vtkOpenVRMenuRepresentation.h"
 #include "vtkOpenVRMenuWidget.h"
@@ -440,6 +441,7 @@ void vtkOpenVRInteractorStyle::StartDolly3D(vtkEventDataDevice3D * ed)
   }
   vtkEventDataDevice dev = ed->GetDevice();
   this->InteractionState[static_cast<int>(dev)] = VTKIS_DOLLY;
+  this->LastDolly3DEventTime->StartTimer();
 
   // this->GrabFocus(this->EventCallbackCommand);
 }
@@ -448,6 +450,8 @@ void vtkOpenVRInteractorStyle::EndDolly3D(vtkEventDataDevice3D * ed)
 {
   vtkEventDataDevice dev = ed->GetDevice();
   this->InteractionState[static_cast<int>(dev)] = VTKIS_NONE;
+
+  this->LastDolly3DEventTime->StopTimer();
 }
 
 //----------------------------------------------------------------------------

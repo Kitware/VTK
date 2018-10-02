@@ -859,6 +859,24 @@ void vtkOpenVRRenderWindow::SetPhysicalToWorldMatrix(vtkMatrix4x4* matrix)
   {
     return;
   }
+  vtkNew<vtkMatrix4x4> currentPhysicalToWorldMatrix;
+  this->GetPhysicalToWorldMatrix(currentPhysicalToWorldMatrix);
+  bool matrixDifferent = false;
+  for (int i = 0; i < 4; i++)
+  {
+    for (int j = 0; j < 4; j++)
+    {
+      if ( fabs(matrix->GetElement(i, j) - currentPhysicalToWorldMatrix->GetElement(i, j)) >= 1e-3 )
+      {
+        matrixDifferent = true;
+        break;
+      }
+    }
+  }
+  if (!matrixDifferent)
+  {
+    return;
+  }
 
   vtkNew<vtkTransform> hmdToWorldTransform;
   hmdToWorldTransform->SetMatrix(matrix);

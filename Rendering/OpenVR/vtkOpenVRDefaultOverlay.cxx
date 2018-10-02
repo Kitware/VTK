@@ -49,7 +49,7 @@ void handleMotionFactor(vtkObject *caller, unsigned long eid,
       case 3: mf = 10.0; break;
       case 4: mf = 100.0; break;
     }
-    is->SetDollyMotionFactor(mf);
+    is->SetDollyPhysicalSpeed(mf);
 
     // turn off all motion spots
     std::vector<vtkOpenVROverlaySpot> &spots = ovl->GetSpots();

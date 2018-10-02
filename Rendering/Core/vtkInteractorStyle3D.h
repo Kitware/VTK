@@ -53,12 +53,14 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkInteractorStyle.h"
+#include "vtkNew.h" // ivars
 
 class vtkCamera;
 class vtkPropPicker;
 class vtkProp3D;
 class vtkMatrix3x3;
 class vtkMatrix4x4;
+class vtkTimerLog;
 class vtkTransform;
 
 class VTKRENDERINGCORE_EXPORT vtkInteractorStyle3D : public vtkInteractorStyle
@@ -78,14 +80,12 @@ public:
 
   //@{
   /**
-   * Set/Get the dolly motion factor used when flying in 3D.
-   * Defaults to 2.0 to simulate 2 meters per second
-   * of movement in physical space. The dolly speed is
-   * adjusted by the touchpad position as well. The maximum
-   * rate is twice this setting.
+   * Set/Get the maximum dolly speed used when flying in 3D, in meters per second.
+   * Default is 1.6666, corresponding to walking speed (= 6 km/h).
+   * This speed is scaled by the touchpad position as well.
    */
-  vtkSetMacro(DollyMotionFactor, double);
-  vtkGetMacro(DollyMotionFactor, double);
+  vtkSetMacro(DollyPhysicalSpeed, double);
+  vtkGetMacro(DollyPhysicalSpeed, double);
   //@}
 
   /**
@@ -119,10 +119,12 @@ protected:
   vtkProp3D *InteractionProp;
   vtkMatrix3x3 *TempMatrix3;
   vtkMatrix4x4 *TempMatrix4;
+
   vtkTransform *TempTransform;
   double AppliedTranslation[3];
 
-  double DollyMotionFactor;
+  double DollyPhysicalSpeed;
+  vtkNew<vtkTimerLog> LastDolly3DEventTime;
 
 private:
   vtkInteractorStyle3D(const vtkInteractorStyle3D&) = delete;  // Not implemented.
