@@ -70,7 +70,7 @@ public:
   int AudioStreamIndex = -1;
   AVFrame *Frame = nullptr;
   AVPacket Packet;
-  struct SwsContext* RGBContext;
+  struct SwsContext* RGBContext = nullptr;
 };
 
 vtkStandardNewMacro(vtkFFMPEGVideoSource);
@@ -329,13 +329,16 @@ void vtkFFMPEGVideoSource::InternalGrab()
 //----------------------------------------------------------------------------
 void vtkFFMPEGVideoSource::ReleaseSystemResources()
 {
-  avcodec_close(this->Internal->VideoDecodeContext);
-  avcodec_close(this->Internal->AudioDecodeContext);
-  avformat_close_input(&this->Internal->FormatContext);
-  av_frame_free(&this->Internal->Frame);
-
-  this->Initialized = 0;
-  this->Modified();
+  if (this->Initialized)
+  {
+    avcodec_close(this->Internal->VideoDecodeContext);
+    avcodec_close(this->Internal->AudioDecodeContext);
+    avformat_close_input(&this->Internal->FormatContext);
+    av_frame_free(&this->Internal->Frame);
+    sws_freeContext(this->Internal->RGBContext);
+    this->Initialized = 0;
+    this->Modified();
+  }
 }
 
 //----------------------------------------------------------------------------
