@@ -28,6 +28,9 @@
 
 #include "vtkObject.h"
 
+#include <vector>
+#include <algorithm>
+
 //--------------------------------------------------------------------
 // Enums for vtkPythonOverload::CheckArg().
 // Values between VTK_PYTHON_GOOD_MATCH and VTK_PYTHON_NEEDS_CONVERSION
@@ -61,6 +64,7 @@ private:
   const char *m_classname;
   int m_penalty;
   bool m_optional;
+  std::vector<int> m_tiebreakers;
 };
 
 // Construct the object with a penalty of VTK_PYTHON_EXACT_MATCH
@@ -146,14 +150,44 @@ void vtkPythonOverloadHelper::addpenalty(int p)
 {
   if (p > m_penalty)
   {
-    m_penalty = p;
+    std::swap(m_penalty, p);
+  }
+
+  if (p != VTK_PYTHON_EXACT_MATCH)
+  {
+    m_tiebreakers.insert(
+      std::lower_bound(m_tiebreakers.begin(), m_tiebreakers.end(), p), p);
   }
 }
 
 // Are we better than the other?
 bool vtkPythonOverloadHelper::betterthan(const vtkPythonOverloadHelper *other)
 {
-  return (m_penalty < other->m_penalty);
+  if (m_penalty < other->m_penalty)
+  {
+    return true;
+  }
+  else if (other->m_penalty < m_penalty)
+  {
+    return false;
+  }
+
+  auto iter0 = m_tiebreakers.rbegin();
+  auto iter1 = other->m_tiebreakers.rbegin();
+  for (; iter0 != m_tiebreakers.rend() &&
+         iter1 != other->m_tiebreakers.rend(); ++iter0, ++iter1)
+  {
+    if (*iter0 < *iter1)
+    {
+      return true;
+    }
+    else if (*iter1 < *iter0)
+    {
+      return false;
+    }
+  }
+
+  return (iter1 != other->m_tiebreakers.rend());
 }
 
 //--------------------------------------------------------------------
