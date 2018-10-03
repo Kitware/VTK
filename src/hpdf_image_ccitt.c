@@ -77,7 +77,7 @@ typedef struct {
 
 #define	Fax3State(tif)		(&(tif)->tif_data->b)
 #define	EncoderState(tif)	((tif)->tif_data)
-#define	isAligned(p,t)	((((unsigned long)(p)) & (sizeof (t)-1)) == 0)
+#define	isAligned(p,t)	((((size_t)(p)) & (sizeof (t)-1)) == 0)
 
 /* NB: the uint32 casts are to silence certain ANSI-C compilers */
 #define TIFFhowmany(x, y) ((((uint32)(x))+(((uint32)(y))-1))/((uint32)(y)))
