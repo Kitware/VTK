@@ -44,7 +44,7 @@ class CustomPythonItem(object):
         textProp.SetColor(0.5, 0.0, 1.0)
         textProp.SetOrientation(45)
         context2D.ApplyTextProp(textProp)
-        context2D.DrawString(0.35, 0.4, b"Context2D!")
+        context2D.DrawString(0.35, 0.4, "Context2D!")
 
         pen.SetColor([200, 200, 30])
         brush.SetColor([200, 200, 30])
