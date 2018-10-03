@@ -1594,7 +1594,7 @@ vtkImageData *vtkPDFContextDevice2D::PrepareImageData(vtkImageData *in)
   vtkNew<vtkImageFlip> flip;
   flip->SetInputData(in);
   in->UnRegister(this);
-  flip->SetFilteredAxis(0); // x axis
+  flip->SetFilteredAxis(1); // y axis
   flip->Update();
   in = flip->GetOutput();
   in->Register(this);
