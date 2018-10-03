@@ -790,7 +790,7 @@ bool vtkLabeledContourPolyDataItem::RenderBackgrounds(vtkContext2D* painter)
     pen->SetOpacityF(bgopacity);
     brush->SetColorF(bgcolor);
     brush->SetOpacityF(bgopacity);
-    painter->DrawPolygon(this->LabelHelpers[i]->boxPoints, 5);
+    painter->DrawQuad(this->LabelHelpers[i]->boxPoints);
   }
 
   pen->SetColorF(prevPenColor);
