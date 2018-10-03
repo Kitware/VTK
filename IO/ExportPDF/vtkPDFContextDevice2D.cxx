@@ -1059,6 +1059,7 @@ void vtkPDFContextDevice2D::DrawPolyData(
   vtkNew<vtkCellTypes> types;
   polyData->GetCellTypes(types);
   if (!types->IsType(VTK_LINE) &&
+      !types->IsType(VTK_POLY_LINE) &&
       !types->IsType(VTK_TRIANGLE) &&
       !types->IsType(VTK_QUAD) &&
       !types->IsType(VTK_POLYGON))
@@ -1101,6 +1102,7 @@ void vtkPDFContextDevice2D::DrawPolyData(
     switch (cellType)
     {
       case VTK_LINE:
+      case VTK_POLY_LINE:
       case VTK_TRIANGLE:
       case VTK_QUAD:
       case VTK_POLYGON:
@@ -1142,7 +1144,7 @@ void vtkPDFContextDevice2D::DrawPolyData(
       }
     }
 
-    if (cellType == VTK_LINE)
+    if (cellType == VTK_LINE || cellType == VTK_POLY_LINE)
     {
       PolyLineToShading(verts.data(), numPoints, vertColors.data(), 4, radius,
                         shading);
