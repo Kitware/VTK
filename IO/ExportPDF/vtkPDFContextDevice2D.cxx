@@ -26,6 +26,7 @@
 #include "vtkImageFlip.h"
 #include "vtkIntArray.h"
 #include "vtkMatrix3x3.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkPath.h"
 #include "vtkPen.h"
@@ -186,6 +187,58 @@ struct vtkPDFContextDevice2D::Details
   HPDF_Page Page;
 
   std::map<unsigned char, HPDF_ExtGState> AlphaGStateMap;
+
+  float computeWorldRadius(const float x1, const float y1,
+                           const float x2, const float y2,
+                           vtkMatrix4x4 *matrix, const float penWidth)
+  {
+    // Attempt to compute the radius in world space.  For this computation
+    // we make the assumption that the following expression holds true:
+    //
+    //     worldDiagonalLength       worldRadius
+    //    ---------------------  =  -------------
+    //     screenDiagonalLength      screenRadius
+    //
+    // Then we further assume that this->Matrix can take the points of our
+    // polydata bounding box and transform them into top-level pixel coords
+    // of our render window.
+    double transMat[9];
+    double *mat = matrix->GetData();
+    vtkPDFContextDevice2D::Matrix4ToMatrix3(mat, transMat);
+
+    const float boundPt1[3] = {
+      static_cast<float>(x1),
+      static_cast<float>(y1),
+      1.0f
+    };
+
+    const float boundPt2[3] = {
+      static_cast<float>(x2),
+      static_cast<float>(y2),
+      1.0f
+    };
+
+    float boundPt1Px[3];
+    float boundPt2Px[3];
+
+    vtkMatrix3x3::MultiplyPoint(transMat, boundPt1, boundPt1Px);
+    vtkMatrix3x3::MultiplyPoint(transMat, boundPt2, boundPt2Px);
+
+    // Compute the length of the bounding box diagonal in world space
+    const float wdx = boundPt1[0] - boundPt2[0];
+    const float wdy = boundPt1[1] - boundPt2[1];
+    const float worldDiag = std::sqrt(wdx * wdx + wdy * wdy);
+
+    // Do the same as above, but in screen space
+    const float sdx = boundPt1Px[0] - boundPt2Px[0];
+    const float sdy = boundPt1Px[1] - boundPt2Px[1];
+    const float screenDiag = std::sqrt(sdx * sdx + sdy * sdy);
+
+    // Pen width is twice the radius in screen space, so get that in world space
+    const float worldPenWidth = penWidth * (worldDiag / screenDiag);
+
+    return worldPenWidth * 0.5f;
+  }
 };
 
 //------------------------------------------------------------------------------
@@ -1016,8 +1069,12 @@ void vtkPDFContextDevice2D::DrawPolyData(
   double bounds[6];
   polyData->GetBounds(bounds);
 
+  float radius = this->Impl->computeWorldRadius(bounds[0], bounds[2],
+                                                bounds[1], bounds[3],
+                                                this->Matrix->GetMatrix(),
+                                                this->Pen->GetWidth());
+
   // Adjust bounds for transform, account for pen width:
-  const float radius = this->Pen->GetWidth() * 0.5f;
   bounds[0] = (bounds[0] + p[0]) * scale - radius;
   bounds[1] = (bounds[1] + p[0]) * scale + radius;
   bounds[2] = (bounds[2] + p[1]) * scale - radius;
