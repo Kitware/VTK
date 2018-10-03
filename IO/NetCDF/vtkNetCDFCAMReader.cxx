@@ -174,21 +174,10 @@ void vtkNetCDFCAMReader::SetFileName(const char* fileName)
   this->PointsFile = nullptr;
   delete [] this->FileName;
   this->FileName = nullptr;
-  if (fileName)
+  if (fileName && *fileName)
   {
-    size_t n = strlen(fileName) + 1;
-    char *cp1 =  new char[n];
-    const char *cp2 = (fileName);
-    this->FileName = cp1;
-    do
-    {
-      *cp1++ = *cp2++;
-    }
-    while ( --n );
-  }
-  else
-  {
-    this->FileName = nullptr;
+    this->FileName = new char[strlen(fileName) + 1];
+    strcpy(this->FileName, fileName);
   }
   this->Modified();
 }
@@ -210,21 +199,11 @@ void vtkNetCDFCAMReader::SetConnectivityFileName(const char* fileName)
   delete this->ConnectivityFile;
   this->ConnectivityFile = nullptr;
   delete [] this->ConnectivityFileName;
-  if (fileName)
+  this->ConnectivityFileName = nullptr;
+  if (fileName && *fileName)
   {
-    size_t n = strlen(fileName) + 1;
-    char *cp1 =  new char[n];
-    const char *cp2 = (fileName);
-    this->ConnectivityFileName = cp1;
-    do
-    {
-      *cp1++ = *cp2++;
-    }
-    while ( --n );
-  }
-  else
-  {
-    this->ConnectivityFileName = nullptr;
+    this->ConnectivityFileName = new char[strlen(fileName) + 1];
+    strcpy(this->ConnectivityFileName, fileName);
   }
   this->Modified();
 }
