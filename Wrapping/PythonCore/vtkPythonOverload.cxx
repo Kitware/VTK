@@ -28,6 +28,9 @@
 
 #include "vtkObject.h"
 
+#include <vector>
+#include <algorithm>
+
 //--------------------------------------------------------------------
 // Enums for vtkPythonOverload::CheckArg().
 // Values between VTK_PYTHON_GOOD_MATCH and VTK_PYTHON_NEEDS_CONVERSION
@@ -52,16 +55,16 @@ public:
   void initialize(bool selfIsClass, const char *format);
   bool next(const char **format, const char **classname);
   bool optional() { return m_optional; }
-  int penalty() { return m_penalty; }
-  int penalty(int p) {
-    if (p > m_penalty) { m_penalty = p; }
-    return m_penalty; }
+  bool good() { return (m_penalty < VTK_PYTHON_INCOMPATIBLE); }
+  void addpenalty(int p);
+  bool betterthan(const vtkPythonOverloadHelper *other);
 
 private:
   const char *m_format;
   const char *m_classname;
   int m_penalty;
   bool m_optional;
+  std::vector<int> m_tiebreakers;
 };
 
 // Construct the object with a penalty of VTK_PYTHON_EXACT_MATCH
@@ -139,6 +142,52 @@ bool vtkPythonOverloadHelper::next(
   m_format++;
 
   return true;
+}
+
+// Add the penalty to be associated with the current argument,
+// i.e. how well the argument matches the required parameter type
+void vtkPythonOverloadHelper::addpenalty(int p)
+{
+  if (p > m_penalty)
+  {
+    std::swap(m_penalty, p);
+  }
+
+  if (p != VTK_PYTHON_EXACT_MATCH)
+  {
+    m_tiebreakers.insert(
+      std::lower_bound(m_tiebreakers.begin(), m_tiebreakers.end(), p), p);
+  }
+}
+
+// Are we better than the other?
+bool vtkPythonOverloadHelper::betterthan(const vtkPythonOverloadHelper *other)
+{
+  if (m_penalty < other->m_penalty)
+  {
+    return true;
+  }
+  else if (other->m_penalty < m_penalty)
+  {
+    return false;
+  }
+
+  auto iter0 = m_tiebreakers.rbegin();
+  auto iter1 = other->m_tiebreakers.rbegin();
+  for (; iter0 != m_tiebreakers.rend() &&
+         iter1 != other->m_tiebreakers.rend(); ++iter0, ++iter1)
+  {
+    if (*iter0 < *iter1)
+    {
+      return true;
+    }
+    else if (*iter1 < *iter0)
+    {
+      return false;
+    }
+  }
+
+  return (iter1 != other->m_tiebreakers.rend());
 }
 
 //--------------------------------------------------------------------
@@ -826,41 +875,50 @@ PyObject *vtkPythonOverload::CallMethod(
       {
         helper = &helperArray[sig];
 
-        if (helper->penalty() != VTK_PYTHON_INCOMPATIBLE &&
-            helper->next(&format, &classname))
+        if (helper->good() && helper->next(&format, &classname))
         {
-          helper->penalty(vtkPythonOverload::CheckArg(arg, format, classname));
+          int argpenalty = vtkPythonOverload::CheckArg(arg, format, classname);
+          helper->addpenalty(argpenalty);
         }
         else
         {
-          helper->penalty(VTK_PYTHON_INCOMPATIBLE);
+          helper->addpenalty(VTK_PYTHON_INCOMPATIBLE);
         }
       }
     }
 
     // Loop through methods and identify the best match
-    int minPenalty = VTK_PYTHON_INCOMPATIBLE;
+    vtkPythonOverloadHelper *bestmatch = nullptr;
     meth = nullptr;
     matchCount = 0;
     for (sig = 0; sig < nsig; sig++)
     {
       helper = &helperArray[sig];
-      int penalty = helper->penalty();
+      // check whether all args matched the parameter types
+      if (!helper->good())
+      {
+        continue;
+      }
       // check whether too few args were passed for signature
       if (helper->next(&format, &classname) && !helper->optional())
       {
-        penalty = VTK_PYTHON_INCOMPATIBLE;
+        continue;
       }
-      // check if this signature has the minimum penalty
-      if (penalty <= minPenalty && penalty < VTK_PYTHON_INCOMPATIBLE)
+      // check if this signature is as good as the best
+      if (bestmatch == nullptr || !bestmatch->betterthan(helper))
       {
-        if (penalty < minPenalty)
+        if (bestmatch == nullptr || helper->betterthan(bestmatch))
         {
-          matchCount = 0;
-          minPenalty = penalty;
+          // this is the best match so far
+          matchCount = 1;
+          bestmatch = helper;
           meth = &methods[sig];
         }
-        matchCount++;
+        else
+        {
+          // so far, there is a tie between two or more signatures
+          matchCount++;
+        }
       }
     }
 
