@@ -192,7 +192,7 @@ int vtkDataReader::ReadMesh(
     int piece, int npieces, int nghosts, int timestep, vtkDataObject* output)
 {
   // Not a parallel reader. Cannot handle anything other than the first piece,
-  // which will have everyhing.
+  // which will have everything.
   if (piece > 0)
   {
     return 1;

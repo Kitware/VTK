@@ -343,7 +343,7 @@ void vtkAMRResampleFilter::TransferToCellCenters(
         vtkUniformGrid *g, vtkOverlappingAMR *amrds )
 {
   assert( "pre: uniform grid is nullptr" && (g != nullptr) );
-  assert( "pre: AMR data-strucutre is nullptr" && (amrds != nullptr) );
+  assert( "pre: AMR data-structure is nullptr" && (amrds != nullptr) );
 
   // STEP 0: Get the first block so that we know the arrays
 //  vtkUniformGrid *refGrid = amrds->GetDataSet(0,0);
@@ -851,7 +851,7 @@ void vtkAMRResampleFilter::TransferSolution(
     vtkUniformGrid *g, vtkOverlappingAMR *amrds)
 {
   assert( "pre: uniform grid is nullptr" && (g != nullptr) );
-  assert( "pre: AMR data-strucutre is nullptr" && (amrds != nullptr) );
+  assert( "pre: AMR data-structure is nullptr" && (amrds != nullptr) );
 
   if( this->TransferToNodes == 1 )
   {

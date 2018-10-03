@@ -4831,7 +4831,7 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(
         }
         BoundaryEntryI.AllBoundariesStartFace = allBoundariesNextStartFace;
         const vtkStdString typeNameI(typeEntry->ToString());
-        // if the basic type of the patch is one of the followings the
+        // if the basic type of the patch is one of the following the
         // point-filtered values at patches are overridden by patch values
         if (typeNameI == "patch" || typeNameI == "wall")
         {

@@ -254,7 +254,7 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
   vtkTransformFeedback *cap)
 {
   // perform system wide shader replacements
-  // desktops to not use percision statements
+  // desktops to not use precision statements
   std::string VSSource = vertexCode;
   std::string FSSource = fragmentCode;
   std::string GSSource = geometryCode;

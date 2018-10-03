@@ -508,7 +508,7 @@ void vtkInteractorStyleFlight::UpdateMouseSteering(vtkCamera *cam)
   this->DeltaPitch = dy;
   this->DeltaYaw = dx;
 /*
-  Not happy with smooth flight yet, please levae this code here
+  Not happy with smooth flight yet, please leave this code here
   until I get around to experimenting : JB July 2002
 
   // dx and dy need to be converted to a new 'ideal' camera focal point
@@ -538,7 +538,7 @@ void vtkInteractorStyleFlight::UpdateSteering(vtkCamera *vtkNotUsed(cam))
   #define D2R 0.01745329251994329576923690768    // degrees to radians
   #define R2D 57.2957795130823208767981548141    // radians to degrees
 
-  Not happy with smooth flight yet, please levae this code here
+  Not happy with smooth flight yet, please leave this code here
   until I get around to experimenting : JB July 2002
 
   cam->OrthogonalizeViewUp();

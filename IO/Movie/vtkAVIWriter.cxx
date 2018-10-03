@@ -203,7 +203,7 @@ void vtkAVIWriter::Start()
   if (AVIStreamSetFormat(this->Internals->StreamCompressed, 0,
                          this->Internals->lpbi, this->Internals->lpbi->biSize))
   {
-    vtkErrorMacro("Unable to format " << this->FileName << " Most likely this means that the video compression scheme you seleted could not handle the data. Try selecting a different compression scheme." );
+    vtkErrorMacro("Unable to format " << this->FileName << " Most likely this means that the video compression scheme you selected could not handle the data. Try selecting a different compression scheme." );
     this->SetErrorCode(vtkGenericMovieWriter::CanNotFormat);
     return;
   }
@@ -294,4 +294,3 @@ void vtkAVIWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CompressorFourCC: "
      << (this->CompressorFourCC ? this->CompressorFourCC : "(None)") << endl;
 }
-

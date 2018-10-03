@@ -1632,7 +1632,7 @@ vtkPixelBufferObject *vtkOpenGLFramebufferObject::DownloadColor1(
       oglChannel = GL_BLUE;
       break;
     default:
-      vtkErrorMacro("Inavlid channel");
+      vtkErrorMacro("Invalid channel");
       return nullptr;
   }
 
