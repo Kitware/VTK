@@ -100,8 +100,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include <string>
 #include <vector>
 
-using namespace std;
-
 // In VTK commit 64cb89e3e6ae08f440eb6d4cbfb308c41ab7d258, a lot of signatures
 // in the netcdf library changed size values from 'long' to 'size_t'. However,
 // upstream versions of netcdf are using long. The following typedef resolves
@@ -189,7 +187,7 @@ public:
   vtkTimeStamp extraDimTime;
 };
 
-bool vtkMPASReader::Internal::isExtraDim(const string &name)
+bool vtkMPASReader::Internal::isExtraDim(const std::string &name)
 {
   return name != "nCells" && name != "nVertices" && name != "Time";
 }
@@ -859,7 +857,7 @@ int vtkMPASReader::BuildVarArrays()
   for (size_t v = 0; v < this->Internals->pointVars.size(); v++)
   {
     NcVar *var = this->Internals->pointVars[v];
-    string name = this->UseDimensionedArrayNames ? dimensionedArrayName(var)
+    std::string name = this->UseDimensionedArrayNames ? dimensionedArrayName(var)
                                                  : var->name();
     this->PointDataArraySelection->EnableArray(name.c_str());
     // Register the dimensions:
@@ -873,7 +871,7 @@ int vtkMPASReader::BuildVarArrays()
   for (size_t v = 0; v < this->Internals->cellVars.size(); v++)
   {
     NcVar *var = this->Internals->cellVars[v];
-    string name = this->UseDimensionedArrayNames ? dimensionedArrayName(var)
+    std::string name = this->UseDimensionedArrayNames ? dimensionedArrayName(var)
                                                  : var->name();
     this->CellDataArraySelection->EnableArray(name.c_str());
     // Register the dimensions:
@@ -1316,8 +1314,8 @@ void vtkMPASReader::FixPoints()
       const double thresh = .06981317007977; // 4 degrees
       for (int k = 0; k < this->PointsPerCell; k++)
       {
-        double ydiff = abs(this->PointY[conns[k]]
-                           - this->PointY[conns[lastk]]);
+        double ydiff = std::abs(this->PointY[conns[k]]
+                                - this->PointY[conns[lastk]]);
         // Don't look at cells at map border
         if (ydiff > thresh)
         {
@@ -1394,7 +1392,7 @@ int vtkMPASReader::EliminateXWrap()
     bool xWrap = false;
     for (int k = 0; k < this->PointsPerCell; k++)
     {
-      if (abs(this->PointX[conns[k]] - this->PointX[conns[lastk]]) > tolerance)
+      if (std::abs(this->PointX[conns[k]] - this->PointX[conns[lastk]]) > tolerance)
       {
         xWrap = true;
         break;
@@ -1416,7 +1414,7 @@ int vtkMPASReader::EliminateXWrap()
         int neigh = conns[k];
 
         // add a new point, figure out east or west
-        if (abs(this->PointX[neigh] - anchorX) > tolerance)
+        if (std::abs(this->PointX[neigh] - anchorX) > tolerance)
         {
           modConns[k] = this->AddMirrorPoint(neigh, anchorX, xLength);
         }
@@ -1443,7 +1441,7 @@ int vtkMPASReader::EliminateXWrap()
         int neigh = conns[k];
 
         // add a new point for neighbor, figure out east or west
-        if (abs(this->PointX[neigh] - anchorX) > tolerance)
+        if (std::abs(this->PointX[neigh] - anchorX) > tolerance)
         {
           addedConns[k] = this->AddMirrorPoint(neigh, anchorX, xLength);
         }
@@ -1812,7 +1810,7 @@ void vtkMPASReader::OutputCells()
       // Take the min of the this->MaximumLevelPoint of each point
       for (int k = 1; k < this->PointsPerCell; k++)
       {
-        minLevel = min(minLevel, this->MaximumLevelPoint[connections[k]]);
+        minLevel = std::min(minLevel, this->MaximumLevelPoint[connections[k]]);
       }
     }
 
@@ -2648,7 +2646,7 @@ int vtkMPASReader::GetDimensionCurrentIndex(const std::string &dim)
 }
 
 //----------------------------------------------------------------------------
-void vtkMPASReader::SetDimensionCurrentIndex(const string &dim, int idx)
+void vtkMPASReader::SetDimensionCurrentIndex(const std::string &dim, int idx)
 {
   this->UpdateDimensions();
 
@@ -2664,7 +2662,7 @@ void vtkMPASReader::SetDimensionCurrentIndex(const string &dim, int idx)
 }
 
 //----------------------------------------------------------------------------
-int vtkMPASReader::GetDimensionSize(const string &dim)
+int vtkMPASReader::GetDimensionSize(const std::string &dim)
 {
   this->UpdateDimensions();
 
