@@ -45,6 +45,11 @@
  * structure. These voxels can then be contoured or processed by other
  * visualization filters.
  *
+ * If the extraction mode is set to all regions and ColorRegions is enabled,
+ * The RegionIds are assigned to each region by the order in which the region
+ * was processed and has no other significance with respect to the size of
+ * or number of cells.
+ *
  * @sa
  * vtkPolyDataConnectivityFilter
 */
@@ -267,5 +272,3 @@ inline const char *vtkConnectivityFilter::GetExtractionModeAsString(void)
 //@}
 
 #endif
-
-
