@@ -497,6 +497,7 @@ HPDF_SetEncryptionMode  (HPDF_Doc           pdf,
             /* if encryption mode is specified revision-3, the version of
              * pdf file is set to 1.4
              */
+            if (pdf->pdf_version < HPDF_VER_14)
             pdf->pdf_version = HPDF_VER_14;
 
             if (key_len >= 5 && key_len <= 16)

@@ -281,8 +281,8 @@ ReadTransparentPngData  (HPDF_Dict    image,
 		case PNG_COLOR_TYPE_RGB_ALPHA:
 			row_len = 3 * width * sizeof(png_byte);
 			for (j = 0; j < height; j++) {
+				row = row_ptr[j];
 				for (i = 0; i < width; i++) {
-					row = row_ptr[j];
 					memmove(row + (3 * i), row + (4*i), 3);
 					smask_data[width * j + i] = row[4 * i + 3];
 				}
@@ -296,8 +296,8 @@ ReadTransparentPngData  (HPDF_Dict    image,
 		case PNG_COLOR_TYPE_GRAY_ALPHA:
 			row_len = width * sizeof(png_byte);
 			for (j = 0; j < height; j++) {
+				row = row_ptr[j];
 				for (i = 0; i < width; i++) {
-					row = row_ptr[j];
 					row[i] = row[2 * i];
 					smask_data[width * j + i] = row[2 * i + 1];
 				}
@@ -475,7 +475,7 @@ LoadPngData  (HPDF_Dict     image,
 		HPDF_Dict smask;
 		png_bytep smask_data;
 
-		if (!png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS) || 
+		if (!png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS) ||
 			!png_get_tRNS(png_ptr, info_ptr, &trans, &num_trans, NULL)) {
 			goto no_transparent_color_in_palette;
 		}
@@ -535,7 +535,7 @@ LoadPngData  (HPDF_Dict     image,
 
 no_transparent_color_in_palette:
 
-	/* read images with alpha channel right away 
+	/* read images with alpha channel right away
 	   we have to do this because image transparent mask must be added to the Xref */
 	if (xref && PNG_COLOR_MASK_ALPHA & color_type) {
 		HPDF_Dict smask;
