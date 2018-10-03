@@ -194,17 +194,6 @@ bool vtkMPASReader::Internal::isExtraDim(const string &name)
   return name != "nCells" && name != "nVertices" && name != "Time";
 }
 
-//----------------------------------------------------------------------------
-// Macro to check malloc didn't return an error
-//----------------------------------------------------------------------------
-
-#define CHECK_MALLOC(ptr) \
-  if ((ptr) == nullptr)                          \
-  {                                              \
-  vtkErrorMacro( << "malloc failed!" << endl);   \
-  return(0);                                     \
-  }
-
 
 //----------------------------------------------------------------------------
 //  Macro to check if the named NetCDF dimension exists
@@ -386,13 +375,13 @@ void vtkMPASReader::DestroyData()
   this->Internals->cellArrays.clear();
   this->Internals->pointArrays.clear();
 
-  free(this->CellMap);
+  delete [] this->CellMap;
   this->CellMap = nullptr;
 
-  free(this->PointMap);
+  delete [] this->PointMap;
   this->PointMap = nullptr;
 
-  free(this->MaximumLevelPoint);
+  delete [] this->MaximumLevelPoint;
   this->MaximumLevelPoint = nullptr;
 }
 
@@ -445,22 +434,22 @@ void vtkMPASReader::ReleaseNcData()
   this->CellDataArraySelection->RemoveAllArrays();
   this->UpdateDimensions(true); // Reset extra dimension list.
 
-  free(this->PointX);
+  delete [] this->PointX;
   this->PointX = nullptr;
-  free(this->PointY);
+  delete [] this->PointY;
   this->PointY = nullptr;
-  free(this->PointZ);
+  delete [] this->PointZ;
   this->PointZ = nullptr;
 
-  free(this->OrigConnections);
+  delete [] this->OrigConnections;
   this->OrigConnections = nullptr;
-  free(this->ModConnections);
+  delete [] this->ModConnections;
   this->ModConnections = nullptr;
-  free(this->CellMap);
+  delete [] this->CellMap;
   this->CellMap = nullptr;
-  free(this->PointMap);
+  delete [] this->PointMap;
   this->PointMap = nullptr;
-  free(this->MaximumLevelPoint);
+  delete [] this->MaximumLevelPoint;
   this->MaximumLevelPoint = nullptr;
 
   delete this->Internals->ncFile;
@@ -957,9 +946,7 @@ int vtkMPASReader::AllocSphericalGeometry()
   NcFile* ncFile = this->Internals->ncFile;
 
   CHECK_VAR(ncFile, "xCell");
-  this->PointX = (double*)malloc((this->NumberOfPoints+this->PointOffset) *
-                                 sizeof(double));
-  CHECK_MALLOC(this->PointX);
+  this->PointX = new double [this->NumberOfPoints+this->PointOffset];
   NcVar*  xCellVar = ncFile->get_var("xCell");
   if (!this->ValidateDimensions(xCellVar, false, 1, "nCells"))
   {
@@ -970,9 +957,7 @@ int vtkMPASReader::AllocSphericalGeometry()
   this->PointX[0] = 0.0;
 
   CHECK_VAR(ncFile, "yCell");
-  this->PointY = (double*)malloc((this->NumberOfPoints+this->PointOffset) *
-                                 sizeof(double));
-  CHECK_MALLOC(this->PointY);
+  this->PointY = new double[this->NumberOfPoints+this->PointOffset];
   NcVar*  yCellVar = ncFile->get_var("yCell");
   if (!this->ValidateDimensions(yCellVar, false, 1, "nCells"))
   {
@@ -983,9 +968,7 @@ int vtkMPASReader::AllocSphericalGeometry()
   this->PointY[0] = 0.0;
 
   CHECK_VAR(ncFile, "zCell");
-  this->PointZ = (double*)malloc((this->NumberOfPoints+this->PointOffset) *
-                                 sizeof(double));
-  CHECK_MALLOC(this->PointZ);
+  this->PointZ = new double[this->NumberOfPoints+this->PointOffset];
   NcVar*  zCellVar = ncFile->get_var("zCell");
   if (!this->ValidateDimensions(zCellVar, false, 1, "nCells"))
   {
@@ -996,9 +979,7 @@ int vtkMPASReader::AllocSphericalGeometry()
   this->PointZ[0] = 0.0;
 
   CHECK_VAR(ncFile, "cellsOnVertex");
-  this->OrigConnections = (int *) malloc(this->NumberOfCells *
-                                         this->PointsPerCell * sizeof(int));
-  CHECK_MALLOC(this->OrigConnections);
+  this->OrigConnections = new int[this->NumberOfCells * this->PointsPerCell];
   NcVar *connectionsVar = ncFile->get_var("cellsOnVertex");
   // TODO Spec says dims should be '3', 'nVertices', but my example files
   // use nVertices, vertexDegree...
@@ -1013,9 +994,7 @@ int vtkMPASReader::AllocSphericalGeometry()
   if (isNcVar(ncFile, "maxLevelCell"))
   {
     this->IncludeTopography = true;
-    this->MaximumLevelPoint = (int*)malloc((this->NumberOfPoints +
-                                            this->PointOffset) * sizeof(int));
-    CHECK_MALLOC(this->MaximumLevelPoint);
+    this->MaximumLevelPoint = new int[this->NumberOfPoints + this->PointOffset];
     NcVar *maxLevelPointVar = ncFile->get_var("maxLevelCell");
     if (!this->ValidateDimensions(maxLevelPointVar, false, 1, "nCells"))
     {
@@ -1061,8 +1040,7 @@ int vtkMPASReader::AllocProjectedGeometry()
   this->ModNumCells = (int)floor(this->NumberOfCells*(1.0 + BLOATFACTOR))+1;
 
   CHECK_VAR(ncFile, "lonCell");
-  this->PointX = (double*)malloc(this->ModNumPoints * sizeof(double));
-  CHECK_MALLOC(this->PointX);
+  this->PointX = new double[this->ModNumPoints];
   NcVar*  xCellVar = ncFile->get_var("lonCell");
   if (!this->ValidateDimensions(xCellVar, false, 1, "nCells"))
   {
@@ -1073,8 +1051,7 @@ int vtkMPASReader::AllocProjectedGeometry()
   this->PointX[0] = 0.0;
 
   CHECK_VAR(ncFile, "latCell");
-  this->PointY = (double*)malloc(this->ModNumPoints * sizeof(double));
-  CHECK_MALLOC(this->PointY);
+  this->PointY = new double[this->ModNumPoints];
   NcVar*  yCellVar = ncFile->get_var("latCell");
   if (!this->ValidateDimensions(yCellVar, false, 1, "nCells"))
   {
@@ -1085,9 +1062,7 @@ int vtkMPASReader::AllocProjectedGeometry()
   this->PointY[0] = 0.0;
 
   CHECK_VAR(ncFile, "cellsOnVertex");
-  this->OrigConnections = (int *) malloc(this->NumberOfCells * this->PointsPerCell *
-                                         sizeof(int));
-  CHECK_MALLOC(this->OrigConnections);
+  this->OrigConnections = new int[this->NumberOfCells * this->PointsPerCell];
   NcVar *connectionsVar = ncFile->get_var("cellsOnVertex");
   // TODO Spec says dims should be '3', 'nVertices', but my example files
   // use nVertices, vertexDegree...
@@ -1103,24 +1078,17 @@ int vtkMPASReader::AllocProjectedGeometry()
   // eliminating wraparound in the lat/lon projection) plus additional
   // cells added when mirroring cells that had previously wrapped around
 
-  this->ModConnections = (int *) malloc(this->ModNumCells * this->PointsPerCell
-                                        * sizeof(int));
-  CHECK_MALLOC(this->ModConnections);
+  this->ModConnections = new int[this->ModNumCells * this->PointsPerCell];
 
   // allocate an array to map the extra points and cells to the original
   // so that when obtaining data, we know where to get it
-  this->PointMap = (int*)malloc((int)floor(this->NumberOfPoints*BLOATFACTOR)
-                                * sizeof(int));
-  CHECK_MALLOC(this->PointMap);
-  this->CellMap = (int*)malloc((int)floor(this->NumberOfCells*BLOATFACTOR)
-                               * sizeof(int));
-  CHECK_MALLOC(this->CellMap);
+  this->PointMap = new int[(size_t)floor(this->NumberOfPoints * BLOATFACTOR)];
+  this->CellMap = new int[(size_t)floor(this->NumberOfCells * BLOATFACTOR)];
 
   if (isNcVar(ncFile, "maxLevelCell"))
   {
     this->IncludeTopography = true;
-    this->MaximumLevelPoint = (int*)malloc((this->NumberOfPoints + this->NumberOfPoints) * sizeof(int));
-    CHECK_MALLOC(this->MaximumLevelPoint);
+    this->MaximumLevelPoint = new int[this->NumberOfPoints + this->NumberOfPoints];
     NcVar *maxLevelPointVar = ncFile->get_var("maxLevelCell");
     if (!this->ValidateDimensions(maxLevelPointVar, false, 1, "nCells"))
     {
@@ -1158,8 +1126,7 @@ int vtkMPASReader::AllocPlanarGeometry()
   NcFile* ncFile = this->Internals->ncFile;
 
   CHECK_VAR(ncFile, "xCell");
-  this->PointX = (double*)malloc(this->NumberOfPoints * sizeof(double));
-  CHECK_MALLOC(this->PointX);
+  this->PointX = new double[this->NumberOfPoints];
   NcVar*  xCellVar = ncFile->get_var("xCell");
   if (!this->ValidateDimensions(xCellVar, false, 1, "nCells"))
   {
@@ -1170,8 +1137,7 @@ int vtkMPASReader::AllocPlanarGeometry()
   this->PointX[0] = 0.0;
 
   CHECK_VAR(ncFile, "yCell");
-  this->PointY = (double*)malloc(this->NumberOfPoints * sizeof(double));
-  CHECK_MALLOC(this->PointY);
+  this->PointY = new double[this->NumberOfPoints];
   NcVar*  yCellVar = ncFile->get_var("yCell");
   if (!this->ValidateDimensions(yCellVar, false, 1, "nCells"))
   {
@@ -1182,8 +1148,7 @@ int vtkMPASReader::AllocPlanarGeometry()
   this->PointY[0] = 0.0;
 
   CHECK_VAR(ncFile, "zCell");
-  this->PointZ = (double*)malloc(this->NumberOfPoints * sizeof(double));
-  CHECK_MALLOC(this->PointZ);
+  this->PointZ = new double[this->NumberOfPoints];
   NcVar *zCellVar = ncFile->get_var("zCell");
   if (!this->ValidateDimensions(zCellVar, false, 1, "nCells"))
   {
@@ -1194,9 +1159,7 @@ int vtkMPASReader::AllocPlanarGeometry()
   this->PointZ[0] = 0.0;
 
   CHECK_VAR(ncFile, "cellsOnVertex");
-  this->OrigConnections = (int *) malloc(this->NumberOfCells * this->PointsPerCell *
-                                         sizeof(int));
-  CHECK_MALLOC(this->OrigConnections);
+  this->OrigConnections = new int[this->NumberOfCells * this->PointsPerCell];
   NcVar *connectionsVar = ncFile->get_var("cellsOnVertex");
   // TODO Spec says dims should be '3', 'nVertices', but my example files
   // use nVertices, vertexDegree...
@@ -1211,9 +1174,7 @@ int vtkMPASReader::AllocPlanarGeometry()
   if (isNcVar(ncFile, "maxLevelCell"))
   {
     this->IncludeTopography = true;
-    this->MaximumLevelPoint = (int*)malloc(2 * this->NumberOfPoints *
-                                           sizeof(int));
-    CHECK_MALLOC(this->MaximumLevelPoint);
+    this->MaximumLevelPoint = new int[2 * this->NumberOfPoints];
     NcVar *maxLevelPointVar = ncFile->get_var("maxLevelCell");
     if (!this->ValidateDimensions(maxLevelPointVar, false, 1, "nCells"))
     {
@@ -1623,17 +1584,17 @@ void vtkMPASReader::OutputPoints()
 
   if (this->PointX)
   {
-    free(this->PointX);
+    delete [] this->PointX;
     this->PointX = nullptr;
   }
   if (this->PointY)
   {
-    free(this->PointY);
+    delete [] this->PointY;
     this->PointY = nullptr;
   }
   if (this->PointZ)
   {
-    free(this->PointZ);
+    delete [] this->PointZ;
     this->PointZ = nullptr;
   }
 }
@@ -1915,8 +1876,10 @@ void vtkMPASReader::OutputCells()
     }
   }
 
-  free(this->ModConnections); this->ModConnections = nullptr;
-  free(this->OrigConnections); this->OrigConnections = nullptr;
+  delete [] this->ModConnections;
+  this->ModConnections = nullptr;
+  delete [] this->OrigConnections;
+  this->OrigConnections = nullptr;
 
   vtkDebugMacro(<< "Leaving OutputCells..." << endl);
 }
