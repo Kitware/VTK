@@ -15,23 +15,29 @@
 #include "vtkSplitColumnComponents.h"
 
 #include "vtkAbstractArray.h"
+#include "vtkFieldData.h"
 #include "vtkInformation.h"
+#include "vtkInformationIntegerKey.h"
+#include "vtkInformationStringKey.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
-#include "vtkStdString.h"
+#include "vtkStringArray.h"
 #include "vtkTable.h"
 
-#include <sstream>
 #include <cmath>
+#include <sstream>
 
 vtkStandardNewMacro(vtkSplitColumnComponents);
+vtkInformationKeyMacro(vtkSplitColumnComponents, ORIGINAL_ARRAY_NAME, String);
+vtkInformationKeyMacro(vtkSplitColumnComponents, ORIGINAL_COMPONENT_NUMBER, Integer);
 //---------------------------------------------------------------------------
 vtkSplitColumnComponents::vtkSplitColumnComponents()
+  : CalculateMagnitudes(true)
+  , NamingMode(vtkSplitColumnComponents::NUMBERS_WITH_PARENS)
 {
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
-  this->CalculateMagnitudes = true;
-  this->NamingMode = NUMBERS_WITH_PARENS;
 }
 
 //---------------------------------------------------------------------------
@@ -90,6 +96,12 @@ int vtkSplitColumnComponents::RequestData(
   for (int i = 0; i < table->GetNumberOfColumns(); ++i)
   {
     vtkAbstractArray* col = table->GetColumn(i);
+    if (col->GetName() == nullptr)
+    {
+      vtkWarningMacro("Skipping column with no name!");
+      continue;
+    }
+
     int components = col->GetNumberOfComponents();
     if (components == 1)
     {
@@ -101,7 +113,7 @@ int vtkSplitColumnComponents::RequestData(
       int colSize = col->GetNumberOfTuples();
       for (int j = 0; j < components; ++j)
       {
-        vtkStdString component_label = this->GetComponentLabel(col, j);
+        const std::string component_label = this->GetComponentLabel(col, j);
         vtkAbstractArray* newCol = vtkAbstractArray::CreateArray(col->GetDataType());
         newCol->SetName(component_label.c_str());
         newCol->SetNumberOfTuples(colSize);
@@ -118,14 +130,18 @@ int vtkSplitColumnComponents::RequestData(
                             static_cast<VTK_TT*>(newCol->GetVoidPointer(0)),
                             components, j, colSize));
         }
+        if (auto info = newCol->GetInformation())
+        {
+          info->Set(ORIGINAL_ARRAY_NAME(), col->GetName());
+          info->Set(ORIGINAL_COMPONENT_NUMBER(), j);
+        }
         output->AddColumn(newCol);
         newCol->Delete();
       }
       // Add a magnitude column and calculate values if requested
       if (this->CalculateMagnitudes && col->IsA("vtkDataArray"))
       {
-        vtkStdString component_label = this->GetComponentLabel(
-          col, -1 /* for magnitude */);
+        std::string component_label = this->GetComponentLabel(col, -1 /* for magnitude */);
         vtkAbstractArray* newCol = vtkAbstractArray::CreateArray(col->GetDataType());
         newCol->SetName(component_label.c_str());
         newCol->SetNumberOfTuples(colSize);
@@ -137,13 +153,16 @@ int vtkSplitColumnComponents::RequestData(
                                  static_cast<VTK_TT*>(newCol->GetVoidPointer(0)),
                                  components, colSize));
         }
-
+        if (auto info = newCol->GetInformation())
+        {
+          info->Set(ORIGINAL_ARRAY_NAME(), col->GetName());
+          info->Set(ORIGINAL_COMPONENT_NUMBER(), -1); // for magnitude
+        }
         output->AddColumn(newCol);
         newCol->Delete();
       }
     }
   }
-
   return 1;
 }
 
@@ -190,8 +209,7 @@ namespace
 };
 
 //---------------------------------------------------------------------------
-vtkStdString vtkSplitColumnComponents::GetComponentLabel(
-  vtkAbstractArray* array, int component_no)
+std::string vtkSplitColumnComponents::GetComponentLabel(vtkAbstractArray* array, int component_no)
 {
   std::ostringstream stream;
   switch (this->NamingMode)
