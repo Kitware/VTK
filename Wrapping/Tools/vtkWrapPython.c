@@ -29,6 +29,10 @@
 #include <ctype.h>
 #include <errno.h>
 
+#ifdef _WIN32
+/* for Sleep() */
+#include <windows.h>
+#endif
 
 /* -------------------------------------------------------------------- */
 /* the main entry method, called by vtkParse.y */
@@ -333,6 +337,20 @@ int main(int argc, char *argv[])
 
   /* get the output file */
   fp = fopen(options->OutputFileName, "w");
+
+#ifdef _WIN32
+  if (!fp)
+  {
+    /* repeatedly try to open output file in case of access/sharing error */
+    /* (for example, antivirus software might be scanning the output file) */
+    int tries;
+    for (tries = 0; !fp && tries < 5 && errno == EACCES; tries++)
+    {
+      Sleep(1000);
+      fp = fopen(options->OutputFileName, "w");
+    }
+  }
+#endif
 
   if (!fp)
   {
