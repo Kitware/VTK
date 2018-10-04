@@ -18,7 +18,7 @@ if(TK_FOUND)
   endif()
 
   # Need Tk internal headers for Tk initialization.
-  set(try_file "tkInt.h")
+  set(try_file)
   set(try_paths)
   if(WIN32)
     set(try_file "tkWinPort.h")
