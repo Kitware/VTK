@@ -149,6 +149,18 @@ HPDF_Array_AddReal  (HPDF_Array  array,
         return HPDF_Array_Add (array, r);
 }
 
+HPDF_STATUS
+HPDF_Array_AddNull  (HPDF_Array  array)
+{
+    HPDF_Null n = HPDF_Null_New (array->mmgr);
+
+    HPDF_PTRACE((" HPDF_Array_AddNull\n"));
+
+    if (!n)
+        return HPDF_Error_GetCode (array->error);
+    else
+        return HPDF_Array_Add (array, n);
+}
 
 HPDF_STATUS
 HPDF_Array_AddName  (HPDF_Array       array,
