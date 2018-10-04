@@ -2,7 +2,7 @@ vtk_module_export_info()
 
 find_package(TCL)
 
-if(TK_FOUND AND VTK_USE_TK)
+if(TK_FOUND)
 
   set(HAVE_LIMITS_H ${CMAKE_HAVE_LIMITS_H})
   set(HAVE_UNISTD_H ${CMAKE_HAVE_UNISTD_H})
