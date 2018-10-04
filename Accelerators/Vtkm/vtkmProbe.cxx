@@ -225,7 +225,7 @@ void vtkmProbe::PassAttributeData(vtkDataSet* input,
       }
     }
 
-    // Set active attributes in the ouput to the active attributes in the input
+    // Set active attributes in the output to the active attributes in the input
     for (int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; ++i)
     {
       vtkAbstractArray* da = input->GetPointData()->GetAttribute(i);

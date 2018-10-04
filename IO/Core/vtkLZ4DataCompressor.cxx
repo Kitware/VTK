@@ -97,7 +97,7 @@ void vtkLZ4DataCompressor::SetCompressionLevel(int compressionLevel)
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting CompressionLevel to " << compressionLevel );
   // In order to make an intuitive interface for vtkDataCompressor objects
   // we accept compressionLevel values 1..9. 1 is fastest, 9 is slowest
-  // 1 is worst compression, 9 is best compression. LZ4 accleration works inversely, with no upper bound.
+  // 1 is worst compression, 9 is best compression. LZ4 acceleration works inversely, with no upper bound.
   // Note: LZ4 Acceleration set/get exists in header file, with no upper bound.
   if (this->AccelerationLevel != (10-(compressionLevel<min?min:(compressionLevel>max?max:compressionLevel))) )
   {

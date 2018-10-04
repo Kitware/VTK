@@ -66,7 +66,7 @@ int TestVTKMWarpScalar(int argc, char* argv[])
   vtkNew<vtkmWarpScalar> xyWarpScalar;
   xyWarpScalar->SetScaleFactor(2);
   xyWarpScalar->XYPlaneOn();
-  xyWarpScalar->SetNormal(1, 0, 0); // should be igored
+  xyWarpScalar->SetNormal(1, 0, 0); // should be ignored
   xyWarpScalar->SetInputConnection(xySource->GetOutputPort());
   xyWarpScalar->Update();
   vtkPointSet* points = xyWarpScalar->GetOutput();

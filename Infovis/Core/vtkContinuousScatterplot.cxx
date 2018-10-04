@@ -323,7 +323,7 @@ int vtkContinuousScatterplot::RequestData(
   newPoints->Allocate(estOutputPointSize);
 
   // main loop ...
-  // For each tetrahedron in a gird
+  // For each tetrahedron in a grid
   for (vtkIdType tetraIndex = 0; tetraIndex < input->GetNumberOfCells(); tetraIndex++)
   {
     // current tetrahedron vertex list.

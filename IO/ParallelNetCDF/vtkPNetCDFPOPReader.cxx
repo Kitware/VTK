@@ -706,7 +706,7 @@ void vtkPNetCDFPOPReader::SetReaderRanks(vtkIdList* ranks)
 int vtkPNetCDFPOPReader::ReaderForDepth( unsigned depth)
 {
   // NOTE: This is a very simple algorithm - each rank in readerRanks will
-  // read single depth in a round-robbin fashion.  There might be a more
+  // read single depth in a round-robin fashion.  There might be a more
   // efficient way to do this...
   size_t numReaders = this->Internals->ReaderRanks.size();
   return this->Internals->ReaderRanks[(depth % numReaders)];

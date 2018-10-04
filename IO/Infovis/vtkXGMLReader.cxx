@@ -460,7 +460,7 @@ int vtkXGMLReader::RequestData(
   vtkGraph* output = vtkGraph::GetData(outputVector);
   if (!output->CheckedShallowCopy(builder))
   {
-    vtkErrorMacro(<<"Invalid graph strucutre.");
+    vtkErrorMacro(<<"Invalid graph structure.");
     return 0;
   }
 

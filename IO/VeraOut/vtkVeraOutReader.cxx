@@ -587,7 +587,7 @@ public:
     dataSource->Delete(); // Just needed to extract the single value
 
     // ------------------------------------------
-    // Extract pin informations
+    // Extract pin information
     // ------------------------------------------
     std::vector<std::string> names;
     this->AddDataSetNamesWithDimension("/CORE", 4, names);

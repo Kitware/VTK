@@ -147,7 +147,7 @@ public:
   //@{
   /**
    * Add a mesh subset to be computed by thresholding an attribute of the input mesh.
-   * The subset can then be added to an output mesh with OuputSet() or combined with other sets using AddBooleanSet.
+   * The subset can then be added to an output mesh with OutputSet() or combined with other sets using AddBooleanSet.
    * If you wish to include all cells with values below some number \a a, call
    * with xmin set to vtkMath::NegInf() and xmax set to \a a.
    * Similarly, if you wish to include all cells with values above some number \a a,

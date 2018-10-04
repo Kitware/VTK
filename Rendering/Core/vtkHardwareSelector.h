@@ -84,7 +84,7 @@
  * arrays on the polydata that may the polydata point and cell IDs back
  * to the original unstructured grid's point and cell IDs. The hardware
  * selection process honors those arrays and will provide the original
- * unstructured gird point and cell ID when a selection is made.
+ * unstructured grid point and cell ID when a selection is made.
  * Likewise there are process and composite arrays that most mappers
  * support that allow for parallel data generation, delivery, and local
  * rendering while preserving the original process and composite values
@@ -518,5 +518,3 @@ private:
 };
 
 #endif
-
-

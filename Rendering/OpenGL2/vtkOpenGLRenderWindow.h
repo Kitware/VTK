@@ -127,7 +127,7 @@ public:
   void ActivateTexture(vtkTextureObject *);
 
   /**
-   * Deactive a previously activated texture
+   * Deactivate a previously activated texture
    */
   void DeactivateTexture(vtkTextureObject *);
 

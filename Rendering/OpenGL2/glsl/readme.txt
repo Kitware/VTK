@@ -37,7 +37,7 @@ geometry shaders should name their outputs with a postfix of GSOutput All
 fragment shaders should name their inputs with a postfix of VSOutput.  Put
 another way fragment shaders should assuming their input is coming from the
 vertex shader.  If a geometry shader is present VTK will rename the fragment
-shader inputs from VSOutput to GSOuput automatically.
+shader inputs from VSOutput to GSOutput automatically.
 
 All variables that represent positions or directions usually have a suffix
 indicating the coordinate system they are in. The possible values are

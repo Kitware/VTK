@@ -108,7 +108,7 @@ public:
     /** Print details of the event to a stream.
      * @param os The stream.
      * @param threshMs Only print events with a time > threshMs milliseconds.
-     * @param indent Starting indention for the first event.
+     * @param indent Starting indentation for the first event.
      */
     void Print(std::ostream &os, float threshMs = 0.f,
                vtkIndent indent = vtkIndent())

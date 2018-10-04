@@ -231,7 +231,7 @@ void QVTKOpenGLWindow::MakeCurrent()
   // importers instantiate renderwindows which in turn can change the
   // current context without Qt knowing about it
   //
-  // The end result is that MakeCurrent shoudl not rely on
+  // The end result is that MakeCurrent should not rely on
   // Qt's version of isCurrent to short circuit as it cannot be trusted.
   //
   if (!this->context())

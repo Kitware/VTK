@@ -185,7 +185,7 @@ int vtkSimpleReader::ReadMesh(
     int piece, int, int, int timestep, vtkDataObject* output)
 {
   // Not a parallel reader. Cannot handle anything other than the first piece,
-  // which will have everyhing.
+  // which will have everything.
   if (piece > 0)
   {
     return 1;
@@ -214,7 +214,7 @@ int vtkSimpleReader::ReadPoints(
     int piece, int , int , int timestep, vtkDataObject* output)
 {
   // Not a parallel reader. Cannot handle anything other than the first piece,
-  // which will have everyhing.
+  // which will have everything.
   if (piece > 0)
   {
     return 1;
@@ -237,7 +237,7 @@ int vtkSimpleReader::ReadArrays(
     int piece, int , int , int timestep, vtkDataObject* output)
 {
   // Not a parallel reader. Cannot handle anything other than the first piece,
-  // which will have everyhing.
+  // which will have everything.
   if (piece > 0)
   {
     return 1;
