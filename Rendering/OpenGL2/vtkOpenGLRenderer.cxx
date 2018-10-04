@@ -61,7 +61,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <sstream>
 #include <string>
 
-#ifdef __APPLE__
+#if defined(__APPLE__) && defined(VTK_OPENGL_HAS_OSMESA)
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
@@ -710,7 +710,7 @@ bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
     return this->HaveApplePrimitiveIdBugValue;
   }
 
-#ifdef __APPLE__
+#if defined(__APPLE__) && defined(VTK_OPENGL_HAS_OSMESA)
   // Known working Apple+AMD systems:
   // OpenGL vendor string:  ATI Technologies Inc.
   // OpenGL version string:   4.1 ATI-1.38.3
@@ -796,9 +796,7 @@ bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
 //------------------------------------------------------------------------------
 bool vtkOpenGLRenderer::HaveAppleQueryAllocationBug()
 {
-#ifndef __APPLE__ // Bug only applies to apple
-  return false;
-#else
+#if defined(__APPLE__) && defined(VTK_OPENGL_HAS_OSMESA)
   enum class QueryAllocStatus { NotChecked, Yes, No };
   static QueryAllocStatus hasBug = QueryAllocStatus::NotChecked;
 
@@ -813,6 +811,8 @@ bool vtkOpenGLRenderer::HaveAppleQueryAllocationBug()
   }
 
   return hasBug == QueryAllocStatus::Yes;
+#else
+  return false;
 #endif
 }
 
