@@ -32,7 +32,7 @@
 /* buffer size which is required when we convert to character string. */
 #define HPDF_TMP_BUF_SIZ            512
 #define HPDF_SHORT_BUF_SIZ          32
-#define HPDF_REAL_LEN               11
+#define HPDF_REAL_LEN               64
 #define HPDF_INT_LEN                11
 #define HPDF_TEXT_DEFAULT_LEN       256
 #define HPDF_UNICODE_HEADER_LEN     2

@@ -45,6 +45,12 @@ typedef  signed int          HPDF_INT;
 typedef  unsigned int        HPDF_UINT;
 
 
+/*  64bit integer types
+ */
+typedef  signed long long    HPDF_INT64;
+typedef  unsigned long long  HPDF_UINT64;
+
+
 /*  32bit integer types
  */
 typedef  signed int          HPDF_INT32;
