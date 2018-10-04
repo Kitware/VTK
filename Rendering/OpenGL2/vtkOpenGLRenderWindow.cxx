@@ -490,7 +490,7 @@ void vtkOpenGLRenderWindow::OpenGLInit()
 
 void vtkOpenGLRenderWindow::OpenGLInitState()
 {
-  this->State->Initialize(this);
+  this->GetState()->Initialize(this);
 
 #ifdef GL_FRAMEBUFFER_SRGB
   if (this->UseSRGBColorSpace && this->GetUsingSRGBColorSpace())
@@ -676,8 +676,8 @@ void vtkOpenGLRenderWindow::GetOpenGLVersion(int &major, int &minor)
 
   if (this->Initialized)
   {
-    this->State->vtkglGetIntegerv(GL_MAJOR_VERSION, & glMajorVersion);
-    this->State->vtkglGetIntegerv(GL_MINOR_VERSION, & glMinorVersion);
+    this->GetState()->vtkglGetIntegerv(GL_MAJOR_VERSION, & glMajorVersion);
+    this->GetState()->vtkglGetIntegerv(GL_MINOR_VERSION, & glMinorVersion);
   }
 
   major = glMajorVersion;
@@ -1091,7 +1091,7 @@ int vtkOpenGLRenderWindow::ReadPixels(
     resolveMSAA = (samples > 0);
   }
 
-  this->State->vtkglDisable( GL_SCISSOR_TEST );
+  this->GetState()->vtkglDisable( GL_SCISSOR_TEST );
 
   // Calling pack alignment ensures that we can grab the any size window
   glPixelStorei( GL_PACK_ALIGNMENT, 1 );
@@ -1297,8 +1297,8 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 void vtkOpenGLRenderWindow::DrawPixels(
   int srcWidth, int srcHeight, int numComponents, int dataType, void *data)
 {
-  this->State->vtkglDisable( GL_SCISSOR_TEST );
-  this->State->vtkglDisable(GL_DEPTH_TEST);
+  this->GetState()->vtkglDisable( GL_SCISSOR_TEST );
+  this->GetState()->vtkglDisable(GL_DEPTH_TEST);
   if (!this->DrawPixelsTextureObject)
   {
     this->DrawPixelsTextureObject = vtkTextureObject::New();
@@ -1319,8 +1319,8 @@ void vtkOpenGLRenderWindow::DrawPixels(
   int srcXmin, int srcYmin, int srcXmax, int srcYmax,
   int srcWidth, int srcHeight, int numComponents, int dataType, void *data)
 {
-  this->State->vtkglDisable( GL_SCISSOR_TEST );
-  this->State->vtkglDisable(GL_DEPTH_TEST);
+  this->GetState()->vtkglDisable( GL_SCISSOR_TEST );
+  this->GetState()->vtkglDisable(GL_DEPTH_TEST);
   if (!this->DrawPixelsTextureObject)
   {
     this->DrawPixelsTextureObject = vtkTextureObject::New();
