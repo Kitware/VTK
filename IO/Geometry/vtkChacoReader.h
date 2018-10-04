@@ -216,8 +216,8 @@ protected:
 
   //----------------------------------------------------------------------
 
-  int NumberOfPointWeightArrays;   // in output unstuctured grid
-  int NumberOfCellWeightArrays;    // in output unstuctured grid
+  int NumberOfPointWeightArrays;   // in output unstructured grid
+  int NumberOfCellWeightArrays;    // in output unstructured grid
 
   // Keep the points and cells
   // around so they don't need to be re-read when the

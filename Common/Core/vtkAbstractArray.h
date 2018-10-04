@@ -269,7 +269,7 @@ public:
    * given the ptIndices in the source array and associated interpolation
    * weights.
    * This method assumes that the two arrays are of the same type
-   * and strcuture.
+   * and structure.
    */
   virtual void InterpolateTuple(vtkIdType dstTupleIdx, vtkIdList *ptIndices,
                                 vtkAbstractArray* source,  double* weights) = 0;
