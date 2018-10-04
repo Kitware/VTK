@@ -397,7 +397,7 @@ void vtkXMLDataElement::PrintCharacterData(ostream &os, vtkIndent indent)
 // &lt;, &gt;, &amp;, &quot;, &apos;, respectively.
 void vtkXMLDataElement::PrintWithEscapedData(ostream& os, const char* data)
 {
-  for(size_t i=0;i<strlen(data);i++)
+  for(size_t i=0; data[i] != 0; i++)
   {
     switch(data[i])
     {
