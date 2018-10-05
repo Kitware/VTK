@@ -15,6 +15,7 @@
  *
  */
 
+#include <math.h>
 #include <stdlib.h>
 #include "hpdf_utils.h"
 #include "hpdf_consts.h"
@@ -188,6 +189,10 @@ HPDF_FToA  (char       *s,
     char* sptr = s;
     char* t;
     HPDF_UINT32 i;
+    HPDF_UINT32 prec;
+    HPDF_INT32 logVal;
+    HPDF_REAL roundInc;
+    HPDF_INT64 fShift;
 
     if (val > HPDF_LIMIT_MAX_REAL)
         val = HPDF_LIMIT_MAX_REAL;
@@ -203,12 +208,24 @@ HPDF_FToA  (char       *s,
         val = -val;
     }
 
+    /* Compute the decimal precision to write at least 5 significant figures */
+    logVal = (HPDF_INT32)(val > 1e-20 ? log10(val) : 0.);
+    if (logVal >= 0) {
+        prec = 5;
+    }
+    else {
+        prec = -logVal + 5;
+    }
+
+    roundInc = 0.5 * (1. / pow((HPDF_REAL)10, (HPDF_REAL)prec));
+    fShift = (HPDF_INT64)pow((HPDF_REAL)10, (HPDF_REAL)prec);
+
     /* separate an integer part and a decimal part. */
-    int_val = (HPDF_INT32)(val + 0.000005);
-    fpart_val = (HPDF_INT32)((HPDF_REAL)(val - int_val + 0.000005) * 100000);
+    int_val = (HPDF_INT64)(val + roundInc);
+    fpart_val = (HPDF_INT64)((HPDF_REAL)(val - int_val + roundInc) * fShift);
 
     /* process decimal part */
-    for (i = 0; i < 5; i++) {
+    for (i = 0; i < prec; i++) {
         *t = (char)((char)(fpart_val % 10) + '0');
         fpart_val /= 10;
         t--;
