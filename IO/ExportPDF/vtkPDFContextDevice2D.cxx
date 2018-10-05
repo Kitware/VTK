@@ -19,7 +19,9 @@
 #include "vtkBrush.h"
 #include "vtkCellIterator.h"
 #include "vtkCellTypes.h"
+#include "vtkDataArray.h"
 #include "vtkFloatArray.h"
+#include "vtkImageBlend.h"
 #include "vtkImageCast.h"
 #include "vtkImageData.h"
 #include "vtkImageExtractComponents.h"
@@ -30,6 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPath.h"
 #include "vtkPen.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -43,6 +46,7 @@
 #include <vtk_libharu.h>
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <map>
@@ -1579,13 +1583,34 @@ vtkImageData *vtkPDFContextDevice2D::PrepareImageData(vtkImageData *in)
   }
 
   if (in->GetNumberOfScalarComponents() == 4)
-  { // If RGBA, drop alpha -- Haru doesn't support RGBA.
-    vtkNew<vtkImageExtractComponents> extract;
-    extract->SetInputData(in);
+  { // If RGBA, blend into brush color -- Haru doesn't support RGBA.
+
+    vtkNew<vtkImageData> background;
+    { // Fill the background image with brush color, saturate alpha
+      std::array<unsigned char, 4> bgColor;
+      this->Brush->GetColor(bgColor.data());
+      bgColor[3] = 255; // Saturate alpha
+      background->SetExtent(in->GetExtent());
+      background->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
+      auto *scalars = vtkUnsignedCharArray::SafeDownCast(
+            background->GetPointData()->GetScalars());
+      for (int comp = 0; comp < 4; ++comp)
+      {
+        scalars->FillComponent(comp, bgColor[comp]);
+      }
+    }
+
+    // Blend the input image over the background color:
+    vtkNew<vtkImageBlend> blender;
+    blender->AddInputData(0, background);
+    blender->AddInputData(0, in);
     in->UnRegister(this); // Remove ref++ from above
+    blender->SetBlendModeToNormal();
+
+    vtkNew<vtkImageExtractComponents> extract;
+    extract->SetInputConnection(blender->GetOutputPort(0));
     extract->SetComponents(0, 1, 2);
     extract->Update();
-
     in = extract->GetOutput();
     in->Register(this);
   }
