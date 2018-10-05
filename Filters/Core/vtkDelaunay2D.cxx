@@ -950,6 +950,7 @@ int vtkDelaunay2D::RequestData(
     if (this->Transform)
     {
       this->Transform->UnRegister(this);
+      this->Transform->Delete();
       this->Transform = nullptr;
     }
   }
