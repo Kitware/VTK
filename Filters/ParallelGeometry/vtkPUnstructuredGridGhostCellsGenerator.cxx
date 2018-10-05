@@ -837,7 +837,12 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndSendGhostCells(
     extractCells->SetCellList(cellIdsList);
     extractCells->Update();
     vtkUnstructuredGrid* extractGrid = extractCells->GetOutput();
-    extractGrid->GetCellData()->RemoveArray("vtkOriginalCellIds");
+
+    //There might be case where the originalcellids needs to be removed
+    //but there are definitely cases where it shouldn't.
+    //So if you run into that case, think twice before you uncomment this
+    //next line and look carefully at paraview issue #18470
+    //extractGrid->GetCellData()->RemoveArray("vtkOriginalCellIds");
 
     // Send the extracted grid to the neighbor rank asynchronously
     if (vtkCommunicator::MarshalDataObject(extractGrid, c.SendBuffer))
