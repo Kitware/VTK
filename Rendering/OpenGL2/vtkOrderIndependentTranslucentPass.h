@@ -73,18 +73,6 @@ public:
                                    std::string &fragmentShader,
                                    vtkAbstractMapper *mapper,
                                    vtkProp *prop) override;
-  bool SetShaderParameters(vtkShaderProgram *program,
-                           vtkAbstractMapper *mapper, vtkProp *prop,
-                           vtkOpenGLVertexArrayObject* VAO = nullptr) override;
-
-  // Set Opaque Z texture, this must be set from the outer FO if used
-  void SetOpaqueZTexture(vtkTextureObject *);
-
-  /**
-   *  Set the format to use for the depth texture
-   * e.g. vtkTextureObject::Float32
-   */
-  vtkSetMacro(DepthFormat, int);
 
  protected:
   /**
@@ -112,14 +100,9 @@ public:
   vtkOpenGLFramebufferObject *Framebuffer;
   vtkOpenGLQuadHelper *FinalBlend;
 
-  // obtained from the outer FO, we read from
-  vtkTextureObject *OpaqueZTexture;
-  bool OwnOpaqueZTexture;
-
   vtkTextureObject *TranslucentRGBATexture;
   vtkTextureObject *TranslucentRTexture;
   vtkTextureObject *TranslucentZTexture;
-  int DepthFormat;
 
   void BlendFinalPeel(vtkOpenGLRenderWindow *renWin);
 
