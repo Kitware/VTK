@@ -111,7 +111,7 @@ void ex_check_valid_file_id(int exoid, const char *func)
 }
 
 int ex_conv_ini(int exoid, int *comp_wordsize, int *io_wordsize, int file_wordsize,
-                int int64_status, int is_parallel, int is_mpiio, int is_pnetcdf)
+                int int64_status, int is_parallel, int is_hdf5, int is_pnetcdf)
 {
   char                 errmsg[MAX_ERR_LENGTH];
   struct ex_file_item *new_file;
@@ -146,11 +146,10 @@ int ex_conv_ini(int exoid, int *comp_wordsize, int *io_wordsize, int file_wordsi
    * \param int64_status  the flags specifying how integer values should be
    *                      stored on the database and how they should be
    *                      passes through the api functions.
-   *                      See #FileVars for more information.
    *
    * \param is_parallel   1 if parallel file; 0 if serial
    *
-   * \param is_mpiio      1 if parallel netcdf-4 mode; 0 if not.
+   * \param is_hdf5      1 if parallel netcdf-4 mode; 0 if not.
    *
    * \param is_pnetcdf    1 if parallel PNetCDF file; 0 if not.
    *
@@ -239,7 +238,7 @@ int ex_conv_ini(int exoid, int *comp_wordsize, int *io_wordsize, int file_wordsi
   new_file->shuffle               = 0;
   new_file->file_type             = filetype - 1;
   new_file->is_parallel           = is_parallel;
-  new_file->is_mpiio              = is_mpiio;
+  new_file->is_hdf5               = is_hdf5;
   new_file->is_pnetcdf            = is_pnetcdf;
   new_file->has_nodes             = 1; /* default to yes in case not set */
   new_file->has_edges             = 1;

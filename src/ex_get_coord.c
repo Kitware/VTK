@@ -113,7 +113,7 @@ int ex_get_coord(int exoid, void *x_coor, void *y_coor, void *z_coor)
 
   /* inquire id's of previously defined dimensions  */
 
-  if (ex_get_dimension(exoid, DIM_NUM_DIM, "dimensions", &num_dim, &ndimdim, __func__) !=
+  if (ex_get_dimension(exoid, DIM_NUM_DIM, "dimension count", &num_dim, &ndimdim, __func__) !=
       NC_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }

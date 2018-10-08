@@ -307,11 +307,13 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
   }
   ex_compress_variable(exoid, temp, 2);
 
-  if ((status = nc_def_dim(exoid, DIM_NUM_DIM, model->num_dim, &numdimdim)) != NC_NOERR) {
-    snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to define number of dimensions in file id %d",
-             exoid);
-    ex_err(__func__, errmsg, status);
-    goto error_ret; /* exit define mode and return */
+  if (model->num_dim > 0) {
+    if ((status = nc_def_dim(exoid, DIM_NUM_DIM, model->num_dim, &numdimdim)) != NC_NOERR) {
+      snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to define number of dimensions in file id %d",
+               exoid);
+      ex_err(__func__, errmsg, status);
+      goto error_ret; /* exit define mode and return */
+    }
   }
 
   /*
@@ -520,9 +522,11 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
                             model->num_elem_maps) != NC_NOERR) {
     goto error_ret;
   }
-  if (ex_write_object_names(exoid, "coordinate", VAR_NAME_COOR, numdimdim, dim_str_name,
-                            model->num_dim) != NC_NOERR) {
-    goto error_ret;
+  if (model->num_dim > 0) {
+    if (ex_write_object_names(exoid, "coordinate", VAR_NAME_COOR, numdimdim, dim_str_name,
+                              model->num_dim) != NC_NOERR) {
+      goto error_ret;
+    }
   }
 
   /* leave define mode */

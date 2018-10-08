@@ -64,7 +64,7 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
   int    nnodperentdim = -1;
   int    nedgperentdim = -1;
   int    nfacperentdim = -1;
-  int    connid;
+  int    connid        = 0;
   int    npeid;
   char   errmsg[MAX_ERR_LENGTH];
   char * entity_type1     = NULL;
@@ -350,7 +350,7 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
        */
       if (blocks[i].num_attribute > 1) {
         struct ex_file_item *file = ex_find_file_item(exoid);
-        if (file->is_parallel && file->is_mpiio) {
+        if (file->is_parallel && file->is_hdf5) {
           nc_var_par_access(exoid, varid, NC_INDEPENDENT);
         }
       }
@@ -475,26 +475,30 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
       }
     }
     else {
-      /* "Normal" (non-polyhedra) element block type */
-      dims[0] = numblkdim;
-      dims[1] = nnodperentdim;
+      if (blocks[i].num_nodes_per_entry > 0) {
+        /* "Normal" (non-polyhedra) element block type */
+        dims[0] = numblkdim;
+        dims[1] = nnodperentdim;
 
-      if ((status = nc_def_var(exoid, vnodcon, conn_int_type, 2, dims, &connid)) != NC_NOERR) {
-        snprintf(errmsg, MAX_ERR_LENGTH,
-                 "ERROR: failed to create connectivity array for %s %" PRId64 " in file id %d",
-                 ex_name_of_object(blocks[i].type), blocks[i].id, exoid);
+        if ((status = nc_def_var(exoid, vnodcon, conn_int_type, 2, dims, &connid)) != NC_NOERR) {
+          snprintf(errmsg, MAX_ERR_LENGTH,
+                   "ERROR: failed to create connectivity array for %s %" PRId64 " in file id %d",
+                   ex_name_of_object(blocks[i].type), blocks[i].id, exoid);
+          ex_err(__func__, errmsg, status);
+          goto error_ret; /* exit define mode and return */
+        }
+        ex_compress_variable(exoid, connid, 1);
+      }
+    }
+    /* store element type as attribute of connectivity variable */
+    if (connid > 0) {
+      if ((status = nc_put_att_text(exoid, connid, ATT_NAME_ELB, strlen(blocks[i].topology) + 1,
+                                    blocks[i].topology)) != NC_NOERR) {
+        snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to store %s type name %s in file id %d",
+                 ex_name_of_object(blocks[i].type), blocks[i].topology, exoid);
         ex_err(__func__, errmsg, status);
         goto error_ret; /* exit define mode and return */
       }
-      ex_compress_variable(exoid, connid, 1);
-    }
-    /* store element type as attribute of connectivity variable */
-    if ((status = nc_put_att_text(exoid, connid, ATT_NAME_ELB, strlen(blocks[i].topology) + 1,
-                                  blocks[i].topology)) != NC_NOERR) {
-      snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to store %s type name %s in file id %d",
-               ex_name_of_object(blocks[i].type), blocks[i].topology, exoid);
-      ex_err(__func__, errmsg, status);
-      goto error_ret; /* exit define mode and return */
     }
 
     if (arbitrary_polyhedra == 0) {
@@ -543,8 +547,7 @@ int ex_put_block_params(int exoid, size_t block_count, const struct ex_block *bl
     case EX_EDGE_BLOCK: vblkids = VAR_ID_ED_BLK; break;
     case EX_FACE_BLOCK: vblkids = VAR_ID_FA_BLK; break;
     case EX_ELEM_BLOCK: vblkids = VAR_ID_EL_BLK; break;
-    default:
-      EX_FUNC_LEAVE(EX_FATAL); /* should have been handled earlier; quiet compiler here */
+    default: EX_FUNC_LEAVE(EX_FATAL); /* should have been handled earlier; quiet compiler here */
     }
 
     nc_inq_varid(exoid, vblkids, &att_name_varid);

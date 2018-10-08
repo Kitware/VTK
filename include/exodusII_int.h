@@ -722,7 +722,7 @@ struct ex_file_item
   unsigned int
                        file_type : 2; /* 0 - classic, 1 -- 64 bit classic, 2 --netcdf4,  3 --netcdf4 classic */
   unsigned int         is_parallel : 1; /* 1 true, 0 false */
-  unsigned int         is_mpiio : 1;    /* 1 true, 0 false */
+  unsigned int         is_hdf5 : 1;     /* 1 true, 0 false */
   unsigned int         is_pnetcdf : 1;  /* 1 true, 0 false */
   unsigned int         has_nodes : 1;   /* for input only at this time */
   unsigned int         has_edges : 1;   /* for input only at this time */
@@ -774,7 +774,7 @@ char *ex_name_var_of_object(ex_entity_type /*obj_type*/, int /*i*/, int /*j*/);
 char *ex_name_of_map(ex_entity_type /*map_type*/, int /*map_index*/);
 
 int  ex_conv_ini(int exoid, int *comp_wordsize, int *io_wordsize, int file_wordsize,
-                 int int64_status, int is_parallel, int is_mpiio, int is_pnetcdf);
+                 int int64_status, int is_parallel, int is_hdf5, int is_pnetcdf);
 void ex_conv_exit(int exoid);
 
 nc_type nc_flt_code(int exoid);

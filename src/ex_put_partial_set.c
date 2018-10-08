@@ -108,8 +108,7 @@ int ex_put_partial_set(int exoid, ex_entity_type set_type, ex_entity_id set_id, 
         ex_err(__func__, errmsg, EX_NULLENTITY);
         EX_FUNC_LEAVE(EX_WARN);
       }
-      snprintf(errmsg, MAX_ERR_LENGTH,
-               "ERROR: failed to locate %s id %" PRId64 " in VAR_*S_IDS array in file id %d",
+      snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to locate %s id %" PRId64 " in file id %d",
                ex_name_of_object(set_type), set_id, exoid);
       ex_err(__func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);

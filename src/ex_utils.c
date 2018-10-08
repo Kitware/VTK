@@ -84,14 +84,14 @@ static char *cur_string = &ret_string[0];
 
 int ex_check_file_type(const char *path, int *type)
 {
-/* Based on (stolen from?) NC_check_file_type from netcdf sources.
+  /* Based on (stolen from?) NC_check_file_type from netcdf sources.
 
-Type is set to:
-1 if this is a netcdf classic file,
-2 if this is a netcdf 64-bit offset file,
-4 pnetcdf cdf5 file.
-5 if this is an hdf5 file
-*/
+  Type is set to:
+  1 if this is a netcdf classic file,
+  2 if this is a netcdf 64-bit offset file,
+  4 pnetcdf cdf5 file.
+  5 if this is an hdf5 file
+  */
 
 #define MAGIC_NUMBER_LEN 4
 
@@ -492,7 +492,7 @@ char *ex_dim_num_entries_in_object(ex_entity_type obj_type, int idx)
   case EX_FACE_SET: return DIM_NUM_FACE_FS(idx);
   case EX_SIDE_SET: return DIM_NUM_SIDE_SS(idx);
   case EX_ELEM_SET: return DIM_NUM_ELE_ELS(idx);
-  default: return 0;
+  default: return NULL;
   }
 }
 
@@ -507,7 +507,7 @@ char *ex_name_var_of_object(ex_entity_type obj_type, int i, int j)
   case EX_FACE_SET: return VAR_FS_VAR(i, j);
   case EX_SIDE_SET: return VAR_SS_VAR(i, j);
   case EX_ELEM_SET: return VAR_ELS_VAR(i, j);
-  default: return 0;
+  default: return NULL;
   }
 }
 
@@ -518,7 +518,7 @@ char *ex_name_of_map(ex_entity_type map_type, int map_index)
   case EX_EDGE_MAP: return VAR_EDGE_MAP(map_index);
   case EX_FACE_MAP: return VAR_FACE_MAP(map_index);
   case EX_ELEM_MAP: return VAR_ELEM_MAP(map_index);
-  default: return 0;
+  default: return NULL;
   }
 }
 
@@ -1145,23 +1145,23 @@ static void ex_swap64(int64_t v[], int64_t i, int64_t j)
   v[j] = temp;
 }
 
-  /*!
-   * The following 'indexed qsort' routine is modified from Sedgewicks
-   * algorithm It selects the pivot based on the median of the left,
-   * right, and center values to try to avoid degenerate cases ocurring
-   * when a single value is chosen.  It performs a quicksort on
-   * intervals down to the EX_QSORT_CUTOFF size and then performs a final
-   * insertion sort on the almost sorted final array.  Based on data in
-   * Sedgewick, the EX_QSORT_CUTOFF value should be between 5 and 20.
-   *
-   * See Sedgewick for further details
-   * Define DEBUG_QSORT at the top of this file and recompile to compile
-   * in code that verifies that the array is sorted.
-   *
-   * NOTE: The 'int' implementation below assumes that *both* the items
-   *       being sorted and the *number* of items being sorted are both
-   *       representable as 'int'.
-   */
+/*!
+ * The following 'indexed qsort' routine is modified from Sedgewicks
+ * algorithm It selects the pivot based on the median of the left,
+ * right, and center values to try to avoid degenerate cases ocurring
+ * when a single value is chosen.  It performs a quicksort on
+ * intervals down to the EX_QSORT_CUTOFF size and then performs a final
+ * insertion sort on the almost sorted final array.  Based on data in
+ * Sedgewick, the EX_QSORT_CUTOFF value should be between 5 and 20.
+ *
+ * See Sedgewick for further details
+ * Define DEBUG_QSORT at the top of this file and recompile to compile
+ * in code that verifies that the array is sorted.
+ *
+ * NOTE: The 'int' implementation below assumes that *both* the items
+ *       being sorted and the *number* of items being sorted are both
+ *       representable as 'int'.
+ */
 
 #define EX_QSORT_CUTOFF 12
 
@@ -1411,27 +1411,30 @@ int ex_get_dimension(int exoid, const char *DIMENSION, const char *label, size_t
   if ((status = nc_inq_dimid(exoid, DIMENSION, dimid)) != NC_NOERR) {
     if (routine != NULL) {
       if (status == NC_EBADDIM) {
-        snprintf(errmsg, MAX_ERR_LENGTH, "Warning: no %s defined in file id %d", label, exoid);
-        ex_err(__func__, errmsg, status);
-      }
-      else {
-        snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to locate number of %s in file id %d",
+        snprintf(errmsg, MAX_ERR_LENGTH, "Warning: no dimension defining '%s' found in file id %d",
                  label, exoid);
         ex_err(__func__, errmsg, status);
       }
+      else {
+        snprintf(errmsg, MAX_ERR_LENGTH,
+                 "ERROR: failed to locate dimension defining number of '%s' in file id %d", label,
+                 exoid);
+        ex_err(__func__, errmsg, status);
+      }
     }
-    return (status);
+    return status;
   }
 
   if ((status = nc_inq_dimlen(exoid, *dimid, count)) != NC_NOERR) {
     if (routine != NULL) {
-      snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get number of %s in file id %d", label,
-               exoid);
+      snprintf(errmsg, MAX_ERR_LENGTH,
+               "ERROR: failed to get length of dimension defining number of '%s' in file id %d",
+               label, exoid);
       ex_err(__func__, errmsg, status);
-      return -1;
     }
+    return status;
   }
-  return (status);
+  return status;
 }
 
 /* Deprecated. do not use */
@@ -1458,7 +1461,7 @@ void ex_compress_variable(int exoid, int varid, int type)
       nc_def_var_deflate(exoid, varid, shuffle, compress, deflate_level);
     }
 #if defined(PARALLEL_AWARE_EXODUS)
-    if (type != 3 && file->is_parallel && file->is_mpiio) {
+    if (type != 3 && file->is_parallel && file->is_hdf5) {
       nc_var_par_access(exoid, varid, NC_COLLECTIVE);
     }
 #endif

@@ -81,26 +81,20 @@ int ex_put_names(int exoid, ex_entity_type obj_type, char *names[])
   /*  ======== BLOCKS ========= */
   case EX_EDGE_BLOCK: vname = VAR_NAME_ED_BLK; break;
   case EX_FACE_BLOCK: vname = VAR_NAME_FA_BLK; break;
-  case EX_ELEM_BLOCK:
-    vname = VAR_NAME_EL_BLK;
-    break;
+  case EX_ELEM_BLOCK: vname = VAR_NAME_EL_BLK; break;
 
   /*  ======== SETS ========= */
   case EX_NODE_SET: vname = VAR_NAME_NS; break;
   case EX_EDGE_SET: vname = VAR_NAME_ES; break;
   case EX_FACE_SET: vname = VAR_NAME_FS; break;
   case EX_SIDE_SET: vname = VAR_NAME_SS; break;
-  case EX_ELEM_SET:
-    vname = VAR_NAME_ELS;
-    break;
+  case EX_ELEM_SET: vname = VAR_NAME_ELS; break;
 
   /*  ======== MAPS ========= */
   case EX_NODE_MAP: vname = VAR_NAME_NM; break;
   case EX_EDGE_MAP: vname = VAR_NAME_EDM; break;
   case EX_FACE_MAP: vname = VAR_NAME_FAM; break;
-  case EX_ELEM_MAP:
-    vname = VAR_NAME_EM;
-    break;
+  case EX_ELEM_MAP: vname = VAR_NAME_EM; break;
 
   /*  ======== ERROR (Invalid type) ========= */
   default:

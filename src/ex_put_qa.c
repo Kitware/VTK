@@ -113,21 +113,6 @@ int ex_put_qa(int exoid, int num_qa_records, char *qa_record[][4])
     status = nc_inq_dimid(rootid, DIM_NUM_QA, &num_qa_dim);
     if (status != NC_NOERR) {
 
-      /*   inquire previously defined dimensions  */
-      if ((status = nc_inq_dimid(rootid, DIM_STR, &strdim)) != NC_NOERR) {
-        snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to locate string length in file id %d",
-                 rootid);
-        ex_err(__func__, errmsg, status);
-        EX_FUNC_LEAVE(EX_FATAL);
-      }
-
-      if ((status = nc_inq_dimid(rootid, DIM_N4, &n4dim)) != NC_NOERR) {
-        snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to locate record length in file id %d",
-                 rootid);
-        ex_err(__func__, errmsg, status);
-        EX_FUNC_LEAVE(EX_FATAL);
-      }
-
       /*   put file into define mode  */
       if ((status = nc_redef(rootid)) != NC_NOERR) {
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to put file id %d into define mode",
@@ -149,6 +134,27 @@ int ex_put_qa(int exoid, int num_qa_records, char *qa_record[][4])
         }
 
         goto error_ret; /* exit define mode and return */
+      }
+
+      /* create number "4" dimension; must be of type long */
+      if ((status = nc_def_dim(rootid, DIM_N4, 4L, &n4dim)) != NC_NOERR) {
+        snprintf(errmsg, MAX_ERR_LENGTH,
+                 "ERROR: failed to define number \"4\" dimension in file id %d", rootid);
+        ex_err(__func__, errmsg, status);
+        goto error_ret; /* exit define mode and return */
+      }
+
+      /* create string length dimension -- only used for QA records */
+      if ((status = nc_def_dim(rootid, DIM_STR, (MAX_STR_LENGTH + 1), &strdim)) != NC_NOERR) {
+        if (status == NC_ENAMEINUSE) { /* already defined */
+          nc_inq_dimid(rootid, DIM_STR, &strdim);
+        }
+        else {
+          snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to define string length in file id %d",
+                   rootid);
+          ex_err(__func__, errmsg, status);
+          goto error_ret; /* exit define mode and return */
+        }
       }
 
       /*   define variable  */

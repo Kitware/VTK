@@ -120,7 +120,7 @@ int ex_get_init_ext(int exoid, ex_init_params *info)
   info->num_elem_maps = 0;
 
   dimid = 0;
-  if (ex_get_dim_value(exoid, "dimensions", DIM_NUM_DIM, dimid, &info->num_dim) != EX_NOERR) {
+  if (ex_get_dim_value(exoid, "dimension count", DIM_NUM_DIM, dimid, &info->num_dim) != EX_NOERR) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
   if (ex_get_dim_value(exoid, "nodes", DIM_NUM_NODES, dimid, &info->num_nodes) != EX_NOERR) {

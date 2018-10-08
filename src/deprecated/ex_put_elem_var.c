@@ -65,8 +65,7 @@ The function ex_put_elem_var() writes the values of a single element
 variable for one element block at one time step. It is recommended,
 but not required, to write the element variable truth table (with
 ex_put_elem_var_tab() before this function is invoked for better
-efficiency. See #Efficiency for a discussion of
-efficiency issues.
+efficiency.
 
 Because element variables are floating point values, the application
 code must declare the array passed to be the appropriate type

@@ -42,8 +42,7 @@
 
 /*!
 The function ex_get_map() reads the element order map
-from the database. See #ElementOrderMap for a description of the
-element order map. If an element order map is not stored in the data
+from the database. If an element order map is not stored in the data
 file, a default array (1,2,3,. .. num_elem) is returned. Memory
 must be allocated for the element map array ({num_elem} in length)
 before this call is made.
