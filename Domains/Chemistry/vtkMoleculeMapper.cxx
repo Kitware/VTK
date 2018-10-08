@@ -56,6 +56,7 @@ vtkMoleculeMapper::vtkMoleculeMapper()
   : RenderAtoms(true),
     AtomicRadiusType(VDWRadius),
     AtomicRadiusScaleFactor(0.3),
+    AtomicRadiusArrayName(nullptr),
     RenderBonds(true),
     BondColorMode(DiscreteByAtom),
     UseMultiCylindersForBonds(true),
@@ -65,6 +66,7 @@ vtkMoleculeMapper::vtkMoleculeMapper()
   // Initialize ivars:
   this->BondColor[0] = this->BondColor[1] = this->BondColor[2] = 50;
   this->LatticeColor[0] = this->LatticeColor[1] = this->LatticeColor[2] = 255;
+  this->SetAtomicRadiusArrayName("radii");
 
   // Setup glyph sources
   vtkNew<vtkSphereSource> sphere;
@@ -454,11 +456,11 @@ void vtkMoleculeMapper::UpdateAtomGlyphPolyData()
       }
       break;
     case CustomArrayRadius: {
-      vtkDataArray *allRadii = molecule->GetVertexData()->GetArray("radii");
+      vtkDataArray *allRadii = molecule->GetVertexData()->GetArray(this->AtomicRadiusArrayName);
       if (!allRadii)
       {
         vtkWarningMacro("AtomicRadiusType set to CustomArrayRadius, but no "
-                        "array named 'radii' found in input VertexData.");
+                        "array named " << this->AtomicRadiusArrayName << " found in input VertexData.");
         scaleFactors->SetNumberOfTuples(numAtoms);
         scaleFactors->FillComponent(0, this->AtomicRadiusScaleFactor);
         break;

@@ -65,7 +65,7 @@ int TestCustomArrayRadius(int, char *[])
 
   // build custom radii array
   vtkNew<vtkFloatArray> radii;
-  radii->SetName("radii");
+  radii->SetName("radii_array");
   radii->SetNumberOfTuples(mol->GetNumberOfAtoms());
   for (vtkIdType i = 0; i < mol->GetNumberOfAtoms(); ++i)
   {
@@ -77,6 +77,7 @@ int TestCustomArrayRadius(int, char *[])
   molmapper->SetInputData(mol);
 
   molmapper->UseBallAndStickSettings();
+  molmapper->SetAtomicRadiusArrayName("radii_array");
   molmapper->SetAtomicRadiusTypeToCustomArrayRadius();
 
   vtkNew<vtkActor> actor;
