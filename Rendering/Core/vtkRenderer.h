@@ -170,7 +170,7 @@ public:
    * (for instance, Headlights or CameraLights that are attached to the
    * camera) to update their geometry to match the active camera.
    */
-  virtual int UpdateLightsGeometryToFollowCamera(void);
+  virtual vtkTypeBool UpdateLightsGeometryToFollowCamera(void);
 
   /**
    * Return the collection of volumes.
@@ -638,7 +638,7 @@ public:
    * actually used depth peeling.
    * Initial value is false.
    */
-  vtkGetMacro(LastRenderingUsedDepthPeeling,int);
+  vtkGetMacro(LastRenderingUsedDepthPeeling,vtkTypeBool);
   //@}
 
   //@{
@@ -792,7 +792,7 @@ protected:
   double              AllocatedRenderTime;
   double              TimeFactor;
   vtkTypeBool         TwoSidedLighting;
-  int                 AutomaticLightCreation;
+  vtkTypeBool         AutomaticLightCreation;
   vtkTypeBool         BackingStore;
   unsigned char      *BackingImage;
   int                 BackingStoreSize[2];
@@ -897,7 +897,7 @@ protected:
    * space (for instance, Headlights or CameraLights that are attached to the
    * camera).
    */
-  virtual int UpdateLightGeometry(void);
+  virtual vtkTypeBool UpdateLightGeometry(void);
 
   /**
    * Ask all lights to load themselves into rendering pipeline.
@@ -972,7 +972,7 @@ protected:
    * actually used depth peeling.
    * Initial value is false.
    */
-  int LastRenderingUsedDepthPeeling;
+  vtkTypeBool LastRenderingUsedDepthPeeling;
 
   // HARDWARE SELECTION ----------------------------------------
   friend class vtkHardwareSelector;

@@ -494,7 +494,7 @@ int vtkRenderer::UpdateCamera ()
   return 1;
 }
 
-int vtkRenderer::UpdateLightsGeometryToFollowCamera()
+vtkTypeBool vtkRenderer::UpdateLightsGeometryToFollowCamera()
 {
   vtkCamera *camera;
   vtkLight *light;
@@ -534,7 +534,7 @@ int vtkRenderer::UpdateLightsGeometryToFollowCamera()
   return 1;
 }
 
-int vtkRenderer::UpdateLightGeometry()
+vtkTypeBool vtkRenderer::UpdateLightGeometry()
 {
   VTK_SCOPED_RENDER_EVENT("vtkRenderer::UpdateLightGeometry",
                           this->GetRenderWindow()->GetRenderTimer());
