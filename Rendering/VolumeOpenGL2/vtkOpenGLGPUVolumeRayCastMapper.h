@@ -80,6 +80,7 @@ class vtkTextureObject;
 class vtkVolume;
 class vtkVolumeInputHelper;
 class vtkVolumeTexture;
+class vtkOpenGLUniforms;
 
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
   public vtkGPUVolumeRayCastMapper
@@ -187,6 +188,15 @@ public:
   vtkGetStringMacro(FragmentShaderCode);
   //@}
 
+  //@{
+  /**
+   * The Uniforms object allows to set custom uniform variables
+   * that are used in replacement shader code.
+   */
+  vtkGetObjectMacro(FragmentCustomUniforms,vtkOpenGLUniforms);
+  vtkGetObjectMacro(VertexCustomUniforms,vtkOpenGLUniforms);
+  //@}
+
   // Description:
   // Delete OpenGL objects.
   // \post done: this->OpenGLObjectsCreated==0
@@ -283,6 +293,8 @@ protected:
    *  RenderPass string replacements on shader templates called from
    *  ReplaceShaderValues.
    */
+  void ReplaceShaderCustomUniforms(
+    std::map<vtkShader::Type, vtkShader*>& shaders );
   void ReplaceShaderBase(std::map<vtkShader::Type, vtkShader*>& shaders,
     vtkRenderer* ren, vtkVolume* vol, int numComps);
   void ReplaceShaderTermination(std::map<vtkShader::Type, vtkShader*>& shaders,
@@ -323,6 +335,9 @@ protected:
   char *FragmentShaderCode;
   std::map<const vtkShader::ReplacementSpec, vtkShader::ReplacementValue>
     UserShaderReplacements;
+
+  vtkNew<vtkOpenGLUniforms> FragmentCustomUniforms;
+  vtkNew<vtkOpenGLUniforms> VertexCustomUniforms;
 
 public:
   using VolumeInput = vtkVolumeInputHelper;

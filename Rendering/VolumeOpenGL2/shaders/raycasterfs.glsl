@@ -48,6 +48,8 @@ bool g_skip;
 float g_currentT;
 float g_terminatePointMax;
 
+//VTK::CustomUniforms::Dec
+
 //VTK::Output::Dec
 
 //VTK::Base::Dec
