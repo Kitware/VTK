@@ -65,14 +65,18 @@ struct Profiler
     void    enter(std::string name)                     { events.push_back(Event(name, true)); }
     void    exit(std::string name)                      { events.push_back(Event(name, false)); }
 
-    void    output(std::ostream& out)
+    void    output(std::ostream& out, std::string prefix = "")
     {
+        if (!prefix.empty())
+            prefix += " ";
+
         for (size_t i = 0; i < events.size(); ++i)
         {
             const Event& e = events[i];
             auto time = std::chrono::duration_cast<std::chrono::microseconds>(e.stamp - start).count();
 
-            fmt::print(out, "{:02d}:{:02d}:{:02d}.{:06d} {}{}\n",
+            fmt::print(out, "{}{:02d}:{:02d}:{:02d}.{:06d} {}{}\n",
+                            prefix,
                             time/1000000/60/60,
                             time/1000000/60 % 60,
                             time/1000000 % 60,
@@ -103,7 +107,7 @@ struct Profiler
     void    enter(const std::string&)                   {}
     void    exit(const std::string&)                    {}
 
-    void    output(std::ostream&)                       {}
+    void    output(std::ostream&, std::string = "")     {}
     void    clear()                                     {}
 
     Scoped  scoped(std::string)                         { return Scoped(); }

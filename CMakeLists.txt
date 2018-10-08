@@ -1,5 +1,3 @@
-if (NOT VTK_INSTALL_NO_DEVELOPMENT)
-  install(DIRECTORY include/vtkdiy2/
-    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtkdiy2"
-    COMPONENT Development)
-endif()
+vtk_module_install_headers(
+  SUBDIR      "vtkdiy2"
+  DIRECTORIES "include")
