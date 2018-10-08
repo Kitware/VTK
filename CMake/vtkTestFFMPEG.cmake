@@ -60,4 +60,14 @@ int main()
 }\n")
     check_c_source_compiles("${_source}" VTK_FFMPEG_AVCODECID)
   endif()
+  if (NOT DEFINED VTK_FFMPEG_AVCODEC_SEND_PACKET)
+    set(_source "
+#include <${FFMEG_CODEC_HEADER_PATH}/avcodec.h>
+int main()
+{
+  avcode_send_packet(0, 0);
+  return 0;
+}\n")
+    check_c_source_compiles("${_source}" VTK_FFMPEG_AVCODEC_SEND_PACKET)
+  endif()
 endif()
