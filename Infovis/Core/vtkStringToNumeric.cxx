@@ -284,7 +284,7 @@ void vtkStringToNumeric::ConvertArrays(vtkFieldData* fieldData)
 }
 
 //----------------------------------------------------------------------------
-int vtkStringToNumeric::ProcessRequest(
+vtkTypeBool vtkStringToNumeric::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

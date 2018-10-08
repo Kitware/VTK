@@ -71,7 +71,7 @@ vtkUnstructuredGrid* vtkUnstructuredGridAlgorithm::GetUnstructuredGridInput(int 
 }
 
 //----------------------------------------------------------------------------
-int vtkUnstructuredGridAlgorithm::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkUnstructuredGridAlgorithm::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {

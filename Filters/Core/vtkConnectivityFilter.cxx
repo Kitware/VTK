@@ -693,7 +693,7 @@ int vtkConnectivityFilter::GetNumberOfExtractedRegions()
   return this->RegionSizes->GetMaxId() + 1;
 }
 
-int vtkConnectivityFilter::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkConnectivityFilter::ProcessRequest(vtkInformation* request,
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))

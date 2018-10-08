@@ -61,7 +61,7 @@ vtkCPExodusIIInSituReader::~vtkCPExodusIIInSituReader()
 }
 
 //------------------------------------------------------------------------------
-int vtkCPExodusIIInSituReader::ProcessRequest(
+vtkTypeBool vtkCPExodusIIInSituReader::ProcessRequest(
     vtkInformation *request, vtkInformationVector **inputVector,
     vtkInformationVector *outputVector)
 {

@@ -80,7 +80,7 @@ protected:
   vtkPythonAlgorithm();
   ~vtkPythonAlgorithm() override;
 
-  int ProcessRequest(vtkInformation* request,
+  vtkTypeBool ProcessRequest(vtkInformation* request,
                      vtkInformationVector** inInfo,
                      vtkInformationVector* outInfo) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;

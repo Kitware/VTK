@@ -59,7 +59,7 @@ void vtkUnstructuredGridBaseAlgorithm::SetOutput(vtkDataObject* d)
 }
 
 //----------------------------------------------------------------------------
-int vtkUnstructuredGridBaseAlgorithm::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkUnstructuredGridBaseAlgorithm::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {

@@ -300,7 +300,7 @@ vtkTypeBool vtkImageResliceMapper::Update(vtkInformation*)
 }
 
 //----------------------------------------------------------------------------
-int vtkImageResliceMapper::ProcessRequest(
+vtkTypeBool vtkImageResliceMapper::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {

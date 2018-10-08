@@ -56,7 +56,7 @@ public:
    * Generalized interface for asking the executive to fulfill update
    * requests.
    */
-  int ProcessRequest(vtkInformation* request,
+  vtkTypeBool ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
                              vtkInformationVector* outInfo) override;
 

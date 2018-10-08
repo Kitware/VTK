@@ -843,7 +843,7 @@ protected:
    */
   void AdvertiseTimeSteps( vtkInformation* outputInfo );
 
-  int ProcessRequest( vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  vtkTypeBool ProcessRequest( vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int RequestInformation( vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int RequestData( vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   //int RequestDataOverTime( vtkInformation *, vtkInformationVector **, vtkInformationVector *);

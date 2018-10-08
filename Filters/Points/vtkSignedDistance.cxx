@@ -424,7 +424,7 @@ int vtkSignedDistance::FillInputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkSignedDistance::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkSignedDistance::ProcessRequest(vtkInformation* request,
                                         vtkInformationVector** inputVector,
                                         vtkInformationVector* outputVector)
 {

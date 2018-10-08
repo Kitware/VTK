@@ -499,7 +499,7 @@ int vtkUnsignedDistance::FillInputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkUnsignedDistance::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkUnsignedDistance::ProcessRequest(vtkInformation* request,
                                         vtkInformationVector** inputVector,
                                         vtkInformationVector* outputVector)
 {

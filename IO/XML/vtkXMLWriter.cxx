@@ -777,7 +777,7 @@ void vtkXMLWriter::SetBlockSize(size_t blockSize)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLWriter::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkXMLWriter::ProcessRequest(vtkInformation* request,
                                  vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector)
 {

@@ -45,7 +45,7 @@ int vtkCompositeDataGeometryFilter::FillInputPortInformation(
 }
 
 //-----------------------------------------------------------------------------
-int vtkCompositeDataGeometryFilter::ProcessRequest(
+vtkTypeBool vtkCompositeDataGeometryFilter::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

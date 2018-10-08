@@ -35,7 +35,7 @@ vtkTemporalSnapToTimeStep::vtkTemporalSnapToTimeStep()
 vtkTemporalSnapToTimeStep::~vtkTemporalSnapToTimeStep() = default;
 
 //----------------------------------------------------------------------------
-int vtkTemporalSnapToTimeStep::ProcessRequest(
+vtkTypeBool vtkTemporalSnapToTimeStep::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

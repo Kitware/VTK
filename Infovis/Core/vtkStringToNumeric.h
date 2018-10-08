@@ -142,7 +142,7 @@ public:
   /**
    * This is required to capture REQUEST_DATA_OBJECT requests.
    */
-  int ProcessRequest(vtkInformation* request,
+  vtkTypeBool ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector) override;
 

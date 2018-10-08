@@ -84,7 +84,7 @@ vtkPolyData *vtkPolyDataMapper::GetInput()
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyDataMapper::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkPolyDataMapper::ProcessRequest(vtkInformation* request,
                                       vtkInformationVector** inputVector,
                                       vtkInformationVector*)
 {

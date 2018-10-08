@@ -127,7 +127,7 @@ void vtkStreamingDemandDrivenPipeline::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline
+vtkTypeBool vtkStreamingDemandDrivenPipeline
 ::ProcessRequest(vtkInformation* request,
                  vtkInformationVector** inInfoVec,
                  vtkInformationVector* outInfoVec)

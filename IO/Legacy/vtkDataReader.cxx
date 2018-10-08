@@ -3670,7 +3670,7 @@ const char *vtkDataReader::GetFieldDataNameInFile(int i)
   }
 }
 
-int vtkDataReader::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkDataReader::ProcessRequest(vtkInformation* request,
                                   vtkInformationVector** inputVector,
                                   vtkInformationVector* outputVector)
 {

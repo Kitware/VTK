@@ -261,7 +261,7 @@ protected:
    * a REQUEST_DATA_NOT_GENERATED request then we mark
    * which ports won't have data generated for that request.
    */
-  int ProcessRequest(vtkInformation *request,
+  vtkTypeBool ProcessRequest(vtkInformation *request,
                      vtkInformationVector **inInfo,
                      vtkInformationVector *outInfo) override;
 

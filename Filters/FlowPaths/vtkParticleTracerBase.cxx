@@ -194,7 +194,7 @@ void vtkParticleTracerBase::RemoveAllSources()
 }
 
 //----------------------------------------------------------------------------
-int vtkParticleTracerBase::ProcessRequest(
+vtkTypeBool vtkParticleTracerBase::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

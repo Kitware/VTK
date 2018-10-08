@@ -68,7 +68,7 @@ void vtkUniformGridAMRAlgorithm::SetInputData(int index, vtkDataObject* input)
 }
 
 //------------------------------------------------------------------------------
-int vtkUniformGridAMRAlgorithm::ProcessRequest(
+vtkTypeBool vtkUniformGridAMRAlgorithm::ProcessRequest(
     vtkInformation* request,
     vtkInformationVector** inputVector,
     vtkInformationVector* outputVector )

@@ -53,7 +53,7 @@ vtkAppendDataSets::~vtkAppendDataSets()
 }
 
 //----------------------------------------------------------------------------
-int vtkAppendDataSets::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkAppendDataSets::ProcessRequest(vtkInformation* request,
                                       vtkInformationVector** inputVector,
                                       vtkInformationVector* outputVector)
 {

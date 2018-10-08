@@ -48,7 +48,7 @@ vtkHyperTreeGridCellCenters::~vtkHyperTreeGridCellCenters()
 }
 
 //----------------------------------------------------------------------------
-int vtkHyperTreeGridCellCenters::ProcessRequest( vtkInformation* request,
+vtkTypeBool vtkHyperTreeGridCellCenters::ProcessRequest( vtkInformation* request,
                                                vtkInformationVector** inputVector,
                                                vtkInformationVector* outputVector )
 {

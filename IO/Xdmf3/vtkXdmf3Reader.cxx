@@ -503,7 +503,7 @@ int vtkXdmf3Reader::FillOutputPortInformation(int, vtkInformation *info)
 }
 
 //----------------------------------------------------------------------------
-int vtkXdmf3Reader::ProcessRequest(vtkInformation *request,
+vtkTypeBool vtkXdmf3Reader::ProcessRequest(vtkInformation *request,
     vtkInformationVector **inputVector,
     vtkInformationVector *outputVector)
 {

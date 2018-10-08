@@ -56,7 +56,7 @@ void vtkTemporalShiftScale::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkTemporalShiftScale::ProcessRequest(
+vtkTypeBool vtkTemporalShiftScale::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

@@ -467,7 +467,7 @@ int vtkTemporalFractal::MandelbrotTest(double x, double y)
 
 
 //----------------------------------------------------------------------------
-int vtkTemporalFractal::ProcessRequest(
+vtkTypeBool vtkTemporalFractal::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

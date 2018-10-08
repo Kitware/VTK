@@ -35,7 +35,7 @@ public:
   /**
    * Override to implement some requests with callbacks.
    */
-  int ProcessRequest(vtkInformation* request,
+  vtkTypeBool ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
                              vtkInformationVector* outInfo) override;
 

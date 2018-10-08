@@ -49,7 +49,7 @@ vtkTemporalDataSetCache::~vtkTemporalDataSetCache()
   }
 }
 
-int vtkTemporalDataSetCache::ProcessRequest(
+vtkTypeBool vtkTemporalDataSetCache::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

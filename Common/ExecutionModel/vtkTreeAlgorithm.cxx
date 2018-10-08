@@ -47,7 +47,7 @@ void vtkTreeAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkTreeAlgorithm::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkTreeAlgorithm::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {

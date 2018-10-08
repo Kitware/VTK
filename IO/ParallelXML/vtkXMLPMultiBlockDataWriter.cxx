@@ -125,7 +125,7 @@ void vtkXMLPMultiBlockDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLPMultiBlockDataWriter::ProcessRequest(
+vtkTypeBool vtkXMLPMultiBlockDataWriter::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

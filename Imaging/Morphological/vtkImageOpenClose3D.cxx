@@ -214,7 +214,7 @@ vtkImageOpenClose3D::ComputePipelineMTime(vtkInformation* request,
 }
 
 //----------------------------------------------------------------------------
-int vtkImageOpenClose3D::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkImageOpenClose3D::ProcessRequest(vtkInformation* request,
                                         vtkInformationVector** inInfoVec,
                                         vtkInformationVector* outInfoVec)
 {

@@ -138,7 +138,7 @@ void vtkExodusIIWriter::PrintSelf (ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkExodusIIWriter::ProcessRequest (
+vtkTypeBool vtkExodusIIWriter::ProcessRequest (
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

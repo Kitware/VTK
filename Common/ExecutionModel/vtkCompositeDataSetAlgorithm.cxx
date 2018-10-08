@@ -71,7 +71,7 @@ vtkDataObject* vtkCompositeDataSetAlgorithm::GetInput(int port)
 }
 
 //----------------------------------------------------------------------------
-int vtkCompositeDataSetAlgorithm::ProcessRequest(
+vtkTypeBool vtkCompositeDataSetAlgorithm::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

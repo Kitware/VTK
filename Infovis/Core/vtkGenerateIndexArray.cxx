@@ -53,7 +53,7 @@ void vtkGenerateIndexArray::PrintSelf(ostream& os, vtkIndent indent)
   os << "PedigreeID: " << this->PedigreeID << endl;
 }
 
-int vtkGenerateIndexArray::ProcessRequest(
+vtkTypeBool vtkGenerateIndexArray::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

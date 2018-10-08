@@ -126,7 +126,7 @@ public:
    * It returns the boolean status of the pipeline (false
    * means failure).
    */
-  virtual int ProcessRequest(vtkInformation* request,
+  virtual vtkTypeBool ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
                              vtkInformationVector* outInfo);
 
@@ -134,7 +134,7 @@ public:
    * Version of ProcessRequest() that is wrapped. This converts the
    * collection to an array and calls the other version.
    */
-  int ProcessRequest(vtkInformation* request,
+  vtkTypeBool ProcessRequest(vtkInformation* request,
                      vtkCollection* inInfo,
                      vtkInformationVector* outInfo);
 

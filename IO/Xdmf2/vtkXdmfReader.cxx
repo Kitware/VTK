@@ -206,7 +206,7 @@ int vtkXdmfReader::FillOutputPortInformation(int, vtkInformation *info)
 }
 
 //----------------------------------------------------------------------------
-int vtkXdmfReader::ProcessRequest(vtkInformation *request,
+vtkTypeBool vtkXdmfReader::ProcessRequest(vtkInformation *request,
     vtkInformationVector **inputVector,
     vtkInformationVector *outputVector)
 {

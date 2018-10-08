@@ -238,7 +238,7 @@ void vtkWindowToImageFilter::RequestInformation (
 }
 
 //----------------------------------------------------------------------------
-int vtkWindowToImageFilter::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkWindowToImageFilter::ProcessRequest(vtkInformation* request,
                                            vtkInformationVector** inputVector,
                                            vtkInformationVector* outputVector)
 {

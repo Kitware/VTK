@@ -110,7 +110,7 @@ vtkImageData* vtkRenderLargeImage::GetOutput()
 }
 
 //----------------------------------------------------------------------------
-int vtkRenderLargeImage::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkRenderLargeImage::ProcessRequest(vtkInformation* request,
                                         vtkInformationVector** inputVector,
                                         vtkInformationVector* outputVector)
 {

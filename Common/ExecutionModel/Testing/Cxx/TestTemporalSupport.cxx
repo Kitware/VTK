@@ -42,7 +42,7 @@ public:
   vtkGetMacro(NumRequestUpdateTime, int);
   vtkGetMacro(NumRequestTimeDependentInformation, int);
 
-  int ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector) override
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector) override
   {
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {

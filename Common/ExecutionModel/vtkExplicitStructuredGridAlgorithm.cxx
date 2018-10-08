@@ -94,7 +94,7 @@ void vtkExplicitStructuredGridAlgorithm::AddInputData(int index, vtkDataObject* 
 }
 
 //----------------------------------------------------------------------------
-int vtkExplicitStructuredGridAlgorithm::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkExplicitStructuredGridAlgorithm::ProcessRequest(vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {

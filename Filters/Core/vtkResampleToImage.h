@@ -78,7 +78,7 @@ protected:
   ~vtkResampleToImage() override;
 
   // Usual data generation method
-  int ProcessRequest(vtkInformation*, vtkInformationVector**,
+  vtkTypeBool ProcessRequest(vtkInformation*, vtkInformationVector**,
                      vtkInformationVector*) override;
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);

@@ -163,7 +163,7 @@ int vtkHyperTreeGridAlgorithm::RequestDataObject( vtkInformation*,
 }
 
 //----------------------------------------------------------------------------
-int vtkHyperTreeGridAlgorithm::ProcessRequest( vtkInformation* request,
+vtkTypeBool vtkHyperTreeGridAlgorithm::ProcessRequest( vtkInformation* request,
                                                vtkInformationVector** inputVector,
                                                vtkInformationVector* outputVector )
 {

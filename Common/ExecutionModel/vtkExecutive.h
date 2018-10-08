@@ -58,7 +58,7 @@ public:
    * Generalized interface for asking the executive to fulfill
    * pipeline requests.
    */
-  virtual int ProcessRequest(vtkInformation* request,
+  virtual vtkTypeBool ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
                              vtkInformationVector* outInfo);
 

@@ -123,7 +123,7 @@ int vtkImageStencilAlgorithm::FillOutputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkImageStencilAlgorithm::ProcessRequest(
+vtkTypeBool vtkImageStencilAlgorithm::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

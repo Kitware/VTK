@@ -78,7 +78,7 @@ vtkRectilinearGrid* vtkRectilinearGridAlgorithm::GetRectilinearGridInput(int por
 }
 
 //----------------------------------------------------------------------------
-int vtkRectilinearGridAlgorithm::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkRectilinearGridAlgorithm::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {

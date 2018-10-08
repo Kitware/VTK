@@ -186,7 +186,7 @@ void vtkTemporalStreamTracer::RemoveAllSources()
   this->SetInputConnection(1, nullptr);
 }
 //----------------------------------------------------------------------------
-int vtkTemporalStreamTracer::ProcessRequest(
+vtkTypeBool vtkTemporalStreamTracer::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

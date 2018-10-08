@@ -533,7 +533,7 @@ vtkDataObject* vtkExecutive::GetInputData
 }
 
 //----------------------------------------------------------------------------
-int vtkExecutive::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkExecutive::ProcessRequest(vtkInformation* request,
                                  vtkInformationVector** inInfo,
                                  vtkInformationVector* outInfo)
 {

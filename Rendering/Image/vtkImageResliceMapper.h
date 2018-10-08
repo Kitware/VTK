@@ -192,7 +192,7 @@ public:
   /**
    * Handle requests from the pipeline executive.
    */
-  int ProcessRequest(vtkInformation *request, vtkInformationVector **inInfo,
+  vtkTypeBool ProcessRequest(vtkInformation *request, vtkInformationVector **inInfo,
                      vtkInformationVector *outInfo) override;
 
   // return the bounds in index space

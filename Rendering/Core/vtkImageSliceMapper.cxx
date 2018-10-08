@@ -83,7 +83,7 @@ void vtkImageSliceMapper::Render(vtkRenderer *, vtkImageSlice *)
 }
 
 //----------------------------------------------------------------------------
-int vtkImageSliceMapper::ProcessRequest(
+vtkTypeBool vtkImageSliceMapper::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {

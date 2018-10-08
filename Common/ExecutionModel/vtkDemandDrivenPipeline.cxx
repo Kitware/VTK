@@ -157,7 +157,7 @@ vtkDemandDrivenPipeline::ComputePipelineMTime(vtkInformation* request,
 
 
 //----------------------------------------------------------------------------
-int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
                                             vtkInformationVector** inInfoVec,
                                             vtkInformationVector* outInfoVec)
 {

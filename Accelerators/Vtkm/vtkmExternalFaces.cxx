@@ -89,7 +89,7 @@ int vtkmExternalFaces::FillOutputPortInformation(int vtkNotUsed(port),
 }
 
 //------------------------------------------------------------------------------
-int vtkmExternalFaces::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkmExternalFaces::ProcessRequest(vtkInformation* request,
                                       vtkInformationVector** inputVector,
                                       vtkInformationVector* outputVector)
 {

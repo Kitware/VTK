@@ -96,7 +96,7 @@ protected:
   void CalculatePieceFractions(float* fractions);
 
   void SetInputUpdateExtent(int piece);
-  int ProcessRequest(vtkInformation* request,
+  vtkTypeBool ProcessRequest(vtkInformation* request,
                      vtkInformationVector** inputVector,
                      vtkInformationVector* outputVector) override;
 

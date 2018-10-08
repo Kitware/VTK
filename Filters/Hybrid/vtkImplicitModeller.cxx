@@ -1133,7 +1133,7 @@ int vtkImplicitModeller::FillInputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkImplicitModeller::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkImplicitModeller::ProcessRequest(vtkInformation* request,
                                         vtkInformationVector** inputVector,
                                         vtkInformationVector* outputVector)
 {

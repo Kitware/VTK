@@ -100,7 +100,7 @@ public:
    * Overridden to handle passing the CONTINUE_EXECUTING() flags to the
    * executive.
    */
-  int ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
 protected:

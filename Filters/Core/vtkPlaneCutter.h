@@ -166,7 +166,7 @@ public:
   /**
    * See vtkAlgorithm for details.
    */
-  int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkPlaneCutter();

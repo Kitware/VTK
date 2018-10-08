@@ -117,7 +117,7 @@ vtkIdType vtkXMLStructuredDataWriter::GetNumberOfValues(vtkDataSet* input)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLStructuredDataWriter::ProcessRequest(
+vtkTypeBool vtkXMLStructuredDataWriter::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

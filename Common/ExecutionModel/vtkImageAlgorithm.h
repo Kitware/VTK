@@ -54,7 +54,7 @@ public:
    * request will be delegated to one of the following methods: RequestData,
    * RequestInformation, or RequestUpdateExtent.
    */
-  int ProcessRequest(vtkInformation*,
+  vtkTypeBool ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
                              vtkInformationVector*) override;
 

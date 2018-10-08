@@ -1783,7 +1783,7 @@ int vtkPlaneCutter::RequestDataObject(vtkInformation* vtkNotUsed(request),
 }
 
 //----------------------------------------------------------------------------
-int vtkPlaneCutter::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkPlaneCutter::ProcessRequest(vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {

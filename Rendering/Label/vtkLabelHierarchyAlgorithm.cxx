@@ -78,7 +78,7 @@ vtkLabelHierarchy* vtkLabelHierarchyAlgorithm::GetLabelHierarchyInput(int port)
 }
 
 //----------------------------------------------------------------------------
-int vtkLabelHierarchyAlgorithm::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkLabelHierarchyAlgorithm::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {

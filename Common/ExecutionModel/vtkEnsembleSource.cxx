@@ -73,7 +73,7 @@ vtkEnsembleSource::~vtkEnsembleSource()
   }
 }
 
-int vtkEnsembleSource::ProcessRequest(vtkInformation *request,
+vtkTypeBool vtkEnsembleSource::ProcessRequest(vtkInformation *request,
                                       vtkInformationVector **inputVector,
                                       vtkInformationVector *outputVector)
 {
