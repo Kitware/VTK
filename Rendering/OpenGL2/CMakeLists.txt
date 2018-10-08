@@ -71,6 +71,7 @@ set(Module_SRCS
   vtkOpenGLVertexBufferObjectGroup.cxx
   vtkOrderIndependentTranslucentPass.cxx
   vtkOverlayPass.cxx
+  vtkPanoramicProjectionPass.cxx
   vtkPixelBufferObject.cxx
   vtkPointFillPass.cxx
   vtkRenderPassCollection.cxx
