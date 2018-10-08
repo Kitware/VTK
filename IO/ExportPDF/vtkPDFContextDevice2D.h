@@ -15,6 +15,11 @@
 /**
  * @class vtkPDFContextDevice2D
  * @brief vtkContextDevice2D implementation for use with vtkPDFExporter.
+ *
+ * Quirks:
+ * - Libharu does not support RGBA images. If an alpha channel is present in any
+ *   drawn images, it will be blended into an opaque background filled with the
+ *   active Brush color to produce a flat RGB image.
  */
 
 #ifndef vtkPDFContextDevice2D_h
