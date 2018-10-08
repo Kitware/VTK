@@ -2,9 +2,15 @@ find_package(FFMPEG)
 include(vtkTestFFMPEG)
 
 set(Module_SRCS
-  vtkFFMPEGVideoSource.cxx
   vtkFFMPEGWriter.cxx
   )
+
+# vtkFFMPEGVideoSource equires ffmpeg 3.1 or later
+if (VTK_FFMPEG_AVCODEC_SEND_PACKET)
+  list(APPEND Module_SRCS
+    vtkFFMPEGVideoSource.cxx
+    )
+endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkFFMPEGConfig.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/vtkFFMPEGConfig.h @ONLY
