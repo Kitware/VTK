@@ -6,6 +6,8 @@ endif()
 
 project(VTK)
 
+SET(CMAKE_DEBUG_POSTFIX "" CACHE STRING "Add a postfix to the debug libraries")
+
 set(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
 set(CMAKE_MODULE_PATH ${VTK_CMAKE_DIR} ${CMAKE_MODULE_PATH})
 
