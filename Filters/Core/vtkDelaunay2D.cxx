@@ -950,6 +950,7 @@ int vtkDelaunay2D::RequestData(
     if (this->Transform)
     {
       this->Transform->UnRegister(this);
+      this->Transform->Delete();
       this->Transform = nullptr;
     }
   }
@@ -1480,6 +1481,32 @@ ComputeBestFittingPlane(vtkPointSet *input)
     normal[i] = 0.0;
   }
 
+  //  Get minimum width of bounding box.
+  const double *bounds = input->GetBounds();
+  double length = input->GetLength();
+  int dir = 0;
+  double w;
+
+  for (w=length, i=0; i<3; i++)
+  {
+    normal[i] = 0.0;
+    if ( (bounds[2*i+1] - bounds[2*i]) < w )
+    {
+      dir = i;
+      w = bounds[2*i+1] - bounds[2*i];
+    }
+  }
+
+  //  If the bounds is perpendicular to one of the axes, then can
+  //  quickly compute normal.
+  //
+  normal[dir] = 1.0;
+  bool normal_computed = false;
+  if (w <= (length*tolerance))
+  {
+    normal_computed = true;
+  }
+
   //  Compute least squares approximation.
   //  Compute 3x3 least squares matrix
   v[0] = v[1] = v[2] = 0.0;
@@ -1516,7 +1543,7 @@ ComputeBestFittingPlane(vtkPointSet *input)
   //  Solve linear system using Kramers rule
   //
   c1 = m; c2 = m+3; c3 = m+6;
-  if ( (det = vtkMath::Determinant3x3 (c1,c2,c3)) > tolerance )
+  if (!normal_computed && (det = vtkMath::Determinant3x3 (c1,c2,c3)) > tolerance )
   {
     normal[0] =  vtkMath::Determinant3x3 (v,c2,c3) / det;
     normal[1] =  vtkMath::Determinant3x3 (c1,v,c3) / det;
