@@ -2276,8 +2276,8 @@ void vtkPDFContextDevice2D::Matrix4ToHPDFTransform(const double mat4[16],
                                                    float hpdfMat[6])
 {
   hpdfMat[0] = static_cast<float>(mat4[0]);
-  hpdfMat[1] = static_cast<float>(mat4[1]);
-  hpdfMat[2] = static_cast<float>(mat4[4]);
+  hpdfMat[1] = static_cast<float>(mat4[4]);
+  hpdfMat[2] = static_cast<float>(mat4[1]);
   hpdfMat[3] = static_cast<float>(mat4[5]);
   hpdfMat[4] = static_cast<float>(mat4[3]);
   hpdfMat[5] = static_cast<float>(mat4[7]);
@@ -2288,8 +2288,8 @@ void vtkPDFContextDevice2D::Matrix3ToHPDFTransform(const double mat3[9],
                                                    float hpdfMat[6])
 {
   hpdfMat[0] = static_cast<float>(mat3[0]);
-  hpdfMat[1] = static_cast<float>(mat3[1]);
-  hpdfMat[2] = static_cast<float>(mat3[3]);
+  hpdfMat[1] = static_cast<float>(mat3[3]);
+  hpdfMat[2] = static_cast<float>(mat3[1]);
   hpdfMat[3] = static_cast<float>(mat3[4]);
   hpdfMat[4] = static_cast<float>(mat3[2]);
   hpdfMat[5] = static_cast<float>(mat3[5]);
@@ -2301,9 +2301,9 @@ void vtkPDFContextDevice2D::HPDFTransformToMatrix3(float a, float b, float c,
                                                    double mat3[9])
 {
   mat3[0] = static_cast<double>(a);
-  mat3[1] = static_cast<double>(b);
+  mat3[1] = static_cast<double>(c);
   mat3[2] = static_cast<double>(x);
-  mat3[3] = static_cast<double>(c);
+  mat3[3] = static_cast<double>(b);
   mat3[4] = static_cast<double>(d);
   mat3[5] = static_cast<double>(y);
   mat3[6] = 0.;
