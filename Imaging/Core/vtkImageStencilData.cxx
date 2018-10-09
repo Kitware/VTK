@@ -362,7 +362,7 @@ void vtkImageStencilData::CopyOriginAndSpacingFromPipeline(vtkInformation* info)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageStencilData::SetExtent(int extent[6])
+void vtkImageStencilData::SetExtent(const int extent[6])
 {
   for (int i = 0; i < 6; i++)
   {
@@ -465,6 +465,7 @@ void vtkImageStencilData::ChangeExtent(const int extent[6])
 {
   int oldExtent[6];
   this->GetExtent(oldExtent);
+  this->SetExtent(extent);
 
   if (extent[2] != oldExtent[2] || extent[3] != oldExtent[3] ||
       extent[4] != oldExtent[4] || extent[5] != oldExtent[5])
@@ -480,9 +481,7 @@ void vtkImageStencilData::ChangeExtent(const int extent[6])
     this->ExtentListLengths = nullptr;
     this->ExtentLists = nullptr;
 
-    // Set the new extent and re-allocate
-    this->SetExtent(
-      extent[0], extent[1], extent[2], extent[3], extent[4], extent[5]);
+    // Re-allocate
     this->AllocateExtents();
 
     // Get the location for storing single extents
