@@ -75,7 +75,6 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->ShadowMapPass = nullptr;
   this->DepthPeelingHigherLayer=0;
 
-  this->BackgroundTexture = nullptr;
   this->HaveApplePrimitiveIdBugValue = false;
   this->HaveApplePrimitiveIdBugChecked = false;
 
@@ -388,6 +387,27 @@ int vtkOpenGLRenderer::UpdateGeometry()
   return  this->NumberOfPropsRendered;
 }
 
+//----------------------------------------------------------------------------
+vtkTexture* vtkOpenGLRenderer::GetCurrentTexturedBackground()
+{
+  if (!this->GetRenderWindow()->GetStereoRender() && this->BackgroundTexture)
+  {
+    return this->BackgroundTexture;
+  }
+  else if (this->GetRenderWindow()->GetStereoRender() && this->GetActiveCamera()->GetLeftEye() == 1 && this->BackgroundTexture)
+  {
+    return this->BackgroundTexture;
+  }
+  else if (this->GetRenderWindow()->GetStereoRender() && this->RightBackgroundTexture)
+  {
+    return this->RightBackgroundTexture;
+  }
+  else
+  {
+    return nullptr;
+  }
+}
+
 // ----------------------------------------------------------------------------
 void vtkOpenGLRenderer::DeviceRenderOpaqueGeometry()
 {
@@ -596,10 +616,10 @@ void vtkOpenGLRenderer::Clear(void)
     mapper->SetInputConnection(prod->GetOutputPort());
     actor->SetMapper(mapper);
 
-    if(this->TexturedBackground && this->BackgroundTexture)
+    if(this->TexturedBackground && this->GetCurrentTexturedBackground())
     {
-      this->BackgroundTexture->InterpolateOn();
-      actor->SetTexture(this->BackgroundTexture);
+      this->GetCurrentTexturedBackground()->InterpolateOn();
+      actor->SetTexture(this->GetCurrentTexturedBackground());
 
       vtkNew<vtkFloatArray> tcoords;
       float tmp[2];

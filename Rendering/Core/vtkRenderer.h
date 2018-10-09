@@ -662,11 +662,23 @@ public:
 
   //@{
   /**
-   * Set/Get the texture to be used for the background. If set
-   * and enabled this gets the priority over the gradient background.
+   * Set/Get the texture to be used for the monocular or stereo left eye
+   * background. If set and enabled this gets the priority over the gradient
+   * background.
    */
+  virtual void SetLeftBackgroundTexture(vtkTexture*);
+  vtkTexture* GetLeftBackgroundTexture();
   virtual void SetBackgroundTexture(vtkTexture*);
   vtkGetObjectMacro(BackgroundTexture, vtkTexture);
+  //@}
+
+  //@{
+  /**
+  * Set/Get the texture to be used for the right eye background. If set
+  * and enabled this gets the priority over the gradient background.
+  */
+  virtual void SetRightBackgroundTexture(vtkTexture*);
+  vtkGetObjectMacro(RightBackgroundTexture, vtkTexture);
   //@}
 
   //@{
@@ -955,6 +967,7 @@ protected:
 
   bool TexturedBackground;
   vtkTexture* BackgroundTexture;
+  vtkTexture* RightBackgroundTexture;
 
   friend class vtkRenderPass;
   vtkRenderPass *Pass;
