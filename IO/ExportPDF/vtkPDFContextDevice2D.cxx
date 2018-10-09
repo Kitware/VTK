@@ -44,6 +44,7 @@
 #include <vtk_libharu.h>
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <map>
@@ -53,11 +54,6 @@
 #include <vector>
 
 namespace {
-
-// Converts VTK_TEXT_* horiz justification to HPDF_TextAlignment:
-static const HPDF_TextAlignment hAlignMap[3] = {
-  HPDF_TALIGN_LEFT, HPDF_TALIGN_CENTER, HPDF_TALIGN_RIGHT
-};
 
 static void GetPointBounds(float *points, int numPoints, HPDF_REAL bbox[4],
                            const float radius = 0.f)
@@ -193,6 +189,426 @@ static bool operator<(const vtkColor3f &a, const vtkColor3f &b)
   }
   return false;
 }
+
+struct TextHelper
+{
+  struct Line
+  {
+    Line(std::string &&str, HPDF_REAL width)
+      : String(std::move(str))
+      , Width(width)
+    {
+    }
+
+    Line(const std::string &str, HPDF_REAL width)
+      : String(str)
+      , Width(width)
+    {
+    }
+
+    std::string String;
+    HPDF_REAL Width;
+  };
+
+  HPDF_Doc Document;
+  HPDF_Page Page;
+  vtkTextProperty *TextProp;
+  HPDF_Font Font;
+  const std::string& String;
+  vtkMatrix3x3 *Transform;
+  double ScaleX;
+  double ScaleY;
+
+  HPDF_REAL FontSize;
+  HPDF_Box FontBBox;
+  HPDF_REAL BBoxWidth;
+  HPDF_REAL BBoxHeight;
+  HPDF_REAL Theta;
+  HPDF_REAL SineTheta;
+  HPDF_REAL CosineTheta;
+  HPDF_REAL LineHeight;
+  HPDF_REAL Leading;
+  HPDF_REAL Ascent;
+  HPDF_REAL Descent;
+  std::vector<Line> Lines;
+  bool Valid;
+
+  TextHelper(HPDF_Doc doc,
+             HPDF_Page page,
+             vtkTextProperty *tprop,
+             const std::string &str,
+             vtkMatrix3x3 *mat)
+    : Document{doc}
+    , Page{page}
+    , TextProp{tprop}
+    , Font{nullptr}
+    , String{str}
+    , Transform(mat)
+    , ScaleX{0}
+    , ScaleY{0}
+    , FontSize{0.f}
+    , BBoxWidth{0.f}
+    , BBoxHeight{0.f}
+    , Theta{vtkMath::RadiansFromDegrees(
+              static_cast<float>(tprop->GetOrientation()))}
+    , SineTheta(std::sin(this->Theta))
+    , CosineTheta(std::cos(this->Theta))
+    , LineHeight{0.f}
+    , Leading{0.f}
+    , Ascent{0.f}
+    , Descent{0.f}
+    , Valid{false}
+  {
+    std::tie(this->ScaleX, this->ScaleY) = GetScaleFactor(this->Transform);
+
+    if (this->LoadFont() &&
+        this->SplitStrings() &&
+        this->ComputeBBox())
+    {
+      this->Valid = true;
+    }
+  }
+
+  void DrawText(const float ptIn[2]) const
+  {
+    assert(this->Valid);
+
+    // Copy point since we'll modify it:
+    std::array<float, 2> pt = { ptIn[0], ptIn[1] };
+
+    this->JustifyStartPoint(pt.data());
+
+    // Prepare text state
+    HPDF_Page_BeginText(this->Page);
+    HPDF_Page_SetFontAndSize(this->Page, this->Font, this->FontSize);
+    HPDF_Page_SetTextRenderingMode(this->Page, HPDF_FILL);
+    HPDF_Page_SetTextLeading(this->Page, this->Leading);
+
+    // Initialize text matrix
+    HPDF_Page_SetTextMatrix(this->Page,
+                            this->CosineTheta, this->SineTheta,
+                            -this->SineTheta, this->CosineTheta,
+                            pt[0], pt[1]);
+
+    // Draw lines:
+    switch (this->TextProp->GetJustification())
+    {
+      default:
+      case VTK_TEXT_LEFT:
+        this->PrintLeftJustifiedText();
+        break;
+
+      case VTK_TEXT_CENTERED:
+        this->PrintCenterJustifiedText();
+        break;
+
+      case VTK_TEXT_RIGHT:
+        this->PrintRightJustifiedText();
+        break;
+    }
+
+    HPDF_Page_EndText(this->Page);
+  }
+
+private:
+  bool LoadFont()
+  {
+    int family = this->TextProp->GetFontFamily();
+    if (family == VTK_FONT_FILE)
+    {
+      const char *fontName =
+          HPDF_LoadTTFontFromFile(this->Document,
+                                  this->TextProp->GetFontFile(), true);
+      this->Font = HPDF_GetFont(this->Document, fontName, "StandardEncoding");
+    }
+    else
+    {
+      std::ostringstream fontStr;
+      bool isBold = this->TextProp->GetBold() != 0;
+      bool isItalic = this->TextProp->GetItalic() != 0;
+
+      switch (family)
+      {
+        case VTK_ARIAL:
+          fontStr << "Helvetica";
+          if (isBold || isItalic)
+          {
+            fontStr << "-";
+          }
+          if (isBold)
+          {
+            fontStr << "Bold";
+          }
+          if (isItalic)
+          {
+            fontStr << "Oblique";
+          }
+          break;
+
+        case VTK_COURIER:
+          fontStr << "Courier";
+          if (isBold || isItalic)
+          {
+            fontStr << "-";
+          }
+          if (isBold)
+          {
+            fontStr << "Bold";
+          }
+          if (isItalic)
+          {
+            fontStr << "Oblique";
+          }
+          break;
+
+        case VTK_TIMES:
+          fontStr << "Times-";
+          if (isBold && isItalic)
+          {
+            fontStr << "BoldItalic";
+          }
+          else if (isBold)
+          {
+            fontStr << "Bold";
+          }
+          else if (isItalic)
+          {
+            fontStr << "Italic";
+          }
+          else
+          {
+            fontStr << "Roman";
+          }
+          break;
+
+        default:
+          // Garbage in, garbage out:
+          vtkGenericWarningMacro("Unknown font code (" << family << ")");
+          return false;
+      }
+
+      this->Font = HPDF_GetFont(this->Document, fontStr.str().c_str(),
+                                "StandardEncoding");
+    }
+
+    if (!this->Font)
+    {
+      vtkGenericWarningMacro("Error preparing libharu font object.");
+      return false;
+    }
+
+    // Reduce the font size by the current y scale factor:
+    this->FontSize = static_cast<HPDF_REAL>(this->TextProp->GetFontSize());
+    this->FontSize /= this->ScaleY;
+
+    // Had to dig to find this info, so commenting it here:
+    // The font's bbox is the box containing "all glyphs if placed with their
+    // origins coincident. It is independent of fontsize.
+    // In libharu, the textHeight is computed as:
+    // (bbox.top - bbox.bottom) / 1000 * fontSize
+    // In VTK, the default leading is:
+    // (textHeight) * tprop->LineSpacing
+    // From this, we can compute the leading needed for libharu:
+    HPDF_REAL fontScale = this->FontSize / 1000.f;
+    this->FontBBox = HPDF_Font_GetBBox(this->Font);
+    this->LineHeight =
+        (this->FontBBox.top - this->FontBBox.bottom) * fontScale;
+    this->Leading = this->LineHeight * this->TextProp->GetLineSpacing();
+
+    this->Ascent = HPDF_Font_GetAscent(this->Font) * fontScale;
+    this->Descent = HPDF_Font_GetDescent(this->Font) * fontScale;
+
+    return true;
+  }
+
+  HPDF_REAL ComputeLineWidth(const std::string& str)
+  {
+    HPDF_TextWidth widthAttr =
+        HPDF_Font_TextWidth(this->Font,
+                            reinterpret_cast<const HPDF_BYTE*>(str.c_str()),
+                            static_cast<HPDF_UINT>(str.size()));
+
+    HPDF_REAL wordSpace = HPDF_Page_GetWordSpace(this->Page);
+    HPDF_REAL charSpace = HPDF_Page_GetCharSpace(this->Page);
+
+    return (wordSpace * widthAttr.numwords +
+            charSpace * widthAttr.numchars +
+            widthAttr.width * this->FontSize / 1000);
+  }
+
+  bool SplitStrings()
+  {
+    this->BBoxWidth = 0;
+
+    std::string::const_iterator it = this->String.begin();
+    std::string::const_iterator end = this->String.end();
+    std::string::const_iterator itEnd = std::find(it, end, '\n');
+
+    while (itEnd != end)
+    {
+      std::string tmp{it, itEnd};
+      HPDF_REAL width = this->ComputeLineWidth(tmp);
+      this->BBoxWidth = std::max(this->BBoxWidth, width);
+      this->Lines.emplace_back(std::move(tmp), width);
+
+      it = itEnd;
+      std::advance(it, 1);
+      itEnd = std::find(it, end, '\n');
+    }
+
+    // Last line:
+    {
+      std::string tmp{it, itEnd};
+      HPDF_REAL width = this->ComputeLineWidth(tmp);
+      if (width > 0) // Skip empty trailing lines:
+      {
+        this->BBoxWidth = std::max(this->BBoxWidth, width);
+        this->Lines.emplace_back(std::move(tmp), width);
+      }
+    }
+    return true;
+  }
+
+  bool ComputeBBox()
+  {
+    std::size_t nLines = this->Lines.size();
+    switch (nLines)
+    {
+      case 0:
+        this->BBoxHeight = 0;
+        break;
+
+      case 1:
+        this->BBoxHeight = this->Ascent;
+        break;
+
+      default:
+        this->BBoxHeight = this->LineHeight + this->Leading * (nLines - 1);
+        break;
+    }
+
+    return true;
+  }
+
+  // Move the baseline of the first line to the appropriate location given
+  // the justification parameters
+  void JustifyStartPoint(float pt[2]) const
+  {
+    std::array<float, 2> offset = {0.f, -this->Ascent};
+
+    switch (this->TextProp->GetJustification())
+    {
+      default:
+      case VTK_TEXT_LEFT:
+        break;
+
+      case VTK_TEXT_CENTERED:
+        offset[0] -= this->BBoxWidth * 0.5f;
+        break;
+
+      case VTK_TEXT_RIGHT:
+        offset[0] -= this->BBoxWidth;
+        break;
+    }
+
+    switch (this->TextProp->GetVerticalJustification())
+    {
+      case VTK_TEXT_BOTTOM:
+        offset[1] += this->BBoxHeight;
+        break;
+
+      case VTK_TEXT_CENTERED:
+        offset[1] += this->BBoxHeight * 0.5f;
+        break;
+
+      default:
+      case VTK_TEXT_TOP:
+        break;
+    }
+
+    // Account for tprop rotation:
+    std::array<float, 2> tmp = {
+      offset[0] * this->CosineTheta - offset[1] * this->SineTheta,
+      offset[0] * this->SineTheta   + offset[1] * this->CosineTheta,
+    };
+
+    pt[0] += tmp[0];
+    pt[1] += tmp[1];
+  }
+
+  void PrintLeftJustifiedText() const
+  {
+    for (const auto& line : this->Lines)
+    {
+      HPDF_Page_ShowText(this->Page, line.String.c_str());
+      HPDF_Page_MoveToNextLine(this->Page);
+    }
+  }
+
+  void PrintCenterJustifiedText() const
+  {
+    HPDF_REAL currentOffset = 0; // for centering
+    for (size_t i = 0; i < this->Lines.size(); ++i)
+    {
+      const Line& line = this->Lines[i];
+
+      if (i == 0)
+      { // Center the first line:
+        currentOffset = (this->BBoxWidth - line.Width) * 0.5f;
+        HPDF_Page_MoveTextPos(this->Page, currentOffset, 0);
+      }
+      else
+      {
+        // This line's offset:
+        HPDF_REAL lineOffset = (this->BBoxWidth - line.Width) * 0.5;
+
+        // The incremental change to effect this lines offset relative to the
+        // current offset:
+        HPDF_REAL incrOffset = lineOffset - currentOffset;
+
+        // Center current line and advance to new line:
+        HPDF_Page_MoveTextPos(this->Page, incrOffset, -this->Leading);
+
+        // Update for next iteration:
+        currentOffset = lineOffset;
+      }
+
+      HPDF_Page_ShowText(this->Page, line.String.c_str());
+    }
+  }
+
+  void PrintRightJustifiedText() const
+  {
+    HPDF_REAL currentOffset = 0; // for centering
+    for (size_t i = 0; i < this->Lines.size(); ++i)
+    {
+      const Line& line = this->Lines[i];
+
+      if (i == 0)
+      { // Right justify the first line:
+        currentOffset = this->BBoxWidth - line.Width;
+        HPDF_Page_MoveTextPos(this->Page, currentOffset, 0);
+      }
+      else
+      {
+        // This line's offset:
+        HPDF_REAL lineOffset = this->BBoxWidth - line.Width;
+
+        // The incremental change to effect this lines offset relative to the
+        // current offset:
+        HPDF_REAL incrOffset = lineOffset - currentOffset;
+
+        // Center current line and advance to new line:
+        HPDF_Page_MoveTextPos(this->Page, incrOffset, -this->Leading);
+
+        // Update for next iteration:
+        currentOffset = lineOffset;
+      }
+
+      HPDF_Page_ShowText(this->Page, line.String.c_str());
+    }
+  }
+};
 
 //------------------------------------------------------------------------------
 // vtkPDFContextDevice2D::Details
@@ -881,8 +1297,9 @@ void vtkPDFContextDevice2D::DrawString(float *point, const vtkStdString &string)
   vtkTextRenderer *tren = vtkTextRenderer::GetInstance();
   if (!tren)
   {
-    vtkErrorMacro("vtkTextRenderer unavailable. Link to vtkRenderingFreeType "
-                  "to get the default implementation.");
+    vtkGenericWarningMacro("vtkTextRenderer unavailable. Link to "
+                           "vtkRenderingFreeType to get the default "
+                           "implementation.");
     return;
   }
 
@@ -892,33 +1309,23 @@ void vtkPDFContextDevice2D::DrawString(float *point, const vtkStdString &string)
 
   if (backend != vtkTextRenderer::MathText)
   {
-    // Rotate/translate via a transform:
-    const float theta = vtkMath::RadiansFromDegrees(
-          static_cast<float>(-this->TextProp->GetOrientation()));
-    const float sinTheta = std::sin(theta);
-    const float cosTheta = std::cos(theta);
-    HPDF_Page_Concat(this->Impl->Page,
-                     cosTheta, -sinTheta,
-                     sinTheta, cosTheta,
-                     point[0], point[1]);
+    vtkNew<vtkMatrix3x3> mat;
+    this->GetMatrix(mat);
+    TextHelper helper(this->Impl->Document,
+                      this->Impl->Page,
+                      this->TextProp,
+                      string,
+                      mat);
+    if (!helper.Valid)
+    {
+      vtkErrorMacro("Error preparing to draw string: " << string);
+      this->PopGraphicsState();
+      return;
+    }
 
     this->ApplyTextPropertyState();
 
-    this->BeginText();
-
-    // Compute new anchor point and bounding rect:
-    float anchor[2] = { 0.f, 0.f };
-    float width = this->ComputeTextWidth(string);
-    float height = this->ComputeTextPosition(anchor, string, width);
-
-    HPDF_TextAlignment align = hAlignMap[this->TextProp->GetJustification()];
-
-    HPDF_Page_TextRect(this->Impl->Page,
-                       anchor[0], anchor[1],
-                       anchor[0] + width, anchor[1] - height,
-                       string.c_str(), align, nullptr);
-
-    this->EndText();
+    helper.DrawText(point);
   }
   else
   {
@@ -928,6 +1335,7 @@ void vtkPDFContextDevice2D::DrawString(float *point, const vtkStdString &string)
     {
       vtkErrorMacro("Error generating path for MathText string '"
                     << string << "'.");
+      this->PopGraphicsState();
       return;
     }
 
@@ -949,30 +1357,25 @@ void vtkPDFContextDevice2D::DrawString(float *point, const vtkStdString &string)
 void vtkPDFContextDevice2D::ComputeStringBounds(const vtkStdString &string,
                                                 float bounds[4])
 {
-  vtkTextRenderer *tren = vtkTextRenderer::GetInstance();
-  if (!tren)
+  vtkNew<vtkMatrix3x3> mat;
+  this->GetMatrix(mat);
+  TextHelper helper(this->Impl->Document,
+                    this->Impl->Page,
+                    this->TextProp,
+                    string,
+                    mat);
+  if (!helper.Valid)
   {
-    vtkErrorMacro("vtkTextRenderer unavailable. Link to vtkRenderingFreeType "
-                  "to get the default implementation.");
-    std::fill(bounds, bounds + 4, 0.f);
-    return;
-  }
-
-  assert(this->Renderer && this->Renderer->GetRenderWindow());
-  int dpi = this->Renderer->GetRenderWindow()->GetDPI();
-
-  vtkTextRenderer::Metrics m;
-  if (!tren->GetMetrics(this->TextProp, string, m, dpi))
-  {
-    vtkErrorMacro("Error computing bbox for string '" << string << "'.");
+    vtkErrorMacro("Error determining bounding box for string '"
+                  << string << "'.");
     std::fill(bounds, bounds + 4, 0.f);
     return;
   }
 
   bounds[0] = 0.f;
   bounds[1] = 0.f;
-  bounds[2] = static_cast<float>(m.BoundingBox[1] - m.BoundingBox[0] + 1);
-  bounds[3] = static_cast<float>(m.BoundingBox[3] - m.BoundingBox[2] + 1);
+  bounds[2] = helper.BBoxWidth;
+  bounds[3] = helper.BBoxHeight;
 }
 
 //------------------------------------------------------------------------------
@@ -1952,213 +2355,6 @@ void vtkPDFContextDevice2D::DrawPath(vtkPath *path,
         throw std::runtime_error("Unknown control code.");
     }
   }
-}
-
-//------------------------------------------------------------------------------
-void vtkPDFContextDevice2D::BeginText()
-{
-  int family = this->TextProp->GetFontFamily();
-  HPDF_Font font = nullptr;
-  if (family == VTK_FONT_FILE)
-  {
-    const char *fontName =
-        HPDF_LoadTTFontFromFile(this->Impl->Document,
-                                this->TextProp->GetFontFile(), true);
-    font = HPDF_GetFont(this->Impl->Document, fontName, "StandardEncoding");
-  }
-  else
-  {
-    std::ostringstream fontStr;
-    bool isBold = this->TextProp->GetBold() != 0;
-    bool isItalic = this->TextProp->GetItalic() != 0;
-
-    switch (family)
-    {
-      case VTK_ARIAL:
-        fontStr << "Helvetica";
-        if (isBold || isItalic)
-        {
-          fontStr << "-";
-        }
-        if (isBold)
-        {
-          fontStr << "Bold";
-        }
-        if (isItalic)
-        {
-          fontStr << "Oblique";
-        }
-        break;
-
-      case VTK_COURIER:
-        fontStr << "Courier";
-        if (isBold || isItalic)
-        {
-          fontStr << "-";
-        }
-        if (isBold)
-        {
-          fontStr << "Bold";
-        }
-        if (isItalic)
-        {
-          fontStr << "Oblique";
-        }
-        break;
-
-      case VTK_TIMES:
-        fontStr << "Times-";
-        if (isBold && isItalic)
-        {
-          fontStr << "BoldItalic";
-        }
-        else if (isBold)
-        {
-          fontStr << "Bold";
-        }
-        else if (isItalic)
-        {
-          fontStr << "Italic";
-        }
-        else
-        {
-          fontStr << "Roman";
-        }
-        break;
-
-      default:
-        // Garbage in, garbage out:
-        vtkWarningMacro("Unknown font family (" << family << "). Defaulting to "
-                        "Dingbats.");
-        fontStr << "ZapfDingbats";
-        break;
-    }
-
-    font = HPDF_GetFont(this->Impl->Document, fontStr.str().c_str(),
-                        "StandardEncoding");
-  }
-
-  if (!font)
-  {
-    vtkErrorMacro("Error preparing libharu font object.");
-    return;
-  }
-
-  HPDF_REAL fontSize = static_cast<HPDF_REAL>(this->TextProp->GetFontSize());
-  HPDF_Page_BeginText(this->Impl->Page);
-  HPDF_Page_SetFontAndSize(this->Impl->Page, font, fontSize);
-  HPDF_Page_SetTextRenderingMode(this->Impl->Page, HPDF_FILL);
-  // TODO There is a TextLeading option for setting line spacing, but the
-  // units are undefined in the libharu docs, and whatever they are they don't
-  // seem to map nicely to the fractional units we use.
-}
-
-//------------------------------------------------------------------------------
-float vtkPDFContextDevice2D::ComputeTextPosition(float pos[2],
-                                                 const vtkStdString &str,
-                                                 float realWidth)
-{
-  vtkTextRenderer *tren = vtkTextRenderer::GetInstance();
-  if (!tren)
-  {
-    vtkErrorMacro("vtkTextRenderer unavailable. Link to vtkRenderingFreeType "
-                  "to get the default implementation.");
-    return 0.f;
-  }
-
-  assert(this->Renderer && this->Renderer->GetRenderWindow());
-  int dpi = this->Renderer->GetRenderWindow()->GetDPI();
-
-  // Remove the orientation while computing these bounds -- we want the
-  // unrotated bounding box, since we rotate via transform.
-  double oldOrientation = this->TextProp->GetOrientation();
-  int oldTightBBox = this->TextProp->GetUseTightBoundingBox();
-  this->TextProp->SetOrientation(0.);
-  this->TextProp->SetUseTightBoundingBox(0);
-  vtkTextRenderer::Metrics m;
-  if (!tren->GetMetrics(this->TextProp, str, m, dpi))
-  {
-    vtkErrorMacro("Error computing bbox for string '" << str << "'.");
-    return 0.f;
-  }
-  this->TextProp->SetOrientation(oldOrientation);
-  this->TextProp->SetUseTightBoundingBox(oldTightBBox);
-
-  float dims[2] = {
-    realWidth,
-    static_cast<float>(m.BoundingBox[3] - m.BoundingBox[2] + 1)
-  };
-
-  switch (this->TextProp->GetJustification())
-  {
-    case VTK_TEXT_RIGHT:
-      pos[0] -= dims[0];
-      break;
-
-    case VTK_TEXT_CENTERED:
-      pos[0] -= dims[0] * 0.5f;
-      break;
-
-    default:
-      break;
-  }
-
-  // Account for ascent/descent as well -- PDF aligns to the text baseline.
-  const float descent = static_cast<float>(m.Descent[1]);
-
-  switch (this->TextProp->GetVerticalJustification())
-  {
-    case VTK_TEXT_BOTTOM:
-      pos[1] += dims[1] - descent;
-      break;
-
-    case VTK_TEXT_CENTERED:
-      pos[1] += (dims[1] - descent) * 0.5f;
-      break;
-
-    case VTK_TEXT_TOP:
-      pos[1] += -descent;
-      break;
-
-    default:
-      break;
-  }
-
-  // Return the height as 'a bit bigger' than the VTK rendered height. Otherwise
-  // the PDF may cut off text at the bottom. Haru only provides API to get the
-  // actual rendered PDF text width, so we have to guess at the height :-(
-  return dims[1] * 1.1;
-}
-
-//------------------------------------------------------------------------------
-float vtkPDFContextDevice2D::ComputeTextWidth(const vtkStdString &str)
-{
-  float width = 0.f;
-  vtkStdString::const_iterator it = str.begin();
-  vtkStdString::const_iterator itEnd = std::find(it, str.end(), '\n');
-  while (itEnd != str.end())
-  {
-    std::string tmp(it, itEnd);
-    width = std::max(width, HPDF_Page_TextWidth(this->Impl->Page, tmp.c_str()));
-    it = itEnd;
-    std::advance(it, 1);
-    itEnd = std::find(it, str.end(), '\n');
-  }
-  // Last line:
-  {
-    std::string tmp(it, itEnd);
-    width = std::max(width, HPDF_Page_TextWidth(this->Impl->Page, tmp.c_str()));
-  }
-
-  // Pad by 1 -- sometimes the TextWidth result is barely too narrow for the
-  // text that's actually drawn, causing some viewers to ignore it:
-  return width + 1;
-}
-
-//------------------------------------------------------------------------------
-void vtkPDFContextDevice2D::EndText()
-{
-  HPDF_Page_EndText(this->Impl->Page);
 }
 
 //------------------------------------------------------------------------------
