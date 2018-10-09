@@ -39,6 +39,7 @@
 #include "vtkTextRenderer.h"
 #include "vtkUnicodeString.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkVectorOperators.h"
 
 #include <vtk_libharu.h>
 
@@ -153,6 +154,24 @@ static void PolyLineToShading(const float *points, int numPoints,
                          points + 2 * n, color + nc_comps * n,
                          radius, shading);
   }
+}
+
+std::pair<double, double> GetScaleFactor(vtkMatrix3x3 *mat)
+{
+  auto sign = [](double x) -> double
+  {
+    return x >= 0. ? 1. : -1;
+  };
+
+  auto a = mat->GetData()[0];
+  auto b = mat->GetData()[1];
+  auto c = mat->GetData()[3];
+  auto d = mat->GetData()[4];
+
+  double sx = sign(a) * std::sqrt(a*a + b*b);
+  double sy = sign(d) * std::sqrt(c*c + d*d);
+
+  return std::make_pair(sx, sy);
 }
 
 } // end anon namespace
@@ -302,7 +321,8 @@ void vtkPDFContextDevice2D::DrawPoly(float *points, int n,
   }
   else
   {
-    const float radius = this->Pen->GetWidth() * 0.5f;
+    vtkVector2f width = this->GetUnscaledPenWidth() * 0.5f;
+    const float radius = std::max(width[0], width[1]) * 0.5f;
     HPDF_REAL bbox[4];
     GetPointBounds(points, n, bbox, radius);
 
@@ -349,7 +369,8 @@ void vtkPDFContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
   }
   else
   {
-    const float radius = this->Pen->GetWidth() * 0.5f;
+    vtkVector2f width = this->GetUnscaledPenWidth();
+    const float radius = std::max(width[0], width[1]) * 0.5f;
     HPDF_REAL bbox[4];
     GetPointBounds(f, n, bbox, radius);
 
@@ -388,8 +409,8 @@ void vtkPDFContextDevice2D::DrawPoints(float *points, int n,
   this->PushGraphicsState();
   this->ApplyPenStateAsFill();
 
-  const float width= this->Pen->GetWidth();
-  const float halfWidth = width * 0.5;
+  const vtkVector2f width = this->GetUnscaledPenWidth();
+  const vtkVector2f halfWidth = width * 0.5f;
 
   for (int i = 0; i < n; ++i)
   {
@@ -397,9 +418,9 @@ void vtkPDFContextDevice2D::DrawPoints(float *points, int n,
     {
       this->ApplyFillColor(colors + i * nc_comps, nc_comps);
     }
-    float originX = points[i*2] - halfWidth;
-    float originY = points[i*2 + 1] - halfWidth;
-    HPDF_Page_Rectangle(this->Impl->Page, originX, originY, width, width);
+    float originX = points[i*2] - halfWidth[0];
+    float originY = points[i*2 + 1] - halfWidth[1];
+    HPDF_Page_Rectangle(this->Impl->Page, originX, originY, width[0], width[1]);
     this->Fill();
   }
 
@@ -1263,8 +1284,9 @@ void vtkPDFContextDevice2D::PopGraphicsState()
 //------------------------------------------------------------------------------
 void vtkPDFContextDevice2D::ApplyPenState()
 {
+  const vtkVector2f width = this->GetUnscaledPenWidth();
   this->ApplyStrokeColor(this->Pen->GetColorObject().GetData(), 4);
-  this->ApplyLineWidth(this->Pen->GetWidth());
+  this->ApplyLineWidth(std::max(width[0], width[1]));
   this->ApplyLineType(this->Pen->GetLineType());
 }
 
@@ -2188,6 +2210,20 @@ void vtkPDFContextDevice2D::ApplyTransform()
   vtkPDFContextDevice2D::Matrix3ToHPDFTransform(newTransMat3, hpdfMat);
   HPDF_Page_Concat(this->Impl->Page, hpdfMat[0], hpdfMat[1], hpdfMat[2],
                    hpdfMat[3], hpdfMat[4], hpdfMat[5]);
+}
+
+//------------------------------------------------------------------------------
+vtkVector2f vtkPDFContextDevice2D::GetUnscaledPenWidth()
+{
+  float width = this->GetPen()->GetWidth();
+  vtkNew<vtkMatrix3x3> mat;
+  this->GetMatrix(mat);
+  double sx;
+  double sy;
+  std::tie(sx, sy) = GetScaleFactor(mat);
+
+  return vtkVector2f{static_cast<float>(width / sx),
+                     static_cast<float>(width / sy)};
 }
 
 //------------------------------------------------------------------------------

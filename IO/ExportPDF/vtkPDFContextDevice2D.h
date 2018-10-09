@@ -154,6 +154,11 @@ protected:
 
   void ApplyTransform();
 
+  // This is weird, but the pen width must not be affected by the transform's
+  // scaling factors. This function returns the unscaled x/y components of
+  // the pen width.
+  vtkVector2f GetUnscaledPenWidth();
+
   // Converts a 2D transform matrix into a 3D transform matrix, or vice versa
   static void Matrix3ToMatrix4(vtkMatrix3x3 *mat3, double mat4[16]);
   static void Matrix4ToMatrix3(double mat4[16], vtkMatrix3x3 *mat3);
