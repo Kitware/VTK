@@ -17,11 +17,11 @@
 #include <vtkNew.h>
 #include <vtkSmartPointer.h>
 
-bool TestLABCIEDE2000()
+bool TestColorSpace()
 {
   vtkNew<vtkColorTransferFunction> ctf;
-  ctf->AddRGBPoint(0.0, 1.0, 0, 0);
-  ctf->AddRGBPoint(1.0, 0.0, 0, 1.0);
+  ctf->AddRGBPoint(0.0, 1.0, 0.0, 0.0);
+  ctf->AddRGBPoint(1.0, 0.0, 0.0, 1.0);
   const unsigned char* rgba = ctf->MapValue(0.5);
   if (rgba[0] != 128 || rgba[1] != 0 || rgba[2] != 128)
   {
@@ -37,6 +37,13 @@ bool TestLABCIEDE2000()
     return false;
   }
 
+  ctf->SetColorSpaceToStep();
+  rgba = ctf->MapValue(0.5);
+  if (rgba[0] != 0 || rgba[1] != 0 || rgba[2] != 255)
+  {
+    cerr << "ERROR: ColorSpace == VTK_CTF_STEP failed!" << endl;
+    return false;
+  }
   return true;
 }
 
@@ -117,7 +124,7 @@ int TestColorTransferFunction(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 
 
-  if (!TestLABCIEDE2000())
+  if (!TestColorSpace())
   {
     return EXIT_FAILURE;
   }

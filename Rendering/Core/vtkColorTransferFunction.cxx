@@ -996,6 +996,14 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
           tptr[1] = (1-s)*rgb1[1] + s*rgb2[1];
           tptr[2] = (1-s)*rgb1[2] + s*rgb2[2];
         }
+        // No interpolation in step mode,
+        // It considers sharpness and midpoint to be 1
+        else if ( this->ColorSpace == VTK_CTF_STEP )
+        {
+          tptr[0] = rgb2[0];
+          tptr[1] = rgb2[1];
+          tptr[2] = rgb2[2];
+        }
         else if ( this->ColorSpace == VTK_CTF_HSV )
         {
           double hsv1[3], hsv2[3];
@@ -1096,6 +1104,14 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
           // Compute the value
           tptr[j] = h1*rgb1[j] + h2*rgb2[j] + h3*t + h4*t;
         }
+      }
+      // No interpolation in step mode
+      // It considers sharpness and midpoint to be 1
+      else if ( this->ColorSpace == VTK_CTF_STEP )
+      {
+        tptr[0] = rgb2[0];
+        tptr[1] = rgb2[1];
+        tptr[2] = rgb2[2];
       }
       else if (this->ColorSpace == VTK_CTF_HSV)
       {
