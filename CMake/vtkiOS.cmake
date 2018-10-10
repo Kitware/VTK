@@ -125,6 +125,10 @@ option(Module_vtkRenderingVolumeOpenGL2 "Include Volume Rendering Support" ON)
 option(Module_vtkRenderingLOD "Include LOD Rendering Support" OFF)
 
 
+if (Module_vtkDICOM)
+  set(DICOM_OPTION -DModule_vtkDICOM:BOOL=ON)
+endif()
+
 mark_as_advanced(Module_${vtk-module})
 
 # Now cross-compile VTK with custom toolchains
@@ -145,7 +149,7 @@ set(ios_cmake_flags
   -DModule_vtkInteractionStyle:BOOL=${Module_vtkInteractionStyle}
   -DModule_vtkInteractionWidgets:BOOL=${Module_vtkInteractionWidgets}
   -DModule_vtkIOXML:BOOL=${Module_vtkIOXML}
-  -DModule_vtkDICOM:BOOL=${Module_vtkDICOM}
+  ${DICOM_OPTION}
   -DModule_vtkFiltersModeling:BOOL=${Module_vtkFiltersModeling}
   -DModule_vtkFiltersSources:BOOL=${Module_vtkFiltersSources}
   -DModule_vtkIOGeometry:BOOL=${Module_vtkIOGeometry}
