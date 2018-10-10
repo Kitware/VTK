@@ -217,8 +217,8 @@ void vtkOpenVROverlay::LoadNextCameraPose()
         {
           nextValue = p2.first;
         }
-        break;
       }
+      break;
     }
   }
 
