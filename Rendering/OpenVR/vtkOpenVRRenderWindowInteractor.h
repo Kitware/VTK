@@ -166,7 +166,7 @@ protected:
   */
   int DeviceInputDown[VTKI_MAX_POINTERS][2];
   int DeviceInputDownCount[2];
-  void RecognizeComplexGesture(vtkEventDataDevice3D* edata);
+  virtual void RecognizeComplexGesture(vtkEventDataDevice3D* edata);
 
   /**
    * Store physical to world matrix at the start of a multi-touch gesture
