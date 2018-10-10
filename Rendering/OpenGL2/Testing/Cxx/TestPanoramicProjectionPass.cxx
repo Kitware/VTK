@@ -83,8 +83,8 @@ int TestPanoramicProjectionPass(int argc, char* argv[])
 
   for (int i = 0; i < 4; i++)
   {
-    double f = i & 1 ? -2.0 : 2.0;
-    double x = i & 2 ? 1.0 : 0.0;
+    double f = (i & 1) ? -2.0 : 2.0;
+    double x = (i & 2) ? 1.0 : 0.0;
     double c[3] = { static_cast<double>((i + 1) & 1),
       static_cast<double>(((i + 1) >> 1) & 1),
       static_cast<double>(((i + 1) >> 2) & 1) };
