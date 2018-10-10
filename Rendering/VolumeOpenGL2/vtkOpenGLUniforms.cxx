@@ -233,7 +233,7 @@ public:
     vtkCustomUniform1iv( const int count, const int *v ) { SetValue(count,v); }
     void SetValue( const int count, const int *v ) { value.assign( v, v + count ); }
     std::string GetGlslDec( std::string name ) override
-    { return std::string("uniform int ") + name + "[" + std::to_string(value.size()) + "];\n"; }
+    { return std::string("uniform int ") + name + "[" + patch::to_string(value.size()) + "];\n"; }
     bool SetUniform( const char * name, vtkShaderProgram * p ) override
     { return p->SetUniform1iv( name, static_cast<int>(value.size()), value.data() ); }
     void PrintSelf( const char * name, ostream& os, vtkIndent indent ) override
