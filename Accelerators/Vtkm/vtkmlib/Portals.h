@@ -44,15 +44,19 @@ public:
 
   vtkArrayPortal(VTKDataArrayType* array, vtkm::Id size);
 
+  VTKM_SUPPRESS_EXEC_WARNINGS
+  VTKM_EXEC_CONT
   vtkm::Id GetNumberOfValues() const
   {
     return this->Size;
   }
 
   VTKM_SUPPRESS_EXEC_WARNINGS
-  VTKM_EXEC
+  VTKM_EXEC_CONT
   inline ValueType Get(vtkm::Id index) const;
 
+  VTKM_SUPPRESS_EXEC_WARNINGS
+  VTKM_EXEC_CONT
   inline void Set(vtkm::Id index, const ValueType& value) const;
 
   typedef vtkm::cont::internal::IteratorFromArrayPortal<vtkArrayPortal>
@@ -90,15 +94,19 @@ public:
 
   vtkPointsPortal(vtkPoints* points, vtkm::Id size);
 
+  VTKM_SUPPRESS_EXEC_WARNINGS
+  VTKM_EXEC_CONT
   vtkm::Id GetNumberOfValues() const
   {
     return this->Size;
   }
 
   VTKM_SUPPRESS_EXEC_WARNINGS
-  VTKM_EXEC
+  VTKM_EXEC_CONT
   inline ValueType Get(vtkm::Id index) const;
 
+  VTKM_SUPPRESS_EXEC_WARNINGS
+  VTKM_EXEC_CONT
   inline void Set(vtkm::Id index, const ValueType& value) const;
 
   typedef vtkm::cont::internal::IteratorFromArrayPortal<vtkPointsPortal>
