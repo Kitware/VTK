@@ -66,6 +66,9 @@ int TestPDFContextExport(int, char*[])
   vtkOpenGLContextDevice2D::SafeDownCast(view->GetContext()->GetDevice())
       ->SetStringRendererToFreeType();
 
+  vtkNew<vtkRenderWindowInteractor> iren;
+  iren->SetRenderWindow(view->GetRenderWindow());
+  view->GetRenderWindow()->GetInteractor()->Initialize();
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetRenderWindow()->Render();
 
@@ -78,10 +81,7 @@ int TestPDFContextExport(int, char*[])
   exp->SetFileName(filename.c_str());
   exp->Write();
 
-  vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(view->GetRenderWindow());
-  view->GetRenderWindow()->SetMultiSamples(0);
-  view->GetRenderWindow()->GetInteractor()->Initialize();
+  view->GetRenderWindow()->Render();
   view->GetRenderWindow()->GetInteractor()->Start();
 
   return EXIT_SUCCESS;

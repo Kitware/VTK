@@ -3,6 +3,7 @@ if(VTK_GHOSTSCRIPT_EXECUTABLE)
     TestPDFContextExport.cxx,NO_DATA
     TestPDFContextShading.cxx,NO_DATA
     TestPDFExporterContextPolyData.cxx
+    TestPDFTransformedText.cxx,NO_DATA
   )
 
   vtk_add_test_cxx(vtkIOExportPDFCxxTests tests

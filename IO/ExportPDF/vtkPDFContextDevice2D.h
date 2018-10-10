@@ -147,17 +147,12 @@ protected:
 
   void DrawPath(vtkPath *path, float x, float y);
 
-  void BeginText();
-  float ComputeTextWidth(const vtkStdString &str);
-  // Transforms pos form the VTK anchor point to the PDF anchor point, and
-  // returns a guess at the height of the rendered string.
-  // realWidth is the width computed by ComputTextWidth.
-  float ComputeTextPosition(float pos[2], const vtkStdString &str,
-                            float realWidth);
-  void AlignText(double orientation, float width, float height, float *p);
-  void EndText();
-
   void ApplyTransform();
+
+  // This is weird, but the pen width must not be affected by the transform's
+  // scaling factors. This function returns the unscaled x/y components of
+  // the pen width.
+  vtkVector2f GetUnscaledPenWidth();
 
   // Converts a 2D transform matrix into a 3D transform matrix, or vice versa
   static void Matrix3ToMatrix4(vtkMatrix3x3 *mat3, double mat4[16]);
