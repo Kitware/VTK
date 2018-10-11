@@ -309,16 +309,13 @@ void vtkOrderIndependentTranslucentPass::Render(const vtkRenderState *s)
   this->State->vtkglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 #if defined(__APPLE__)
+  this->State->vtkglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
   // apple fails if not the upper left corenr of the window
-  if (this->ViewportX || this->ViewportHeight != renWin->GetSize()[1])
-  {
-    // blit on apple is fubar, so rerender opaque
-    // to get a good depth buffer
-    r->DeviceRenderOpaqueGeometry();
-  }
-  else
-#endif
-  {
+  // blit on apple is fubar, so rerender opaque
+  // to get a good depth buffer
+  r->DeviceRenderOpaqueGeometry();
+  this->State->vtkglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+#else
   // blit read buffer depth to FO depth texture
   glBlitFramebuffer(
     this->ViewportX, this->ViewportY,
@@ -327,7 +324,8 @@ void vtkOrderIndependentTranslucentPass::Render(const vtkRenderState *s)
     0, 0, this->ViewportWidth, this->ViewportHeight,
     GL_DEPTH_BUFFER_BIT,
     GL_NEAREST);
-  }
+#endif
+
 
   // now bind both read and draw
   this->Framebuffer->Bind();
