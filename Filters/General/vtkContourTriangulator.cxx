@@ -86,6 +86,9 @@ int vtkContourTriangulator::RequestData(
   vtkCellArray *polys = vtkCellArray::New();
   output->SetPolys(polys);
   output->SetPoints(input->GetPoints());
+  output->GetPointData()->PassData(input->GetPointData());
+
+
   polys->Delete();
 
   this->TriangulationError = !vtkContourTriangulator::TriangulateContours(
