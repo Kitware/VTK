@@ -324,6 +324,8 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
     OSPSET1F(anisotropy);
     OSPSET1F(rotation);
     OSPSET1F(normal);
+    OSPSET1F(thin);
+    OSPSET1F(thickness);
     OSPSET1F(backlight);
     OSPSET1F(coat);
     OSPSET1F(coatIor);
@@ -334,6 +336,7 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
     OSPSET1F(sheen);
     OSPSET3F(sheenColor);
     OSPSET1F(sheenRoughness);
+    OSPSET1F(opacity);
 
     OSPSETTEXTURE(baseColorMap);
     OSPSETTEXTURE(edgeColorMap);
@@ -348,6 +351,8 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
     OSPSETTEXTURE(anisotropyMap);
     OSPSETTEXTURE(rotationMap);
     OSPSETTEXTURE(normalMap);
+    OSPSETTEXTURE(thinMap);
+    OSPSETTEXTURE(thicknessMap);
     OSPSETTEXTURE(backlightMap);
     OSPSETTEXTURE(coatMap);
     OSPSETTEXTURE(coatIorMap);
@@ -358,6 +363,7 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
     OSPSETTEXTURE(sheenMap);
     OSPSETTEXTURE(sheenColorMap);
     OSPSETTEXTURE(sheenRoughnessMap);
+    OSPSETTEXTURE(opacityMap);
   }
   else if (implname == "CarPaint")
   {
