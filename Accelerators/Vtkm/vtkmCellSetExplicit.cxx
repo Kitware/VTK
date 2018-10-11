@@ -46,7 +46,8 @@ struct ExplicitRConnToConn
   {
     OffsetsPortal Offsets;
 
-    VTKM_CONT
+    VTKM_SUPPRESS_EXEC_WARNINGS
+    VTKM_EXEC_CONT
     OffsetsModifier(const OffsetsPortal& offsets = OffsetsPortal{})
       : Offsets(offsets)
     {
