@@ -25,7 +25,7 @@ class vtkCustomUniform
 {
 public:
     virtual ~vtkCustomUniform() {}
-    virtual std::string GetGlslDec( std::string ) { return std::string(); }
+    virtual std::string GetGlslDec( const std::string & ) { return std::string(); }
     virtual bool SetUniform( const char *, vtkShaderProgram * ) { return false; }
     virtual void PrintSelf( const char *, ostream&, vtkIndent ) {}
 };
@@ -35,7 +35,7 @@ class vtkCustomUniformi : public vtkCustomUniform
 public:
     vtkCustomUniformi( int val ) { value = val; }
     void SetValue( int val ) { value = val; }
-    std::string GetGlslDec( std::string name ) override { return std::string("uniform int ") + name + ";\n"; }
+    std::string GetGlslDec( const std::string & name ) override { return std::string("uniform int ") + name + ";\n"; }
     bool SetUniform( const char * name, vtkShaderProgram * p ) override { return p->SetUniformi( name, value ); }
     void PrintSelf( const char * name, ostream& os, vtkIndent indent ) override
     { os << indent << name << ": " << value << endl;}
@@ -48,7 +48,7 @@ class vtkCustomUniformf : public vtkCustomUniform
 public:
     vtkCustomUniformf( float val ) { value = val; }
     void SetValue( float val ) { value = val; }
-    std::string GetGlslDec( std::string name ) override { return std::string("uniform float ") + name + ";\n"; }
+    std::string GetGlslDec( const std::string & name ) override { return std::string("uniform float ") + name + ";\n"; }
     bool SetUniform( const char * name, vtkShaderProgram * p ) override { return p->SetUniformf( name, value ); }
     void PrintSelf( const char * name, ostream& os, vtkIndent indent ) override
     { os << indent << name << ": " << value << endl;}
@@ -61,7 +61,7 @@ class vtkCustomUniform2i : public vtkCustomUniform
 public:
     vtkCustomUniform2i( const int val[2] ) { value[0] = val[0]; value[1] = val[1]; }
     void SetValue( const int val[2] ) { value[0] = val[0]; value[1] = val[1]; }
-    std::string GetGlslDec( std::string name ) override { return std::string("uniform ivec2 ") + name + ";\n"; }
+    std::string GetGlslDec( const std::string & name ) override { return std::string("uniform ivec2 ") + name + ";\n"; }
     bool SetUniform( const char * name, vtkShaderProgram * p ) override { return p->SetUniform2i( name, value ); }
     void PrintSelf( const char * name, ostream& os, vtkIndent indent ) override
     { os << indent << name << ": ( " << value[0] << ", " << value[1] << " )" << endl;}
@@ -74,7 +74,7 @@ class vtkCustomUniform2f : public vtkCustomUniform
 public:
     vtkCustomUniform2f( const float val[2] ) { value[0] = val[0]; value[1] = val[1]; }
     void SetValue( const float val[2] ) { value[0] = val[0]; value[1] = val[1]; }
-    std::string GetGlslDec( std::string name ) override { return std::string("uniform vec2 ") + name + ";\n"; }
+    std::string GetGlslDec( const std::string & name ) override { return std::string("uniform vec2 ") + name + ";\n"; }
     bool SetUniform( const char * name, vtkShaderProgram * p ) override { return p->SetUniform2f( name, value ); }
     void PrintSelf( const char * name, ostream& os, vtkIndent indent ) override
     { os << indent << name << ": ( " << value[0] << ", " << value[1] << " )" << endl;}
@@ -87,7 +87,7 @@ class vtkCustomUniform3f : public vtkCustomUniform
 public:
     vtkCustomUniform3f( const float val[3] ) { value[0] = val[0]; value[1] = val[1]; value[2] = val[2]; }
     void SetValue( const float val[3] ) { value[0] = val[0]; value[1] = val[1]; value[2] = val[2]; }
-    std::string GetGlslDec( std::string name ) override { return std::string("uniform vec3 ") + name + ";\n"; }
+    std::string GetGlslDec( const std::string & name ) override { return std::string("uniform vec3 ") + name + ";\n"; }
     bool SetUniform( const char * name, vtkShaderProgram * p ) override { return p->SetUniform3f( name, value ); }
     void PrintSelf( const char * name, ostream& os, vtkIndent indent ) override
     { os << indent << name << ": ( " << value[0] << ", " << value[1] << ", " << value[2] << " )" << endl;}
@@ -100,7 +100,7 @@ class vtkCustomUniform3d : public vtkCustomUniform
 public:
     vtkCustomUniform3d( const double val[3] ) { value[0] = val[0]; value[1] = val[1]; value[2] = val[2]; }
     void SetValue( const double val[3] ) { value[0] = val[0]; value[1] = val[1]; value[2] = val[2]; }
-    std::string GetGlslDec( std::string name ) override { return std::string("uniform vec3 ") + name + ";\n"; }
+    std::string GetGlslDec( const std::string & name ) override { return std::string("uniform vec3 ") + name + ";\n"; }
     bool SetUniform( const char * name, vtkShaderProgram * p ) override { return p->SetUniform3f( name, value ); }
     void PrintSelf( const char * name, ostream& os, vtkIndent indent ) override
     { os << indent << name << ": ( " << value[0] << ", " << value[1] << ", " << value[2] << " )" << endl;}
@@ -113,7 +113,7 @@ class vtkCustomUniform4f : public vtkCustomUniform
 public:
     vtkCustomUniform4f( const float val[4] ) { value[0] = val[0]; value[1] = val[1]; value[2] = val[2]; value[3] = val[3]; }
     void SetValue( const float val[4] ) { value[0] = val[0]; value[1] = val[1]; value[2] = val[2]; value[3] = val[3]; }
-    std::string GetGlslDec( std::string name ) override { return std::string("uniform vec4 ") + name + ";\n"; }
+    std::string GetGlslDec( const std::string & name ) override { return std::string("uniform vec4 ") + name + ";\n"; }
     bool SetUniform( const char * name, vtkShaderProgram * p ) override { return p->SetUniform4f( name, value ); }
     void PrintSelf( const char * name, ostream& os, vtkIndent indent ) override
     { os << indent << name << ": ( " << value[0] << ", " << value[1] << ", " << value[2] << ", " << value[3] << " )" << endl;}
@@ -126,7 +126,7 @@ class vtkCustomUniform3uc : public vtkCustomUniform
 public:
     vtkCustomUniform3uc( const unsigned char v[3] ) { value[0] = v[0]; value[1] = v[1]; value[2] = v[2]; }
     void SetValue( const unsigned char v[3] ) { value[0] = v[0]; value[1] = v[1]; value[2] = v[2]; }
-    std::string GetGlslDec( std::string name ) override { return std::string("uniform vec3 ") + name + ";\n"; }
+    std::string GetGlslDec( const std::string & name ) override { return std::string("uniform vec3 ") + name + ";\n"; }
     bool SetUniform( const char * name, vtkShaderProgram * p ) override { return p->SetUniform3uc( name, value ); }
     void PrintSelf( const char * name, ostream& os, vtkIndent indent ) override
     { os << indent << name << ": ( " << value[0] << ", " << value[1] << ", " << value[2] << " )" << endl;}
@@ -139,7 +139,7 @@ class vtkCustomUniform4uc : public vtkCustomUniform
 public:
     vtkCustomUniform4uc( const unsigned char v[4] ) { value[0] = v[0]; value[1] = v[1]; value[2] = v[2]; value[3] = v[3]; }
     void SetValue( const unsigned char v[4] ) { value[0] = v[0]; value[1] = v[1]; value[2] = v[2]; value[3] = v[3]; }
-    std::string GetGlslDec( std::string name ) override { return std::string("uniform vec4 ") + name + ";\n"; }
+    std::string GetGlslDec( const std::string & name ) override { return std::string("uniform vec4 ") + name + ";\n"; }
     bool SetUniform( const char * name, vtkShaderProgram * p ) override { return p->SetUniform4uc( name, value ); }
     void PrintSelf( const char * name, ostream& os, vtkIndent indent ) override
     { os << indent << name << ": ( " << value[0] << ", " << value[1] << ", " << value[2] << ", " << value[3] << " )" << endl;}
@@ -153,7 +153,7 @@ public:
     vtkCustomUniformVtkMatrix3x3( vtkMatrix3x3 * v ) { value = vtkMatrix3x3::New(); value->DeepCopy( v ); }
     void SetValue( vtkMatrix3x3 * v ) { value = vtkMatrix3x3::New(); value->DeepCopy( v ); }
     virtual ~vtkCustomUniformVtkMatrix3x3() override { value->Delete(); }
-    std::string GetGlslDec( std::string name ) override { return std::string("uniform mat3 ") + name + ";\n"; }
+    std::string GetGlslDec( const std::string & name ) override { return std::string("uniform mat3 ") + name + ";\n"; }
     bool SetUniform( const char * name, vtkShaderProgram * p ) override { return p->SetUniformMatrix( name, value ); }
     void PrintSelf( const char * name, ostream& os, vtkIndent indent ) override
     { os << indent << name << endl; value->PrintSelf(os,indent); os << endl;}
@@ -167,7 +167,7 @@ public:
     vtkCustomUniformVtkMatrix4x4( vtkMatrix4x4 * v ) { value = vtkMatrix4x4::New(); value->DeepCopy( v ); }
     void SetValue( vtkMatrix4x4 * v ) { value = vtkMatrix4x4::New(); value->DeepCopy( v ); }
     virtual ~vtkCustomUniformVtkMatrix4x4() override { value->Delete(); }
-    std::string GetGlslDec( std::string name ) override { return std::string("uniform mat4 ") + name + ";\n"; }
+    std::string GetGlslDec( const std::string & name ) override { return std::string("uniform mat4 ") + name + ";\n"; }
     bool SetUniform( const char * name, vtkShaderProgram * p ) override { return p->SetUniformMatrix( name, value ); }
     void PrintSelf( const char * name, ostream& os, vtkIndent indent ) override
     { os << indent << name << endl; value->PrintSelf(os,indent); os << endl;}
@@ -180,7 +180,7 @@ class vtkCustomUniformMatrix3x3 : public vtkCustomUniform
 public:
     vtkCustomUniformMatrix3x3( float * v ) { std::memcpy( value, v, sizeof value ); }
     void SetValue( float * v ) { std::memcpy( value, v, sizeof value ); }
-    std::string GetGlslDec( std::string name ) override { return std::string("uniform mat3 ") + name + ";\n"; }
+    std::string GetGlslDec( const std::string & name ) override { return std::string("uniform mat3 ") + name + ";\n"; }
     bool SetUniform( const char * name, vtkShaderProgram * p ) override { return p->SetUniformMatrix3x3( name, value ); }
     void PrintSelf( const char * name, ostream& os, vtkIndent indent ) override
     {
@@ -206,7 +206,7 @@ class vtkCustomUniformMatrix4x4 : public vtkCustomUniform
 public:
     vtkCustomUniformMatrix4x4( float * v ) { std::memcpy( value, v, sizeof value ); }
     void SetValue( float * v ) { std::memcpy( value, v, sizeof value ); }
-    std::string GetGlslDec( std::string name ) override { return std::string("uniform mat4 ") + name + ";\n"; }
+    std::string GetGlslDec( const std::string & name ) override { return std::string("uniform mat4 ") + name + ";\n"; }
     bool SetUniform( const char * name, vtkShaderProgram * p ) override { return p->SetUniformMatrix4x4( name, value ); }
     void PrintSelf( const char * name, ostream& os, vtkIndent indent ) override
     {
@@ -232,7 +232,7 @@ class vtkCustomUniform1iv : public vtkCustomUniform
 public:
     vtkCustomUniform1iv( const int count, const int *v ) { SetValue(count,v); }
     void SetValue( const int count, const int *v ) { value.assign( v, v + count ); }
-    std::string GetGlslDec( std::string name ) override
+    std::string GetGlslDec( const std::string & name ) override
     { return std::string("uniform int ") + name + "[" + patch::to_string(value.size()) + "];\n"; }
     bool SetUniform( const char * name, vtkShaderProgram * p ) override
     { return p->SetUniform1iv( name, static_cast<int>(value.size()), value.data() ); }
@@ -247,7 +247,7 @@ class vtkCustomUniform1fv : public vtkCustomUniform
 public:
     vtkCustomUniform1fv( const int count, const float *v ) { SetValue(count,v); }
     void SetValue( const int count, const float *v ) { value.assign( v, v + count ); }
-    std::string GetGlslDec( std::string name ) override
+    std::string GetGlslDec( const std::string & name ) override
     { return std::string("uniform float ") + name + "[" + patch::to_string(value.size()) + "];\n"; }
     bool SetUniform( const char * name, vtkShaderProgram * p ) override
     { return p->SetUniform1fv( name, static_cast<int>(value.size()), value.data() ); }
@@ -263,7 +263,7 @@ public:
     vtkCustomUniform2fv( const int count, const float (*v)[2] ) { SetValue(count,v); }
     void SetValue( const int count, const float (*v)[2] )
     { value.assign( reinterpret_cast<const float*>(v), reinterpret_cast<const float*>(v + 2*count ) ); }
-    std::string GetGlslDec( std::string name ) override
+    std::string GetGlslDec( const std::string & name ) override
     { return std::string("uniform vec2 ") + name + "[" + patch::to_string(value.size()/2) + "];\n"; }
     bool SetUniform( const char * name, vtkShaderProgram * p ) override
     { return p->SetUniform2fv( name, static_cast<int>(value.size()/2), reinterpret_cast<const float(*)[2]>(value.data()) ); }
@@ -283,7 +283,7 @@ class vtkCustomUniform3fv : public vtkCustomUniform
 public:
     vtkCustomUniform3fv( const int count, const float (*v)[3] ) { SetValue(count,v); }
     void SetValue( const int count, const float (*v)[3] ) { value.assign( reinterpret_cast<const float*>(v), reinterpret_cast<const float*>(v + 3*count) ); }
-    std::string GetGlslDec( std::string name ) override
+    std::string GetGlslDec( const std::string & name ) override
     { return std::string("uniform vec3 ") + name + "[" + patch::to_string(value.size()/3) + "];\n"; }
     bool SetUniform( const char * name, vtkShaderProgram * p ) override
     { return p->SetUniform3fv( name, static_cast<int>(value.size()/3), reinterpret_cast<const float(*)[3]>(value.data()) ); }
@@ -303,7 +303,7 @@ class vtkCustomUniform4fv : public vtkCustomUniform
 public:
     vtkCustomUniform4fv( const int count, const float (*v)[4] ) { SetValue(count,v); }
     void SetValue( const int count, const float (*v)[4] ) { value.assign( reinterpret_cast<const float*>(v), reinterpret_cast<const float*>(v + 4*count) ); }
-    std::string GetGlslDec( std::string name ) override
+    std::string GetGlslDec( const std::string & name ) override
     { return std::string("uniform vec4 ") + name + "[" + patch::to_string(value.size()/4) + "];\n"; }
     bool SetUniform( const char * name, vtkShaderProgram * p ) override
     { return p->SetUniform4fv( name, static_cast<int>(value.size()/4), reinterpret_cast<const float(*)[4]>(value.data()) ); }
@@ -323,7 +323,7 @@ class vtkCustomUniformMatrix4x4v : public vtkCustomUniform
 public:
     vtkCustomUniformMatrix4x4v( const int count, const float *v ) { SetValue(count,v); }
     void SetValue( const int count, const float *v ) { value.assign( v, v + 16*count ); }
-    std::string GetGlslDec( std::string name ) override
+    std::string GetGlslDec( const std::string & name ) override
     { return std::string("uniform mat4 ") + name + "[" + patch::to_string(value.size()/16) + "];\n"; }
     bool SetUniform( const char * name, vtkShaderProgram * p ) override
     { return p->SetUniformMatrix4x4v( name, static_cast<int>(value.size()/16), value.data() ); }
