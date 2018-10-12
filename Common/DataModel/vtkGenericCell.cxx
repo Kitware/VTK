@@ -65,13 +65,30 @@ vtkStandardNewMacro(vtkGenericCell);
 // Construct cell.
 vtkGenericCell::vtkGenericCell()
 {
-  this->Cell = vtkEmptyCell::New();
+  for (int i = 0; i < VTK_NUMBER_OF_CELL_TYPES; ++i)
+  {
+    this->CellStore[i] = nullptr;
+  }
+  this->CellStore[VTK_EMPTY_CELL] = vtkEmptyCell::New();
+  this->Cell = this->CellStore[VTK_EMPTY_CELL];
+  this->Points->Delete();
+  this->Points = this->Cell->Points;
+  this->Points->Register(this);
+  this->PointIds->Delete();
+  this->PointIds = this->Cell->PointIds;
+  this->PointIds->Register(this);
 }
 
 //----------------------------------------------------------------------------
 vtkGenericCell::~vtkGenericCell()
 {
-  this->Cell->Delete();
+  for (int i = 0; i < VTK_NUMBER_OF_CELL_TYPES; ++i)
+  {
+    if (this->CellStore[i] != nullptr)
+    {
+      this->CellStore[i]->Delete();
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -382,28 +399,35 @@ vtkCell *vtkGenericCell::InstantiateCell(int cellType)
 // has changed and creates a new cell only if necessary.
 void vtkGenericCell::SetCellType(int cellType)
 {
-  if ( this->Cell->GetCellType() != cellType )
+  if (this->Cell->GetCellType() != cellType)
   {
-    this->Points->UnRegister(this);
-    this->PointIds->UnRegister(this);
-    this->PointIds = nullptr;
-    this->Cell->Delete();
-
-    vtkCell *cell = vtkGenericCell::InstantiateCell(cellType);
-
-    if( !cell )
+    if (cellType < 0 || cellType >= VTK_NUMBER_OF_CELL_TYPES)
+    {
+      this->Cell = nullptr;
+    }
+    else if (this->CellStore[cellType] == nullptr)
+    {
+      this->CellStore[cellType] = vtkGenericCell::InstantiateCell(cellType);
+      this->Cell = this->CellStore[cellType];
+    }
+    else
+    {
+      this->Cell = this->CellStore[cellType];
+    }
+    if (this->Cell == nullptr)
     {
       vtkErrorMacro( << "Unsupported cell type: " << cellType
                      << " Setting to vtkEmptyCell" );
-      cell = vtkEmptyCell::New();
+      this->Cell = this->CellStore[VTK_EMPTY_CELL];
     }
 
-    this->Cell = cell;
+    this->Points->UnRegister(this);
     this->Points = this->Cell->Points;
     this->Points->Register(this);
+    this->PointIds->UnRegister(this);
     this->PointIds = this->Cell->PointIds;
     this->PointIds->Register(this);
-  }//need to change cell type
+  }
 }
 
 //----------------------------------------------------------------------------

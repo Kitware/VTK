@@ -182,7 +182,7 @@ protected:
   ~vtkGenericCell() override;
 
   vtkCell *Cell;
-
+  vtkCell* CellStore[VTK_NUMBER_OF_CELL_TYPES];
 private:
   vtkGenericCell(const vtkGenericCell&) = delete;
   void operator=(const vtkGenericCell&) = delete;
