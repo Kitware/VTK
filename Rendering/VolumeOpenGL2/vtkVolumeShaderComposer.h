@@ -325,25 +325,25 @@ namespace vtkvolume
         \n  vec2 fragTexCoord2 = (gl_FragCoord.xy - in_windowLowerLeftCorner) *\
         \n                        in_inverseWindowSize;\
         \n  vec4 depthValue = texture2D(in_depthPassSampler, fragTexCoord2);\
-        \n  vec4 dataPos = WindowToNDC(gl_FragCoord.x, gl_FragCoord.y, depthValue.x);\
+        \n  vec4 rayOrigin = WindowToNDC(gl_FragCoord.x, gl_FragCoord.y, depthValue.x);\
         \n\
         \n  // From normalized device coordinates to eye coordinates.\
         \n  // in_projectionMatrix is inversed because of way VT\
         \n  // From eye coordinates to texture coordinates\
-        \n  dataPos = in_inverseTextureDatasetMatrix[0] *\
-        \n            in_inverseVolumeMatrix[0] *\
-        \n            in_inverseModelViewMatrix *\
-        \n            in_inverseProjectionMatrix *\
-        \n            dataPos;\
-        \n  dataPos /= dataPos.w;\
-        \n  g_dataPos = dataPos.xyz;"
+        \n  rayOrigin = in_inverseTextureDatasetMatrix[0] *\
+        \n              in_inverseVolumeMatrix[0] *\
+        \n              in_inverseModelViewMatrix *\
+        \n              in_inverseProjectionMatrix *\
+        \n              rayOrigin;\
+        \n  rayOrigin /= rayOrigin.w;\
+        \n  g_rayOrigin = rayOrigin.xyz;"
       );
     }
     else
     {
       shaderStr += std::string("\
         \n  // Get the 3D texture coordinates for lookup into the in_volume dataset\
-        \n  g_dataPos = ip_textureCoords.xyz;"
+        \n  g_rayOrigin = ip_textureCoords.xyz;"
       );
     }
 
@@ -379,7 +379,7 @@ namespace vtkvolume
         \n  {\
         \n    g_rayJitter = g_dirStep;\
         \n  }\
-        \n  g_dataPos += g_rayJitter;\
+        \n  g_rayOrigin += g_rayJitter;\
         \n\
         \n  // Flag to deternmine if voxel should be considered for the rendering\
         \n  g_skip = false;");
@@ -676,8 +676,8 @@ namespace vtkvolume
           \n  // For the headlight, ignore the light's ambient color\
           \n  // for now as it is causing the old mapper tests to fail\
           \n  finalColor.xyz = in_ambient[component] * color.rgb +\
-          \n                   diffuse + specular;"
-          );
+          \n                   diffuse + specular;\
+          \n");
       }
       else if (lightingComplexity == 2)
       {
@@ -2102,17 +2102,21 @@ namespace vtkvolume
       \n\
       \n  // Abscissa of the point on the depth buffer along the ray.\
       \n  // point in texture coordinates\
-      \n  vec4 terminatePosTmp = WindowToNDC(gl_FragCoord.x, gl_FragCoord.y, l_depthValue.x);\
+      \n  vec4 rayTermination = WindowToNDC(gl_FragCoord.x, gl_FragCoord.y, l_depthValue.x);\
       \n\
       \n  // From normalized device coordinates to eye coordinates.\
       \n  // in_projectionMatrix is inversed because of way VT\
       \n  // From eye coordinates to texture coordinates\
-      \n  terminatePosTmp = ip_inverseTextureDataAdjusted *\
+      \n  rayTermination = ip_inverseTextureDataAdjusted *\
       \n                    in_inverseVolumeMatrix[0] *\
       \n                    in_inverseModelViewMatrix *\
       \n                    in_inverseProjectionMatrix *\
-      \n                    terminatePosTmp;\
-      \n  g_terminatePos = terminatePosTmp.xyz / terminatePosTmp.w;\
+      \n                    rayTermination;\
+      \n  g_rayTermination = rayTermination.xyz / rayTermination.w;\
+      \n\
+      \n  // Setup the current segment:\
+      \n  g_dataPos = g_rayOrigin;\
+      \n  g_terminatePos = g_rayTermination;\
       \n\
       \n  g_terminatePointMax = length(g_terminatePos.xyz - g_dataPos.xyz) /\
       \n                        length(g_dirStep);\
@@ -2444,36 +2448,30 @@ namespace vtkvolume
     shaderStr += std::string("\
       \n  clip_numPlanes = int(in_clippingPlanes[0]);\
       \n  clip_texToObjMat = in_volumeMatrix[0] * in_textureDatasetMatrix[0];\
-      \n  clip_objToTexMat = in_inverseTextureDatasetMatrix[0] * in_inverseVolumeMatrix[0];");
+      \n  clip_objToTexMat = in_inverseTextureDatasetMatrix[0] * in_inverseVolumeMatrix[0];\
+      \n\
+      \n  // Adjust for clipping.\
+      \n  if (!AdjustSampleRangeForClipping(g_rayOrigin, g_rayTermination))\
+      \n  { // entire ray is clipped.\
+      \n    discard;\
+      \n  }\
+      \n\
+      \n  // Update the segment post-clip:\
+      \n  g_dataPos = g_rayOrigin;\
+      \n  g_terminatePos = g_rayTermination;\
+      \n  g_terminatePointMax = length(g_terminatePos.xyz - g_dataPos.xyz) /\
+      \n                        length(g_dirStep);\
+      \n");
 
     return shaderStr;
   }
 
   //--------------------------------------------------------------------------
   std::string ClippingImplementation(vtkRenderer* vtkNotUsed(ren),
-                                     vtkVolumeMapper* mapper,
+                                     vtkVolumeMapper* vtkNotUsed(mapper),
                                      vtkVolume* vtkNotUsed(vol))
   {
-    if (!mapper->GetClippingPlanes())
-    {
-      return std::string();
-    }
-    else
-    {
-      return std::string("\
-      \n  // Adjust the ray segment to account for clipping range:\
-      \n  if (!AdjustSampleRangeForClipping(g_dataPos.xyz, g_terminatePos.xyz))\
-      \n  {\
-      \n    return vec4(0.);\
-      \n  }\
-      \n\
-      \n  // Update the number of ray marching steps to account for the clipped entry point (\
-      \n  // this is necessary in case the ray hits geometry after marching behind the plane,\
-      \n  // given that the number of steps was assumed to be from the not-clipped entry).\
-      \n  g_terminatePointMax = length(g_terminatePos.xyz - g_dataPos.xyz) /\
-      \n    length(g_dirStep);\
-      \n");
-    }
+    return std::string();
   }
 
   //--------------------------------------------------------------------------
