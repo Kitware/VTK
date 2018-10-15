@@ -2642,7 +2642,7 @@ int vtkMPASReader::GetDimensionCurrentIndex(const std::string &dim)
   {
     return -1;
   }
-  return it->second.curIdx;
+  return static_cast<int>(it->second.curIdx);
 }
 
 //----------------------------------------------------------------------------
@@ -2672,7 +2672,7 @@ int vtkMPASReader::GetDimensionSize(const std::string &dim)
   {
     return -1;
   }
-  return it->second.dimSize;
+  return static_cast<int>(it->second.dimSize);
 }
 
 //----------------------------------------------------------------------------
