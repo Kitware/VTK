@@ -23,24 +23,24 @@ public class vtkInternalSwtComponent extends GLCanvas implements Listener {
 
   private vtkSwtComponent parent;
 
-    public static GLCapabilities GetGLCapabilities() {
-      GLCapabilities caps;
-      caps = new GLCapabilities(GLProfile.get(GLProfile.GL2GL3));
-      caps.setDoubleBuffered(true);
-      caps.setHardwareAccelerated(true);
-      caps.setSampleBuffers(false);
-      caps.setNumSamples(4);
+  public static GLCapabilities GetGLCapabilities() {
+    GLCapabilities caps;
+    caps = new GLCapabilities(GLProfile.get(GLProfile.GL2GL3));
+    caps.setDoubleBuffered(true);
+    caps.setHardwareAccelerated(true);
+    caps.setSampleBuffers(false);
+    caps.setNumSamples(4);
 
-      return caps;
-    }
+    return caps;
+  }
 
   public vtkInternalSwtComponent(vtkSwtComponent parent, Composite parentComposite) {
 
     super(parentComposite, SWT.NO_BACKGROUND, GetGLCapabilities(), null);
     this.parent = parent;
 
-    vtkSwtInteractorForwarderDecorator forwarder =
-        (vtkSwtInteractorForwarderDecorator)this.parent.getInteractorForwarder();
+    vtkSwtInteractorForwarderDecorator forwarder = (vtkSwtInteractorForwarderDecorator) this.parent
+      .getInteractorForwarder();
 
     this.addMouseListener(forwarder);
     this.addKeyListener(forwarder);
@@ -58,62 +58,68 @@ public class vtkInternalSwtComponent extends GLCanvas implements Listener {
 
   protected void IntializeRenderWindow() {
 
-		// setCurrent(); // need to be done so SetWindowIdFromCurrentContext can
-		// get the current context!
-		// Context is not created until the first draw call. The renderer isn't
-		// initialized until the context is
-		// present.
-		invoke(false, new GLRunnable() {
+    // setCurrent(); // need to be done so SetWindowIdFromCurrentContext can
+    // get the current context!
+    // Context is not created until the first draw call. The renderer isn't
+    // initialized until the context is
+    // present.
+    invoke(false, new GLRunnable() {
 
-			@Override
-			public boolean run(GLAutoDrawable arg0) {
-				// This makes this thread (should be the main thread current
-				// while the
-				getContext().makeCurrent();
-				System.out.println("Creating render Window");
-				parent.getRenderWindow().InitializeFromCurrentContext();
-				System.out.println("Done");
-				return false;
-			}
-		});
+      @Override
+      public boolean run(GLAutoDrawable arg0) {
+        // This makes this thread (should be the main thread) current
+        getContext().makeCurrent();
+        parent.getRenderWindow().InitializeFromCurrentContext();
+        // Swapping buffers is handled by the vtkSwtComponent
+        parent.getRenderWindow().SwapBuffersOff();
+        return false;
+      }
+    });
 
-		// Swap buffers to trigger context creation
-		swapBuffers();
-		setAutoSwapBufferMode(false);
-	}
+    // Swap buffers to trigger context creation
+    swapBuffers();
+    setAutoSwapBufferMode(false);
+  }
 
-	@Override
-	public void update() {
-		super.update();
-		if (isRealized()) {
-			parent.Render();
-		}
-	}
+  @Override
+  public void update() {
+    super.update();
+    if (isRealized()) {
+      parent.Render();
+    }
+  }
 
-	@Override
-	public void dispose() {
-		getContext().release();
-		super.dispose();
-	}
+  @Override
+  public void dispose() {
+    this.removeListener(SWT.Paint, this);
+    this.removeListener(SWT.Close, this);
+    this.removeListener(SWT.Dispose, this);
+    this.removeListener(SWT.Resize, this);
 
-	@Override
-	public void handleEvent(Event event) {
-		switch (event.type) {
-		case SWT.Paint:
-			if (isRealized()) {
-				parent.Render();
-			}
-			break;
-		case SWT.Dispose:
-			parent.Delete();
-			vtkObject.JAVA_OBJECT_MANAGER.gc(false);
-			break;
-		case SWT.Close:
-			// System.out.println("closing");
-			break;
-		case SWT.Resize:
-			parent.setSize(getClientArea().width, getClientArea().height);
-			break;
-		}
-	}
+    if (getContext().isCurrent()) {
+      getContext().release();
+    }
+    super.dispose();
+  }
+
+  @Override
+  public void handleEvent(Event event) {
+    switch (event.type) {
+    case SWT.Paint:
+      if (isRealized()) {
+        parent.Render();
+      }
+      break;
+    case SWT.Dispose:
+      parent.Delete();
+      vtkObject.JAVA_OBJECT_MANAGER.gc(false);
+      break;
+    case SWT.Close:
+      // System.out.println("closing");
+      break;
+    case SWT.Resize:
+      parent.setSize(getClientArea().width, getClientArea().height);
+      break;
+    }
+  }
 }
