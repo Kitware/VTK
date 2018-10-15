@@ -177,7 +177,7 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
    * in the dimensions, and Set/GetDimensionCurrentIndex controls the value
    * to fix a given dimension at when extracting slices of data.
    */
-  int GetNumberOfDimensions();
+  vtkIdType GetNumberOfDimensions();
   std::string GetDimensionName(int idx);
   vtkStringArray* GetAllDimensions();
   int GetDimensionCurrentIndex(const std::string &dim);

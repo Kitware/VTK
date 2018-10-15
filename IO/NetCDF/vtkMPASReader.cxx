@@ -2611,7 +2611,7 @@ void vtkMPASReader::SetCellArrayStatus(const char* name, int status)
 }
 
 //----------------------------------------------------------------------------
-int vtkMPASReader::GetNumberOfDimensions()
+vtkIdType vtkMPASReader::GetNumberOfDimensions()
 {
   this->UpdateDimensions();
   return this->Internals->extraDims->GetNumberOfTuples();
