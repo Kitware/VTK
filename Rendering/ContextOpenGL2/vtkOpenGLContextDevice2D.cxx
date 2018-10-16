@@ -368,6 +368,8 @@ void vtkOpenGLContextDevice2D::End()
     glDisable(GL_LINE_SMOOTH);
   }
 
+  this->PolyDataImpl->HandleEndFrame();
+
   this->RenderWindow = nullptr;
   this->InRender = false;
 
