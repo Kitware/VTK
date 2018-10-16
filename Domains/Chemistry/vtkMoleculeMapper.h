@@ -279,6 +279,15 @@ public:
   bool GetSupportsSelection() override {return true;}
   //@}
 
+//@{
+  /**
+   * Get/Set the atomic radius array name. Default: "radii"
+   * It is only used when AtomicRadiusType is set to CustomArrayRadius.
+   */
+  vtkGetStringMacro(AtomicRadiusArrayName);
+  vtkSetStringMacro(AtomicRadiusArrayName);
+//@}
+
 protected:
   vtkMoleculeMapper();
   ~vtkMoleculeMapper() override;
@@ -290,6 +299,7 @@ protected:
   bool RenderAtoms;
   int AtomicRadiusType;
   float AtomicRadiusScaleFactor;
+  char* AtomicRadiusArrayName;
   //@}
 
   //@{
