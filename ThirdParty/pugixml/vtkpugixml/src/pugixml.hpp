@@ -94,6 +94,17 @@
 #	endif
 #endif
 
+// If C++ is 2011 or higher, add 'noexcept' specifiers
+#ifndef PUGIXML_NOEXCEPT
+#	if __cplusplus >= 201103
+#		define PUGIXML_NOEXCEPT noexcept
+#	elif defined(_MSC_VER) && _MSC_VER >= 1900
+#		define PUGIXML_NOEXCEPT noexcept
+#	else
+#		define PUGIXML_NOEXCEPT
+#	endif
+#endif
+
 // If C++ is 2011 or higher, add 'override' qualifiers
 #ifndef PUGIXML_OVERRIDE
 #	if __cplusplus >= 201103
@@ -1254,7 +1265,7 @@ namespace pugi
 		explicit xpath_exception(const xpath_parse_result& result);
 
 		// Get error message
-		virtual const char* what() const noexcept PUGIXML_OVERRIDE;
+		virtual const char* what() const PUGIXML_NOEXCEPT PUGIXML_OVERRIDE;
 
 		// Get parse result
 		const xpath_parse_result& result() const;
