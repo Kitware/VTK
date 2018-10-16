@@ -671,12 +671,9 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
 
   // how many points for each source
   int *numPointsPerSource = new int [numEntries];
+  std::fill(numPointsPerSource, numPointsPerSource + numEntries, 0);
   if (numEntries > 1 && indexArray)
   {
-    for (int i = 0; i < numEntries; i++)
-    {
-      numPointsPerSource[i] = 0;
-    }
     // loop over every point
     int index = 0;
     for (vtkIdType inPtId = 0; inPtId < numPts; inPtId++)
