@@ -50,22 +50,38 @@ endif()
 set(JOGL_VERSION "2.3.2")
 option(VTK_JAVA_JOGL_COMPONENT "Need JOGL jar files" OFF)
 
-if(VTK_JAVA_JOGL_COMPONENT)
+if(VTK_JAVA_JOGL_COMPONENT OR VTK_JAVA_SWT_COMPONENT )
   set(MAVEN_REPO "$ENV{HOME}/.m2/repository")
   find_file(JOGL_LIB jogl-all-${JOGL_VERSION}.jar PATHS ${MAVEN_REPO}/org/jogamp/jogl/jogl-all/${JOGL_VERSION} )
   find_file(JOGL_GLUE gluegen-rt-${JOGL_VERSION}.jar PATHS ${MAVEN_REPO}/org/jogamp/gluegen/gluegen-rt/${JOGL_VERSION})
   mark_as_advanced(JOGL_LIB JOGL_GLUE)
-  if(NOT JOGL_LIB)
-     message(ERROR "
-     CMake can not build VTK with VTK_JAVA_JOGL_COMPONENT ON if the JOGL jar file is not provided.
-     Please set the JOGL_LIB variable.
-     ")
+  if(VTK_JAVA_JOGL_COMPONENT)
+      if(NOT JOGL_LIB)
+         message(ERROR "
+         CMake can not build VTK with VTK_JAVA_JOGL_COMPONENT ON if the JOGL jar file is not provided.
+         Please set the JOGL_LIB variable.
+         ")
+      endif()
+      if(NOT JOGL_GLUE)
+         message(ERROR "
+         CMake can not build VTK with VTK_JAVA_JOGL_COMPONENT ON if the GLUE jar file is not provided.
+         Please set the JOGL_GLUE variable.
+         ")
+      endif()
   endif()
-  if(NOT JOGL_GLUE)
-     message(ERROR "
-     CMake can not build VTK with VTK_JAVA_JOGL_COMPONENT ON if the GLUE jar file is not provided.
-     Please set the JOGL_GLUE variable.
-     ")
+  if(VTK_JAVA_SWT_COMPONENT)
+    if(NOT JOGL_LIB)
+      message(ERROR "
+      CMake can not build VTK with VTK_JAVA_SWT_COMPONENT ON if the JOGL jar file is not provided.
+      Please set the JOGL_LIB variable.
+      ")
+    endif()
+    if(NOT JOGL_GLUE)
+      message(ERROR "
+      CMake can not build VTK with VTK_JAVA_SWT_COMPONENT ON if the GLUE jar file is not provided.
+      Please set the JOGL_GLUE variable.
+      ")
+    endif()
   endif()
 endif()
 
