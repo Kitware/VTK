@@ -21,6 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkShaderProgram.h"
 #include "vtkOpenGLHelper.h"
 #include "vtkTextureObject.h"
@@ -158,6 +159,7 @@ void vtkOpenVRRay::Render(
   }
 
   // Render ray
+  win->GetState()->vtkglDepthMask(GL_TRUE);
   win->GetShaderCache()->ReadyShaderProgram(this->ModelHelper.Program);
   this->ModelHelper.VAO->Bind();
 
@@ -357,6 +359,7 @@ void vtkOpenVRModel::Render(
   if (this->Loaded)
   {
     // render the model
+    win->GetState()->vtkglDepthMask(GL_TRUE);
     win->GetShaderCache()->ReadyShaderProgram(this->ModelHelper.Program);
     this->ModelHelper.VAO->Bind();
     this->ModelHelper.IBO->Bind();
