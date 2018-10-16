@@ -31,8 +31,6 @@
 #include "vtkIONetCDFModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
-#include "vtk_netcdfcpp_fwd.h" // Forward declarations for vtknetcdfcpp
-
 class vtkCallbackCommand;
 class vtkDataArraySelection;
 
@@ -135,8 +133,8 @@ protected:
    * a partitioned space of levels and cells.
    */
   bool GetPartitioning(
-    int piece, int numPieces,int numCellLevels, int numCellsPerLevel,
-    int & beginCellLevel, int & endCellLevel, int & beginCell, int & endCell);
+    size_t piece, size_t numPieces,size_t numCellLevels, size_t numCellsPerLevel,
+    size_t & beginCellLevel, size_t & endCellLevel, size_t & beginCell, size_t & endCell);
 
   void BuildVarArray();
   static void SelectionCallback(vtkObject* caller, unsigned long eid,
@@ -168,7 +166,7 @@ private:
 
   int VerticalDimension;
   double * TimeSteps;
-  long NumberOfTimeSteps;
+  size_t NumberOfTimeSteps;
   vtkDataArraySelection* PointDataArraySelection;
   vtkCallbackCommand* SelectionObserver;
 
@@ -180,15 +178,8 @@ private:
   int InterfaceLayerIndex;
   int InterfaceLayersRange[2];
 
-
-  //@{
-  /**
-   * The NetCDF file descriptors.  nullptr indicates they haven't
-   * been opened.
-   */
-  NcFile* PointsFile;
-  NcFile* ConnectivityFile;
+  class Internal;
+  Internal *Internals;
 };
-  //@}
 
 #endif

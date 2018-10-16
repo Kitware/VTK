@@ -80,8 +80,6 @@ version available from Los Alamos National Laboratory.
 #include "vtkIONetCDFModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
-#include "vtk_netcdfcpp_fwd.h" // Forward declarations for vtknetcdfcpp
-
 #include <string> // for std::string
 
 class vtkCallbackCommand;
@@ -177,7 +175,7 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
    * in the dimensions, and Set/GetDimensionCurrentIndex controls the value
    * to fix a given dimension at when extracting slices of data.
    */
-  int GetNumberOfDimensions();
+  vtkIdType GetNumberOfDimensions();
   std::string GetDimensionName(int idx);
   vtkStringArray* GetAllDimensions();
   int GetDimensionCurrentIndex(const std::string &dim);
@@ -239,7 +237,7 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
 
   char *FileName;         // First field part file giving path
 
-  int NumberOfTimeSteps;      // Temporal domain
+  size_t NumberOfTimeSteps;   // Temporal domain
   double DTime;               // The current time
 
   // Observer to modify this object when array selections are modified
@@ -295,23 +293,23 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   bool UseDimensionedArrayNames;
 
   // geometry
-  int MaximumNVertLevels;
-  int NumberOfCells;
-  int NumberOfPoints;
+  size_t MaximumNVertLevels;
+  size_t NumberOfCells;
+  size_t NumberOfPoints;
   int CellOffset;
-  int PointOffset;
-  int PointsPerCell;
-  int CurrentExtraPoint;  // current extra point
-  int CurrentExtraCell;   // current extra cell
+  size_t PointOffset;
+  size_t PointsPerCell;
+  size_t CurrentExtraPoint;  // current extra point
+  size_t CurrentExtraCell;   // current extra cell
   double* PointX;      // x coord of point
   double* PointY;      // y coord of point
   double* PointZ;      // z coord of point
-  int ModNumPoints;
-  int ModNumCells;
+  size_t ModNumPoints;
+  size_t ModNumCells;
   int* OrigConnections;   // original connections
   int* ModConnections;    // modified connections
-  int* CellMap;           // maps from added cell to original cell #
-  int* PointMap;          // maps from added point to original point #
+  size_t* CellMap;        // maps from added cell to original cell #
+  size_t* PointMap;       // maps from added point to original point #
   int* MaximumLevelPoint;      //
   int MaximumCells;           // max cells
   int MaximumPoints;          // max points
@@ -334,32 +332,6 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   void OutputCells();
   unsigned char GetCellType();
 
-  /**
-   * Returns true if the dimensions in var match the expected args, or prints a
-   * warning and returns false if any are incorrect.
-   * ndims is the number of dimensions, and the variatic args must be
-   * C-strings identifying the expected dimensions.
-   * If silent is true, no warnings are printed.
-   */
-  bool ValidateDimensions(NcVar *var, bool silent, int ndims, ...);
-
-  /**
-   * Return the cursor position for the specified dimension.
-   */
-  long GetCursorForDimension(const NcDim *dim);
-
-  /**
-   * Return the number of values to read for the specified dimension.
-   */
-  size_t GetCountForDimension(const NcDim *dim);
-
-  /**
-   * For an arbitrary (i.e. not nCells, nVertices, or Time) dimension, extract
-   * the dimension's metadata into memory (if needed) and return the last used
-   * index into the dimension values, or 0 if the dimension is new.
-   */
-  long InitializeDimension(const NcDim *dim);
-
   vtkDataArray* LoadPointVarData(int variable);
   vtkDataArray* LoadCellVarData(int variable);
   vtkDataArray* LookupPointDataArray(int varIdx);
@@ -381,20 +353,6 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
 
   class Internal;
   Internal *Internals;
-
-  static int NcTypeToVtkType(int ncType);
-
-  vtkDataArray* CreateDataArray(int ncType);
-  vtkIdType ComputeNumberOfTuples(NcVar *ncVar);
-
-  template <typename ValueType>
-  bool LoadDataArray(NcVar *ncVar, vtkDataArray *array, bool resize = true);
-
-  template <typename ValueType>
-  int LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array);
-
-  template <typename ValueType>
-  int LoadCellVarDataImpl(NcVar *ncVar, vtkDataArray *array);
 };
 
 #endif
