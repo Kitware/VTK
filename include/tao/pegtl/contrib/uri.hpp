@@ -94,8 +94,8 @@ namespace tao
          struct scheme : seq< abnf::ALPHA, star< sor< abnf::ALPHA, abnf::DIGIT, one< '+', '-', '.' > > > > {};
 
          using dslash = two< '/' >;
-         using opt_query = opt< if_must< one< '?' >, query > >;
-         using opt_fragment = opt< if_must< one< '#' >, fragment > >;
+         using opt_query = opt_must< one< '?' >, query >;
+         using opt_fragment = opt_must< one< '#' >, fragment >;
 
          struct hier_part : sor< if_must< dslash, authority, path_abempty >, path_rootless, path_absolute, path_empty > {};
          struct relative_part : sor< if_must< dslash, authority, path_abempty >, path_noscheme, path_absolute, path_empty > {};

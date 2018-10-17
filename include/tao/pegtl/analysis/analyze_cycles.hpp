@@ -8,6 +8,7 @@
 
 #include <map>
 #include <set>
+#include <stdexcept>
 
 #include <iostream>
 #include <utility>
@@ -84,7 +85,7 @@ namespace tao
                         return m_cache[ start->first ] = a;
                      }
                   }
-                  throw std::runtime_error( "code should be unreachable" );  // NOLINT, LCOV_EXCL_LINE
+                  throw std::logic_error( "code should be unreachable: invalid rule_type value" );  // NOLINT, LCOV_EXCL_LINE
                }
                if( !accum ) {
                   ++m_problems;

@@ -23,6 +23,7 @@ namespace tao
          struct blank : internal::one< internal::result_on_found::SUCCESS, internal::peek_char, ' ', '\t' > {};
          struct digit : internal::range< internal::result_on_found::SUCCESS, internal::peek_char, '0', '9' > {};
          struct eolf : internal::eolf {};
+         template< char... Cs > struct forty_two : internal::rep< 42, internal::one< internal::result_on_found::SUCCESS, internal::peek_char, Cs... > > {};
          struct identifier_first : internal::identifier_first {};
          struct identifier_other : internal::identifier_other {};
          struct identifier : internal::identifier {};
@@ -37,10 +38,11 @@ namespace tao
          template< char Lo, char Hi > struct range : internal::range< internal::result_on_found::SUCCESS, internal::peek_char, Lo, Hi > {};
          template< char... Cs > struct ranges : internal::ranges< internal::peek_char, Cs... > {};
          struct seven : internal::range< internal::result_on_found::SUCCESS, internal::peek_char, char( 0 ), char( 127 ) > {};
-         struct shebang : internal::if_must< internal::string< '#', '!' >, internal::until< internal::eolf > > {};
+         struct shebang : internal::if_must< false, internal::string< '#', '!' >, internal::until< internal::eolf > > {};
          struct space : internal::one< internal::result_on_found::SUCCESS, internal::peek_char, ' ', '\n', '\r', '\t', '\v', '\f' > {};
          template< char... Cs > struct string : internal::string< Cs... > {};
-         template< char C > struct two : internal::string< C, C > {};
+         template< char C > struct three : internal::three< C > {};
+         template< char C > struct two : internal::two< C > {};
          struct upper : internal::range< internal::result_on_found::SUCCESS, internal::peek_char, 'A', 'Z' > {};
          struct xdigit : internal::ranges< internal::peek_char, '0', '9', 'a', 'f', 'A', 'F' > {};
          // clang-format on

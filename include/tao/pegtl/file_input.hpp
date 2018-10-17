@@ -12,7 +12,7 @@
 #include <unistd.h>  // Required for _POSIX_MAPPED_FILES
 #endif
 
-#if defined( _POSIX_MAPPED_FILES )
+#if defined( _POSIX_MAPPED_FILES ) || defined( _WIN32 )
 #include "mmap_input.hpp"
 #else
 #include "read_input.hpp"
@@ -22,12 +22,25 @@ namespace tao
 {
    namespace TAO_PEGTL_NAMESPACE
    {
-#if defined( _POSIX_MAPPED_FILES )
+#if defined( _POSIX_MAPPED_FILES ) || defined( _WIN32 )
       template< tracking_mode P = tracking_mode::IMMEDIATE, typename Eol = eol::lf_crlf >
-      using file_input = mmap_input< P, Eol >;
+      struct file_input
+         : mmap_input< P, Eol >
+      {
+         using mmap_input< P, Eol >::mmap_input;
+      };
 #else
       template< tracking_mode P = tracking_mode::IMMEDIATE, typename Eol = eol::lf_crlf >
-      using file_input = read_input< P, Eol >;
+      struct file_input
+         : read_input< P, Eol >
+      {
+         using read_input< P, Eol >::read_input;
+      };
+#endif
+
+#ifdef __cpp_deduction_guides
+      template< typename... Ts >
+      explicit file_input( Ts&&... )->file_input<>;
 #endif
 
    }  // namespace TAO_PEGTL_NAMESPACE
