@@ -204,6 +204,13 @@ private slots:
    */
   void startEventCallback();
 
+  /**
+   * callback for changing the cursor. Called when vtkGenericOpenGLRenderWindow
+   * fires the CursorChangedEvent.
+   */
+  void cursorChangedCallback(vtkObject* caller, unsigned long vtk_event,
+    void* client_data, void* call_data);
+
 protected:
   bool event(QEvent* evt) Q_DECL_OVERRIDE;
   void initializeGL() Q_DECL_OVERRIDE;

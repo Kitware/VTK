@@ -102,7 +102,7 @@ public:
 
   void SetTarget(QVTKOpenGLNativeWidget* target) { this->Target = target; }
 
-  void Execute(vtkObject*, unsigned long eventId, void* callData) override
+  void Execute(vtkObject* object, unsigned long eventId, void* callData) override
   {
     if (this->Target)
     {
@@ -143,6 +143,9 @@ public:
           VTK_FALLTHROUGH;
         case vtkCommand::StartPickEvent:
           this->Target->startEventCallback();
+          break;
+        case vtkCommand::CursorChangedEvent:
+          this->Target->cursorChangedCallback(object, eventId, nullptr, callData);
           break;
       }
     }
@@ -246,6 +249,8 @@ void QVTKOpenGLNativeWidget::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
     this->RenderWindow->AddObserver(vtkCommand::WindowFrameEvent, this->Observer);
     this->RenderWindow->AddObserver(vtkCommand::StartEvent, this->Observer);
     this->RenderWindow->AddObserver(vtkCommand::StartPickEvent, this->Observer);
+    this->RenderWindow->AddObserver(vtkCommand::StartPickEvent, this->Observer);
+    this->RenderWindow->AddObserver(vtkCommand::CursorChangedEvent, this->Observer);
 
     if (this->FBO)
     {
@@ -740,5 +745,56 @@ void QVTKOpenGLNativeWidget::mouseDoubleClickEvent(QMouseEvent* event)
   {
     this->InteractorAdapter->ProcessEvent(event,
                                           this->RenderWindow->GetInteractor());
+  }
+}
+
+//-----------------------------------------------------------------------------
+void QVTKOpenGLNativeWidget::cursorChangedCallback(vtkObject*, unsigned long,
+    void*, void* call_data)
+{
+  if (!this->RenderWindow)
+  {
+    return;
+  }
+
+  int* cShape = reinterpret_cast<int*> (call_data);
+  if (!cShape)
+  {
+    return;
+  }
+
+  switch (*cShape)
+  {
+    case VTK_CURSOR_CROSSHAIR:
+      this->setCursor(QCursor(Qt::CrossCursor));
+      break;
+    case VTK_CURSOR_SIZEALL:
+      this->setCursor(QCursor(Qt::SizeAllCursor));
+      break;
+    case VTK_CURSOR_SIZENS:
+      this->setCursor(QCursor(Qt::SizeVerCursor));
+      break;
+    case VTK_CURSOR_SIZEWE:
+      this->setCursor(QCursor(Qt::SizeHorCursor));
+      break;
+    case VTK_CURSOR_SIZENE:
+      this->setCursor(QCursor(Qt::SizeBDiagCursor));
+      break;
+    case VTK_CURSOR_SIZENW:
+      this->setCursor(QCursor(Qt::SizeFDiagCursor));
+      break;
+    case VTK_CURSOR_SIZESE:
+      this->setCursor(QCursor(Qt::SizeFDiagCursor));
+      break;
+    case VTK_CURSOR_SIZESW:
+      this->setCursor(QCursor(Qt::SizeBDiagCursor));
+      break;
+    case VTK_CURSOR_HAND:
+      this->setCursor(QCursor(Qt::PointingHandCursor));
+      break;
+    case VTK_CURSOR_ARROW:
+    default:
+      this->setCursor(QCursor(Qt::ArrowCursor));
+      break;
   }
 }

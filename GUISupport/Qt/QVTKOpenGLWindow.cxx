@@ -593,9 +593,6 @@ void QVTKOpenGLWindow::ChangeCursor(vtkObject*, unsigned long, void*,
     case VTK_CURSOR_CROSSHAIR:
       this->setCursor(QCursor(Qt::CrossCursor));
       break;
-    case VTK_CURSOR_ARROW:
-      this->setCursor(QCursor(Qt::ArrowCursor));
-      break;
     case VTK_CURSOR_SIZEALL:
       this->setCursor(QCursor(Qt::SizeAllCursor));
       break;
@@ -620,6 +617,7 @@ void QVTKOpenGLWindow::ChangeCursor(vtkObject*, unsigned long, void*,
     case VTK_CURSOR_HAND:
       this->setCursor(QCursor(Qt::PointingHandCursor));
       break;
+    case VTK_CURSOR_ARROW:
     default:
       this->setCursor(QCursor(Qt::ArrowCursor));
       break;
