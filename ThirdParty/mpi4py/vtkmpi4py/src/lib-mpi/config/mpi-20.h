@@ -290,9 +290,7 @@
 #define PyMPI_HAVE_MPI_File_call_errhandler 1
 #define PyMPI_HAVE_MPI_Datarep_conversion_function 1
 #define PyMPI_HAVE_MPI_Datarep_extent_function 1
-#ifndef PyMPI_MISSING_MPI_CONVERSION_FN_NULL
 #define PyMPI_HAVE_MPI_CONVERSION_FN_NULL 1
-#endif
 #define PyMPI_HAVE_MPI_MAX_DATAREP_STRING 1
 #define PyMPI_HAVE_MPI_Register_datarep 1
 #define PyMPI_HAVE_MPI_ERR_FILE 1
