@@ -1,5 +1,5 @@
-set(module_SRCS
-  vtkPythonItem.cxx
-  )
+set(classes
+  vtkPythonItem)
 
-vtk_module_library(vtkPythonContext2D ${module_SRCS})
+vtk_module_add_module(VTK::PythonContext2D
+  CLASSES ${classes})
