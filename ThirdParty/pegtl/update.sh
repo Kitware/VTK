@@ -8,7 +8,7 @@ readonly name="pegtl"
 readonly ownership="PEGTL Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/pegtl.git"
-readonly tag="for/vtk"
+readonly tag="for/vtk-20181017-2.7.1"
 readonly paths="
 .gitattributes
 CMakeLists.vtk.txt

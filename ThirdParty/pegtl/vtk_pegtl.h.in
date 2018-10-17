@@ -16,8 +16,9 @@
 #define vtk_pegtl_h
 
 /* Use the pegtl library configured for VTK.  */
-#cmakedefine VTK_USE_SYSTEM_PEGTL
-#ifdef VTK_USE_SYSTEM_PEGTL
+#cmakedefine01 VTK_MODULE_USE_EXTERNAL_vtkpegtl
+
+#if VTK_MODULE_USE_EXTERNAL_vtkpegtl
 # include <tao/pegtl.hpp>
 #else
 # include <vtkpegtl/include/tao/pegtl.hpp>
