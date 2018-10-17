@@ -1,5 +1,5 @@
-set(Module_SRCS
-  vtkThreadedImageWriter.cxx
-  )
+set(classes
+  vtkThreadedImageWriter)
 
-vtk_module_library(vtkIOAsynchronous ${Module_SRCS})
+vtk_module_add_module(VTK::IOAsynchronous
+  CLASSES ${classes})

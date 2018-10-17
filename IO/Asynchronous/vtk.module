@@ -1,0 +1,21 @@
+NAME
+  VTK::IOAsynchronous
+LIBRARY_NAME
+  vtkIOAsynchronous
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::IOCore
+  VTK::IOImage
+  VTK::IOXML
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonMath
+  VTK::CommonMisc
+  VTK::CommonSystem
+TEST_DEPENDS
+  VTK::TestingCore
