@@ -1,4 +1,5 @@
-set(Module_SRCS
-  vtkMotionFXCFGReader.cxx
-  )
-vtk_module_library(vtkIOMotionFX ${Module_SRCS})
+set(classes
+  vtkMotionFXCFGReader)
+
+vtk_module_add_module(VTK::IOMotionFX
+  CLASSES ${classes})
