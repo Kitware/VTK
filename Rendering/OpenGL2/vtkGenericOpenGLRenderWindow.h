@@ -162,6 +162,11 @@ public:
   */
   void SetIsPicking(vtkTypeBool isPicking) override;
 
+  /**
+   * Overriden to invoke vtkCommand::CursorChangedEvent
+   */
+  void SetCurrentCursor(int cShape) override;
+
 protected:
   int DirectStatus;
   int SupportsOpenGLStatus;
