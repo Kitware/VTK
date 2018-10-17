@@ -102,6 +102,12 @@ typedef enum {VAR, DIM, ATT} NC_OBJ_T;
  * as the netCDF dimid. */
 #define NC_DIMID_ATT_NAME "_Netcdf4Dimid"
 
+/** This is the name of the class HDF5 dimension scale attribute. */
+#define HDF5_DIMSCALE_CLASS_ATT_NAME "CLASS"
+
+/** This is the name of the name HDF5 dimension scale attribute. */
+#define HDF5_DIMSCALE_NAME_ATT_NAME "NAME"
+
 /* Boolean type, to make the code easier to read */
 typedef enum {NC_FALSE = 0, NC_TRUE = 1} nc_bool_t;
 
@@ -126,7 +132,7 @@ typedef struct NC_DIM_INFO
    nc_bool_t unlimited;         /* True if the dimension is unlimited */
    nc_bool_t extended;          /* True if the dimension needs to be extended */
    nc_bool_t too_long;          /* True if len is too big to fit in local size_t. */
-   hid_t hdf_dimscaleid;
+   hid_t hdf_dimscaleid;        /* Non-zero if a DIM_WITHOUT_VARIABLE dataset is in use (no coord var). */
    HDF5_OBJID_T hdf5_objid;
    struct NC_VAR_INFO *coord_var; /* The coord var, if it exists. */
 } NC_DIM_INFO_T;
@@ -179,9 +185,6 @@ typedef struct NC_VAR_INFO
    int deflate_level;
    nc_bool_t shuffle;           /* True if var has shuffle filter applied */
    nc_bool_t fletcher32;        /* True if var has fletcher32 filter applied */
-   nc_bool_t szip;              /* True if var has szip filter applied */
-   int options_mask;
-   int pixels_per_block;
    size_t chunk_cache_size, chunk_cache_nelems;
    float chunk_cache_preemption;
 #ifdef USE_HDF4
@@ -189,7 +192,11 @@ typedef struct NC_VAR_INFO
    int sdsid;
    int hdf4_data_type;
 #endif /* USE_HDF4 */
-   /* Stuff below for diskless data files. */
+   /* Stuff for arbitrary filters */
+   unsigned int filterid;
+   size_t nparams;
+   unsigned int* params;
+   /* Stuff for diskless data files. */
    void *diskless_data;
 } NC_VAR_INFO_T;
 
@@ -343,6 +350,7 @@ int nc4_convert_type(const void *src, void *dest,
 /* These functions do HDF5 things. */
 int rec_detach_scales(NC_GRP_INFO_T *grp, int dimid, hid_t dimscaleid);
 int rec_reattach_scales(NC_GRP_INFO_T *grp, int dimid, hid_t dimscaleid);
+int delete_existing_dimscale_dataset(NC_GRP_INFO_T *grp, int dimid, NC_DIM_INFO_T *dim);
 int nc4_open_var_grp2(NC_GRP_INFO_T *grp, int varid, hid_t *dataset);
 int nc4_put_vara(NC *nc, int ncid, int varid, const size_t *startp,
 		 const size_t *countp, nc_type xtype, int is_long, void *op);
@@ -391,6 +399,7 @@ int nc4_type_free(NC_TYPE_INFO_T *type);
 int nc4_nc4f_list_add(NC *nc, const char *path, int mode);
 int nc4_var_add(NC_VAR_INFO_T **var);
 int nc4_var_del(NC_VAR_INFO_T *var);
+int nc4_vararray_add(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var);
 int nc4_dim_list_add(NC_DIM_INFO_T **list, NC_DIM_INFO_T **dim);
 int nc4_dim_list_del(NC_DIM_INFO_T **list, NC_DIM_INFO_T *dim);
 int nc4_att_list_add(NC_ATT_INFO_T **list, NC_ATT_INFO_T **att);

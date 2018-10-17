@@ -20,7 +20,7 @@ Get an attribute of any type.
 
 The nc_get_att() functions works for any type of attribute, and must
 be used to get attributes of user-defined type. We recommend that they
-type safe versions of this function be used where possible.
+type safe versions of this function be used for atomic data types.
 
 \param ncid NetCDF or group ID, from a previous call to nc_open(),
 nc_create(), nc_def_grp(), or associated inquiry functions such as
@@ -29,7 +29,7 @@ nc_inq_ncid().
 \param varid Variable ID of the attribute's variable, or ::NC_GLOBAL
 for a global attribute.
 
-\param name Attribute \ref object_name.
+\param name Attribute name.
 
 \param value Pointer to location for returned attribute value(s). All
 elements of the vector of attribute values are returned, so you must
@@ -37,8 +37,47 @@ allocate enough space to hold them. Before using the value as a C
 string, make sure it is null-terminated. Call nc_inq_attlen() first to
 find out the length of the attribute.
 
-\note See documentation for nc_get_att_string() regarding a special case where memory must be explicitly released.
+\note See documentation for nc_get_att_string() regarding a special
+case where memory must be explicitly released.
 
+\returns ::NC_NOERR for success.
+\returns ::NC_EBADID Bad ncid.
+\returns ::NC_ENOTVAR Bad varid.
+\returns ::NC_EBADNAME Bad name. See \ref object_name.
+\returns ::NC_EINVAL Invalid parameters.
+\returns ::NC_ENOTATT Can't find attribute.
+\returns ::NC_ECHAR Can't convert to or from NC_CHAR.
+\returns ::NC_ENOMEM Out of memory.
+\returns ::NC_ERANGE Data convertion went out of range.
+
+<h1>Example</h1>
+
+Here is an example using nc_get_att() from nc_test4/tst_vl.c creates a
+VLEN attribute, then uses nc_get_att() to read it.
+
+@code
+#define FILE_NAME "tst_vl.nc"
+#define VLEN_NAME "vlen_name"
+#define ATT_NAME "att_name"
+
+      int ncid, typeid;
+      nc_vlen_t data[DIM_LEN], data_in[DIM_LEN];
+      ...
+
+      if (nc_create(FILE_NAME, NC_NETCDF4, &ncid)) ERR;
+      if (nc_def_vlen(ncid, VLEN_NAME, NC_INT, &typeid)) ERR;
+      ...
+      if (nc_put_att(ncid, NC_GLOBAL, ATT_NAME, typeid, DIM_LEN, data)) ERR;
+      if (nc_close(ncid)) ERR;
+
+      ...
+      if (nc_open(FILE_NAME, NC_NOWRITE, &ncid)) ERR;
+      if (nc_get_att(ncid, NC_GLOBAL, ATT_NAME, data_in)) ERR;
+      ...
+      if (nc_close(ncid)) ERR;
+@endcode
+
+\author Glenn Davis, Ed Hartnett, Dennis Heimbigner
 */
 int
 nc_get_att(int ncid, int varid, const char *name, void *value)
@@ -77,13 +116,23 @@ nc_inq_ncid().
 \param varid Variable ID of the attribute's variable, or ::NC_GLOBAL
 for a global attribute.
 
-\param name Attribute \ref object_name.
+\param name Attribute name.
 
 \param value Pointer to location for returned attribute value(s). All
 elements of the vector of attribute values are returned, so you must
 allocate enough space to hold them. If you don't know how much
 space to reserve, call nc_inq_attlen() first to find out the length of
 the attribute.
+
+\returns ::NC_NOERR for success.
+\returns ::NC_EBADID Bad ncid.
+\returns ::NC_ENOTVAR Bad varid.
+\returns ::NC_EBADNAME Bad name. See \ref object_name.
+\returns ::NC_EINVAL Invalid parameters.
+\returns ::NC_ENOTATT Can't find attribute.
+\returns ::NC_ECHAR Can't convert to or from NC_CHAR.
+\returns ::NC_ENOMEM Out of memory.
+\returns ::NC_ERANGE Data convertion went out of range.
 
 <h1>Example</h1>
 
@@ -130,6 +179,7 @@ the length of the attributes.
      title[t_len] = '\0';
         ...
 \endcode
+\author Glenn Davis, Ed Hartnett, Dennis Heimbigner
 */
 /*! \{ */
 
@@ -268,9 +318,17 @@ nc_get_att_ulonglong(int ncid, int varid, const char *name, unsigned long long *
 \ingroup attributes
 Get a variable-length string attribute.
 
-This function gets an attribute from netCDF file. Thhe nc_get_att() function works with any type of data including user defined types, but this function will retrieve attributes which are of type variable-length string.
+This function gets an attribute from netCDF file. The nc_get_att()
+function works with any type of data including user defined types, but
+this function will retrieve attributes which are of type
+variable-length string.
 
-\note Note that unlike most other nc_get_att functions, nc_get_att_string() allocates a chunk of memory which is returned to the calling function.  This chunk of memory must be specifically deallocated with nc_free_string() to avoid any memory leaks.  Also note that you must still preallocate the memory needed for the array of pointers passed to nc_get_att_string().
+\note Note that unlike most other nc_get_att functions,
+nc_get_att_string() allocates a chunk of memory which is returned to
+the calling function.  This chunk of memory must be specifically
+deallocated with nc_free_string() to avoid any memory leaks.  Also
+note that you must still preallocate the memory needed for the array
+of pointers passed to nc_get_att_string().
 
 \param ncid NetCDF or group ID, from a previous call to nc_open(),
 nc_create(), nc_def_grp(), or associated inquiry functions such as
@@ -279,13 +337,23 @@ nc_inq_ncid().
 \param varid Variable ID of the attribute's variable, or ::NC_GLOBAL
 for a global attribute.
 
-\param name Attribute \ref object_name.
+\param name Attribute name.
 
 \param value Pointer to location for returned attribute value(s). All
 elements of the vector of attribute values are returned, so you must
 allocate enough space to hold them. If you don't know how much
 space to reserve, call nc_inq_attlen() first to find out the length of
 the attribute.
+
+\returns ::NC_NOERR for success.
+\returns ::NC_EBADID Bad ncid.
+\returns ::NC_ENOTVAR Bad varid.
+\returns ::NC_EBADNAME Bad name. See \ref object_name.
+\returns ::NC_EINVAL Invalid parameters.
+\returns ::NC_ENOTATT Can't find attribute.
+\returns ::NC_ECHAR Can't convert to or from NC_CHAR.
+\returns ::NC_ENOMEM Out of memory.
+\returns ::NC_ERANGE Data convertion went out of range.
 
 \section nc_get_att_string_example Example
 
@@ -333,8 +401,7 @@ int main(int argc, char ** argv) {
   return 0;
 }
 \endcode
-
-
+\author Glenn Davis, Ed Hartnett, Dennis Heimbigner
 */
 
 int

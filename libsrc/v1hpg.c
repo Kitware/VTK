@@ -7,11 +7,11 @@
 #include <config.h>
 #endif
 
-#include "nc3internal.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#include "nc3internal.h"
 #include "rnd.h"
 #include "ncx.h"
 
@@ -303,9 +303,12 @@ v1h_put_NC_string(v1hs *psp, const NC_string *ncstrp)
 static int
 v1h_get_NC_string(v1hs *gsp, NC_string **ncstrpp)
 {
-	int status;
-	size_t padding, nchars = 0;
-	NC_string *ncstrp;
+	int status = 0;
+	size_t nchars = 0;
+	NC_string *ncstrp = NULL;
+#if USE_STRICT_NULL_BYTE_HEADER_PADDING
+        size_t padding = 0;        
+#endif /* USE_STRICT_NULL_BYTE_HEADER_PADDING */
 
 	status = v1h_get_size_t(gsp, &nchars);
 	if(status != NC_NOERR)
@@ -333,17 +336,20 @@ v1h_get_NC_string(v1hs *gsp, NC_string **ncstrpp)
 	if(status != NC_NOERR)
 		goto unwind_alloc;
 
+#if USE_STRICT_NULL_BYTE_HEADER_PADDING
 	padding = _RNDUP(X_SIZEOF_CHAR * ncstrp->nchars, X_ALIGN)
 		- X_SIZEOF_CHAR * ncstrp->nchars;
+
 	if (padding > 0) {
 		/* CDF specification: Header padding uses null (\x00) bytes. */
 		char pad[X_ALIGN-1];
 		memset(pad, 0, X_ALIGN-1);
 		if (memcmp((char*)gsp->pos-padding, pad, padding) != 0) {
 			free_NC_string(ncstrp);
-			return NC_EINVAL;
+			return NC_ENULLPAD;
 		}
 	}
+#endif
 
 	*ncstrpp = ncstrp;
 
@@ -618,11 +624,11 @@ ncmpix_len_nctype(nc_type type) {
 static int
 v1h_put_NC_attrV(v1hs *psp, const NC_attr *attrp)
 {
-	int status;
+	int status = 0;
 	const size_t perchunk =  psp->extent;
 	size_t remaining = attrp->xsz;
 	void *value = attrp->xvalue;
-	size_t nbytes, padding;
+	size_t nbytes = 0, padding = 0;
 
 	assert(psp->extent % X_ALIGN == 0);
 
@@ -640,6 +646,7 @@ v1h_put_NC_attrV(v1hs *psp, const NC_attr *attrp)
         	remaining -= nbytes;
 
 	} while(remaining != 0);
+
 
 	padding = attrp->xsz - ncmpix_len_nctype(attrp->type) * attrp->nelems;
 	if (padding > 0) {
@@ -688,7 +695,10 @@ v1h_get_NC_attrV(v1hs *gsp, NC_attr *attrp)
 	const size_t perchunk =  gsp->extent;
 	size_t remaining = attrp->xsz;
 	void *value = attrp->xvalue;
-	size_t nget, padding;
+	size_t nget;
+#if USE_STRICT_NULL_BYTE_HEADER_PADDING
+	size_t padding;
+#endif /* USE_STRICT_NULL_BYTE_HEADER_PADDING */
 
 	do {
 		nget = MIN(perchunk, remaining);
@@ -706,14 +716,16 @@ v1h_get_NC_attrV(v1hs *gsp, NC_attr *attrp)
 
 	} while(remaining != 0);
 
+#if USE_STRICT_NULL_BYTE_HEADER_PADDING
 	padding = attrp->xsz - ncmpix_len_nctype(attrp->type) * attrp->nelems;
 	if (padding > 0) {
 		/* CDF specification: Header padding uses null (\x00) bytes. */
 		char pad[X_ALIGN-1];
 		memset(pad, 0, X_ALIGN-1);
 		if (memcmp((char*)gsp->pos-padding, pad, (size_t)padding) != 0)
-			return NC_EINVAL;
+			return NC_ENULLPAD;
 	}
+#endif
 
 	return NC_NOERR;
 }
@@ -927,6 +939,7 @@ static int
 v1h_put_NC_var(v1hs *psp, const NC_var *varp)
 {
 	int status;
+    size_t vsize;
 
 	status = v1h_put_NC_string(psp, varp->name);
     if(status != NC_NOERR)
@@ -963,9 +976,19 @@ v1h_put_NC_var(v1hs *psp, const NC_var *varp)
     if(status != NC_NOERR)
 		return status;
 
-	status = v1h_put_size_t(psp, &varp->len);
-    if(status != NC_NOERR)
-		return status;
+    /* write vsize to header.
+     * CDF format specification: The vsize field is actually redundant, because
+     * its value may be computed from other information in the header. The
+     * 32-bit vsize field is not large enough to contain the size of variables
+     * that require more than 2^32 - 4 bytes, so 2^32 - 1 is used in the vsize
+     * field for such variables.
+     */
+    vsize = varp->len;
+    if (varp->len > 4294967292UL && (psp->version == NC_FORMAT_CLASSIC ||
+                                     psp->version == NC_FORMAT_64BIT_OFFSET))
+        vsize = 4294967295UL; /* 2^32-1 */
+    status = v1h_put_size_t(psp, &vsize);
+    if(status != NC_NOERR) return status;
 
 	status = check_v1hs(psp, psp->version == 1 ? 4 : 8); /*begin*/
     if(status != NC_NOERR)
@@ -1219,11 +1242,6 @@ NC_computeshapes(NC3_INFO* ncp)
 		{
 	  		if(first_rec == NULL)
 				first_rec = *vpp;
-			if((*vpp)->len == UINT32_MAX &&
-                           (fIsSet(ncp->flags, NC_64BIT_OFFSET) ||
-                            fIsSet(ncp->flags, NC_64BIT_DATA))) /* Flag for large last record */
-                            ncp->recsize += (*vpp)->dsizes[0] * (*vpp)->xsz;
-			else
 			    ncp->recsize += (*vpp)->len;
 		}
 		else
@@ -1523,6 +1541,10 @@ nc_get_NC(NC3_INFO* ncp)
 		goto unwind_get;
 
 	status = NC_check_vlens(ncp);
+    if(status != NC_NOERR)
+		goto unwind_get;
+
+	status = NC_check_voffs(ncp);
     if(status != NC_NOERR)
 		goto unwind_get;
 

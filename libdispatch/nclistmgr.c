@@ -88,6 +88,11 @@ find_in_NCList(int ext_ncid)
    unsigned int ncid = ((unsigned int)ext_ncid) >> ID_SHIFT;
    if(numfiles > 0 && nc_filelist != NULL && ncid < NCFILELISTLENGTH)
 	f = nc_filelist[ncid];
+
+   /* for classic files, ext_ncid must be a multiple of (1<<ID_SHIFT) */
+   if (f != NULL && f->model == NC_FORMATX_NC3 && (ext_ncid % (1<<ID_SHIFT)))
+       return NULL;
+
    return f;
 }
 

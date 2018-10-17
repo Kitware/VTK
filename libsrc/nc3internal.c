@@ -312,21 +312,23 @@ fprintf(stderr, "    REC %d %s: %ld\n", ii, (*vpp)->name->cp, (long)index);
 		    return NC_EVARSIZE;
 		}
 #endif
-		if((*vpp)->len != UINT32_MAX) /* flag for vars >= 2**32 bytes */
-		    ncp->recsize += (*vpp)->len;
+		ncp->recsize += (*vpp)->len;
 		last = (*vpp);
 	}
 
-	/*
-	 * for special case of
-	 */
-	if(last != NULL) {
-	    if(ncp->recsize == last->len) { /* exactly one record variable, pack value */
-		ncp->recsize = *last->dsizes * last->xsz;
-	    } else if(last->len == UINT32_MAX) { /* huge last record variable */
-		ncp->recsize += *last->dsizes * last->xsz;
-	    }
-	}
+    /*
+     * for special case (Check CDF-1 and CDF-2 file format specifications.)
+     * "A special case: Where there is exactly one record variable, we drop the
+     * requirement that each record be four-byte aligned, so in this case there
+     * is no record padding."
+     */
+    if (last != NULL) {
+        if (ncp->recsize == last->len) {
+            /* exactly one record variable, pack value */
+            ncp->recsize = *last->dsizes * last->xsz;
+        }
+    }
+
 	if(NC_IsNew(ncp))
 		NC_set_numrecs(ncp, 0);
 	return NC_NOERR;
@@ -490,12 +492,13 @@ fillerup(NC3_INFO *ncp)
 	NC_var **varpp;
 
 	assert(!NC_readonly(ncp));
-	assert(NC_dofill(ncp));
 
 	/* loop thru vars */
 	varpp = ncp->vars.value;
 	for(ii = 0; ii < ncp->vars.nelems; ii++, varpp++)
 	{
+		if ((*varpp)->no_fill) continue;
+
 		if(IS_RECVAR(*varpp))
 		{
 			/* skip record variables */
@@ -538,6 +541,9 @@ fill_added_recs(NC3_INFO *gnu, NC3_INFO *old)
 		for(; varid < (int)gnu->vars.nelems; varid++)
 		    {
 			const NC_var *const gnu_varp = *(gnu_varpp + varid);
+
+			if (gnu_varp->no_fill) continue;
+
 			if(!IS_RECVAR(gnu_varp))
 			    {
 				/* skip non-record variables */
@@ -566,6 +572,9 @@ fill_added(NC3_INFO *gnu, NC3_INFO *old)
 	for(; varid < (int)gnu->vars.nelems; varid++)
 	{
 		const NC_var *const gnu_varp = *(gnu_varpp + varid);
+
+		if (gnu_varp->no_fill) continue; 
+
 		if(IS_RECVAR(gnu_varp))
 		{
 			/* skip record variables */
@@ -702,17 +711,14 @@ NC_check_vlens(NC3_INFO *ncp)
     if(ncp->vars.nelems == 0)
 	return NC_NOERR;
 
-    if (fIsSet(ncp->flags,NC_64BIT_DATA)) {
-	/* CDF5 format allows many large vars */
-        return NC_NOERR;
-    }
-    if (fIsSet(ncp->flags,NC_64BIT_OFFSET) && sizeof(off_t) > 4) {
+    if (fIsSet(ncp->flags,NC_64BIT_DATA)) /* CDF-5 */
+	vlen_max = X_INT64_MAX - 3; /* "- 3" handles rounded-up size */
+    else if (fIsSet(ncp->flags,NC_64BIT_OFFSET) && sizeof(off_t) > 4)
 	/* CDF2 format and LFS */
 	vlen_max = X_UINT_MAX - 3; /* "- 3" handles rounded-up size */
-    } else {
-	/* CDF1 format */
+    else /* CDF1 format */
 	vlen_max = X_INT_MAX - 3;
-    }
+
     /* Loop through vars, first pass is for non-record variables.   */
     large_vars_count = 0;
     rec_vars_count = 0;
@@ -721,6 +727,8 @@ NC_check_vlens(NC3_INFO *ncp)
 	if( !IS_RECVAR(*vpp) ) {
 	    last = 0;
 	    if( NC_check_vlen(*vpp, vlen_max) == 0 ) {
+                if (fIsSet(ncp->flags,NC_64BIT_DATA)) /* too big for CDF-5 */
+                    return NC_EVARSIZE;
 		large_vars_count++;
 		last = 1;
 	    }
@@ -749,6 +757,8 @@ NC_check_vlens(NC3_INFO *ncp)
 	    if( IS_RECVAR(*vpp) ) {
 		last = 0;
 		if( NC_check_vlen(*vpp, vlen_max) == 0 ) {
+                    if (fIsSet(ncp->flags,NC_64BIT_DATA)) /* too big for CDF-5 */
+                        return NC_EVARSIZE;
 		    large_vars_count++;
 		    last = 1;
 		}
@@ -767,6 +777,59 @@ NC_check_vlens(NC3_INFO *ncp)
     return NC_NOERR;
 }
 
+/*----< NC_check_voffs() >---------------------------------------------------*/
+/*
+ * Given a valid ncp, check whether the file starting offsets (begin) of all
+ * variables follows the same increasing order as they were defined.
+ */
+int
+NC_check_voffs(NC3_INFO *ncp)
+{
+    size_t i;
+    off_t prev_off;
+    NC_var *varp;
+
+    if (ncp->vars.nelems == 0) return NC_NOERR;
+
+    /* Loop through vars, first pass is for non-record variables */
+    prev_off = ncp->begin_var;
+    for (i=0; i<ncp->vars.nelems; i++) {
+        varp = ncp->vars.value[i];
+        if (IS_RECVAR(varp)) continue;
+
+        if (varp->begin < prev_off) {
+#if 0
+            fprintf(stderr,"Variable \"%s\" begin offset (%lld) is less than previous variable end offset (%lld)\n", varp->name->cp, varp->begin, prev_off);
+#endif
+            return NC_ENOTNC;
+        }
+        prev_off = varp->begin + varp->len;
+    }
+
+    if (ncp->begin_rec < prev_off) {
+#if 0
+        fprintf(stderr,"Record variable section begin offset (%lld) is less than fix-sized variable section end offset (%lld)\n", varp->begin, prev_off);
+#endif
+        return NC_ENOTNC;
+    }
+
+    /* Loop through vars, second pass is for record variables */
+    prev_off = ncp->begin_rec;
+    for (i=0; i<ncp->vars.nelems; i++) {
+        varp = ncp->vars.value[i];
+        if (!IS_RECVAR(varp)) continue;
+
+        if (varp->begin < prev_off) {
+#if 0
+            fprintf(stderr,"Variable \"%s\" begin offset (%lld) is less than previous variable end offset (%lld)\n", varp->name->cp, varp->begin, prev_off);
+#endif
+            return NC_ENOTNC;
+        }
+        prev_off = varp->begin + varp->len;
+    }
+
+    return NC_NOERR;
+}
 
 /*
  *  End define mode.
@@ -787,6 +850,9 @@ NC_endef(NC3_INFO *ncp,
 	if(status != NC_NOERR)
 	    return status;
 	status = NC_begins(ncp, h_minfree, v_align, v_minfree, r_align);
+	if(status != NC_NOERR)
+	    return status;
+	status = NC_check_voffs(ncp);
 	if(status != NC_NOERR)
 	    return status;
 
@@ -840,7 +906,7 @@ NC_endef(NC3_INFO *ncp,
 	if(status != NC_NOERR)
 		return status;
 
-	if(NC_dofill(ncp))
+	/* fill mode is now per variable */
 	{
 		if(NC_IsNew(ncp))
 		{
@@ -1432,7 +1498,7 @@ int
 NC3_set_fill(int ncid,
 	int fillmode, int *old_mode_ptr)
 {
-	int status;
+	int i, status;
 	NC *nc;
 	NC3_INFO* nc3;
 	int oldmode;
@@ -1472,6 +1538,14 @@ NC3_set_fill(int ncid,
 
 	if(old_mode_ptr != NULL)
 		*old_mode_ptr = oldmode;
+
+	/* loop thru all variables to set/overwrite its fill mode */
+	for (i=0; i<nc3->vars.nelems; i++)
+		nc3->vars.value[i]->no_fill = (fillmode == NC_NOFILL);
+
+	/* once the file's fill mode is set, any new variables defined after
+	 * this call will check NC_dofill(nc3) and set their no_fill accordingly.
+	 * See NC3_def_var() */
 
 	return NC_NOERR;
 }
@@ -1570,93 +1644,114 @@ NC3_inq_base_pe(int ncid, int *pe)
 	/*
 	 * !_CRAYMPP, only pe 0 is valid
 	 */
-	*pe = 0;
+	if (pe) *pe = 0;
 #endif /* _CRAYMPP && LOCKNUMREC */
 	return NC_NOERR;
 }
 
+/**
+ * Return the file format.
+ *
+ * \param ncid the ID of the open file.
+
+ * \param formatp a pointer that gets the format. Ignored if NULL.
+ *
+ * \returns NC_NOERR No error.
+ * \returns NC_EBADID Bad ncid.
+ * \internal
+ * \author Ed Hartnett, Dennis Heimbigner
+ */
 int
 NC3_inq_format(int ncid, int *formatp)
 {
-	int status;
-	NC *nc;
-	NC3_INFO* nc3;
+   int status;
+   NC *nc;
+   NC3_INFO* nc3;
 
-	status = NC_check_id(ncid, &nc);
-	if(status != NC_NOERR)
-		return status;
-	nc3 = NC3_DATA(nc);
+   status = NC_check_id(ncid, &nc);
+   if(status != NC_NOERR)
+      return status;
+   nc3 = NC3_DATA(nc);
 
-	/* only need to check for netCDF-3 variants, since this is never called for netCDF-4 files */
+   /* Why even call this function with no format pointer? */
+   if (!formatp)
+      return NC_NOERR;
+
+   /* only need to check for netCDF-3 variants, since this is never called for netCDF-4 files */
 #ifdef USE_CDF5
-	if (fIsSet(nc3->flags, NC_64BIT_DATA))
-	    *formatp = NC_FORMAT_CDF5;
-	else
+   if (fIsSet(nc3->flags, NC_64BIT_DATA))
+      *formatp = NC_FORMAT_CDF5;
+   else
 #endif
       if (fIsSet(nc3->flags, NC_64BIT_OFFSET))
-	    *formatp = NC_FORMAT_64BIT_OFFSET;
-	else
-	    *formatp = NC_FORMAT_CLASSIC;
-	return NC_NOERR;
+         *formatp = NC_FORMAT_64BIT_OFFSET;
+      else
+         *formatp = NC_FORMAT_CLASSIC;
+   return NC_NOERR;
 }
 
+/**
+ * Return the extended format (i.e. the dispatch model), plus the mode
+ * associated with an open file.
+ *
+ * \param ncid the ID of the open file.
+ * \param formatp a pointer that gets the extended format. Note that
+ * this is not the same as the format provided by nc_inq_format(). The
+ * extended foramt indicates the dispatch layer model. Classic, 64-bit
+ * offset, and CDF5 files all have an extended format of
+ * ::NC_FORMATX_NC3. Ignored if NULL.
+ * \param modep a pointer that gets the open/create mode associated with
+ * this file. Ignored if NULL.
+ *
+ * \returns NC_NOERR No error.
+ * \returns NC_EBADID Bad ncid.
+ * \internal
+ * \author Dennis Heimbigner
+ */
 int
 NC3_inq_format_extended(int ncid, int *formatp, int *modep)
 {
-	int status;
-	NC *nc;
+   int status;
+   NC *nc;
 
-	status = NC_check_id(ncid, &nc);
-	if(status != NC_NOERR)
-		return status;
-        if(formatp) *formatp = NC_FORMATX_NC3;
-	if(modep) *modep = nc->mode;
-	return NC_NOERR;
+   status = NC_check_id(ncid, &nc);
+   if(status != NC_NOERR)
+      return status;
+   if(formatp) *formatp = NC_FORMATX_NC3;
+   if(modep) *modep = nc->mode;
+   return NC_NOERR;
 }
 
-/* The sizes of types may vary from platform to platform, but within
- * netCDF files, type sizes are fixed. */
-#define NC_BYTE_LEN 1
-#define NC_CHAR_LEN 1
-#define NC_SHORT_LEN 2
-#define NC_INT_LEN 4
-#define NC_FLOAT_LEN 4
-#define NC_DOUBLE_LEN 8
-#define NUM_ATOMIC_TYPES 6
-
-/* This netCDF-4 function proved so popular that a netCDF-classic
- * version is provided. You're welcome. */
+/**
+ * Determine name and size of netCDF type. This netCDF-4 function
+ * proved so popular that a netCDF-classic version is provided. You're
+ * welcome.
+ * 
+ * \param ncid The ID of an open file.
+ * \param typeid The ID of a netCDF type.
+ * \param name Pointer that will get the name of the type. Maximum
+ * size will be NC_MAX_NAME. Ignored if NULL.
+ * \param size Pointer that will get size of type in bytes. Ignored if
+ * null.
+ *
+ * \returns NC_NOERR No error.
+ * \returns NC_EBADID Bad ncid.
+ * \returns NC_EBADTYPE Bad typeid.
+ * \internal
+ * \author Ed Hartnett
+ */
 int
 NC3_inq_type(int ncid, nc_type typeid, char *name, size_t *size)
 {
-#if 0
-   int atomic_size[NUM_ATOMIC_TYPES] = {NC_BYTE_LEN, NC_CHAR_LEN, NC_SHORT_LEN,
-					NC_INT_LEN, NC_FLOAT_LEN, NC_DOUBLE_LEN};
-   char atomic_name[NUM_ATOMIC_TYPES][NC_MAX_NAME + 1] = {"byte", "char", "short",
-							  "int", "float", "double"};
-#endif
-
    NC *ncp;
    int stat = NC_check_id(ncid, &ncp);
    if (stat != NC_NOERR)
-	return stat;
+      return stat;
 
-   /* Only netCDF classic model and CDF-5 need to be handled. */
-   /* After discussion, this seems like an artificial limitation.
-      See https://github.com/Unidata/netcdf-c/issues/240 for more
-      discussion. */
-   /*
-   if((ncp->mode & NC_CDF5) != 0) {
-	if (typeid < NC_BYTE || typeid > NC_STRING)
-            return NC_EBADTYPE;
-   } else if (typeid < NC_BYTE || typeid > NC_DOUBLE)
-      return NC_EBADTYPE;
-   */
    if(typeid < NC_BYTE || typeid > NC_STRING)
-     return NC_EBADTYPE;
+      return NC_EBADTYPE;
 
-   /* Give the user the values they want. Subtract one because types
-    * are numbered starting at 1, not 0. */
+   /* Give the user the values they want. */
    if (name)
       strcpy(name, NC_atomictypename(typeid));
    if (size)
@@ -1666,36 +1761,6 @@ NC3_inq_type(int ncid, nc_type typeid, char *name, size_t *size)
 }
 
 /**************************************************/
-#if 0
-int
-NC3_set_content(int ncid, size_t size, void* memory)
-{
-    int status = NC_NOERR;
-    NC *nc;
-    NC3_INFO* nc3;
-
-    status = NC_check_id(ncid, &nc);
-    if(status != NC_NOERR)
-        return status;
-    nc3 = NC3_DATA(nc);
-
-#ifdef USE_DISKLESS
-    fClr(nc3->flags, NC_CREAT);
-    status = memio_set_content(nc3->nciop, size, memory);
-    if(status != NC_NOERR) goto done;
-    status = nc_get_NC(nc3);
-    if(status != NC_NOERR) goto done;
-#else
-    status = NC_EDISKLESS;
-#endif
-
-done:
-    return status;
-}
-#endif
-
-/**************************************************/
-
 int
 nc_delete_mp(const char * path, int basepe)
 {
@@ -1778,11 +1843,12 @@ NC3_inq_var_fill(const NC_var *varp, void *fill_value)
      */
     attrpp = NC_findattr(&varp->attrs, _FillValue);
     if ( attrpp != NULL ) {
+        const void *xp;
         /* User defined fill value */
         if ( (*attrpp)->type != varp->type || (*attrpp)->nelems != 1 )
             return NC_EBADTYPE;
 
-        const void *xp = (*attrpp)->xvalue;
+        xp = (*attrpp)->xvalue;
         /* value stored in xvalue is in external representation, may need byte-swap */
         switch(varp->type) {
             case NC_CHAR:   return ncx_getn_text               (&xp, 1,               (char*)fill_value);
