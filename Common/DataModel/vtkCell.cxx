@@ -21,8 +21,7 @@
 // Construct cell.
 vtkCell::vtkCell()
 {
-  this->Points = vtkPoints::New();
-  this->Points->SetDataTypeToDouble();
+  this->Points = vtkPoints::New(VTK_DOUBLE);
   this->PointIds = vtkIdList::New();
   // Consistent Register/Deletes (ShallowCopy uses Register.)
   this->Points->Register(this);
