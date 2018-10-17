@@ -156,6 +156,7 @@ void QVTKOpenGLWindow::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
   this->EventSlotConnector->Connect(this->RenderWindow, vtkCommand::WindowSupportsOpenGLEvent, this, SLOT(SupportsOpenGL(vtkObject*, unsigned long, void*, void*)));
   this->EventSlotConnector->Connect(this->RenderWindow, vtkCommand::WindowStereoTypeChangedEvent, this, SLOT(UpdateStereoType(vtkObject*, unsigned long, void*, void*)));
   this->EventSlotConnector->Connect(this->RenderWindow, vtkCommand::WindowResizeEvent, this, SLOT(ResizeToVTKWindow()));
+  this->EventSlotConnector->Connect(this->RenderWindow, vtkCommand::CursorChangedEvent, this, SLOT(ChangeCursor(vtkObject*, unsigned long, void*, void*)));
 }
 
 //-----------------------------------------------------------------------------
@@ -570,4 +571,57 @@ bool QVTKOpenGLWindow::isCurrent()
   }
 
   return QOpenGLContext::currentContext() == this->context();
+}
+
+//-----------------------------------------------------------------------------
+void QVTKOpenGLWindow::ChangeCursor(vtkObject*, unsigned long, void*,
+  void* call_data)
+{
+  if (!this->RenderWindow)
+  {
+    return;
+  }
+
+  int* cShape = reinterpret_cast<int*> (call_data);
+  if (!cShape)
+  {
+    return;
+  }
+
+  switch (*cShape)
+  {
+    case VTK_CURSOR_CROSSHAIR:
+      this->setCursor(QCursor(Qt::CrossCursor));
+      break;
+    case VTK_CURSOR_ARROW:
+      this->setCursor(QCursor(Qt::ArrowCursor));
+      break;
+    case VTK_CURSOR_SIZEALL:
+      this->setCursor(QCursor(Qt::SizeAllCursor));
+      break;
+    case VTK_CURSOR_SIZENS:
+      this->setCursor(QCursor(Qt::SizeVerCursor));
+      break;
+    case VTK_CURSOR_SIZEWE:
+      this->setCursor(QCursor(Qt::SizeHorCursor));
+      break;
+    case VTK_CURSOR_SIZENE:
+      this->setCursor(QCursor(Qt::SizeBDiagCursor));
+      break;
+    case VTK_CURSOR_SIZENW:
+      this->setCursor(QCursor(Qt::SizeFDiagCursor));
+      break;
+    case VTK_CURSOR_SIZESE:
+      this->setCursor(QCursor(Qt::SizeFDiagCursor));
+      break;
+    case VTK_CURSOR_SIZESW:
+      this->setCursor(QCursor(Qt::SizeBDiagCursor));
+      break;
+    case VTK_CURSOR_HAND:
+      this->setCursor(QCursor(Qt::PointingHandCursor));
+      break;
+    default:
+      this->setCursor(QCursor(Qt::ArrowCursor));
+      break;
+  }
 }
