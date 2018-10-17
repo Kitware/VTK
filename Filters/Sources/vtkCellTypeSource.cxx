@@ -1540,10 +1540,17 @@ void vtkCellTypeSource::GenerateLagrangeWedges(vtkUnstructuredGrid* output, int 
   const int yDim = extent[3]-extent[2];
   const int zDim = extent[5]-extent[4];
   const int numCells = (xDim - 1) * (yDim - 1) * (zDim - 1) * 2; // 2 wedges per hex
-  const int order[3] = { this->CellOrder, this->CellOrder, this->CellOrder };
   const int numPtsPerCell =
     (this->CompleteQuadraticSimplicialElements && this->CellOrder == 2) ? 21 :
-    (order[2] + 1) * (order[0] + 1) * (order[0] + 2) / 2;
+    (this->CellOrder + 1) * (this->CellOrder + 1) * (this->CellOrder + 2) / 2;
+
+  // There is some ambiguity about whether or not <order> should be a 3-array
+  // containing the order in each cardinal direction or a 4-array that
+  // additionally holds the number of points. Since
+  // vtkLagrangeWedge::PointIndexFromIJK expects the order to be a 4-array, we
+  // use this convention here.
+  const int order[4] = { this->CellOrder, this->CellOrder, this->CellOrder, numPtsPerCell };
+
   output->Allocate(numCells * (numPtsPerCell + 1));
   std::vector<vtkIdType> cta;
   std::vector<vtkIdType> ctb;
