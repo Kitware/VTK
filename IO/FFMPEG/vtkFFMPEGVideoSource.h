@@ -27,8 +27,12 @@
 #include "vtkIOFFMPEGModule.h" // For export macro
 #include "vtkVideoSource.h"
 #include "vtkMultiThreader.h" // for ivar
+#include "vtkNew.h" // for ivar
 
 class vtkFFMPEGVideoSourceInternal;
+
+class vtkConditionVariable;
+class vtkMutexLock;
 
 class VTKIOFFMPEG_EXPORT vtkFFMPEGVideoSource : public vtkVideoSource
 {
@@ -107,11 +111,21 @@ protected:
   vtkFFMPEGVideoSource();
   ~vtkFFMPEGVideoSource();
 
-  int DecodePacket(int *got_frame);
-  static void *RecordThread(
-    vtkMultiThreader::ThreadInfo *data);
+  void ReadFrame();
 
   vtkFFMPEGVideoSourceInternal *Internal;
+
+  vtkNew<vtkConditionVariable> FeedCondition;
+  vtkNew<vtkMutexLock> FeedMutex;
+  static void *FeedThread(
+    vtkMultiThreader::ThreadInfo *data);
+  static void *DrainThread(
+    vtkMultiThreader::ThreadInfo *data);
+  void *Feed(vtkMultiThreader::ThreadInfo *data);
+  void *Drain(vtkMultiThreader::ThreadInfo *data);
+  int FeedThreadId;
+  int DrainThreadId;
+
   char *FileName;
   bool EndOfFile;
 
