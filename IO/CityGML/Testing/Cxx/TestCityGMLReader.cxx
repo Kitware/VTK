@@ -107,6 +107,6 @@ int TestCityGMLReader(int argc, char *argv[])
     interactor->Start();
   }
 
-  delete fname;
+  delete[] fname;
   return !retVal;
 }
