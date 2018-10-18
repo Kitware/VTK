@@ -6,6 +6,7 @@
 #   OPENSLIDE_FOUND         - system has OpenSlide
 #   OPENSLIDE_INCLUDE_DIRS  - the OpenSlide include directory
 #   OPENSLIDE_LIBRARIES     - link to these to use OpenSlide
+#   OpenSlide::OpenSlide    - imported target
 
 # Look for the header.
 find_path(OPENSLIDE_INCLUDE_DIR
@@ -30,4 +31,8 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS( OPENSLIDE DEFAULT_MSG OPENSLIDE_LIBRARY OPENS
 if( OPENSLIDE_FOUND )
   set( OPENSLIDE_LIBRARIES ${OPENSLIDE_LIBRARY} )
   set( OPENSLIDE_INCLUDE_DIRS ${OPENSLIDE_INCLUDE_DIR} )
+  add_library(OpenSlide::OpenSlide UNKNOWN IMPORTED)
+  set_target_properties(OpenSlide::OpenSlide PROPERTIES
+    IMPORTED_LOCATION "${OPENSLIDE_LIBRARY}"
+    INTERFACE_INCLUDE_DIRECTORIES "${OPENSLIDE_INCLUDE_DIR}")
 endif()
