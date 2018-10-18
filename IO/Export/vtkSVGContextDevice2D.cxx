@@ -1104,6 +1104,7 @@ void vtkSVGContextDevice2D::DrawColoredPolygon(float *points, int numPoints,
                                                int nc_comps)
 {
   assert(numPoints > 0);
+  assert(nc_comps >= 3 && nc_comps <= 4);
   assert(points != nullptr);
 
   // Just use the standard draw method if there is a texture or colors are not
@@ -1148,12 +1149,16 @@ void vtkSVGContextDevice2D::DrawColoredPolygon(float *points, int numPoints,
   const vtkVector2f p0(points);
   const vtkColor4ub c0(colors);
 
+  // We may have 3 or 4 components, so initialize these with a sane alpha value:
+  vtkColor4ub c1{0, 0, 0, 255};
+  vtkColor4ub c2{0, 0, 0, 255};
+
   for (int i = 1; i < numPoints - 1; ++i)
   {
     const vtkVector2f p1(points + 2 * i);
-    const vtkColor4ub c1(colors + nc_comps * i);
     const vtkVector2f p2(points + 2 * (i + 1));
-    const vtkColor4ub c2(colors + nc_comps * (i + 1));
+    std::copy_n(colors + nc_comps * i, nc_comps, c1.GetData());
+    std::copy_n(colors + nc_comps * (i + 1), nc_comps, c2.GetData());
 
     this->DrawTriangleGradient(p0, c0, p1, c1, p2, c2, useAlpha);
   }
