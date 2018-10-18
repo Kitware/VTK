@@ -25,14 +25,3 @@ vtk_set_with_default(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/${vtk_lib
 vtk_set_with_default(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/lib")
 vtk_set_with_default(VTK_MODULES_DIR "${VTK_BINARY_DIR}/${VTK_INSTALL_PACKAGE_DIR}/Modules")
 vtk_set_with_default(VTK_WWW_DIR "${VTK_BINARY_DIR}/www")
-
-if(DEFINED VTK_INSTALL_PYTHON_MODULE_DIR)
-  message(WARNING
-    "VTK_INSTALL_PYTHON_MODULE_DIR is no longer supported. "
-    "Set `VTK_PYTHON_SITE_PACKAGES_SUFFIX` instead, although not needed in most cases.")
-endif()
-if(DEFINED VTK_BUILD_PYTHON_MODULE_DIR)
-  message(WARNING
-    "VTK_BUILD_PYTHON_MODULE_DIR is no longer supported. "
-    "Set `VTK_PYTHON_SITE_PACKAGES_SUFFIX` instead, although not needed in most cases.")
-endif()

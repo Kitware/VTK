@@ -79,42 +79,52 @@ if (CMAKE_CONFIGURATION_TYPES)
     message(FATAL_ERROR "CMake 3.4 or newer if needed for your generator.")
   endif ()
   set(VTK_BUILD_PYTHON_MODULES_DIR
-    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/$<CONFIG>/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
-    CACHE INTERNAL "Directory where python modules will be built")
+    "${CMAKE_BINARY_DIR}/$<CONFIG>/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}")
 else ()
   set(VTK_BUILD_PYTHON_MODULES_DIR
-    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
-    CACHE INTERNAL "Directory where python modules will be built")
+    "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}")
 endif ()
 
 if (NOT DEFINED VTK_INSTALL_PYTHON_MODULES_DIR)
   if (WIN32 AND NOT CYGWIN)
     set(VTK_INSTALL_PYTHON_MODULES_DIR
-      "${VTK_INSTALL_RUNTIME_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
-      CACHE INTERNAL "Directory where python modules will be installed")
+      "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}")
   else ()
     set(VTK_INSTALL_PYTHON_MODULES_DIR
-      "${VTK_INSTALL_LIBRARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
-      CACHE INTERNAL "Directory where python modules will be installed")
+      "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}")
   endif ()
 endif ()
 
-# Export location of python module dirs in install and build tree for for
-# projects that link against VTK
-set(${vtk-module}_EXPORT_CODE_BUILD "set(VTK_PYTHONPATH \"${VTK_BUILD_PYTHON_MODULES_DIR}\")")
-if (IS_ABSOLUTE ${VTK_INSTALL_PYTHON_MODULES_DIR})
-  set(${vtk-module}_EXPORT_CODE_INSTALL "set(VTK_PYTHONPATH \"${VTK_INSTALL_PYTHON_MODULES_DIR}\")")
-else ()
-  set(${vtk-module}_EXPORT_CODE_INSTALL "set(VTK_PYTHONPATH \"${CMAKE_INSTALL_PREFIX}/${VTK_INSTALL_PYTHON_MODULES_DIR}\")")
+set(_vtk_python_filename "vtk-python.cmake")
+set(_vtk_python_install_file "${CMAKE_BINARY_DIR}/CMakeFiles/${_vtk_python_filename}.install")
+set(_vtk_python_build_file "${CMAKE_BINARY_DIR}/${_vtk_build_CMAKE_DESTINATION}/${_vtk_python_filename}")
+
+file(WRITE "${_vtk_python_build_file}")
+file(WRITE "${_vtk_python_install_file}")
+
+_vtk_module_write_import_prefix(
+  "${_vtk_python_install_file}"
+  "${_vtk_build_CMAKE_DESTINATION}")
+file(APPEND "${_vtk_python_install_file}"
+  "set(VTK_PYTHONPATH \"\${_vtk_module_import_prefix}/${VTK_INSTALL_PYTHON_MODULES_DIR}\")\n")
+file(APPEND "${_vtk_python_build_file}"
+  "set(VTK_PYTHONPATH \"${VTK_BUILD_PYTHON_MODULES_DIR}\")\n")
+
+if (_vtk_build_INSTALL_HEADERS)
+  install(
+    FILES       "${_vtk_python_install_file}"
+    DESTINATION "${_vtk_build_CMAKE_DESTINATION}"
+    COMPONENT   "${_vtk_build_HEADERS_COMPONENT}"
+    RENAME      "${_vtk_python_filename}")
 endif ()
 
-# for static builds, since vtkPythonInterpreter cannot work off the library
+# For static builds, since vtkPythonInterpreter cannot work off the library
 # location, but instead has to use the executable location, it needs to know the
 # library dir explicitly.
 if (NOT VTK_BUILD_SHARED_LIBS)
-  set(VTK_PYTHON_SITE_PACKAGES_SUFFIX_FIXED ${VTK_INSTALL_PYTHON_MODULES_DIR})
+  set(VTK_PYTHON_SITE_PACKAGES_SUFFIX_FIXED "${VTK_INSTALL_PYTHON_MODULES_DIR}")
 else ()
-  set(VTK_PYTHON_SITE_PACKAGES_SUFFIX_FIXED ${VTK_PYTHON_SITE_PACKAGES_SUFFIX})
+  set(VTK_PYTHON_SITE_PACKAGES_SUFFIX_FIXED "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}")
 endif ()
 
 configure_file(

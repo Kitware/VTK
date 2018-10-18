@@ -14,6 +14,8 @@ The following variables are provided by this module:
     Python parts of the module API are available.
   * `VTK_WRAP_JAVA`: If VTK itself provides Java wrapping. If so, the
     Java parts of the module API are available.
+  * `VTK_PYTHONPATH`: Where VTK's Python modules live. Unset if Python is not
+    available.
   * `VTK_LIBRARIES`: The list of modules specified by `COMPONENTS` and
     `OPTIONAL_COMPONENTS`. This may be used in `MODULES` arguments in the API
     (e.g., `vtk_module_autoinit`). All modules are also targets and may be
