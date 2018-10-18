@@ -34,10 +34,6 @@ typedef AVCodecID vtkAVCodecID;
 #endif
 }
 
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(54, 25, 0)
 # define AV_CODEC_ID_MJPEG CODEC_ID_MJPEG
 # define AV_CODEC_ID_RAWVIDEO CODEC_ID_RAWVIDEO
