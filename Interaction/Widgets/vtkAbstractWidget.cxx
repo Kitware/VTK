@@ -57,9 +57,10 @@ vtkAbstractWidget::~vtkAbstractWidget()
   if ( this->WidgetRep )
   {
     // Remove the representation from the renderer.
-    if (this->CurrentRenderer)
+    vtkRenderer* ren = this->WidgetRep->GetRenderer();
+    if (ren)
     {
-      this->CurrentRenderer->RemoveViewProp(this->WidgetRep);
+      ren->RemoveViewProp(this->WidgetRep);
     }
     this->WidgetRep->Delete();
     this->WidgetRep = nullptr;
