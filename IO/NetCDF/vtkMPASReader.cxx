@@ -769,8 +769,8 @@ int vtkMPASReader::Internal::LoadPointVarDataImpl(int nc_var, vtkDataArray *arra
     if (!reader->ShowMultilayerView)
     {
       k = reader->PointMap[j - reader->NumberOfPoints - reader->PointOffset];
-      assert(j < array->GetNumberOfTuples());
-      assert(k < array->GetNumberOfTuples());
+      assert(j < static_cast<size_t>(array->GetNumberOfTuples()));
+      assert(k < static_cast<size_t>(array->GetNumberOfTuples()));
       dataBlock[j] = dataBlock[k];
     }
     else
