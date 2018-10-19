@@ -56,8 +56,11 @@
 #define vtkDataSetAttributesFieldList_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkSystemIncludes.h"
+#include "vtkSetGet.h"                // for VTK_LEGACY
 #include "vtkSmartPointer.h"          // for vtkSmartPointer
+#include "vtkSystemIncludes.h"
+
+#include <functional>                 // for std::function
 #include <memory>                     // for unique_ptr
 
 class vtkAbstractArray;
@@ -116,20 +119,29 @@ public:
     double* weights, vtkDataSetAttributes* output, vtkIdType toId) const;
   //@}
 
+  /**
+   * Use this method to provide a custom callback function to invoke for each
+   * array in the input and corresponding array in the output.
+   */
+  void TransformData(int inputIndex, vtkDataSetAttributes* input, vtkDataSetAttributes* output,
+    std::function<void(vtkAbstractArray*, vtkAbstractArray*)> op) const;
+
   //@{
   /**
    * vtkDataSetAttributes::FieldList used a different internal data structure in
    * older versions of VTK. This exposes that API for legacy applications.
-   * It may be deprecated in the future.
    *
-   * Using these methods should be avoided in new code.
+   * Using these methods should be avoided in new code and should be replaced in
+   * old code as these methods can be slow.
+   *
+   * @deprecated VTK 8.2
    */
-  int IsAttributePresent(int attrType) const;
-  int GetNumberOfFields() const;
-  int GetFieldIndex(int i) const;
-  const char* GetFieldName(int i) const;
-  int GetFieldComponents(int i) const;
-  int GetDSAIndex(int index, int i) const;
+  VTK_LEGACY(int IsAttributePresent(int attrType) const);
+  VTK_LEGACY(int GetNumberOfFields() const);
+  VTK_LEGACY(int GetFieldIndex(int i) const);
+  VTK_LEGACY(const char* GetFieldName(int i) const);
+  VTK_LEGACY(int GetFieldComponents(int i) const);
+  VTK_LEGACY(int GetDSAIndex(int index, int i) const);
   //@}
 
 protected:

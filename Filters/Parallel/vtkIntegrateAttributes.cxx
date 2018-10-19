@@ -623,94 +623,77 @@ void vtkIntegrateAttributes::ZeroAttributes(vtkDataSetAttributes* outda)
 void vtkIntegrateAttributes::IntegrateData1(vtkDataSetAttributes* inda, vtkDataSetAttributes* outda,
   vtkIdType pt1Id, double k, vtkIntegrateAttributes::vtkFieldList& fieldList, int index)
 {
-  int numArrays, i, numComponents, j;
-  vtkDataArray* inArray;
-  vtkDataArray* outArray;
-  numArrays = fieldList.GetNumberOfFields();
-  double vIn1, dv, vOut;
-  for (i = 0; i < numArrays; ++i)
-  {
-    if (fieldList.GetFieldIndex(i) < 0)
+  auto f = [pt1Id, k](vtkAbstractArray* ainArray, vtkAbstractArray* aoutArray) {
+    vtkDataArray* inArray = vtkDataArray::FastDownCast(ainArray);
+    vtkDataArray* outArray = vtkDataArray::FastDownCast(aoutArray);
+    if (inArray && outArray)
     {
-      continue;
+      // We could template for speed.
+      const int numComponents = inArray->GetNumberOfComponents();
+      for (int j = 0; j < numComponents; ++j)
+      {
+        const double vIn1 = inArray->GetComponent(pt1Id, j);
+        const double dv = vIn1;
+        const double vOut = (dv * k) + outArray->GetComponent(0, j);
+        outArray->SetComponent(0, j, vOut);
+      }
     }
-    // We could template for speed.
-    inArray = inda->GetArray(fieldList.GetDSAIndex(index, i));
-    outArray = outda->GetArray(fieldList.GetFieldIndex(i));
-    numComponents = inArray->GetNumberOfComponents();
-    for (j = 0; j < numComponents; ++j)
-    {
-      vIn1 = inArray->GetComponent(pt1Id, j);
-      vOut = outArray->GetComponent(0, j);
-      dv = vIn1;
-      vOut += dv * k;
-      outArray->SetComponent(0, j, vOut);
-    }
-  }
+  };
+
+  fieldList.TransformData(index, inda, outda, f);
 }
+
 //-----------------------------------------------------------------------------
 void vtkIntegrateAttributes::IntegrateData2(vtkDataSetAttributes* inda, vtkDataSetAttributes* outda,
   vtkIdType pt1Id, vtkIdType pt2Id, double k, vtkIntegrateAttributes::vtkFieldList& fieldList,
   int index)
 {
-  int numArrays, i, numComponents, j;
-  vtkDataArray* inArray;
-  vtkDataArray* outArray;
-  numArrays = fieldList.GetNumberOfFields();
-  double vIn1, vIn2, dv, vOut;
-  for (i = 0; i < numArrays; ++i)
-  {
-    if (fieldList.GetFieldIndex(i) < 0)
+  auto f = [pt1Id, pt2Id, k](vtkAbstractArray* ainArray, vtkAbstractArray* aoutArray) {
+    vtkDataArray* inArray = vtkDataArray::FastDownCast(ainArray);
+    vtkDataArray* outArray = vtkDataArray::FastDownCast(aoutArray);
+    if (inArray && outArray)
     {
-      continue;
+      // We could template for speed.
+      const int numComponents = inArray->GetNumberOfComponents();
+      for (int j = 0; j < numComponents; ++j)
+      {
+        const double vIn1 = inArray->GetComponent(pt1Id, j);
+        const double vIn2 = inArray->GetComponent(pt2Id, j);
+        const double dv = 0.5 * (vIn1 + vIn2);
+        const double vOut = (dv * k) + outArray->GetComponent(0, j);
+        outArray->SetComponent(0, j, vOut);
+      }
     }
-    // We could template for speed.
-    inArray = inda->GetArray(fieldList.GetDSAIndex(index, i));
-    outArray = outda->GetArray(fieldList.GetFieldIndex(i));
-    numComponents = inArray->GetNumberOfComponents();
-    for (j = 0; j < numComponents; ++j)
-    {
-      vIn1 = inArray->GetComponent(pt1Id, j);
-      vIn2 = inArray->GetComponent(pt2Id, j);
-      vOut = outArray->GetComponent(0, j);
-      dv = 0.5 * (vIn1 + vIn2);
-      vOut += dv * k;
-      outArray->SetComponent(0, j, vOut);
-    }
-  }
+  };
+
+  fieldList.TransformData(index, inda, outda, f);
 }
+
 //-----------------------------------------------------------------------------
 // Is the extra performance worth duplicating this code with IntergrateData2.
 void vtkIntegrateAttributes::IntegrateData3(vtkDataSetAttributes* inda, vtkDataSetAttributes* outda,
   vtkIdType pt1Id, vtkIdType pt2Id, vtkIdType pt3Id, double k,
   vtkIntegrateAttributes::vtkFieldList& fieldList, int index)
 {
-  int numArrays, i, numComponents, j;
-  vtkDataArray* inArray;
-  vtkDataArray* outArray;
-  numArrays = fieldList.GetNumberOfFields();
-  double vIn1, vIn2, vIn3, dv, vOut;
-  for (i = 0; i < numArrays; ++i)
-  {
-    if (fieldList.GetFieldIndex(i) < 0)
+  auto f = [pt1Id, pt2Id, pt3Id, k](vtkAbstractArray* ainArray, vtkAbstractArray* aoutArray) {
+    vtkDataArray* inArray = vtkDataArray::FastDownCast(ainArray);
+    vtkDataArray* outArray = vtkDataArray::FastDownCast(aoutArray);
+    if (inArray && outArray)
     {
-      continue;
+      // We could template for speed.
+      const int numComponents = inArray->GetNumberOfComponents();
+      for (int j = 0; j < numComponents; ++j)
+      {
+        const double vIn1 = inArray->GetComponent(pt1Id, j);
+        const double vIn2 = inArray->GetComponent(pt2Id, j);
+        const double vIn3 = inArray->GetComponent(pt3Id, j);
+        const double dv = (vIn1 + vIn2 + vIn3) / 3.0;
+        const double vOut = (dv * k) + outArray->GetComponent(0, j);
+        outArray->SetComponent(0, j, vOut);
+      }
     }
-    // We could template for speed.
-    inArray = inda->GetArray(fieldList.GetDSAIndex(index, i));
-    outArray = outda->GetArray(fieldList.GetFieldIndex(i));
-    numComponents = inArray->GetNumberOfComponents();
-    for (j = 0; j < numComponents; ++j)
-    {
-      vIn1 = inArray->GetComponent(pt1Id, j);
-      vIn2 = inArray->GetComponent(pt2Id, j);
-      vIn3 = inArray->GetComponent(pt3Id, j);
-      vOut = outArray->GetComponent(0, j);
-      dv = (vIn1 + vIn2 + vIn3) / 3.0;
-      vOut += dv * k;
-      outArray->SetComponent(0, j, vOut);
-    }
-  }
+  };
+  fieldList.TransformData(index, inda, outda, f);
 }
 
 //-----------------------------------------------------------------------------
@@ -719,33 +702,28 @@ void vtkIntegrateAttributes::IntegrateData4(vtkDataSetAttributes* inda, vtkDataS
   vtkIdType pt1Id, vtkIdType pt2Id, vtkIdType pt3Id, vtkIdType pt4Id, double k,
   vtkIntegrateAttributes::vtkFieldList& fieldList, int index)
 {
-  int numArrays, i, numComponents, j;
-  vtkDataArray* inArray;
-  vtkDataArray* outArray;
-  numArrays = fieldList.GetNumberOfFields();
-  double vIn1, vIn2, vIn3, vIn4, dv, vOut;
-  for (i = 0; i < numArrays; ++i)
-  {
-    if (fieldList.GetFieldIndex(i) < 0)
+  auto f = [pt1Id, pt2Id, pt3Id, pt4Id, k](
+             vtkAbstractArray* ainArray, vtkAbstractArray* aoutArray) {
+    vtkDataArray* inArray = vtkDataArray::FastDownCast(ainArray);
+    vtkDataArray* outArray = vtkDataArray::FastDownCast(aoutArray);
+    if (inArray && outArray)
     {
-      continue;
+      // We could template for speed.
+      const int numComponents = inArray->GetNumberOfComponents();
+      for (int j = 0; j < numComponents; ++j)
+      {
+        const double vIn1 = inArray->GetComponent(pt1Id, j);
+        const double vIn2 = inArray->GetComponent(pt2Id, j);
+        const double vIn3 = inArray->GetComponent(pt3Id, j);
+        const double vIn4 = inArray->GetComponent(pt4Id, j);
+        const double dv = (vIn1 + vIn2 + vIn3 + vIn4) * 0.25;
+        const double vOut = (dv * k) + outArray->GetComponent(0, j);
+        outArray->SetComponent(0, j, vOut);
+      }
     }
-    // We could template for speed.
-    inArray = inda->GetArray(fieldList.GetDSAIndex(index, i));
-    outArray = outda->GetArray(fieldList.GetFieldIndex(i));
-    numComponents = inArray->GetNumberOfComponents();
-    for (j = 0; j < numComponents; ++j)
-    {
-      vIn1 = inArray->GetComponent(pt1Id, j);
-      vIn2 = inArray->GetComponent(pt2Id, j);
-      vIn3 = inArray->GetComponent(pt3Id, j);
-      vIn4 = inArray->GetComponent(pt4Id, j);
-      vOut = outArray->GetComponent(0, j);
-      dv = (vIn1 + vIn2 + vIn3 + vIn4) * 0.25;
-      vOut += dv * k;
-      outArray->SetComponent(0, j, vOut);
-    }
-  }
+  };
+
+  fieldList.TransformData(index, inda, outda, f);
 }
 
 //-----------------------------------------------------------------------------
