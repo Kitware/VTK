@@ -325,7 +325,7 @@ public:
    * Internal format is deduced from numComps and vtkType.
    */
   bool Allocate2D(unsigned int width, unsigned int height, int numComps,
-                  int vtkType);
+                  int vtkType, int level = 0);
 
   /**
    * Create a 3D color texture but does not initialize its values.

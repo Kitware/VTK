@@ -359,13 +359,11 @@ void vtkTextureObject::CreateTexture()
 #endif
       }
 
-#ifdef GL_TEXTURE_BASE_LEVEL
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-#endif
-
-#ifdef GL_TEXTURE_MAX_LEVEL
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-#endif
+      if (this->Target == GL_TEXTURE_2D) // maybe expand later on
+      {
+        glTexParameteri(this->Target, GL_TEXTURE_BASE_LEVEL, this->BaseLevel);
+        glTexParameteri(this->Target, GL_TEXTURE_MAX_LEVEL, this->MaxLevel);
+      }
 
       glBindTexture(this->Target, 0);
     }
@@ -1710,7 +1708,7 @@ bool vtkTextureObject::Allocate1D(unsigned int width, int numComps,
 // Create a 2D color texture but does not initialize its values.
 // Internal format is deduced from numComps and vtkType.
 bool vtkTextureObject::Allocate2D(unsigned int width,unsigned int height,
-                                  int numComps, int vtkType)
+                                  int numComps, int vtkType, int level)
 {
   assert(this->Context);
 
@@ -1749,7 +1747,7 @@ bool vtkTextureObject::Allocate2D(unsigned int width,unsigned int height,
 #endif
   {
     glTexImage2D(this->Target,
-      0,
+      level,
       static_cast<GLint>(this->InternalFormat),
       static_cast<GLsizei>(this->Width),
       static_cast<GLsizei>(this->Height),
@@ -1985,7 +1983,10 @@ void vtkTextureObject::CopyFromFrameBuffer(int srcXmin,
 {
   assert("pre: is2D" && this->GetNumberOfDimensions()==2);
 
+  // Todo: if the framebuffer is multisampled we need to resolve first
+  // as the CopyTexImage will not work.
   this->Activate();
+
   glCopyTexImage2D(this->Target,0,this->InternalFormat,srcXmin,srcYmin,width,height,0);
   vtkOpenGLCheckErrorMacro("failed at glCopyTexImage2D " << this->InternalFormat);
 }
