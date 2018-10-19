@@ -18,14 +18,10 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkErrorCode.h"
-#include "vtkFFMPEGConfig.h"
 
 extern "C" {
 #include <libavformat/avformat.h>
-
-#if VTK_FFMPEG_HAVE_SWSCALE
-# include <libswscale/swscale.h>
-#endif
+#include <libswscale/swscale.h>
 }
 
 //---------------------------------------------------------------------------
@@ -272,7 +268,6 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
   }
 
   //convert that to YUV for input to the codec
-#if VTK_FFMPEG_HAVE_SWSCALE
   SwsContext* convert_ctx = sws_getContext(
     cc->width, cc->height, AV_PIX_FMT_RGB24,
     cc->width, cc->height, cc->pix_fmt,
@@ -297,11 +292,6 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
     vtkGenericWarningMacro(<< "sws_scale() failed");
     return 0;
   }
-#else
-  img_convert((AVPicture *)this->yuvOutput, cc->pix_fmt,
-              (AVPicture *)this->rgbInput, AV_PIX_FMT_RGB24,
-              cc->width, cc->height);
-#endif
 
   //run the encoder
   AVPacket pkt;

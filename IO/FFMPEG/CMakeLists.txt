@@ -3,18 +3,7 @@ find_package(FFMPEG 2.3.3 REQUIRED
     avformat
     avcodec
     avutil
-  OPTIONAL_COMPONENTS
     swscale)
-
-set(VTK_FFMPEG_HAVE_SWSCALE 0)
-if (FFMPEG_swscale_FOUND)
-  set(VTK_FFMPEG_HAVE_SWSCALE 1)
-endif ()
-
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/vtkFFMPEGConfig.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkFFMPEGConfig.h"
-  @ONLY)
 
 set(Module_SRCS
   vtkFFMPEGWriter.cxx)
@@ -32,12 +21,8 @@ endif ()
 set(ffmpeg_libs
   ${FFMPEG_avformat_LIBRARIES}
   ${FFMPEG_avcodec_LIBRARIES}
-  ${FFMPEG_avutil_LIBRARIES})
-
-if (VTK_FFMPEG_HAVE_SWSCALE)
-  list(APPEND ffmpeg_libs
-    ${FFMPEG_swscale_LIBRARIES})
-endif ()
+  ${FFMPEG_avutil_LIBRARIES}
+  ${FFMPEG_swscale_LIBRARIES})
 
 vtk_module_library(vtkIOFFMPEG
   ${Module_SRCS})
