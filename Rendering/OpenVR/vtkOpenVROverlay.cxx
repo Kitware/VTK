@@ -176,6 +176,7 @@ void vtkOpenVROverlay::SaveCameraPose(int slot)
   vtkRenderer *ren = static_cast<vtkRenderer *>(
     this->Window->GetRenderers()->GetItemAsObject(0));
   pose->Set(static_cast<vtkOpenVRCamera *>(ren->GetActiveCamera()), this->Window);
+  this->InvokeEvent(vtkCommand::SaveStateEvent, reinterpret_cast<void *>(slot));
 }
 
 void vtkOpenVROverlay::LoadCameraPose(int slot)
@@ -188,6 +189,7 @@ void vtkOpenVROverlay::LoadCameraPose(int slot)
       this->Window->GetRenderers()->GetItemAsObject(0));
     pose->Apply(static_cast<vtkOpenVRCamera *>(ren->GetActiveCamera()), this->Window);
     ren->ResetCameraClippingRange();
+    this->InvokeEvent(vtkCommand::LoadStateEvent, reinterpret_cast<void *>(slot));
   }
 }
 
