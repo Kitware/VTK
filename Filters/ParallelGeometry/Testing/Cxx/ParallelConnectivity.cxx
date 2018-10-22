@@ -111,11 +111,6 @@ int RunParallelConnectivity(const char* fname, vtkAlgorithm::DesiredOutputPrecis
   vtkIdType globalNumberOfCells = 0;
   contr->AllReduce(&numberOfCells, &globalNumberOfCells, 1, vtkCommunicator::SUM_OP);
   std::vector<vtkIdType> regionCounts(connectivity->GetNumberOfExtractedRegions(), 0);
-  if (me == 0)
-  {
-    std::cout << "Global number of cells: " << globalNumberOfCells << std::endl;
-    std::cout << "Number of regions: " << regionCounts.size() << std::endl;
-  }
 
   // Count up cells with RegionIds
   auto regionIdArray = vtkIdTypeArray::SafeDownCast(ghostOutput->GetCellData()->GetArray("RegionId"));
@@ -135,7 +130,44 @@ int RunParallelConnectivity(const char* fname, vtkAlgorithm::DesiredOutputPrecis
     {
       if (globalRegionCounts[i] > globalRegionCounts[i-1])
       {
-        std::cerr << "Region " << i-1 << " is not larger than region " << i << std::endl;
+        std::cerr << "Region " << i << " is larger than region " << i-1 << std::endl;
+        printCounts = true;
+        returnValue = EXIT_FAILURE;
+        break;
+      }
+    }
+    if (printCounts)
+    {
+      for (vtkIdType i = 0; i < numberOfRegions; ++i)
+      {
+        std::cout << "Region " << i << " has " << globalRegionCounts[i] << " cells" << std::endl;
+      }
+    }
+  }
+
+  // Check that assignment RegionIds by number of cells (ascending) works
+  connectivity->SetRegionIdAssignmentMode(vtkConnectivityFilter::CELL_COUNT_ASCENDING);
+  removeGhosts->Update();
+
+  std::fill(regionCounts.begin(), regionCounts.end(), 0);
+  regionIdArray = vtkIdTypeArray::SafeDownCast(ghostOutput->GetCellData()->GetArray("RegionId"));
+  for (vtkIdType cellId = 0; cellId < numberOfCells; ++cellId)
+  {
+    vtkIdType regionId = regionIdArray->GetValue(cellId);
+    regionCounts[regionId]++;
+  }
+
+  // Sum up region counts across processes
+  globalRegionCounts = std::vector<vtkIdType>(regionCounts.size(), 0);
+  contr->AllReduce(regionCounts.data(), globalRegionCounts.data(), regionCounts.size(), vtkCommunicator::SUM_OP);
+  if (me == 0)
+  {
+    bool printCounts = false;
+    for (vtkIdType i = 1; i < numberOfRegions; ++i)
+    {
+      if (globalRegionCounts[i] < globalRegionCounts[i-1])
+      {
+        std::cerr << "Region " << i << " is smaller than " << i-1 << std::endl;
         printCounts = true;
         returnValue = EXIT_FAILURE;
         break;

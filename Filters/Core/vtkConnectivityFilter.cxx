@@ -624,7 +624,8 @@ void vtkConnectivityFilter::OrderRegionIds(vtkIdTypeArray* pointRegionIds, vtkId
 {
   if (this->ColorRegions)
   {
-    if (this->RegionIdAssignmentMode == CELL_COUNT_DESCENDING)
+    if (this->RegionIdAssignmentMode == CELL_COUNT_DESCENDING ||
+        this->RegionIdAssignmentMode == CELL_COUNT_ASCENDING)
     {
       // Use a multimap to handle cases where more than one region has the same number of cells.
       std::multimap<vtkIdType, vtkIdType> cellCountToRegionId;
@@ -641,16 +642,33 @@ void vtkConnectivityFilter::OrderRegionIds(vtkIdTypeArray* pointRegionIds, vtkId
       // RegionId
       std::map<vtkIdType, vtkIdType> oldToNew;
       vtkIdType counter = 0;
-      for (auto iter = cellCountToRegionId.rbegin(); iter != cellCountToRegionId.rend(); ++iter)
+      if (this->RegionIdAssignmentMode == CELL_COUNT_ASCENDING)
       {
-        auto regionCount = iter->first;
-        auto regionId = iter->second;
+        for (auto iter = cellCountToRegionId.begin(); iter != cellCountToRegionId.end(); ++iter)
+        {
+          auto regionCount = iter->first;
+          auto regionId = iter->second;
 
-        // Re-order the region sizes based on the sorting
-        this->RegionSizes->SetValue(counter, regionCount);
+          // Re-order the region sizes based on the sorting
+          this->RegionSizes->SetValue(counter, regionCount);
 
-        // Create map from old to new RegionId
-        oldToNew[regionId] = counter++;
+          // Create map from old to new RegionId
+          oldToNew[regionId] = counter++;
+        }
+      }
+      else // CELL_COUNT_DESCENDING
+      {
+        for (auto iter = cellCountToRegionId.rbegin(); iter != cellCountToRegionId.rend(); ++iter)
+        {
+          auto regionCount = iter->first;
+          auto regionId = iter->second;
+
+          // Re-order the region sizes based on the sorting
+          this->RegionSizes->SetValue(counter, regionCount);
+
+          // Create map from old to new RegionId
+          oldToNew[regionId] = counter++;
+        }
       }
 
       vtkIdType numPts = pointRegionIds->GetNumberOfTuples();

@@ -186,7 +186,8 @@ public:
    */
   enum RegionIdAssignment {
     UNSPECIFIED,
-    CELL_COUNT_DESCENDING
+    CELL_COUNT_DESCENDING,
+    CELL_COUNT_ASCENDING
   };
 
   //@{
