@@ -31,6 +31,8 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkIdTypeArray.h"
 
+#include <map>
+
 vtkObjectFactoryNewMacro(vtkConnectivityFilter);
 
 // Construct with default extraction mode to extract largest regions.
@@ -39,6 +41,7 @@ vtkConnectivityFilter::vtkConnectivityFilter()
   this->RegionSizes = vtkIdTypeArray::New();
   this->ExtractionMode = VTK_EXTRACT_LARGEST_REGION;
   this->ColorRegions = 0;
+  this->RegionIdAssignmentMode = UNSPECIFIED;
 
   this->ScalarConnectivity = 0;
   this->ScalarRange[0] = 0.0;
@@ -350,6 +353,10 @@ int vtkConnectivityFilter::RequestData(
   // if coloring regions; send down new scalar data
   if ( this->ColorRegions )
   {
+    auto pointRegionIds = vtkIdTypeArray::SafeDownCast(outputPD->GetArray("RegionId"));
+    auto cellRegionIds = vtkIdTypeArray::SafeDownCast(outputCD->GetArray("RegionId"));
+    this->OrderRegionIds(this->NewScalars, this->NewCellScalars);
+
     int idx = outputPD->AddArray(this->NewScalars);
     outputPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     idx = outputCD->AddArray(this->NewCellScalars);
@@ -611,6 +618,57 @@ void vtkConnectivityFilter::TraverseAndMark (vtkDataSet *input)
     this->Wave2 = tmpWave;
     tmpWave->Reset();
   } //while wave is not empty
+}
+
+void vtkConnectivityFilter::OrderRegionIds(vtkIdTypeArray* pointRegionIds, vtkIdTypeArray* cellRegionIds)
+{
+  if (this->ColorRegions)
+  {
+    if (this->RegionIdAssignmentMode == CELL_COUNT_DESCENDING)
+    {
+      // Use a multimap to handle cases where more than one region has the same number of cells.
+      std::multimap<vtkIdType, vtkIdType> cellCountToRegionId;
+      typedef std::multimap<vtkIdType, vtkIdType>::value_type ValueType;
+      vtkIdType numRegions = this->RegionSizes->GetNumberOfTuples();
+      for (vtkIdType regionId = 0; regionId < numRegions; ++regionId)
+      {
+        ValueType value(this->RegionSizes->GetValue(regionId), regionId);
+        cellCountToRegionId.insert(value);
+      }
+
+      // Now reverse iterate through the sorted multimap to process the RegionIds
+      // from largest to smallest and create a map from the old RegionId to the new
+      // RegionId
+      std::map<vtkIdType, vtkIdType> oldToNew;
+      vtkIdType counter = 0;
+      for (auto iter = cellCountToRegionId.rbegin(); iter != cellCountToRegionId.rend(); ++iter)
+      {
+        auto regionCount = iter->first;
+        auto regionId = iter->second;
+
+        // Re-order the region sizes based on the sorting
+        this->RegionSizes->SetValue(counter, regionCount);
+
+        // Create map from old to new RegionId
+        oldToNew[regionId] = counter++;
+      }
+
+      vtkIdType numPts = pointRegionIds->GetNumberOfTuples();
+      for (vtkIdType i = 0; i < numPts; ++i)
+      {
+        vtkIdType oldValue = pointRegionIds->GetValue(i);
+        pointRegionIds->SetValue(i, oldToNew[oldValue]);
+      }
+
+      vtkIdType numCells = cellRegionIds->GetNumberOfTuples();
+      for (vtkIdType i = 0; i < numCells; ++i)
+      {
+        vtkIdType oldValue = cellRegionIds->GetValue(i);
+        cellRegionIds->SetValue(i, oldToNew[oldValue]);
+      }
+    }
+    // else UNSPECIFIED mode
+  }
 }
 
 // Obtain the number of connected regions.
