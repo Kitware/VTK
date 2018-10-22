@@ -815,8 +815,8 @@ int vtkMPASReader::Internal::LoadCellVarDataImpl(int nc_var, vtkDataArray *array
     if (!reader->ShowMultilayerView)
     {
       size_t k = reader->CellMap[j - reader->NumberOfCells - reader->CellOffset];
-      assert(j < array->GetNumberOfTuples());
-      assert(k < array->GetNumberOfTuples());
+      assert(j < static_cast<size_t>(array->GetNumberOfTuples()));
+      assert(k < static_cast<size_t>(array->GetNumberOfTuples()));
       dataBlock[j] = dataBlock[k];
     }
     else
@@ -826,7 +826,7 @@ int vtkMPASReader::Internal::LoadCellVarDataImpl(int nc_var, vtkDataArray *array
                     reader->MaximumNVertLevels;
 
       // write data for one cell -- lowest level to highest
-      assert(i < array->GetNumberOfTuples());
+      assert(i < static_cast<size_t>(array->GetNumberOfTuples()));
       assert(k + reader->MaximumNVertLevels <= static_cast<size_t>(array->GetNumberOfTuples()));
       std::copy(dataBlock + k, dataBlock + k + reader->MaximumNVertLevels,
                 dataBlock + i);
