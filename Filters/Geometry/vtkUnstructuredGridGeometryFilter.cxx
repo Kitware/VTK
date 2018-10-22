@@ -365,6 +365,9 @@ public:
   // A surfel is also an element of a one-way linked list: in the hashtable,
   // each key entry is a one-way linked list of Surfels.
   vtkSurfel *Next;
+
+  vtkSurfel(const vtkSurfel &) = default;
+  vtkSurfel() = default;
 };
 
 //-----------------------------------------------------------------------------
