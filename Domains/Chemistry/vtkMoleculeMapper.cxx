@@ -144,6 +144,7 @@ vtkMoleculeMapper::vtkMoleculeMapper()
 vtkMoleculeMapper::~vtkMoleculeMapper()
 {
   this->SetLookupTable(nullptr);
+  this->SetAtomicRadiusArrayName(nullptr);
 }
 
 //----------------------------------------------------------------------------
