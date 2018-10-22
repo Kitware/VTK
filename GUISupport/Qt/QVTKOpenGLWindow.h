@@ -188,6 +188,12 @@ public slots:
   virtual void UpdateStereoType(vtkObject* caller, unsigned long vtk_event,
     void* client_data, void* call_data);
 
+  /*
+   * slot to change the cursor
+   */
+  virtual void ChangeCursor(vtkObject* caller, unsigned long vtk_event,
+    void* client_data, void* call_data);
+
   /**
    * slot to process events coming from the widget containing this window
    */

@@ -12,14 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #include "vtkGenericOpenGLRenderWindow.h"
-#include "vtkObjectFactory.h"
-#include "vtkRendererCollection.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLRenderWindow.h"
+
 #include "vtkCommand.h"
+#include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkRendererCollection.h"
 
 vtkStandardNewMacro(vtkGenericOpenGLRenderWindow);
 
@@ -38,10 +38,10 @@ vtkGenericOpenGLRenderWindow::~vtkGenericOpenGLRenderWindow()
 {
   this->Finalize();
 
-  vtkRenderer *ren;
+  vtkRenderer* ren;
   vtkCollectionSimpleIterator rit;
   this->Renderers->InitTraversal(rit);
-  while ( (ren = this->Renderers->GetNextRenderer(rit)) )
+  while ((ren = this->Renderers->GetNextRenderer(rit)))
   {
     ren->SetRenderWindow(nullptr);
   }
@@ -54,8 +54,9 @@ void vtkGenericOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 
 float vtkGenericOpenGLRenderWindow::GetMaximumHardwareLineWidth()
 {
-  return this->ForceMaximumHardwareLineWidth > 0 ? this->ForceMaximumHardwareLineWidth
-                                                 : this->Superclass::GetMaximumHardwareLineWidth();
+  return this->ForceMaximumHardwareLineWidth > 0
+    ? this->ForceMaximumHardwareLineWidth
+    : this->Superclass::GetMaximumHardwareLineWidth();
 }
 
 void vtkGenericOpenGLRenderWindow::SetFrontBuffer(unsigned int b)
@@ -114,7 +115,8 @@ bool vtkGenericOpenGLRenderWindow::IsCurrent()
 
 int vtkGenericOpenGLRenderWindow::SupportsOpenGL()
 {
-  this->InvokeEvent(vtkCommand::WindowSupportsOpenGLEvent, &this->SupportsOpenGLStatus);
+  this->InvokeEvent(vtkCommand::WindowSupportsOpenGLEvent,
+                    &this->SupportsOpenGLStatus);
   return this->SupportsOpenGLStatus;
 }
 
@@ -132,7 +134,6 @@ void* vtkGenericOpenGLRenderWindow::GetGenericWindowId()
 {
   return nullptr;
 }
-
 
 void vtkGenericOpenGLRenderWindow::SetDisplayId(void*)
 {
@@ -247,11 +248,26 @@ void vtkGenericOpenGLRenderWindow::Render()
 
 void vtkGenericOpenGLRenderWindow::SetIsPicking(vtkTypeBool isPicking)
 {
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting IsPicking to " << isPicking); \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this
+                << "): setting IsPicking to " << isPicking);
   if (this->IsPicking != isPicking)
   {
     this->IsPicking = isPicking;
     this->Modified();
-    this->InvokeEvent(this->IsPicking ? vtkCommand::StartPickEvent : vtkCommand::EndPickEvent, nullptr);
+    this->InvokeEvent(this->IsPicking ? vtkCommand::StartPickEvent
+                                      : vtkCommand::EndPickEvent,
+                      nullptr);
+  }
+}
+
+void vtkGenericOpenGLRenderWindow::SetCurrentCursor(int cShape)
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this
+                << "): setting current Cursor to " << cShape);
+  if (this->GetCurrentCursor() != cShape)
+  {
+    this->CurrentCursor = cShape;
+    this->Modified();
+    this->InvokeEvent(vtkCommand::CursorChangedEvent, &cShape);
   }
 }
