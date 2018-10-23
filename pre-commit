@@ -129,7 +129,7 @@ mode_looks_exe() {
 	git cat-file blob "$2" | head -1 | grep "^#!/" > /dev/null
 }
 mode_not_exe () {
-	echo "The file '$file' has looks executable but does not have an executable mode.
+	echo "The file '$file' looks executable but does not have an executable mode.
 On UNIX, run:
 
   $ chmod u+x '$file' && git add -u '$file'
