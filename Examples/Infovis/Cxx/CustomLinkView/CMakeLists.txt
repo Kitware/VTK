@@ -63,6 +63,6 @@ set_source_files_PROPERTIES(${Srcs} PROPERTIES
 add_executable(CustomLinkView
   MACOSX_BUNDLE  ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs} ${Rcs_Srcs})
 
-qt5_use_modules(CustomLinkView Core Gui Widgets)
+target_link_libraries(CustomLinkView Qt5::Core Qt5::Gui Qt5::Widgets)
 
 target_link_libraries(CustomLinkView ${VTK_LIBRARIES})

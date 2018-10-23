@@ -73,6 +73,6 @@ source_group("Generated" FILES
 add_executable(EasyView
   MACOSX_BUNDLE  ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs} ${Rcs_Srcs})
 
-qt5_use_modules(EasyView Core Gui Widgets)
+target_link_libraries(EasyView Qt5::Core Qt5::Gui Qt5::Widgets)
 
 target_link_libraries(EasyView ${VTK_LIBRARIES})

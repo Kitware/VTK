@@ -60,6 +60,6 @@ set_source_files_PROPERTIES(${Srcs} PROPERTIES
 add_executable(StatsView
   MACOSX_BUNDLE  ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs} ${Rcs_Srcs})
 
-qt5_use_modules(StatsView Core Gui Widgets)
+target_link_libraries(StatsView Qt5::Core Qt5::Gui Qt5::Widgets)
 
 target_link_libraries(StatsView ${VTK_LIBRARIES})
