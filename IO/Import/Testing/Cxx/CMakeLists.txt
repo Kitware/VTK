@@ -4,8 +4,6 @@ ExternalData_add_test(VTKData
     DATA{../Data/Input/cube-scene.obj}
     DATA{../Data/Input/cube-scene.mtl}
     DATA{../Data/Input/noise.png}
-    -V DATA{../Data/Baseline/OBJImport-SolidAndTextured.png}
-    -T "${VTK_TEST_OUTPUT_DIR}"
   )
 
 include(vtkOpenGL)
@@ -43,6 +41,12 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
     DATA{../Data/Input/TestOBJImporter.obj}
     DATA{../Data/Input/TestOBJImporter.mtl}
     DATA{../Data/Input/TestOBJImporter.png}
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestOBJImporter-SharedMtl,TestOBJImporter.cxx
+    DATA{../Data/Input/TestOBJImporter-SharedMtl.obj}
+    DATA{../Data/Input/TestOBJImporter-SharedMtl.mtl}
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
