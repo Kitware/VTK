@@ -353,8 +353,6 @@ int vtkConnectivityFilter::RequestData(
   // if coloring regions; send down new scalar data
   if ( this->ColorRegions )
   {
-    auto pointRegionIds = vtkIdTypeArray::SafeDownCast(outputPD->GetArray("RegionId"));
-    auto cellRegionIds = vtkIdTypeArray::SafeDownCast(outputCD->GetArray("RegionId"));
     this->OrderRegionIds(this->NewScalars, this->NewCellScalars);
 
     int idx = outputPD->AddArray(this->NewScalars);

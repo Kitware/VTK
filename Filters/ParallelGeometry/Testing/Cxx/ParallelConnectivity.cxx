@@ -122,7 +122,8 @@ int RunParallelConnectivity(const char* fname, vtkAlgorithm::DesiredOutputPrecis
 
   // Sum up region counts across processes
   std::vector<vtkIdType> globalRegionCounts(regionCounts.size(), 0);
-  contr->AllReduce(regionCounts.data(), globalRegionCounts.data(), regionCounts.size(), vtkCommunicator::SUM_OP);
+  contr->AllReduce(regionCounts.data(), globalRegionCounts.data(),
+    static_cast<vtkIdType>(regionCounts.size()), vtkCommunicator::SUM_OP);
   if (me == 0)
   {
     bool printCounts = false;
@@ -159,7 +160,8 @@ int RunParallelConnectivity(const char* fname, vtkAlgorithm::DesiredOutputPrecis
 
   // Sum up region counts across processes
   globalRegionCounts = std::vector<vtkIdType>(regionCounts.size(), 0);
-  contr->AllReduce(regionCounts.data(), globalRegionCounts.data(), regionCounts.size(), vtkCommunicator::SUM_OP);
+  contr->AllReduce(regionCounts.data(), globalRegionCounts.data(),
+    static_cast<vtkIdType>(regionCounts.size()), vtkCommunicator::SUM_OP);
   if (me == 0)
   {
     bool printCounts = false;
