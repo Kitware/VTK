@@ -209,7 +209,32 @@ vtkIdType vtkReflectionFilter::ReflectNon3DCell(
     }
     for (int j = numCellPts-1; j >= 0; j--)
     {
-      newCellPts[numCellPts-1-j] = cellPts->GetId(j);
+      // Let's take the connectivity of origin cell as follows: 0, 1, 2, 3.
+      // Here, left : origin, right : symmetrized
+      // 3 - 2     ||     2' - 3'
+      // |   |     ||     |    |
+      // 0 - 1     ||     1' - 0'
+      // Previous result of connectivity of symmetric cell gave: 3', 2', 1', 0'
+      // Topologically connectivity is good but triangulation of this symmetric
+      // cell is not simply the symmetry of the triangulation of the origin cell
+      // if triangulation occurs between index nodes 1 and 3:
+      // original nodes 1 and 3, symmetric nodes 0' and 2'.
+      // 3 - 2     ||     2' - 3'
+      // | \ |     ||     |  \ |
+      // 0 - 1     ||     1' - 0'
+      // Visually this is wrong for values on the nodes, result is not symmetric
+      // as it should be. Our modification provides the following connectivity
+      // for the symmetric cell: 0', 3', 2', 1'.
+      // The triangulation behaves as expected now, as illustrated below:
+      // original nodes 1 and 3, symmetric nodes 1' and 3'.
+      // 3 - 2     ||     2' - 3'
+      // | \ |     ||     |  / |
+      // 0 - 1     ||     1' - 0'
+      // The new symmetry behaves correctly on higher order as well:
+      // 4 - 3 \     ||    / 3' - 4'
+      // | \ |  2    ||   2' |  / |
+      // 0 - 1 /     ||    \ 1' - 0'
+      newCellPts[(numCellPts-j)%numCellPts] = cellPts->GetId(j);
     }
   }
   } // end switch
