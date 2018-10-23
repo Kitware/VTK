@@ -397,7 +397,7 @@ int vtkOBJPolyDataProcessor::RequestData(
   vtkSmartPointer<vtkFloatArray> shared_normals = vtkSmartPointer<vtkFloatArray>::New();
   shared_normals->SetNumberOfComponents(3);
 
-  std::map<std::string,vtkOBJImportedPolyDataWithMaterial*>  mtlName_to_Actor;
+  std::map<std::string,std::vector<vtkOBJImportedPolyDataWithMaterial*> >  mtlName_to_Actors;
 
   {
     // always have at least one output
@@ -427,8 +427,9 @@ int vtkOBJPolyDataProcessor::RequestData(
   bool gotFirstUseMaterialTag = false;
 
   int numPolysWithTCoords = 0;
-  bool hasTCoords = false;
-  bool hasNormals = false;
+  bool hasTCoords = false;                  // has vt x y z
+  bool hasPolysWithTextureIndices = false;  // has f i/t/n or f i/t
+  bool hasNormals = false;                  // has f i/t/n or f i//n
   bool tcoords_same_as_verts = true;
   bool normals_same_as_verts = true;
   bool everything_ok = true; // (use of this flag avoids early return and associated memory leak)
@@ -687,6 +688,7 @@ int vtkOBJPolyDataProcessor::RequestData(
           int iVert,iTCoord,iNormal;
           if (sscanf(pLine, "%d/%d/%d", &iVert, &iTCoord, &iNormal) == 3)
           {
+            hasPolysWithTextureIndices = true;
             polys->InsertCellPoint(iVert-1); // convert to 0-based index
             nVerts++;
             tcoord_polys->InsertCellPoint(iTCoord-1);
@@ -700,6 +702,7 @@ int vtkOBJPolyDataProcessor::RequestData(
           }
           else if (sscanf(pLine, "%d//%d", &iVert, &iNormal) == 2)
           {
+            hasPolysWithTextureIndices = false;
             polys->InsertCellPoint(iVert-1);
             nVerts++;
             normal_polys->InsertCellPoint(iNormal-1);
@@ -709,6 +712,7 @@ int vtkOBJPolyDataProcessor::RequestData(
           }
           else if (sscanf(pLine, "%d/%d", &iVert, &iTCoord) == 2)
           {
+            hasPolysWithTextureIndices = true;
             polys->InsertCellPoint(iVert-1);
             nVerts++;
             tcoord_polys->InsertCellPoint(iTCoord-1);
@@ -718,6 +722,7 @@ int vtkOBJPolyDataProcessor::RequestData(
           }
           else if (sscanf(pLine, "%d", &iVert) == 1)
           {
+            hasPolysWithTextureIndices = false;
             polys->InsertCellPoint(iVert-1);
             nVerts++;
           }
@@ -816,14 +821,11 @@ int vtkOBJPolyDataProcessor::RequestData(
       {
         poly_list[0]->materialName = mtl_name;
         poly_list[0]->mtlProperties = mtlName_to_mtlData[mtl_name];
-        mtlName_to_Actor[mtl_name] = poly_list[0];
+        mtlName_to_Actors[mtl_name].push_back(poly_list[0]);
         // yep we have a usemtl command. check to make sure idiots don't try to add vertices later.
         gotFirstUseMaterialTag = true;
       }
-      size_t mtlCount = mtlName_to_Actor.count(mtl_name);
-      if ( 0 == mtlCount )
-      {
-        // new material encountered; bag and tag it, make a new named-poly-data-container
+        // create a new materia
         vtkOBJImportedPolyDataWithMaterial*  newMaterial = new vtkOBJImportedPolyDataWithMaterial;
         newMaterial->SetSharedPoints(shared_vertexs);
         newMaterial->SetSharedNormals(shared_normals);
@@ -831,31 +833,14 @@ int vtkOBJPolyDataProcessor::RequestData(
 
         poly_list.back()->materialName  = mtl_name;
         poly_list.back()->mtlProperties = mtlName_to_mtlData[mtl_name];
-        mtlName_to_Actor[mtl_name] = poly_list.back();
+        mtlName_to_Actors[mtl_name].push_back(poly_list.back());
 
-        vtkOBJImportedPolyDataWithMaterial* active = mtlName_to_Actor[mtl_name];
-
-        vtkDebugMacro("name of material is: " << active->materialName);
-
-        /** slightly tricky: all multi-polys share the vertex, normals, and tcoords,
-                                 but define unique polygons... */
+        vtkOBJImportedPolyDataWithMaterial* active = newMaterial;
         polys           = active->polys; // Update pointers reading file further
         tcoord_polys    = active->tcoord_polys;
         pointElems      = active->pointElems;
         lineElems       = active->lineElems;
         normal_polys    = active->normal_polys;
-      }
-      else /** This material name already exists; switch back to it! */
-      {
-        vtkOBJImportedPolyDataWithMaterial* known_mtl = mtlName_to_Actor[mtl_name];
-        vtkDebugMacro("switching to append faces with pre-existing material named "
-                      << known_mtl->materialName);
-        polys           = known_mtl->polys; // Update pointers reading file further
-        tcoord_polys    = known_mtl->tcoord_polys;
-        pointElems      = known_mtl->pointElems;
-        lineElems       = known_mtl->lineElems;
-        normal_polys    = known_mtl->normal_polys;
-      }
     }
     else
     {
@@ -871,7 +856,7 @@ int vtkOBJPolyDataProcessor::RequestData(
                  set the number of output ports of vtkPolyData */
   this->SetNumberOfOutputPorts( static_cast<int>(poly_list.size()) );
   vtkDebugMacro("vtkOBJPolyDataProcessor.cxx, set # of output ports to "
-                << poly_list.size());
+               << poly_list.size());
   this->outVector_of_vtkPolyData.clear();
   for( size_t i = 0; i < poly_list.size(); ++i)
   {
@@ -919,7 +904,7 @@ int vtkOBJPolyDataProcessor::RequestData(
 
         // if there is an exact correspondence between tcoords and vertices then can simply
         // assign the tcoords points as point data
-        if (hasTCoords && tcoords_same_as_verts)
+        if (hasTCoords && tcoords_same_as_verts && hasPolysWithTextureIndices)
           output->GetPointData()->SetTCoords(tcoords);
 
         // if there is an exact correspondence between normals and vertices then can simply
@@ -964,7 +949,7 @@ int vtkOBJPolyDataProcessor::RequestData(
           // are any tcoords in the dataset) or normals (if there are any normals in the dataset).
 
           if (
-            (n_pts != n_tcoord_pts && hasTCoords) ||
+            (n_pts != n_tcoord_pts && hasTCoords && hasPolysWithTextureIndices) ||
             (n_pts != n_normal_pts && hasNormals)
             )
           {
@@ -977,7 +962,7 @@ int vtkOBJPolyDataProcessor::RequestData(
             for (int j = 0; j < n_pts; ++j)
             {
               // copy the tcoord for this point across (if there is one)
-              if (n_tcoord_pts>0)
+              if (n_tcoord_pts>0 && hasPolysWithTextureIndices)
               {
                 new_tcoords->InsertNextTuple(tcoords->GetTuple(tcoord_pts[j]));
               }
@@ -1003,7 +988,7 @@ int vtkOBJPolyDataProcessor::RequestData(
         vtkDebugMacro(" set new polys, count = "
                       << new_polys->GetNumberOfCells() << " ...");
 
-        if (hasTCoords)
+        if (hasTCoords  && hasPolysWithTextureIndices)
         {
           output->GetPointData()->SetTCoords(new_tcoords);
           vtkDebugMacro(" set new tcoords");
