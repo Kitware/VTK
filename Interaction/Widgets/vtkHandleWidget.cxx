@@ -374,6 +374,10 @@ void vtkHandleWidget::PrintSelf(ostream& os, vtkIndent indent)
 //-------------------------------------------------------------------------
 void vtkHandleWidget::SetEnabled(int enabling)
 {
+  if (this->Enabled == enabling)
+  {
+    return;
+  }
   if ( !this->ShowInactive )
   {
     // Forward to superclass
@@ -398,11 +402,6 @@ void vtkHandleWidget::SetEnabled(int enabling)
     else // disabling------------------
     {
       vtkDebugMacro(<< "Disabling widget");
-
-      if (!this->Enabled) // already disabled, just return
-      {
-        return;
-      }
 
       this->Enabled = 0;
 
