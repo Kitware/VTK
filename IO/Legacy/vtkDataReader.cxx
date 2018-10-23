@@ -1685,13 +1685,20 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
 
   else if ( ! strncmp(type, "long", 4) )
   {
+    // vtkDataWriter does not write "long" data anymore
+    // as data size is not certain
+    // we keep this for retro compatibility
     array = vtkLongArray::New();
     array->SetNumberOfComponents(numComp);
     long *ptr = ((vtkLongArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
     {
       vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
-      vtkByteSwap::Swap4BERange((int *)ptr,numTuples*numComp);
+#if VTK_SIZEOF_LONG == 4
+      vtkByteSwap::Swap4BERange(ptr, numTuples * numComp);
+#else // VTK_SIZEOF_LONG == 8
+      vtkByteSwap::Swap8BERange(ptr, numTuples * numComp);
+#endif
     }
 
     else
@@ -1708,7 +1715,11 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
     if ( this->FileType == VTK_BINARY )
     {
       vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
-      vtkByteSwap::Swap4BERange((int *)ptr,numTuples*numComp);
+#if VTK_SIZEOF_LONG == 4
+      vtkByteSwap::Swap4BERange(ptr, numTuples * numComp);
+#else // VTK_SIZEOF_LONG == 8
+      vtkByteSwap::Swap8BERange(ptr, numTuples * numComp);
+#endif
     }
     else
     {
