@@ -72,6 +72,8 @@ protected:
     vtkOpenGLPointGaussianMapperHelper *helper);
 
   vtkTimeStamp HelperUpdateTime;
+  vtkTimeStamp ScaleTableUpdateTime;
+  vtkTimeStamp OpacityTableUpdateTime;
 
   // unused
   void RenderPiece(vtkRenderer *, vtkActor *) override {};
