@@ -33,7 +33,7 @@ set(VTKm_ENABLE_RENDERING OFF CACHE BOOL "Disabled when building as part of VTK"
 set(VTKm_USE_64BIT_IDS ${VTK_USE_64BIT_IDS} CACHE BOOL "Set to match VTK" FORCE)
 
 set(lib_suffix "-vtk${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
-if(VTK_CUSTOM_LIBRARY_SUFFIX)
+if(DEFINED VTK_CUSTOM_LIBRARY_SUFFIX)
   set(lib_suffix "${VTK_CUSTOM_LIBRARY_SUFFIX}")
 endif()
 
