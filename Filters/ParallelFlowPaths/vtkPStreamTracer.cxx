@@ -173,7 +173,9 @@ namespace
     }
 
   private:
-    MyStream(const MyStream& ){};
+    MyStream(const MyStream& ) = delete;
+    void operator=(const MyStream&) = delete;
+
     char* Data;
     char* Head;
     int Size;
@@ -515,6 +517,9 @@ public:
 private:
   ProcessLocator()
   {
+    this->Controller = nullptr;
+    this->NumProcs = 0;
+    this->Rank = 0;
   }
   vtkMultiProcessController* Controller;
   int Rank;
@@ -971,7 +976,9 @@ namespace
   private:
     vtkMPICommunicator::Request Request;
     MyStream* Stream;
-    MessageBuffer(const MessageBuffer& ){};
+
+    MessageBuffer(const MessageBuffer& ) = delete;
+    void operator=(const MessageBuffer&) = delete;
   };
 
   typedef MyStream MessageStream;

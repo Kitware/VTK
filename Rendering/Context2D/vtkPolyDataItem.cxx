@@ -34,7 +34,11 @@ class vtkPolyDataItem::DrawHintsHelper
 
 public:
 
-  DrawHintsHelper () {};
+  DrawHintsHelper ()
+  {
+    this->previousLineType = 0;
+    this->previousLineWidth = 0.0f;
+  }
 
   /**
    * Retrieve drawing hints as field data from the polydata and use the
@@ -64,7 +68,7 @@ public:
     {
       pen->SetWidth(lineWidthArray->GetValue(0));
     }
-  };
+  }
 
   /**
    * "Un-apply" hints by restoring saved drawing state

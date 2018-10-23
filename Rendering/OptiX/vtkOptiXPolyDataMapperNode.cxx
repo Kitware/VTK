@@ -1241,13 +1241,14 @@ void vtkOptiXPolyDataMapperNode::Render(bool prepass)
         this->GetFirstAncestorOfType("vtkOptiXRendererNode"));
 
     //if there are no changes, just reuse last result
-    bool enable_cache = true; //turn off to force rebuilds for debugging
     vtkMTimeType inTime = aNode->GetMTime();
-    if (enable_cache && this->RenderTime >= inTime)
+#if 1 //turn off to force rebuilds for debugging
+    if (this->RenderTime >= inTime)
     {
       this->AddGeomToGroup(orn);
       return;
     }
+#endif
     this->RenderTime = inTime;
 
     //something changed so make new meshes

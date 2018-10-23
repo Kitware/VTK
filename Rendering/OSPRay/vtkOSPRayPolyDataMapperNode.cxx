@@ -1334,14 +1334,15 @@ void vtkOSPRayPolyDataMapperNode::Render(bool prepass)
         this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
 
     //if there are no changes, just reuse last result
-    bool enable_cache = true; //turn off to force rebuilds for debugging
     vtkMTimeType inTime = aNode->GetMTime();
-    if (enable_cache && this->RenderTime >= inTime)
+#if 1 //turn off to force rebuilds for debugging
+    if (this->RenderTime >= inTime)
     {
       OSPModel oModel = static_cast<OSPModel>(orn->GetOModel());
       this->AddMeshesToModel(oModel);
       return;
     }
+#endif
     this->RenderTime = inTime;
 
     //something changed so make new meshes
