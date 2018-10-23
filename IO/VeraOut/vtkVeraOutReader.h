@@ -30,7 +30,7 @@ class VTKIOVERAOUT_EXPORT vtkVeraOutReader : public vtkRectilinearGridAlgorithm
 public:
   static vtkVeraOutReader* New();
   vtkTypeMacro(vtkVeraOutReader, vtkRectilinearGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
@@ -51,14 +51,14 @@ public:
 
 protected:
   vtkVeraOutReader();
-  ~vtkVeraOutReader() VTK_OVERRIDE;
+  ~vtkVeraOutReader() override;
 
   int RequestInformation(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // Trigger the real data access
   int RequestData(
-    vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector) VTK_OVERRIDE;
+    vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector) override;
 
   char* FileName;
   int NumberOfTimeSteps;
