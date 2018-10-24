@@ -259,6 +259,8 @@ protected:
   bool EnableHiDPI;
   int OriginalDPI;
 
+  static const double DevicePixelRatioTolerance;
+
 private:
   Q_DISABLE_COPY(QVTKOpenGLNativeWidget);
 

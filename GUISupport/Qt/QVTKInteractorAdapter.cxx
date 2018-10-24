@@ -48,8 +48,12 @@ static const char* ascii_to_key_sym(int);
 // function to get VTK keysyms from Qt keys
 static const char* qt_key_to_key_sym(Qt::Key, Qt::KeyboardModifiers modifiers);
 
+// Tolerance used when truncating the device pixel ratio scaled
+// window size in calls to SetSize.
+const double QVTKInteractorAdapter::DevicePixelRatioTolerance = 1e-5;
+
 QVTKInteractorAdapter::QVTKInteractorAdapter(QObject* parentObject)
-  : QObject(parentObject), AccumulatedDelta(0), DevicePixelRatio(1)
+  : QObject(parentObject), AccumulatedDelta(0), DevicePixelRatio(1.0)
 {
 }
 
@@ -65,13 +69,14 @@ void QVTKInteractorAdapter::SetDevicePixelRatio(float ratio, vtkRenderWindowInte
     {
       int tmp[2];
       iren->GetSize(tmp);
-      if (ratio == 1)
+      if (ratio == 1.0)
       {
         iren->SetSize(tmp[0] / 2, tmp[1] / 2);
       }
-      else if (ratio == 2)
+      else
       {
-        iren->SetSize(tmp[0] * 2, tmp[1] * 2);
+        iren->SetSize(static_cast<int>(tmp[0] * ratio + DevicePixelRatioTolerance),
+                      static_cast<int>(tmp[1] * ratio + DevicePixelRatioTolerance));
       }
     }
     this->DevicePixelRatio = ratio;
@@ -89,8 +94,8 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
   {
     QResizeEvent* e2 = static_cast<QResizeEvent*>(e);
     QSize size = e2->size();
-    iren->SetSize(size.width() * this->DevicePixelRatio,
-                  size.height() * this->DevicePixelRatio);
+    iren->SetSize(static_cast<int>(size.width() * this->DevicePixelRatio + DevicePixelRatioTolerance),
+                  static_cast<int>(size.height() * this->DevicePixelRatio + DevicePixelRatioTolerance));
     iren->InvokeEvent(vtkCommand::ConfigureEvent, e2);
     return true;
   }
@@ -129,8 +134,8 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
     QMouseEvent* e2 = static_cast<QMouseEvent*>(e);
 
     // give interactor the event information
-    iren->SetEventInformationFlipY(e2->x() * this->DevicePixelRatio,
-                                   e2->y() * this->DevicePixelRatio,
+    iren->SetEventInformationFlipY(static_cast<int>(e2->x() * this->DevicePixelRatio + DevicePixelRatioTolerance),
+                                   static_cast<int>(e2->y() * this->DevicePixelRatio + DevicePixelRatioTolerance),
                                 (e2->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0,
                                 (e2->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0,
                                 0,
@@ -195,8 +200,8 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
         break;
       }
       // give interactor the event information
-      iren->SetEventInformationFlipY(point.pos().x() * this->DevicePixelRatio,
-                                     point.pos().y() * this->DevicePixelRatio,
+      iren->SetEventInformationFlipY(static_cast<int>(point.pos().x() * this->DevicePixelRatio + DevicePixelRatioTolerance),
+                                     static_cast<int>(point.pos().y() * this->DevicePixelRatio + DevicePixelRatioTolerance),
                                       (e2->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0,
                                       (e2->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0,
                                       0,0,nullptr, point.id());
@@ -286,8 +291,8 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
   {
     QWheelEvent* e2 = static_cast<QWheelEvent*>(e);
 
-    iren->SetEventInformationFlipY(e2->x() * this->DevicePixelRatio,
-                                   e2->y() * this->DevicePixelRatio,
+    iren->SetEventInformationFlipY(static_cast<int>(e2->x() * this->DevicePixelRatio + DevicePixelRatioTolerance),
+                                   static_cast<int>(e2->y() * this->DevicePixelRatio + DevicePixelRatioTolerance),
                                (e2->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0,
                                (e2->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0);
     iren->SetAltKey((e2->modifiers() & Qt::AltModifier) > 0 ? 1 : 0);
@@ -314,8 +319,8 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
     QContextMenuEvent* e2 = static_cast<QContextMenuEvent*>(e);
 
     // give interactor the event information
-    iren->SetEventInformationFlipY(e2->x() * this->DevicePixelRatio,
-                                   e2->y() * this->DevicePixelRatio,
+    iren->SetEventInformationFlipY(static_cast<int>(e2->x() * this->DevicePixelRatio + DevicePixelRatioTolerance),
+                                   static_cast<int>(e2->y() * this->DevicePixelRatio + DevicePixelRatioTolerance),
                                (e2->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0,
                                (e2->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0);
     iren->SetAltKey((e2->modifiers() & Qt::AltModifier) > 0 ? 1 : 0);
@@ -351,8 +356,8 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
     QDragMoveEvent* e2 = static_cast<QDragMoveEvent*>(e);
 
     // give interactor the event information
-    iren->SetEventInformationFlipY(e2->pos().x() * this->DevicePixelRatio,
-                                   e2->pos().y() * this->DevicePixelRatio);
+    iren->SetEventInformationFlipY(static_cast<int>(e2->pos().x() * this->DevicePixelRatio + DevicePixelRatioTolerance),
+                                   static_cast<int>(e2->pos().y() * this->DevicePixelRatio + DevicePixelRatioTolerance));
 
     // invoke event and pass qt event for additional data as well
     iren->InvokeEvent(QVTKInteractor::DragMoveEvent, e2);
@@ -364,8 +369,8 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
     QDropEvent* e2 = static_cast<QDropEvent*>(e);
 
     // give interactor the event information
-    iren->SetEventInformationFlipY(e2->pos().x() * this->DevicePixelRatio,
-                                   e2->pos().y() * this->DevicePixelRatio);
+    iren->SetEventInformationFlipY(static_cast<int>(e2->pos().x() * this->DevicePixelRatio + DevicePixelRatioTolerance),
+                                   static_cast<int>(e2->pos().y() * this->DevicePixelRatio + DevicePixelRatioTolerance));
 
     // invoke event and pass qt event for additional data as well
     iren->InvokeEvent(QVTKInteractor::DropEvent, e2);

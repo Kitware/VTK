@@ -157,6 +157,10 @@ protected:
   QPointer<QVTKOpenGLNativeWidget> Target;
 };
 
+// Tolerance used when truncating the device pixel ratio scaled
+// window size in calls to SetSize / SetPosition.
+const double QVTKOpenGLNativeWidget::DevicePixelRatioTolerance = 1e-5;
+
 //-----------------------------------------------------------------------------
 QVTKOpenGLNativeWidget::QVTKOpenGLNativeWidget(QWidget* parentWdg, Qt::WindowFlags f)
   : Superclass(parentWdg, f)
@@ -394,9 +398,15 @@ void QVTKOpenGLNativeWidget::recreateFBO()
   format.setAttachment(QOpenGLFramebufferObject::Depth);
   format.setSamples(samples);
 
-  const int devicePixelRatio_ = this->devicePixelRatio();
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
+  // Qt < 5.6 only has an integer API for device pixel ratio.
+  const double devicePixelRatio_ = this->devicePixelRatio();
+#else
+  const double devicePixelRatio_ = this->devicePixelRatioF();
+#endif
   const QSize widgetSize = this->size();
-  const QSize deviceSize = widgetSize * devicePixelRatio_;
+  const QSize deviceSize = QSize(static_cast<int>(widgetSize.width() * devicePixelRatio_ + DevicePixelRatioTolerance),
+                                 static_cast<int>(widgetSize.height() * devicePixelRatio_ + DevicePixelRatioTolerance));
 
   // This is as good an opportunity as any to communicate size to the render
   // window.
@@ -406,7 +416,8 @@ void QVTKOpenGLNativeWidget::recreateFBO()
     iren->SetSize(deviceSize.width(), deviceSize.height());
   }
   this->RenderWindow->SetSize(deviceSize.width(), deviceSize.height());
-  this->RenderWindow->SetPosition(this->x() * devicePixelRatio_, this->y() * devicePixelRatio_);
+  this->RenderWindow->SetPosition(static_cast<int>(this->x() * devicePixelRatio_ + DevicePixelRatioTolerance),
+                                  static_cast<int>(this->y() * devicePixelRatio_ + DevicePixelRatioTolerance));
 
   // Set screen size on render window.
   const QRect screenGeometry = QApplication::desktop()->screenGeometry(this);
