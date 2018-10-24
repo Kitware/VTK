@@ -50,6 +50,7 @@ namespace
 static vtkNew<vtkTesting> TestingData; // For temporary path
 
 static const char *BIT_ARRAY_NAME = "BitArray";
+static const char* IDTYPE_ARRAY_NAME = "IdTypeArray";
 
 static vtkInformationDoubleKey *TestDoubleKey =
     vtkInformationDoubleKey::MakeKey("Double", "XMLTestKey");
@@ -153,6 +154,59 @@ bool validateBitArray(vtkAbstractArray *abits)
   return true;
 }
 
+void fillIdTypeArray(vtkIdTypeArray* ids)
+{
+  ids->SetName(IDTYPE_ARRAY_NAME);
+  ids->SetNumberOfComponents(1);
+  ids->SetNumberOfTuples(100);
+  for (vtkIdType i = 0; i < 100; ++i)
+  {
+    ids->SetValue(i, i);
+  }
+}
+
+bool validateIdTypeArray(vtkAbstractArray* aids)
+{
+  if (!aids)
+  {
+    std::cerr << "IdType array not found.\n";
+    return false;
+  }
+
+  // Ignore the case when the aids is of smaller type than vtkIdType size
+  // As this is a possible case when saving data as 32bit with 64bit ids.
+  if (aids->GetDataTypeSize() < VTK_SIZEOF_ID_TYPE)
+  {
+    return true;
+  }
+
+  vtkIdTypeArray* ids = vtkIdTypeArray::SafeDownCast(aids);
+  if (!ids)
+  {
+    std::cerr << "idType Array is of incorrect type: " << aids->GetClassName() << ".\n";
+    return false;
+  }
+
+  vtkIdType numValues = ids->GetNumberOfValues();
+  if (numValues != 100)
+  {
+    std::cerr << "Expected 100 values in id array, got: " << numValues << "\n";
+    return false;
+  }
+
+  for (vtkIdType i = 0; i < numValues; ++i)
+  {
+    if (ids->GetValue(i) != i)
+    {
+      std::cerr << "id array invalid - expected " << i << " , got " << ids->GetValue(i)
+                << " for valueIdx " << i << ".\n";
+      return false;
+    }
+  }
+
+  return true;
+}
+
 void InitializeDataCommon(vtkDataObject *data)
 {
   vtkFieldData *fd = data->GetFieldData();
@@ -193,6 +247,11 @@ void InitializeDataCommon(vtkDataObject *data)
   vtkNew<vtkBitArray> bits;
   fillBitArray(bits);
   fd->AddArray(bits);
+
+  // Ensure that idType arrays are handled properly (#17421)
+  vtkNew<vtkIdTypeArray> ids;
+  fillIdTypeArray(ids);
+  fd->AddArray(ids);
 }
 
 bool CompareDataCommon(vtkDataObject *data)
@@ -258,6 +317,11 @@ bool CompareDataCommon(vtkDataObject *data)
   }
 
   if (!validateBitArray(fd->GetAbstractArray(BIT_ARRAY_NAME)))
+  {
+    return false;
+  }
+
+  if (!validateIdTypeArray(fd->GetAbstractArray(IDTYPE_ARRAY_NAME)))
   {
     return false;
   }
