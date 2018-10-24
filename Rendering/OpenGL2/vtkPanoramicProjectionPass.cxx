@@ -89,12 +89,17 @@ void vtkPanoramicProjectionPass::Render(const vtkRenderState* s)
   ostate->vtkglViewport(0, 0, this->CubeResolution, this->CubeResolution);
   ostate->vtkglScissor(0, 0, this->CubeResolution, this->CubeResolution);
 
+  // set property in order to preserve viewport in for volume rendering
+  this->PreRender(s);
+
   // render all direction into a cubemap face
   for (int faceIndex = GL_TEXTURE_CUBE_MAP_POSITIVE_X; faceIndex <= GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
        faceIndex++)
   {
     this->RenderOnFace(s, faceIndex);
   }
+
+  this->PostRender(s);
 
   ostate->vtkglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   ostate->vtkglDisable(GL_BLEND);
@@ -260,26 +265,26 @@ void vtkPanoramicProjectionPass::RenderOnFace(const vtkRenderState* s, int faceI
   // Adapt camera to square rendering
   vtkSmartPointer<vtkCamera> oldCamera = r->GetActiveCamera();
   vtkNew<vtkCamera> newCamera;
-  newCamera->DeepCopy(oldCamera);
   r->SetActiveCamera(newCamera);
+
+  newCamera->SetPosition(oldCamera->GetPosition());
+  newCamera->SetFocalPoint(oldCamera->GetFocalPoint());
+  newCamera->SetViewUp(oldCamera->GetViewUp());
+  newCamera->OrthogonalizeViewUp();
 
   if (r->GetRenderWindow()->GetStereoRender())
   {
     double right[3];
     double pos[3];
-    double sign = newCamera->GetLeftEye() ? -1.0 : 1.0;
+    double sign = oldCamera->GetLeftEye() ? -1.0 : 1.0;
     vtkMath::Cross(newCamera->GetDirectionOfProjection(), newCamera->GetViewUp(), right);
     newCamera->GetPosition(pos);
-    newCamera->SetPosition(pos[0], pos[1] + sign * newCamera->GetEyeSeparation(), pos[2]);
+    double sep = oldCamera->GetEyeSeparation();
+    pos[0] += sign * sep * right[0];
+    pos[1] += sign * sep * right[1];
+    pos[2] += sign * sep * right[2];
+    newCamera->SetPosition(pos[0], pos[1], pos[2]);
   }
-
-  double range[2];
-  newCamera->GetClippingRange(range);
-  vtkNew<vtkPerspectiveTransform> perspectiveTransform;
-
-  // the fov is 90 degree in each direction, the frustum can be simplified
-  // xmin and ymin are -near and xmax and ymax are +near
-  perspectiveTransform->Frustum(-range[0], range[0], -range[0], range[0], range[0], range[1]);
 
   // lights should not be rotated with camera, so we use an inverse transform for lights
   vtkNew<vtkTransform> lightsTransform;
@@ -311,6 +316,14 @@ void vtkPanoramicProjectionPass::RenderOnFace(const vtkRenderState* s, int faceI
     default:
       break;
   }
+
+  double range[2];
+  newCamera->GetClippingRange(range);
+  vtkNew<vtkPerspectiveTransform> perspectiveTransform;
+
+  // the fov is 90 degree in each direction, the frustum can be simplified
+  // xmin and ymin are -near and xmax and ymax are +near
+  perspectiveTransform->Frustum(-range[0], range[0], -range[0], range[0], range[0], range[1]);
 
   newCamera->UseExplicitProjectionTransformMatrixOn();
   newCamera->SetExplicitProjectionTransformMatrix(perspectiveTransform->GetMatrix());
