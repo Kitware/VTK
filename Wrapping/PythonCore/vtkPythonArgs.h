@@ -95,12 +95,12 @@ public:
   /**
    * Verify the arg count for a method with optional arguments.
    */
-  bool CheckArgCount(int nmin, int nmax);
+  bool CheckArgCount(Py_ssize_t nmin, Py_ssize_t nmax);
 
   /**
    * Verify the arg count.  Sets a python exception on failure.
    */
-  bool CheckArgCount(int n);
+  bool CheckArgCount(Py_ssize_t n);
 
   /**
    * Verify preconditions.  Sets a python exception on failure.
@@ -592,7 +592,7 @@ public:
   /**
    * Raise a type error just saying that the arg count is wrong.
    */
-  static bool ArgCountError(int n, const char *name);
+  static bool ArgCountError(Py_ssize_t n, const char *name);
 
   /**
    * Raise an error that says that a precondition failed.
@@ -669,21 +669,21 @@ protected:
   /**
    * Raise an TypeError stating that the arg count is incorrect.
    */
-  bool ArgCountError(int m, int n);
+  bool ArgCountError(Py_ssize_t m, Py_ssize_t n);
 
   /**
    * Prefix a TypeError that has occurred with the arg number.
    */
-  bool RefineArgTypeError(int i);
+  bool RefineArgTypeError(Py_ssize_t i);
 
 private:
 
   PyObject *Args;
   const char *MethodName;
 
-  int N; // size of args tuple
+  Py_ssize_t N; // size of args tuple
   int M; // 1 if Self is a PyVTKClass and first arg is the PyVTKObject
-  int I; // the arg counter, starts at M
+  Py_ssize_t I; // the arg counter, starts at M
 };
 
 //--------------------------------------------------------------------
@@ -723,9 +723,9 @@ void *vtkPythonArgs::GetSelfSpecialPointer(PyObject *self)
 
 // Verify the arg count for a method with optional arguments.
 inline
-bool vtkPythonArgs::CheckArgCount(int nmin, int nmax)
+bool vtkPythonArgs::CheckArgCount(Py_ssize_t nmin, Py_ssize_t nmax)
 {
-  int nargs = this->N - this->M;
+  Py_ssize_t nargs = this->N - this->M;
   if (nargs >= nmin && nargs <= nmax)
   {
     return true;
@@ -736,9 +736,9 @@ bool vtkPythonArgs::CheckArgCount(int nmin, int nmax)
 
 // Verify the arg count for a method with optional arguments.
 inline
-bool vtkPythonArgs::CheckArgCount(int n)
+bool vtkPythonArgs::CheckArgCount(Py_ssize_t n)
 {
-  int nargs = this->N - this->M;
+  Py_ssize_t nargs = this->N - this->M;
   if (nargs == n)
   {
     return true;

@@ -1437,13 +1437,13 @@ bool vtkPythonArgs::SetContents(int i, PyObject *seq)
 
 //--------------------------------------------------------------------
 // Raise an exception about incorrect arg count.
-bool vtkPythonArgs::ArgCountError(int m, int n)
+bool vtkPythonArgs::ArgCountError(Py_ssize_t m, Py_ssize_t n)
 {
   char text[256];
   const char *name = this->MethodName;
-  int nargs = this->N;
+  Py_ssize_t nargs = this->N;
 
-  snprintf(text, sizeof(text), "%.200s%s takes %s %d argument%s (%d given)",
+  snprintf(text, sizeof(text), "%.200s%s takes %s %" PY_FORMAT_SIZE_T "d argument%s (%" PY_FORMAT_SIZE_T "d given)",
            (name ? name : "function"), (name ? "()" : ""),
            ((m == n) ? "exactly" : ((nargs < m) ? "at least" : "at most")),
            ((nargs < m) ? m : n),
@@ -1455,11 +1455,11 @@ bool vtkPythonArgs::ArgCountError(int m, int n)
 
 //--------------------------------------------------------------------
 // Static method to write an arg count error.
-bool vtkPythonArgs::ArgCountError(int n, const char *name)
+bool vtkPythonArgs::ArgCountError(Py_ssize_t n, const char *name)
 {
   char text[256];
 
-  snprintf(text, sizeof(text), "no overloads of %.200s%s take %d argument%s",
+  snprintf(text, sizeof(text), "no overloads of %.200s%s take %" PY_FORMAT_SIZE_T "d argument%s",
           (name ? name : "function"), (name ? "()" : ""),
           n, (n == 1 ? "" : "s"));
   PyErr_SetString(PyExc_TypeError, text);
@@ -1491,7 +1491,7 @@ bool vtkPythonArgs::PureVirtualError()
 
 //--------------------------------------------------------------------
 // Refine an error by saying what argument it is for
-bool vtkPythonArgs::RefineArgTypeError(int i)
+bool vtkPythonArgs::RefineArgTypeError(Py_ssize_t i)
 {
   if (PyErr_ExceptionMatches(PyExc_TypeError) ||
       PyErr_ExceptionMatches(PyExc_ValueError) ||
@@ -1510,7 +1510,7 @@ bool vtkPythonArgs::RefineArgTypeError(int i)
       Py_DECREF(val);
       val = 0;
     }
-    newval = PyUnicode_FromFormat("%s argument %d: %V",
+    newval = PyUnicode_FromFormat("%s argument %" PY_FORMAT_SIZE_T "d: %V",
       this->MethodName, i+1, val, cp);
 #else
     const char *cp = "";
@@ -1518,7 +1518,7 @@ bool vtkPythonArgs::RefineArgTypeError(int i)
     {
       cp = PyString_AsString(val);
     }
-    newval = PyString_FromFormat("%s argument %d: %s",
+    newval = PyString_FromFormat("%s argument %" PY_FORMAT_SIZE_T "d: %s",
       this->MethodName, i+1, cp);
 #endif
 
