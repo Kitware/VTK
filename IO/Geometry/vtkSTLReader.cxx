@@ -47,7 +47,6 @@ vtkCxxSetObjectMacro(vtkSTLReader, BinaryHeader, vtkUnsignedCharArray);
 // Construct object with merging set to true.
 vtkSTLReader::vtkSTLReader()
 {
-  this->FileName = nullptr;
   this->Merging = 1;
   this->ScalarTags = 0;
   this->Locator = nullptr;
@@ -60,7 +59,6 @@ vtkSTLReader::vtkSTLReader()
 //------------------------------------------------------------------------------
 vtkSTLReader::~vtkSTLReader()
 {
-  this->SetFileName(nullptr);
   this->SetLocator(nullptr);
   this->SetHeader(nullptr);
   this->SetBinaryHeader(nullptr);

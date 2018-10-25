@@ -36,7 +36,6 @@ vtkStandardNewMacro(vtkPLYReader);
 // Construct object with merging set to true.
 vtkPLYReader::vtkPLYReader()
 {
-  this->FileName = nullptr;
   this->Comments = vtkStringArray::New();
 
   this->SetNumberOfInputPorts(0);
@@ -44,7 +43,6 @@ vtkPLYReader::vtkPLYReader()
 
 vtkPLYReader::~vtkPLYReader()
 {
-  delete [] this->FileName;
   this->Comments->Delete();
 }
 
