@@ -43,6 +43,7 @@ set(headers
   vtkmLevelOfDetail.h
   vtkmNDHistogram.h
   vtkmPointElevation.h
+  vtkmPointTransform.h
   vtkmPolyDataNormals.h
   vtkmProbe.h
   vtkmThreshold.h
@@ -68,6 +69,7 @@ set(cpu_accelerator_srcs
   vtkmLevelOfDetail.cxx
   vtkmNDHistogram.cxx
   vtkmPointElevation.cxx
+  vtkmPointTransform.cxx
   vtkmPolyDataNormals.cxx
   vtkmProbe.cxx
   vtkmThreshold.cxx
@@ -96,6 +98,7 @@ set(cuda_accelerator_srcs
   vtkmLevelOfDetail.cu
   vtkmNDHistogram.cu
   vtkmPointElevation.cu
+  vtkmPointTransform.cu
   vtkmPolyDataNormals.cu
   vtkmProbe.cu
   vtkmThreshold.cu
