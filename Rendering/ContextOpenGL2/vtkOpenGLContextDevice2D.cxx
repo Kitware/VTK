@@ -18,6 +18,7 @@
 
 #include "vtkAbstractContextBufferId.h"
 #include "vtkBrush.h"
+#include "vtkContext2D.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkImageResize.h"
@@ -27,6 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLGL2PSHelper.h"
+#include "vtkOpenGLHelper.h"
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
@@ -37,8 +39,8 @@
 #include "vtkOpenGLVertexBufferObject.h"
 #include "vtkPath.h"
 #include "vtkPen.h"
-#include "vtkPoints2D.h"
 #include "vtkPointData.h"
+#include "vtkPoints2D.h"
 #include "vtkPolyData.h"
 #include "vtkRect.h"
 #include "vtkShaderProgram.h"
@@ -52,7 +54,6 @@
 #include "vtkVector.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
-#include "vtkOpenGLHelper.h"
 
 #include "vtkObjectFactory.h"
 
@@ -2133,28 +2134,54 @@ void vtkOpenGLContextDevice2D::PopMatrix()
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::SetClipping(int *dim)
 {
-  // Check the bounds, and clamp if necessary
-  GLint vp[4] = { this->Storage->Offset.GetX(), this->Storage->Offset.GetY(),
-    this->Storage->Dim.GetX(),this->Storage->Dim.GetY()};
+  // If the window is using tile scaling, we need to update the clip coordinates
+  // relative to the tile being rendered.
+  // (see paraview/paraview#17308)
+  double tileViewPort[4];
+  this->Renderer->GetVTKWindow()->GetTileViewport(tileViewPort);
+  this->Renderer->NormalizedDisplayToDisplay(tileViewPort[0], tileViewPort[1]);
+  this->Renderer->NormalizedDisplayToDisplay(tileViewPort[2], tileViewPort[3]);
 
-  if (dim[0] > 0 && dim[0] < vp[2] )
+  vtkRecti tileRect{ vtkContext2D::FloatToInt(tileViewPort[0]),
+    vtkContext2D::FloatToInt(tileViewPort[1]), 0, 0 };
+  tileRect.AddPoint(
+    vtkContext2D::FloatToInt(tileViewPort[2]), vtkContext2D::FloatToInt(tileViewPort[3]));
+  // tileRect is the tile being rendered in the current RenderWindow in pixels.
+
+  double viewport[4];
+  this->Renderer->GetViewport(viewport);
+  this->Renderer->NormalizedDisplayToDisplay(viewport[0], viewport[1]);
+  this->Renderer->NormalizedDisplayToDisplay(viewport[2], viewport[3]);
+  vtkRecti rendererRect{ vtkContext2D::FloatToInt(viewport[0]),
+    vtkContext2D::FloatToInt(viewport[1]), 0, 0 };
+  rendererRect.AddPoint(
+    vtkContext2D::FloatToInt(viewport[2]), vtkContext2D::FloatToInt(viewport[3]));
+  // rendererRect is the viewport in pixels.
+
+  // `dim` is specified as (x,y,width,height) relative to the viewport that this
+  // prop is rendering in. So let's fit it in the viewport rect i.e.
+  // rendererRect
+  vtkRecti clipRect{ dim[0], dim[1], dim[2], dim[3] };
+  clipRect.MoveTo(clipRect.GetX() + rendererRect.GetX(), clipRect.GetY() + rendererRect.GetY());
+  clipRect.Intersect(rendererRect);
+
+  // Now, clamp the clipRect to the region being shown on the current tile. This
+  // generally has no effect since clipRect is wholly contained in tileRect
+  // unless tile scaling was being used. In either case, this method will return
+  // true as long as the rectangle intersection will produce a valid rectangle.
+  if (clipRect.Intersect(tileRect))
   {
-    vp[0] += dim[0];
+    // offset clipRect relative to current tile i.e. window.
+    clipRect.MoveTo(clipRect.GetX() - tileRect.GetX(), clipRect.GetY() - tileRect.GetY());
   }
-  if (dim[1] > 0 && dim[1] < vp[3])
+  else
   {
-    vp[1] += dim[1];
-  }
-  if (dim[2] > 0 && dim[2] < vp[2])
-  {
-    vp[2] = dim[2];
-  }
-  if (dim[3] > 0 && dim[3] < vp[3])
-  {
-    vp[3] = dim[3];
+    // clipping region results in empty region, just set to empty.
+    clipRect = vtkRecti{ 0, 0, 0, 0 };
   }
 
-  this->RenderWindow->GetState()->vtkglScissor(vp[0], vp[1], vp[2], vp[3]);
+  this->RenderWindow->GetState()->vtkglScissor(
+    clipRect.GetX(), clipRect.GetY(), clipRect.GetWidth(), clipRect.GetHeight());
 }
 
 //-----------------------------------------------------------------------------
