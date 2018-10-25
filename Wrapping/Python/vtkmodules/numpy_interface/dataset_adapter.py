@@ -1090,7 +1090,7 @@ class UnstructuredGrid(PointSet):
     def SetCells(self, cellTypes, cellLocations, cells):
         """Given cellTypes, cellLocations, cells as VTKArrays,
         populates the unstructured grid data structures."""
-        from .. import VTK_ID_TYPE
+        from ..util.vtkConstants import VTK_ID_TYPE
         from ..vtkCommonDataModel import vtkCellArray
         cellTypes = numpyTovtkDataArray(cellTypes)
         cellLocations = numpyTovtkDataArray(cellLocations, array_type=VTK_ID_TYPE)
