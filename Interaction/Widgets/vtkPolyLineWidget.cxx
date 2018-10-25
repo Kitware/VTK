@@ -224,6 +224,10 @@ void vtkPolyLineWidget::EndSelectAction(vtkAbstractWidget *w)
 
   self->WidgetRep->EndWidgetInteraction(e);
 
+  // EndWidgetInteraction for this widget can modify/add/remove points
+  // Make sure the representation is updated
+  self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
+
   // Return state to not active
   self->WidgetState = vtkPolyLineWidget::Start;
   reinterpret_cast<vtkPolyLineRepresentation*>(self->WidgetRep)->
