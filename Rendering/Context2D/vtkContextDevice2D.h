@@ -344,7 +344,7 @@ public:
   virtual void PopMatrix() = 0;
 
   /**
-   * Supply a float array of length 4 with x1, y1, width, height specifying
+   * Supply an int array of length 4 with x1, y1, width, height specifying
    * clipping region for the device in pixels.
    */
   virtual void SetClipping(int *x) = 0;
