@@ -735,7 +735,7 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
     ur[0] = dispx[0] + sz[0];
     ur[1] = dispx[1] + sz[1];
 
-    if ( ll[1] > kdbounds[3] || ur[1] < kdbounds[2] || ll[0] > kdbounds[1] || ll[1] < kdbounds[0] )
+    if ( ll[1] > kdbounds[3] || ur[1] < kdbounds[2] || ll[0] > kdbounds[1] || ur[1] < kdbounds[0] )
     {
       continue; // cull label not in frame
     }
