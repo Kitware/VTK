@@ -18,7 +18,7 @@
 #include <vtkRemoveDuplicatePolys.h>
 #include <vtkSmartPointer.h>
 
-int TestCleanPolyData(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestRemoveDuplicatePolys(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence
     = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
