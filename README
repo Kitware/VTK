@@ -22,7 +22,7 @@ USAGE:
             
             ... // transformed. DC is in cx_out[0].r and cx_out[0].i 
             
-        free(cfg);
+        kiss_fft_free(cfg);
 
     Note: frequency-domain data is stored from dc up to 2pi.
     so cx_out[0] is the dc bin of the FFT
