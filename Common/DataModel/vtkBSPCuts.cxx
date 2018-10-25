@@ -496,15 +496,36 @@ int vtkBSPCuts::Equals(vtkBSPCuts *other, double tolerance)
     {
       return 0;
     }
-    if (!EQ(this->LowerDataCoord[i], other->LowerDataCoord[i]))
+    if (this->LowerDataCoord && other->LowerDataCoord)
+    {
+      if (!EQ(this->LowerDataCoord[i], other->LowerDataCoord[i]))
+      {
+        return 0;
+      }
+    }
+    else if (this->LowerDataCoord || other->LowerDataCoord)
     {
       return 0;
     }
-    if (!EQ(this->UpperDataCoord[i], other->UpperDataCoord[i]))
+    if (this->UpperDataCoord && other->UpperDataCoord)
+    {
+      if (!EQ(this->UpperDataCoord[i], other->UpperDataCoord[i]))
+      {
+        return 0;
+      }
+    }
+    else if (this->UpperDataCoord || other->UpperDataCoord)
     {
       return 0;
     }
-    if (this->Npoints[i] != other->Npoints[i])
+    if (this->Npoints && other->Npoints)
+    {
+      if (this->Npoints[i] != other->Npoints[i])
+      {
+        return 0;
+      }
+    }
+    else if (this->Npoints || other->Npoints)
     {
       return 0;
     }
