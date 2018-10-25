@@ -68,13 +68,7 @@ int vtkRemoveDuplicatePolys::RequestData(
   {
     // set up a polyData with same data arrays as input, but
     // no points, polys or data.
-    output->Allocate(1);
-    output->GetPointData()->CopyAllocate(input->GetPointData(), VTK_CELL_SIZE);
-    vtkPoints *pts = vtkPoints::New();
-    pts->SetDataTypeToDouble();
-
-    output->SetPoints(pts);
-    pts->Delete();
+    output->ShallowCopy(input);
     return 1;
   }
 
