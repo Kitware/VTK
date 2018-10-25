@@ -52,8 +52,6 @@ vtkSTLReader::vtkSTLReader()
   this->Locator = nullptr;
   this->Header = nullptr;
   this->BinaryHeader = nullptr;
-
-  this->SetNumberOfInputPorts(0);
 }
 
 //------------------------------------------------------------------------------
