@@ -1,10 +1,12 @@
-double-conversion fork for VTK
----------------------
+# double-conversion fork for VTK
 
-This branch contains required changes to embed double-conversion into VTK.
-This includes the following:
+This branch contains changes required to embed double-conversion into VTK.
+This includes changes made primarily to the build system to allow it to be
+embedded into another source tree as well as a header to facilitate mangling
+of the symbols to avoid conflicts with other copies of the library within a
+single process.
 
-* add `.gitattributes`
-* integrate VTK's module system (added CMakeLists.vtk.txt)
-* update `double-conversion/utils.h` to include exports header and mangle namespace.
-* add exports to `double-conversion/utils.h and `double-conversion/double-conversion.h`.
+  * add `.gitattributes`
+  * integrate VTK's module system
+  * mangle symbols for VTK
+  * export symbols
