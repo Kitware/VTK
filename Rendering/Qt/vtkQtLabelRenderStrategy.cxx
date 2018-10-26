@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include "vtkQtLabelRenderStrategy.h"
+#include "vtkQtLabelRenderStrategyInternals.h"
 
 #include "vtkCoordinate.h"
 #include "vtkImageData.h"
@@ -47,21 +48,6 @@
 
 vtkStandardNewMacro(vtkQtLabelRenderStrategy);
 
-namespace
-{
-struct vtkQtLabelMapEntry
-{
-  QString Text;
-  QColor Color;
-  QFont Font;
-};
-
-struct vtkQtLabelMapValue
-{
-  QImage Image;
-  QRectF Bounds;
-};
-
 bool operator <(const vtkQtLabelMapEntry& a, const vtkQtLabelMapEntry& other)
 {
   if (a.Text != other.Text)
@@ -86,34 +72,6 @@ bool operator <(const vtkQtLabelMapEntry& a, const vtkQtLabelMapEntry& other)
   }
   return a.Font < other.Font;
 }
-} // End of anonymous namespace
-
-class vtkQtLabelRenderStrategy::Internals
-{
-public:
-  QImage* Image;
-  QPainter* Painter;
-  QMap<vtkQtLabelMapEntry, vtkQtLabelMapValue> Cache;
-
-  QFont TextPropertyToFont(vtkTextProperty* tprop)
-  {
-    QFont fontSpec(tprop->GetFontFamilyAsString());
-    fontSpec.setBold(tprop->GetBold());
-    fontSpec.setItalic(tprop->GetItalic());
-    fontSpec.setPixelSize(tprop->GetFontSize());
-    return fontSpec;
-  }
-
-  QColor TextPropertyToColor(double* fc, double opacity)
-  {
-    QColor textColor(
-      static_cast<int>(fc[0]*255),
-      static_cast<int>(fc[1]*255),
-      static_cast<int>(fc[2]*255),
-      static_cast<int>(opacity*255));
-    return textColor;
-  }
-};
 
 //----------------------------------------------------------------------------
 vtkQtLabelRenderStrategy::vtkQtLabelRenderStrategy()
