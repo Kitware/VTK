@@ -1,3 +1,4 @@
+
 if(NOT VTK_LEGACY_REMOVE)
   # This example uses a 3DConnexion 3D mouse and Qt4 style widget.
   add_subdirectory(Events)
@@ -8,8 +9,8 @@ add_subdirectory(ImageViewer)
 add_subdirectory(SimpleView)
 
 if(TARGET vtkGUISupportQtOpenGL)
-  find_package(Qt5 COMPONENTS WebKitWidgets QUIET)
-  if(Qt5WebKitWidgets_FOUND)
+  find_package(Qt5 COMPONENTS WebKitWidgets OpenGLExtensions QUIET)
+  if(Qt5WebKitWidgets_FOUND AND Qt5OpenGLExtensions_FOUND)
     add_subdirectory(GraphicsView)
   endif()
 endif()

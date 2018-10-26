@@ -54,7 +54,8 @@ set( QRCs
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
-find_package(Qt5 COMPONENTS WebKitWidgets REQUIRED QUIET)
+find_package(Qt5 COMPONENTS WebKitWidgets OpenGLExtensions QUIET)
+
 
 qt5_add_resources(QRC_Srcs ${QRCs} )
 
