@@ -12,6 +12,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestCellDataToPointData.cxx,NO_VALID
   TestCenterOfMass.cxx,NO_VALID
   TestCleanPolyData.cxx,NO_VALID
+  TestCleanPolyData2.cxx,NO_VALID
   TestClipPolyData.cxx,NO_VALID
   TestConnectivityFilter.cxx,NO_VALID
   TestCutter.cxx,NO_VALID
