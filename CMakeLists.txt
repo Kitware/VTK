@@ -3,6 +3,7 @@ set(sources
   src/block1.h
   src/block2.h
   src/block3.h
+  src/block4.h
   src/decode1d.c
   src/decode1f.c
   src/decode1i.c
@@ -15,6 +16,10 @@ set(sources
   src/decode3f.c
   src/decode3i.c
   src/decode3l.c
+  src/decode4d.c
+  src/decode4f.c
+  src/decode4i.c
+  src/decode4l.c
   src/encode1d.c
   src/encode1f.c
   src/encode1i.c
@@ -27,29 +32,31 @@ set(sources
   src/encode3f.c
   src/encode3i.c
   src/encode3l.c
+  src/encode4d.c
+  src/encode4f.c
+  src/encode4i.c
+  src/encode4l.c
   src/traitsd.h
   src/traitsf.h
   src/zfp.c)
 
-vtk_add_library(vtkzfp ${sources})
-target_include_directories(vtkzfp
+vtk_module_add_module(VTK::zfp
+  SOURCES ${sources})
+target_include_directories(zfp
   PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 if (NOT WIN32 OR CYGWIN)
-  target_link_libraries(vtkzfp
+  target_link_libraries(zfp
     PRIVATE
       m)
 endif ()
 if (WIN32)
-  target_compile_definitions(vtkzfp
+  target_compile_definitions(zfp
     PRIVATE
       ZFP_SOURCE)
 endif ()
 
-if (NOT VTK_INSTALL_NO_DEVELOPMENT)
-  install(DIRECTORY
-    "${CMAKE_CURRENT_SOURCE_DIR}/include"
-    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtkzfp"
-    COMPONENT Development)
-endif()
+vtk_module_install_headers(
+  DIRECTORIES "include"
+  SUBDIR      "vtkzfp")

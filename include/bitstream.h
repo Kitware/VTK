@@ -1,5 +1,5 @@
-#ifndef BITSTREAM_H
-#define BITSTREAM_H
+#ifndef ZFP_BITSTREAM_H
+#define ZFP_BITSTREAM_H
 
 #include <stddef.h>
 #include "zfp/types.h"
@@ -22,6 +22,9 @@ bitstream* stream_open(void* buffer, size_t bytes);
 
 /* close and deallocate bit stream */
 void stream_close(bitstream* stream);
+
+/* make a copy of bit stream to shared memory buffer */
+bitstream* stream_clone(const bitstream* stream);
 
 /* pointer to beginning of stream */
 void* stream_data(const bitstream* stream);
@@ -76,6 +79,9 @@ size_t stream_align(bitstream* stream);
 
 /* flush out any remaining buffered bits */
 size_t stream_flush(bitstream* stream);
+
+/* copy n bits from one bit stream to another */
+void stream_copy(bitstream* dst, bitstream* src, size_t n);
 
 #ifdef BIT_STREAM_STRIDED
 /* set block size in number of words and spacing in number of blocks */
