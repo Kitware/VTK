@@ -19,9 +19,13 @@
 vtkAbstractPolyDataReader::vtkAbstractPolyDataReader()
   : vtkPolyDataAlgorithm()
 {
+  this->FileName = nullptr;
 }
 
-vtkAbstractPolyDataReader::~vtkAbstractPolyDataReader() = default;
+vtkAbstractPolyDataReader::~vtkAbstractPolyDataReader()
+{
+  this->SetFileName(nullptr);
+}
 
 void vtkAbstractPolyDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
