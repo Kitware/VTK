@@ -237,6 +237,8 @@ set(${vtk-module}_HDRS
   vtkDataArrayRange.h
   vtkDataArrayTupleRange_AOS.h
   vtkDataArrayTupleRange_Generic.h
+  vtkDataArrayValueRange_AOS.h
+  vtkDataArrayValueRange_Generic.h
   vtkDataArrayTemplate.h
   vtkGenericDataArrayLookupHelper.h
   vtkIOStream.h

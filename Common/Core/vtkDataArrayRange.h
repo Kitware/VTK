@@ -34,6 +34,8 @@
 #include "vtkDataArrayMeta.h"
 #include "vtkDataArrayTupleRange_AOS.h"
 #include "vtkDataArrayTupleRange_Generic.h"
+#include "vtkDataArrayValueRange_AOS.h"
+#include "vtkDataArrayValueRange_Generic.h"
 #include "vtkSmartPointer.h"
 
 #include <cassert>
@@ -118,6 +120,83 @@ auto DataArrayTupleRange(const ArrayType& array,
         array,
         start < 0 ? 0 : start,
         end < 0 ? array->GetNumberOfTuples() : end);
+}
+
+/**
+ * @brief Generate an stl and for-range compatible range of flat AOS iterators
+ * from a vtkDataArray.
+ *
+ * This function returns a ValueRange object that is compatible with C++11
+ * for-range syntax. The array is traverse as if calling
+ * vtkGenericDataArray::GetValue with consecutive, increase indices. As an
+ * example usage, consider a function that takes some instance of vtkDataArray
+ * (or a subclass) and sums the values it contains:
+ *
+ * ```
+ * template <typename ArrayType>
+ * auto ComputeSum(ArrayType *array) -> vtk::GetAPIType<ArrayType>
+ * {
+ *   using T = vtk::GetAPIType<ArrayType>;
+ *
+ *   T sum = 0.;
+ *   for (const auto& val : vtk::DataArrayValueType(array))
+ *   {
+ *     sum += val;
+ *   }
+ *   return sum;
+ * }
+ * ```
+ *
+ * Note that `ArrayType` is generic in the above function. When
+ * `vtk::DataArrayValueRange` is given a `vtkDataArray` pointer, the generated
+ * code produces iterators and reference proxies that rely on the `vtkDataArray`
+ * API. However, when a more derived `ArrayType` is passed in (for example,
+ * `vtkFloatArray`), specialized implementations are used that generate highly
+ * optimized code.
+ *
+ * Performance can be further improved when the number of components in the
+ * array is known. By passing a compile-time-constant integer as a template
+ * parameter, e.g. `vtk::DataArrayValueRange<3>(array)`, specializations are
+ * enabled that allow the compiler to perform additional optimizations.
+ *
+ * `vtk::DataArrayValueRange` takes an additional two arguments that can be used
+ * to restrict the range of values to [start, end).
+ *
+ * There is a compiler definition / CMake option called
+ * `VTK_DEBUG_RANGE_ITERATORS` that enables checks for proper usage of the
+ * range/iterator/reference classes. This slow things down significantly, but is
+ * useful for diagnosing problems.
+ *
+ * @note References obtained through iterators are invalidated when the iterator
+ * is modified.
+ *
+ * @note `operator[]` is disabled for the iterators and tuple reference types,
+ * as they cannot be implemented for vtkDataArray without dangling references.
+ * These index operations may still be accessible when used with other array
+ * classes, but their use is discouraged to ensure portability and any code
+ * using them will not compile with VTK_DEBUG_RANGE_ITERATORS defined.
+ */
+template <ComponentIdType TupleSize = detail::DynamicTupleSize,
+          typename ArrayType = vtkDataArray*>
+auto DataArrayValueRange(const ArrayType& array,
+                         ValueIdType start = -1,
+                         ValueIdType end = -1)
+-> detail::ValueRange<typename detail::StripPointers<ArrayType>::type, TupleSize>
+{
+  // Allow this to work with vtkNew, vtkSmartPointer, etc.
+  using RealArrayType = typename detail::StripPointers<ArrayType>::type;
+
+  static_assert(detail::IsValidTupleSize<TupleSize>::value,
+                "Invalid tuple size.");
+  static_assert(detail::IsVtkDataArray<RealArrayType>::value,
+                "Invalid array type.");
+
+  assert(array);
+
+  return detail::ValueRange<RealArrayType, TupleSize>(
+        array,
+        start < 0 ? 0 : start,
+        end < 0 ? array->GetNumberOfValues() : end);
 }
 
 } // end namespace vtk
