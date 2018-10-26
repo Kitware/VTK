@@ -89,7 +89,6 @@ int vtkRemoveDuplicatePolys::RequestData(
   }
 
   output->Allocate(numberOfPolys);
-  int ndeg = 0;
   int ndup = 0;
 
   output->GetPointData()->PassData(input->GetPointData());
