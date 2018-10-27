@@ -36,6 +36,7 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <tuple>
 #include <utility>
 
 namespace
