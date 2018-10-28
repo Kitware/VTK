@@ -251,7 +251,7 @@ public:
    * the other rect, then this will return false (in that case, the
    * rects would be considered to be adjacent but not overlapping).
    */
-  bool IntersectsWith(const vtkRect<T> & rect)
+  bool IntersectsWith(const vtkRect<T>& rect) const
   {
     bool intersects = true;
 
@@ -278,6 +278,42 @@ public:
     }
 
     return intersects;
+  }
+
+  /**
+   * Move the rectangle, moving the bottom-left corner
+   * to the given position. The rectangles size remains unchanged.
+   */
+  void MoveTo(T x, T y)
+  {
+    this->Data[0] = x;
+    this->Data[1] = y;
+  }
+
+  /**
+   * Intersect with `other` rectangle. If `this->IntersectsWith(other)` is true,
+   * this method will update this rect to the intersection of `this` and
+   * `other` and return true. If `this->IntersectsWith(other)` returns false,
+   * then this method will return false leaving this rect unchanged.
+   *
+   * Returns true if the intersection was performed otherwise false.
+   */
+  bool Intersect(const vtkRect<T>& other)
+  {
+    if (this->IntersectsWith(other))
+    {
+      const T left = vtkMath::Max(this->GetLeft(), other.GetLeft());
+      const T bottom = vtkMath::Max(this->GetBottom(), other.GetBottom());
+      const T right = vtkMath::Min(this->GetRight(), other.GetRight());
+      const T top = vtkMath::Min(this->GetTop(), other.GetTop());
+
+      this->Data[0] = left;
+      this->Data[1] = bottom;
+      this->Data[2] = (right - left);
+      this->Data[3] = (top - bottom);
+      return true;
+    }
+    return false;
   }
 };
 

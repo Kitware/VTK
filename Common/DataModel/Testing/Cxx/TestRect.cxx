@@ -223,7 +223,7 @@ int TestRect(int, char *[])
   // Test IntersectsWith() -----------------------------------------------------
   vtkRecti recti(2, 3, 2, 1);
   vtkRecti doesntIntersect(-1, -2, 3, 4);
-  if (recti.IntersectsWith(doesntIntersect))
+  if (recti.IntersectsWith(doesntIntersect) || recti.Intersect(doesntIntersect))
   {
     std::cout << "Should not have intersected\n";
     std::cout << "recti:\n";
@@ -241,6 +241,28 @@ int TestRect(int, char *[])
     std::cout << recti << "\n";
     std::cout << "intersect:\n";
     std::cout << intersects << "\n";
+    return EXIT_FAILURE;
+  }
+
+  vtkRecti rectiIntersected = recti;
+  if (!rectiIntersected.Intersect(intersects))
+  {
+    std::cout << "Should have intersected\n";
+    std::cout << "recti:\n";
+    std::cout << recti << "\n";
+    std::cout << "intersect:\n";
+    std::cout << intersects << "\n";
+    return EXIT_FAILURE;
+  }
+
+  if (rectiIntersected != vtkRecti(3, 3, 1, 1))
+  {
+    std::cout << "Incorrect intersection\n";
+    std::cout << "recti:       " << recti << "\n";
+    std::cout << "intersect:   " << intersects << "\n";
+    std::cout << "intersected: " << rectiIntersected << "\n";
+    std::cout << "expected:    " << vtkRecti(3, 3, 1, 1) << "\n";
+    return EXIT_FAILURE;
   }
 
   if (result != EXIT_SUCCESS)
