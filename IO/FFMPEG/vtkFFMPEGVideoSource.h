@@ -16,6 +16,9 @@
  * @class   vtkFFMPEGVideoSource
  * @brief   Reader for ffmpeg supported formats
  *
+ * Note this this class make use of multiple threads when decoding files. It has
+ * a feed thread, a video drain thread, and an audio drain thread. The decoding
+ * may use multiple threads as well as specified by DecodingThreads ivar.
  *
  * @sa
  * vtkVideoSource
@@ -28,6 +31,7 @@
 #include "vtkVideoSource.h"
 #include "vtkMultiThreader.h" // for ivar
 #include "vtkNew.h" // for ivar
+#include <functional> // for audio callback
 
 class vtkFFMPEGVideoSourceInternal;
 
@@ -106,10 +110,56 @@ public:
    */
   void InternalGrab() override;
 
+  // is the video at the end of file?
+  // Usefull for while loops
+  vtkGetMacro(EndOfFile,bool);
+
+  class AudioCallbackData
+  {
+  public:
+    int NumberOfSamples;
+    int BytesPerSample;
+    int NumberOfChannels;
+    int SampleRate;
+    int DataType;
+    bool Packed;
+    unsigned char** Data;
+    vtkFFMPEGVideoSource *Caller;
+    void *ClientData;
+  };
+
+  // we do not use Invoke Observers here because this callback
+  // will happen in a different thread that could conflict
+  // with events from other threads. In this function you should
+  // not block the thread (for example waiting for audio to play)
+  // instead you should have enough buffering that you can consume
+  // the provided data and return. Typically even 1 second of
+  // buffer storage is enough to prevent blocking.
+  typedef std::function<void(AudioCallbackData &data)> AudioCallbackType;
+  void SetAudioCallback(AudioCallbackType cb, void *clientData)
+  {
+    this->AudioCallback = cb;
+    this->AudioCallbackClientData = clientData;
+  }
+
+  //@{
+  /**
+   * How many threads to use for the decoding codec
+   * this will be in addition to the feed and drain threads.
+   * the default value is 4.
+   */
+  vtkSetMacro(DecodingThreads, int);
+  vtkGetMacro(DecodingThreads, int);
+  //@}
 
 protected:
   vtkFFMPEGVideoSource();
   ~vtkFFMPEGVideoSource();
+
+  int DecodingThreads;
+
+  AudioCallbackType AudioCallback;
+  void *AudioCallbackClientData;
 
   void ReadFrame();
 
@@ -117,13 +167,21 @@ protected:
 
   vtkNew<vtkConditionVariable> FeedCondition;
   vtkNew<vtkMutexLock> FeedMutex;
+  vtkNew<vtkConditionVariable> FeedAudioCondition;
+  vtkNew<vtkMutexLock> FeedAudioMutex;
   static void *FeedThread(
     vtkMultiThreader::ThreadInfo *data);
+  void *Feed(vtkMultiThreader::ThreadInfo *data);
+  int FeedThreadId;
+
+  static void *DrainAudioThread(
+    vtkMultiThreader::ThreadInfo *data);
+  void *DrainAudio(vtkMultiThreader::ThreadInfo *data);
+  int DrainAudioThreadId;
+
   static void *DrainThread(
     vtkMultiThreader::ThreadInfo *data);
-  void *Feed(vtkMultiThreader::ThreadInfo *data);
   void *Drain(vtkMultiThreader::ThreadInfo *data);
-  int FeedThreadId;
   int DrainThreadId;
 
   char *FileName;

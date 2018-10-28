@@ -73,6 +73,11 @@ public:
       av_frame_free(&this->Frame);
       this->Frame = nullptr;
     }
+    if (this->AudioFrame)
+    {
+      av_frame_free(&this->AudioFrame);
+      this->AudioFrame = nullptr;
+    }
     if (this->VideoDecodeContext)
     {
       avcodec_close(this->VideoDecodeContext);
@@ -103,6 +108,7 @@ public:
   int VideoStreamIndex = -1;
   int AudioStreamIndex = -1;
   AVFrame *Frame = nullptr;
+  AVFrame *AudioFrame = nullptr;
   AVPacket Packet;
   struct SwsContext* RGBContext = nullptr;
 };
@@ -123,6 +129,9 @@ vtkFFMPEGVideoSource::vtkFFMPEGVideoSource()
   this->FlipFrames = 0;
   this->FrameBufferRowAlignment = 4;
   this->EndOfFile = true;
+  this->AudioCallback = nullptr;
+  this->AudioCallbackClientData = nullptr;
+  this->DecodingThreads = 4;
 }
 
 //----------------------------------------------------------------------------
@@ -185,6 +194,10 @@ void vtkFFMPEGVideoSource::Initialize()
     return;
   }
   this->Internal->VideoDecodeContext = avcodec_alloc_context3(dec);
+
+  this->Internal->VideoDecodeContext->thread_count = this->DecodingThreads;
+  // this->Internal->VideoDecodeContext->thread_type = FF_THREAD_FRAME;
+
   avcodec_parameters_to_context(
     this->Internal->VideoDecodeContext,
     this->Internal->VideoStream->codecpar);
@@ -220,7 +233,47 @@ void vtkFFMPEGVideoSource::Initialize()
     vtkErrorMacro("Failed to create RGB context");
   }
 
-  // no audio yet
+  // now handle audio streams, these are optional
+  this->Internal->AudioStreamIndex =
+    av_find_best_stream(fcontext, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
+  // do we have an audio stream?
+  if (this->Internal->AudioStreamIndex >= 0)
+  {
+    this->Internal->AudioStream =
+      fcontext->streams[this->Internal->AudioStreamIndex];
+
+    AVCodec *adec =
+      avcodec_find_decoder(this->Internal->AudioStream->codecpar->codec_id);
+    if (!adec)
+    {
+      vtkErrorMacro("Failed to find codec for audio");
+      return;
+    }
+
+    this->Internal->AudioDecodeContext = avcodec_alloc_context3(adec);
+    avcodec_parameters_to_context(
+      this->Internal->AudioDecodeContext,
+      this->Internal->AudioStream->codecpar);
+    avcodec_open2(this->Internal->AudioDecodeContext, adec, nullptr);
+
+    AVDictionary *aopts = nullptr;
+    /* Init the decoders, with or without reference counting */
+    av_dict_set(&aopts, "refcounted_frames", "1", 0);
+    if (avcodec_open2(this->Internal->AudioDecodeContext, adec, &aopts) < 0)
+    {
+      vtkErrorMacro("Failed to open codec for audio");
+      return;
+    }
+
+    this->Internal->AudioFrame = av_frame_alloc();
+    if (!this->Internal->AudioFrame)
+    {
+      vtkErrorMacro("Could not allocate audio frame");
+      return;
+    }
+  }
+
+  this->EndOfFile = false;
 
   this->Internal->Frame = av_frame_alloc();
   if (!this->Internal->Frame)
@@ -269,6 +322,7 @@ void *vtkFFMPEGVideoSource::Feed(vtkMultiThreader::ThreadInfo *data)
       fret = av_read_frame(this->Internal->FormatContext, &this->Internal->Packet);
     }
     retryPacket = false;
+    // feed video
     if (fret >= 0 &&
         this->Internal->Packet.stream_index == this->Internal->VideoStreamIndex)
     {
@@ -299,6 +353,37 @@ void *vtkFFMPEGVideoSource::Feed(vtkMultiThreader::ThreadInfo *data)
       this->FeedMutex->Unlock();
     }
 
+    // feed audio
+    if (fret >= 0 &&
+        this->Internal->Packet.stream_index == this->Internal->AudioStreamIndex)
+    {
+      // lock the decoder
+      this->FeedAudioMutex->Lock();
+
+      int sret = avcodec_send_packet(
+        this->Internal->AudioDecodeContext,
+        &this->Internal->Packet);
+      if (sret == 0) // good decode
+      {
+        this->FeedAudioCondition->Signal();
+      }
+      else if (sret == AVERROR(EAGAIN))
+      {
+        // Signal the draining loop
+        this->FeedAudioCondition->Signal();
+        // Wait here
+        this->FeedAudioCondition->Wait(this->FeedAudioMutex);
+        retryPacket = true;
+      }
+      else if (sret < 0) // error
+      {
+        this->FeedAudioMutex->Unlock();
+        return nullptr;
+      }
+
+      this->FeedAudioMutex->Unlock();
+    }
+
     // are we out of data?
     if (fret == AVERROR_EOF)
     {
@@ -322,6 +407,15 @@ void *vtkFFMPEGVideoSource::Feed(vtkMultiThreader::ThreadInfo *data)
   this->FeedCondition->Signal();
   this->FeedMutex->Unlock();
 
+  if (this->Internal->AudioDecodeContext)
+  {
+    this->FeedAudioMutex->Lock();
+    avcodec_send_packet(this->Internal->AudioDecodeContext, nullptr);
+    this->FeedAudioCondition->Signal();
+    this->FeedAudioMutex->Unlock();
+  }
+
+  this->EndOfFile = true;
   return nullptr;
 }
 
@@ -404,11 +498,13 @@ void *vtkFFMPEGVideoSource::Drain(vtkMultiThreader::ThreadInfo *data)
     else if (ret == AVERROR_EOF)
     {
       done = true;
+      cerr << "video drain thread exiting on EOF!\n";
       return nullptr;
     }
     else if (ret < 0) // error code
     {
       this->FeedMutex->Unlock();
+      cerr << "video drain thread exiting on error!\n";
       return nullptr;
     }
 
@@ -435,12 +531,136 @@ void *vtkFFMPEGVideoSource::Drain(vtkMultiThreader::ThreadInfo *data)
   return nullptr;
 }
 
+void *vtkFFMPEGVideoSource::DrainAudioThread(vtkMultiThreader::ThreadInfo *data)
+{
+  vtkFFMPEGVideoSource *self = static_cast<vtkFFMPEGVideoSource *>(data->UserData);
+  return self->DrainAudio(data);
+}
+
+void *vtkFFMPEGVideoSource::DrainAudio(vtkMultiThreader::ThreadInfo *data)
+{
+  bool done = false;
+  unsigned short count = 0;
+
+  int frame = 0;
+
+  while (!done)
+  {
+    this->FeedAudioMutex->Lock();
+
+    int ret = avcodec_receive_frame(this->Internal->AudioDecodeContext,
+              this->Internal->AudioFrame);
+    if (ret == 0)
+    {
+      this->FeedAudioCondition->Signal();
+    }
+    else if (ret == AVERROR(EAGAIN))
+    {
+      // Signal the feeding loop
+      this->FeedAudioCondition->Signal();
+      // Wait here
+      this->FeedAudioCondition->Wait(this->FeedAudioMutex);
+    }
+    else if (ret == AVERROR_EOF)
+    {
+      done = true;
+      cerr << "audio drain thread exiting on EOF!\n";
+      return nullptr;
+    }
+    else if (ret < 0) // error code
+    {
+      this->FeedAudioMutex->Unlock();
+      cerr << "audio drain thread exiting on error!\n";
+      return nullptr;
+    }
+
+    this->FeedAudioMutex->Unlock();
+
+    if (ret == 0)
+    {
+      // do something with the data here
+      // vtkThreadSleep(startTime + frame/rate);
+
+      int sampleFormat = VTK_UNSIGNED_CHAR;
+      bool packed = true;
+      switch (this->Internal->AudioDecodeContext->sample_fmt)
+      {
+        default:
+        case AV_SAMPLE_FMT_U8:
+          sampleFormat = VTK_UNSIGNED_CHAR;
+          break;
+        case AV_SAMPLE_FMT_U8P:
+          sampleFormat = VTK_UNSIGNED_CHAR;
+          packed = false;
+          break;
+        case AV_SAMPLE_FMT_S16:
+          sampleFormat = VTK_SHORT;
+          break;
+        case AV_SAMPLE_FMT_S16P:
+          sampleFormat = VTK_SHORT;
+          packed = false;
+          break;
+        case AV_SAMPLE_FMT_S32:
+          sampleFormat = VTK_LONG;
+          break;
+        case AV_SAMPLE_FMT_S32P:
+          sampleFormat = VTK_LONG;
+          packed = false;
+          break;
+        case AV_SAMPLE_FMT_FLT:
+          sampleFormat = VTK_FLOAT;
+          break;
+        case AV_SAMPLE_FMT_FLTP:
+          sampleFormat = VTK_FLOAT;
+          packed = false;
+          break;
+        case AV_SAMPLE_FMT_DBL:
+          sampleFormat = VTK_DOUBLE;
+          break;
+        case AV_SAMPLE_FMT_DBLP:
+          sampleFormat = VTK_DOUBLE;
+          packed = false;
+          break;
+      }
+
+      if (this->AudioCallback)
+      {
+        AudioCallbackData cbd;
+        cbd.NumberOfSamples = this->Internal->AudioFrame->nb_samples;
+        cbd.BytesPerSample =
+          av_get_bytes_per_sample(this->Internal->AudioDecodeContext->sample_fmt);
+        cbd.NumberOfChannels = this->Internal->AudioDecodeContext->channels;
+        cbd.SampleRate = this->Internal->AudioDecodeContext->sample_rate;
+        cbd.DataType = sampleFormat;
+        cbd.Data = this->Internal->AudioFrame->extended_data;
+        cbd.Caller = this;
+        cbd.Packed = packed;
+        cbd.ClientData = this->AudioCallbackClientData;
+        this->AudioCallback(cbd);
+      }
+      frame++;
+    }
+
+    // check to see if we are being told to quit every so often
+    if (count == 10)
+    {
+      data->ActiveFlagLock->Lock();
+      done = done || (*(data->ActiveFlag) == 0);
+      data->ActiveFlagLock->Unlock();
+      count = 0;
+    }
+    count++;
+  }
+
+  return nullptr;
+}
 
 void vtkFFMPEGVideoSource::ReadFrame()
 {
   // first try to grab a frame from data we already have
   bool gotFrame = false;
-  while (!gotFrame)
+  while (!gotFrame &&
+    (!this->EndOfFile || this->Internal->Packet.size > 0))
   {
     int ret = AVERROR(EAGAIN);
     if (this->Internal->Packet.size > 0)
@@ -464,7 +684,7 @@ void vtkFFMPEGVideoSource::ReadFrame()
     }
 
     // if we are out of data then we must send more
-    if (ret == AVERROR(EAGAIN))
+    if (ret == AVERROR(EAGAIN) && !this->EndOfFile)
     {
       // if the packet is empty read more data from the file
       av_packet_unref(&this->Internal->Packet);
@@ -478,6 +698,11 @@ void vtkFFMPEGVideoSource::ReadFrame()
           vtkErrorMacro("codec did not send packet");
           return;
         }
+      }
+      if (fret == AVERROR_EOF)
+      {
+        this->EndOfFile = true;
+        return;
       }
     }
   }
@@ -592,6 +817,16 @@ void vtkFFMPEGVideoSource::Record()
     this->DrainThreadId =
       this->PlayerThreader->SpawnThread((vtkThreadFunctionType)\
                                 &vtkFFMPEGVideoSource::DrainThread,this);
+    if (this->Internal->AudioDecodeContext)
+    {
+      this->DrainAudioThreadId =
+        this->PlayerThreader->SpawnThread((vtkThreadFunctionType)\
+                                  &vtkFFMPEGVideoSource::DrainAudioThread,this);
+    }
+    else
+    {
+      this->DrainAudioThreadId = 0;
+    }
   }
 }
 
@@ -602,6 +837,10 @@ void vtkFFMPEGVideoSource::Stop()
   {
     this->PlayerThreader->TerminateThread(this->FeedThreadId);
     this->PlayerThreader->TerminateThread(this->DrainThreadId);
+    if (this->DrainAudioThreadId)
+    {
+      this->PlayerThreader->TerminateThread(this->DrainAudioThreadId);
+    }
     this->Playing = 0;
     this->Recording = 0;
     this->Modified();
