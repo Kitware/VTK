@@ -1,5 +1,6 @@
 vtk_add_test_cxx(vtkAcceleratorsVtkmCxxTests tests
   TestVTKMCleanGrid.cxx
+  TestVTKMCoordinateSystemTransform.cxx,NO_VALID
   TestVTKMClip.cxx
   TestVTKMClipWithImplicitFunction.cxx
   TestVTKMExternalFaces.cxx
