@@ -1179,7 +1179,14 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
 
     case VTK_LONG:
     {
-      snprintf (str, sizeof(str), format, "long"); *fp << str;
+#if VTK_SIZEOF_LONG == 4
+       // vtkDataReader assumes "int" to be of size 4
+       snprintf(str, sizeof(str), format, "int");
+#else // VTK_SIZEOF_LONG == 8
+       // vtkDataReader assumes "vtktypeint64" to be of size 8
+       snprintf(str, sizeof(str), format, "vtktypeint64");
+#endif
+       *fp << str;
       long *s=GetArrayRawPointer(
         data, static_cast<vtkLongArray *>(data)->GetPointer(0), isAOSArray);
       vtkWriteDataArray(fp, s, this->FileType, "%ld ", num, numComp);
@@ -1192,7 +1199,14 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
 
     case VTK_UNSIGNED_LONG:
     {
-      snprintf (str, sizeof(str), format, "unsigned_long"); *fp << str;
+#if VTK_SIZEOF_LONG == 4
+       // vtkDataReader assumes "unsigned_int" to be of size 4
+       snprintf(str, sizeof(str), format, "unsigned_int");
+#else // VTK_SIZEOF_LONG == 8
+       // vtkDataReader assumes "vtktypeuint64" to be of size 8
+       snprintf(str, sizeof(str), format, "vtktypeuint64");
+#endif
+       *fp << str;
       unsigned long *s=GetArrayRawPointer(
         data, static_cast<vtkUnsignedLongArray *>(data)->GetPointer(0), isAOSArray);
       vtkWriteDataArray(fp, s, this->FileType, "%lu ", num, numComp);
