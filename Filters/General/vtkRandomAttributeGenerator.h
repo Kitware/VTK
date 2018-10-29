@@ -81,7 +81,10 @@ public:
   void SetDataTypeToInt() {this->SetDataType(VTK_INT);}
   void SetDataTypeToUnsignedInt() {this->SetDataType(VTK_UNSIGNED_INT);}
   void SetDataTypeToLong() {this->SetDataType(VTK_LONG);}
+  void SetDataTypeToLongLong() {this->SetDataType(VTK_LONG_LONG);}
   void SetDataTypeToUnsignedLong() {this->SetDataType(VTK_UNSIGNED_LONG);}
+  void SetDataTypeToUnsignedLongLong() {this->SetDataType(VTK_UNSIGNED_LONG_LONG);}
+  void SetDataTypeToIdType() {this->SetDataType(VTK_ID_TYPE);}
   void SetDataTypeToFloat() {this->SetDataType(VTK_FLOAT);}
   void SetDataTypeToDouble() {this->SetDataType(VTK_DOUBLE);}
   vtkGetMacro(DataType,int);

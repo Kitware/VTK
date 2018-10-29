@@ -28,6 +28,7 @@
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
+#include "vtkLongLongArray.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -35,6 +36,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
+#include "vtkUnsignedLongLongArray.h"
 #include "vtkUnsignedShortArray.h"
 #include "vtkShortArray.h"
 #include "vtkSmartPointer.h"
@@ -256,6 +258,27 @@ vtkDataArray *vtkRandomAttributeGenerator::GenerateData(int dataType,
       dataArray->SetNumberOfTuples(numTuples);
       unsigned long *data =
         static_cast<vtkUnsignedLongArray*>(dataArray)->GetPointer(0);
+      this->GenerateRandomTuples(data,numTuples,numComp,
+                                 minComp,maxComp,min,max);
+    }
+      break;
+    case VTK_LONG_LONG:
+    {
+      dataArray = vtkLongLongArray::New();
+      dataArray->SetNumberOfComponents(numComp);
+      dataArray->SetNumberOfTuples(numTuples);
+      long long* data = static_cast<vtkLongLongArray*>(dataArray)->GetPointer(0);
+      this->GenerateRandomTuples(data,numTuples,numComp,
+                                 minComp,maxComp,min,max);
+    }
+      break;
+    case VTK_UNSIGNED_LONG_LONG:
+    {
+      dataArray = vtkUnsignedLongLongArray::New();
+      dataArray->SetNumberOfComponents(numComp);
+      dataArray->SetNumberOfTuples(numTuples);
+      unsigned long long* data =
+        static_cast<vtkUnsignedLongLongArray*>(dataArray)->GetPointer(0);
       this->GenerateRandomTuples(data,numTuples,numComp,
                                  minComp,maxComp,min,max);
     }
