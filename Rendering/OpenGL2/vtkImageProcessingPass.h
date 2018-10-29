@@ -21,24 +21,24 @@
  *
  *
  * @sa
- * vtkRenderPass vtkGaussianBlurPass vtkSobelGradientMagnitudePass
+ * vtkOpenGLRenderPass vtkGaussianBlurPass vtkSobelGradientMagnitudePass
 */
 
 #ifndef vtkImageProcessingPass_h
 #define vtkImageProcessingPass_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkRenderPass.h"
+#include "vtkOpenGLRenderPass.h"
 
 class vtkOpenGLRenderWindow;
 class vtkDepthPeelingPassLayerList; // Pimpl
 class vtkOpenGLFramebufferObject;
 class vtkTextureObject;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkImageProcessingPass : public vtkRenderPass
+class VTKRENDERINGOPENGL2_EXPORT vtkImageProcessingPass : public vtkOpenGLRenderPass
 {
 public:
-  vtkTypeMacro(vtkImageProcessingPass,vtkRenderPass);
+  vtkTypeMacro(vtkImageProcessingPass,vtkOpenGLRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
