@@ -107,23 +107,25 @@ public:
    */
   vtkAtom AppendAtom()
   {
-    return this->AppendAtom(0, vtkVector3f(0, 0, 0));
+    return this->AppendAtom(0, 0., 0., 0.);
   }
 
+  //@{
   /**
    * Add new atom with the specified atomic number and position. Return a
    * vtkAtom that refers to the new atom.
    */
-  vtkAtom AppendAtom(unsigned short atomicNumber, const vtkVector3f &pos);
-
-  /**
-   * Convenience methods to append a new atom with the specified atomic number
-   * and position.
-   */
-  vtkAtom AppendAtom(unsigned short atomicNumber, double x, double y, double z)
+  vtkAtom AppendAtom(unsigned short atomicNumber, double x, double y, double z);
+  vtkAtom AppendAtom(unsigned short atomicNumber, const vtkVector3f& pos)
   {
-    return this->AppendAtom(atomicNumber, vtkVector3f(x, y, z));
+    return this->AppendAtom(atomicNumber, pos[0], pos[1], pos[2]);
   }
+
+  vtkAtom AppendAtom(unsigned short atomicNumber, double pos[3])
+  {
+    return this->AppendAtom(atomicNumber, pos[0], pos[1], pos[2]);
+  }
+  //@}
 
   /**
    * Return a vtkAtom that refers to the atom with the specified id.
@@ -177,6 +179,10 @@ public:
    */
   void SetAtomPosition(vtkIdType atomId, const vtkVector3f &pos);
   void SetAtomPosition(vtkIdType atomId, double x, double y, double z);
+  void SetAtomPosition(vtkIdType atomId, double pos[3])
+  {
+    this->SetAtomPosition(atomId, pos[0], pos[1], pos[2]);
+  }
   //@}
 
   //@{
@@ -185,6 +191,7 @@ public:
    */
   vtkVector3f GetAtomPosition(vtkIdType atomId);
   void GetAtomPosition(vtkIdType atomId, float pos[3]);
+  void GetAtomPosition(vtkIdType atomId, double pos[3]);
   //@}
 
   //@{
