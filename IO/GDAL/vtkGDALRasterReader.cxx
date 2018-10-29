@@ -79,7 +79,9 @@ public:
 
   template <typename VTK_TYPE, typename RAW_TYPE>
   void Convert(std::vector<RAW_TYPE>& rawUniformGridData,
-               int targetWidth, int targetHeight, bool flipX, bool flipY);
+               int targetWidth, int targetHeight, const std::vector<int>& groupIndex,
+               const char* name,
+               bool flipX, bool flipY);
 
   bool GetGeoCornerPoint(GDALDataset* dataset,
                          double x, double y, double* out) const;
@@ -106,8 +108,8 @@ public:
   // Upper left, lower left, upper right, lower right
   double CornerPoints[8];
 
-  int HasNoDataValue;
-  double NoDataValue;
+  std::vector<int> HasNoDataValue;
+  std::vector<double> NoDataValue;
   vtkIdType NumberOfCells;
 
   vtkSmartPointer<vtkUniformGrid> UniformGridData;
@@ -170,6 +172,8 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReadMetaData(
   {
     this->PrevReadFileName = fileName;
     this->NumberOfBands = this->GDALData->GetRasterCount();
+    this->HasNoDataValue.resize(this->NumberOfBands, 0);
+    this->NoDataValue.resize(this->NumberOfBands, 0);
 
     // Clear last read metadata
     this->Reader->MetaData.clear();
@@ -204,23 +208,22 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReadData(
     return;
   }
 
-  for (int i = 1; i <= this->NumberOfBands; ++i)
+  // all bands have the same data type (true for most drivers)
+  // https://lists.osgeo.org/pipermail/gdal-dev/2016-September/045166.html
+  GDALRasterBand* rasterBand = this->GDALData->GetRasterBand(1);
+  if (this->NumberOfBytesPerPixel == 0)
   {
-    GDALRasterBand* rasterBand = this->GDALData->GetRasterBand(i);
-    if (this->NumberOfBytesPerPixel == 0)
+    this->TargetDataType = rasterBand->GetRasterDataType();
+    switch (this->TargetDataType)
     {
-      this->TargetDataType = rasterBand->GetRasterDataType();
-      switch (this->TargetDataType)
-      {
-        case (GDT_Byte): this->NumberOfBytesPerPixel = 1; break;
-        case (GDT_UInt16): this->NumberOfBytesPerPixel = 2; break;
-        case (GDT_Int16): this->NumberOfBytesPerPixel = 2; break;
-        case (GDT_UInt32): this->NumberOfBytesPerPixel = 4; break;
-        case (GDT_Int32): this->NumberOfBytesPerPixel = 4; break;
-        case (GDT_Float32): this->NumberOfBytesPerPixel = 4; break;
-        case (GDT_Float64): this->NumberOfBytesPerPixel = 8; break;
-        default: this->NumberOfBytesPerPixel = 0; break;
-      }
+    case (GDT_Byte): this->NumberOfBytesPerPixel = 1; break;
+    case (GDT_UInt16): this->NumberOfBytesPerPixel = 2; break;
+    case (GDT_Int16): this->NumberOfBytesPerPixel = 2; break;
+    case (GDT_UInt32): this->NumberOfBytesPerPixel = 4; break;
+    case (GDT_Int32): this->NumberOfBytesPerPixel = 4; break;
+    case (GDT_Float32): this->NumberOfBytesPerPixel = 4; break;
+    case (GDT_Float64): this->NumberOfBytesPerPixel = 8; break;
+    default: this->NumberOfBytesPerPixel = 0; break;
     }
   }
 
@@ -288,61 +291,66 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
     vtkSmartPointer<vtkLookupTable>::New();
 
   // Possible bands
-  GDALRasterBand* redBand = 0;
-  GDALRasterBand* greenBand = 0;
-  GDALRasterBand* blueBand = 0;
-  GDALRasterBand* alphaBand = 0;
-  GDALRasterBand* greyBand = 0;
-  GDALRasterBand* paletteBand = 0;
+  GDALRasterBand* redBand = nullptr;
+  int redIndex = 0;
+  GDALRasterBand* greenBand = nullptr;
+  int greenIndex = 0;
+  GDALRasterBand* blueBand = nullptr;
+  int blueIndex = 0;
+  GDALRasterBand* alphaBand = nullptr;
+  int alphaIndex = 0;
+  GDALRasterBand* grayBand = nullptr;
+  int grayIndex = 0;
+  GDALRasterBand* paletteBand = nullptr;
+  int paletteIndex = 0;
+  std::vector<GDALRasterBand*> otherBands;
+  std::vector<int> otherIndex;
+  std::vector<std::vector<RAW_TYPE>> otherBandsData;
 
   for (int i = 1; i <= this->NumberOfBands; ++i)
   {
     GDALRasterBand* rasterBand = this->GDALData->GetRasterBand(i);
-    this->HasNoDataValue = 0;
-    this->NoDataValue = rasterBand->GetNoDataValue(&this->HasNoDataValue);
-    if (this->NumberOfBytesPerPixel == 0)
-    {
-      this->TargetDataType = rasterBand->GetRasterDataType();
-      switch (this->TargetDataType)
-      {
-        case (GDT_Byte): this->NumberOfBytesPerPixel = 1; break;
-        case (GDT_UInt16): this->NumberOfBytesPerPixel = 2; break;
-        case (GDT_Int16): this->NumberOfBytesPerPixel = 2; break;
-        case (GDT_UInt32): this->NumberOfBytesPerPixel = 4; break;
-        case (GDT_Int32): this->NumberOfBytesPerPixel = 4; break;
-        case (GDT_Float32): this->NumberOfBytesPerPixel = 4; break;
-        case (GDT_Float64): this->NumberOfBytesPerPixel = 8; break;
-        default: this->NumberOfBytesPerPixel = 0; break;
-      }
-    }
+    this->HasNoDataValue[i - 1] = 0;
+    this->NoDataValue[i - 1] = rasterBand->GetNoDataValue(&this->HasNoDataValue[i - 1]);
+    otherBands.push_back(rasterBand);
+    otherIndex.push_back(i);
 
-    if ((rasterBand->GetColorInterpretation() == GCI_RedBand) ||
-        (rasterBand->GetColorInterpretation() == GCI_YCbCr_YBand))
+    if ((rasterBand->GetColorInterpretation() == GCI_RedBand ||
+         rasterBand->GetColorInterpretation() == GCI_YCbCr_YBand) && redIndex == 0)
     {
       redBand = rasterBand;
+      redIndex = i;
     }
-    else if ((rasterBand->GetColorInterpretation() == GCI_GreenBand) ||
-             (rasterBand->GetColorInterpretation() == GCI_YCbCr_CbBand))
+    else if ((rasterBand->GetColorInterpretation() == GCI_GreenBand ||
+              rasterBand->GetColorInterpretation() == GCI_YCbCr_CbBand) && greenIndex == 0)
     {
       greenBand = rasterBand;
+      greenIndex = i;
     }
-    else if ((rasterBand->GetColorInterpretation() == GCI_BlueBand) ||
-             (rasterBand->GetColorInterpretation() == GCI_YCbCr_CrBand))
+    else if ((rasterBand->GetColorInterpretation() == GCI_BlueBand ||
+              rasterBand->GetColorInterpretation() == GCI_YCbCr_CrBand) && blueIndex == 0)
     {
       blueBand = rasterBand;
+      blueIndex = i;
     }
-    else if (rasterBand->GetColorInterpretation() == GCI_AlphaBand)
+    else if (rasterBand->GetColorInterpretation() == GCI_AlphaBand && alphaIndex == 0)
     {
       alphaBand = rasterBand;
+      alphaIndex = i;
     }
-    else if (rasterBand->GetColorInterpretation() == GCI_GrayIndex ||
-             rasterBand->GetColorInterpretation() == GCI_Undefined)
+    else if (rasterBand->GetColorInterpretation() == GCI_GrayIndex && grayIndex == 0)
     {
-      greyBand = rasterBand;
+      grayBand = rasterBand;
+      grayIndex = i;
     }
-    else if (rasterBand->GetColorInterpretation() == GCI_PaletteIndex)
+    else if (rasterBand->GetColorInterpretation() == GCI_PaletteIndex && paletteIndex == 0)
     {
       paletteBand = rasterBand;
+      paletteIndex = i;
+    }
+    else
+    {
+      // GCI_Undefined or duplicates for colors or gray
     }
   }
 
@@ -360,11 +368,24 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
   const int bandSpace = destWidth * destHeight * this->NumberOfBytesPerPixel;
   CPLErr err;
 
+  std::vector<int> groupIndex;
   // TODO: Support other band types
   if (redBand && greenBand && blueBand)
   {
+    otherBands[redIndex - 1] = nullptr;
+    otherIndex[redIndex - 1] = 0;
+    groupIndex.push_back(redIndex);
+    otherBands[greenIndex - 1] = nullptr;
+    otherIndex[greenIndex - 1] = 0;
+    groupIndex.push_back(greenIndex);
+    otherBands[blueIndex - 1] = nullptr;
+    otherIndex[blueIndex - 1] = 0;
+    groupIndex.push_back(blueIndex);
     if (alphaBand)
     {
+      otherBands[alphaIndex - 1] = nullptr;
+      otherIndex[alphaIndex - 1] = 0;
+      groupIndex.push_back(alphaIndex);
       this->Reader->SetNumberOfScalarComponents(4);
       rawUniformGridData.resize(4 * destWidth * destHeight * pixelSpace);
 
@@ -416,15 +437,21 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
       assert(err == CE_None);
     }
   }
-  else if (greyBand)
+  else if (grayBand)
   {
+    otherBands[grayIndex - 1] = nullptr;
+    otherIndex[grayIndex - 1] = 0;
+    groupIndex.push_back(grayIndex);
     if (alphaBand)
     {
+      otherBands[alphaIndex - 1] = nullptr;
+      otherIndex[alphaIndex - 1] = 0;
+      groupIndex.push_back(alphaIndex);
       // Luminance alpha
       this->Reader->SetNumberOfScalarComponents(2);
       rawUniformGridData.resize(2 * destWidth * destHeight * pixelSpace);
 
-      err = greyBand->RasterIO(
+      err = grayBand->RasterIO(
               GF_Read, windowX, windowY,  windowWidth, windowHeight,
               static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
               0 * bandSpace), destWidth, destHeight,
@@ -442,7 +469,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
       // Luminance
       this->Reader->SetNumberOfScalarComponents(1);
       rawUniformGridData.resize(destWidth * destHeight * pixelSpace);
-      err = greyBand->RasterIO(
+      err = grayBand->RasterIO(
               GF_Read, windowX, windowY,  windowWidth, windowHeight,
               static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
               0 * bandSpace), destWidth, destHeight,
@@ -452,6 +479,9 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
   }
   else if (paletteBand)
   {
+    otherBands[paletteIndex - 1] = nullptr;
+    otherIndex[paletteIndex - 1] = 0;
+    groupIndex.push_back(paletteIndex);
     // Read indexes
     this->Reader->SetNumberOfScalarComponents(1);
     rawUniformGridData.resize(destWidth * destHeight * pixelSpace);
@@ -464,11 +494,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
 
     this->ReadColorTable(paletteBand, colorTable);
   }
-  else
-  {
-    std::cerr << "Unknown raster band type \n";
-    return;
-  }
+
   (void)err; //unused
 
   const double* d = GetGeoCornerPoints();
@@ -482,7 +508,27 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
   this->UniformGridData->SetSpacing(std::abs(geoSpacing[0]), std::abs(geoSpacing[1]), geoSpacing[2]);
   this->UniformGridData->SetOrigin(std::min(d[0], d[4]), std::min(d[1], d[5]), 0);
   this->Convert<VTK_TYPE, RAW_TYPE>(rawUniformGridData, destWidth, destHeight,
-                                    geoSpacing[0] < 0, geoSpacing[1] < 0);
+                                    groupIndex, "Elevation", geoSpacing[0] < 0, geoSpacing[1] < 0);
+  this->UniformGridData->GetCellData()->SetActiveScalars("Elevation");
+  groupIndex.resize(1, 0);
+  rawUniformGridData.resize(destWidth * destHeight * pixelSpace);
+  for (size_t i = 0; i < otherBands.size(); ++i)
+  {
+    if (otherBands[i] != nullptr)
+    {
+      groupIndex[0] = otherIndex[i];
+      err = otherBands[i]->RasterIO(
+        GF_Read, windowX, windowY,  windowWidth, windowHeight,
+        static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
+                           0 * bandSpace), destWidth, destHeight,
+                           this->TargetDataType, pixelSpace, lineSpace);
+      assert(err == CE_None);
+      this->Convert<VTK_TYPE, RAW_TYPE>(
+        rawUniformGridData, destWidth, destHeight,
+        groupIndex, (std::string("band_") + std::to_string(otherIndex[i])).c_str(),
+        geoSpacing[0] < 0, geoSpacing[1] < 0);
+    }
+  }
 
   if (paletteBand)
   {
@@ -502,7 +548,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReleaseData()
 template <typename VTK_TYPE, typename RAW_TYPE>
 void vtkGDALRasterReader::vtkGDALRasterReaderInternal::Convert(
   std::vector<RAW_TYPE>& rawUniformGridData, int targetWidth,
-  int targetHeight, bool flipX, bool flipY)
+  int targetHeight, const std::vector<int>& groupIndex, const char* name, bool flipX, bool flipY)
 {
   if (!this->UniformGridData)
   {
@@ -514,15 +560,9 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::Convert(
   double min = rawUniformGridData[0], max = rawUniformGridData[0];
 
   vtkSmartPointer<VTK_TYPE> scArr(vtkSmartPointer<VTK_TYPE>::New());
-  scArr->SetName("Elevation");
-  scArr->SetNumberOfComponents(this->NumberOfBands);
+  scArr->SetName(name);
+  scArr->SetNumberOfComponents(groupIndex.size());
   scArr->SetNumberOfTuples(targetWidth * targetHeight);
-
-  RAW_TYPE TNoDataValue = 0;
-  if (this->HasNoDataValue)
-  {
-    TNoDataValue = static_cast<RAW_TYPE>(this->NoDataValue);
-  }
 
   for (int j = 0; j < targetHeight; ++j)
   {
@@ -531,15 +571,22 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::Convert(
     {
       int iIndex = flipX ? (targetWidth - 1 - i) : i;
       // Each band GDALData is stored in width * height size array.
-      for (int bandIndex = 0; bandIndex < this->NumberOfBands; ++bandIndex)
+      for (int bi = 0; bi < groupIndex.size(); ++bi)
       {
-        targetIndex = i * this->NumberOfBands +
-                      j * targetWidth * this->NumberOfBands + bandIndex;
+        int bandIndex = groupIndex[bi];
+        RAW_TYPE TNoDataValue = 0;
+        if (this->HasNoDataValue[bandIndex - 1])
+        {
+          TNoDataValue = static_cast<RAW_TYPE>(this->NoDataValue[bandIndex - 1]);
+        }
+
+        targetIndex = i * groupIndex.size() +
+          j * targetWidth * groupIndex.size() + bi;
         sourceIndex = iIndex + jIndex * targetWidth +
-                      bandIndex * targetWidth * targetHeight;
+                      bi * targetWidth * targetHeight;
 
         RAW_TYPE tmp = rawUniformGridData[sourceIndex];
-        if (this->HasNoDataValue && tmp == TNoDataValue)
+        if (this->HasNoDataValue[bandIndex - 1] && tmp == TNoDataValue)
         {
           this->UniformGridData->BlankCell(targetIndex);
         }
@@ -554,7 +601,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::Convert(
       }
     }
   }
-  this->UniformGridData->GetCellData()->SetScalars(scArr);
+  this->UniformGridData->GetCellData()->AddArray(scArr);
 }
 
 //-----------------------------------------------------------------------------
@@ -1057,7 +1104,7 @@ int vtkGDALRasterReader::FillOutputPortInformation(int port, vtkInformation* inf
 }
 
 //-----------------------------------------------------------------------------
-double vtkGDALRasterReader::GetInvalidValue()
+double vtkGDALRasterReader::GetInvalidValue(int bandIndex)
 {
-  return Implementation->NoDataValue;
+  return Implementation->NoDataValue[bandIndex - 1];
 }

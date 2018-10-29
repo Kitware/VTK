@@ -85,7 +85,7 @@ public:
   /**
    * Return the invalid value for a pixel (for blanking purposes)
    */
-  double GetInvalidValue();
+  double GetInvalidValue(int bandIndex = 0);
 
   /**
    * Return domain metadata
