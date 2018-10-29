@@ -37,13 +37,12 @@ vtkStandardNewMacro(vtkPLYReader);
 vtkPLYReader::vtkPLYReader()
 {
   this->Comments = vtkStringArray::New();
-
-  this->SetNumberOfInputPorts(0);
 }
 
 vtkPLYReader::~vtkPLYReader()
 {
   this->Comments->Delete();
+  this->Comments = nullptr;
 }
 
 namespace { //required so we don't violate ODR

@@ -32,7 +32,6 @@ vtkStandardNewMacro(vtkOBJReader);
 //----------------------------------------------------------------------------
 vtkOBJReader::vtkOBJReader()
 {
-  this->SetNumberOfInputPorts(0);
   this->Comment = nullptr;
 }
 

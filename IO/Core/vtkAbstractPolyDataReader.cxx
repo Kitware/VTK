@@ -20,6 +20,7 @@ vtkAbstractPolyDataReader::vtkAbstractPolyDataReader()
   : vtkPolyDataAlgorithm()
 {
   this->FileName = nullptr;
+  this->SetNumberOfInputPorts(0);
 }
 
 vtkAbstractPolyDataReader::~vtkAbstractPolyDataReader()
