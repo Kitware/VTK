@@ -1,0 +1,212 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkOpenGLAvatar.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+#include "vtkOpenGLAvatar.h"
+
+#include "vtkCamera.h"
+#include "vtkCommand.h"
+#include "vtkObjectFactory.h"
+#include "vtkOpenGLActor.h"
+#include "vtkOpenGLPolyDataMapper.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLState.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkProperty.h"
+#include "vtkOpenGLError.h"
+#include "vtkRenderWindow.h"
+#include "vtkShaderProgram.h"
+#include "vtkTexture.h"
+#include "vtkXMLPolyDataReader.h"
+
+#include <cmath>
+
+vtkStandardNewMacro(vtkOpenGLAvatar);
+
+
+vtkOpenGLAvatar::vtkOpenGLAvatar()
+{
+  vtkNew<vtkXMLPolyDataReader> reader;
+  // vtkNew<vtkPolyData> poly;
+  reader->SetFileName("sphere_vr_head.vtp");
+  reader->Update();
+  // poly = reader->GetOutput();
+
+  // this->PolyMapper->SetInputConnection(this->Cube->GetOutputPort(0));
+  this->PolyMapper->SetInputData(reader->GetOutput());
+  this->SetMapper(this->PolyMapper);
+  this->OpenGLActor->SetMapper(this->PolyMapper);
+
+
+  /*
+  this->PolyMapper->AddShaderReplacement(
+    vtkShader::Vertex,
+    "//VTK::PositionVC::Dec", // replace
+    true, // before the standard replacements
+    "//VTK::PositionVC::Dec\n" // we still want the default
+    "out vec3 TexCoords;\n",
+    false // only do it once
+    );
+  this->PolyMapper->AddShaderReplacement(
+    vtkShader::Vertex,
+    "//VTK::PositionVC::Impl", // replace
+    true, // before the standard replacements
+    "  gl_Position = vec4(vertexMC.xy, 1.0, 1.0);\n"
+    "  vec4 tmpc = inverse(MCDCMatrix) * gl_Position;\n"
+    "  TexCoords = tmpc.xyz/tmpc.w;\n",
+    false // only do it once
+    );
+
+  this->PolyMapper->AddObserver(vtkCommand::UpdateShaderEvent, this,
+    &vtkOpenGLAvatar::UpdateUniforms);
+  */
+  this->LastProjection = -1;
+
+  this->GetProperty()->SetDiffuse(0.7);
+  this->GetProperty()->SetAmbient(0.3);
+  this->GetProperty()->SetSpecular(0.0);
+  this->OpenGLActor->SetProperty(this->GetProperty());
+}
+
+vtkOpenGLAvatar::~vtkOpenGLAvatar() = default;
+
+void vtkOpenGLAvatar::UpdateUniforms(vtkObject *, unsigned long, void * /*calldata*/)
+{
+  /*
+  vtkShaderProgram *program = reinterpret_cast<vtkShaderProgram*>(calldata);
+
+  program->SetUniform3f("cameraPos", this->LastCameraPosition);
+  float plane[4];
+  double norm = vtkMath::Norm(this->FloorPlane, 3);
+  plane[0] = this->FloorPlane[0]/norm;
+  plane[1] = this->FloorPlane[1]/norm;
+  plane[2] = this->FloorPlane[2]/norm;
+  plane[3] = this->FloorPlane[3]/norm;
+  program->SetUniform4f("floorPlane", plane);
+  program->SetUniform3f("floorRight", this->FloorRight);
+  float front[3];
+  vtkMath::Cross(plane, this->FloorRight, front);
+  program->SetUniform3f("floorFront", front);
+  */
+}
+
+// Actual Avatar render method.
+void vtkOpenGLAvatar::Render(vtkRenderer *ren, vtkMapper *mapper)
+{
+  vtkOpenGLClearErrorMacro();
+
+  /*
+  if (this->LastProjection != this->Projection)
+  {
+    if (this->Projection == vtkAvatar::Cube)
+    {
+      // Replace VTK fragment shader
+      this->PolyMapper->SetFragmentShaderCode(
+        "//VTK::System::Dec\n"  // always start with this line
+        "//VTK::Output::Dec\n"  // always have this line in your FS
+        "in vec3 TexCoords;\n"
+        "uniform vec3 cameraPos;\n" // wc camera position
+        "uniform samplerCube actortexture;\n"
+        "void main () {\n"
+        "  gl_FragData[0] = texture(actortexture, normalize(TexCoords - cameraPos));\n"
+        "}\n"
+        );
+    }
+    if (this->Projection == vtkAvatar::Sphere)
+    {
+      // Replace VTK fragment shader
+      this->PolyMapper->SetFragmentShaderCode(
+        "//VTK::System::Dec\n"  // always start with this line
+        "//VTK::Output::Dec\n"  // always have this line in your FS
+        "in vec3 TexCoords;\n"
+        "uniform vec3 cameraPos;\n" // wc camera position
+        "uniform sampler2D actortexture;\n"
+        "uniform vec4 floorPlane;\n" // floor plane eqn
+        "uniform vec3 floorRight;\n" // floor plane right
+        "uniform vec3 floorFront;\n" // floor plane front
+        "void main () {\n"
+        "  vec3 diri = normalize(TexCoords - cameraPos);\n"
+        "  vec3 dirv = vec3(dot(diri,floorRight),\n"
+        "    dot(diri,floorPlane.xyz),\n"
+        "    -dot(diri,floorFront));\n"
+        "  float phix = length(vec2(dirv.x, dirv.z));\n"
+        "  gl_FragData[0] = texture(actortexture, vec2(0.5*atan(dirv.z, dirv.x)/3.1415927 + 0.5, atan(dirv.y,phix)/3.1415927 + 0.5));\n"
+        "}\n"
+        );
+    }
+    if (this->Projection == vtkAvatar::Floor)
+    {
+      // Replace VTK fragment shader
+      this->PolyMapper->SetFragmentShaderCode(
+        "//VTK::System::Dec\n"  // always start with this line
+        "//VTK::Output::Dec\n"  // always have this line in your FS
+        "in vec3 TexCoords;\n"
+        "uniform vec3 cameraPos;\n" // wc camera position
+        "uniform vec4 floorPlane;\n" // floor plane eqn
+        "uniform vec3 floorRight;\n" // floor plane right
+        "uniform vec3 floorFront;\n" // floor plane front
+        "uniform mat4 MCDCMatrix;\n"
+        "uniform sampler2D actortexture;\n"
+        "void main () {\n"
+        "  vec3 dirv = normalize(TexCoords - cameraPos);\n"
+        "  float den = dot(floorPlane.xyz, dirv);\n"
+        "  if (abs(den) < 0.0001 ) { discard; } else {\n"
+        "    vec3 p0 = -1.0*floorPlane.w*floorPlane.xyz;\n"
+        "    vec3 p0l0 = p0 - cameraPos;\n"
+        "    float t = dot(p0l0, floorPlane.xyz) / den;\n"
+        "    if (t >= 0.0) {\n"
+        "      vec3 pos = dirv*t - p0l0;\n"
+        "      gl_FragData[0] = texture(actortexture, vec2(dot(floorRight,pos), dot(floorFront, pos)));\n"
+        // The discards cause a discontinuity with mipmapping
+        // on the horizon of the floor. So we fade out the floor
+        // along the horizon. Specifically starting at when the
+        // dot product equals .02 which is at 88.85 degrees and
+        // going to zero at 90 degrees.
+        "      gl_FragData[0].a *= (50.0*min(0.02, abs(den)));\n"
+        "      vec4 tpos = MCDCMatrix*vec4(pos.xyz,1.0);\n"
+        "      gl_FragDepth = clamp(0.5 + 0.5*tpos.z/tpos.w,0.0,1.0);\n"
+        "    } else { discard; }\n"
+        "  }\n"
+        "}\n"
+        );
+    }
+    this->PolyMapper->Modified();
+    this->LastProjection = this->Projection;
+  }
+  */
+  this->OpenGLActor->SetPosition(this->HeadPosition);
+  this->OpenGLActor->SetOrientation(this->HeadOrientation);
+
+  double *pos = ren->GetActiveCamera()->GetPosition();
+  this->LastCameraPosition[0] = pos[0];
+  this->LastCameraPosition[1] = pos[1];
+  this->LastCameraPosition[2] = pos[2];
+
+  // get opacity
+  static_cast<vtkOpenGLRenderer*>(ren)->GetState()->vtkglDepthMask(GL_TRUE);
+
+  // send a render to the mapper; update pipeline
+  // this->Texture->Render(ren);
+  // this->OpenGLActor->SetTexture(this->GetTexture());
+  mapper->Render(ren, this->OpenGLActor);
+  // this->Texture->PostRender(ren);
+
+  vtkOpenGLCheckErrorMacro("failed after Render");
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLAvatar::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

@@ -28,6 +28,7 @@ set(Module_SRCS
   vtkLightsPass.cxx
   vtkOpaquePass.cxx
   vtkOpenGLActor.cxx
+  vtkOpenGLAvatar.cxx
   vtkOpenGLBillboardTextActor3D.cxx
   vtkOpenGLBufferObject.cxx
   vtkOpenGLCamera.cxx
@@ -159,6 +160,7 @@ endif()
 # setup factory overrides
 set(opengl_overrides
   Actor
+  Avatar
   BillboardTextActor3D
   Camera
   LabeledContourMapper
