@@ -81,12 +81,16 @@ vtkTextMapper::vtkTextMapper()
 
 //----------------------------------------------------------------------------
 // Shallow copy of an actor.
-void vtkTextMapper::ShallowCopy(vtkTextMapper *tm)
+void vtkTextMapper::ShallowCopy(vtkAbstractMapper* m)
 {
-  this->SetInput(tm->GetInput());
-  this->SetTextProperty(tm->GetTextProperty());
+  auto tm = vtkTextMapper::SafeDownCast( m );
+  if ( tm != nullptr ) {
+    this->SetInput(tm->GetInput());
+    this->SetTextProperty(tm->GetTextProperty());
+  }
 
-  this->SetClippingPlanes(tm->GetClippingPlanes());
+  // Now do superclass
+  this->vtkMapper2D::ShallowCopy( m );
 }
 
 //----------------------------------------------------------------------------

@@ -84,7 +84,7 @@ public:
   /**
    * Shallow copy of an actor.
    */
-  void ShallowCopy(vtkTextMapper *tm);
+  void ShallowCopy(vtkAbstractMapper *m) override;
 
   //@{
   /**

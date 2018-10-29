@@ -102,7 +102,7 @@ public:
   /**
    * Make a shallow copy of this mapper.
    */
-  void ShallowCopy(vtkAbstractMapper *m);
+  virtual void ShallowCopy(vtkAbstractMapper *m);
 
   /**
    * Internal helper function for getting the active scalars. The scalar
