@@ -41,6 +41,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestResampleWithDataSet.cxx,
   TestResampleWithDataSet2.cxx
   TestResampleWithDataSet3.cxx
+  TestRemoveDuplicatePolys.cxx,NO_VALID
   TestSmoothPolyDataFilter.cxx,NO_VALID
   TestSMPPipelineContour.cxx,NO_VALID
   TestStripper.cxx,NO_VALID
