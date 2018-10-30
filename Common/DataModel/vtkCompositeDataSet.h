@@ -113,9 +113,16 @@ public:
   /**
    * Returns the total number of points of all blocks. This will
    * iterate over all blocks and call GetNumberOfPoints() so it
-   * might be expansive.
+   * might be expensive.
    */
   virtual vtkIdType GetNumberOfPoints();
+
+  /**
+   * Returns the total number of cells of all blocks. This will
+   * iterate over all blocks and call GetNumberOfPoints() so it
+   * might be expensive.
+   */
+  virtual vtkIdType GetNumberOfCells();
 
   /**
    * Key used to put node name in the meta-data associated with a node.
@@ -142,5 +149,3 @@ public:
 };
 
 #endif
-
-

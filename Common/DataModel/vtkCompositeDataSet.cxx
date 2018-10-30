@@ -106,6 +106,23 @@ vtkIdType vtkCompositeDataSet::GetNumberOfPoints()
 }
 
 //----------------------------------------------------------------------------
+vtkIdType vtkCompositeDataSet::GetNumberOfCells()
+{
+  vtkIdType numCells = 0;
+  vtkCompositeDataIterator* iter = this->NewIterator();
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+  {
+    vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+    if (ds)
+    {
+      numCells += ds->GetNumberOfCells();
+    }
+  }
+  iter->Delete();
+  return numCells;
+}
+
+//----------------------------------------------------------------------------
 void vtkCompositeDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
