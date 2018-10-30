@@ -196,6 +196,7 @@ bool tokenGetTexture(size_t &t, std::vector<Token> &tokens,
 {
   // parse the next tokens looking for
   // texture options must all be on one line
+  current_mtl->texture_filename = "";
   for (size_t tt = t+1; tt < tokens.size(); ++tt)
   {
     if (tokens[tt].Type == Token::Space)

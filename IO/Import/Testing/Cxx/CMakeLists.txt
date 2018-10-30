@@ -1,11 +1,3 @@
-
-vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestVRMLImporter.cxx,NO_VALID
-  TestVRMLNormals.cxx
-  )
-
-list(APPEND tests TestOBJImporter.cxx)
-
 ExternalData_add_test(VTKData
   NAME vtkIOImportCxx-OBJImport-SolidAndTextured
   COMMAND vtkIOImportCxxTests TestOBJImporter
@@ -16,15 +8,9 @@ ExternalData_add_test(VTKData
     -T "${VTK_TEST_OUTPUT_DIR}"
   )
 
-vtk_test_cxx_executable(vtkIOImportCxxTests tests)
-
 include(vtkOpenGL)
 
 vtk_module_test_executable(vtkimportobj OBJImporter.cxx)
-#  add_executable(vtkimportobj MACOSX_BUNDLE OBJImporter.cxx)
-#  target_link_libraries(vtkimportobj LINK_PRIVATE
-#      vtkIOXML vtkIOImport vtkRenderingOpenGL2)
-vtk_opengl_link(vtkimportobj)
 
 ExternalData_add_test(VTKData
   NAME vtkIOImportCxx-OBJImport-MixedOrder1
@@ -49,3 +35,19 @@ ExternalData_add_test(VTKData
     DATA{../Data/Input/boxes_4_mtl_no_texture.obj}
     DATA{../Data/Input/boxes_4_mtl_no_texture.obj.mtl}
   )
+
+# This is an alternative  way to add a named test that uses a common executable
+# Use this if it does not require MPI
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestOBJImporter-DuplicateMaps,TestOBJImporter.cxx
+    DATA{../Data/Input/TestOBJImporter.obj}
+    DATA{../Data/Input/TestOBJImporter.mtl}
+    DATA{../Data/Input/TestOBJImporter.png}
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestVRMLImporter.cxx,NO_VALID
+  TestVRMLNormals.cxx
+  )
+
+vtk_test_cxx_executable(vtkIOImportCxxTests tests)
