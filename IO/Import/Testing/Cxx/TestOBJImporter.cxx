@@ -1,19 +1,26 @@
+/*=========================================================================
 
-#include "vtkVRMLImporter.h"
+  Program:   Visualization Toolkit
+  Module:    TestOBJImporter.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+#include "vtkNew.h"
+#include "vtkOBJImporter.h"
+
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkOBJImporter.h"
-#include "vtkTestUtilities.h"
-#include "vtkNew.h"
-#include "vtkJPEGWriter.h"
-#include "vtkPNGWriter.h"
-#include "vtkImageCanvasSource2D.h"
-#include "vtkImageCast.h"
 #include "vtkCamera.h"
 
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 #include "vtksys/SystemTools.hxx"
 
 #include <sstream>
@@ -28,8 +35,8 @@ int TestOBJImporter( int argc, char * argv [] )
   //       polydata + textures + actor properties all get loaded.
   if(argc < 2)
   {
-    std::cerr<<"expected TestName File1.obj [File2.obj.mtl]  [texture1]  ... "<<std::endl;
-    return -1;
+    std::cout <<"expected TestName File1.obj [File2.obj.mtl]  [texture1]  ... "<<std::endl;
+    return EXIT_FAILURE;
   }
 
   std::string filenameOBJ(argv[1]);
@@ -48,12 +55,6 @@ int TestOBJImporter( int argc, char * argv [] )
   std::string texture_path1 = vtksys::SystemTools::GetFilenamePath(texfile1);
 
   vtkNew<vtkOBJImporter> importer;
-
-  if(argc > 4)
-  {
-    importer->DebugOn();
-  }
-
   importer->SetFileName(filenameOBJ.data());
   importer->SetFileNameMTL(filenameMTL.data());
   importer->SetTexturePath(texture_path1.data());
@@ -71,23 +72,14 @@ int TestOBJImporter( int argc, char * argv [] )
 
   if( 1 > ren->GetActors()->GetNumberOfItems() )
   {
-    std::cerr << "failed to get an actor created?!" << std::endl;
-    return -1;
+    std::cout << "failed to get an actor created?!" << std::endl;
+    return EXIT_FAILURE;
   }
 
   ren->GetActiveCamera()->SetPosition(10,10,-10);
   ren->ResetCamera();
-  int retVal = vtkRegressionTestImage(renWin);
-  if( retVal == vtkRegressionTester::DO_INTERACTOR )
-  {
-    renWin->SetSize(800,600);
-    iren->Start();
-  }
+  renWin->SetSize(800,600);
+  iren->Start();
 
-  // Some tests do not produce images... allow them to pass.
-  // But if we had an image, it must be within the threshold:
-  return (
-    retVal == vtkRegressionTester::PASSED ||
-    retVal == vtkRegressionTester::NOT_RUN) ?
-    0 : 1;
+  return (EXIT_SUCCESS);
 }
