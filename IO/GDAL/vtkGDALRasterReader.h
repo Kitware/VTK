@@ -16,10 +16,10 @@
  * @class   vtkGDALRasterReader
  * @brief   Read raster file formats using GDAL.
  *
- * vtkGDALRasterReader is a source object that reads raster files and uses
- * GDAL as the underlying library for the task. GDAL is required for this
- * reader. The output of the reader is a vtkUniformGrid (vtkImageData
- * with blanking) with cell data.
+ * vtkGDALRasterReader is a source object that reads raster files and
+ * uses GDAL as the underlying library for the task. GDAL library is
+ * required for this reader. The output of the reader is a
+ * vtkUniformGrid (vtkImageData with blanking) with cell data.
  *
  *
  * @sa
@@ -83,7 +83,9 @@ public:
   const std::vector<std::string>& GetMetaData();
 
   /**
-   * Return the invalid value for a pixel (for blanking purposes)
+   * Return the invalid value for a pixel (for blanking purposes) in
+   * a specified raster band. Note bandIndex is a 0 based index while
+   * GDAL bands are 1 based indexes.
    */
   double GetInvalidValue(int bandIndex = 0);
 
@@ -104,6 +106,20 @@ public:
    * Return the number of cells that are not set to GDAL NODATA
    */
   vtkIdType GetNumberOfCells();
+
+  //@{
+  /**
+   * The following methods allow selective reading of bands.
+   * By default, ALL bands are read.
+   */
+  int GetNumberOfCellArrays();
+  const char* GetCellArrayName(int index);
+  int GetCellArrayStatus(const char* name);
+  void SetCellArrayStatus(const char* name, int status);
+  void DisableAllCellArrays();
+  void EnableAllCellArrays();
+  //@}
+
 
 protected:
 
@@ -129,7 +145,7 @@ protected:
   std::vector<std::string> MetaData;
 
   class vtkGDALRasterReaderInternal;
-  vtkGDALRasterReaderInternal* Implementation;
+  vtkGDALRasterReaderInternal* Impl;
 
 private:
   vtkGDALRasterReader(const vtkGDALRasterReader&) = delete;

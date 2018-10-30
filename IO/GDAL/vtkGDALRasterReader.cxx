@@ -18,6 +18,8 @@
 // VTK includes
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCallbackCommand.h"
+#include "vtkDataArraySelection.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkGDAL.h"
@@ -44,6 +46,7 @@
 
 // C/C++ includes
 #include <cassert>
+#include <cmath>
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -91,7 +94,18 @@ public:
   void ReadColorTable(
     GDALRasterBand *rasterBand, vtkLookupTable *colorTable) const;
 
+  static void SelectionCallback(
+    vtkObject* obj, unsigned long eventid, void* clientdata, void* calldata);
+
+  std::string GetBandName(int bandIndex)
+  {
+    std::ostringstream ostr;
+    ostr << "Band " << setfill('0') << setw(this->NumberOfDigitsForBands) << bandIndex;
+    return ostr.str();
+  }
+
   int NumberOfBands;
+  int NumberOfDigitsForBands;
   int NumberOfBytesPerPixel;
 
   int SourceOffset[2];
@@ -111,6 +125,8 @@ public:
   std::vector<int> HasNoDataValue;
   std::vector<double> NoDataValue;
   vtkIdType NumberOfCells;
+  vtkDataArraySelection* CellArraySelection;
+  vtkCallbackCommand* SelectionObserver;
 
   vtkSmartPointer<vtkUniformGrid> UniformGridData;
   vtkGDALRasterReader* Reader;
@@ -120,12 +136,12 @@ public:
 vtkGDALRasterReader::vtkGDALRasterReaderInternal::vtkGDALRasterReaderInternal(
   vtkGDALRasterReader* reader) :
   NumberOfBands(0),
+  NumberOfDigitsForBands(0),
   NumberOfBytesPerPixel(0),
-  GDALData(0),
+  GDALData(nullptr),
   TargetDataType(GDT_Byte),
   BadCornerPoint(-1),
   NumberOfCells(0),
-  UniformGridData(0),
   Reader(reader)
 {
   this->SourceOffset[0] = 0;
@@ -138,6 +154,15 @@ vtkGDALRasterReader::vtkGDALRasterReaderInternal::vtkGDALRasterReaderInternal(
     this->CornerPoints[i] = this->BadCornerPoint;
   }
 
+  this->CellArraySelection = vtkDataArraySelection::New();
+  this->SelectionObserver = vtkCallbackCommand::New();
+  this->SelectionObserver->SetCallback(
+    &vtkGDALRasterReader::vtkGDALRasterReaderInternal::SelectionCallback);
+  this->SelectionObserver->SetClientData(this);
+  this->CellArraySelection->AddObserver(vtkCommand::ModifiedEvent,
+      this->SelectionObserver);
+
+
   // Enable all the drivers.
   GDALAllRegister();
 }
@@ -146,6 +171,10 @@ vtkGDALRasterReader::vtkGDALRasterReaderInternal::vtkGDALRasterReaderInternal(
 vtkGDALRasterReader::vtkGDALRasterReaderInternal::~vtkGDALRasterReaderInternal()
 {
   this->ReleaseData();
+  this->CellArraySelection->Delete();
+  this->CellArraySelection = nullptr;
+  this->SelectionObserver->Delete();
+  this->SelectionObserver = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -172,8 +201,14 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReadMetaData(
   {
     this->PrevReadFileName = fileName;
     this->NumberOfBands = this->GDALData->GetRasterCount();
+    this->NumberOfDigitsForBands = ceil(log10(this->NumberOfBands + 1));
     this->HasNoDataValue.resize(this->NumberOfBands, 0);
     this->NoDataValue.resize(this->NumberOfBands, 0);
+    for (int i = 0; i < this->NumberOfBands; ++i)
+    {
+      this->CellArraySelection->EnableArray(
+        this->GetBandName(i+1).c_str());
+    }
 
     // Clear last read metadata
     this->Reader->MetaData.clear();
@@ -303,18 +338,21 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
   int grayIndex = 0;
   GDALRasterBand* paletteBand = nullptr;
   int paletteIndex = 0;
-  std::vector<GDALRasterBand*> otherBands;
-  std::vector<int> otherIndex;
-  std::vector<std::vector<RAW_TYPE>> otherBandsData;
+  std::vector<GDALRasterBand*> allBands(this->NumberOfBands, nullptr);
 
+  int enabledBands = 0;
   for (int i = 1; i <= this->NumberOfBands; ++i)
   {
     GDALRasterBand* rasterBand = this->GDALData->GetRasterBand(i);
     this->HasNoDataValue[i - 1] = 0;
     this->NoDataValue[i - 1] = rasterBand->GetNoDataValue(&this->HasNoDataValue[i - 1]);
-    otherBands.push_back(rasterBand);
-    otherIndex.push_back(i);
-
+    if (! this->CellArraySelection->GetArraySetting(this->GetBandName(i).c_str()))
+    {
+      // not enabled
+      continue;
+    }
+    allBands[i - 1] = rasterBand;
+    ++enabledBands;
     if ((rasterBand->GetColorInterpretation() == GCI_RedBand ||
          rasterBand->GetColorInterpretation() == GCI_YCbCr_YBand) && redIndex == 0)
     {
@@ -369,22 +407,19 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
   CPLErr err;
 
   std::vector<int> groupIndex;
+  double completedBand = 0.0;
   // TODO: Support other band types
   if (redBand && greenBand && blueBand)
   {
-    otherBands[redIndex - 1] = nullptr;
-    otherIndex[redIndex - 1] = 0;
+    allBands[redIndex - 1] = nullptr;
     groupIndex.push_back(redIndex);
-    otherBands[greenIndex - 1] = nullptr;
-    otherIndex[greenIndex - 1] = 0;
+    allBands[greenIndex - 1] = nullptr;
     groupIndex.push_back(greenIndex);
-    otherBands[blueIndex - 1] = nullptr;
-    otherIndex[blueIndex - 1] = 0;
+    allBands[blueIndex - 1] = nullptr;
     groupIndex.push_back(blueIndex);
     if (alphaBand)
     {
-      otherBands[alphaIndex - 1] = nullptr;
-      otherIndex[alphaIndex - 1] = 0;
+      allBands[alphaIndex - 1] = nullptr;
       groupIndex.push_back(alphaIndex);
       this->Reader->SetNumberOfScalarComponents(4);
       rawUniformGridData.resize(4 * destWidth * destHeight * pixelSpace);
@@ -413,6 +448,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
               3 * bandSpace), destWidth, destHeight,
               this->TargetDataType, pixelSpace, lineSpace);
       assert(err == CE_None);
+      completedBand = 4.0;
     }
     else
     {
@@ -435,17 +471,16 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
               2 * bandSpace), destWidth, destHeight,
               this->TargetDataType, 0,0);
       assert(err == CE_None);
+      completedBand = 3.0;
     }
   }
   else if (grayBand)
   {
-    otherBands[grayIndex - 1] = nullptr;
-    otherIndex[grayIndex - 1] = 0;
+    allBands[grayIndex - 1] = nullptr;
     groupIndex.push_back(grayIndex);
     if (alphaBand)
     {
-      otherBands[alphaIndex - 1] = nullptr;
-      otherIndex[alphaIndex - 1] = 0;
+      allBands[alphaIndex - 1] = nullptr;
       groupIndex.push_back(alphaIndex);
       // Luminance alpha
       this->Reader->SetNumberOfScalarComponents(2);
@@ -463,6 +498,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
                1 * bandSpace), destWidth, destHeight,
                this->TargetDataType, pixelSpace, lineSpace);
       assert(err == CE_None);
+      completedBand = 2.0;
     }
     else
     {
@@ -475,12 +511,12 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
               0 * bandSpace), destWidth, destHeight,
               this->TargetDataType, pixelSpace, lineSpace);
       assert(err == CE_None);
+      completedBand = 1.0;
     }
   }
   else if (paletteBand)
   {
-    otherBands[paletteIndex - 1] = nullptr;
-    otherIndex[paletteIndex - 1] = 0;
+    allBands[paletteIndex - 1] = nullptr;
     groupIndex.push_back(paletteIndex);
     // Read indexes
     this->Reader->SetNumberOfScalarComponents(1);
@@ -493,7 +529,9 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
     assert(err == CE_None);
 
     this->ReadColorTable(paletteBand, colorTable);
+    completedBand = 1.0;
   }
+  this->Reader->UpdateProgress(completedBand / enabledBands);
 
   (void)err; //unused
 
@@ -512,12 +550,13 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
   this->UniformGridData->GetCellData()->SetActiveScalars("Elevation");
   groupIndex.resize(1, 0);
   rawUniformGridData.resize(destWidth * destHeight * pixelSpace);
-  for (size_t i = 0; i < otherBands.size(); ++i)
+  for (size_t i = 0; i < allBands.size(); ++i)
   {
-    if (otherBands[i] != nullptr)
+    // bands already used are set to nullptr
+    if (allBands[i])
     {
-      groupIndex[0] = otherIndex[i];
-      err = otherBands[i]->RasterIO(
+      groupIndex[0] = i;
+      err = allBands[i]->RasterIO(
         GF_Read, windowX, windowY,  windowWidth, windowHeight,
         static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
                            0 * bandSpace), destWidth, destHeight,
@@ -525,8 +564,10 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
       assert(err == CE_None);
       this->Convert<VTK_TYPE, RAW_TYPE>(
         rawUniformGridData, destWidth, destHeight,
-        groupIndex, (std::string("band_") + std::to_string(otherIndex[i])).c_str(),
+        groupIndex, this->GetBandName(i+1).c_str(),
         geoSpacing[0] < 0, geoSpacing[1] < 0);
+      completedBand += 1;
+      this->Reader->UpdateProgress(completedBand / enabledBands);
     }
   }
 
@@ -542,6 +583,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
 void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReleaseData()
 {
   GDALClose(this->GDALData);
+  this->CellArraySelection->RemoveAllArrays();
 }
 
 //-----------------------------------------------------------------------------
@@ -742,6 +784,16 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReadColorTable(
   }
 }
 
+//----------------------------------------------------------------------------
+void vtkGDALRasterReader::vtkGDALRasterReaderInternal::SelectionCallback(
+  vtkObject* vtkNotUsed(obj),
+  unsigned long vtkNotUsed(eventid),
+  void* clientdata,
+  void* vtkNotUsed(calldata))
+{
+  static_cast<vtkGDALRasterReader::vtkGDALRasterReaderInternal*>(clientdata)->Reader->Modified();
+}
+
 //-----------------------------------------------------------------------------
 void vtkGDALRasterReader::PrintSelf(std::ostream& os, vtkIndent indent)
 {
@@ -774,11 +826,12 @@ void vtkGDALRasterReader::PrintSelf(std::ostream& os, vtkIndent indent)
   }
 }
 
+
 //-----------------------------------------------------------------------------
 vtkGDALRasterReader::vtkGDALRasterReader() : vtkImageReader2(),
-  Implementation(0)
+  Impl(0)
 {
-  this->Implementation = new vtkGDALRasterReaderInternal(this);
+  this->Impl = new vtkGDALRasterReaderInternal(this);
 
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
@@ -808,7 +861,7 @@ vtkGDALRasterReader::vtkGDALRasterReader() : vtkImageReader2(),
 //-----------------------------------------------------------------------------
 vtkGDALRasterReader::~vtkGDALRasterReader()
 {
-  delete this->Implementation;
+  delete this->Impl;
 
   if (this->FileName)
   {
@@ -835,7 +888,7 @@ const char* vtkGDALRasterReader::GetProjectionString() const
 //-----------------------------------------------------------------------------
 const double* vtkGDALRasterReader::GetGeoCornerPoints()
 {
-  return this->Implementation->GetGeoCornerPoints();
+  return this->Impl->GetGeoCornerPoints();
 }
 
 //-----------------------------------------------------------------------------
@@ -851,7 +904,7 @@ std::vector<std::string> vtkGDALRasterReader::GetDomainMetaData(
   std::vector<std::string> domainMetaData;
 
   char** papszMetadata =
-    GDALGetMetadata(this->Implementation->GDALData, domain.c_str());
+    GDALGetMetadata(this->Impl->GDALData, domain.c_str());
 
   if (CSLCount(papszMetadata) > 0)
   {
@@ -878,7 +931,7 @@ const std::string& vtkGDALRasterReader::GetDriverLongName()
 
 vtkIdType vtkGDALRasterReader::GetNumberOfCells()
 {
-  return this->Implementation->NumberOfCells;
+  return this->Impl->NumberOfCells;
 }
 
 #ifdef _MSC_VER
@@ -895,15 +948,15 @@ int vtkGDALRasterReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkWarningMacro( << "Invalid target dimensions")
   }
 
-  this->Implementation->ReadData(this->FileName);
-  if (!this->Implementation->GDALData)
+  this->Impl->ReadData(this->FileName);
+  if (!this->Impl->GDALData)
   {
     vtkErrorMacro("Failed to read "  << this->FileName);
     return 0;
   }
 
   // Get the projection.
-  char* proj = strdup(this->Implementation->GDALData->GetProjectionRef());
+  char* proj = strdup(this->Impl->GDALData->GetProjectionRef());
   OGRSpatialReference spRef(proj);
   free(proj);
 
@@ -919,7 +972,7 @@ int vtkGDALRasterReader::RequestData(vtkInformation* vtkNotUsed(request),
   projectionData->SetNumberOfComponents(1);
   projectionData->SetNumberOfTuples(1);
   projectionData->SetValue(0, this->Projection);
-  this->Implementation->UniformGridData->GetFieldData()->AddArray(
+  this->Impl->UniformGridData->GetFieldData()->AddArray(
     projectionData);
 
   // Add NoDataValue as field data
@@ -929,19 +982,17 @@ int vtkGDALRasterReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkSmartPointer<vtkDoubleArray>::New();
   noDataArray->SetName("NO_DATA_VALUE");
   noDataArray->SetNumberOfComponents(1);
-  noDataArray->SetNumberOfTuples(this->Implementation->NumberOfBands);
-  for (int i=0; i<this->Implementation->NumberOfBands; ++i)
+  noDataArray->SetNumberOfTuples(this->Impl->NumberOfBands);
+  for (int i=0; i<this->Impl->NumberOfBands; ++i)
   {
-    int success = 0;
-    double noDataValue = this->Implementation->GDALData->GetRasterBand(
-      i+1)->GetNoDataValue(&success);
-    if (!success)
+    double noDataValue = vtkMath::Nan();
+    if (this->Impl->HasNoDataValue[i])
     {
-      noDataValue = vtkMath::Nan();
+      noDataValue = this->Impl->NoDataValue[i];
     }
-     noDataArray->SetValue(i, noDataValue);
+    noDataArray->SetValue(i, noDataValue);
   }
-  this->Implementation->UniformGridData->GetFieldData()->AddArray(
+  this->Impl->UniformGridData->GetFieldData()->AddArray(
     noDataArray);
 
   // Check if file has been changed here.
@@ -958,7 +1009,7 @@ int vtkGDALRasterReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  vtkUniformGrid::SafeDownCast(dataObj)->ShallowCopy(this->Implementation->UniformGridData);
+  vtkUniformGrid::SafeDownCast(dataObj)->ShallowCopy(this->Impl->UniformGridData);
   return 1;
 }
 
@@ -981,8 +1032,8 @@ int vtkGDALRasterReader::RequestInformation(vtkInformation * vtkNotUsed(request)
     return 0;
   }
 
-  this->Implementation->ReadMetaData(this->FileName);
-  if (!this->Implementation->GDALData)
+  this->Impl->ReadMetaData(this->FileName);
+  if (!this->Impl->GDALData)
   {
     vtkErrorMacro("Failed to read "  << this->FileName);
     return 0;
@@ -1013,58 +1064,58 @@ int vtkGDALRasterReader::RequestInformation(vtkInformation * vtkNotUsed(request)
   }
 
   // GDAL top left is at 0,0
-  this->Implementation->SourceOffset[0] = this->DataExtent[0];
-  this->Implementation->SourceOffset[1] = this->RasterDimensions[1] -
+  this->Impl->SourceOffset[0] = this->DataExtent[0];
+  this->Impl->SourceOffset[1] = this->RasterDimensions[1] -
                                           (this->DataExtent[3] + 1);
 
-  this->Implementation->SourceDimensions[0] =
+  this->Impl->SourceDimensions[0] =
     this->DataExtent[1] - this->DataExtent[0] + 1;
-  this->Implementation->SourceDimensions[1] =
+  this->Impl->SourceDimensions[1] =
     this->DataExtent[3] - this->DataExtent[2] + 1;
 
   // Clamp pixel offset and image dimension
-  this->Implementation->SourceOffset[0] =
-    Min(this->RasterDimensions[0], this->Implementation->SourceOffset[0]);
-  this->Implementation->SourceOffset[0] =
-    Max(0.0, this->Implementation->SourceOffset[0]);
+  this->Impl->SourceOffset[0] =
+    Min(this->RasterDimensions[0], this->Impl->SourceOffset[0]);
+  this->Impl->SourceOffset[0] =
+    Max(0.0, this->Impl->SourceOffset[0]);
 
-  this->Implementation->SourceOffset[1] =
-    Min(this->RasterDimensions[1], this->Implementation->SourceOffset[1]);
-  this->Implementation->SourceOffset[1] =
-    Max(0.0, this->Implementation->SourceOffset[1]);
+  this->Impl->SourceOffset[1] =
+    Min(this->RasterDimensions[1], this->Impl->SourceOffset[1]);
+  this->Impl->SourceOffset[1] =
+    Max(0.0, this->Impl->SourceOffset[1]);
 
-  this->Implementation->SourceDimensions[0] =
-    Max(0.0, this->Implementation->SourceDimensions[0]);
-  if ((this->Implementation->SourceDimensions[0] +
-       this->Implementation->SourceOffset[0]) >
+  this->Impl->SourceDimensions[0] =
+    Max(0.0, this->Impl->SourceDimensions[0]);
+  if ((this->Impl->SourceDimensions[0] +
+       this->Impl->SourceOffset[0]) >
       this->RasterDimensions[0])
   {
-    this->Implementation->SourceDimensions[0] =
-      this->RasterDimensions[0] - this->Implementation->SourceOffset[0];
+    this->Impl->SourceDimensions[0] =
+      this->RasterDimensions[0] - this->Impl->SourceOffset[0];
   }
 
-  this->Implementation->SourceDimensions[1] =
-    Max(0.0, this->Implementation->SourceDimensions[1]);
-  if ((this->Implementation->SourceDimensions[1] +
-       this->Implementation->SourceOffset[1]) >
+  this->Impl->SourceDimensions[1] =
+    Max(0.0, this->Impl->SourceDimensions[1]);
+  if ((this->Impl->SourceDimensions[1] +
+       this->Impl->SourceOffset[1]) >
       this->RasterDimensions[1])
   {
-    this->Implementation->SourceDimensions[1] =
-      this->RasterDimensions[1] - this->Implementation->SourceOffset[1];
+    this->Impl->SourceDimensions[1] =
+      this->RasterDimensions[1] - this->Impl->SourceOffset[1];
   }
 
-  this->DataExtent[0] = this->Implementation->SourceOffset[0];
+  this->DataExtent[0] = this->Impl->SourceOffset[0];
   this->DataExtent[1] = this->DataExtent[0] +
-                         this->Implementation->SourceDimensions[0] - 1;
+                         this->Impl->SourceDimensions[0] - 1;
   this->DataExtent[3] = this->RasterDimensions[1] -
-                         this->Implementation->SourceOffset[1] - 1;
+                         this->Impl->SourceOffset[1] - 1;
   this->DataExtent[2] = this->DataExtent[3] -
-                         this->Implementation->SourceDimensions[1] + 1;
+                         this->Impl->SourceDimensions[1] + 1;
   this->DataExtent[4] = 0;
   this->DataExtent[5] = 0;
 
   double geoTransform[6] = {};
-  if (CE_Failure == this->Implementation->GDALData->GetGeoTransform(geoTransform))
+  if (CE_Failure == this->Impl->GDALData->GetGeoTransform(geoTransform))
   {
     // Issue warning message if image doensn't contain geotransform.
     // Not fatal because GDAL will return a default transform on CE_Failure.
@@ -1082,7 +1133,7 @@ int vtkGDALRasterReader::RequestInformation(vtkInformation * vtkNotUsed(request)
   outInfo->Set(vtkDataObject::SPACING(), this->DataSpacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(), this->DataOrigin, 3);
   outInfo->Set(vtkGDAL::MAP_PROJECTION(),
-               this->Implementation->GDALData->GetProjectionRef());
+               this->Impl->GDALData->GetProjectionRef());
 
   return 1;
 }
@@ -1106,5 +1157,48 @@ int vtkGDALRasterReader::FillOutputPortInformation(int port, vtkInformation* inf
 //-----------------------------------------------------------------------------
 double vtkGDALRasterReader::GetInvalidValue(int bandIndex)
 {
-  return Implementation->NoDataValue[bandIndex - 1];
+  return Impl->NoDataValue[bandIndex - 1];
+}
+
+//-----------------------------------------------------------------------------
+int vtkGDALRasterReader::GetNumberOfCellArrays()
+{
+  return this->Impl->CellArraySelection->GetNumberOfArrays();
+}
+
+//-----------------------------------------------------------------------------
+const char* vtkGDALRasterReader::GetCellArrayName(int index)
+{
+  return this->Impl->CellArraySelection->GetArrayName(index);
+}
+
+//-----------------------------------------------------------------------------
+int vtkGDALRasterReader::GetCellArrayStatus(const char* name)
+{
+  return this->Impl->CellArraySelection->ArrayIsEnabled(name);
+}
+
+//-----------------------------------------------------------------------------
+void vtkGDALRasterReader::SetCellArrayStatus(const char* name, int status)
+{
+  if (status)
+  {
+    this->Impl->CellArraySelection->EnableArray(name);
+  }
+  else
+  {
+    this->Impl->CellArraySelection->DisableArray(name);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkGDALRasterReader::DisableAllCellArrays()
+{
+  this->Impl->CellArraySelection->DisableAllArrays();
+}
+
+//-----------------------------------------------------------------------------
+void vtkGDALRasterReader::EnableAllCellArrays()
+{
+  this->Impl->CellArraySelection->EnableAllArrays();
 }
