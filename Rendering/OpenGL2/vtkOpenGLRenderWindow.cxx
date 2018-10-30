@@ -737,7 +737,8 @@ void vtkOpenGLRenderWindow::OpenGLInitContext()
     this->GlewInitValid = (result == GLEW_OK);
     if (!this->GlewInitValid)
     {
-      vtkErrorMacro("GLEW could not be initialized.");
+      const char* errorMsg = reinterpret_cast<const char*>(glewGetErrorString(result));
+      vtkErrorMacro("GLEW could not be initialized: " << errorMsg);
       return;
     }
 
