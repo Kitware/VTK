@@ -144,7 +144,9 @@ public:
   vtkEventDataDevice3D *GetAsEventDataDevice3D() override { return this; }
 
   void GetWorldPosition(double v[3]) const {
-    std::copy(this->WorldPosition, this->WorldPosition + 3, v);
+    v[0] = this->WorldPosition[0];
+    v[1] = this->WorldPosition[1];
+    v[2] = this->WorldPosition[2];
   }
   const double *GetWorldPosition() const {
     return this->WorldPosition;
@@ -157,7 +159,9 @@ public:
   }
 
   void GetWorldDirection(double v[3]) const {
-    std::copy(this->WorldDirection, this->WorldDirection + 3, v);
+    v[0] = this->WorldDirection[0];
+    v[1] = this->WorldDirection[1];
+    v[2] = this->WorldDirection[2];
   }
   const double *GetWorldDirection() const {
     return this->WorldDirection;
@@ -170,7 +174,10 @@ public:
   }
 
   void GetWorldOrientation(double v[4]) const {
-    std::copy(this->WorldOrientation, this->WorldOrientation + 4, v);
+    v[0] = this->WorldOrientation[0];
+    v[1] = this->WorldOrientation[1];
+    v[2] = this->WorldOrientation[2];
+    v[3] = this->WorldOrientation[3];
   }
   const double *GetWorldOrientation() const {
     return this->WorldOrientation;
