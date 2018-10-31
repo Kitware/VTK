@@ -37,6 +37,22 @@ class vtkFFMPEGVideoSourceInternal;
 
 class vtkConditionVariable;
 class vtkMutexLock;
+class vtkFFMPEGVideoSource;
+
+// audio callback struct, outside the class so that we
+// can forward ref it
+struct vtkFFMPEGVideoSourceAudioCallbackData
+{
+  int NumberOfSamples;
+  int BytesPerSample;
+  int NumberOfChannels;
+  int SampleRate;
+  int DataType;
+  bool Packed;
+  unsigned char** Data;
+  vtkFFMPEGVideoSource *Caller;
+  void *ClientData;
+};
 
 class VTKIOFFMPEG_EXPORT vtkFFMPEGVideoSource : public vtkVideoSource
 {
@@ -114,20 +130,6 @@ public:
   // Usefull for while loops
   vtkGetMacro(EndOfFile,bool);
 
-  class AudioCallbackData
-  {
-  public:
-    int NumberOfSamples;
-    int BytesPerSample;
-    int NumberOfChannels;
-    int SampleRate;
-    int DataType;
-    bool Packed;
-    unsigned char** Data;
-    vtkFFMPEGVideoSource *Caller;
-    void *ClientData;
-  };
-
   // we do not use Invoke Observers here because this callback
   // will happen in a different thread that could conflict
   // with events from other threads. In this function you should
@@ -135,7 +137,7 @@ public:
   // instead you should have enough buffering that you can consume
   // the provided data and return. Typically even 1 second of
   // buffer storage is enough to prevent blocking.
-  typedef std::function<void(AudioCallbackData &data)> AudioCallbackType;
+  typedef std::function<void(vtkFFMPEGVideoSourceAudioCallbackData &data)> AudioCallbackType;
   void SetAudioCallback(AudioCallbackType cb, void *clientData)
   {
     this->AudioCallback = cb;
