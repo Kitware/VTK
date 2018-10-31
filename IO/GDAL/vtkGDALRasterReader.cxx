@@ -613,7 +613,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::Convert(
     {
       int iIndex = flipX ? (targetWidth - 1 - i) : i;
       // Each band GDALData is stored in width * height size array.
-      for (int bi = 0; bi < groupIndex.size(); ++bi)
+      for (size_t bi = 0; bi < groupIndex.size(); ++bi)
       {
         int bandIndex = groupIndex[bi];
         RAW_TYPE TNoDataValue = 0;
