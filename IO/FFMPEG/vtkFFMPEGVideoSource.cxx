@@ -497,8 +497,6 @@ void *vtkFFMPEGVideoSource::Drain(vtkMultiThreader::ThreadInfo *data)
     }
     else if (ret == AVERROR_EOF)
     {
-      done = true;
-      cerr << "video drain thread exiting on EOF!\n";
       return nullptr;
     }
     else if (ret < 0) // error code
@@ -563,8 +561,6 @@ void *vtkFFMPEGVideoSource::DrainAudio(vtkMultiThreader::ThreadInfo *data)
     }
     else if (ret == AVERROR_EOF)
     {
-      done = true;
-      cerr << "audio drain thread exiting on EOF!\n";
       return nullptr;
     }
     else if (ret < 0) // error code
@@ -625,7 +621,7 @@ void *vtkFFMPEGVideoSource::DrainAudio(vtkMultiThreader::ThreadInfo *data)
 
       if (this->AudioCallback)
       {
-        AudioCallbackData cbd;
+        vtkFFMPEGVideoSourceAudioCallbackData cbd;
         cbd.NumberOfSamples = this->Internal->AudioFrame->nb_samples;
         cbd.BytesPerSample =
           av_get_bytes_per_sample(this->Internal->AudioDecodeContext->sample_fmt);
