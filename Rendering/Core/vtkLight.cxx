@@ -250,9 +250,27 @@ void vtkLight::DeepCopy(vtkLight *light)
   this->SetConeAngle(light->GetConeAngle());
   this->SetAttenuationValues(light->GetAttenuationValues());
   this->SetLightType(light->GetLightType());
-  this->SetTransformMatrix(light->GetTransformMatrix());
+  if (light->GetTransformMatrix())
+  {
+    vtkNew<vtkMatrix4x4> matrix4x4;
+    matrix4x4->DeepCopy( light->GetTransformMatrix() );
+    this->SetTransformMatrix(matrix4x4);
+  }
+  else
+  {
+    this->SetTransformMatrix(nullptr);
+  }
   this->SetShadowAttenuation(light->GetShadowAttenuation());
-  this->SetInformation(light->GetInformation());
+  if (light->GetInformation())
+  {
+    vtkNew<vtkInformation> info;
+    info->Copy(light->GetInformation(),1);
+    this->SetInformation(info);
+  }
+  else
+  {
+    this->SetInformation(nullptr);
+  }
 }
 
 void vtkLight::SetLightType(int type)
