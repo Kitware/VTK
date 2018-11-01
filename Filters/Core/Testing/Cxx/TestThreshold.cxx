@@ -21,6 +21,7 @@
 #include "vtkImageData.h"
 #include "vtkPointData.h"
 #include "vtkFloatArray.h"
+
 int TestThreshold(int, char *[])
 {
   //---------------------------------------------------
@@ -61,6 +62,20 @@ int TestThreshold(int, char *[])
   filter->Update();
   if(filter->GetOutput()->GetNumberOfCells()==0)
   {
+    return EXIT_FAILURE;
+  }
+
+  // Get the total number of cells
+  int totalCellCount = source->GetOutput()->GetNumberOfCells();
+  int thresholdedCellCount = filter->GetOutput()->GetNumberOfCells();
+
+  // Now invert the threshold and test the number of cells
+  filter->InvertOn();
+  filter->Update();
+  int invertedCellCount = filter->GetOutput()->GetNumberOfCells();
+  if (invertedCellCount + thresholdedCellCount != totalCellCount)
+  {
+    std::cerr << "Cell count and inverted cell count inconsistent" << std::endl;
     return EXIT_FAILURE;
   }
 

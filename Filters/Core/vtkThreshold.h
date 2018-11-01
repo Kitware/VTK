@@ -175,6 +175,17 @@ public:
 
   //@{
   /**
+   * Invert the threshold results. That is, cells that would have been in the output with this
+   * option off are excluded, while cells that would have been excluded from the output are
+   * included.
+   */
+  vtkSetMacro(Invert, bool);
+  vtkGetMacro(Invert, bool);
+  vtkBooleanMacro(Invert, bool);
+  //@}
+
+  //@{
+  /**
    * Set/get the desired precision for the output types. See the documentation
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
    * the available precision settings.
@@ -201,6 +212,7 @@ protected:
   int    SelectedComponent;
   int OutputPointsPrecision;
   vtkTypeBool UseContinuousCellRange;
+  bool   Invert;
 
   int (vtkThreshold::*ThresholdFunction)(double s);
 

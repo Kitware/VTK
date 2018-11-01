@@ -47,6 +47,7 @@ vtkThreshold::vtkThreshold()
                                vtkDataSetAttributes::SCALARS);
 
   this->UseContinuousCellRange = 0;
+  this->Invert = false;
 }
 
 vtkThreshold::~vtkThreshold() = default;
@@ -218,7 +219,10 @@ int vtkThreshold::RequestData(
       keepCell = this->EvaluateComponents( inScalars, cellId );
     }
 
-    if (  numCellPts > 0 && keepCell )
+    // Invert the keep flag if the Invert option is enabled.
+    keepCell = this->Invert ? (1 - keepCell) : keepCell;
+
+    if (  numCellPts > 0 && keepCell)
     {
       // satisfied thresholding (also non-empty cell, i.e. not VTK_EMPTY_CELL)
       for (i=0; i < numCellPts; i++)
