@@ -47,13 +47,12 @@ protected:
   vtkOpenGLAvatar();
   ~vtkOpenGLAvatar() override;
 
-  int LastProjection;
-  float LastCameraPosition[3];
-
-  void UpdateUniforms(vtkObject*, unsigned long, void*);
-
-  vtkNew<vtkOpenGLPolyDataMapper> PolyMapper;
-  vtkNew<vtkOpenGLActor> OpenGLActor;
+  vtkNew<vtkOpenGLPolyDataMapper> HeadMapper;
+  vtkNew<vtkOpenGLActor> HeadActor;
+  vtkNew<vtkOpenGLPolyDataMapper> LeftHandMapper;
+  vtkNew<vtkOpenGLActor> LeftHandActor;
+  vtkNew<vtkOpenGLPolyDataMapper> RightHandMapper;
+  vtkNew<vtkOpenGLActor> RightHandActor;
 
 private:
   vtkOpenGLAvatar(const vtkOpenGLAvatar&) = delete;

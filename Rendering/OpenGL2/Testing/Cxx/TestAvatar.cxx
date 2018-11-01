@@ -66,7 +66,7 @@ int TestAvatar(int argc, char *argv[])
 
   vtkNew<vtkActor> actor;
   actor->SetPosition(0.4, 0, 0);
-  actor->SetScale(2.0, 2.0, 2.0);
+  actor->SetScale(3.0, 3.0, 3.0);
   actor->GetProperty()->SetSpecular(0.5);
   actor->GetProperty()->SetSpecularPower(20);
   actor->GetProperty()->SetDiffuse(0.7);
@@ -76,12 +76,16 @@ int TestAvatar(int argc, char *argv[])
   actor->SetMapper(mapper);
 
   vtkNew<vtkAvatar> avatar;
-  avatar->SetHeadPosition(-0.4, 0.2, 0);
+  avatar->SetHeadPosition(-1.4, 0.2, 0);
   avatar->SetHeadOrientation(0, 90, 0);
-  avatar->SetScale(0.5);
+  avatar->SetLeftHandPosition(-0.6, -0.3, -0.5);
+  avatar->SetLeftHandOrientation(0, 0, 30);
+  avatar->SetRightHandPosition(-0.6, -0.4, 0.5);
+  avatar->SetRightHandOrientation(0, 180, 0);
+  // avatar->SetScale(0.5);
   renderer->AddActor(avatar);
 
-  renderer->GetActiveCamera()->SetPosition(0.0, 0.25, 2.0);
+  renderer->GetActiveCamera()->SetPosition(0.0, 0.25, 6.0);
   renderer->GetActiveCamera()->SetFocalPoint(0.0, 0.25, 0.0);
   renderer->GetActiveCamera()->SetViewAngle(60.0);
   renderer->GetActiveCamera()->Zoom(1.1);
@@ -89,15 +93,17 @@ int TestAvatar(int argc, char *argv[])
   renderer->GetActiveCamera()->Elevation(5);
   // renderer->GetActiveCamera()->Roll(-10);
   renderer->SetBackground(0.6,0.7,1.0);
+  renderer->SetClippingRangeExpansion(0.3);
   renderer->ResetCameraClippingRange();
 
   renderWindow->Render();
 
   vtkNew<vtkInteractorStyleTrackballCamera> style;
   renderWindow->GetInteractor()->SetInteractorStyle(style);
+  // style->SetAutoAdjustCameraClippingRange(true);
 
   int retVal = vtkRegressionTestImage(renderWindow);
-  if ( 1 || retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }
