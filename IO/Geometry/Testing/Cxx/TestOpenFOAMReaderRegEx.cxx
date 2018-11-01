@@ -92,7 +92,8 @@ int TestOpenFOAMReaderRegEx(int argc, char* argv[])
   {
     if (vtkMultiBlockDataSet * patches = vtkMultiBlockDataSet::SafeDownCast(result->GetBlock(1)))
     {
-      for (int i = 0; i < patches->GetNumberOfBlocks(); i++)
+      int num_blocks = patches->GetNumberOfBlocks();
+      for (int i = 0; i < num_blocks; i++)
       {
         // Get name of this boundary patch and fail if this patch name is not expected
         const char * patch_name = patches->GetMetaData(i)->Get(vtkCompositeDataSet::NAME());
@@ -118,7 +119,8 @@ int TestOpenFOAMReaderRegEx(int argc, char* argv[])
 
                 // Fail if the number of components read is different than expected
                 const std::vector<double> & expected_components = expected_data[patch_name][field_name];
-                if (expected_components.size() != array->GetNumberOfComponents())
+                int expected_num_components = expected_components.size();
+                if (expected_num_components != array->GetNumberOfComponents())
                 {
                     std::cout << "Unexpected number of components \"" << array->GetNumberOfComponents()
                               << "\" of field \"" << field_name << "\" at patch \"" << patch_name << "\"" << std::endl;
