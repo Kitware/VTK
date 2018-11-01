@@ -1,3 +1,21 @@
+#[==[.md
+# Python support
+
+This module provides a single target for using Python within VTK modules.
+
+## Flexible Python libraries
+
+Ideally, the libraries linked against the `vtkPython` module would be flexible
+in the library actually used and it would be provided by the executable loading
+the Python instead. This can be made to work with hacks currently, but the
+following should be fixed first:
+
+  - A better solution than `-undefined dynamic_lookup` for macOS. VTK has
+    [an issue][VTK dynamic Python lookup issue] filed for this already.
+
+[VTK dynamic Python lookup issue]: https://gitlab.kitware.com/vtk/vtk/issues/17214
+#]==]
+
 if (NOT DEFINED VTK_PYTHON_VERSION)
   set(VTK_PYTHON_VERSION "3"
     CACHE STRING "")
@@ -110,6 +128,36 @@ set(headers
 vtk_module_add_module(VTK::Python
   HEADERS ${headers}
   HEADER_ONLY)
-vtk_module_link(VTK::Python
-  INTERFACE
-    "${vtk_python_target}")
+
+include(CMakeDependentOption)
+cmake_dependent_option(VTK_PYTHON_OPTIONAL_LINK
+  # Default to `ON` if it is possible.
+  "Whether to link libpython from libraries or not" ON
+  # We shouldn't do it for static builds and we can't do it without
+  # `target_link_options`.
+  # XXX(Linux): Currently, this causes missing symbols on Linux.
+  # XXX(Apple): Runtime failures currently. Needs investigation.
+  "FALSE;BUILD_SHARED_LIBS;COMMAND target_link_options" OFF)
+
+if (VTK_PYTHON_OPTIONAL_LINK)
+  include("${CMAKE_CURRENT_SOURCE_DIR}/vtkUndefinedSymbolsAllowed.cmake")
+  set(is_exe "$<STREQUAL:$<TARGET_PROPERTY:TYPE>,EXECUTABLE>")
+  set(needs_flags "$<NOT:$<BOOL:${vtk_undefined_symbols_allowed}>>")
+  set(direct_link "$<BOOL:$<TARGET_PROPERTY:INTERFACE_vtk_python_direct_link>>")
+  set(platform_flags
+    # Apple flags.
+    "$<$<STREQUAL:$<PLATFORM_ID>,Darwin>:-undefined;dynamic_lookup>")
+  vtk_module_include(VTK::Python SYSTEM
+    INTERFACE
+      "${vtk_python_includes}")
+  vtk_module_link(VTK::Python
+    INTERFACE
+      "$<LINK_ONLY:$<$<OR:${is_exe},${direct_link}>:${vtk_python_target}>>")
+  vtk_module_link_options(VTK::Python
+    INTERFACE
+      "$<$<OR:$<AND:$<NOT:${is_exe}>,${needs_flags}>,$<NOT:${direct_link}>>:${platform_flags}>")
+else ()
+  vtk_module_link(VTK::Python
+    INTERFACE
+      "${vtk_python_target}")
+endif ()
