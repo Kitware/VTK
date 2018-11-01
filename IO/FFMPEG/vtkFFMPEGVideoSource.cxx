@@ -132,6 +132,9 @@ vtkFFMPEGVideoSource::vtkFFMPEGVideoSource()
   this->AudioCallback = nullptr;
   this->AudioCallbackClientData = nullptr;
   this->DecodingThreads = 4;
+  this->FeedThreadId = -1;
+  this->DrainThreadId = -1;
+  this->DrainAudioThreadId = -1;
 }
 
 //----------------------------------------------------------------------------
