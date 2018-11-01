@@ -61,9 +61,9 @@ public:
   };
 
 public:
-  Implementation ()
+  Implementation(vtkCityGMLReader* reader, int lod, int useTransparencyAsOpacity)
   {
-    this->Reader = nullptr;
+    this->Initialize(reader, lod, useTransparencyAsOpacity);
   }
 
   void Initialize(vtkCityGMLReader* reader, int lod, int useTransparencyAsOpacity)
@@ -445,12 +445,10 @@ public:
   {
     std::string id(idC);
     size_t uPrev = id.find("_"), u;
-    size_t i = 0;
     while ((u = id.find("_", uPrev + 1)) != std::string::npos)
     {
       int value = atoi(id.substr(uPrev + 1, u - uPrev - 1).c_str());
       components->push_back(value);
-      ++i;
       uPrev = u;
     }
     u = id.size();
@@ -892,8 +890,7 @@ vtkCityGMLReader::vtkCityGMLReader()
   this->FileName = nullptr;
   this->LOD = 3;
   this->UseTransparencyAsOpacity = false;
-  this->Impl = new Implementation();
-  this->Impl->Initialize(this, this->LOD, this->UseTransparencyAsOpacity);
+  this->Impl = new Implementation(this, this->LOD, this->UseTransparencyAsOpacity);
   this->SetNumberOfInputPorts(0);
 }
 
