@@ -180,6 +180,24 @@ public:
   vtkBooleanMacro(ColorRegions,vtkTypeBool);
   //@}
 
+  /**
+   * Enumeration of the various ways to assign RegionIds when
+   * the ColorRegions option is on.
+   */
+  enum RegionIdAssignment {
+    UNSPECIFIED,
+    CELL_COUNT_DESCENDING,
+    CELL_COUNT_ASCENDING
+  };
+
+  //@{
+  /**
+   * Set/get mode controlling how RegionIds are assigned.
+   */
+  //@}
+  vtkSetMacro(RegionIdAssignmentMode, int);
+  vtkGetMacro(RegionIdAssignmentMode, int);
+
   //@{
   /**
    * Set/get the desired precision for the output types. See the documentation
@@ -215,7 +233,11 @@ protected:
   vtkTypeBool ScalarConnectivity;
   double ScalarRange[2];
 
+  int RegionIdAssignmentMode;
+
   void TraverseAndMark(vtkDataSet *input);
+
+  void OrderRegionIds(vtkIdTypeArray* pointRegionIds, vtkIdTypeArray* cellRegionIds);
 
 private:
   // used to support algorithm execution

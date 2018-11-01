@@ -15,9 +15,11 @@
 
 #include "vtkConnectivityFilter.h"
 
+#include "vtkCellData.h"
 #include "vtkContourFilter.h"
 #include "vtkDataSetTriangleFilter.h"
 #include "vtkDistributedDataFilter.h"
+#include "vtkIdTypeArray.h"
 #include "vtkMPIController.h"
 #include "vtkPUnstructuredGridGhostCellsGenerator.h"
 #include "vtkPConnectivityFilter.h"
@@ -98,13 +100,97 @@ int RunParallelConnectivity(const char* fname, vtkAlgorithm::DesiredOutputPrecis
     returnValue = EXIT_FAILURE;
   }
 
+  // Check that assigning RegionIds by number of cells (descending) works
+  connectivity->SetRegionIdAssignmentMode(vtkConnectivityFilter::CELL_COUNT_DESCENDING);
+  connectivity->ColorRegionsOn();
+  connectivity->SetExtractionModeToAllRegions();
+  removeGhosts->Update();
+  numberOfRegions = connectivity->GetNumberOfExtractedRegions();
+  vtkPointSet* ghostOutput = vtkPointSet::SafeDownCast(removeGhosts->GetOutput());
+  vtkIdType numberOfCells = ghostOutput->GetNumberOfCells();
+  vtkIdType globalNumberOfCells = 0;
+  contr->AllReduce(&numberOfCells, &globalNumberOfCells, 1, vtkCommunicator::SUM_OP);
+  std::vector<vtkIdType> regionCounts(connectivity->GetNumberOfExtractedRegions(), 0);
+
+  // Count up cells with RegionIds
+  auto regionIdArray = vtkIdTypeArray::SafeDownCast(ghostOutput->GetCellData()->GetArray("RegionId"));
+  for (vtkIdType cellId = 0; cellId < numberOfCells; ++cellId)
+  {
+    vtkIdType regionId = regionIdArray->GetValue(cellId);
+    regionCounts[regionId]++;
+  }
+
+  // Sum up region counts across processes
+  std::vector<vtkIdType> globalRegionCounts(regionCounts.size(), 0);
+  contr->AllReduce(regionCounts.data(), globalRegionCounts.data(),
+    static_cast<vtkIdType>(regionCounts.size()), vtkCommunicator::SUM_OP);
+  if (me == 0)
+  {
+    bool printCounts = false;
+    for (vtkIdType i = 1; i < numberOfRegions; ++i)
+    {
+      if (globalRegionCounts[i] > globalRegionCounts[i-1])
+      {
+        std::cerr << "Region " << i << " is larger than region " << i-1 << std::endl;
+        printCounts = true;
+        returnValue = EXIT_FAILURE;
+        break;
+      }
+    }
+    if (printCounts)
+    {
+      for (vtkIdType i = 0; i < numberOfRegions; ++i)
+      {
+        std::cout << "Region " << i << " has " << globalRegionCounts[i] << " cells" << std::endl;
+      }
+    }
+  }
+
+  // Check that assignment RegionIds by number of cells (ascending) works
+  connectivity->SetRegionIdAssignmentMode(vtkConnectivityFilter::CELL_COUNT_ASCENDING);
+  removeGhosts->Update();
+
+  std::fill(regionCounts.begin(), regionCounts.end(), 0);
+  regionIdArray = vtkIdTypeArray::SafeDownCast(ghostOutput->GetCellData()->GetArray("RegionId"));
+  for (vtkIdType cellId = 0; cellId < numberOfCells; ++cellId)
+  {
+    vtkIdType regionId = regionIdArray->GetValue(cellId);
+    regionCounts[regionId]++;
+  }
+
+  // Sum up region counts across processes
+  globalRegionCounts = std::vector<vtkIdType>(regionCounts.size(), 0);
+  contr->AllReduce(regionCounts.data(), globalRegionCounts.data(),
+    static_cast<vtkIdType>(regionCounts.size()), vtkCommunicator::SUM_OP);
+  if (me == 0)
+  {
+    bool printCounts = false;
+    for (vtkIdType i = 1; i < numberOfRegions; ++i)
+    {
+      if (globalRegionCounts[i] < globalRegionCounts[i-1])
+      {
+        std::cerr << "Region " << i << " is smaller than " << i-1 << std::endl;
+        printCounts = true;
+        returnValue = EXIT_FAILURE;
+        break;
+      }
+    }
+    if (printCounts)
+    {
+      for (vtkIdType i = 0; i < numberOfRegions; ++i)
+      {
+        std::cout << "Region " << i << " has " << globalRegionCounts[i] << " cells" << std::endl;
+      }
+    }
+  }
+
   // Check the number of cells in the largest region when the extraction mode
   // is set to largest region.
   connectivity->SetExtractionModeToLargestRegion();
   removeGhosts->Update();
-  int numberOfCells =
+  numberOfCells =
     vtkPointSet::SafeDownCast(removeGhosts->GetOutput())->GetNumberOfCells();
-  int globalNumberOfCells = 0;
+  globalNumberOfCells = 0;
   contr->AllReduce(&numberOfCells, &globalNumberOfCells, 1, vtkCommunicator::SUM_OP);
 
   int expectedNumberOfCells = 2124;
