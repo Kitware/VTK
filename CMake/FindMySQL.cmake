@@ -25,6 +25,18 @@ if (_MySQL_use_pkgconfig)
     endif ()
   else ()
     set(_mysql_target "_mariadb")
+    if (_mariadb_VERSION VERSION_LESS 10.4)
+      get_property(_include_dirs
+        TARGET    "PkgConfig::_mariadb"
+        PROPERTY  "INTERFACE_INCLUDE_DIRECTORIES")
+      # Remove "${prefix}/mariadb/.." from the interface since it breaks other
+      # projects.
+      list(FILTER _include_dirs EXCLUDE REGEX "\\.\\.")
+      set_property(TARGET "PkgConfig::_mariadb"
+        PROPERTY
+          "INTERFACE_INCLUDE_DIRECTORIES" "${_include_dirs}")
+      unset(_include_dirs)
+    endif ()
   endif ()
 
   set(MySQL_FOUND 0)
