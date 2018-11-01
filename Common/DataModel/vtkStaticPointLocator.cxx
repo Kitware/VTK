@@ -1788,6 +1788,96 @@ void vtkStaticPointLocator::BuildLocator()
   this->BuildTime.Modified();
 }
 
+//-----------------------------------------------------------------------------
+//  Method to form subdivision of space based on the points provided and
+//  subject to the constraints of levels and NumberOfPointsPerBucket.
+//  The result is directly addressable and of uniform subdivision.
+//
+void vtkStaticPointLocator::BuildLocator(const double *bds)
+{
+  int ndivs[3];
+  int i;
+  vtkIdType numPts;
+
+  if ( (this->Buckets != nullptr) && (this->BuildTime > this->MTime)
+       && (this->BuildTime > this->DataSet->GetMTime()) )
+  {
+    return;
+  }
+
+  vtkDebugMacro( << "Hashing points..." );
+  this->Level = 1; //only single lowest level - from superclass
+
+  if ( !this->DataSet || (numPts = this->DataSet->GetNumberOfPoints()) < 1 )
+  {
+    vtkErrorMacro( << "No points to locate");
+    return;
+  }
+
+  //  Make sure the appropriate data is available
+  //
+  if ( this->Buckets )
+  {
+    this->FreeSearchStructure();
+  }
+
+  // Size the root bucket.  Initialize bucket data structure, compute
+  // level and divisions. The GetBounds() method below can be very slow;
+  // hopefully it is cached or otherwise accelerated.
+  //
+  const double *bounds = (bds == nullptr ? this->DataSet->GetBounds() : bds);
+  vtkIdType numBuckets = static_cast<vtkIdType>( static_cast<double>(numPts) /
+                                                 static_cast<double>(this->NumberOfPointsPerBucket) );
+  numBuckets = ( numBuckets > this->MaxNumberOfBuckets ? this->MaxNumberOfBuckets : numBuckets );
+
+  vtkBoundingBox bbox(bounds);
+  if ( this->Automatic )
+  {
+    bbox.ComputeDivisions(numBuckets, this->Bounds, ndivs);
+  }
+  else
+  {
+    bbox.Inflate(); //make sure non-zero volume
+    bbox.GetBounds(this->Bounds);
+    for (i=0; i<3; i++)
+    {
+      ndivs[i] = ( this->Divisions[i] < 1 ? 1 : this->Divisions[i] );
+    }
+  }
+
+  this->Divisions[0] = ndivs[0];
+  this->Divisions[1] = ndivs[1];
+  this->Divisions[2] = ndivs[2];
+  this->NumberOfBuckets = numBuckets = static_cast<vtkIdType>(ndivs[0]) *
+    static_cast<vtkIdType>(ndivs[1]) * static_cast<vtkIdType>(ndivs[2]);
+
+  //  Compute width of bucket in three directions
+  //
+  for (i=0; i<3; i++)
+  {
+    this->H[i] = (this->Bounds[2*i+1] - this->Bounds[2*i]) / static_cast<double>(ndivs[i]);
+  }
+
+  // Instantiate the locator. The type is related to the maximum point id.
+  // This is done for performance (e.g., the sort is faster) and significant
+  // memory savings.
+  //
+  if ( numPts >= VTK_INT_MAX || numBuckets >= VTK_INT_MAX )
+  {
+    this->LargeIds = true;
+    this->Buckets = new BucketList<vtkIdType>(this,numPts,numBuckets);
+  }
+  else
+  {
+    this->LargeIds = false;
+    this->Buckets = new BucketList<int>(this,numPts,numBuckets);
+  }
+
+  // Actually construct the locator
+  this->Buckets->BuildLocator();
+
+  this->BuildTime.Modified();
+}
 
 //-----------------------------------------------------------------------------
 // These methods satisfy the vtkStaticPointLocator API. The implementation is

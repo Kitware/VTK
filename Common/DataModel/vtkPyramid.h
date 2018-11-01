@@ -85,6 +85,15 @@ public:
   //@}
 
   /**
+   * Return the case table for table-based isocontouring (aka marching cubes
+   * style implementations). A linear 3D cell with N vertices will have 2**N
+   * cases. The returned case array lists three edges in order to produce one
+   * output triangle which may be repeated to generate multiple triangles. The
+   * list of cases terminates with a -1 entry.
+   */
+  static int* GetTriangleCases(int caseId);
+
+  /**
    * Return the center of the pyramid in parametric coordinates.
    */
   int GetParametricCenter(double pcoords[3]) override;
@@ -145,6 +154,3 @@ inline int vtkPyramid::GetParametricCenter(double pcoords[3])
 }
 
 #endif
-
-
-

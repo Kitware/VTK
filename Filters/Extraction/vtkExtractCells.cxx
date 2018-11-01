@@ -35,6 +35,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkTimeStamp.h"
+#include "vtkSMPTools.h"
 
 vtkStandardNewMacro(vtkExtractCells);
 
@@ -176,13 +177,21 @@ public:
     return this->ModifiedTime.GetMTime() < this->SortTime.GetMTime();
   }
 
-  void Prepare()
+  void Prepare(vtkIdType numInputCells)
   {
     if (!this->IsPrepared())
     {
-      std::sort(this->CellIds.begin(), this->CellIds.end());
+      vtkSMPTools::Sort(this->CellIds.begin(), this->CellIds.end());
       auto last = std::unique(this->CellIds.begin(), this->CellIds.end());
-      this->CellIds.resize(std::distance(this->CellIds.begin(), last));
+      auto first=this->CellIds.begin();
+
+      // These lines clamp the ids to the number of cells in the
+      // dataset. Otherwise segfaults occur when cellIds are greater than the
+      // number of input cells, in particular when cellId==numInputCells.
+      auto clampLast = std::find(first, last, numInputCells);
+      last = ( clampLast != last ? clampLast : last );
+
+      this->CellIds.resize(std::distance(first, last));
       this->SortTime.Modified();
     }
   }
@@ -241,21 +250,22 @@ void vtkExtractCells::AddCellList(vtkIdList *l)
 //----------------------------------------------------------------------------
 void vtkExtractCells::AddCellRange(vtkIdType from, vtkIdType to)
 {
-  if (to < from)
+  if (to < from || to < 0 )
   {
+    vtkWarningMacro("Bad cell range: (" << to << "," << from << ")");
     return;
   }
 
+  // This range specification is inconsistent with C++. Left for backward
+  // compatibility reasons.
   const vtkIdType inputSize = to - from + 1; // +1 to include 'to'
   const std::size_t oldSize = this->CellList->CellIds.size();
   const std::size_t newSize = oldSize + static_cast<std::size_t>(inputSize);
 
   this->CellList->CellIds.resize(newSize);
 
-  auto outputBegin = this->CellList->CellIds.begin();
-  auto outputEnd = outputBegin;
-  std::advance(outputBegin, oldSize);
-  std::advance(outputEnd, newSize);
+  auto outputBegin = this->CellList->CellIds.begin() + oldSize;
+  auto outputEnd = this->CellList->CellIds.begin() + newSize;
 
   std::iota(outputBegin, outputEnd, from);
 
@@ -288,23 +298,18 @@ int vtkExtractCells::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Sort/uniquify the cell ids if needed.
-  this->CellList->Prepare();
+  vtkIdType numCellsInput = input->GetNumberOfCells();
+  this->CellList->Prepare(numCellsInput);
 
   this->InputIsUgrid =
     ((vtkUnstructuredGrid::SafeDownCast(input)) != nullptr);
 
-  vtkIdType numCellsInput = input->GetNumberOfCells();
   vtkIdType numCells = static_cast<vtkIdType>(this->CellList->CellIds.size());
 
   if (numCells == numCellsInput)
   {
-    #if 0
     this->Copy(input, output);
-
-    return;
-   #else
-    // The Copy method seems to have a bug, causing codes using ExtractCells to die
-    #endif
+    return 1;
   }
 
   vtkPointData *PD = input->GetPointData();
@@ -393,51 +398,43 @@ int vtkExtractCells::RequestData(
 //----------------------------------------------------------------------------
 void vtkExtractCells::Copy(vtkDataSet *input, vtkUnstructuredGrid *output)
 {
+  // If input is unstructured grid just deep copy through
   if (this->InputIsUgrid)
   {
     output->DeepCopy(vtkUnstructuredGrid::SafeDownCast(input));
     return;
   }
 
+  vtkIdType numPoints = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
 
   vtkPointData *PD = input->GetPointData();
   vtkCellData *CD = input->GetCellData();
-
   vtkPointData *newPD = output->GetPointData();
   vtkCellData *newCD  = output->GetCellData();
-
-  vtkIdType numPoints = input->GetNumberOfPoints();
+  newPD->CopyAllocate(PD, numPoints);
+  newCD->CopyAllocate(CD, numCells);
 
   output->Allocate(numCells);
 
-  newPD->CopyAllocate(PD, numPoints);
-
-  newCD->CopyAllocate(CD, numCells);
-
   vtkPoints *pts = vtkPoints::New();
   pts->SetNumberOfPoints(numPoints);
+  output->SetPoints(pts);
 
   for (vtkIdType i=0; i<numPoints; i++)
   {
     pts->SetPoint(i, input->GetPoint(i));
   }
   newPD->DeepCopy(PD);
-
-  output->SetPoints(pts);
-
   pts->Delete();
 
   vtkIdList *cellPoints = vtkIdList::New();
-
   for (vtkIdType cellId=0; cellId < numCells; cellId++)
   {
     input->GetCellPoints(cellId, cellPoints);
-
     output->InsertNextCell(input->GetCellType(cellId), cellPoints);
   }
   newCD->DeepCopy(CD);
-
   cellPoints->Delete();
 
   output->Squeeze();
@@ -700,4 +697,3 @@ void vtkExtractCells::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
-

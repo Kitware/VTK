@@ -50,7 +50,7 @@
  *
  * @warning
  * If you are interested in extracting segmented regions from a label mask,
- * consider using vtkDiscreteFlyingEdges#D.
+ * consider using vtkDiscreteFlyingEdges3D.
  *
  * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
@@ -59,7 +59,7 @@
  *
  * @sa
  * vtkContourFilter vtkFlyingEdges2D vtkSynchronizedTemplates3D
- * vtkMarchingCubes vtkDiscreteFlyingEdges3D
+ * vtkMarchingCubes vtkDiscreteFlyingEdges3D vtkContour3DLinearGrid
 */
 
 #ifndef vtkFlyingEdges3D_h

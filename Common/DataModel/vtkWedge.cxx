@@ -475,6 +475,15 @@ int *vtkWedge::GetEdgeArray(int edgeId)
 }
 
 //----------------------------------------------------------------------------
+// Return the case table for table-based isocontouring (aka marching cubes
+// style implementations). A linear 3D cell with N vertices will have 2**N
+// cases. The cases list three edges in order to produce one output triangle.
+int *vtkWedge::GetTriangleCases(int caseId)
+{
+  return triCases[caseId].edges;
+}
+
+//----------------------------------------------------------------------------
 vtkCell *vtkWedge::GetEdge(int edgeId)
 {
   int *verts;

@@ -136,6 +136,13 @@ public:
    */
   vtkIdType GetNumberOfPoints() override;
 
+  /**
+   * Returns the total number of cells of all blocks. This will
+   * iterate over all blocks and call GetNumberOfPoints() so it
+   * might be expensive.
+   */
+  vtkIdType GetNumberOfCells() override;
+
   //@{
   /**
    * Retrieve an instance of this class from an information object.

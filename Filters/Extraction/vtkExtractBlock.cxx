@@ -116,6 +116,8 @@ int vtkExtractBlock::RequestData(
   vtkMultiBlockDataSet *input = vtkMultiBlockDataSet::GetData(inputVector[0], 0);
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::GetData(outputVector, 0);
 
+  vtkDebugMacro(<<"Extracting blocks");
+
   if (this->Indices->find(0) != this->Indices->end())
   {
     // trivial case.
@@ -177,7 +179,7 @@ int vtkExtractBlock::RequestData(
   iter->Delete();
 
   // Do the actual pruning. Only those branches are pruned which don't have
-  // DON_PRUNE flag set.
+  // DONT_PRUNE flag set.
   this->Prune(output);
   return 1;
 }
@@ -276,4 +278,3 @@ void vtkExtractBlock::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PruneOutput: " << this->PruneOutput << endl;
   os << indent << "MaintainStructure: " << this->MaintainStructure << endl;
 }
-

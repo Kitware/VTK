@@ -15,6 +15,7 @@ set(Module_SRCS
   vtkContourFilter.cxx
   vtkContourGrid.cxx
   vtkContourHelper.cxx
+  vtkContour3DLinearGrid.cxx
   vtkDataObjectGenerator.cxx
   vtkDataObjectToDataSetFilter.cxx
   vtkDataSetEdgeSubdivisionCriterion.cxx

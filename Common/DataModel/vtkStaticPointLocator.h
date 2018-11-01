@@ -173,6 +173,7 @@ public:
   void Initialize() override;
   void FreeSearchStructure() override;
   void BuildLocator() override;
+  void BuildLocator(const double *bounds);
   //@}
 
   /**

@@ -34,6 +34,10 @@
  * contours are being extracted. If you want to use a scalar tree,
  * invoke the method UseScalarTreeOn().
  *
+ * @warning
+ * If the input vtkUnstructuredGrid contains 3D linear cells, the class
+ * vtkContour3DLinearGrid is much faster and may be preferred in certain
+ * applications.
  *
  * @warning
  * For unstructured data or structured grids, normals and gradients
@@ -41,9 +45,9 @@
  * normals of the resulting isosurface.
  *
  * @sa
- * vtkMarchingContourFilter
- * vtkMarchingCubes vtkSliceCubes vtkDividingCubes vtkMarchingSquares
- * vtkImageMarchingCubes
+ * vtkContour3DLinearGrid vtkContourFilter vtkMarchingContourFilter
+ * vtkFlyingEdges3D vtkMarchingCubes vtkSliceCubes vtkDividingCubes
+ * vtkMarchingSquares vtkImageMarchingCubes
 */
 
 #ifndef vtkContourGrid_h
@@ -155,11 +159,11 @@ public:
 
   //@{
   /**
-   * If this is enabled (by default), the output will be triangles
-   * otherwise, the output will be the intersection polygons
-   * WARNING: if the cutting function is not a plane, the output
-   * will be 3D poygons, which might be nice to look at but hard
-   * to compute with downstream.
+   * If this is enabled (by default), the output will be triangles otherwise,
+   * the output may be represented by one or more polygons. WARNING: if the
+   * resulting isocontour is not planar, and GenerateTriangles is false, the
+   * output may consist of some 3D polygons (i.e., which may be non-planar) -
+   * which might be nice to look at but hard to compute with downstream.
    */
   vtkSetMacro(GenerateTriangles,vtkTypeBool);
   vtkGetMacro(GenerateTriangles,vtkTypeBool);
@@ -267,5 +271,3 @@ inline void vtkContourGrid::GenerateValues(int numContours, double
 
 
 #endif
-
-

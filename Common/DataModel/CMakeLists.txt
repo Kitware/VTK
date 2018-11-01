@@ -173,6 +173,7 @@ set(Module_SRCS
   vtkStaticCellLinks.cxx
   vtkStaticCellLinksTemplate.txx
   vtkStaticCellLocator.cxx
+  vtkStaticEdgeLocatorTemplate.txx
   vtkStaticPointLocator.cxx
   vtkStaticPointLocator2D.cxx
   vtkStructuredData.cxx
@@ -235,6 +236,7 @@ set(${vtk-module}_HDRS
   vtkMappedUnstructuredGridCellIterator.h
   vtkPeriodicDataArray.h
   vtkStaticCellLinksTemplate.h
+  vtkStaticEdgeLocatorTemplate.h
   )
 
 vtk_module_library(vtkCommonDataModel ${Module_SRCS})
