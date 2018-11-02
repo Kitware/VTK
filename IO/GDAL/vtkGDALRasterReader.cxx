@@ -406,135 +406,6 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
   const int bandSpace = destWidth * destHeight * this->NumberOfBytesPerPixel;
   CPLErr err;
 
-  std::vector<int> groupIndex;
-  double completedBand = 0.0;
-  // TODO: Support other band types
-  if (redBand && greenBand && blueBand)
-  {
-    allBands[redIndex - 1] = nullptr;
-    groupIndex.push_back(redIndex);
-    allBands[greenIndex - 1] = nullptr;
-    groupIndex.push_back(greenIndex);
-    allBands[blueIndex - 1] = nullptr;
-    groupIndex.push_back(blueIndex);
-    if (alphaBand)
-    {
-      allBands[alphaIndex - 1] = nullptr;
-      groupIndex.push_back(alphaIndex);
-      this->Reader->SetNumberOfScalarComponents(4);
-      rawUniformGridData.resize(4 * destWidth * destHeight * pixelSpace);
-
-      err = redBand->RasterIO(
-              GF_Read, windowX, windowY,  windowWidth, windowHeight,
-              static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
-              0 * bandSpace), destWidth, destHeight,
-              this->TargetDataType, pixelSpace, lineSpace);
-      assert(err == CE_None);
-      err = greenBand->RasterIO(
-              GF_Read, windowX, windowY,  windowWidth, windowHeight,
-              static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
-              1 * bandSpace), destWidth, destHeight,
-              this->TargetDataType, pixelSpace, lineSpace);
-      assert(err == CE_None);
-      err = blueBand->RasterIO(
-              GF_Read, windowX, windowY,  windowWidth, windowHeight,
-              static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
-              2 * bandSpace), destWidth, destHeight,
-              this->TargetDataType, pixelSpace, lineSpace);
-      assert(err == CE_None);
-      err = alphaBand->RasterIO(
-              GF_Read, windowX, windowY,  windowWidth, windowHeight,
-              static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
-              3 * bandSpace), destWidth, destHeight,
-              this->TargetDataType, pixelSpace, lineSpace);
-      assert(err == CE_None);
-      completedBand = 4.0;
-    }
-    else
-    {
-      this->Reader->SetNumberOfScalarComponents(3);
-      rawUniformGridData.resize(3 * destWidth * destHeight * pixelSpace);
-
-      err = redBand->RasterIO(
-              GF_Read, windowX, windowY,  windowWidth, windowHeight,
-              static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
-              0 * bandSpace), destWidth, destHeight,
-              this->TargetDataType, 0, 0);
-      assert(err == CE_None);
-      err = greenBand->RasterIO(GF_Read, windowX, windowY,  windowWidth, windowHeight,
-              static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
-              1 * bandSpace), destWidth, destHeight,
-              this->TargetDataType, 0,0);
-      assert(err == CE_None);
-      err = blueBand->RasterIO(GF_Read, windowX, windowY,  windowWidth, windowHeight,
-              static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
-              2 * bandSpace), destWidth, destHeight,
-              this->TargetDataType, 0,0);
-      assert(err == CE_None);
-      completedBand = 3.0;
-    }
-  }
-  else if (grayBand)
-  {
-    allBands[grayIndex - 1] = nullptr;
-    groupIndex.push_back(grayIndex);
-    if (alphaBand)
-    {
-      allBands[alphaIndex - 1] = nullptr;
-      groupIndex.push_back(alphaIndex);
-      // Luminance alpha
-      this->Reader->SetNumberOfScalarComponents(2);
-      rawUniformGridData.resize(2 * destWidth * destHeight * pixelSpace);
-
-      err = grayBand->RasterIO(
-              GF_Read, windowX, windowY,  windowWidth, windowHeight,
-              static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
-              0 * bandSpace), destWidth, destHeight,
-              this->TargetDataType, pixelSpace, lineSpace);
-      assert(err == CE_None);
-      err =  alphaBand->RasterIO(
-               GF_Read, windowX, windowY,  windowWidth, windowHeight,
-               static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
-               1 * bandSpace), destWidth, destHeight,
-               this->TargetDataType, pixelSpace, lineSpace);
-      assert(err == CE_None);
-      completedBand = 2.0;
-    }
-    else
-    {
-      // Luminance
-      this->Reader->SetNumberOfScalarComponents(1);
-      rawUniformGridData.resize(destWidth * destHeight * pixelSpace);
-      err = grayBand->RasterIO(
-              GF_Read, windowX, windowY,  windowWidth, windowHeight,
-              static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
-              0 * bandSpace), destWidth, destHeight,
-              this->TargetDataType, pixelSpace, lineSpace);
-      assert(err == CE_None);
-      completedBand = 1.0;
-    }
-  }
-  else if (paletteBand)
-  {
-    allBands[paletteIndex - 1] = nullptr;
-    groupIndex.push_back(paletteIndex);
-    // Read indexes
-    this->Reader->SetNumberOfScalarComponents(1);
-    rawUniformGridData.resize(destWidth * destHeight * pixelSpace);
-    err = paletteBand->RasterIO(
-      GF_Read, windowX, windowY,  windowWidth, windowHeight,
-      static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
-      0 * bandSpace), destWidth, destHeight,
-      this->TargetDataType, pixelSpace, lineSpace);
-    assert(err == CE_None);
-
-    this->ReadColorTable(paletteBand, colorTable);
-    completedBand = 1.0;
-  }
-  this->Reader->UpdateProgress(completedBand / enabledBands);
-
-  (void)err; //unused
-
   const double* d = GetGeoCornerPoints();
   // 4,5 are the x,y coordinates for the opposite corner to 0,1
   double geoSpacing[] = {(d[4]-d[0])/this->Reader->RasterDimensions[0],
@@ -545,9 +416,139 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
   this->UniformGridData->SetExtent(0, destWidth, 0, destHeight, 0, 0);
   this->UniformGridData->SetSpacing(std::abs(geoSpacing[0]), std::abs(geoSpacing[1]), geoSpacing[2]);
   this->UniformGridData->SetOrigin(std::min(d[0], d[4]), std::min(d[1], d[5]), 0);
-  this->Convert<VTK_TYPE, RAW_TYPE>(rawUniformGridData, destWidth, destHeight,
-                                    groupIndex, "Elevation", geoSpacing[0] < 0, geoSpacing[1] < 0);
-  this->UniformGridData->GetCellData()->SetActiveScalars("Elevation");
+
+  std::vector<int> groupIndex;
+  double completedBand = 0.0;
+  if (this->Reader->CollateBands)
+  {
+    if (redBand && greenBand && blueBand)
+    {
+      allBands[redIndex - 1] = nullptr;
+      groupIndex.push_back(redIndex);
+      allBands[greenIndex - 1] = nullptr;
+      groupIndex.push_back(greenIndex);
+      allBands[blueIndex - 1] = nullptr;
+      groupIndex.push_back(blueIndex);
+      if (alphaBand)
+      {
+        allBands[alphaIndex - 1] = nullptr;
+        groupIndex.push_back(alphaIndex);
+        this->Reader->SetNumberOfScalarComponents(4);
+        rawUniformGridData.resize(4 * destWidth * destHeight * pixelSpace);
+
+        err = redBand->RasterIO(
+          GF_Read, windowX, windowY,  windowWidth, windowHeight,
+          static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
+                             0 * bandSpace), destWidth, destHeight,
+          this->TargetDataType, pixelSpace, lineSpace);
+        assert(err == CE_None);
+        err = greenBand->RasterIO(
+          GF_Read, windowX, windowY,  windowWidth, windowHeight,
+          static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
+                             1 * bandSpace), destWidth, destHeight,
+          this->TargetDataType, pixelSpace, lineSpace);
+        assert(err == CE_None);
+        err = blueBand->RasterIO(
+          GF_Read, windowX, windowY,  windowWidth, windowHeight,
+          static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
+                             2 * bandSpace), destWidth, destHeight,
+          this->TargetDataType, pixelSpace, lineSpace);
+        assert(err == CE_None);
+        err = alphaBand->RasterIO(
+          GF_Read, windowX, windowY,  windowWidth, windowHeight,
+          static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
+                             3 * bandSpace), destWidth, destHeight,
+          this->TargetDataType, pixelSpace, lineSpace);
+        assert(err == CE_None);
+        completedBand = 4.0;
+      }
+      else
+      {
+        this->Reader->SetNumberOfScalarComponents(3);
+        rawUniformGridData.resize(3 * destWidth * destHeight * pixelSpace);
+
+        err = redBand->RasterIO(
+          GF_Read, windowX, windowY,  windowWidth, windowHeight,
+          static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
+                             0 * bandSpace), destWidth, destHeight,
+          this->TargetDataType, 0, 0);
+        assert(err == CE_None);
+        err = greenBand->RasterIO(GF_Read, windowX, windowY,  windowWidth, windowHeight,
+                                  static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
+                                                     1 * bandSpace), destWidth, destHeight,
+                                  this->TargetDataType, 0,0);
+        assert(err == CE_None);
+        err = blueBand->RasterIO(GF_Read, windowX, windowY,  windowWidth, windowHeight,
+                                 static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
+                                                    2 * bandSpace), destWidth, destHeight,
+                                 this->TargetDataType, 0,0);
+        assert(err == CE_None);
+        completedBand = 3.0;
+      }
+    }
+    else if (grayBand)
+    {
+      allBands[grayIndex - 1] = nullptr;
+      groupIndex.push_back(grayIndex);
+      if (alphaBand)
+      {
+        allBands[alphaIndex - 1] = nullptr;
+        groupIndex.push_back(alphaIndex);
+        // Luminance alpha
+        this->Reader->SetNumberOfScalarComponents(2);
+        rawUniformGridData.resize(2 * destWidth * destHeight * pixelSpace);
+
+        err = grayBand->RasterIO(
+          GF_Read, windowX, windowY,  windowWidth, windowHeight,
+          static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
+                             0 * bandSpace), destWidth, destHeight,
+          this->TargetDataType, pixelSpace, lineSpace);
+        assert(err == CE_None);
+        err =  alphaBand->RasterIO(
+          GF_Read, windowX, windowY,  windowWidth, windowHeight,
+          static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
+                             1 * bandSpace), destWidth, destHeight,
+          this->TargetDataType, pixelSpace, lineSpace);
+        assert(err == CE_None);
+        completedBand = 2.0;
+      }
+      else
+      {
+        // Luminance
+        this->Reader->SetNumberOfScalarComponents(1);
+        rawUniformGridData.resize(destWidth * destHeight * pixelSpace);
+        err = grayBand->RasterIO(
+          GF_Read, windowX, windowY,  windowWidth, windowHeight,
+          static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
+                             0 * bandSpace), destWidth, destHeight,
+          this->TargetDataType, pixelSpace, lineSpace);
+        assert(err == CE_None);
+        completedBand = 1.0;
+      }
+    }
+    else if (paletteBand)
+    {
+      allBands[paletteIndex - 1] = nullptr;
+      groupIndex.push_back(paletteIndex);
+      // Read indexes
+      this->Reader->SetNumberOfScalarComponents(1);
+      rawUniformGridData.resize(destWidth * destHeight * pixelSpace);
+      err = paletteBand->RasterIO(
+        GF_Read, windowX, windowY,  windowWidth, windowHeight,
+        static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
+                           0 * bandSpace), destWidth, destHeight,
+        this->TargetDataType, pixelSpace, lineSpace);
+      assert(err == CE_None);
+
+      this->ReadColorTable(paletteBand, colorTable);
+      completedBand = 1.0;
+    }
+    this->Reader->UpdateProgress(completedBand / enabledBands);
+    (void)err; //unused
+    this->Convert<VTK_TYPE, RAW_TYPE>(rawUniformGridData, destWidth, destHeight,
+                                      groupIndex, "Elevation", geoSpacing[0] < 0, geoSpacing[1] < 0);
+    this->UniformGridData->GetCellData()->SetActiveScalars("Elevation");
+  }
   groupIndex.resize(1, 0);
   rawUniformGridData.resize(destWidth * destHeight * pixelSpace);
   for (size_t i = 0; i < allBands.size(); ++i)
@@ -828,8 +829,7 @@ void vtkGDALRasterReader::PrintSelf(std::ostream& os, vtkIndent indent)
 
 
 //-----------------------------------------------------------------------------
-vtkGDALRasterReader::vtkGDALRasterReader() : vtkImageReader2(),
-  Impl(0)
+vtkGDALRasterReader::vtkGDALRasterReader() : vtkImageReader2()
 {
   this->Impl = new vtkGDALRasterReaderInternal(this);
 
@@ -856,6 +856,7 @@ vtkGDALRasterReader::vtkGDALRasterReader() : vtkImageReader2(),
 
   this->RasterDimensions[0] = -1;
   this->RasterDimensions[1] = -1;
+  this->CollateBands = true;
 }
 
 //-----------------------------------------------------------------------------

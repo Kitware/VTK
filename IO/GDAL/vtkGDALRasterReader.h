@@ -62,6 +62,15 @@ public:
    */
   const double* GetGeoCornerPoints();
 
+  /**
+   * Get/Set if bands are collated in one scalar array.
+   * Currently we collate RGB, RGBA, gray alpha and pallete.
+   * The default is true.
+   */
+  vtkSetMacro(CollateBands, bool);
+  vtkGetMacro(CollateBands, bool);
+  vtkBooleanMacro(CollateBands, bool);
+
   //@{
   /**
    * Set desired width and height of the image
@@ -143,6 +152,7 @@ protected:
   std::string DriverLongName;
   std::vector<std::string> Domains;
   std::vector<std::string> MetaData;
+  bool CollateBands;
 
   class vtkGDALRasterReaderInternal;
   vtkGDALRasterReaderInternal* Impl;
