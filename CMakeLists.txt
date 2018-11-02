@@ -16,8 +16,8 @@ project(VTK)
 set(CMAKE_DEBUG_POSTFIX "" CACHE STRING "Add a postfix to the debug libraries")
 mark_as_advanced(CMAKE_DEBUG_POSTFIX)
 
-set(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
-set(CMAKE_MODULE_PATH ${VTK_CMAKE_DIR} ${CMAKE_MODULE_PATH})
+set(vtk_cmake_dir "${VTK_SOURCE_DIR}/CMake")
+list(INSERT CMAKE_MODULE_PATH 0 "${vtk_cmake_dir}")
 
 if (APPLE)
   include(vtkApple)
@@ -75,7 +75,7 @@ add_subdirectory(Remote)
 #-----------------------------------------------------------------------------
 # Does VTK require support for 64 bit file systems
 include(CheckCXXSourceRuns)
-file(READ "${VTK_CMAKE_DIR}/vtkRequireLargeFilesSupport.cxx"
+file(READ "${vtk_cmake_dir}/vtkRequireLargeFilesSupport.cxx"
   VTK_REQUIRE_LARGE_FILE_SUPPORT_FILE)
 check_cxx_source_runs("${VTK_REQUIRE_LARGE_FILE_SUPPORT_FILE}"
   CMAKE_REQUIRE_LARGE_FILE_SUPPORT "Support for 64 bit file systems")
@@ -135,7 +135,7 @@ foreach(vtk-module ${VTK_MODULES_ALL})
   set(memcheck_excluded_tests
     "${memcheck_excluded_tests}  ${vtk-module}-HeaderTest\n")
 endforeach()
-configure_file("${VTK_CMAKE_DIR}/CTestCustom.cmake.in"
+configure_file("${vtk_cmake_dir}/CTestCustom.cmake.in"
   "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake" @ONLY)
 
 #-----------------------------------------------------------------------------
