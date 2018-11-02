@@ -101,14 +101,14 @@ if(LIBHPDF_SHARED)
   )
 endif(LIBHPDF_SHARED)
 else ()
-  vtk_add_library(vtklibharu ${LIBHPDF_SRCS})
-  target_link_libraries(vtklibharu PRIVATE ${vtkzlib_LIBRARIES} ${vtkpng_LIBRARIES})
+  vtk_module_add_module(VTK::libharu
+    SOURCES ${LIBHPDF_SRCS})
   if (WIN32)
-    set_target_properties(vtklibharu
+    set_target_properties(libharu
       PROPERTIES
         DEFINE_SYMBOL HPDF_DLL_MAKE)
   endif ()
-  target_include_directories(vtklibharu
+  target_include_directories(libharu
     PUBLIC
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>"
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../include>")

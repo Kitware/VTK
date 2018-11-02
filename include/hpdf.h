@@ -56,6 +56,7 @@
 #include "hpdf_types.h"
 
 typedef void         *HPDF_HANDLE;
+typedef HPDF_HANDLE   HPDF_Boolean;
 typedef HPDF_HANDLE   HPDF_Doc;
 typedef HPDF_HANDLE   HPDF_Page;
 typedef HPDF_HANDLE   HPDF_Pages;
@@ -80,7 +81,6 @@ typedef HPDF_HANDLE   HPDF_EmbeddedFile;
 typedef HPDF_HANDLE   HPDF_OutputIntent;
 typedef HPDF_HANDLE   HPDF_Xref;
 typedef HPDF_HANDLE   HPDF_Shading;
-typedef HPDF_HANDLE   HPDF_Boolean;
 
 #else
 

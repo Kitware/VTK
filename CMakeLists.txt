@@ -246,12 +246,9 @@ set(
     "${CMAKE_CURRENT_BINARY_DIR}/include/hpdf_config.h"
 )
 
-if (NOT VTK_INSTALL_NO_DEVELOPMENT)
-  install(FILES
-    ${haru_HDRS}
-    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtklibharu/include"
-    COMPONENT Development)
-endif()
+vtk_module_install_headers(
+  FILES   ${haru_HDRS}
+  SUBDIR  "vtklibharu/include")
 
 # install header files
 if (FALSE) # XXX(kitware): VTK handles installation
