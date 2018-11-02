@@ -14,84 +14,96 @@
 =========================================================================*/
 // This example shows how to manually create vtkPolyData.
 
-#include "vtkActor.h"
-#include "vtkCamera.h"
-#include "vtkCellArray.h"
-#include "vtkFloatArray.h"
-#include "vtkPointData.h"
-#include "vtkPoints.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderer.h"
+// For a python version, please see:
+// [Cube](https://lorensen.github.io/VTKExamples/site/Python/DataManipulation/Cube/)
+
+#include <vtkActor.h>
+#include <vtkCamera.h>
+#include <vtkCellArray.h>
+#include <vtkFloatArray.h>
+#include <vtkNamedColors.h>
+#include <vtkNew.h>
+#include <vtkPointData.h>
+#include <vtkPoints.h>
+#include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
+
+#include <array>
 
 int main()
 {
-  int i;
-  static float x[8][3]={{0,0,0}, {1,0,0}, {1,1,0}, {0,1,0},
-                        {0,0,1}, {1,0,1}, {1,1,1}, {0,1,1}};
-  static vtkIdType pts[6][4]={{0,1,2,3}, {4,5,6,7}, {0,1,5,4},
-                        {1,2,6,5}, {2,3,7,6}, {3,0,4,7}};
+  vtkNew<vtkNamedColors> colors;
+
+  std::array<std::array<double, 3>, 8> pts = {{{{0, 0, 0}},
+                                               {{1, 0, 0}},
+                                               {{1, 1, 0}},
+                                               {{0, 1, 0}},
+                                               {{0, 0, 1}},
+                                               {{1, 0, 1}},
+                                               {{1, 1, 1}},
+                                               {{0, 1, 1}}}};
+  // The ordering of the corner points on each face.
+  std::array<std::array<vtkIdType, 4>, 6> ordering = {{{{0, 1, 2, 3}},
+                                                       {{4, 5, 6, 7}},
+                                                       {{0, 1, 5, 4}},
+                                                       {{1, 2, 6, 5}},
+                                                       {{2, 3, 7, 6}},
+                                                       {{3, 0, 4, 7}}}};
 
   // We'll create the building blocks of polydata including data attributes.
-  vtkPolyData *cube = vtkPolyData::New();
-  vtkPoints *points = vtkPoints::New();
-  vtkCellArray *polys = vtkCellArray::New();
-  vtkFloatArray *scalars = vtkFloatArray::New();
+  vtkNew<vtkPolyData> cube;
+  vtkNew<vtkPoints> points;
+  vtkNew<vtkCellArray> polys;
+  vtkNew<vtkFloatArray> scalars;
 
   // Load the point, cell, and data attributes.
-  for (i=0; i<8; i++) points->InsertPoint(i,x[i]);
-  for (i=0; i<6; i++) polys->InsertNextCell(4,pts[i]);
-  for (i=0; i<8; i++) scalars->InsertTuple1(i,i);
+  for (auto i = 0ul; i < pts.size(); ++i)
+  {
+    points->InsertPoint(i, pts[i].data());
+    scalars->InsertTuple1(i, i);
+  }
+  for (auto&& i : ordering)
+  {
+    polys->InsertNextCell(vtkIdType(i.size()), i.data());
+  }
 
   // We now assign the pieces to the vtkPolyData.
   cube->SetPoints(points);
-  points->Delete();
   cube->SetPolys(polys);
-  polys->Delete();
   cube->GetPointData()->SetScalars(scalars);
-  scalars->Delete();
 
   // Now we'll look at it.
-  vtkPolyDataMapper *cubeMapper = vtkPolyDataMapper::New();
-      cubeMapper->SetInputData(cube);
-      cubeMapper->SetScalarRange(0,7);
-  vtkActor *cubeActor = vtkActor::New();
-      cubeActor->SetMapper(cubeMapper);
+  vtkNew<vtkPolyDataMapper> cubeMapper;
+  cubeMapper->SetInputData(cube);
+  cubeMapper->SetScalarRange(cube->GetScalarRange());
+  vtkNew<vtkActor> cubeActor;
+  cubeActor->SetMapper(cubeMapper);
 
   // The usual rendering stuff.
-  vtkCamera *camera = vtkCamera::New();
-      camera->SetPosition(1,1,1);
-      camera->SetFocalPoint(0,0,0);
+  vtkNew<vtkCamera> camera;
+  camera->SetPosition(1, 1, 1);
+  camera->SetFocalPoint(0, 0, 0);
 
-  vtkRenderer *renderer = vtkRenderer::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
-    renWin->AddRenderer(renderer);
+  vtkNew<vtkRenderer> renderer;
+  vtkNew<vtkRenderWindow> renWin;
+  renWin->AddRenderer(renderer);
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-    iren->SetRenderWindow(renWin);
+  vtkNew<vtkRenderWindowInteractor> iren;
+  iren->SetRenderWindow(renWin);
 
   renderer->AddActor(cubeActor);
-      renderer->SetActiveCamera(camera);
-      renderer->ResetCamera();
-      renderer->SetBackground(1,1,1);
+  renderer->SetActiveCamera(camera);
+  renderer->ResetCamera();
+  renderer->SetBackground(colors->GetColor3d("Cornsilk").GetData());
 
-  renWin->SetSize(300,300);
+  renWin->SetSize(600, 600);
 
   // interact with data
   renWin->Render();
   iren->Start();
 
-  // Clean up
-
-  cube->Delete();
-  cubeMapper->Delete();
-  cubeActor->Delete();
-  camera->Delete();
-  renderer->Delete();
-  renWin->Delete();
-  iren->Delete();
-
-  return 0;
+  return EXIT_SUCCESS;
 }
