@@ -13,9 +13,6 @@ endif()
 
 project(VTK)
 
-set(CMAKE_DEBUG_POSTFIX "" CACHE STRING "Add a postfix to the debug libraries")
-mark_as_advanced(CMAKE_DEBUG_POSTFIX)
-
 set(vtk_cmake_dir "${VTK_SOURCE_DIR}/CMake")
 list(INSERT CMAKE_MODULE_PATH 0 "${vtk_cmake_dir}")
 
