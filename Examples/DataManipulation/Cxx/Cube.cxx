@@ -67,7 +67,7 @@ int main()
   }
   for (auto&& i : ordering)
   {
-    polys->InsertNextCell(i.size(), i.data());
+    polys->InsertNextCell(vtkIdType(i.size()), i.data());
   }
 
   // We now assign the pieces to the vtkPolyData.
