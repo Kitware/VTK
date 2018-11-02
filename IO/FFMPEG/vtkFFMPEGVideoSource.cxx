@@ -117,24 +117,16 @@ vtkStandardNewMacro(vtkFFMPEGVideoSource);
 
 //----------------------------------------------------------------------------
 vtkFFMPEGVideoSource::vtkFFMPEGVideoSource()
+  : AudioCallback(nullptr)
+  , AudioCallbackClientData(nullptr)
+  , DecodingThreads(4)
+  , DrainAudioThreadId(-1)
+  , DrainThreadId(-1)
+  , EndOfFile(true)
+  , FeedThreadId(-1)
+  , FileName(nullptr)
 {
   this->Internal = new vtkFFMPEGVideoSourceInternal;
-  this->Initialized = 0;
-  this->FileName = nullptr;
-
-  this->FrameRate = 30;
-  this->OutputFormat = VTK_RGB;
-  this->NumberOfScalarComponents = 3;
-  this->FrameBufferBitsPerPixel = 24;
-  this->FlipFrames = 0;
-  this->FrameBufferRowAlignment = 4;
-  this->EndOfFile = true;
-  this->AudioCallback = nullptr;
-  this->AudioCallbackClientData = nullptr;
-  this->DecodingThreads = 4;
-  this->FeedThreadId = -1;
-  this->DrainThreadId = -1;
-  this->DrainAudioThreadId = -1;
 }
 
 //----------------------------------------------------------------------------
