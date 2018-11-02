@@ -66,7 +66,10 @@ vtkOpenGLAvatar::vtkOpenGLAvatar()
   this->GetProperty()->SetDiffuse(0.7);
   this->GetProperty()->SetAmbient(0.3);
   this->GetProperty()->SetSpecular(0.0);
+  // link properties, share color.
   this->HeadActor->SetProperty(this->GetProperty());
+  this->LeftHandActor->SetProperty(this->GetProperty());
+  this->RightHandActor->SetProperty(this->GetProperty());
 }
 
 vtkOpenGLAvatar::~vtkOpenGLAvatar() = default;
@@ -76,10 +79,13 @@ void vtkOpenGLAvatar::Render(vtkRenderer *ren, vtkMapper *mapper)
 {
   vtkOpenGLClearErrorMacro();
 
+  this->HeadActor->SetScale(this->GetScale());
   this->HeadActor->SetPosition(this->HeadPosition);
   this->HeadActor->SetOrientation(this->HeadOrientation);
+  this->LeftHandActor->SetScale(this->GetScale());
   this->LeftHandActor->SetPosition(this->LeftHandPosition);
   this->LeftHandActor->SetOrientation(this->LeftHandOrientation);
+  this->RightHandActor->SetScale(this->GetScale());
   this->RightHandActor->SetPosition(this->RightHandPosition);
   this->RightHandActor->SetOrientation(this->RightHandOrientation);
 
