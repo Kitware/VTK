@@ -433,6 +433,8 @@ struct CellIter
     }
   }
 
+  CellIter(const CellIter &) = default; //remove compiler warnings
+
   // Shallow copy to avoid new/delete.
   CellIter& operator=(const CellIter& cellIter)
   {
@@ -526,19 +528,14 @@ struct CellIter
     {
       case VTK_TETRA:
         return this->Tet;
-        break;
       case VTK_HEXAHEDRON:
         return this->Hex;
-        break;
       case VTK_WEDGE:
         return this->Wedge;
-        break;
       case VTK_PYRAMID:
         return this->Pyr;
-        break;
       case VTK_VOXEL:
         return this->Vox;
-        break;
      default:
        return this->Empty;
     }
