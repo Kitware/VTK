@@ -83,6 +83,8 @@ public:
   vtkUnsignedCharArray* StillRender(vtkRenderWindow* view, int quality = 100);
   vtkUnsignedCharArray* InteractiveRender(vtkRenderWindow* view, int quality = 50);
   const char* StillRenderToString(vtkRenderWindow* view, vtkMTimeType time = 0, int quality = 100);
+  vtkUnsignedCharArray* StillRenderToBuffer(
+    vtkRenderWindow* view, vtkMTimeType time = 0, int quality = 100);
   //@}
 
   /**

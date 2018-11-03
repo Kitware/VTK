@@ -228,7 +228,8 @@ vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int 
 }
 
 //----------------------------------------------------------------------------
-const char* vtkWebApplication::StillRenderToString(vtkRenderWindow* view, vtkMTimeType time, int quality)
+const char* vtkWebApplication::StillRenderToString(
+  vtkRenderWindow* view, vtkMTimeType time, int quality)
 {
   vtkUnsignedCharArray* array = this->StillRender(view, quality);
   if (array && array->GetMTime() != time)
@@ -238,6 +239,19 @@ const char* vtkWebApplication::StillRenderToString(vtkRenderWindow* view, vtkMTi
     return reinterpret_cast<char*>(array->GetPointer(0));
   }
   return nullptr;
+}
+
+ //----------------------------------------------------------------------------
+vtkUnsignedCharArray* vtkWebApplication::StillRenderToBuffer(
+  vtkRenderWindow* view, vtkMTimeType time, int quality)
+{
+  vtkUnsignedCharArray* array = this->StillRender(view, quality);
+  if (array && array->GetMTime() != time)
+  {
+    this->LastStillRenderToMTime = array->GetMTime();
+    return array;
+  }
+  return NULL;
 }
 
 //----------------------------------------------------------------------------

@@ -382,6 +382,15 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
 
 
     @exportRpc("viewport.image.push")
+    def imagePush(self, options):
+        sView = self.getView(options["view"])
+        realViewId = str(self.getGlobalId(sView))
+         # Make sure an image is pushed
+        self.getApplication().InvalidateCache(sView)
+        self.pushRender(realViewId)
+
+    # Internal function since the reply[image] is not
+    # JSON(serializable) it can not be an RPC one
     def stillRender(self, options):
         """
         RPC Callback to render a view and obtain the rendered image.
