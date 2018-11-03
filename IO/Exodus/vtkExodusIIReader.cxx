@@ -3847,6 +3847,12 @@ int vtkExodusIIReaderPrivate::OpenFile( const char* filename )
 
   this->Exoid = ex_open( filename, EX_READ,
     &this->AppWordSize, &this->DiskWordSize, &this->ExodusVersion );
+  if ( this->Exoid <= 0 )
+  {
+    vtkErrorMacro( "Unable to open \"" << filename << "\" for reading" );
+    return 0;
+  }
+
 #ifdef VTK_USE_64BIT_IDS
   // Set the exodus API to always return integer types as 64-bit
   // without this call, large exodus files are not supported (which
@@ -3859,12 +3865,6 @@ int vtkExodusIIReaderPrivate::OpenFile( const char* filename )
   // this is because in our current version of the ExodusII libraries the exo Id isn't used
   // in the ex_set_max_name_length() function.
   ex_set_max_name_length(this->Exoid, this->Parent->GetMaxNameLength());
-
-  if ( this->Exoid <= 0 )
-  {
-    vtkErrorMacro( "Unable to open \"" << filename << "\" for reading" );
-    return 0;
-  }
 
   vtkIdType numNodesInFile;
   char dummyChar;
