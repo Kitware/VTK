@@ -178,7 +178,6 @@ vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int 
     value.Data != nullptr /* FIXME SEB &&
     view->HasDirtyRepresentation() == false */)
   {
-    //cout <<  "Reusing cache" << endl;
     bool latest = this->Internals->Encoder->GetLatestOutput(this->Internals->ObjectIdMap->GetGlobalId(view), value.Data);
     value.HasImagesBeingProcessed = !latest;
     return value.Data;
@@ -210,7 +209,9 @@ vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int 
   //vtkTimerLog::MarkEndEvent("StillRenderToString");
   //vtkTimerLog::DumpLogWithIndents(&cout, 0.0);
 
-  this->Internals->Encoder->PushAndTakeReference(this->Internals->ObjectIdMap->GetGlobalId(view), image, quality);
+  this->Internals->Encoder->PushAndTakeReference(
+    this->Internals->ObjectIdMap->GetGlobalId(view), image, quality,
+    this->ImageEncoding);
   assert(image == nullptr);
 
   if (value.Data == nullptr)
