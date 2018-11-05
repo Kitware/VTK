@@ -14,17 +14,16 @@
 =========================================================================*/
 /**
  * @class vtkAvatar
- * @brief Renders a skybox environment
+ * @brief Renders head and hands for a user in VR
  *
- * You must provide a texture cube map using the SetTexture method.
+ * Set position and orientation for the head and two hands,
+ * shows an observer where the avatar is looking and pointing.
  */
 
 #ifndef vtkAvatar_h
 #define vtkAvatar_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
-#include "vtkMatrix4x4.h" // for member vars
-#include "vtkNew.h" // for ivars
 #include "vtkActor.h"
 
 class VTKRENDERINGCORE_EXPORT vtkAvatar: public vtkActor
