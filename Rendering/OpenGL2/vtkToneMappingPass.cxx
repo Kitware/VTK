@@ -49,6 +49,31 @@ vtkToneMappingPass::~vtkToneMappingPass()
 }
 
 // ----------------------------------------------------------------------------
+void vtkToneMappingPass::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "FrameBufferObject:";
+  if(this->FrameBufferObject!=nullptr)
+  {
+    this->FrameBufferObject->PrintSelf(os,indent);
+  }
+  else
+  {
+    os << "(none)" <<endl;
+  }
+  os << indent << "ColorTexture:";
+  if(this->ColorTexture!=nullptr)
+  {
+    this->ColorTexture->PrintSelf(os,indent);
+  }
+  else
+  {
+    os << "(none)" <<endl;
+  }
+}
+
+// ----------------------------------------------------------------------------
 void vtkToneMappingPass::Render(const vtkRenderState* s)
 {
   vtkOpenGLClearErrorMacro();
