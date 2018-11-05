@@ -126,6 +126,12 @@ vtkFFMPEGVideoSource::vtkFFMPEGVideoSource()
   , FeedThreadId(-1)
   , FileName(nullptr)
 {
+  // changed from superclass
+  this->OutputFormat = VTK_RGB;
+  this->FrameBufferBitsPerPixel = 24;
+  this->NumberOfScalarComponents = 3;
+  this->FrameBufferRowAlignment = 4;
+
   this->Internal = new vtkFFMPEGVideoSourceInternal;
 }
 
