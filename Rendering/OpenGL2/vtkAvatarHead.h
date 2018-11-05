@@ -6,3 +6,4 @@
 VTKRENDERINGOPENGL2_EXPORT extern const char *vtkAvatarHead;
 
 #endif
+// VTK-HeaderTest-Exclude: vtkAvatarHead.h
