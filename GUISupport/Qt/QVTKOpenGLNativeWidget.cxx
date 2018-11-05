@@ -553,7 +553,6 @@ void QVTKOpenGLNativeWidget::paintGL()
     // a call to ostate->ResetEnumState(GL_SCISSOR_TEST); to reset the cache state
     // to whatever the value in OpenGL is.
     ostate->vtkglDisable(GL_SCISSOR_TEST); // Scissor affects glBindFramebuffer.
-    f->glDisable(GL_SCISSOR_TEST); // Scissor affects glBindFramebuffer.
     f->glBlitFramebuffer(0, 0, this->RenderWindow->GetSize()[0], this->RenderWindow->GetSize()[1],
       0, 0, this->RenderWindow->GetSize()[0], this->RenderWindow->GetSize()[1], GL_COLOR_BUFFER_BIT,
       GL_NEAREST);
