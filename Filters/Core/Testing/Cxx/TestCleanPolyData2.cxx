@@ -26,7 +26,7 @@ namespace
     vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
     points->InsertNextPoint(0.0, 0.0, 0.0);
     points->InsertNextPoint(1.0, 0.0, 0.0);
-    points->InsertNextPoint(1.0, 1.0, 0.0); // Unused
+    points->InsertNextPoint(1.0, 1.0, 0.0);
     points->InsertNextPoint(0.0, 0.0, 0.0); // Repeated point 0
 
     vtkSmartPointer<vtkCellArray> degeneratedLines = vtkSmartPointer<vtkCellArray>::New();
@@ -45,6 +45,24 @@ namespace
     ptIds[0] = 0;
     ptIds[1] = 3;
     degeneratedLines->InsertNextCell(2, ptIds);
+
+    // Construct a non-degenerate poly line
+    ptIds[0] = 0;
+    ptIds[1] = 1;
+    ptIds[2] = 2;
+    degeneratedLines->InsertNextCell(3, ptIds);
+
+    // Construct a degenerate polyline
+    ptIds[0] = 0;
+    ptIds[1] = 1;
+    ptIds[3] = 1;
+    degeneratedLines->InsertNextCell(3, ptIds);
+
+    // Construct a polyline that is degenerate to a vertex ONLY if point merging is ON
+    ptIds[0] = 0;
+    ptIds[1] = 3;
+    ptIds[2] = 0;
+    degeneratedLines->InsertNextCell(3, ptIds);
 
     vtkSmartPointer<vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
     polydata->SetPoints(points);
@@ -201,27 +219,37 @@ namespace
 
       if (ds->GetNumberOfPoints() != numExpectedPoints)
       {
-          return false;
+        std::cerr << "Expected " << numExpectedPoints << " but got " << ds->GetNumberOfPoints()
+          << " points." << std::endl;
+        return false;
       }
 
       if (ds->GetNumberOfVerts() != numExpectedVertices)
       {
-          return false;
+        std::cerr << "Expected " << numExpectedVertices << " but got " << ds->GetNumberOfVerts()
+          << " verts." << std::endl;
+        return false;
       }
 
       if (ds->GetNumberOfLines() != numExpectedLines)
       {
-          return false;
+        std::cerr << "Expected " << numExpectedLines << " but got " << ds->GetNumberOfLines()
+          << " lines." << std::endl;
+        return false;
       }
 
       if (ds->GetNumberOfPolys() != numExpectedPolys)
       {
-          return false;
+        std::cerr << "Expected " << numExpectedPolys << " but got " << ds->GetNumberOfPolys()
+          << " polys." << std::endl;
+        return false;
       }
 
       if (ds->GetNumberOfStrips() != numExpectedStrips)
       {
-          return false;
+        std::cerr << "Expected " << numExpectedStrips << " but got " << ds->GetNumberOfStrips()
+          << " strips." << std::endl;
+        return false;
       }
 
       return true;
@@ -242,7 +270,7 @@ int TestCleanPolyData2(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   clean->ConvertStripsToPolysOn();
 
   clean->SetInputData(lines);
-  if(!UpdateAndTestCleanPolyData(clean, 3, 1, 2, 0, 0))
+  if(!UpdateAndTestCleanPolyData(clean, 4, 1, 5, 0, 0))
   {
       return EXIT_FAILURE;
   }
@@ -265,7 +293,7 @@ int TestCleanPolyData2(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   clean->ConvertStripsToPolysOff();
 
   clean->SetInputData(lines);
-  if(!UpdateAndTestCleanPolyData(clean, 3, 0, 2, 0, 0))
+  if(!UpdateAndTestCleanPolyData(clean, 4, 0, 5, 0, 0))
   {
       return EXIT_FAILURE;
   }
@@ -289,7 +317,7 @@ int TestCleanPolyData2(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   clean->ConvertStripsToPolysOn();
 
   clean->SetInputData(lines);
-  if (!UpdateAndTestCleanPolyData(clean, 2, 2, 1, 0, 0))
+  if (!UpdateAndTestCleanPolyData(clean, 3, 3, 3, 0, 0))
   {
       return EXIT_FAILURE;
   }
@@ -312,7 +340,7 @@ int TestCleanPolyData2(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   clean->ConvertStripsToPolysOff();
 
   clean->SetInputData(lines);
-  if (!UpdateAndTestCleanPolyData(clean, 2, 0, 1, 0, 0))
+  if (!UpdateAndTestCleanPolyData(clean, 3, 0, 3, 0, 0))
   {
       return EXIT_FAILURE;
   }
