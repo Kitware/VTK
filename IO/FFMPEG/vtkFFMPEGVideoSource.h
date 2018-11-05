@@ -158,23 +158,10 @@ protected:
   vtkFFMPEGVideoSource();
   ~vtkFFMPEGVideoSource();
 
-  int DecodingThreads;
-
   AudioCallbackType AudioCallback;
   void *AudioCallbackClientData;
 
-  void ReadFrame();
-
-  vtkFFMPEGVideoSourceInternal *Internal;
-
-  vtkNew<vtkConditionVariable> FeedCondition;
-  vtkNew<vtkMutexLock> FeedMutex;
-  vtkNew<vtkConditionVariable> FeedAudioCondition;
-  vtkNew<vtkMutexLock> FeedAudioMutex;
-  static void *FeedThread(
-    vtkMultiThreader::ThreadInfo *data);
-  void *Feed(vtkMultiThreader::ThreadInfo *data);
-  int FeedThreadId;
+  int DecodingThreads;
 
   static void *DrainAudioThread(
     vtkMultiThreader::ThreadInfo *data);
@@ -186,8 +173,22 @@ protected:
   void *Drain(vtkMultiThreader::ThreadInfo *data);
   int DrainThreadId;
 
-  char *FileName;
   bool EndOfFile;
+
+  vtkNew<vtkConditionVariable> FeedCondition;
+  vtkNew<vtkMutexLock> FeedMutex;
+  vtkNew<vtkConditionVariable> FeedAudioCondition;
+  vtkNew<vtkMutexLock> FeedAudioMutex;
+  static void *FeedThread(
+    vtkMultiThreader::ThreadInfo *data);
+  void *Feed(vtkMultiThreader::ThreadInfo *data);
+  int FeedThreadId;
+
+  char *FileName;
+
+  vtkFFMPEGVideoSourceInternal *Internal;
+
+  void ReadFrame();
 
 private:
   vtkFFMPEGVideoSource(const vtkFFMPEGVideoSource&) = delete;
