@@ -479,7 +479,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
 
   // destWidth, destHeight are the number of cells. Points are one more than cells
   this->UniformGridData->SetExtent(0, destWidth, 0, destHeight, 0, 0);
-  this->UniformGridData->SetSpacing(abs(geoSpacing[0]), abs(geoSpacing[1]), geoSpacing[2]);
+  this->UniformGridData->SetSpacing(std::abs(geoSpacing[0]), std::abs(geoSpacing[1]), geoSpacing[2]);
   this->UniformGridData->SetOrigin(std::min(d[0], d[4]), std::min(d[1], d[5]), 0);
   this->Convert<VTK_TYPE, RAW_TYPE>(rawUniformGridData, destWidth, destHeight,
                                     geoSpacing[0] < 0, geoSpacing[1] < 0);
