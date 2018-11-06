@@ -41,6 +41,10 @@
 #include "vtkRenderer.h"
 #include "vtkCamera.h"
 #include "vtkAbstractCellLocator.h"
+#include "vtkUniformHyperTreeGrid.h"
+#include "vtkAbstractHyperTreeGridMapper.h"
+#include "vtkBitArray.h"
+#include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 
 #include <algorithm>
 
@@ -289,6 +293,7 @@ double vtkCellPicker::IntersectWithLine(const double p1[3], const double p2[3],
   vtkMapper *mapper = nullptr;
   vtkAbstractVolumeMapper *volumeMapper = nullptr;
   vtkImageMapper3D *imageMapper = nullptr;
+  vtkAbstractHyperTreeGridMapper* htgMapper = nullptr;
 
   double tMin = VTK_DOUBLE_MAX;
   double t1 = 0.0;
@@ -307,6 +312,12 @@ double vtkCellPicker::IntersectWithLine(const double p1[3], const double p2[3],
   if (this->PickClippingPlanes && clippingPlaneId >= 0)
   {
     tMin = t1;
+  }
+
+  // HyperTreeGrid
+  else if ( (htgMapper = vtkAbstractHyperTreeGridMapper::SafeDownCast(m)) )
+  {
+    tMin = this->IntersectHyperTreeGridWithLine(p1, p2, t1, t2, htgMapper);
   }
 
   // Volume
@@ -775,6 +786,237 @@ bool vtkCellPicker::IntersectDataSetWithLine(vtkDataSet* dataSet,
 }
 
 //----------------------------------------------------------------------------
+double vtkCellPicker::IntersectHyperTreeGridWithLine( const double p1[3],
+                                                      const double p2[3],
+                                                      double t1,
+                                                      double t2,
+                                                      vtkAbstractHyperTreeGridMapper* mapper )
+{
+  // Retrieve input grid
+  vtkUniformHyperTreeGrid* grid
+    = vtkUniformHyperTreeGrid::SafeDownCast( mapper->GetDataSetInput() );
+  if ( grid == nullptr )
+  {
+    // This picker works only with uniform hypertree grid inputs
+    return VTK_DOUBLE_MAX;
+  }
+
+  // Retrieve grid dimensionality
+  unsigned int dimension = grid->GetDimension();
+  if ( dimension != 2 )
+  {
+    // This picker works only with 2-dimensional uniform hypertree grids
+    return VTK_DOUBLE_MAX;
+  }
+
+  // Retrieve grid topology and geometry
+  double origin[3];
+  grid->GetOrigin( origin );
+  double scale[3];
+  grid->GetGridScale( scale );
+  int extent[6];
+  grid->GetGridExtent( extent );
+
+  // Determine normal vector of the grid
+  double normal[] = { 0., 0., 0., 1. };
+  unsigned int orientation = grid->GetOrientation();
+  if ( p1[orientation] - p2[orientation] > 0 )
+  {
+    normal[orientation] = 1.;
+    normal[3] = 1.;
+  }
+  else
+  {
+    normal[orientation] = - 1.;
+    normal[3] = - 1.;
+  }
+  normal[3] += vtkMath::Dot( origin, normal );
+  double norm = vtkMath::Norm( normal );
+  normal[orientation] /= norm;
+  normal[3] /= norm;
+
+  // Determine grid principal axes
+  unsigned axis1, axis2;
+  if ( orientation == 2 )
+  {
+    axis1 = 0;
+    axis2 = 1;
+  }
+  else if ( orientation == 1 )
+  {
+    axis1 = 0;
+    axis2 = 2;
+  }
+  else
+  {
+    axis1 = 1;
+    axis2 = 2;
+  }
+
+  // Compute ray intersection in grid coordinates
+  double gridPoint[3];
+  gridPoint[axis1] = ( p1[axis1] - origin[axis1] ) / scale[axis1];
+  gridPoint[axis2] = ( p1[axis2] - origin[axis2] ) / scale[axis2];
+  gridPoint[orientation] = origin[orientation];
+
+  // Compute mapper bounds in grid coordinates
+  double bounds[6];
+  mapper->GetBounds( bounds );
+  unsigned int da1 = 2 * axis1;
+  bounds[da1]
+    = ( bounds[da1] - origin[axis1] ) / scale[axis1];
+  bounds[da1 + 1 ]
+    = ( bounds[da1 + 1] - origin[axis1] ) / scale[axis1];
+  unsigned int da2 = 2 * axis2;
+  bounds[da2]
+    = ( bounds[da2] - origin[axis2] ) / scale[axis2];
+  bounds[da2 + 1 ]
+    = ( bounds[da2 + 1] - origin[axis2] ) / scale[axis2];
+
+  // Clip ray with view extent
+  int plane1, plane2;
+  double tMin, tMax;
+  if ( ! vtkBox::IntersectWithLine( bounds,
+                                    gridPoint, gridPoint,
+                                    tMin, tMax,
+                                    nullptr, nullptr,
+                                    plane1, plane2 ) )
+  {
+    return VTK_DOUBLE_MAX;
+  }
+
+  // Ensure that intersection is within clipping planes
+  if ( tMin < t1 || tMin > t2 )
+  {
+    return VTK_DOUBLE_MAX;
+  }
+
+  // Compute actual pick when picking conditions are met
+  if ( tMin < this->GlobalTMin )
+  {
+    // Compute index of root cell intercepted by ray
+    unsigned int i = 0, j = 0, k = 0;
+    switch ( orientation )
+    {
+    case 0:
+      i = 0;
+      j = static_cast<unsigned int>( floor( gridPoint[1] ) );
+      k = static_cast<unsigned int>( floor( gridPoint[2] ) );
+      break;
+    case 1:
+      i = static_cast<unsigned int>( floor( gridPoint[0] ) );
+      j = 0;
+      k = static_cast<unsigned int>( floor( gridPoint[2] ) );
+      break;
+    case 2:
+      i = static_cast<unsigned int>( floor( gridPoint[0] ) );
+      j = static_cast<unsigned int>( floor( gridPoint[1] ) );
+      k = 0;
+      break;
+    } // switch ( orientation )
+    vtkIdType index;
+    grid->GetIndexFromLevelZeroCoordinates( index, i, j, k );
+
+    // Retrieve material mask
+    this->InMaterialMask = grid->HasMaterialMask() ? grid->GetMaterialMask() : nullptr;
+
+    // Reset pick information
+    this->ResetPickInfo();
+    this->Mapper = mapper;
+    this->DataSet = grid;
+    this->SubId = 0;
+    this->PointId = -1;
+
+    // Convert grid into world coordinates
+    this->WordlPoint[axis1] = origin[axis1] + gridPoint[axis1] * scale[axis1];
+    this->WordlPoint[axis2] = origin[axis2] + gridPoint[axis2] * scale[axis2];
+    this->WordlPoint[orientation] = origin[orientation];
+
+    // Initialize new geometric cursor at tree of root cell
+    vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursor;
+    grid->InitializeNonOrientedGeometryCursor( cursor, index );
+    // Descend into tree only if needed
+    if ( ! cursor->IsLeaf() )
+    {
+      // Compute intersection interactively
+      this->RecursivelyProcessTree( cursor, 0 );
+    }
+    else
+    {
+      // Root cell is the intercepted cell
+      this->CellId = cursor->GetGlobalNodeIndex();
+    }
+
+    // If picked cell is masked then no picking occurred
+    if ( this->InMaterialMask && this->InMaterialMask->GetValue( this->CellId ) )
+    {
+      return VTK_DOUBLE_MAX;
+    }
+
+    // Set picked mapper position
+    this->MapperPosition[axis1] = this->WordlPoint[axis1];
+    this->MapperPosition[axis2] = this->WordlPoint[axis2];
+    this->MapperPosition[orientation] = this->WordlPoint[orientation];
+
+    // Set mapper normal coordinates
+    this->MapperNormal[0] = normal[0];
+    this->MapperNormal[1] = normal[1];
+    this->MapperNormal[2] = normal[2];
+
+    // Set picked items
+  } // if ( tMin < this->GlobalTMin )
+
+  // Return current tMin value
+  return tMin;
+}
+
+//----------------------------------------------------------------------------
+bool vtkCellPicker::RecursivelyProcessTree(
+  vtkHyperTreeGridNonOrientedGeometryCursor* cursor,
+  int level
+)
+{
+  // Retrieve cell geometry
+  const double *origin = cursor->GetOrigin();
+  const double *size = cursor->GetOrigin();
+  // Check if point is inside cell
+  for ( unsigned int c = 0; c < 3; ++ c )
+  {
+    if ( ( this->WordlPoint[c] < origin[c] )
+         || ( this->WordlPoint[c] > origin[c] + size[c] ) )
+    {
+      return false;
+    }
+  } // c
+
+  // Pick cell only if it is a leaf
+  if ( cursor->IsLeaf() )
+  {
+    // Cell at cursor center is a leaf, retrieve its global index
+    vtkIdType id = cursor->GetGlobalNodeIndex();
+    // Leaf cell contains point
+    this->CellId = id;
+    // Found it !
+    return true;
+  } // if ( cursor->IsLeaf() )
+
+  // Cursor is not at leaf, recurse to all children
+  int numChildren = vtkHyperTreeGrid::SafeDownCast( this->DataSet )->GetNumberOfChildren();
+  for ( int ichild = 0; ichild < numChildren; ++ ichild )
+  {
+    cursor->ToChild( ichild );
+    // Recurse
+    if ( this->RecursivelyProcessTree( cursor, level + 1 ) )
+    {
+      return true;
+    }
+    cursor->ToParent();
+  } // child
+
+  return false;
+}
+
+//----------------------------------------------------------------------------
 // Intersect a vtkVolume with a line by ray casting.
 
 // For algorithm stability: choose a tolerance that is larger than
@@ -1120,8 +1362,8 @@ double vtkCellPicker::IntersectImageWithLine(const double p1[3],
     bounds[2*k+1] = (bounds[2*k+1] - origin[k])/spacing[k];
     // It should be a multiple of 0.5, so round to closest multiple of 0.5
     // (this reduces the impact of roundoff error from the above computation)
-    bounds[2*k] = 0.5*std::round(2.0*(bounds[2*k]));
-    bounds[2*k+1] = 0.5*std::round(2.0*(bounds[2*k+1]));
+    bounds[2*k] = 0.5*vtkMath::Round(2.0*(bounds[2*k]));
+    bounds[2*k+1] = 0.5*vtkMath::Round(2.0*(bounds[2*k+1]));
     // Reverse if spacing is negative
     if (spacing[k] < 0)
     {

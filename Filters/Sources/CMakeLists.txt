@@ -34,6 +34,7 @@ set(Module_SRCS
   vtkTessellatedBoxSource.cxx
   vtkTextSource.cxx
   vtkTexturedSphereSource.cxx
+  vtkUniformHyperTreeGridSource.cxx
   vtkGraphToPolyData.cxx
   vtkDiagonalMatrixSource.cxx
   )

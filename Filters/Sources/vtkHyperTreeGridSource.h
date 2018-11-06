@@ -39,6 +39,7 @@
  * This class was modified by Guenole Harel and Jacques-Bernard Lekien 2014
  * This class was modified by Philippe Pebay, 2016
  * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+ * CEA, DAM, DIF, F-91297 Arpajon, France.
 */
 
 #ifndef vtkHyperTreeGridSource_h
@@ -53,7 +54,7 @@
 
 class vtkBitArray;
 class vtkDataArray;
-class vtkHyperTreeCursor;
+class vtkHyperTreeGridNonOrientedCursor;
 class vtkIdTypeArray;
 class vtkImplicitFunction;
 class vtkHyperTreeGrid;
@@ -95,6 +96,7 @@ public:
    */
   vtkSetVector3Macro(GridScale, double);
   vtkGetVector3Macro(GridScale, double);
+  void SetGridScale( double scale ) { this->SetGridScale( scale, scale, scale); }
   //@}
 
   //@{
@@ -261,11 +263,9 @@ protected:
                     vtkDataObject* ) override;
 
   /**
-   * Initialize grid from descriptor string when it is to be used. The extent
-   * is used to determine what parts of *Descriptor* to use if the grid is
-   * partitioned.
+   * Initialize grid from descriptor string when it is to be used
    */
-  int InitializeFromStringDescriptor(int* extent);
+  int InitializeFromStringDescriptor();
 
   /**
    * Initialize grid from bit array descriptors when it is to be used
@@ -276,7 +276,7 @@ protected:
    * Initialize tree grid from descriptor and call subdivide if needed
    */
   void InitTreeFromDescriptor( vtkHyperTreeGrid* output,
-                               vtkHyperTreeCursor* cursor,
+                               vtkHyperTreeGridNonOrientedCursor* cursor,
                                int treeIdx,
                                int idx[3] );
 
@@ -284,7 +284,7 @@ protected:
    * Subdivide grid from descriptor string when it is to be used
    */
   void SubdivideFromStringDescriptor( vtkHyperTreeGrid* output,
-                                      vtkHyperTreeCursor* cursor,
+                                      vtkHyperTreeGridNonOrientedCursor* cursor,
                                       unsigned int level,
                                       int treeIdx,
                                       int childIdx,
@@ -295,7 +295,7 @@ protected:
    * Subdivide grid from descriptor string when it is to be used
    */
   void SubdivideFromBitsDescriptor( vtkHyperTreeGrid* output,
-                                    vtkHyperTreeCursor* cursor,
+                                    vtkHyperTreeGridNonOrientedCursor* cursor,
                                     unsigned int level,
                                     int treeIdx,
                                     int childIdx,
@@ -306,7 +306,7 @@ protected:
    * Subdivide grid from quadric when descriptor is not used
    */
   void SubdivideFromQuadric( vtkHyperTreeGrid* output,
-                             vtkHyperTreeCursor* cursor,
+                             vtkHyperTreeGridNonOrientedCursor* cursor,
                              unsigned int level,
                              int treeIdx,
                              const int idx[3],

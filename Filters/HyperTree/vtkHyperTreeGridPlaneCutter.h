@@ -14,11 +14,11 @@
 =========================================================================*/
 /**
  * @class   vtkHyperTreeGridPlaneCutter
- * @brief   cut a hyper tree grid volume with
+ * @brief   cut an hyper tree grid volume with
  * a plane and generate a polygonal cut surface.
  *
  *
- * vtkHyperTreeGridPlaneCutter is a filter that takes as input a hyper tree
+ * vtkHyperTreeGridPlaneCutter is a filter that takes as input an hyper tree
  * grid and a single plane and generates the polygonal data intersection surface.
  * This cut is computed at the leaf cells of the hyper tree.
  * It is left as an option to decide whether the cut should be computed over
@@ -31,10 +31,11 @@
  * vtkHyperTreeGrid vtkHyperTreeGridAlgorithm
  *
  * @par Thanks:
- * This class was written by Philippe Pebay on a idea of Guénolé Harel and Jacques-Bernard Lekien, 2016
+ * This class was written by Philippe Pebay on a idea of Guenole Harel and Jacques-Bernard Lekien, 2016
  * This class was modified by Rogeli Grima Torres, 2016
- * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
- *
+ * This class was modified by Jacques-Bernard Lekien, 2018
+ * This work was supported by Commissariat a l'Energie Atomique
+ * CEA, DAM, DIF, F-91297 Arpajon, France.
 */
 
 #ifndef vtkHyperTreeGridPlaneCutter_h
@@ -43,12 +44,12 @@
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
 
-class vtkHyperTreeGridCursor;
 class vtkCellArray;
 class vtkCutter;
 class vtkIdList;
 class vtkPoints;
-class vtkPlane;
+class vtkHyperTreeGridNonOrientedGeometryCursor;
+class vtkHyperTreeGridNonOrientedMooreSuperCursor;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridPlaneCutter : public vtkHyperTreeGridAlgorithm
 {
@@ -61,23 +62,10 @@ public:
   /**
    * Specify the plane with its [a,b,c,d] Cartesian coefficients:
    * a*x + b*y + c*z = d
-   *
-   * @note This will be overridden the vtkPlane object, if specified.
    */
   vtkSetVector4Macro(Plane,double);
   vtkGetVector4Macro(Plane,double);
   //@}
-
-  /**
-   * Set the plane by specifying a vtkPlane object. This will override the
-   * plane equation if set, and may be null, in which case the equation will
-   * be used.
-   *
-   * @note This will override plane equation state when specified.
-   */
-  void SetPlane(vtkPlane *plane) { this->SetPlaneObj(plane); }
-  void SetPlaneObj(vtkPlane*);
-  vtkGetObjectMacro(PlaneObj, vtkPlane)
 
   //@{
   /**
@@ -87,8 +75,6 @@ public:
   vtkGetMacro(Dual,int);
   vtkBooleanMacro(Dual,int);
   //@}
-
-  vtkMTimeType GetMTime() override;
 
 protected:
   vtkHyperTreeGridPlaneCutter();
@@ -107,17 +93,17 @@ protected:
   /**
    * Recursively descend into tree down to leaves, cutting primal cells
    */
-  void RecursivelyProcessTreePrimal( vtkHyperTreeGridCursor*, vtkBitArray* );
+  void RecursivelyProcessTreePrimal( vtkHyperTreeGridNonOrientedGeometryCursor* );
 
   /**
    * Recursively decide whether cell is intersected by plane
    */
-  bool RecursivelyPreProcessTree( vtkHyperTreeGridCursor*, vtkBitArray* );
+  bool RecursivelyPreProcessTree( vtkHyperTreeGridNonOrientedGeometryCursor* );
 
   /**
    * Recursively descend into tree down to leaves, cutting dual cells
    */
-  void RecursivelyProcessTreeDual( vtkHyperTreeGridCursor*, vtkBitArray* );
+  void RecursivelyProcessTreeDual( vtkHyperTreeGridNonOrientedMooreSuperCursor* );
 
   /**
    * Check if a cursor is intersected by a plane
@@ -144,7 +130,7 @@ protected:
   double Plane[4];
 
   /**
-   * Decide whether output mesh should be a computed on dual grid
+   * Decide wether output mesh should be a computed on dual grid
    */
   int Dual;
 
@@ -179,9 +165,9 @@ protected:
   vtkCutter* Cutter;
 
   /**
-   * Plane object used to hold plane state.
+   * material Mask
    */
-  vtkPlane *PlaneObj;
+  vtkBitArray* InMaterialMask;
 
 private:
   vtkHyperTreeGridPlaneCutter(const vtkHyperTreeGridPlaneCutter&) = delete;

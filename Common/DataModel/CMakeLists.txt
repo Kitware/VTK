@@ -70,10 +70,24 @@ set(Module_SRCS
   vtkHexahedron.cxx
   vtkHierarchicalBoxDataIterator.cxx
   vtkHierarchicalBoxDataSet.cxx
+
   vtkHyperTree.cxx
-  vtkHyperTreeCursor.cxx
   vtkHyperTreeGrid.cxx
-  vtkHyperTreeGridCursor.cxx
+  vtkHyperTreeGridEntry.cxx
+  vtkHyperTreeGridGeometryEntry.cxx
+  vtkHyperTreeGridGeometryLevelEntry.cxx
+  vtkHyperTreeGridLevelEntry.cxx
+  vtkHyperTreeGridOrientedGeometryCursor.cxx
+  vtkHyperTreeGridNonOrientedCursor.cxx
+  vtkHyperTreeGridNonOrientedGeometryCursor.cxx
+  vtkHyperTreeGridNonOrientedMooreSuperCursor.cxx
+  vtkHyperTreeGridNonOrientedMooreSuperCursorLight.cxx
+  vtkHyperTreeGridNonOrientedSuperCursor.cxx
+  vtkHyperTreeGridNonOrientedSuperCursorLight.cxx
+  vtkHyperTreeGridNonOrientedVonNeumannSuperCursor.cxx
+  vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight.cxx
+  vtkHyperTreeGridOrientedCursor.cxx
+
   vtkImageData.cxx
   vtkImageIterator.cxx
   vtkImplicitBoolean.cxx
@@ -173,7 +187,6 @@ set(Module_SRCS
   vtkStaticCellLinks.cxx
   vtkStaticCellLinksTemplate.txx
   vtkStaticCellLocator.cxx
-  vtkStaticEdgeLocatorTemplate.txx
   vtkStaticPointLocator.cxx
   vtkStaticPointLocator2D.cxx
   vtkStructuredData.cxx
@@ -192,6 +205,7 @@ set(Module_SRCS
   vtkTriQuadraticHexahedron.cxx
   vtkUndirectedGraph.cxx
   vtkUniformGrid.cxx
+  vtkUniformHyperTreeGrid.cxx
   vtkUnstructuredGrid.cxx
   vtkUnstructuredGridBase.cxx
   vtkUnstructuredGridCellIterator.cxx
@@ -236,7 +250,6 @@ set(${vtk-module}_HDRS
   vtkMappedUnstructuredGridCellIterator.h
   vtkPeriodicDataArray.h
   vtkStaticCellLinksTemplate.h
-  vtkStaticEdgeLocatorTemplate.h
   )
 
 vtk_module_library(vtkCommonDataModel ${Module_SRCS})

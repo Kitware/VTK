@@ -18,9 +18,8 @@
  * arranged as a rectilinear grid.
  *
  *
- * A hypertree grid is a dataset containing a rectilinear grid of root nodes,
- * each of which can be refined as a vtkHyperTree grid. Each root node
- * corresponds to a cell of the rectilinear grid. This organization of the
+ * An hypertree grid is a dataset containing a rectilinear grid of root nodes,
+ * each of which can be refined as a vtkHyperTree grid. This organization of the
  * root nodes allows for the definition of tree-based AMR grids that do not have
  * uniform geometry.
  * Some filters can be applied on this dataset: contour, outline, geometry.
@@ -37,7 +36,9 @@
  * This class was written by Philippe Pebay, Joachim Pouderoux, and Charles Law, Kitware 2013
  * This class was modified by Guenole Harel and Jacques-Bernard Lekien 2014
  * This class was rewritten by Philippe Pebay, 2016
- * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+ * This class was modified by Jacques-Bernard Lekien 2018
+ * This work was supported by Commissariat a l'Energie Atomique
+ * CEA, DAM, DIF, F-91297 Arpajon, France.
 */
 
 #ifndef vtkHyperTreeGrid_h
@@ -46,11 +47,11 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSet.h"
 
-#include <map> // STL header for dual point coordinates adjustment
+#include <map> // std::map
+#include <memory> // std::shared_ptr
+
 
 class vtkHyperTree;
-class vtkHyperTreeCursor;
-class vtkHyperTreeGridCursor;
 
 class vtkBitArray;
 class vtkBoundingBox;
@@ -64,12 +65,22 @@ class vtkPixel;
 class vtkPoints;
 class vtkVoxel;
 
+class vtkHyperTree;
+
+class vtkHyperTreeGridOrientedCursor;
+class vtkHyperTreeGridOrientedGeometryCursor;
+class vtkHyperTreeGridNonOrientedCursor;
+class vtkHyperTreeGridNonOrientedGeometryCursor;
+class vtkHyperTreeGridNonOrientedVonNeumannSuperCursor;
+class vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight;
+class vtkHyperTreeGridNonOrientedMooreSuperCursor;
+class vtkHyperTreeGridNonOrientedMooreSuperCursorLight ;
+
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGrid : public vtkDataSet
 {
 public:
   class vtkHyperTreeSimpleCursor;
   class vtkHyperTreePositionCursor;
-  class vtkHyperTreeGridIterator;
   struct vtkHyperTreeGridSuperCursor;
 
   static vtkInformationIntegerKey* LEVELS();
@@ -79,7 +90,12 @@ public:
   static vtkHyperTreeGrid* New();
 
   vtkTypeMacro(vtkHyperTreeGrid, vtkDataSet);
-  void PrintSelf( ostream&, vtkIndent ) override;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
+
+  /**
+   * Squeeze this representation.
+   */
+  void Squeeze() override;
 
   /**
    * Return what type of dataset this is.
@@ -94,7 +110,7 @@ public:
 
   //@{
   /**
-   * Set/Get the number of local cells in each direction for the underlying rectilinear grid dataset.
+   * Set/Get sizes of this rectilinear grid dataset
    */
   void SetGridSize( unsigned int[3] );
   void SetGridSize( unsigned int, unsigned int, unsigned int );
@@ -103,11 +119,11 @@ public:
 
   //@{
   /**
-   * Set/Get extent of the underlying rectilinear grid dataset. This is the local extent
-   * and is with respect to the points.
+   * Set/Get extent of this rectilinear grid dataset.
    */
-  void SetGridExtent(int extent[6]);
-  void SetGridExtent(int, int, int, int, int, int );
+  void SetGridExtent( int extent[6] );
+  void SetGridExtent( int, int, int, int, int, int );
+  void GetGridExtent( int extent[6] );
   //@}
 
   //@{
@@ -128,7 +144,7 @@ public:
    * Set/Get the dimensionality of the grid.
    */
   void SetDimension( unsigned int );
-  vtkGetMacro(Dimension, unsigned int);
+  unsigned int GetDimension( ) const { return this->Dimension; }
   //@}
 
   //@{
@@ -138,8 +154,15 @@ public:
    * . in 2D: 0, 1, 2 = normal to X, Y, Z axis
    * NB: Not used in 3D
    */
-  virtual void SetOrientation(unsigned int);
-  vtkGetMacro(Orientation, unsigned int);
+  virtual void SetOrientation(unsigned char);
+  unsigned char GetOrientation( ) const { return this->Orientation; }
+  //@}
+
+  //@{
+  /**
+   * Get the state of frozen
+   */
+  vtkGetMacro(FrozenState, bool);
   //@}
 
   //@{
@@ -147,13 +170,18 @@ public:
    * Set/Get the subdivision factor in the grid refinement scheme
    */
   void SetBranchFactor( unsigned int );
-  vtkGetMacro(BranchFactor, unsigned int);
+  unsigned int GetBranchFactor( ) const { return this->BranchFactor; }
   //@}
 
+//JBDEL2  /**
+//JBDEL2   * Return the number of trees in the level 0 grid.
+//JBDEL2   */
+//JBDEL2  vtkIdType GetNumberOfTrees();
+
   /**
-   * Return the number of trees in the level 0 grid.
+   * Return the maximum number of trees in the level 0 grid.
    */
-  vtkIdType GetNumberOfTrees();
+  vtkIdType GetMaxNumberOfTrees();
 
   /**
    * Get the number of vertices in the primal tree grid.
@@ -178,18 +206,18 @@ public:
   /**
    * Return the number of levels in an individual (primal) tree.
    */
-  vtkIdType GetNumberOfLevels( vtkIdType );
+  unsigned int GetNumberOfLevels( vtkIdType );
 
   /**
    * Return the number of levels in the hyper tree grid.
    */
-  vtkIdType GetNumberOfLevels();
+  unsigned int GetNumberOfLevels();
 
   //@{
   /**
    * Set/Get the grid coordinates in the x-direction.
    */
-  void SetXCoordinates( vtkDataArray* );
+  virtual void SetXCoordinates( vtkDataArray* );
   vtkGetObjectMacro(XCoordinates, vtkDataArray);
   //@}
 
@@ -197,7 +225,7 @@ public:
   /**
    * Set/Get the grid coordinates in the y-direction.
    */
-  void SetYCoordinates( vtkDataArray* );
+  virtual void SetYCoordinates( vtkDataArray* );
   vtkGetObjectMacro(YCoordinates, vtkDataArray);
   //@}
 
@@ -205,7 +233,7 @@ public:
   /**
    * Set/Get the grid coordinates in the z-direction.
    */
-  void SetZCoordinates( vtkDataArray* );
+  virtual void SetZCoordinates( vtkDataArray* );
   vtkGetObjectMacro(ZCoordinates, vtkDataArray);
   //@}
 
@@ -221,14 +249,6 @@ public:
    * Determine whether blanking mask is empty or not
    */
   bool HasMaterialMask();
-
-  //@{
-  /**
-   * Set/Get the visibility mask of primal leaf cells
-   */
-  virtual void SetMaterialMaskIndex( vtkIdTypeArray* );
-  vtkGetObjectMacro(MaterialMaskIndex, vtkIdTypeArray);
-  //@}
 
   //@{
   /**
@@ -256,67 +276,52 @@ public:
   //@}
 
   /**
-   * This method must be called once the tree settings change.
-   */
-  virtual void GenerateTrees();
+   * JB
+    */
+  void InitializeOrientedCursor( vtkHyperTreeGridOrientedCursor* cursor, vtkIdType index, bool create = false );
+  vtkHyperTreeGridOrientedCursor* NewOrientedCursor( vtkIdType index, bool create = false );
 
   /**
-   * Create a new hyper tree cursor: an object that can traverse
-   * the cells of an individual hyper tree at given index.
-   * If no hyper tree is present at given location, then one
-   * will be created only if 'create' flag is true.
-   */
-  vtkHyperTreeCursor* NewCursor( vtkIdType, bool create=false );
+   * JB
+    */
+  void InitializeOrientedGeometryCursor( vtkHyperTreeGridOrientedGeometryCursor* cursor, vtkIdType index, bool create = false );
+  vtkHyperTreeGridOrientedGeometryCursor* NewOrientedGeometryCursor( vtkIdType index, bool create = false );
 
   /**
-   * Create a new hyper tree grid cursor: an object that
-   * can traverse the cells of a hyper tree grid, starting at given
-   * tree root index.
-   * If no hyper tree is present at given location, then one
-   * will be created only if 'create' flag is true.
-   */
-  vtkHyperTreeGridCursor* NewGridCursor( vtkIdType,
-                                         bool create=false );
+   * JB
+    */
+  void InitializeNonOrientedCursor( vtkHyperTreeGridNonOrientedCursor* cursor, vtkIdType index, bool create = false );
+  vtkHyperTreeGridNonOrientedCursor* NewNonOrientedCursor( vtkIdType index, bool create = false );
 
   /**
-   * Create a new hyper tree grid geometric cursor: an object that
-   * can traverse the cells of a hyper tree grid, starting at given
-   * tree root index, managing the geometric properties.
-   * If no hyper tree is present at given location, then one
-   * will be created only if 'create' flag is true.
-   */
-  vtkHyperTreeGridCursor* NewGeometricCursor( vtkIdType,
-                                              bool create=false );
+   * JB
+    */
+  void InitializeNonOrientedGeometryCursor( vtkHyperTreeGridNonOrientedGeometryCursor* cursor, vtkIdType index, bool create = false );
+  vtkHyperTreeGridNonOrientedGeometryCursor* NewNonOrientedGeometryCursor( vtkIdType index, bool create = false );
 
   /**
-   * Create a new hyper tree grid Von Neumann super cursor: an object that
-   * can traverse the cells of a hyper tree grid, starting at given
-   * tree root index, managing geometric properties and von Neumann
-   * neighborhood with basic hyper tree grid cursors.
-   * If no hyper tree is present at given location, then one
-   * will be created only if 'create' flag is true.
-   */
-  vtkHyperTreeGridCursor* NewVonNeumannSuperCursor( vtkIdType,
-                                                    bool create=false );
+   * JB
+    */
+  void InitializeNonOrientedVonNeumannSuperCursor( vtkHyperTreeGridNonOrientedVonNeumannSuperCursor* cursor, vtkIdType index, bool create = false );
+  vtkHyperTreeGridNonOrientedVonNeumannSuperCursor* NewNonOrientedVonNeumannSuperCursor( vtkIdType index, bool create = false );
 
   /**
-   * Create a new hyper tree grid Moore super cursor: an object that
-   * can traverse the cells of a hyper tree grid, starting at given
-   * tree root index, managing geometric properties and Moore
-   * neighborhood with basic hyper tree grid cursors.
-   * If no hyper tree is present at given location, then one
-   * will be created only if 'create' flag is true.
-   */
-  vtkHyperTreeGridCursor* NewMooreSuperCursor( vtkIdType,
-                                               bool create=false );
+   * JB
+    */
+  void InitializeNonOrientedVonNeumannSuperCursorLight( vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* cursor, vtkIdType index, bool create = false );
+  vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* NewNonOrientedVonNeumannSuperCursorLight( vtkIdType index, bool create = false );
 
   /**
-   * Subdivide node pointed by cursor, only if its a leaf.
-   * At the end, cursor points on the node that used to be leaf.
-   * \pre leaf_exists: leaf!=0
-   * \pre is_a_leaf: leaf->CurrentIsLeaf()
-   */
-  void SubdivideLeaf( vtkHyperTreeCursor*, vtkIdType );
+   * JB
+    */
+  void InitializeNonOrientedMooreSuperCursor( vtkHyperTreeGridNonOrientedMooreSuperCursor* cursor, vtkIdType index, bool create = false );
+  vtkHyperTreeGridNonOrientedMooreSuperCursor* NewNonOrientedMooreSuperCursor( vtkIdType index, bool create = false );
+
+  /**
+   * JB
+    */
+  void InitializeNonOrientedMooreSuperCursorLight( vtkHyperTreeGridNonOrientedMooreSuperCursorLight* cursor, vtkIdType index, bool create = false );
+  vtkHyperTreeGridNonOrientedMooreSuperCursorLight* NewNonOrientedMooreSuperCursorLight( vtkIdType index, bool create = false );
 
   /**
    * This method should be avoided in favor of cell/point iterators.
@@ -451,21 +456,15 @@ public:
 
   /**
    * Return tree located at given index of hyper tree grid
-   * NB: This will return nullptr if grid slot is empty.
+   * NB: This will construct a new HyperTree if grid slot is empty.
    */
-  vtkHyperTree* GetTree( vtkIdType );
+  virtual vtkHyperTree* GetTree( vtkIdType, bool create = false );
 
   /**
    * Assign given tree to given index of hyper tree grid
    * NB: This will create a new slot in the grid if needed.
    */
   void SetTree( vtkIdType, vtkHyperTree* );
-
-  /**
-   * Initialize an iterator to browse level 0 trees.
-   * FIXME: this method is completely unnecessary.
-   */
-  void InitializeTreeIterator( vtkHyperTreeGridIterator& );
 
   /**
    * Convenience method to return largest cell size in dataset.
@@ -498,6 +497,16 @@ public:
    * arrays, etc. are not included in the return value). THIS METHOD
    * IS THREAD SAFE.
    */
+  virtual unsigned long GetActualMemorySizeBytes();
+
+  /**
+   * Return the actual size of the data in kibibytes (1024 bytes). This number
+   * is valid only after the pipeline has updated. The memory size
+   * returned is guaranteed to be greater than or equal to the
+   * memory required to represent the data (e.g., extra space in
+   * arrays, etc. are not included in the return value). THIS METHOD
+   * IS THREAD SAFE.
+   */
   unsigned long GetActualMemorySize() override;
 
   //@{
@@ -510,7 +519,7 @@ public:
   /**
    * Recursively initialize pure material mask
    */
-  bool RecursivelyInitializePureMaterialMask( vtkHyperTreeGridCursor* cursor );
+  bool RecursivelyInitializePureMaterialMask( vtkHyperTreeGridNonOrientedCursor* cursor, vtkDataArray* normale );
 
   /**
    * Get or create pure material mask
@@ -575,15 +584,28 @@ public:
   void GetLevelZeroCoordinatesFromIndex( vtkIdType,
                                          unsigned int&,
                                          unsigned int&,
-                                         unsigned int& );
+                                         unsigned int& ) const;
 
   /**
-   * Convert the Cartesian coordinates of a root in the grid to its global index.
+   * Convert the global index of a root to its Spacial coordinates origin and size.
+   */
+  virtual void GetLevelZeroOriginAndSizeFromIndex( vtkIdType,
+                                                   double*,
+                                                   double* );
+
+  /**
+   * JB Convert the global index of a root to its Spacial coordinates origin and size.
+   */
+  virtual void GetLevelZeroOriginFromIndex( vtkIdType,
+                                            double* );
+
+  /**
+   * Convert the Cartesian coordinates of a root in the grid  to its global index.
    */
   void GetIndexFromLevelZeroCoordinates( vtkIdType&,
                                          unsigned int,
                                          unsigned int,
-                                         unsigned int );
+                                         unsigned int ) const;
 
   /**
    * Return the root index of a root cell with given index displaced.
@@ -594,6 +616,20 @@ public:
                                          int,
                                          int,
                                          int );
+
+  /**
+   * JB Retourne la valeur maximal du global index. Utile pour l'implementaiton courante
+   * afin de construire un dual tout en conservant les grandeurs en l'etat.
+   */
+  vtkIdType GetGlobalNodeIndexMax();
+
+  /**
+   * JB Permet d'initialiser les index locaux HT en fin de construction
+   * si l'on souhaite connaitre l'indice local. Cela peut etre pour une
+   * implementation plus compact d'un dual avec, par contre,
+   * necessairement une recopie des grandeurs.
+   */
+  void InitializeLocalIndexNode();
 
   //@{
   /**
@@ -673,8 +709,14 @@ public:
 
   protected:
     std::map<vtkIdType, vtkHyperTree*>::iterator Iterator;
-    vtkHyperTreeGrid* Tree;
+    vtkHyperTreeGrid* Grid;
   };
+
+  /**
+   * Initialize an iterator to browse level 0 trees.
+   * FIXME: this method is completely unnecessary.
+   */
+  void InitializeTreeIterator( vtkHyperTreeGridIterator& );
 
   //@{
   /**
@@ -703,11 +745,12 @@ protected:
    * smallest index (z,y,x order)
    * post: Generate Points and Connectivity.
    */
-  void ComputeDualGrid();
+  virtual void ComputeDualGrid();
 
   vtkPoints* GetPoints();
   vtkIdTypeArray* GetConnectivity();
 
+  bool FrozenState;
   unsigned int BranchFactor; // 2 or 3
   unsigned int Dimension;    // 1, 2, or 3
   unsigned int Orientation;  // 0, 1, or 2
@@ -718,7 +761,7 @@ protected:
 
   vtkBitArray* MaterialMask;
   vtkBitArray* PureMaterialMask;
-  vtkIdTypeArray* MaterialMaskIndex;
+//JBDEL2   vtkIdTypeArray* MaterialMaskIndex;
   bool InitPureMaterialMask;
 
   bool HasInterface;
@@ -740,7 +783,7 @@ protected:
   /**
    * Perform left to right deep copy of hyper tree cursors.
    */
-  void DeepCopyCursors( vtkHyperTreeCursor*, vtkHyperTreeCursor* );
+  //JBDEL void DeepCopyCursors( vtkHyperTreeCursor*, vtkHyperTreeCursor* );
 
   /**
    * Remove existing trees.
@@ -764,62 +807,62 @@ protected:
   /**
    * Recursively descend into tree down to leaves to generate dual.
    */
-  void TraverseDualRecursively( vtkHyperTreeGridCursor* );
+  void TraverseDualRecursively( vtkHyperTreeGridNonOrientedMooreSuperCursor* );
 
   /**
    * Recursively descend into tree down to leaves to generate dual,
    * when a mask array is present.
    */
-  void TraverseDualRecursively( vtkHyperTreeGridCursor*, vtkBitArray* );
+  void TraverseDualRecursively( vtkHyperTreeGridNonOrientedMooreSuperCursor*, vtkBitArray* );
 
   /**
    * Process leaf cell and issue corresponding dual corner point in 1D.
    */
-  void GenerateDualCornerFromLeaf1D( vtkHyperTreeGridCursor* );
+  void GenerateDualCornerFromLeaf1D( vtkHyperTreeGridNonOrientedMooreSuperCursor* );
 
   /**
    * Process leaf cell and issue corresponding dual corner point in 1D,
    * when a mask array is present.
    */
-  void GenerateDualCornerFromLeaf1D( vtkHyperTreeGridCursor*, vtkBitArray* );
+  void GenerateDualCornerFromLeaf1D( vtkHyperTreeGridNonOrientedMooreSuperCursor*, vtkBitArray* );
 
-  /**
+  /*
    * Process leaf cell and issue corresponding dual corner point in 2D.
    */
-  void GenerateDualCornerFromLeaf2D( vtkHyperTreeGridCursor* );
+  void GenerateDualCornerFromLeaf2D( vtkHyperTreeGridNonOrientedMooreSuperCursor* );
 
   /**
    * Process leaf cell and issue corresponding dual corner point in 2D,
    * when a mask array is present.
    */
-  void GenerateDualCornerFromLeaf2D( vtkHyperTreeGridCursor*, vtkBitArray* );
+  void GenerateDualCornerFromLeaf2D( vtkHyperTreeGridNonOrientedMooreSuperCursor*, vtkBitArray* );
 
   /**
    * Process leaf cell and issue corresponding dual corner point in 3D.
    */
-  void GenerateDualCornerFromLeaf3D( vtkHyperTreeGridCursor* );
+  void GenerateDualCornerFromLeaf3D( vtkHyperTreeGridNonOrientedMooreSuperCursor* );
 
   /**
    * Process leaf cell and issue corresponding dual corner point in 3D,
    * when a mask array is present.
    */
-  void GenerateDualCornerFromLeaf3D( vtkHyperTreeGridCursor*, vtkBitArray* );
+  void GenerateDualCornerFromLeaf3D( vtkHyperTreeGridNonOrientedMooreSuperCursor*, vtkBitArray* );
 
   /**
    * Compute appropriate shifts for dual corners of masked cells in 2D.
    */
-  void ShiftDualCornerFromMaskedLeaf2D( vtkHyperTreeGridCursor*, vtkBitArray* );
+  void ShiftDualCornerFromMaskedLeaf2D( vtkHyperTreeGridNonOrientedMooreSuperCursor*, vtkBitArray* );
 
   /**
    * Compute appropriate shifts for dual corners of masked cells in 3D.
    */
-  void ShiftDualCornerFromMaskedLeaf3D( vtkHyperTreeGridCursor*, vtkBitArray* );
+  void ShiftDualCornerFromMaskedLeaf3D( vtkHyperTreeGridNonOrientedMooreSuperCursor*, vtkBitArray* );
 
   /**
    * Recursive method called under the hood by FindPoint().
    */
   vtkIdType RecursivelyFindPoint( double x[3],
-                                  vtkHyperTreeGridCursor*,
+                                  vtkHyperTreeGridNonOrientedCursor*,
                                   double*,
                                   double* );
 

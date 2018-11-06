@@ -18,6 +18,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridScales.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -33,6 +34,9 @@ vtkHyperTreeGridAxisReflection::vtkHyperTreeGridAxisReflection()
 
   // Default plane position is at origin
   this->Center = 0.;
+
+  // JB Pour sortir un maillage de meme type que celui en entree
+  this->AppropriateOutput = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -55,8 +59,9 @@ int vtkHyperTreeGridAxisReflection::FillOutputPortInformation( int, vtkInformati
 }
 
 //-----------------------------------------------------------------------------
-int vtkHyperTreeGridAxisReflection::ProcessTrees( vtkHyperTreeGrid* input,
-                                              vtkDataObject* outputDO )
+int vtkHyperTreeGridAxisReflection::ProcessTrees(
+  vtkHyperTreeGrid* input,
+  vtkDataObject* outputDO )
 {
   // Skip empty inputs
   if (input->GetNumberOfLeaves() == 0)
@@ -83,7 +88,7 @@ int vtkHyperTreeGridAxisReflection::ProcessTrees( vtkHyperTreeGrid* input,
 
   // Retrieve reflection direction and coordinates to be reflected
   unsigned int direction = 0;
-  vtkDataArray* inCoords = nullptr;
+  vtkDataArray* inCoords = 0;
   unsigned int pmod3 = this->Plane % 3;
   if ( ! pmod3 )
   {
@@ -148,6 +153,20 @@ int vtkHyperTreeGridAxisReflection::ProcessTrees( vtkHyperTreeGrid* input,
   vtkDoubleArray* outCoords = vtkDoubleArray::New();
   outCoords->SetNumberOfTuples( size );
 
+  // Create arrays for reflected interface if present
+  vtkDoubleArray* outNormals = nullptr;
+  vtkDoubleArray* outIntercepts = nullptr;
+  if ( hasInterface )
+  {
+    vtkIdType nTuples = inNormals->GetNumberOfTuples();
+    outNormals = vtkDoubleArray::New();
+    outNormals->SetNumberOfComponents( 3 );
+    outNormals->SetNumberOfTuples( nTuples );
+    outIntercepts = vtkDoubleArray::New();
+    outIntercepts->SetNumberOfComponents( 3 );
+    outIntercepts->SetNumberOfTuples( nTuples );
+  }
+
   // Reflect point coordinate
   double coord;
   for ( unsigned int i = 0; i < size; ++ i )
@@ -177,19 +196,45 @@ int vtkHyperTreeGridAxisReflection::ProcessTrees( vtkHyperTreeGrid* input,
     for ( vtkIdType i = 0; i < nTuples; ++ i )
     {
       // Compute and stored reflected normal
-      double* norm = inNormals->GetTuple3( i );
+      double norm[3];
+      memcpy( norm, inNormals->GetTuple3( i ) , 3 * sizeof( double ) );
       norm[direction] = - norm[direction];
-      inNormals->SetTuple3( i, norm[0], norm[1], norm[2] );
+      outNormals->SetTuple3( i, norm[0], norm[1], norm[2] );
 
       // Compute and store reflected intercept
       double* inter = inIntercepts->GetTuple3( i );
       inter[0] -= 2. * offset * norm[direction];
-      inIntercepts->SetTuple3( i, inter[0], inter[1], inter[2] );
+      outIntercepts->SetTuple3( i, inter[0], inter[1], inter[2] );
     } // i
+
+    // Assign new interface arrays if available
+    this->OutData->SetVectors( outNormals );
+    this->OutData->AddArray( outIntercepts );
   } // if ( hasInterface )
 
   // Clean up
   outCoords->Delete();
+  if ( hasInterface )
+  {
+    outNormals->Delete();
+    outIntercepts->Delete();
+  }
+
+  // Mise a jour du Scales des HTs
+  vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
+  output->InitializeTreeIterator( it );
+  vtkHyperTree* tree = nullptr;
+  vtkIdType index;
+  while ( ( tree = it.GetNextTree( index ) ) )
+  {
+    assert( tree->GetTreeIndex() == index );
+    double origin[3];
+    double scale[3];
+    output->GetLevelZeroOriginAndSizeFromIndex( index, origin, scale );
+    // JB Quid du Uniform ?
+    tree->SetScales( std::make_shared<vtkHyperTreeGridScales>( output->GetBranchFactor(), scale ) );
+  }
+  //
 
   return 1;
 }

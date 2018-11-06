@@ -31,7 +31,9 @@
  * @par Thanks:
  * This class was written by Guenole Harel and Jacques-Bernard Lekien 2014
  * This class was modified by Philippe Pebay, 2016
- * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+ * This class was modified by Jacques-Bernard Lekien, 2018
+ * This work was supported by Commissariat a l'Energie Atomique
+ * CEA, DAM, DIF, F-91297 Arpajon, France.
 */
 
 #ifndef vtkHyperTreeGridAxisCut_h
@@ -41,9 +43,9 @@
 #include "vtkHyperTreeGridAlgorithm.h"
 
 class vtkBitArray;
-class vtkHyperTreeCursor;
 class vtkHyperTreeGrid;
-class vtkHyperTreeGridCursor;
+class vtkHyperTreeGridNonOrientedCursor;
+class vtkHyperTreeGridNonOrientedGeometryCursor;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisCut : public vtkHyperTreeGridAlgorithm
 {
@@ -83,9 +85,9 @@ protected:
   /**
    * Recursively descend into tree down to leaves
    */
-  void RecursivelyProcessTree( vtkHyperTreeGridCursor*,
-                               vtkHyperTreeCursor*,
-                               vtkBitArray* );
+  void RecursivelyProcessTree(
+    vtkHyperTreeGridNonOrientedGeometryCursor* inCursor,
+    vtkHyperTreeGridNonOrientedCursor* outCursor);
 
   /**
    * Direction of plane normal
@@ -96,11 +98,13 @@ protected:
    * Intercept of plane along normal
    */
   double PlanePosition;
+  double PlanePositionRealUse;
 
   /**
    * Output material mask constructed by this filter
    */
-  vtkBitArray* MaterialMask;
+  vtkBitArray* InMaterialMask;
+  vtkBitArray* OutMaterialMask;
 
   /**
    * Keep track of current index in output hyper tree grid
@@ -112,4 +116,4 @@ private:
   void operator=(const vtkHyperTreeGridAxisCut&) = delete;
 };
 
-#endif /* vtkHyperTreeGridAxisCut_h */
+#endif // vtkHyperTreeGridAxisCut_h

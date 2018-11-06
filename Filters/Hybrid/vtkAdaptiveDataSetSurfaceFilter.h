@@ -27,6 +27,7 @@
  * This class was rewritten by Philippe Pebay, 2016
  * This class was modified by Rogeli Grima, 2016
  * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+ * CEA, DAM, DIF, F-91297 Arpajon, France.
 */
 
 #ifndef vtkAdaptiveDataSetSurfaceFilter_h
@@ -38,8 +39,10 @@
 class vtkBitArray;
 class vtkCamera;
 class vtkHyperTreeGrid;
-class vtkHyperTreeGridCursor;
 class vtkRenderer;
+
+class vtkHyperTreeGridNonOrientedGeometryCursor;
+class vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight;
 
 class VTKFILTERSHYBRID_EXPORT vtkAdaptiveDataSetSurfaceFilter : public vtkDataSetSurfaceFilter
 {
@@ -57,14 +60,75 @@ public:
   //@}
 
   /**
-   * Set the scale factor
-   */
-  vtkSetMacro(Scale,double);
-
-  /**
    * Get the mtime of this object.
    */
   vtkMTimeType GetMTime() override;
+
+  //@{
+  /**
+   * Set/Get for active the circle selection viewport (defaut true)
+   */
+  vtkSetMacro( CircleSelection, bool );
+  vtkGetMacro( CircleSelection, bool );
+  //@}
+
+  //@{
+  /**
+   * Set/Get for active the bounding box selection viewport (defaut false)
+   * JB C'est un facteur supplementaire d'acceleration possible
+   * JB uniquement si l'on ne peut faire de rotation dans la vue.
+   */
+  vtkSetMacro( BBSelection, bool );
+  vtkGetMacro( BBSelection, bool );
+  //@}
+
+  //@{
+  /**
+   * JB Activation de la dependance au point de vue. Par defaut a True.
+   */
+  vtkSetMacro( ViewPointDepend, bool );
+  vtkGetMacro( ViewPointDepend, bool );
+  //@}
+
+  //@{
+  /**
+   * Set/Get for forced a fixed the level max (lost dynamicity) (defaut -1)
+   */
+  vtkSetMacro( FixedLevelMax, int );
+  vtkGetMacro( FixedLevelMax, int );
+  //@}
+
+  //@{
+  /**
+   * JB Set/Get the scale factor influence le calcul de l'adaptive view.
+   * JB Pour un raffinement de 2, donner Scale=2*X revient a faire un
+   * JB appel a DynamicDecimateLevelMax avec la valeur X. (defaut 1)
+   */
+  vtkSetMacro( Scale, double );
+  vtkGetMacro( Scale, double );
+  //@}
+
+  //@{
+  /**
+   * JB Set/Get reduit de autant le niveau max de profondeur, calcule
+   * JB dynamiquement a parcourir dans la
+   * JB representation HTG. (defaut 0)
+   */
+  vtkSetMacro( DynamicDecimateLevelMax, int );
+  vtkGetMacro( DynamicDecimateLevelMax, int );
+  //@}
+
+  //@{
+  /**
+   * Turn on/off merging of coincident points. Note that is merging is
+   * on, points with different point attributes (e.g., normals) are merged,
+   * which may cause rendering artifacts.
+   * JB L'implique sur le temps de restitution peut etre fortement impacte
+   * (x2 dans certain cas).
+   */
+  vtkSetMacro( Merging, bool );
+  vtkGetMacro( Merging, bool );
+  //@}
 
 protected:
   vtkAdaptiveDataSetSurfaceFilter();
@@ -83,27 +147,28 @@ protected:
   /**
    * Recursively descend into tree down to leaves
    */
-  void RecursivelyProcessTree( vtkHyperTreeGridCursor*, vtkBitArray*, int );
+  void RecursivelyProcessTreeNot3D( vtkHyperTreeGridNonOrientedGeometryCursor*, int );
+  void RecursivelyProcessTree3D( vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight*, int );
 
   /**
    * Process 1D leaves and issue corresponding edges (lines)
    */
-  void ProcessLeaf1D( vtkHyperTreeGridCursor* );
+  void ProcessLeaf1D( vtkHyperTreeGridNonOrientedGeometryCursor* );
 
   /**
    * Process 2D leaves and issue corresponding faces (quads)
    */
-  void ProcessLeaf2D( vtkHyperTreeGridCursor*, vtkBitArray* );
+  void ProcessLeaf2D( vtkHyperTreeGridNonOrientedGeometryCursor* );
 
   /**
    * Process 3D leaves and issue corresponding cells (voxels)
    */
-  void ProcessLeaf3D( vtkHyperTreeGridCursor*, vtkBitArray* );
+  void ProcessLeaf3D( vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* );
 
   /**
    * Helper method to generate a face based on its normal and offset from cursor origin
    */
-  void AddFace( vtkIdType, double*, double*, int, unsigned int );
+  void AddFace( vtkIdType, const double*, const double*, int, unsigned int );
 
   vtkDataSetAttributes* InData;
   vtkDataSetAttributes* OutData;
@@ -119,6 +184,11 @@ protected:
   unsigned int Orientation;
 
   /**
+   * Material Mashk
+   */
+  vtkBitArray* MaterialMask;
+
+  /**
    * Storage for points of output unstructured mesh
    */
   vtkPoints* Points;
@@ -129,14 +199,16 @@ protected:
   vtkCellArray* Cells;
 
   /**
+   *JB Un locator est utilise afin de produire un maillage avec moins
+   *JB de points. Le gain en 3D est de l'ordre d'un facteur 4 !
+   */
+  bool Merging;
+  vtkIncrementalPointLocator* Locator;
+
+  /**
    * Pointer to the renderer in use
    */
   vtkRenderer *Renderer;
-
-  /**
-   * Radius parameter for adaptive view
-   */
-  double Radius;
 
   /**
    * First axis parameter for adaptive view
@@ -164,6 +236,11 @@ protected:
   int LastRendererSize[2];
 
   /**
+   * JB Activation de la dependance au point de vue
+   */
+  bool ViewPointDepend;
+
+  /**
    * Last camera focal point coordinates for adaptive view
    */
   double LastCameraFocalPoint[3];
@@ -174,13 +251,51 @@ protected:
   double LastCameraParallelScale;
 
   /**
+   * Bounds windows in the real coordinates
+   */
+  double WindowBounds[4];
+
+  /**
+   * Product cell when in circle selection
+   */
+  bool CircleSelection;
+
+  /**
+   * Radius parameter for adaptive view
+   */
+  double Radius;
+
+  /**
+   * Product cell when in nounding box selection
+   */
+  bool BBSelection;
+
+#ifndef NDEBUG
+  /**
+   * Effect of options selection
+   */
+  long int NbRejectByCircle;
+  long int NbRejectByBB;
+#endif
+
+  /**
+   * JB Forced, fixed the level depth, ignored automatic determination
+   */
+  int FixedLevelMax;
+
+  /**
    * Scale factor for adaptive view
    */
   double Scale;
+
+  /**
+   * JB Decimate level max after automatic determination
+   */
+  int DynamicDecimateLevelMax;
 
 private:
   vtkAdaptiveDataSetSurfaceFilter( const vtkAdaptiveDataSetSurfaceFilter& ) = delete;
   void operator = ( const vtkAdaptiveDataSetSurfaceFilter& ) = delete;
 };
 
-#endif
+#endif // vtkAdaptiveDataSetSurfaceFilter_h

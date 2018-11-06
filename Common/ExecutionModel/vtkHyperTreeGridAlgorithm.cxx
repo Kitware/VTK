@@ -35,6 +35,8 @@ vtkHyperTreeGridAlgorithm::vtkHyperTreeGridAlgorithm()
   // Keep references to input and output data
   this->InData = nullptr; //todo: should be a safer pointer type
   this->OutData = nullptr;
+
+  this->AppropriateOutput = false;
 }
 
 //----------------------------------------------------------------------------
@@ -125,23 +127,68 @@ void vtkHyperTreeGridAlgorithm::SetOutput( vtkDataObject* d )
 }
 
 //----------------------------------------------------------------------------
+int vtkHyperTreeGridAlgorithm::RequestDataObject( vtkInformation*,
+                                                  vtkInformationVector** inputVector ,
+                                                  vtkInformationVector* outputVector)
+{
+  if ( this->GetNumberOfInputPorts() == 0 || this->GetNumberOfOutputPorts() == 0 )
+  {
+    return 1;
+  }
+
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject( 0 );
+  if ( ! inInfo )
+  {
+    return 0;
+  }
+  vtkDataObject *input = inInfo->Get( vtkDataObject::DATA_OBJECT() );
+
+  if (input)
+  {
+    // for each output
+    for( int i = 0; i < this->GetNumberOfOutputPorts(); ++ i )
+    {
+      vtkInformation *info = outputVector->GetInformationObject( i );
+      vtkDataObject *output = info->Get( vtkDataObject::DATA_OBJECT() );
+
+      if (! output || ! output->IsA( input->GetClassName() ) )
+      {
+        vtkDataObject *newOutput = input->NewInstance();
+        info->Set( vtkDataObject::DATA_OBJECT(), newOutput );
+        newOutput->Delete();
+      }
+    }
+  }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 int vtkHyperTreeGridAlgorithm::ProcessRequest( vtkInformation* request,
                                                vtkInformationVector** inputVector,
                                                vtkInformationVector* outputVector )
 {
+  if ( this->AppropriateOutput )
+  {
+    // create the output
+    if(request->Has( vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+    {
+      return this->RequestDataObject(request, inputVector, outputVector);
+    }
+  }
+
   // generate the data
-  if( request->Has(vtkDemandDrivenPipeline::REQUEST_DATA() ) )
+  if( request->Has( vtkDemandDrivenPipeline::REQUEST_DATA() ) )
   {
     return this->RequestData( request, inputVector, outputVector );
   }
 
-  if( request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT() ) )
+  if( request->Has( vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT() ) )
   {
     return this->RequestUpdateExtent( request, inputVector, outputVector );
   }
 
   // execute information
-  if( request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION() ) )
+  if( request->Has( vtkDemandDrivenPipeline::REQUEST_INFORMATION() ) )
   {
     return this->RequestInformation( request, inputVector, outputVector );
   }
@@ -211,6 +258,8 @@ int vtkHyperTreeGridAlgorithm::RequestData( vtkInformation* vtkNotUsed(request),
     vtkErrorMacro( "No output available. Cannot proceed with hyper tree grid algorithm." );
     return 0;
   }
+
+  this->OutData = nullptr; //JB Pourquoi mettre au niveau de Algorithm le OutData ?
 
   // Process all trees in input grid and generate input data object
   if ( ! this->ProcessTrees( input, outputDO ) )

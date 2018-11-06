@@ -46,6 +46,7 @@
 
 class vtkMapper;
 class vtkTexture;
+class vtkAbstractHyperTreeGridMapper;
 class vtkAbstractVolumeMapper;
 class vtkImageMapper3D;
 class vtkPlaneCollection;
@@ -59,6 +60,8 @@ class vtkImageData;
 class vtkAbstractCellLocator;
 class vtkCollection;
 class vtkMatrix4x4;
+class vtkBitArray;
+class vtkHyperTreeGridNonOrientedGeometryCursor;
 
 class VTKRENDERINGCORE_EXPORT vtkCellPicker : public vtkPicker
 {
@@ -273,6 +276,17 @@ protected:
                                         double &tMin, double &pDistMin,
                                         double xyz[3], double minPCoords[3] );
 
+  //@{
+  /**
+   * Intersect a vtkAbstractHyperTreeGridMapper with a line by ray casting.
+   */
+  virtual double IntersectHyperTreeGridWithLine(const double[3], const double[3],
+                                                 double, double,
+                                                 vtkAbstractHyperTreeGridMapper * );
+  virtual bool RecursivelyProcessTree( vtkHyperTreeGridNonOrientedGeometryCursor*,
+                                       int );
+  //@}
+
   virtual double IntersectVolumeWithLine(const double p1[3],
                                          const double p2[3],
                                          double t1, double t2,
@@ -342,6 +356,9 @@ protected:
 
   vtkTexture *Texture;
   vtkTypeBool PickTextureData;
+
+  vtkBitArray* InMaterialMask;
+  double WordlPoint[3];
 
 private:
   void ResetCellPickerInfo();
