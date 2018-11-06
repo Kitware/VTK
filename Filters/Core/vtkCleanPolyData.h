@@ -35,6 +35,10 @@
  * Strp with 1 points -> Vert (if ConvertStripsToPolys && ConvertPolysToLines
  *   && ConvertLinesToPoints)
  *
+ * Cells of type VTK_POLY_LINE will be converted to a vertex only if
+ * ConvertLinesToPoints is on and all points are merged into one. Degenerate line
+ * segments (with two identical end points) will be removed.
+ *
  * If tolerance is specified precisely=0.0, then vtkCleanPolyData will use
  * the vtkMergePoints object to merge points (which is faster). Otherwise the
  * slower vtkIncrementalPointLocator is used.  Before inserting points into the point
