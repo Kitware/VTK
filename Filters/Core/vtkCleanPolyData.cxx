@@ -302,9 +302,10 @@ int vtkCleanPolyData::RequestData(
           updatedPts[numNewPts++] = ptId;
         }
       }//for all cell points
-      if (numNewPts == 2)
+
+      if (numNewPts >= 2)
       {
-        // Cell is a proper line, always add
+        // Cell is a proper line or polyline, always add
         newId = newLines->InsertNextCell(numNewPts,updatedPts);
         outLineData->CopyData(inputCD, inCellID, newId);
         if (lineIDcounter!=newId)
