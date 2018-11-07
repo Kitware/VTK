@@ -1,34 +1,34 @@
-# - Find the PostgreSQL installation.
-# Usage:
-# In your CMakeLists.txt file do something like this:
-# ...
-# # PostgreSQL
-# FIND_PACKAGE(PostgreSQL)
-# ...
-# if( PostgreSQL_FOUND )
-#   include_directories(${PostgreSQL_INCLUDE_DIRS})
-#   link_directories(${PostgreSQL_LIBRARY_DIRS})
-# endif()
-# ...
-# Remember to include ${PostgreSQL_LIBRARIES} in the target_link_libraries() statement.
-#
-#
-# In Windows, we make the assumption that, if the PostgreSQL files are installed, the default directory
-# will be C:\Program Files\PostgreSQL.
-#
+# Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
+# file Copyright.txt or https://cmake.org/licensing for details.
 
-#=============================================================================
-# Copyright 2004-2009 Kitware, Inc.
-#
-# Distributed under the OSI-approved BSD License (the "License");
-# see accompanying file Copyright.txt for details.
-#
-# This software is distributed WITHOUT ANY WARRANTY; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the License for more information.
-#=============================================================================
-# (To distribute this file outside of CMake, substitute the full
-#  License text for the above reference.)
+#[=======================================================================[.rst:
+FindPostgreSQL
+--------------
+
+Find the PostgreSQL installation.
+
+IMPORTED Targets
+^^^^^^^^^^^^^^^^
+
+This module defines :prop_tgt:`IMPORTED` target ``PostgreSQL::PostgreSQL``
+if PostgreSQL has been found.
+
+Result Variables
+^^^^^^^^^^^^^^^^
+
+This module will set the following variables in your project:
+
+``PostgreSQL_FOUND``
+  True if PostgreSQL is found.
+``PostgreSQL_LIBRARIES``
+  the PostgreSQL libraries needed for linking
+``PostgreSQL_INCLUDE_DIRS``
+  the directories of the PostgreSQL headers
+``PostgreSQL_LIBRARY_DIRS``
+  the link directories for PostgreSQL libraries
+``PostgreSQL_VERSION_STRING``
+  the version of PostgreSQL found
+#]=======================================================================]
 
 # ----------------------------------------------------------------------------
 # History:
@@ -41,11 +41,11 @@
 # In Windows the default installation of PostgreSQL uses that as part of the path.
 # E.g C:\Program Files\PostgreSQL\8.4.
 # Currently, the following version numbers are known to this module:
-# "9.1" "9.0" "8.4" "8.3" "8.2" "8.1" "8.0"
+# "11" "10" "9.6" "9.5" "9.4" "9.3" "9.2" "9.1" "9.0" "8.4" "8.3" "8.2" "8.1" "8.0"
 #
 # To use this variable just do something like this:
 # set(PostgreSQL_ADDITIONAL_VERSIONS "9.2" "8.4.4")
-# before calling FIND_PACKAGE(PostgreSQL) in your CMakeLists.txt file.
+# before calling find_package(PostgreSQL) in your CMakeLists.txt file.
 # This will mean that the versions you set here will be found first in the order
 # specified before the default ones are searched.
 #
@@ -62,6 +62,8 @@
 #  PostgreSQL_LIBRARY_DIRS  - Link directories for PostgreSQL libraries
 #  PostgreSQL_LIBRARIES     - The PostgreSQL libraries.
 #
+# The ``PostgreSQL::PostgreSQL`` imported target is also created.
+#
 # ----------------------------------------------------------------------------
 # If you have installed PostgreSQL in a non-standard location.
 # (Please note that in the following comments, it is assumed that <Your Path>
@@ -71,7 +73,7 @@
 #    PostgreSQL_LIBRARY_DIR to wherever the library pq (or libpq in windows) is
 # 2) Use CMAKE_INCLUDE_PATH to set a path to <Your Path>/PostgreSQL<-version>. This will allow find_path()
 #    to locate PostgreSQL_INCLUDE_DIR by utilizing the PATH_SUFFIXES option. e.g. In your CMakeLists.txt file
-#    SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "<Your Path>/include")
+#    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "<Your Path>/include")
 # 3) Set an environment variable called ${PostgreSQL_ROOT} that points to the root of where you have
 #    installed PostgreSQL, e.g. <Your Path>.
 #
@@ -84,25 +86,33 @@ set(PostgreSQL_LIBRARY_DIR_MESSAGE "Set the PostgreSQL_LIBRARY_DIR cmake cache e
 set(PostgreSQL_ROOT_DIR_MESSAGE "Set the PostgreSQL_ROOT system variable to where PostgreSQL is found on the machine E.g C:/Program Files/PostgreSQL/8.4")
 
 
-set(PostgreSQL_ROOT_DIRECTORIES $ENV{PostgreSQL_ROOT})
-if(PostgreSQL_ROOT_DIRECTORIES)
-  file(TO_CMAKE_PATH ${PostgreSQL_ROOT_DIRECTORIES} PostgreSQL_ROOT_DIRECTORIES)
-endif()
-
 set(PostgreSQL_KNOWN_VERSIONS ${PostgreSQL_ADDITIONAL_VERSIONS}
-    "9.1" "9.0" "8.4" "8.3" "8.2" "8.1" "8.0")
+    "11" "10" "9.6" "9.5" "9.4" "9.3" "9.2" "9.1" "9.0" "8.4" "8.3" "8.2" "8.1" "8.0")
 
 # Define additional search paths for root directories.
-if ( WIN32 )
-  foreach (suffix ${PostgreSQL_KNOWN_VERSIONS} )
-    set(PostgreSQL_ADDITIONAL_SEARCH_PATHS ${PostgreSQL_ADDITIONAL_SEARCH_PATHS} "C:/Program Files/PostgreSQL/${suffix}" )
-  endforeach()
-endif()
 set( PostgreSQL_ROOT_DIRECTORIES
-   ${PostgreSQL_ROOT_DIRECTORIES}
+   ENV PostgreSQL_ROOT
    ${PostgreSQL_ROOT}
-   ${PostgreSQL_ADDITIONAL_SEARCH_PATHS}
 )
+foreach(suffix ${PostgreSQL_KNOWN_VERSIONS})
+  if(WIN32)
+    list(APPEND PostgreSQL_LIBRARY_ADDITIONAL_SEARCH_SUFFIXES
+        "PostgreSQL/${suffix}/lib")
+    list(APPEND PostgreSQL_INCLUDE_ADDITIONAL_SEARCH_SUFFIXES
+        "PostgreSQL/${suffix}/include")
+    list(APPEND PostgreSQL_TYPE_ADDITIONAL_SEARCH_SUFFIXES
+        "PostgreSQL/${suffix}/include/server")
+  endif()
+  if(UNIX)
+    list(APPEND PostgreSQL_LIBRARY_ADDITIONAL_SEARCH_SUFFIXES
+        "pgsql-${suffix}/lib")
+    list(APPEND PostgreSQL_INCLUDE_ADDITIONAL_SEARCH_SUFFIXES
+        "pgsql-${suffix}/include")
+    list(APPEND PostgreSQL_TYPE_ADDITIONAL_SEARCH_SUFFIXES
+        "postgresql/${suffix}/server"
+        "pgsql-${suffix}/include/server")
+  endif()
+endforeach()
 
 #
 # Look for an installation.
@@ -113,8 +123,25 @@ find_path(PostgreSQL_INCLUDE_DIR
    # Look in other places.
    ${PostgreSQL_ROOT_DIRECTORIES}
   PATH_SUFFIXES
+    pgsql
     postgresql
     include
+    ${PostgreSQL_INCLUDE_ADDITIONAL_SEARCH_SUFFIXES}
+  # Help the user find it if we cannot.
+  DOC "The ${PostgreSQL_INCLUDE_DIR_MESSAGE}"
+)
+
+find_path(PostgreSQL_TYPE_INCLUDE_DIR
+  NAMES catalog/pg_type.h
+  PATHS
+   # Look in other places.
+   ${PostgreSQL_ROOT_DIRECTORIES}
+  PATH_SUFFIXES
+    postgresql
+    pgsql/server
+    postgresql/server
+    include/server
+    ${PostgreSQL_TYPE_ADDITIONAL_SEARCH_SUFFIXES}
   # Help the user find it if we cannot.
   DOC "The ${PostgreSQL_INCLUDE_DIR_MESSAGE}"
 )
@@ -125,55 +152,78 @@ set (PostgreSQL_LIBRARY_TO_FIND pq)
 set (PostgreSQL_LIB_PREFIX "")
 if ( WIN32 )
   set (PostgreSQL_LIB_PREFIX ${PostgreSQL_LIB_PREFIX} "lib")
-  set ( PostgreSQL_LIBRARY_TO_FIND ${PostgreSQL_LIB_PREFIX}${PostgreSQL_LIBRARY_TO_FIND})
+  set (PostgreSQL_LIBRARY_TO_FIND ${PostgreSQL_LIB_PREFIX}${PostgreSQL_LIBRARY_TO_FIND})
 endif()
 
-find_library( PostgreSQL_LIBRARY
+find_library(PostgreSQL_LIBRARY
  NAMES ${PostgreSQL_LIBRARY_TO_FIND}
  PATHS
    ${PostgreSQL_ROOT_DIRECTORIES}
  PATH_SUFFIXES
    lib
+   ${PostgreSQL_LIBRARY_ADDITIONAL_SEARCH_SUFFIXES}
+ # Help the user find it if we cannot.
+ DOC "The ${PostgreSQL_LIBRARY_DIR_MESSAGE}"
 )
 get_filename_component(PostgreSQL_LIBRARY_DIR ${PostgreSQL_LIBRARY} PATH)
 
-# Did we find anything?
-set( PostgreSQL_FOUND 0 )
-if ( EXISTS "${PostgreSQL_INCLUDE_DIR}" AND EXISTS "${PostgreSQL_LIBRARY_DIR}" )
-  set( PostgreSQL_FOUND 1 )
-else ()
-  if ( POSTGRES_REQUIRED )
-    message( FATAL_ERROR "PostgreSQL is required. ${PostgreSQL_ROOT_DIR_MESSAGE}" )
+if (PostgreSQL_INCLUDE_DIR)
+  # Some platforms include multiple pg_config.hs for multi-lib configurations
+  # This is a temporary workaround.  A better solution would be to compile
+  # a dummy c file and extract the value of the symbol.
+  file(GLOB _PG_CONFIG_HEADERS "${PostgreSQL_INCLUDE_DIR}/pg_config*.h")
+  foreach(_PG_CONFIG_HEADER ${_PG_CONFIG_HEADERS})
+    if(EXISTS "${_PG_CONFIG_HEADER}")
+      file(STRINGS "${_PG_CONFIG_HEADER}" pgsql_version_str
+           REGEX "^#define[\t ]+PG_VERSION_NUM[\t ]+.*")
+      if(pgsql_version_str)
+        string(REGEX REPLACE "^#define[\t ]+PG_VERSION_NUM[\t ]+([0-9]*).*"
+               "\\1" _PostgreSQL_VERSION_NUM "${pgsql_version_str}")
+        break()
+      endif()
+    endif()
+  endforeach()
+  if (_PostgreSQL_VERSION_NUM)
+    math(EXPR _PostgreSQL_major_version "${_PostgreSQL_VERSION_NUM} / 10000")
+    math(EXPR _PostgreSQL_minor_version "${_PostgreSQL_VERSION_NUM} % 10000")
+    set(PostgreSQL_VERSION_STRING "${_PostgreSQL_major_version}.${_PostgreSQL_minor_version}")
+    unset(_PostgreSQL_major_version)
+    unset(_PostgreSQL_minor_version)
+  else ()
+    foreach(_PG_CONFIG_HEADER ${_PG_CONFIG_HEADERS})
+      if(EXISTS "${_PG_CONFIG_HEADER}")
+        file(STRINGS "${_PG_CONFIG_HEADER}" pgsql_version_str
+             REGEX "^#define[\t ]+PG_VERSION[\t ]+\".*\"")
+        if(pgsql_version_str)
+          string(REGEX REPLACE "^#define[\t ]+PG_VERSION[\t ]+\"([^\"]*)\".*"
+                 "\\1" PostgreSQL_VERSION_STRING "${pgsql_version_str}")
+          break()
+        endif()
+      endif()
+    endforeach()
   endif ()
-endif ()
+  unset(_PostgreSQL_VERSION_NUM)
+  unset(pgsql_version_str)
+endif()
+
+# Did we find anything?
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(PostgreSQL
+                                  REQUIRED_VARS PostgreSQL_LIBRARY PostgreSQL_INCLUDE_DIR PostgreSQL_TYPE_INCLUDE_DIR
+                                  VERSION_VAR PostgreSQL_VERSION_STRING)
+set(PostgreSQL_FOUND  ${POSTGRESQL_FOUND})
 
 # Now try to get the include and library path.
 if(PostgreSQL_FOUND)
-
-  if(EXISTS "${PostgreSQL_INCLUDE_DIR}")
-    set(PostgreSQL_INCLUDE_DIRS
-      ${PostgreSQL_INCLUDE_DIR}
-    )
-  endif()
-
-  if(EXISTS "${PostgreSQL_LIBRARY_DIR}")
-    set(PostgreSQL_LIBRARY_DIRS
-      ${PostgreSQL_LIBRARY_DIR}
-    )
-    set(PostgreSQL_LIBRARIES ${PostgreSQL_LIBRARY_TO_FIND})
-  endif()
-
-  #message("Final PostgreSQL include dir: ${PostgreSQL_INCLUDE_DIRS}")
-  #message("Final PostgreSQL library dir: ${PostgreSQL_LIBRARY_DIRS}")
-  #message("Final PostgreSQL libraries:   ${PostgreSQL_LIBRARIES}")
+  if (NOT TARGET PostgreSQL::PostgreSQL)
+    add_library(PostgreSQL::PostgreSQL UNKNOWN IMPORTED)
+    set_target_properties(PostgreSQL::PostgreSQL PROPERTIES
+      IMPORTED_LOCATION "${PostgreSQL_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${PostgreSQL_INCLUDE_DIR};${PostgreSQL_TYPE_INCLUDE_DIR}")
+  endif ()
+  set(PostgreSQL_INCLUDE_DIRS ${PostgreSQL_INCLUDE_DIR} ${PostgreSQL_TYPE_INCLUDE_DIR} )
+  set(PostgreSQL_LIBRARY_DIRS ${PostgreSQL_LIBRARY_DIR} )
+  set(PostgreSQL_LIBRARIES ${PostgreSQL_LIBRARY})
 endif()
 
-if(NOT PostgreSQL_FOUND)
-  if(NOT PostgreSQL_FIND_QUIETLY)
-    message(STATUS "PostgreSQL was not found. ${PostgreSQL_DIR_MESSAGE}")
-  else()
-    if(PostgreSQL_FIND_REQUIRED)
-      message(FATAL_ERROR "PostgreSQL was not found. ${PostgreSQL_DIR_MESSAGE}")
-    endif()
-  endif()
-endif()
+mark_as_advanced(PostgreSQL_INCLUDE_DIR PostgreSQL_TYPE_INCLUDE_DIR PostgreSQL_LIBRARY )
