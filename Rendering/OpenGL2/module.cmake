@@ -26,5 +26,6 @@ vtk_module(vtkRenderingOpenGL2
     vtkCommonSystem
     vtkCommonTransforms
     vtkglew
+    vtkIOXML
     vtksys
   )

@@ -44,6 +44,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkToneMappingPass : public vtkImageProcessingP
 public:
   static vtkToneMappingPass* New();
   vtkTypeMacro(vtkToneMappingPass, vtkImageProcessingPass);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state.
