@@ -56,6 +56,12 @@ public:
     std::vector<unsigned int> &pixeloffsets,
     vtkProp *prop) override;
 
+  /**
+   * Helper method to set ScalarMode on both FastAtomMapper and FastBondMapper.
+   * true means VTK_COLOR_MODE_MAP_SCALARS, false VTK_COLOR_MODE_DIRECT_SCALARS.
+   */
+  void SetMapScalars(bool map) override;
+
 protected:
   vtkOpenGLMoleculeMapper();
   ~vtkOpenGLMoleculeMapper() override;

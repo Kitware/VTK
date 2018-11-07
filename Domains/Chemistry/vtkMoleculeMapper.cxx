@@ -57,6 +57,7 @@ vtkMoleculeMapper::vtkMoleculeMapper()
     AtomicRadiusType(VDWRadius),
     AtomicRadiusScaleFactor(0.3),
     AtomicRadiusArrayName(nullptr),
+    AtomColorMode(DiscreteByAtom),
     RenderBonds(true),
     BondColorMode(DiscreteByAtom),
     UseMultiCylindersForBonds(true),
@@ -64,6 +65,7 @@ vtkMoleculeMapper::vtkMoleculeMapper()
     RenderLattice(true)
 {
   // Initialize ivars:
+  this->AtomColor[0] = this->AtomColor[1] = this->AtomColor[2] = 150;
   this->BondColor[0] = this->BondColor[1] = this->BondColor[2] = 50;
   this->LatticeColor[0] = this->LatticeColor[1] = this->LatticeColor[2] = 255;
   this->SetAtomicRadiusArrayName("radii");
@@ -166,6 +168,7 @@ void vtkMoleculeMapper::UseBallAndStickSettings()
   this->SetRenderBonds(true);
   this->SetAtomicRadiusType( VDWRadius );
   this->SetAtomicRadiusScaleFactor( 0.3 );
+  this->SetAtomColorMode(DiscreteByAtom);
   this->SetBondColorMode( DiscreteByAtom );
   this->SetUseMultiCylindersForBonds( true );
   this->SetBondRadius( 0.075 );
@@ -178,6 +181,7 @@ void vtkMoleculeMapper::UseVDWSpheresSettings()
   this->SetRenderBonds(true);
   this->SetAtomicRadiusType( VDWRadius );
   this->SetAtomicRadiusScaleFactor( 1.0 );
+  this->SetAtomColorMode(DiscreteByAtom);
   this->SetBondColorMode( DiscreteByAtom );
   this->SetUseMultiCylindersForBonds( true );
   this->SetBondRadius( 0.075 );
@@ -190,6 +194,7 @@ void vtkMoleculeMapper::UseLiquoriceStickSettings()
   this->SetRenderBonds(true);
   this->SetAtomicRadiusType( UnitRadius );
   this->SetAtomicRadiusScaleFactor( 0.15 );
+  this->SetAtomColorMode(DiscreteByAtom);
   this->SetBondColorMode( DiscreteByAtom );
   this->SetUseMultiCylindersForBonds( false );
   this->SetBondRadius( 0.15 );
@@ -202,6 +207,7 @@ void vtkMoleculeMapper::UseFastSettings()
   this->SetRenderBonds(true);
   this->SetAtomicRadiusType( UnitRadius );
   this->SetAtomicRadiusScaleFactor( 0.60 );
+  this->SetAtomColorMode(DiscreteByAtom);
   this->SetBondColorMode( SingleColor );
   this->SetBondColor( 50, 50, 50 );
   this->SetUseMultiCylindersForBonds( false );
@@ -373,11 +379,33 @@ void vtkMoleculeMapper::UpdateAtomGlyphPolyData()
 
   vtkMolecule *molecule = this->GetInput();
 
-  int assoc; // output var for GetInputAbstractArrayToProcess
-  vtkAbstractArray *wholeColorArray =
-      this->GetInputAbstractArrayToProcess(0, molecule, assoc);
-
-  vtkAbstractArray *colorArray = wholeColorArray != nullptr ? wholeColorArray->NewInstance() : nullptr;
+  vtkAbstractArray* inputColorArray = this->GetInputAbstractArrayToProcess(0, molecule);
+  vtkAbstractArray* colorArray = nullptr;
+  vtkUnsignedCharArray* singleColorArray = nullptr;
+  switch (this->AtomColorMode)
+  {
+    case SingleColor:
+    {
+      colorArray = vtkUnsignedCharArray::New();
+      colorArray->SetNumberOfComponents(3);
+      vtkIdType size = 3 * molecule->GetNumberOfAtoms();
+      colorArray->Allocate(size);
+      colorArray->SetName("Colors");
+      singleColorArray = vtkArrayDownCast<vtkUnsignedCharArray>(colorArray);
+      this->AtomGlyphPolyData->GetPointData()->SetScalars(singleColorArray);
+      break;
+    }
+    case DiscreteByAtom:
+    default:
+      if (inputColorArray != nullptr)
+      {
+        colorArray = inputColorArray->NewInstance();
+        colorArray->SetNumberOfComponents(inputColorArray->GetNumberOfComponents());
+        colorArray->Allocate(colorArray->GetNumberOfComponents() * molecule->GetNumberOfAtoms());
+      }
+      this->AtomGlyphMapper->SetLookupTable(this->LookupTable);
+      break;
+  }
 
   vtkNew<vtkUnsignedShortArray> atomicNbWithoutGhostArray;
   vtkUnsignedShortArray* atomicNbFullArray = molecule->GetAtomicNumberArray();
@@ -400,9 +428,13 @@ void vtkMoleculeMapper::UpdateAtomGlyphPolyData()
     }
     atomicNbWithoutGhostArray->InsertNextValue(atomicNbFullArray->GetValue(i));
     points->InsertNextPoint(allPoints->GetPoint(i));
-    if (colorArray != nullptr)
+    if (this->AtomColorMode == SingleColor)
     {
-      colorArray->InsertNextTuple(i, wholeColorArray);
+      singleColorArray->InsertNextTypedTuple(this->AtomColor);
+    }
+    else if (colorArray != nullptr && inputColorArray != nullptr)
+    {
+      colorArray->InsertNextTuple(i, inputColorArray);
     }
   }
   const vtkIdType numAtoms = points->GetNumberOfPoints();
@@ -413,17 +445,15 @@ void vtkMoleculeMapper::UpdateAtomGlyphPolyData()
     {
       vtkErrorMacro("Color array size does not match number of atoms.");
     }
-    else
+    else if (this->AtomColorMode == DiscreteByAtom)
     {
-      int colorArrayIdx =
-          this->AtomGlyphPolyData->GetPointData()->AddArray(colorArray);
+      int colorArrayIdx = this->AtomGlyphPolyData->GetPointData()->AddArray(colorArray);
       this->AtomGlyphMapper->SelectColorArray(colorArrayIdx);
     }
     colorArray->Delete();
   }
 
   this->AtomGlyphPolyData->SetPoints(points.Get());
-  this->AtomGlyphMapper->SetLookupTable(this->LookupTable);
 
   vtkNew<vtkFloatArray> scaleFactors;
   scaleFactors->SetNumberOfComponents(1);
@@ -558,41 +588,38 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
         selectionIds);
 
   // Set up coloring mode
-  vtkDataArray *cylColors = nullptr;
-  switch(this->BondColorMode)
+  vtkAbstractArray* atomColorArray = this->GetInputAbstractArrayToProcess(0, molecule);
+  vtkUnsignedCharArray* singleColorArray = nullptr;
+  vtkAbstractArray* cylColors = nullptr;
+
+  bool useColorArray = this->BondColorMode == DiscreteByAtom && atomColorArray != nullptr;
+
+  // In DiscreteByAtom mode, coloring is done with the data used for atom coloring.
+  // So we need an array of the same type, with data corresponding to begin and end atom for each bond :
+  // { beginAtom0, endAtom0, beginAtom1, endAtom1, ... }
+  if (useColorArray)
   {
-    case SingleColor:
-      cylColors = vtkUnsignedCharArray::New();
-      cylColors->SetNumberOfComponents(3);
-      cylColors->Allocate(3*numCylinders);
-      cylColors->SetName("Colors");
-      this->BondGlyphPolyData->GetPointData()->SetScalars(cylColors);
-      this->BondGlyphMapper->SetColorModeToDefault();
-      this->BondGlyphMapper->SetScalarModeToUsePointData();
-      break;
-    default:
-    case DiscreteByAtom:
-      cylColors = vtkUnsignedShortArray::New();
-      cylColors->SetNumberOfComponents(1);
-      cylColors->Allocate(numCylinders);
-      cylColors->SetName("Colors");
-      this->BondGlyphPolyData->GetPointData()->SetScalars(cylColors);
-      this->BondGlyphMapper->SetLookupTable(this->LookupTable);
-      this->BondGlyphMapper->SetScalarRange
-        (0, this->PeriodicTable->GetNumberOfElements());
-      this->BondGlyphMapper->SetScalarModeToUsePointData();
-      this->AtomGlyphMapper->SetColorModeToMapScalars();
-      break;
+    cylColors = atomColorArray->NewInstance();
+    cylColors->SetNumberOfComponents(atomColorArray->GetNumberOfComponents());
+    cylColors->Allocate(atomColorArray->GetNumberOfComponents() * numCylinders);
+    cylColors->SetName("Colors");
+    this->BondGlyphMapper->SetScalarRange(0, this->PeriodicTable->GetNumberOfElements());
+    this->BondGlyphMapper->SetColorMode(this->AtomGlyphMapper->GetColorMode());
+    this->BondGlyphMapper->SetScalarModeToUsePointFieldData();
+    this->BondGlyphMapper->SetLookupTable(this->LookupTable);
   }
-
-  // Set up pointers to the specific color arrays
-  vtkUnsignedCharArray *singleColorArray =
-    vtkArrayDownCast<vtkUnsignedCharArray>(cylColors);
-  vtkUnsignedShortArray *discreteColorArray =
-    vtkArrayDownCast<vtkUnsignedShortArray>(cylColors);
-
-  // Remove reference to cylColors
-  cylColors->Delete();
+  // Otherwise an unique color will be used, so we fill a 3-components unsigned char array with BondColor value.
+  else
+  {
+    singleColorArray = vtkUnsignedCharArray::New();
+    singleColorArray->SetNumberOfComponents(3);
+    singleColorArray->Allocate(3 * numCylinders);
+    singleColorArray->SetName("Colors");
+    cylColors = singleColorArray;
+    this->BondGlyphPolyData->GetPointData()->SetScalars(singleColorArray);
+    this->BondGlyphMapper->SetColorModeToDefault();
+    this->BondGlyphMapper->SetScalarModeToUsePointData();
+  }
 
   // Declare some variables for later
   unsigned short bondOrder;
@@ -619,18 +646,12 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
   vtkVector3f halfCylinderCenter;
   // The positions of the start and end atoms
   vtkVector3f pos1, pos2;
-  // Array containing the atomic numbers of {begin, end} atoms
-  unsigned short atomicNumbers[2];
+  // Array containing the atom ids of {begin, end} atoms
+  vtkIdType atomIds[2];
   // Normalized vector pointing along bond from begin->end atom
   vtkVector3f bondVec;
   // Unit z vector -- used for multicylinder orientation
   static const vtkVector3f unitZ (0.0, 0.0, 1.0);
-  // Can't use InsertNextTuple(unsigned char *) in a
-  // vtkUnsignedCharArray. This float array is used instead.
-  // Initialize with bondColor for SingleColor mode
-  vtkColor3f bondColorf (static_cast<float>(this->BondColor[0]),
-                         static_cast<float>(this->BondColor[1]),
-                         static_cast<float>(this->BondColor[2]));
 
   // Generate the scale, orientation, and position of each cylinder
   for (vtkIdType bondInd = 0; bondInd < numBonds; ++bondInd)
@@ -641,8 +662,8 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
     bondOrder = bond.GetOrder();
     pos1 = bond.GetBeginAtom().GetPosition();
     pos2 = bond.GetEndAtom().GetPosition();
-    atomicNumbers[0] = bond.GetBeginAtom().GetAtomicNumber();
-    atomicNumbers[1] = bond.GetEndAtom().GetAtomicNumber();
+    atomIds[0] = bond.GetBeginAtomId();
+    atomIds[1] = bond.GetEndAtomId();
 
     // Compute additional bond info
     // - Normalized vector in direction of bond
@@ -724,7 +745,7 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
         case SingleColor:
           cylCenters->InsertNextPoint(cylinderCenter.GetData());
           cylScales->InsertNextTuple(scale.GetData());
-          singleColorArray->InsertNextTuple(bondColorf.GetData());
+          singleColorArray->InsertNextTypedTuple(this->BondColor);
           orientationVectors->InsertNextTuple(bondVec.GetData());
           selectionIds->InsertNextValue(selectionId);
           break;
@@ -746,7 +767,14 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
 
           cylCenters->InsertNextPoint(halfCylinderCenter.GetData());
           cylScales->InsertNextTuple(scale.GetData());
-          discreteColorArray->InsertNextValue(atomicNumbers[0]);
+          if (useColorArray)
+          {
+            cylColors->InsertNextTuple(atomIds[0], atomColorArray);
+          }
+          else
+          {
+            singleColorArray->InsertNextTypedTuple(this->BondColor);
+          }
           orientationVectors->InsertNextTuple(bondVec.GetData());
           selectionIds->InsertNextValue(selectionId);
 
@@ -763,7 +791,14 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
 
           cylCenters->InsertNextPoint(halfCylinderCenter.GetData());
           cylScales->InsertNextTuple(scale.GetData());
-          discreteColorArray->InsertNextValue(atomicNumbers[1]);
+          if (useColorArray)
+          {
+            cylColors->InsertNextTuple(atomIds[1], atomColorArray);
+          }
+          else
+          {
+            singleColorArray->InsertNextTypedTuple(this->BondColor);
+          }
           orientationVectors->InsertNextTuple(bondVec.GetData());
           selectionIds->InsertNextValue(selectionId);
       }
@@ -781,6 +816,12 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
     }
   }
 
+  if (useColorArray)
+  {
+    int colorArrayIdx = this->BondGlyphPolyData->GetPointData()->AddArray(cylColors);
+    this->BondGlyphMapper->SelectColorArray(colorArrayIdx);
+  }
+  cylColors->Delete();
   // Free up some space
   this->BondGlyphPolyData->Squeeze();
 
@@ -923,4 +964,13 @@ void vtkMoleculeMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "BondGlyphMapper:\n";
   this->BondGlyphMapper->PrintSelf(os, indent.GetNextIndent());
+}
+
+//----------------------------------------------------------------------------
+void vtkMoleculeMapper::SetMapScalars(bool map)
+{
+  this->AtomGlyphMapper->SetColorMode(
+    map ? VTK_COLOR_MODE_MAP_SCALARS : VTK_COLOR_MODE_DIRECT_SCALARS);
+  this->BondGlyphMapper->SetColorMode(
+    map ? VTK_COLOR_MODE_MAP_SCALARS : VTK_COLOR_MODE_DIRECT_SCALARS);
 }

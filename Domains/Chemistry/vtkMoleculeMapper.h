@@ -209,7 +209,7 @@ public:
    * boundary at the bond center.
    */
   vtkGetMacro(BondColorMode, int);
-  vtkSetMacro(BondColorMode, int);
+  vtkSetClampMacro(BondColorMode, int, vtkMoleculeMapper::SingleColor, vtkMoleculeMapper::DiscreteByAtom);
   const char * GetBondColorModeAsString();
   void SetBondColorModeToSingleColor()
   {
@@ -219,6 +219,29 @@ public:
   {
     this->SetBondColorMode(DiscreteByAtom);
   }
+  //@}
+
+  //@{
+  /**
+   * Get/Set the method by which atoms are colored.
+   *
+   * If 'SingleColor' is used, all atoms will have the same color. Use
+   * SetAtomColor to set the rgb values to be used.
+   *
+   * If 'DiscreteByAtom' is selected, each atom is colored using the
+   * internal lookup table.
+   */
+  vtkGetMacro(AtomColorMode, int);
+  vtkSetClampMacro(AtomColorMode, int, vtkMoleculeMapper::SingleColor, vtkMoleculeMapper::DiscreteByAtom);
+  //@}
+
+  //@{
+  /**
+   * Get/Set the color of the atoms as an rgb tuple.
+   * Default: {150, 150, 150} (grey)
+   */
+  vtkGetVector3Macro(AtomColor, unsigned char);
+  vtkSetVector3Macro(AtomColor, unsigned char);
   //@}
 
   //@{
@@ -288,6 +311,12 @@ public:
   vtkSetStringMacro(AtomicRadiusArrayName);
 //@}
 
+  /**
+   * Helper method to set ScalarMode on both AtomGlyphMapper and BondGlyphMapper.
+   * true means VTK_COLOR_MODE_MAP_SCALARS, false VTK_COLOR_MODE_DIRECT_SCALARS.
+   */
+  virtual void SetMapScalars(bool map);
+
 protected:
   vtkMoleculeMapper();
   ~vtkMoleculeMapper() override;
@@ -300,6 +329,8 @@ protected:
   int AtomicRadiusType;
   float AtomicRadiusScaleFactor;
   char* AtomicRadiusArrayName;
+  int AtomColorMode;
+  unsigned char AtomColor[3];
   //@}
 
   //@{

@@ -36,6 +36,8 @@ vtkOpenGLMoleculeMapper::vtkOpenGLMoleculeMapper()
   this->FastAtomMapper->SetColorModeToMapScalars();
   this->FastAtomMapper->SetScalarModeToUsePointFieldData();
 
+  this->FastBondMapper->SetScalarRange(0, this->PeriodicTable->GetNumberOfElements());
+
   // Forward commands to instance mappers
   vtkNew<vtkEventForwarderCommand> cb;
   cb->SetTarget(this);
@@ -117,6 +119,7 @@ void vtkOpenGLMoleculeMapper::ReleaseGraphicsResources(vtkWindow *w)
 void vtkOpenGLMoleculeMapper::UpdateAtomGlyphPolyData()
 {
   this->Superclass::UpdateAtomGlyphPolyData();
+  this->FastAtomMapper->SetScalarMode(this->AtomGlyphMapper->GetScalarMode());
   this->FastAtomMapper->SetLookupTable(this->AtomGlyphMapper->GetLookupTable());
   this->FastAtomMapper->SetScaleArray("Scale Factors");
 
@@ -130,24 +133,22 @@ void vtkOpenGLMoleculeMapper::UpdateBondGlyphPolyData()
 {
   this->Superclass::UpdateBondGlyphPolyData();
 
-  switch(this->BondColorMode)
-  {
-    case SingleColor:
-      this->FastBondMapper->SetColorModeToDefault();
-      this->FastBondMapper->SetScalarModeToUsePointData();
-      break;
-    default:
-    case DiscreteByAtom:
-      this->FastBondMapper->SetLookupTable(
-            this->BondGlyphMapper->GetLookupTable());
-      this->FastBondMapper->SetScalarRange
-        (0, this->PeriodicTable->GetNumberOfElements());
-      this->FastBondMapper->SetScalarModeToUsePointData();
-      break;
-  }
-
+  this->FastBondMapper->SetLookupTable(this->BondGlyphMapper->GetLookupTable());
+  this->FastBondMapper->SetScalarMode(this->BondGlyphMapper->GetScalarMode());
+  this->FastBondMapper->SetColorMode(this->BondGlyphMapper->GetColorMode());
+  this->FastBondMapper->SelectColorArray(this->BondGlyphMapper->GetArrayId());
   // Setup glypher
   this->FastBondMapper->SetScaleArray("Scale Factors");
   this->FastBondMapper->SetOrientationArray("Orientation Vectors");
   this->FastBondMapper->SetSelectionIdArray("Selection Ids");
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLMoleculeMapper::SetMapScalars(bool map)
+{
+  this->Superclass::SetMapScalars(map);
+  this->FastAtomMapper->SetColorMode(
+    map ? VTK_COLOR_MODE_MAP_SCALARS : VTK_COLOR_MODE_DIRECT_SCALARS);
+  this->FastBondMapper->SetColorMode(
+    map ? VTK_COLOR_MODE_MAP_SCALARS : VTK_COLOR_MODE_DIRECT_SCALARS);
 }
