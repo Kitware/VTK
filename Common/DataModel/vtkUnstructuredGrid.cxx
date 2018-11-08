@@ -1946,7 +1946,8 @@ int vtkUnstructuredGrid::IsHomogeneous()
   if (this->Types && this->Types->GetMaxId() >= 0)
   {
     type = Types->GetValue(0);
-    for (int cellId = 0; cellId < this->GetNumberOfCells(); cellId++)
+    vtkIdType numCells = this->GetNumberOfCells();
+    for (int cellId=0; cellId < numCells; cellId++)
     {
       if (this->Types->GetValue(cellId) != type)
       {

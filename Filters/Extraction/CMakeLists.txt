@@ -3,6 +3,7 @@ set(Module_SRCS
   vtkConvertSelection.cxx
   vtkExtractBlock.cxx
   vtkExtractCells.cxx
+  vtkExtractCellsByType.cxx
   vtkExtractDataArraysOverTime.cxx
   vtkExtractDataOverTime.cxx
   vtkExtractDataSets.cxx

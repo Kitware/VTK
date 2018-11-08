@@ -8,4 +8,5 @@ vtk_add_test_python(
   extractUGrid.py
   extractVectors.py
   TestExtractCells.py
+  TestExtractCellsByType.py,NO_RT,NO_VALID
   )
