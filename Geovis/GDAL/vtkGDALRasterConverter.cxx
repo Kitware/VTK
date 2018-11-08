@@ -561,7 +561,7 @@ void vtkGDALRasterConverter::SetGDALProjection(GDALDataset* dataset,
 void vtkGDALRasterConverter::SetGDALGeoTransform(GDALDataset* dataset,
                                                  double origin[2],
                                                  double spacing[2],
-                                                 int flipAxis[3])
+                                                 int flipAxis[2])
 {
   double geoTransform[6];
   geoTransform[0] = origin[0];

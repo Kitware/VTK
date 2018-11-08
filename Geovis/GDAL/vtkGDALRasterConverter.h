@@ -91,7 +91,7 @@ public:
   void SetGDALGeoTransform(GDALDataset* dataset,
                            double origin[2],
                            double spacing[2],
-                           int flipAxis[3]);
+                           int flipAxis[2]);
 
   /**
    * Copies NoDataValue info from 1st to 2nd dataset
