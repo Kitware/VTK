@@ -121,6 +121,7 @@ protected:
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   char* InputProjection;
+  int FlipAxis[3];
   char* OutputProjection;
   int OutputDimensions[2];
   double NoDataValue;

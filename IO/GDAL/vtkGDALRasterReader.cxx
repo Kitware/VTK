@@ -80,6 +80,8 @@ public:
   template <typename VTK_TYPE, typename RAW_TYPE> void GenericReadData();
   void ReleaseData();
 
+  void GetOriginSpacing(double* spacing, double* origin, int* flip);
+
   template <typename VTK_TYPE, typename RAW_TYPE>
   void Convert(std::vector<RAW_TYPE>& rawUniformGridData,
                int targetWidth, int targetHeight, const std::vector<int>& groupIndex,
@@ -406,16 +408,15 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
   const int bandSpace = destWidth * destHeight * this->NumberOfBytesPerPixel;
   CPLErr err;
 
-  const double* d = GetGeoCornerPoints();
-  // 4,5 are the x,y coordinates for the opposite corner to 0,1
-  double geoSpacing[] = {(d[4]-d[0])/this->Reader->RasterDimensions[0],
-                         (d[5]-d[1])/this->Reader->RasterDimensions[1],
-                         1};
+  double spacing[3];
+  double origin[3];
+  int flip[3];
+  GetOriginSpacing(origin, spacing, flip);
 
   // destWidth, destHeight are the number of cells. Points are one more than cells
   this->UniformGridData->SetExtent(0, destWidth, 0, destHeight, 0, 0);
-  this->UniformGridData->SetSpacing(std::abs(geoSpacing[0]), std::abs(geoSpacing[1]), geoSpacing[2]);
-  this->UniformGridData->SetOrigin(std::min(d[0], d[4]), std::min(d[1], d[5]), 0);
+  this->UniformGridData->SetSpacing(spacing[0], spacing[1], spacing[2]);
+  this->UniformGridData->SetOrigin(origin[0], origin[1], origin[2]);
 
   std::vector<int> groupIndex;
   double completedBand = 0.0;
@@ -546,7 +547,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
     this->Reader->UpdateProgress(completedBand / enabledBands);
     (void)err; //unused
     this->Convert<VTK_TYPE, RAW_TYPE>(rawUniformGridData, destWidth, destHeight,
-                                      groupIndex, "Elevation", geoSpacing[0] < 0, geoSpacing[1] < 0);
+                                      groupIndex, "Elevation", flip[0], flip[1]);
     this->UniformGridData->GetCellData()->SetActiveScalars("Elevation");
   }
   groupIndex.resize(1, 0);
@@ -565,8 +566,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
       assert(err == CE_None);
       this->Convert<VTK_TYPE, RAW_TYPE>(
         rawUniformGridData, destWidth, destHeight,
-        groupIndex, this->GetBandName(i+1).c_str(),
-        geoSpacing[0] < 0, geoSpacing[1] < 0);
+        groupIndex, this->GetBandName(i+1).c_str(), flip[0], flip[1]);
       completedBand += 1;
       this->Reader->UpdateProgress(completedBand / enabledBands);
     }
@@ -737,6 +737,27 @@ const double* vtkGDALRasterReader::vtkGDALRasterReaderInternal::GetGeoCornerPoin
 
   return this->CornerPoints;
 }
+
+void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GetOriginSpacing(
+  double* origin, double* spacing, int* flip)
+{
+  const double* d = GetGeoCornerPoints();
+  // 4,5 are the x,y coordinates for the opposite corner to 0,1
+  double geoSpacing[] = {(d[4]-d[0])/this->Reader->RasterDimensions[0],
+                         (d[5]-d[1])/this->Reader->RasterDimensions[1],
+                         1};
+
+  spacing[0] = std::abs(geoSpacing[0]);
+  spacing[1] = std::abs(geoSpacing[1]);
+  spacing[2] = geoSpacing[2];
+  flip[0] = geoSpacing[0] < 0;
+  flip[1] = geoSpacing[1] < 0;
+  flip[2] = 0;
+  origin[0] = std::min(d[0], d[4]);
+  origin[1] = std::min(d[1], d[5]);
+  origin[2] = 0;
+}
+
 
 //-----------------------------------------------------------------------------
 void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReadColorTable(
@@ -1115,24 +1136,22 @@ int vtkGDALRasterReader::RequestInformation(vtkInformation * vtkNotUsed(request)
   this->DataExtent[4] = 0;
   this->DataExtent[5] = 0;
 
-  double geoTransform[6] = {};
-  if (CE_Failure == this->Impl->GDALData->GetGeoTransform(geoTransform))
-  {
-    // Issue warning message if image doensn't contain geotransform.
-    // Not fatal because GDAL will return a default transform on CE_Failure.
-    vtkErrorMacro("No GeoTransform data in input image");
-  }
-  this->DataOrigin[0] = geoTransform[0];
-  this->DataOrigin[1] = geoTransform[3];
-  this->DataOrigin[2] = 0.0;
-  this->DataSpacing[0] = geoTransform[1];
-  this->DataSpacing[1] = geoTransform[5];
-  this->DataSpacing[2] = 0.0;
+  double origin[3];
+  double spacing[3];
+  int flip[3];
+  this->Impl->GetOriginSpacing(origin, spacing, flip);
+  this->DataOrigin[0] = origin[0];
+  this->DataOrigin[1] = origin[1];
+  this->DataOrigin[2] = origin[2];
+  this->DataSpacing[0] = spacing[0];
+  this->DataSpacing[1] = spacing[1];
+  this->DataSpacing[2] = spacing[2];
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                this->DataExtent, 6);
   outInfo->Set(vtkDataObject::SPACING(), this->DataSpacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(), this->DataOrigin, 3);
+  outInfo->Set(vtkGDAL::FLIP_AXIS(), flip, 3);
   outInfo->Set(vtkGDAL::MAP_PROJECTION(),
                this->Impl->GDALData->GetProjectionRef());
 

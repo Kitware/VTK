@@ -78,6 +78,7 @@ vtkRasterReprojectionFilter::vtkRasterReprojectionFilter()
 {
   this->Internal = new vtkRasterReprojectionFilterInternal;
   this->InputProjection = NULL;
+  this->FlipAxis[0] = this->FlipAxis[1] = this->FlipAxis[2] = 0;
   this->OutputProjection = NULL;
   this->OutputDimensions[0] = this->OutputDimensions[1] = 0;
   this->NoDataValue = vtkMath::Nan();
@@ -134,6 +135,7 @@ void vtkRasterReprojectionFilter::PrintSelf(ostream& os, vtkIndent indent)
      << indent << "NoDataValue: " << this->NoDataValue << "\n"
      << indent << "MaxError: " << this->MaxError << "\n"
      << indent << "ResamplingAlgorithm: " << this->ResamplingAlgorithm << "\n"
+     << indent << "FlipAxis: " << this->FlipAxis[0] << ", " << this->FlipAxis[1] << "\n"
      << std::endl;
 }
 
@@ -172,7 +174,7 @@ int vtkRasterReprojectionFilter::RequestData(
 
   // Convert input image to GDALDataset
   GDALDataset* inputGDAL = this->Internal->GDALConverter->CreateGDALDataset(
-    inImageData, this->InputProjection);
+    inImageData, this->InputProjection, this->FlipAxis);
 
   if (this->Debug)
   {
@@ -297,6 +299,14 @@ int vtkRasterReprojectionFilter::RequestInformation(
     }
     this->SetInputProjection(inInfo->Get(vtkGDAL::MAP_PROJECTION()));
   }
+  if (!inInfo->Has(vtkGDAL::FLIP_AXIS()))
+  {
+    vtkErrorMacro("No flip information for GDAL raster input image");
+    return VTK_ERROR;
+  }
+  inInfo->Get(vtkGDAL::FLIP_AXIS(), this->FlipAxis);
+
+
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if (!outInfo)
@@ -320,7 +330,7 @@ int vtkRasterReprojectionFilter::RequestInformation(
   this->Internal->GDALConverter->SetGDALProjection(gdalDataset,
                                                    this->InputProjection);
   this->Internal->GDALConverter->SetGDALGeoTransform(
-    gdalDataset, inputOrigin, inputSpacing);
+    gdalDataset, inputOrigin, inputSpacing, this->FlipAxis);
 
   int nPixels = 0;
   int nLines = 0;

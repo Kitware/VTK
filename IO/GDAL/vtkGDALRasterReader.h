@@ -20,6 +20,11 @@
  * uses GDAL as the underlying library for the task. GDAL library is
  * required for this reader. The output of the reader is a
  * vtkUniformGrid (vtkImageData with blanking) with cell data.
+ * The reader currently supports only north up images. Flips along
+ * X or Y direction are also supported. Arbitrary affine geotransforms or
+ * GCPs are not supported. See GDAL Data Model for more information
+ * https://www.gdal.org/gdal_datamodel.html
+ *
  *
  *
  * @sa
