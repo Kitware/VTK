@@ -40,11 +40,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Begin the rendering process.
-   */
-  void Start(void) override;
-
-  /**
    * End the rendering process and display the image.
    */
   void Frame(void) override;
@@ -78,6 +73,11 @@ public:
    * Remap the window.
    */
   void WindowRemap(void) override;
+
+  /**
+   * Show or not Show the window
+   */
+  void SetShowWindow(bool val) override;
 
   /**
    * Set the preferred window size to full screen.
@@ -259,12 +259,6 @@ public:
 
   bool DetectDPI() override;
 
-  /**
-   * Override the default implementation so that we can actively switch between
-   * on and off screen rendering.
-   */
-  void SetOffScreenRendering(vtkTypeBool offscreen) override;
-
   //@{
   /**
    * Ability to push and pop this window's context
@@ -323,8 +317,6 @@ protected:
   void CreateAWindow() override;
   void DestroyWindow() override;
   void InitializeApplication();
-  void CleanUpOffScreenRendering(void);
-  void CreateOffScreenWindow(int width,int height);
   void CleanUpRenderers();
   void VTKRegisterClass();
 

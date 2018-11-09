@@ -85,7 +85,6 @@ int TestToggleOSWithInteractor(int argc, char* argv[])
     renderWindow->Render();
 
     // 4) try doing it again with offscreenbuffers
-    renderWindow->SetUseOffScreenBuffers(true);
     renderWindow->OffScreenRenderingOn();
     renderWindow->Render();
     renderWindow->OffScreenRenderingOff();

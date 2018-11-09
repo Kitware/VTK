@@ -88,9 +88,27 @@ public:
   /**
    * Keep track of whether the rendering window has been mapped to screen.
    */
-  vtkSetMacro(Mapped,vtkTypeBool);
   vtkGetMacro(Mapped,vtkTypeBool);
-  vtkBooleanMacro(Mapped,vtkTypeBool);
+  //@}
+
+  //@{
+  /**
+   * Show or not Show the window
+   */
+  vtkGetMacro(ShowWindow, bool);
+  vtkSetMacro(ShowWindow, bool);
+  vtkBooleanMacro(ShowWindow, bool);
+  //@}
+
+  //@{
+  /**
+   * Render to an offscreen destination such as a framebuffer.
+   * All four combinations of ShowWindow and UseOffScreenBuffers
+   * should work for most rendering backends.
+   */
+  vtkSetMacro(UseOffScreenBuffers, bool);
+  vtkGetMacro(UseOffScreenBuffers, bool);
+  vtkBooleanMacro(UseOffScreenBuffers, bool);
   //@}
 
   //@{
@@ -166,14 +184,24 @@ public:
 
   //@{
   /**
-   * Create a window in memory instead of on the screen. This may not be
-   * supported for every type of window and on some windows you may need to
-   * invoke this prior to the first render.
+   * Convenience to set SHowWindow and UseOffScreenBuffers in one call
    */
-  vtkSetMacro(OffScreenRendering,vtkTypeBool);
-  vtkGetMacro(OffScreenRendering,vtkTypeBool);
+  void SetOffScreenRendering(vtkTypeBool val)
+  {
+    this->SetShowWindow(val == 0);
+    this->SetUseOffScreenBuffers(val != 0);
+  }
   vtkBooleanMacro(OffScreenRendering,vtkTypeBool);
   //@}
+
+  /**
+   * Deprecated, directly use GetShowWindow and GetOffScreenBuffers
+   * instead.
+   */
+  vtkTypeBool GetOffScreenRendering()
+  {
+    return this->GetShowWindow() ? 0 : 1;
+  }
 
   /**
    * Make the window current. May be overridden in subclasses to do
@@ -196,7 +224,6 @@ public:
   //@}
 
 protected:
-  vtkTypeBool OffScreenRendering;
   vtkWindow();
   ~vtkWindow() override;
 
@@ -204,6 +231,8 @@ protected:
   int Size[2];
   int Position[2];
   vtkTypeBool Mapped;
+  bool ShowWindow;
+  bool UseOffScreenBuffers;
   vtkTypeBool Erase;
   vtkTypeBool DoubleBuffer;
   int DPI;

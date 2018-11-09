@@ -383,9 +383,6 @@ protected:
 
   void CreateAWindow() override;
   void DestroyWindow() override;
-  void DestroyOffScreenWindow();
-
-  int OffScreenInitialized;
   int OnScreenInitialized;
 
   //@{

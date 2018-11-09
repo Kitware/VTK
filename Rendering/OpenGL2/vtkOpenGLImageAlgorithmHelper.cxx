@@ -74,7 +74,7 @@ void vtkOpenGLImageAlgorithmHelper::Execute(
   if (!this->RenderWindow)
   {
     this->SetRenderWindow(vtkRenderWindow::New());
-    this->RenderWindow->SetOffScreenRendering(true);
+    this->RenderWindow->SetShowWindow(false);
     this->RenderWindow->UnRegister(this);
   }
   this->RenderWindow->Initialize();

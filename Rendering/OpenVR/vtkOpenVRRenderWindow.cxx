@@ -647,7 +647,7 @@ void vtkOpenVRRenderWindow::Initialize (void)
   this->Size[1] = renderHeight;
 
   this->HelperWindow->SetDisplayId(this->GetGenericDisplayId());
-  this->HelperWindow->SetOffScreenRendering(1);
+  this->HelperWindow->SetShowWindow(false);
   this->HelperWindow->Initialize();
 
   this->MakeCurrent();

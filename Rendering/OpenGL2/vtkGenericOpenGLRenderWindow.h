@@ -97,7 +97,6 @@ public:
   void SetWindowInfo(const char*) override;
   void SetParentInfo(const char*) override;
   int* GetScreenSize() VTK_SIZEHINT(2) override;
-  void Start() override;
   void HideCursor() override;
   void ShowCursor() override;
   void SetFullScreen(vtkTypeBool) override;

@@ -1670,6 +1670,61 @@ bool vtkTextureObject::AllocateDepth(unsigned int width, unsigned int height,
   return true;
 }
 
+bool vtkTextureObject::AllocateDepthStencil(unsigned int width, unsigned int height)
+{
+  assert("pre: context_exists" && this->GetContext()!=nullptr);
+
+#ifdef GL_TEXTURE_2D_MULTISAMPLE
+  this->Target =
+    (this->Samples ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D);
+#else
+  this->Target = GL_TEXTURE_2D;
+#endif
+
+  this->Format = GL_DEPTH_STENCIL;
+  this->Type = GL_UNSIGNED_INT_24_8;
+  this->InternalFormat = GL_DEPTH24_STENCIL8;
+
+  this->Width = width;
+  this->Height = height;
+  this->Depth = 1;
+  this->NumberOfDimensions = 2;
+  this->Components = 1;
+
+  this->Context->ActivateTexture(this);
+  this->CreateTexture();
+  this->Bind();
+
+#ifdef GL_TEXTURE_2D_MULTISAMPLE
+  if (this->Samples)
+  {
+    glTexImage2DMultisample(this->Target,
+      this->Samples,
+      static_cast<GLint>(this->InternalFormat),
+      static_cast<GLsizei>(this->Width),
+      static_cast<GLsizei>(this->Height),
+      GL_TRUE);
+  }
+  else
+#endif
+  {
+    glTexImage2D(this->Target,
+      0,
+      static_cast<GLint>(this->InternalFormat),
+      static_cast<GLsizei>(this->Width),
+      static_cast<GLsizei>(this->Height),
+      0,
+      this->Format,
+      this->Type,
+      nullptr);
+  }
+
+  vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
+
+  this->Deactivate();
+  return true;
+}
+
 // ----------------------------------------------------------------------------
 bool vtkTextureObject::Allocate1D(unsigned int width, int numComps,
                                   int vtkType)

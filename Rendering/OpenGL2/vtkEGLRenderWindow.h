@@ -45,14 +45,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   /**
-   * Begin the rendering process.
-   */
-  virtual void Start(void);
-
-  /**
    * End the rendering process and display the image.
    */
   virtual void Frame(void);
+
+  // override as some EGL systems cannot show the window
+  void SetShowWindow(bool) override;
 
   /**
    * Initialize the window for rendering.
@@ -180,13 +178,6 @@ public:
   virtual int GetEventPending() { return 0;};
 
   int GetOwnWindow() { return this->OwnWindow; };
-  //@{
-  /**
-   * Render without displaying the window.
-   */
-  virtual void SetOffScreenRendering (vtkTypeBool value);
-  virtual vtkTypeBool GetOffScreenRendering ();
-  //@}
 
   /**
    * Returns the width and height of the allocated EGL surface.
