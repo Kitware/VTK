@@ -71,14 +71,6 @@ protected:
 
   vtkGenericOpenGLResourceFreeCallback *ResourceCallback;
 
-  // the following is all extra stuff to work around the
-  // fact that gl_PrimitiveID does not work correctly on
-  // Apple Macs with AMD graphics hardware (before macOS 10.11).
-  // See <rdar://20747550>.
-  bool HaveAppleBug;
-  std::vector<float> AppleBugPrimIDs;
-  vtkOpenGLBufferObject *AppleBugPrimIDBuffer;
-
   /**
    * Does the shader source need to be recomputed
    */

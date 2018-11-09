@@ -193,9 +193,6 @@ protected:
 
   friend class vtkRenderPass;
 
-  bool HaveApplePrimitiveIdBugValue;
-  bool HaveApplePrimitiveIdBugChecked;
-
   std::string LightingDeclaration;
   int LightingComplexity;
   int LightingCount;

@@ -99,9 +99,6 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->CompositeIdArrayName = nullptr;
   this->VBOs = vtkOpenGLVertexBufferObjectGroup::New();
 
-  this->AppleBugPrimIDBuffer = nullptr;
-  this->HaveAppleBug = false;
-  this->HaveAppleBugForce = 0;
   this->LastBoundBO = nullptr;
 
   this->VertexShaderCode = nullptr;
@@ -169,11 +166,6 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
   this->VBOs->Delete();
   this->VBOs = nullptr;
 
-  if (this->AppleBugPrimIDBuffer)
-  {
-    this->AppleBugPrimIDBuffer->Delete();
-  }
-
   this->SetVertexShaderCode(nullptr);
   this->SetFragmentShaderCode(nullptr);
   this->SetGeometryShaderCode(nullptr);
@@ -214,10 +206,6 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
   if (this->CellNormalBuffer)
   {
     this->CellNormalBuffer->ReleaseGraphicsResources();
-  }
-  if (this->AppleBugPrimIDBuffer)
-  {
-    this->AppleBugPrimIDBuffer->ReleaseGraphicsResources();
   }
   this->TimerQuery->ReleaseGraphicsResources();
   this->VBOBuildState.Clear();
@@ -1566,40 +1554,13 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPrimID(
   std::map<vtkShader::Type, vtkShader *> shaders,
   vtkRenderer *, vtkActor *)
 {
-  std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
   std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
-  std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
-  // are we handling the apple bug?
-  if (!this->AppleBugPrimIDs.empty())
-  {
-    vtkShaderProgram::Substitute(VSSource,"//VTK::PrimID::Dec",
-      "in vec4 appleBugPrimID;\n"
-      "out vec4 applePrimIDVSOutput;");
-    vtkShaderProgram::Substitute(VSSource,"//VTK::PrimID::Impl",
-      "applePrimIDVSOutput = appleBugPrimID;");
-    vtkShaderProgram::Substitute(GSSource,
-      "//VTK::PrimID::Dec",
-      "in  vec4 applePrimIDVSOutput[];\n"
-      "out vec4 applePrimIDGSOutput;");
-    vtkShaderProgram::Substitute(GSSource,
-      "//VTK::PrimID::Impl",
-      "applePrimIDGSOutput = applePrimIDVSOutput[i];");
-    vtkShaderProgram::Substitute(FSSource,"//VTK::PrimID::Dec",
-      "in vec4 applePrimIDVSOutput;");
-     vtkShaderProgram::Substitute(FSSource,"//VTK::PrimID::Impl",
-       "int vtkPrimID = int(applePrimIDVSOutput[0]*255.1) + int(applePrimIDVSOutput[1]*255.1)*256 + int(applePrimIDVSOutput[2]*255.1)*65536;");
-    vtkShaderProgram::Substitute(FSSource,"gl_PrimitiveID","vtkPrimID");
-  }
-  else
-  {
-    vtkShaderProgram::Substitute(GSSource,
-      "//VTK::PrimID::Impl",
-      "gl_PrimitiveID = gl_PrimitiveIDIn;");
-  }
-  shaders[vtkShader::Vertex]->SetSource(VSSource);
+  vtkShaderProgram::Substitute(GSSource,
+    "//VTK::PrimID::Impl",
+    "gl_PrimitiveID = gl_PrimitiveIDIn;");
+
   shaders[vtkShader::Geometry]->SetSource(GSSource);
-  shaders[vtkShader::Fragment]->SetSource(FSSource);
 }
 
 void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
@@ -1886,18 +1847,6 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
     cellBO.VAO->Bind();
 
     this->VBOs->AddAllAttributesToVAO(cellBO.Program, cellBO.VAO);
-
-    if (!this->AppleBugPrimIDs.empty() &&
-        cellBO.Program->IsAttributeUsed("appleBugPrimID"))
-    {
-      if (!cellBO.VAO->AddAttributeArray(cellBO.Program,
-          this->AppleBugPrimIDBuffer,
-          "appleBugPrimID",
-           0, sizeof(float), VTK_UNSIGNED_CHAR, 4, true))
-      {
-        vtkErrorMacro(<< "Error setting 'appleBugPrimID' in shader VAO.");
-      }
-    }
 
     cellBO.AttributeUpdateTime.Modified();
   }
@@ -2690,8 +2639,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
 
   if (this->HaveCellScalars || this->HaveCellNormals)
   {
-    this->UpdateCellMaps(this->HaveAppleBug,
-                          poly, prims, representation, points);
+    this->UpdateCellMaps(prims, representation, points);
 
     if (this->HaveCellScalars)
     {
@@ -2818,81 +2766,6 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
   }
 }
 
-// on some apple systems gl_PrimitiveID does not work
-// correctly.  So we have to make sure there are no
-// shared vertices and build an array that maps verts
-// to their cell id
-vtkPolyData *vtkOpenGLPolyDataMapper::HandleAppleBug(
-  vtkPolyData *poly,
-  std::vector<float> &buffData
-  )
-{
-  vtkIdType* indices = nullptr;
-  vtkIdType npts = 0;
-
-  vtkPolyData *newPD = vtkPolyData::New();
-  newPD->GetCellData()->PassData(poly->GetCellData());
-  vtkPoints *points = poly->GetPoints();
-  vtkPoints *newPoints = vtkPoints::New();
-  newPD->SetPoints(newPoints);
-  vtkPointData *pointData = poly->GetPointData();
-  vtkPointData *newPointData = newPD->GetPointData();
-  newPointData->CopyStructure(pointData);
-  newPointData->CopyAllocate(pointData);
-
-  vtkCellArray *prims[4];
-  prims[0] =  poly->GetVerts();
-  prims[1] =  poly->GetLines();
-  prims[2] =  poly->GetPolys();
-  prims[3] =  poly->GetStrips();
-
-  // build a new PolyData with no shared cells
-
-  // for each prim type
-  vtkIdType newPointCount = 0;
-  buffData.reserve(points->GetNumberOfPoints());
-  for (int j = 0; j < 4; j++)
-  {
-    vtkIdType newCellCount = 0;
-    if (prims[j]->GetNumberOfCells())
-    {
-      vtkCellArray *ca = vtkCellArray::New();
-      switch (j)
-      {
-        case 0: newPD->SetVerts(ca); break;
-        case 1: newPD->SetLines(ca); break;
-        case 2: newPD->SetPolys(ca); break;
-        case 3: newPD->SetStrips(ca); break;
-      }
-
-      // foreach cell
-      for (prims[j]->InitTraversal(); prims[j]->GetNextCell(npts, indices); )
-      {
-        ca->InsertNextCell(npts);
-        vtkFourByteUnion c;
-        c.c[0] = newCellCount&0xff;
-        c.c[1] = (newCellCount >> 8)&0xff;
-        c.c[2] = (newCellCount >> 16)&0xff;
-        c.c[3] =  0;
-        for (vtkIdType i = 0; i < npts; ++i)
-        {
-          // insert point data
-          newPoints->InsertNextPoint(points->GetPoint(indices[i]));
-          ca->InsertCellPoint(newPointCount);
-          newPointData->CopyData(pointData,indices[i],newPointCount);
-          buffData.push_back(c.f);
-          newPointCount++;
-        }
-        newCellCount++;
-      }
-      ca->Delete();
-    }
-  }
-
-  newPoints->Delete();
-  return newPD;
-}
-
 //-------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act)
 {
@@ -2950,18 +2823,6 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
 
   int representation = act->GetProperty()->GetRepresentation();
 
-  // check if this system is subject to the apple/amd primID bug
-  this->HaveAppleBug =
-    static_cast<vtkOpenGLRenderer *>(ren)->HaveApplePrimitiveIdBug();
-  if (this->HaveAppleBugForce == 1)
-  {
-    this->HaveAppleBug = false;
-  }
-  if (this->HaveAppleBugForce == 2)
-  {
-    this->HaveAppleBug = true;
-  }
-
   vtkCellArray *prims[4];
   prims[0] =  poly->GetVerts();
   prims[1] =  poly->GetLines();
@@ -2988,47 +2849,6 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
   {
     this->CellTextureBuildState = this->TempState;
     this->BuildCellTextures(ren, act, prims, representation);
-  }
-
-  // on Apple Macs with the AMD PrimID bug <rdar://20747550>
-  // we use a slow painful approach to work around it (pre 10.11).
-  this->AppleBugPrimIDs.resize(0);
-  if (this->HaveAppleBug &&
-      (this->HaveCellNormals || this->HaveCellScalars))
-  {
-    if (!this->AppleBugPrimIDBuffer)
-    {
-      this->AppleBugPrimIDBuffer = vtkOpenGLBufferObject::New();
-    }
-    poly = this->HandleAppleBug(poly, this->AppleBugPrimIDs);
-    this->AppleBugPrimIDBuffer->Bind();
-    this->AppleBugPrimIDBuffer->Upload(
-     this->AppleBugPrimIDs, vtkOpenGLBufferObject::ArrayBuffer);
-    this->AppleBugPrimIDBuffer->Release();
-
-#ifndef NDEBUG
-    static bool warnedAboutBrokenAppleDriver = false;
-    if (!warnedAboutBrokenAppleDriver)
-    {
-      vtkWarningMacro("VTK is working around a bug in Apple-AMD hardware related to gl_PrimitiveID.  This may cause significant memory and performance impacts. Your hardware has been identified as vendor "
-        << (const char *)glGetString(GL_VENDOR) << " with renderer of "
-        << (const char *)glGetString(GL_RENDERER) << " and version "
-        << (const char *)glGetString(GL_VERSION));
-      warnedAboutBrokenAppleDriver = true;
-    }
-#endif
-    if (n)
-    {
-      n = (act->GetProperty()->GetInterpolation() != VTK_FLAT) ?
-            poly->GetPointData()->GetNormals() : nullptr;
-    }
-    if (c)
-    {
-      this->Colors->Delete();
-      this->Colors = nullptr;
-      this->MapScalars(poly,1.0);
-      c = this->Colors;
-    }
   }
 
   // Set the texture if we are going to use texture
@@ -3083,12 +2903,6 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
 
   // now create the IBOs
   this->BuildIBO(ren, act, poly);
-
-  // free up polydata if allocated due to apple bug
-  if (poly != this->CurrentInput)
-  {
-    poly->Delete();
-  }
 
   vtkOpenGLCheckErrorMacro("failed after BuildBufferObjects");
 
@@ -3403,30 +3217,15 @@ void vtkOpenGLPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::MakeCellCellMap(
   std::vector<vtkIdType> &cellCellMap,
-  bool HaveAppleBug,
-  vtkPolyData *poly,
   vtkCellArray **prims, int representation, vtkPoints *points)
 {
   cellCellMap.clear();
 
-  if (HaveAppleBug)
-  {
-    vtkIdType numCells = poly->GetNumberOfCells();
-    for (vtkIdType i = 0; i < numCells; ++i)
-    {
-      cellCellMap.push_back(i);
-    }
-  }
-  else
-  {
-    vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
-        prims, cellCellMap, representation, points);
-  }
+  vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
+      prims, cellCellMap, representation, points);
 }
 
 void vtkOpenGLPolyDataMapper::UpdateCellMaps(
-  bool haveAppleBug,
-  vtkPolyData *poly,
   vtkCellArray **prims, int representation, vtkPoints *points)
 {
   std::ostringstream toString;
@@ -3446,7 +3245,7 @@ void vtkOpenGLPolyDataMapper::UpdateCellMaps(
   }
 
   this->MakeCellCellMap(this->CellCellMap,
-    haveAppleBug, poly, prims, representation, points);
+    prims, representation, points);
 
   this->CellMapsBuildString = toString.str();
 }
@@ -3632,11 +3431,7 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
 
     if (compositedata && compositeArray && rawclowdata)
     {
-      this->UpdateCellMaps(this->HaveAppleBug,
-        poly,
-        prims,
-        representation,
-        poly->GetPoints());
+      this->UpdateCellMaps(prims, representation, poly->GetPoints());
 
       for (auto pos : pixeloffsets)
       {
@@ -3675,11 +3470,7 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
 
     if (rawclowdata)
     {
-      this->UpdateCellMaps(this->HaveAppleBug,
-        poly,
-        prims,
-        representation,
-        poly->GetPoints());
+      this->UpdateCellMaps(prims, representation, poly->GetPoints());
 
       for (auto pos : pixeloffsets)
       {
@@ -3725,11 +3516,7 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
 
     if (rawchighdata)
     {
-      this->UpdateCellMaps(this->HaveAppleBug,
-        poly,
-        prims,
-        representation,
-        poly->GetPoints());
+      this->UpdateCellMaps(prims, representation, poly->GetPoints());
 
       for (auto pos : pixeloffsets)
       {

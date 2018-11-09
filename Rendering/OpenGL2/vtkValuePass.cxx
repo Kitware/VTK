@@ -446,8 +446,7 @@ void vtkValuePass::PopulateCellCellMap(const vtkRenderState *s)
         std::vector<vtkIdType> aCellCellMap;
         vtkOpenGLPolyDataMapper::MakeCellCellMap
           (aCellCellMap,
-           cpdm->GetHaveAppleBug(),
-           poly, prims, representation, points);
+           prims, representation, points);
         for (size_t c = 0; c < aCellCellMap.size(); ++c)
         {
           this->ImplFloat->CellCellMap.push_back(aCellCellMap[c]+offset);
@@ -467,8 +466,7 @@ void vtkValuePass::PopulateCellCellMap(const vtkRenderState *s)
       vtkPoints *points = poly->GetPoints();
       vtkOpenGLPolyDataMapper::MakeCellCellMap
           (this->ImplFloat->CellCellMap,
-           pdm->GetHaveAppleBug(),
-           poly, prims, representation, points);
+           prims, representation, points);
     }
 
     break; //only ever draw one actor at a time in value mode so OK
