@@ -48,6 +48,30 @@ int TestGDALRasterReader(int argc, char** argv)
   // Create reader to read shape file.
   vtkNew<vtkGDALRasterReader> reader;
   reader->SetFileName(rasterFileName);
+
+  // test if we read all 3 bands with CollateBands=0 (default is 1)
+  reader->SetCollateBands(0);
+  reader->Update();
+  vtkUniformGrid* data = vtkUniformGrid::SafeDownCast(reader->GetOutput());
+  if (data->GetCellData()->GetNumberOfArrays() != 3)
+  {
+    std::cerr << "Error: Expecting 3 scalar arrays\n";
+    return 1;
+  }
+
+  // test if we read only 2 bands once we deselected the first band
+  reader->SetCellArrayStatus(reader->GetCellArrayName(0), 0);
+  reader->Update();
+  data = vtkUniformGrid::SafeDownCast(reader->GetOutput());
+  if (data->GetCellData()->GetNumberOfArrays() != 2)
+  {
+    std::cerr << "Error: Expecting two scalar arrays\n";
+    return 1;
+  }
+
+  // collate bands
+  reader->SetCollateBands(1);
+  reader->SetCellArrayStatus(reader->GetCellArrayName(0), 1);
   reader->Update();
   delete [] rasterFileName;
 

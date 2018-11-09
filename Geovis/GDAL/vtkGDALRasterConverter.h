@@ -64,7 +64,8 @@ public:
    * This dataset must be released by the calling code,
    * using GDALClose().
    */
-  GDALDataset* CreateGDALDataset(vtkImageData* data, const char* mapProjection);
+  GDALDataset* CreateGDALDataset(
+    vtkImageData* data, const char* mapProjection, int flipAxis[3]);
 
   /**
    * Copies color interpretation and color tables
@@ -89,7 +90,8 @@ public:
    */
   void SetGDALGeoTransform(GDALDataset* dataset,
                            double origin[2],
-                           double spacing[2]);
+                           double spacing[2],
+                           int flipAxis[2]);
 
   /**
    * Copies NoDataValue info from 1st to 2nd dataset
@@ -121,7 +123,7 @@ protected:
    * Copies vtkImageData contents to GDALDataset
    * GDALDataset must be initialized to same dimensions as vtk image.
    */
-  bool CopyToGDAL(vtkImageData* input, GDALDataset* output);
+  bool CopyToGDAL(vtkImageData* input, GDALDataset* output, int flipAxis[3]);
 
   class vtkGDALRasterConverterInternal;
   vtkGDALRasterConverterInternal* Internal;

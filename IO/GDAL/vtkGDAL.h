@@ -25,6 +25,7 @@
 #include <vtkIOGDALModule.h> // For export macro
 
 class vtkInformationStringKey;
+class vtkInformationIntegerVectorKey;
 
 class VTKIOGDAL_EXPORT vtkGDAL : public vtkObject
 {
@@ -33,7 +34,7 @@ class VTKIOGDAL_EXPORT vtkGDAL : public vtkObject
   // Key used to put GDAL map projection string in the output information
   // by readers.
   static vtkInformationStringKey* MAP_PROJECTION();
-
+  static vtkInformationIntegerVectorKey* FLIP_AXIS();
  protected:
 
  private:
