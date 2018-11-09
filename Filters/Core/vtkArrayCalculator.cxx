@@ -22,6 +22,7 @@
 #include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMolecule.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
@@ -380,6 +381,21 @@ int vtkArrayCalculator::RequestData(
   if(resultType == SCALAR_RESULT && this->ResultNormals)
   {
     vtkWarningMacro("ResultNormals specified but output is scalar");
+  }
+
+  vtkMolecule* moleculeInput = vtkMolecule::SafeDownCast(input);
+  if (moleculeInput && attribute == vtkDataObject::VERTEX &&
+    strcmp(this->ResultArrayName, moleculeInput->GetAtomicNumberArrayName()) == 0)
+  {
+    vtkErrorMacro("Cannot override atomic numbers array");
+    return 1;
+  }
+
+  if (moleculeInput && attribute == vtkDataObject::EDGE &&
+    strcmp(this->ResultArrayName, moleculeInput->GetBondOrdersArrayName()) == 0)
+  {
+    vtkErrorMacro("Cannot override bond orders array");
+    return 1;
   }
 
   if(resultType == VECTOR_RESULT &&
