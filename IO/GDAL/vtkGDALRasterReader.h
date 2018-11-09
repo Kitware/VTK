@@ -101,7 +101,7 @@ public:
    * a specified raster band. Note bandIndex is a 0 based index while
    * GDAL bands are 1 based indexes.
    */
-  double GetInvalidValue(int bandIndex = 0);
+  double GetInvalidValue(size_t bandIndex = 0);
 
   /**
    * Return domain metadata

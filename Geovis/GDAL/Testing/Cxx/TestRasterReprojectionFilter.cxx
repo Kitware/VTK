@@ -43,6 +43,17 @@ int TestRasterReprojectionFilter(int argc, char* argv[])
   reader->SetFileName(fname);
   delete[] fname;
 
+  // test that we read the NoData value corectly
+  reader->Update();
+  double nodata = reader->GetInvalidValue(0);
+  double expectedNodata = -32768;
+  if (nodata != expectedNodata)
+  {
+    std::cerr << "Error NoData value. Found: " << nodata << ". Expected: "
+              << expectedNodata << std::endl;
+    return 1;
+  }
+
   // Apply reprojection filter
   vtkNew<vtkRasterReprojectionFilter> filter;
   filter->SetInputConnection(reader->GetOutputPort());
