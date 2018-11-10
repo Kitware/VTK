@@ -166,6 +166,10 @@ public:
    */
   void SetCurrentCursor(int cShape) override;
 
+  // since we are using an external context it must
+  // specify if the window is mapped or not.
+  vtkSetMacro(Mapped, vtkTypeBool);
+
 protected:
   int DirectStatus;
   int SupportsOpenGLStatus;
