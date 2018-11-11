@@ -88,6 +88,9 @@ public:
           vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::SafeDownCast(caller);
           if (iren)
           {
+            iren->DestroyTimer(this->ReallyFastTimerId);
+            iren->DestroyTimer(this->FastTimerId);
+            iren->DestroyTimer(this->RenderTimerId);
             cout << "Calling iren->ExitCallback()..." << endl;
             iren->ExitCallback();
           }
