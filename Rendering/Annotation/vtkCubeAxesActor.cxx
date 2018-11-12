@@ -2217,7 +2217,7 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
   double val = axes[0]->GetMajorRangeStart();
   double p2[3], p1[3];
   axes[0]->GetPoint1Coordinate()->GetValue(p1);
-  axes[0]->GetPoint2Coordinate()->GetValue(p2);
+  axes[1]->GetPoint2Coordinate()->GetValue(p2);
   double *range = axes[0]->GetRange();
   double axis[3] = { p2[0]-p1[0], p2[1]-p1[1], p2[2]-p1[2] };
   double axisLength = vtkMath::Norm(axis);
