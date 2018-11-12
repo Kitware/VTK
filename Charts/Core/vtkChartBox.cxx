@@ -462,9 +462,9 @@ void vtkChartBox::CalculatePlotTransform()
   // system, where the range is from 0.0 to 1.0 in the y axis, and in screen
   // coordinates along the x axis.
   vtkAxis* axis = this->Storage->YAxis;
-  float *min = axis->GetPoint1();
-  float *max = axis->GetPoint2();
-  float yScale = 1.0f / (max[1] - min[1]);
+  float yMin = axis->GetPoint1()[1];
+  float yMax = axis->GetPoint2()[1];
+  float yScale = 1.0f / (yMax - yMin);
 
   this->Storage->Transform->Identity();
   this->Storage->Transform->Translate(0, axis->GetPoint1()[1]);
