@@ -141,8 +141,7 @@ def main(vtkSourceDir, sourceFiles):
         print k
         print MakeFindPackage(v)
         print "Your application code includes " + str(len(v)) +\
-              " of " + str(len(pathsToModules)) + " vtk modules.\n"
-    print
+              " of " + str(len(pathsToModules)) + " vtk modules."
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
