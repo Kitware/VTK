@@ -53,14 +53,13 @@ def FindModules(path):
     for root, dirs, files in os.walk(path):
         for f in files:
             if fileProg.match(f):
-                fid = open(os.path.join(root, f), "r")
-                contents = fid.read()
+                with open(os.path.join(root, f), "r") as fid:
+                    contents = fid.read()
                 m = moduleProg.match(contents)
                 if m:
                     moduleName = m.group(1)
                     parts = root.split("/")
                     pathToModule[parts[len(parts)-2] + parts[len(parts)-1]] = moduleName
-                fid.close()
     return pathToModule
 
 def FindIncludes(path):
@@ -69,11 +68,10 @@ def FindIncludes(path):
     '''
     includes = set()
     includeProg = re.compile(r"((?:vtk|QVTK).*\.h)")
-    fid = open(path, "r")
-    contents = fid.read()
+    with open(path, "r") as fid:
+        contents = fid.read()
     incs = includeProg.findall(contents)
     includes.update(incs)
-    fid.close()
     return includes
 
 def FindModuleFiles(path):
