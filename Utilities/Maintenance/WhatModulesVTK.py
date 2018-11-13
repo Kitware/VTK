@@ -38,9 +38,7 @@ def IncludesToPaths(path):
         for f in files:
             if prog.match(f):
                 includeFile = prog.findall(f)[0]
-                parts = root.split("/")
-                module = parts[len(parts)-2] + parts[len(parts)-1]
-                includeToPath[includeFile] = module
+                includeToPath[includeFile] = root
     return includeToPath
 
 def FindModules(path):
@@ -58,8 +56,7 @@ def FindModules(path):
                 m = moduleProg.match(contents)
                 if m:
                     moduleName = m.group(1)
-                    parts = root.split("/")
-                    pathToModule[parts[len(parts)-2] + parts[len(parts)-1]] = moduleName
+                    pathToModule[root] = moduleName
     return pathToModule
 
 def FindIncludes(path):
