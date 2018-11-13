@@ -135,18 +135,6 @@ def main(vtkSourceDir, sourceFiles):
             if module in pathsToModules:
                 allModules.add(pathsToModules[includesToPaths[inc]])
 
-    # Add vtkInteractionStyle if required.
-    if "vtkRenderWindowInteractor.h" in allIncludes:
-        allModules.add("vtkInteractionStyle")
-
-    # Add OpenGL factory classes if required.
-    if "vtkRenderingFreeType" in allModules:
-        allModules.add("vtkRenderingFreeTypeFontConfig")
-    if "vtkRenderingCore" in allModules:
-        allModules.add("vtkRenderingOpenGL2")
-    if "vtkRenderingVolume" in allModules:
-        allModules.add("vtkRenderingVolumeOpenGL2")
-
     modules = {'All modules referenced in the files:': allModules,
               }
     for k, v in modules.iteritems():
