@@ -22,6 +22,7 @@
 #include <vtkUniformGrid.h>
 
 #include <iostream>
+#include <limits>
 
 // Main program
 int TestGDALRasterNoDataValue(int argc, char** argv)
@@ -78,9 +79,11 @@ int TestGDALRasterNoDataValue(int argc, char** argv)
   // test that we read the NoData value corectly
   double nodata = reader->GetInvalidValue(0);
   double expectedNodata = -3.40282346638529993e+38;
-  if (nodata != expectedNodata)
+  double tolerance = 1e+26;
+  if ( !vtkMathUtilities::FuzzyCompare(nodata, expectedNodata, tolerance))
   {
-    std::cerr << "Error NoData value. Found: " << nodata << ". Expected: "
+    std::cerr << std::setprecision(std::numeric_limits<double>::max_digits10)
+              << "Error NoData value. Found: " << nodata << ". Expected: "
               << expectedNodata << std::endl;
     ++numErrors;
   }
