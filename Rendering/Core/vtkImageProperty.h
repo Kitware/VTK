@@ -115,7 +115,7 @@ public:
 
   //@{
   /**
-   * The interpolation type (default: nearest neighbor).
+   * The interpolation type (default: VTK_LINEAR_INTERPOLATION).
    */
   vtkSetClampMacro(InterpolationType, int,
                    VTK_NEAREST_INTERPOLATION, VTK_CUBIC_INTERPOLATION);
