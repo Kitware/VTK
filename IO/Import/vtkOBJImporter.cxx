@@ -479,6 +479,7 @@ int vtkOBJPolyDataProcessor::RequestData(
     }
 
     // in the OBJ format the first characters determine how to interpret the line:
+    static long lastVertexIndex = 0;
     if (strcmp(cmd, "v") == 0)
     {
       // this is a vertex definition, expect three floats, separated by whitespace:
@@ -489,6 +490,7 @@ int vtkOBJPolyDataProcessor::RequestData(
           xyz[0] *= v_scale; xyz[1] *= v_scale; xyz[2] *= v_scale;
         }
         points->InsertNextPoint(xyz);
+        lastVertexIndex++;
       }
       else
       {
@@ -688,6 +690,22 @@ int vtkOBJPolyDataProcessor::RequestData(
           int iVert,iTCoord,iNormal;
           if (sscanf(pLine, "%d/%d/%d", &iVert, &iTCoord, &iNormal) == 3)
           {
+            // negative indices are specified relative to the current maximum vertex
+            // position.  (-1 references the last vertex defined). This makes it easy
+            // to describe the points in a face, then the face, without the need to
+            // store a large list of points and their indexes.
+            if (iVert < 0)
+            {
+              iVert = lastVertexIndex + iVert + 1;
+            }
+            if (iTCoord < 0)
+            {
+              iTCoord = lastVertexIndex + iTCoord + 1;
+            }
+            if (iNormal < 0)
+            {
+              iNormal = lastVertexIndex + iNormal + 1;
+            }
             hasPolysWithTextureIndices = true;
             polys->InsertCellPoint(iVert-1); // convert to 0-based index
             nVerts++;
@@ -702,6 +720,14 @@ int vtkOBJPolyDataProcessor::RequestData(
           }
           else if (sscanf(pLine, "%d//%d", &iVert, &iNormal) == 2)
           {
+            if (iVert < 0)
+            {
+              iVert = lastVertexIndex + iVert + 1;
+            }
+            if (iNormal < 0)
+            {
+              iNormal = lastVertexIndex + iNormal + 1;
+            }
             hasPolysWithTextureIndices = false;
             polys->InsertCellPoint(iVert-1);
             nVerts++;
@@ -712,6 +738,14 @@ int vtkOBJPolyDataProcessor::RequestData(
           }
           else if (sscanf(pLine, "%d/%d", &iVert, &iTCoord) == 2)
           {
+            if (iVert < 0)
+            {
+              iVert = lastVertexIndex + iVert + 1;
+            }
+            if (iTCoord < 0)
+            {
+              iTCoord = lastVertexIndex + iTCoord + 1;
+            }
             hasPolysWithTextureIndices = true;
             polys->InsertCellPoint(iVert-1);
             nVerts++;
@@ -722,6 +756,10 @@ int vtkOBJPolyDataProcessor::RequestData(
           }
           else if (sscanf(pLine, "%d", &iVert) == 1)
           {
+            if (iVert < 0)
+            {
+              iVert = lastVertexIndex + iVert + 1;
+            }
             hasPolysWithTextureIndices = false;
             polys->InsertCellPoint(iVert-1);
             nVerts++;

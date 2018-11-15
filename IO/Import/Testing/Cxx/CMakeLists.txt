@@ -2,6 +2,13 @@
 # Use this if it does not require MPI
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
+  OBJImporter-TwoTrianglesWithNegativeIndices,TestOBJImporter.cxx
+    DATA{../Data/Input/TwoTrianglesWithNegativeIndices.obj}
+    DATA{../Data/Input/TwoTrianglesWithNegativeIndices.mtl}
+    DATA{../Data/Input/noise.png}
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests
   OBJImport-SolidAndTextured,TestOBJImporter.cxx
     DATA{../Data/Input/cube-scene.obj}
     DATA{../Data/Input/cube-scene.mtl}
@@ -41,12 +48,14 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
     DATA{../Data/Input/TestOBJImporter-SharedMtl.mtl}
 )
 
+
 vtk_add_test_cxx(vtkIOImportCxxTests tests
   TestOBJImporter-VtNoIndices,TestOBJImporter.cxx
     DATA{../Data/Input/TestOBJImporter-VtNoIndices.obj}
     DATA{../Data/Input/TestOBJImporter-VtNoIndices.mtl}
     DATA{../Data/Input/TestOBJImporter-VtNoIndices.png}
 )
+
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
   TestVRMLImporter.cxx,NO_VALID
