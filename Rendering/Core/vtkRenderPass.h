@@ -48,6 +48,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+class vtkFrameBufferObjectBase;
 class vtkRenderState;
 class vtkWindow;
 class vtkRenderer;
@@ -119,7 +120,7 @@ class VTKRENDERINGCORE_EXPORT vtkRenderPass : public vtkObject
    * Call UpdateGeometry() on Renderer. See note about UpdateCamera().
    * \pre renderer_exists: renderer!=0
    */
-  void UpdateGeometry(vtkRenderer *renderer);
+  void UpdateGeometry(vtkRenderer *renderer, vtkFrameBufferObjectBase* fbo);
 
   /**
    * Modify protected member LastRenderingUsedDepthPeeling on Renderer.

@@ -45,6 +45,7 @@ class vtkCuller;
 class vtkActor;
 class vtkActor2D;
 class vtkCamera;
+class vtkFrameBufferObjectBase;
 class vtkInformation;
 class vtkLightCollection;
 class vtkCullerCollection;
@@ -295,7 +296,7 @@ public:
    * Subclasses of vtkRenderer that can deal with, e.g. hidden line removal must
    * override this method.
    */
-  virtual void DeviceRenderOpaqueGeometry();
+  virtual void DeviceRenderOpaqueGeometry(vtkFrameBufferObjectBase* fbo = nullptr);
 
   /**
    * Render translucent polygonal geometry. Default implementation just call
@@ -306,7 +307,7 @@ public:
    * will be rendered here as well.
    * It updates boolean ivar LastRenderingUsedDepthPeeling.
    */
-  virtual void DeviceRenderTranslucentPolygonalGeometry();
+  virtual void DeviceRenderTranslucentPolygonalGeometry(vtkFrameBufferObjectBase* fbo = nullptr);
 
   /**
    * Internal method temporarily removes lights before reloading them
@@ -843,7 +844,7 @@ protected:
    * geometry. This includes both vtkActors and vtkVolumes
    * Returns the number of props that rendered geometry.
    */
-  virtual int UpdateGeometry();
+  virtual int UpdateGeometry(vtkFrameBufferObjectBase* fbo = nullptr);
 
   /**
    * Ask all props to update and draw any translucent polygonal

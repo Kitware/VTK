@@ -241,7 +241,7 @@ void vtkOpenGLRenderer::DeviceRender(void)
 
 // Ask actors to render themselves. As a side effect will cause
 // visualization network to update.
-int vtkOpenGLRenderer::UpdateGeometry()
+int vtkOpenGLRenderer::UpdateGeometry(vtkFrameBufferObjectBase* fbo)
 {
   vtkRenderTimerLog *timer = this->GetRenderWindow()->GetRenderTimer();
   VTK_SCOPED_RENDER_EVENT("vtkOpenGLRenderer::UpdateGeometry", timer);
@@ -319,7 +319,7 @@ int vtkOpenGLRenderer::UpdateGeometry()
   {
     // Opaque geometry first:
     timer->MarkStartEvent("Opaque Geometry");
-    this->DeviceRenderOpaqueGeometry();
+    this->DeviceRenderOpaqueGeometry(fbo);
     timer->MarkEndEvent();
 
     // do the render library specific stuff about translucent polygonal geometry.
@@ -333,7 +333,7 @@ int vtkOpenGLRenderer::UpdateGeometry()
     if(hasTranslucentPolygonalGeometry)
     {
       timer->MarkStartEvent("Translucent Geometry");
-      this->DeviceRenderTranslucentPolygonalGeometry();
+      this->DeviceRenderTranslucentPolygonalGeometry(fbo);
       timer->MarkEndEvent();
     }
   }
@@ -411,7 +411,7 @@ vtkTexture* vtkOpenGLRenderer::GetCurrentTexturedBackground()
 }
 
 // ----------------------------------------------------------------------------
-void vtkOpenGLRenderer::DeviceRenderOpaqueGeometry()
+void vtkOpenGLRenderer::DeviceRenderOpaqueGeometry(vtkFrameBufferObjectBase* fbo)
 {
   // Do we need hidden line removal?
   bool useHLR =
@@ -424,7 +424,7 @@ void vtkOpenGLRenderer::DeviceRenderOpaqueGeometry()
     vtkNew<vtkHiddenLineRemovalPass> hlrPass;
     vtkRenderState s(this);
     s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
-    s.SetFrameBuffer(nullptr);
+    s.SetFrameBuffer(fbo);
     hlrPass->Render(&s);
     this->NumberOfPropsRendered += hlrPass->GetNumberOfRenderedProps();
   }
@@ -440,7 +440,7 @@ void vtkOpenGLRenderer::DeviceRenderOpaqueGeometry()
 // UpdateTranslucentPolygonalGeometry().
 // Subclasses of vtkRenderer that can deal with depth peeling must
 // override this method.
-void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
+void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry(vtkFrameBufferObjectBase* fbo)
 {
   vtkOpenGLClearErrorMacro();
 
@@ -471,7 +471,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
 
     vtkRenderState s(this);
     s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
-    s.SetFrameBuffer(nullptr);
+    s.SetFrameBuffer(fbo);
     this->LastRenderingUsedDepthPeeling=0;
     this->TranslucentPass->Render(&s);
     this->NumberOfPropsRendered += this->TranslucentPass->GetNumberOfRenderedProps();
@@ -534,7 +534,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     this->DepthPeelingPass->SetOcclusionRatio(this->OcclusionRatio);
     vtkRenderState s(this);
     s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
-    s.SetFrameBuffer(nullptr);
+    s.SetFrameBuffer(fbo);
     this->LastRenderingUsedDepthPeeling=1;
     this->DepthPeelingPass->Render(&s);
     this->NumberOfPropsRendered += this->DepthPeelingPass->GetNumberOfRenderedProps();

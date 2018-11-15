@@ -87,10 +87,10 @@ void vtkRenderPass::UpdateLights(vtkRenderer *renderer)
 // Description:
 // Call UpdateGeometry() on Renderer. See note about UpdateCamera().
 // \pre renderer_exists: renderer!=0
-void vtkRenderPass::UpdateGeometry(vtkRenderer *renderer)
+void vtkRenderPass::UpdateGeometry(vtkRenderer *renderer, vtkFrameBufferObjectBase* fbo)
 {
   assert("pre: renderer_exists" && renderer != nullptr);
-  renderer->UpdateGeometry();
+  renderer->UpdateGeometry(fbo);
 }
 
 // ----------------------------------------------------------------------------
