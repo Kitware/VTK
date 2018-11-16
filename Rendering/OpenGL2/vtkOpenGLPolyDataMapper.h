@@ -178,39 +178,10 @@ public:
   vtkGetStringMacro(GeometryShaderCode);
   //@}
 
-  // the following is all extra stuff to work around the
-  // fact that gl_PrimitiveID does not work correctly on
-  // Apple Macs with AMD graphics hardware (before macOS 10.11).
-  // See <rdar://20747550>.
-  static vtkPolyData *HandleAppleBug(
-    vtkPolyData *poly,
-    std::vector<float> &buffData);
-
   /**
    * Make a shallow copy of this mapper.
    */
   void ShallowCopy(vtkAbstractMapper *m) override;
-
-  //@{
-  /**
-   * Override the normal test for the apple bug
-   */
-  void ForceHaveAppleBugOff()
-  {
-    this->HaveAppleBugForce = 1;
-    this->Modified();
-  }
-  void ForceHaveAppleBugOn()
-  {
-    this->HaveAppleBugForce = 2;
-    this->Modified();
-  }
-  //@}
-
-  /**
-   * Get the value of HaveAppleBug
-   */
-  bool GetHaveAppleBug() { return this->HaveAppleBug; }
 
   /// Return the mapper's vertex buffer objects.
   vtkGetObjectMacro(VBOs, vtkOpenGLVertexBufferObjectGroup);
@@ -233,8 +204,6 @@ public:
   };
 
   void UpdateCellMaps(
-    bool HaveAppleBug,
-    vtkPolyData *poly,
     vtkCellArray **prims, int representation,
     vtkPoints *points);
 
@@ -243,8 +212,6 @@ public:
    */
   static void MakeCellCellMap(
     std::vector<vtkIdType> &cellCellMap,
-    bool HaveAppleBug,
-    vtkPolyData *poly,
     vtkCellArray **prims, int representation,
     vtkPoints *points);
 
@@ -307,15 +274,6 @@ protected:
 
   // what coordinate should be used for this texture
   std::string GetTextureCoordinateName(const char *tname);
-
-  // the following is all extra stuff to work around the
-  // fact that gl_PrimitiveID does not work correctly on
-  // Apple Macs with AMD graphics hardware (before macOS 10.11).
-  // See <rdar://20747550>.
-  bool HaveAppleBug;
-  int HaveAppleBugForce; // 0 = default 1 = 0ff 2 = on
-  std::vector<float> AppleBugPrimIDs;
-  vtkOpenGLBufferObject *AppleBugPrimIDBuffer;
 
   /**
    * helper function to get the appropriate coincident params

@@ -426,19 +426,6 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
   std::vector<unsigned char> newColors;
   std::vector<float> newNorms;
 
-  // check if this system is subject to the apple/amd primID bug
-  this->HaveAppleBug =
-    static_cast<vtkOpenGLRenderer *>(ren)->HaveApplePrimitiveIdBug();
-  if (this->HaveAppleBugForce == 1)
-  {
-    this->HaveAppleBug = false;
-  }
-  if (this->HaveAppleBugForce == 2)
-  {
-    this->HaveAppleBug = true;
-  }
-  this->AppleBugPrimIDs.resize(0);
-
   dataIter iter;
   this->VBOs->ClearAllVBOs();
 
@@ -585,19 +572,6 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
     }
   }
 
-  if (this->HaveAppleBug &&
-      (this->HaveCellNormals || this->HaveCellScalars))
-  {
-    if (!this->AppleBugPrimIDBuffer)
-    {
-      this->AppleBugPrimIDBuffer = vtkOpenGLBufferObject::New();
-    }
-    this->AppleBugPrimIDBuffer->Bind();
-    this->AppleBugPrimIDBuffer->Upload(
-     this->AppleBugPrimIDs, vtkOpenGLBufferObject::ArrayBuffer);
-    this->AppleBugPrimIDBuffer->Release();
-  }
-
   this->VBOBuildTime.Modified();
 }
 
@@ -714,43 +688,6 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
   size_t triCount = prims[3]->GetNumberOfConnectivityEntries()
     - 3*prims[3]->GetNumberOfCells();
   hdata->PrimOffsets[3] = hdata->PrimOffsets[4] - triCount;
-
-  // on Apple Macs with the AMD PrimID bug <rdar://20747550>
-  // we use a slow painful approach to work around it (pre 10.11).
-  if (this->HaveAppleBug &&
-      (this->HaveCellNormals || this->HaveCellScalars))
-  {
-    poly = this->HandleAppleBug(poly, this->AppleBugPrimIDs);
-    prims[0] =  poly->GetVerts();
-    prims[1] =  poly->GetLines();
-    prims[2] =  poly->GetPolys();
-    prims[3] =  poly->GetStrips();
-
-#ifndef NDEBUG
-    static bool warnedAboutBrokenAppleDriver = false;
-    if (!warnedAboutBrokenAppleDriver)
-    {
-      vtkWarningMacro("VTK is working around a bug in Apple-AMD hardware related to gl_PrimitiveID.  This may cause significant memory and performance impacts. Your hardware has been identified as vendor "
-        << (const char *)glGetString(GL_VENDOR) << " with renderer of "
-        << (const char *)glGetString(GL_RENDERER) << " and version "
-        << (const char *)glGetString(GL_VERSION));
-      warnedAboutBrokenAppleDriver = true;
-    }
-#endif
-    if (n)
-    {
-      n = (act->GetProperty()->GetInterpolation() != VTK_FLAT) ?
-            poly->GetPointData()->GetNormals() : nullptr;
-    }
-    if (c)
-    {
-      this->Colors->Delete();
-      this->Colors = nullptr;
-      this->MapScalars(poly,1.0);
-      c = this->Colors;
-    }
-  }
-
 
   // do we have texture maps?
   bool haveTextures = (this->ColorTextureMap || act->GetTexture() || act->GetProperty()->GetNumberOfTextures());
@@ -924,12 +861,6 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
   {
     vtkOpenGLIndexBufferObject::AppendVertexIndexBuffer(
       this->IndexArray[PrimitiveVertices], prims, voffset);
-  }
-
-  // free up polydata if allocated due to apple bug
-  if (poly != hdata->Data)
-  {
-    poly->Delete();
   }
 }
 
@@ -1190,11 +1121,7 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(
 
     if (compositedata && compositeArray && rawclowdata)
     {
-      this->UpdateCellMaps(this->HaveAppleBug,
-        poly,
-        prims,
-        representation,
-        poly->GetPoints());
+      this->UpdateCellMaps(prims, representation, poly->GetPoints());
 
       for (auto pos : pixeloffsets)
       {
@@ -1233,11 +1160,7 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(
 
     if (rawclowdata)
     {
-      this->UpdateCellMaps(this->HaveAppleBug,
-        poly,
-        prims,
-        representation,
-        poly->GetPoints());
+      this->UpdateCellMaps(prims, representation, poly->GetPoints());
 
       for (auto pos : pixeloffsets)
       {
@@ -1280,11 +1203,7 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(
 
     if (rawchighdata)
     {
-      this->UpdateCellMaps(this->HaveAppleBug,
-        poly,
-        prims,
-        representation,
-        poly->GetPoints());
+      this->UpdateCellMaps(prims, representation, poly->GetPoints());
 
       for (auto pos : pixeloffsets)
       {

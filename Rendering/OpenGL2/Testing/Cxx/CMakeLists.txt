@@ -1,5 +1,4 @@
 vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
-  TestAppleBug.cxx
   TestAvatar.cxx
   TestBlurAndSobelPasses.cxx
   TestCoincident.cxx

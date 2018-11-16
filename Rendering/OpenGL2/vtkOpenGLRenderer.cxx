@@ -75,9 +75,6 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->ShadowMapPass = nullptr;
   this->DepthPeelingHigherLayer=0;
 
-  this->HaveApplePrimitiveIdBugValue = false;
-  this->HaveApplePrimitiveIdBugChecked = false;
-
   this->LightingCount = -1;
   this->LightingComplexity = -1;
 }
@@ -727,92 +724,7 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
 
 bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
 {
-  if (this->HaveApplePrimitiveIdBugChecked)
-  {
-    return this->HaveApplePrimitiveIdBugValue;
-  }
-
-#if defined(__APPLE__) && ! defined(VTK_OPENGL_HAS_OSMESA)
-  // Known working Apple+AMD systems:
-  // OpenGL vendor string:  ATI Technologies Inc.
-  // OpenGL version string:   4.1 ATI-1.38.3
-  // OpenGL version string:   4.1 ATI-1.40.15
-  // OpenGL renderer string:    AMD Radeon R9 M370X OpenGL Engine
-
-  // OpenGL version string:   4.1 ATI-1.40.16
-  // OpenGL renderer string:    AMD Radeon HD - FirePro D500 OpenGL Engine
-  // OpenGL renderer string:    AMD Radeon HD 5770 OpenGL Engine
-  // OpenGL renderer string:    AMD Radeon R9 M395 OpenGL Engine
-
-  // OpenGL vendor string:  ATI Technologies Inc.
-  // OpenGL renderer string:  ATI Radeon HD 5770 OpenGL Engine
-  // OpenGL version string:  4.1 ATI-1.42.6
-
-  // Known buggy Apple+AMD systems:
-  // OpenGL vendor string:  ATI Technologies Inc.
-  // OpenGL version string:   3.3 ATI-10.0.40
-  // OpenGL renderer string:    ATI Radeon HD 2600 PRO OpenGL Engine
-
-  // OpenGL vendor string:  ATI Technologies Inc.
-  // OpenGL renderer string:  AMD Radeon HD - FirePro D300 OpenGL Engine
-  // OpenGL version string:  4.1 ATI-1.24.39
-
-  std::string vendor = (const char *)glGetString(GL_VENDOR);
-  if (vendor.find("ATI") != std::string::npos ||
-      vendor.find("AMD") != std::string::npos ||
-      vendor.find("amd") != std::string::npos)
-  {
-    // assume we have the bug if we are running on <= macOS 10.10.x
-    // Apple fixed this bug in OS X 10.11 beta 15A216g.
-    // kCFCoreFoundationVersionNumber10_10_Max = 1199, we use the raw number
-    // because the constant isn't present in older SDKs.
-    if (kCFCoreFoundationVersionNumber <= 1199)
-    {
-      this->HaveApplePrimitiveIdBugValue = true;
-    }
-
-    // but exclude systems we know do not have it
-    std::string renderer = (const char *)glGetString(GL_RENDERER);
-    std::string version = (const char *)glGetString(GL_VERSION);
-    int minorVersion = 0;
-    int patchVersion = 0;
-    // try to extract some minor version numbers
-    if (version.find("4.1 ATI-1.") == 0)
-    {
-      std::string minorVer = version.substr(strlen("4.1 ATI-1."),std::string::npos);
-      if (minorVer.find('.') == 2)
-      {
-        minorVersion = atoi(minorVer.substr(0,2).c_str());
-        patchVersion = atoi(minorVer.substr(3,std::string::npos).c_str());
-      }
-    }
-    if (
-        ((version.find("4.1 ATI-1.38.3") != std::string::npos ||
-          version.find("4.1 ATI-1.40.15") != std::string::npos) &&
-          (renderer.find("AMD Radeon R9 M370X OpenGL Engine") != std::string::npos)) ||
-          // assume anything with 1.40.16 or later is good?
-          minorVersion > 40 ||
-          (minorVersion == 40 && patchVersion >= 16)
-         )
-    {
-      this->HaveApplePrimitiveIdBugValue = false;
-    }
-  }
-
-  // On all versions of macOS and with all GPUs,
-  // allow an env var to force the workaround to be used.
-  const char* forceWorkaround = std::getenv("VTK_FORCE_APPLE_PRIMITIVEID_WORKAROUND");
-  if (forceWorkaround)
-  {
-    this->HaveApplePrimitiveIdBugValue = true;
-  }
-
-#else
-  this->HaveApplePrimitiveIdBugValue = false;
-#endif
-
-  this->HaveApplePrimitiveIdBugChecked = true;
-  return this->HaveApplePrimitiveIdBugValue;
+  return false;
 }
 
 //------------------------------------------------------------------------------

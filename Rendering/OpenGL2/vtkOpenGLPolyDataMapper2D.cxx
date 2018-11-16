@@ -60,8 +60,6 @@ vtkOpenGLPolyDataMapper2D::vtkOpenGLPolyDataMapper2D()
   this->TransformedPoints = nullptr;
   this->CellScalarTexture = nullptr;
   this->CellScalarBuffer = nullptr;
-  this->AppleBugPrimIDBuffer = nullptr;
-  this->HaveAppleBug = false;
   this->LastBoundBO = nullptr;
   this->HaveCellScalars = false;
   this->PrimitiveIDOffset = 0;
@@ -96,10 +94,6 @@ vtkOpenGLPolyDataMapper2D::~vtkOpenGLPolyDataMapper2D()
     this->CellScalarBuffer = nullptr;
   }
   this->HaveCellScalars = false;
-  if (this->AppleBugPrimIDBuffer)
-  {
-    this->AppleBugPrimIDBuffer->Delete();
-  }
   this->VBOs->Delete();
   this->VBOs = nullptr;
 }
@@ -118,17 +112,13 @@ void vtkOpenGLPolyDataMapper2D::ReleaseGraphicsResources(vtkWindow* win)
   this->Lines.ReleaseGraphicsResources(win);
   this->Tris.ReleaseGraphicsResources(win);
   this->TriStrips.ReleaseGraphicsResources(win);
- if (this->CellScalarTexture)
- {
+  if (this->CellScalarTexture)
+  {
     this->CellScalarTexture->ReleaseGraphicsResources(win);
- }
+  }
   if (this->CellScalarBuffer)
   {
     this->CellScalarBuffer->ReleaseGraphicsResources();
-  }
-  if (this->AppleBugPrimIDBuffer)
-  {
-    this->AppleBugPrimIDBuffer->ReleaseGraphicsResources();
   }
 
   this->Modified();
@@ -268,35 +258,11 @@ void vtkOpenGLPolyDataMapper2D::BuildShaders(
     }
   }
 
-  // are we handling the apple bug?
-  if (!this->AppleBugPrimIDs.empty())
+  if (this->HaveCellScalars)
   {
-    vtkShaderProgram::Substitute(VSSource,"//VTK::PrimID::Dec",
-      "in vec4 appleBugPrimID;\n"
-      "out vec4 applePrimIDVSOutput;");
-    vtkShaderProgram::Substitute(VSSource,"//VTK::PrimID::Impl",
-      "applePrimIDVSOutput = appleBugPrimID;");
-    vtkShaderProgram::Substitute(GSSource,
-      "//VTK::PrimID::Dec",
-      "in  vec4 applePrimIDVSOutput[];\n"
-      "out vec4 applePrimIDGSOutput;");
     vtkShaderProgram::Substitute(GSSource,
       "//VTK::PrimID::Impl",
-      "applePrimIDGSOutput = applePrimIDVSOutput[i];");
-    vtkShaderProgram::Substitute(FSSource,"//VTK::PrimID::Dec",
-      "in vec4 applePrimIDVSOutput;");
-     vtkShaderProgram::Substitute(FSSource,"//VTK::PrimID::Impl",
-       "int vtkPrimID = int(applePrimIDVSOutput[0]*255.1) + int(applePrimIDVSOutput[1]*255.1)*256 + int(applePrimIDVSOutput[2]*255.1)*65536;");
-    vtkShaderProgram::Substitute(FSSource,"gl_PrimitiveID","vtkPrimID");
-  }
-  else
-  {
-    if (this->HaveCellScalars)
-    {
-      vtkShaderProgram::Substitute(GSSource,
-        "//VTK::PrimID::Impl",
-        "gl_PrimitiveID = gl_PrimitiveIDIn;");
-    }
+      "gl_PrimitiveID = gl_PrimitiveIDIn;");
   }
 
   vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
@@ -359,20 +325,6 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
     cellBO.VAO->Bind();
 
     this->VBOs->AddAllAttributesToVAO(cellBO.Program, cellBO.VAO);
-
-    if (!this->AppleBugPrimIDs.empty() &&
-        cellBO.Program->IsAttributeUsed("appleBugPrimID"))
-    {
-      this->AppleBugPrimIDBuffer->Bind();
-      if (!cellBO.VAO->AddAttributeArray(cellBO.Program,
-          this->AppleBugPrimIDBuffer,
-          "appleBugPrimID",
-           0, sizeof(float), VTK_UNSIGNED_CHAR, 4, true))
-      {
-        vtkErrorMacro(<< "Error setting 'appleBugPrimID' in shader VAO.");
-      }
-      this->AppleBugPrimIDBuffer->Release();
-    }
 
     cellBO.AttributeUpdateTime.Modified();
   }
@@ -554,10 +506,6 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     return;
   }
 
-  // check if this system is subject to the apple/amd primID bug
-  this->HaveAppleBug =
-    static_cast<vtkOpenGLRenderer *>(viewport)->HaveApplePrimitiveIdBug();
-
   this->MapScalars(act->GetProperty()->GetOpacity());
   this->HaveCellScalars = false;
   if (this->ScalarVisibility)
@@ -574,34 +522,6 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     }
   }
 
-  // on Apple Macs with the AMD PrimID bug <rdar://20747550>
-  // we use a slow painful approach to work around it (pre 10.11).
-  this->AppleBugPrimIDs.resize(0);
-  if (this->HaveAppleBug && this->HaveCellScalars)
-  {
-    if (!this->AppleBugPrimIDBuffer)
-    {
-      this->AppleBugPrimIDBuffer = vtkOpenGLBufferObject::New();
-    }
-    poly = vtkOpenGLPolyDataMapper::HandleAppleBug(poly,
-      this->AppleBugPrimIDs);
-    this->AppleBugPrimIDBuffer->Bind();
-    this->AppleBugPrimIDBuffer->Upload(
-     this->AppleBugPrimIDs, vtkOpenGLBufferObject::ArrayBuffer);
-    this->AppleBugPrimIDBuffer->Release();
-
-#ifndef NDEBUG
-    static bool warnAppleBugOnce = true;
-    if (warnAppleBugOnce)
-    {
-      vtkWarningMacro("VTK is working around a bug in Apple-AMD hardware related to gl_PrimitiveID. This may cause significant memory and performance impacts. You should update to macOS 10.11 or later, where the bug is fixed. Your hardware has been identified as vendor "
-                      << (const char *)glGetString(GL_VENDOR) << " with renderer of "
-                      << (const char *)glGetString(GL_RENDERER));
-      warnAppleBugOnce = false;
-    }
-#endif
-  }
-
   // if we have cell scalars then we have to
   // build the texture
   vtkCellArray *prims[4];
@@ -613,19 +533,8 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
   vtkDataArray *c = this->Colors;
   if (this->HaveCellScalars)
   {
-    if (this->HaveAppleBug)
-    {
-      vtkIdType numCells = poly->GetNumberOfCells();
-      for (vtkIdType i = 0; i < numCells; i++)
-      {
-        cellCellMap.push_back(i);
-      }
-    }
-    else
-    {
-      vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
-        prims, cellCellMap, VTK_SURFACE, poly->GetPoints());
-    }
+    vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
+      prims, cellCellMap, VTK_SURFACE, poly->GetPoints());
 
     if (!this->CellScalarTexture)
     {
@@ -711,12 +620,6 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     this->Tris.IBO->CreateTriangleIndexBuffer(prims[2], poly->GetPoints());
   this->TriStrips.IBO->IndexCount =
     this->TriStrips.IBO->CreateStripIndexBuffer(prims[3], false);
-
-  // free up polydata if allocated due to apple bug
-  if (poly != this->GetInput())
-  {
-    poly->Delete();
-  }
 }
 
 bool vtkOpenGLPolyDataMapper2D::HaveWideLines(
