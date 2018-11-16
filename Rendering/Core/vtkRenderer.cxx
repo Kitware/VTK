@@ -426,7 +426,7 @@ void vtkRenderer::Render(void)
 }
 
 // ----------------------------------------------------------------------------
-void vtkRenderer::DeviceRenderOpaqueGeometry()
+void vtkRenderer::DeviceRenderOpaqueGeometry(vtkFrameBufferObjectBase* vtkNotUsed(fbo))
 {
   this->UpdateOpaquePolygonalGeometry();
 }
@@ -437,7 +437,7 @@ void vtkRenderer::DeviceRenderOpaqueGeometry()
 // UpdateTranslucentPolygonalGeometry().
 // Subclasses of vtkRenderer that can deal with depth peeling must
 // override this method.
-void vtkRenderer::DeviceRenderTranslucentPolygonalGeometry()
+void vtkRenderer::DeviceRenderTranslucentPolygonalGeometry(vtkFrameBufferObjectBase* vtkNotUsed(fbo))
 {
   // Have to be set before a call to UpdateTranslucentPolygonalGeometry()
   // because UpdateTranslucentPolygonalGeometry() will eventually call
@@ -610,7 +610,7 @@ void vtkRenderer::AllocateTime()
 
 // Ask actors to render themselves. As a side effect will cause
 // visualization network to update.
-int vtkRenderer::UpdateGeometry()
+int vtkRenderer::UpdateGeometry(vtkFrameBufferObjectBase* vtkNotUsed(fbo))
 {
   int        i;
 

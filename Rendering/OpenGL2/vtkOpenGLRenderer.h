@@ -54,7 +54,7 @@ public:
   /**
    * Overridden to support hidden line removal.
    */
-  void DeviceRenderOpaqueGeometry() override;
+  void DeviceRenderOpaqueGeometry(vtkFrameBufferObjectBase* fbo = nullptr) override;
 
   /**
    * Render translucent polygonal geometry. Default implementation just call
@@ -62,7 +62,7 @@ public:
    * Subclasses of vtkRenderer that can deal with depth peeling must
    * override this method.
    */
-  void DeviceRenderTranslucentPolygonalGeometry() override;
+  void DeviceRenderTranslucentPolygonalGeometry(vtkFrameBufferObjectBase* fbo = nullptr) override;
 
   void Clear(void) override;
 
@@ -151,7 +151,7 @@ protected:
    * geometry. This includes both vtkActors and vtkVolumes
    * Returns the number of props that rendered geometry.
    */
-  int UpdateGeometry() override;
+  int UpdateGeometry(vtkFrameBufferObjectBase* fbo = nullptr) override;
 
   /**
    * Check and return the textured background for the current state

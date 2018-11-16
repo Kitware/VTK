@@ -318,7 +318,7 @@ void vtkPanoramicProjectionPass::RenderOnFace(const vtkRenderState* s, int faceI
   }
 
   double range[2];
-  newCamera->GetClippingRange(range);
+  oldCamera->GetClippingRange(range);
   vtkNew<vtkPerspectiveTransform> perspectiveTransform;
 
   // the fov is 90 degree in each direction, the frustum can be simplified
