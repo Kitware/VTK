@@ -1309,6 +1309,11 @@ bool vtkLabeledContourMapper::Private::NextLabel(
     rStraight = straight.Norm();
     segmentLengths.push_back(rSegment);
     rAccum += rSegment;
+    if (rStraight == 0.0)
+    {
+      ++curIdx;
+      continue;
+    }
     smoothness = calculateSmoothness(rAccum, rStraight);
 
     // Are we still dealing with a reasonably smooth line?

@@ -1309,7 +1309,8 @@ void vtkUnstructuredGridQuadricDecimationTetMesh::DeleteMin(
         }
       }
     }
-    if (noDoubling || (minQ.e-lasterror)/lasterror<=doublingRatio)
+    if ((lasterror != 0.0
+         && (noDoubling || (minQ.e-lasterror)/lasterror <= doublingRatio)))
     {
       break;
     }

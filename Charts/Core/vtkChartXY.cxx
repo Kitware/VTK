@@ -825,7 +825,7 @@ void vtkChartXY::RecalculatePlotBounds()
         range[0] = (candidateMin < 1.0 ? candidateMin : 1.0);
       }
     }
-    if (this->ForceAxesToBounds)
+    if (this->ForceAxesToBounds && (range[0] != range[1]))
     {
       axis->SetMinimumLimit(range[0]);
       axis->SetMaximumLimit(range[1]);

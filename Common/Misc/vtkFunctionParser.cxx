@@ -732,9 +732,12 @@ bool vtkFunctionParser::Evaluate()
         stackPosition--;
         break;
       case VTK_PARSER_VECTOR_OVER_SCALAR:
-        this->Stack[stackPosition-3] /= this->Stack[stackPosition];
-        this->Stack[stackPosition-2] /= this->Stack[stackPosition];
-        this->Stack[stackPosition-1] /= this->Stack[stackPosition];
+        if (this->Stack[stackPosition] != 0.0)
+        {
+          this->Stack[stackPosition-3] /= this->Stack[stackPosition];
+          this->Stack[stackPosition-2] /= this->Stack[stackPosition];
+          this->Stack[stackPosition-1] /= this->Stack[stackPosition];
+        }
         stackPosition--;
         break;
       case VTK_PARSER_MAGNITUDE:

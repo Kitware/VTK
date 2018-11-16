@@ -41,7 +41,7 @@ namespace
       {
         if(j == component)
         {
-          if(values[j] < minValue || values[j] > maxValue)
+          if(values[j] != 0.0 && (values[j] < minValue || values[j] > maxValue))
           {
             vtkGenericWarningMacro("Array type " << type << " with name "
                                    << array->GetName() << " has bad value of " << values[j]
