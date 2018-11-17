@@ -2268,8 +2268,14 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
   if (customizedLabels == nullptr)
   {
     // Convert deltaMajor from world coord to range scale
-    deltaMajor = extents * deltaMajor/axisLength;
-
+    if (axisLength != 0.0)
+    {
+      deltaMajor = extents * deltaMajor/axisLength;
+    }
+    else
+    {
+      deltaMajor = extents;
+    }
     double scaleFactor = 1.;
     if (lastPow != 0)
     {
