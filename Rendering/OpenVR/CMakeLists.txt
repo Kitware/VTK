@@ -36,9 +36,3 @@ vtk_module_link_libraries(${vtk-module} LINK_PRIVATE ${OPENVR_LIBRARY})
 
 include(vtkOpenGL)
 vtk_opengl_link(${vtk-module})
-
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/OpenVRDashboard.jpg"
-  "${CMAKE_BINARY_DIR}/OpenVRDashboard.jpg"
-  COPYONLY
-  )
