@@ -111,11 +111,13 @@ bool vtkChartMatrix::Paint(vtkContext2D *painter)
           {
             vtkChart *chart = this->Private->Charts[index];
             vtkVector2i &span = this->Private->Spans[index];
-            chart->SetSize(vtkRectf(x + resize.GetX(), y + resize.GetY(),
-                                    increments.GetX() * span.GetX() - resize.GetX() +
-                                    (span.GetX() - 1) * this->Gutter.GetX(),
-                                    increments.GetY() * span.GetY() - resize.GetY() +
-                                    (span.GetY() - 1) * this->Gutter.GetY()));
+            vtkRectf chartRect(x + resize.GetX(), y + resize.GetY(),
+                       increments.GetX() * span.GetX() - resize.GetX() + (span.GetX() - 1) * this->Gutter.GetX(),
+                       increments.GetY() * span.GetY() - resize.GetY() + (span.GetY() - 1) * this->Gutter.GetY());
+            // ensure that the size is valid. If not, make the rect and empty rect.
+            if (chartRect.GetWidth() < 0) { chartRect.SetWidth(0); }
+            if (chartRect.GetHeight() < 0) { chartRect.SetHeight(0); }
+            chart->SetSize(chartRect);
           }
         }
       }
