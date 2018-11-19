@@ -807,7 +807,7 @@ void vtkImageReader2::ExecuteDataWithInformation(vtkDataObject *output,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageReader2::SetMemoryBuffer(void *membuf)
+void vtkImageReader2::SetMemoryBuffer(const void *membuf)
 {
   if (this->MemoryBuffer != membuf)
   {
