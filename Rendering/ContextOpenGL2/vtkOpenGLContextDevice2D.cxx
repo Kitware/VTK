@@ -60,6 +60,7 @@
 #include "vtkOpenGLContextDevice2DPrivate.h"
 
 #include <algorithm>
+#include <cassert>
 #include <sstream>
 
 #define BUFFER_OFFSET(i) (reinterpret_cast<char *>(i))
@@ -2179,6 +2180,8 @@ void vtkOpenGLContextDevice2D::SetClipping(int *dim)
     // clipping region results in empty region, just set to empty.
     clipRect = vtkRecti{ 0, 0, 0, 0 };
   }
+
+  assert(clipRect.GetWidth() >= 0 && clipRect.GetHeight() >= 0);
 
   this->RenderWindow->GetState()->vtkglScissor(
     clipRect.GetX(), clipRect.GetY(), clipRect.GetWidth(), clipRect.GetHeight());
