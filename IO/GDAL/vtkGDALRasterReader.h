@@ -99,9 +99,10 @@ public:
   /**
    * Return the invalid value for a pixel (for blanking purposes) in
    * a specified raster band. Note bandIndex is a 0 based index while
-   * GDAL bands are 1 based indexes.
+   * GDAL bands are 1 based indexes. hasNoData indicates if there is a NoData
+   * value associated with this band.
    */
-  double GetInvalidValue(size_t bandIndex = 0);
+  double GetInvalidValue(size_t bandIndex = 0, int* hasNoData = nullptr);
 
   /**
    * Return domain metadata
