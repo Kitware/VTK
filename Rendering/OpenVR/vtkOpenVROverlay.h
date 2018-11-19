@@ -29,7 +29,6 @@
 #include "vtkNew.h" // for ivars
 #include "vtkWeakPointer.h" // for ivars
 
-class vtkJPEGReader;
 class vtkOpenVROverlaySpot;
 class vtkOpenVRRenderWindow;
 class vtkTextureObject;
@@ -134,8 +133,6 @@ protected:
   vr::VROverlayHandle_t OverlayHandle;
   vr::VROverlayHandle_t OverlayThumbnailHandle;
   vtkNew<vtkTextureObject> OverlayTexture;
-
-  virtual void SetDashboardImageData(vtkJPEGReader *rdr);
 
   // std::vector<vtkOpenVRActiveSpot> ActiveSpots;
   unsigned char *OriginalTextureData;
