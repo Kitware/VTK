@@ -119,7 +119,7 @@ int TestOpenFOAMReaderRegEx(int argc, char* argv[])
 
                 // Fail if the number of components read is different than expected
                 const std::vector<double> & expected_components = expected_data[patch_name][field_name];
-                int expected_num_components = expected_components.size();
+                int expected_num_components = static_cast<int>(expected_components.size());
                 if (expected_num_components != array->GetNumberOfComponents())
                 {
                     std::cout << "Unexpected number of components \"" << array->GetNumberOfComponents()
