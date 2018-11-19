@@ -120,7 +120,7 @@ class VTKRENDERINGCORE_EXPORT vtkRenderPass : public vtkObject
    * Call UpdateGeometry() on Renderer. See note about UpdateCamera().
    * \pre renderer_exists: renderer!=0
    */
-  void UpdateGeometry(vtkRenderer *renderer, vtkFrameBufferObjectBase* fbo);
+  void UpdateGeometry(vtkRenderer *renderer, vtkFrameBufferObjectBase* fbo = nullptr);
 
   /**
    * Modify protected member LastRenderingUsedDepthPeeling on Renderer.
