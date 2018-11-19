@@ -25,7 +25,8 @@ vtk_encode_string
   [EXPORT_SYMBOL  <symbol>]
   [EXPORT_HEADER  <header>
   [HEADER_OUTPUT  <variable>]
-  [SOURCE_OUTPUT  <variable>])
+  [SOURCE_OUTPUT  <variable>]
+  [BINARY])
 ```
 
 The only required variable is `INPUT`, however, it is likely that at least one
@@ -44,10 +45,12 @@ library.
     symbol. If set, `EXPORT_SYMBOL` should also be set.
   * `HEADER_OUTPUT`: The variable to store the generated header path.
   * `SOURCE_OUTPUT`: The variable to store the generated source path.
+  * `BINARY`: If given, the data will be written as an array of `unsigned char`
+    bytes.
 #]==]
 function (vtk_encode_string)
   cmake_parse_arguments(_vtk_encode_string
-    ""
+    "BINARY"
     "INPUT;NAME;EXPORT_SYMBOL;EXPORT_HEADER;HEADER_OUTPUT;SOURCE_OUTPUT"
     ""
     ${ARGN})
@@ -105,6 +108,7 @@ function (vtk_encode_string)
             "-Doutput_name=${_vtk_encode_string_NAME}"
             "-Dexport_symbol=${_vtk_encode_string_EXPORT_SYMBOL}"
             "-Dexport_header=${_vtk_encode_string_EXPORT_HEADER}"
+            "-Dbinary=${_vtk_encode_string_BINARY}"
             "-D_vtk_encode_string_run=ON"
             -P "${_vtkEncodeString_script_file}")
 
@@ -134,25 +138,49 @@ if (_vtk_encode_string_run)
     file(APPEND "${output_header}"
       "#include \"${export_header}\"\n\n${export_symbol} ")
   endif ()
-  file(APPEND "${output_header}"
-    "extern const char *${output_name};\n\n#endif\n")
 
   if (IS_ABSOLUTE "${source_file}")
     set(source_file_full "${source_file}")
   else ()
     set(source_file_full "${source_dir}/${source_file}")
   endif ()
-  file(READ "${source_file_full}" original_content)
+  set(hex_arg)
+  if (binary)
+    set(hex_arg HEX)
+  endif ()
+  file(READ "${source_file_full}" original_content ${hex_arg})
 
-  # Escape literal backslashes.
-  string(REPLACE "\\" "\\\\" escaped_content "${original_content}")
-  # Escape literal double quotes.
-  string(REPLACE "\"" "\\\"" escaped_content "${escaped_content}")
-  # Turn newlines into newlines in the C string.
-  string(REPLACE "\n" "\\n\"\n\"" escaped_content "${escaped_content}")
+  if (binary)
+    string(LENGTH "${original_content}" output_size)
+    math(EXPR output_size "${output_size} / 2")
+    file(APPEND "${output_header}"
+      "extern const unsigned char ${output_name}[${output_size}];\n\n#endif\n")
 
-  file(APPEND "${output_source}"
-    "#include \"${output_name}.h\"\n\nconst char *${output_name} =\n")
-  file(APPEND "${output_source}"
-    "\"${escaped_content}\";\n")
+    file(APPEND "${output_source}"
+      "#include \"${output_name}.h\"\n\nconst unsigned char ${output_name}[${output_size}] = {\n")
+    string(REGEX REPLACE "\([0-9a-f][0-9a-f]\)" ",0x\\1" escaped_content "${original_content}")
+    # Hard line wrap the file.
+    string(REGEX REPLACE "\(..........................................................................,\)" "\\1\n" escaped_content "${escaped_content}")
+    # Remove the leading comma.
+    string(REGEX REPLACE "^," "" escaped_content "${escaped_content}")
+    file(APPEND "${output_source}"
+      "${escaped_content}\n")
+    file(APPEND "${output_source}"
+      "};\n")
+  else ()
+    file(APPEND "${output_header}"
+      "extern const char *${output_name};\n\n#endif\n")
+
+    # Escape literal backslashes.
+    string(REPLACE "\\" "\\\\" escaped_content "${original_content}")
+    # Escape literal double quotes.
+    string(REPLACE "\"" "\\\"" escaped_content "${escaped_content}")
+    # Turn newlines into newlines in the C string.
+    string(REPLACE "\n" "\\n\"\n\"" escaped_content "${escaped_content}")
+
+    file(APPEND "${output_source}"
+      "#include \"${output_name}.h\"\n\nconst char *${output_name} =\n")
+    file(APPEND "${output_source}"
+      "\"${escaped_content}\";\n")
+  endif ()
 endif ()
