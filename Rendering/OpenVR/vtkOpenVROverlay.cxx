@@ -33,6 +33,8 @@
 
 #include "vtkOpenVROverlayInternal.h"
 
+#include "OpenVRDashboard.h"
+
 #include <cmath>
 
 vtkStandardNewMacro(vtkOpenVROverlay);
@@ -243,6 +245,13 @@ void vtkOpenVROverlay::Hide()
   vr::VROverlay()->HideOverlay(this->OverlayHandle);
 }
 
+void vtkOpenVROverlay::SetDashboardImageData(vtkJPEGReader *imgReader)
+{
+  imgReader->SetMemoryBuffer(OpenVRDashboard);
+  imgReader->SetMemoryBufferLength(sizeof(OpenVRDashboard));
+  imgReader->Update();
+}
+
 void vtkOpenVROverlay::Create(vtkOpenVRRenderWindow *win)
 {
   if( !vr::VROverlay() )
@@ -289,39 +298,45 @@ void vtkOpenVROverlay::Create(vtkOpenVRRenderWindow *win)
 
   // if dashboard image exists use it
   vtkNew<vtkJPEGReader> imgReader;
-  if (imgReader->CanReadFile(this->DashboardImageFileName.c_str()))
+  if (!this->DashboardImageFileName.empty()
+      && imgReader->CanReadFile(this->DashboardImageFileName.c_str()))
   {
     imgReader->SetFileName(this->DashboardImageFileName.c_str());
     imgReader->Update();
-    vtkImageData *id = imgReader->GetOutput();
-    int dims[3];
-    id->GetDimensions(dims);
-    int numC = id->GetPointData()->GetScalars()->GetNumberOfComponents();
-
-    this->OriginalTextureData = new unsigned char[dims[0]*dims[1]*4];
-    this->CurrentTextureData = new unsigned char[dims[0]*dims[1]*4];
-    unsigned char *dataPtr = this->OriginalTextureData;
-    unsigned char *inPtr = static_cast<unsigned char *>(
-      id->GetPointData()->GetScalars()->GetVoidPointer(0));
-    for (int j = 0; j < dims[1]; j++)
-    {
-      for (int i = 0; i < dims[0]; i++)
-      {
-        *(dataPtr++) = *(inPtr++);
-        *(dataPtr++) = *(inPtr++);
-        *(dataPtr++) = *(inPtr++);
-        *(dataPtr++) = (numC == 4 ? *(inPtr++) : 255.0);
-      }
-    }
-    memcpy(this->CurrentTextureData, this->OriginalTextureData, dims[0]*dims[1]*4);
-    this->OverlayTexture->Create2DFromRaw(
-      dims[0], dims[1],
-      4,  VTK_UNSIGNED_CHAR,
-      const_cast<void *>(static_cast<const void *const>(
-        this->OriginalTextureData)));
-
-    this->SetupSpots();
   }
+  else // use compiled in dashboard
+  {
+    this->SetDashboardImageData(imgReader);
+  }
+
+  vtkImageData *id = imgReader->GetOutput();
+  int dims[3];
+  id->GetDimensions(dims);
+  int numC = id->GetPointData()->GetScalars()->GetNumberOfComponents();
+
+  this->OriginalTextureData = new unsigned char[dims[0]*dims[1]*4];
+  this->CurrentTextureData = new unsigned char[dims[0]*dims[1]*4];
+  unsigned char *dataPtr = this->OriginalTextureData;
+  unsigned char *inPtr = static_cast<unsigned char *>(
+    id->GetPointData()->GetScalars()->GetVoidPointer(0));
+  for (int j = 0; j < dims[1]; j++)
+  {
+    for (int i = 0; i < dims[0]; i++)
+    {
+      *(dataPtr++) = *(inPtr++);
+      *(dataPtr++) = *(inPtr++);
+      *(dataPtr++) = *(inPtr++);
+      *(dataPtr++) = (numC == 4 ? *(inPtr++) : 255.0);
+    }
+  }
+  memcpy(this->CurrentTextureData, this->OriginalTextureData, dims[0]*dims[1]*4);
+  this->OverlayTexture->Create2DFromRaw(
+    dims[0], dims[1],
+    4,  VTK_UNSIGNED_CHAR,
+    const_cast<void *>(static_cast<const void *const>(
+      this->OriginalTextureData)));
+
+  this->SetupSpots();
 
   int width = this->OverlayTexture->GetWidth();
   int height = this->OverlayTexture->GetHeight();
