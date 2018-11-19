@@ -20,6 +20,11 @@ ExternalData_Expand_Arguments(VTKData _
   "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/64BitFloats/constant/,REGEX:.*}"
   "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/64BitFloats/constant/polyMesh/,REGEX:.*}"
   "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/64BitFloats/system/,REGEX:.*}"
+  "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/regex/,REGEX:.*}"
+  "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/regex/0/,REGEX:.*}"
+  "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/regex/constant/,REGEX:.*}"
+  "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/regex/constant/polyMesh/,REGEX:.*}"
+  "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/regex/system/,REGEX:.*}"
   "DATA{${VTK_TEST_INPUT_DIR}/TecPlot/,REGEX:.*}"
   )
 vtk_add_test_cxx(vtkIOGeometryCxxTests tests
@@ -38,6 +43,7 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestOBJReaderSingleTexture.cxx,NO_VALID
   TestOpenFOAMReader.cxx
   TestOpenFOAMReader64BitFloats.cxx
+  TestOpenFOAMReaderRegEx.cxx,NO_VALID
   TestProStarReader.cxx
   TestTecplotReader.cxx
   TestTecplotReader2.cxx,NO_VALID

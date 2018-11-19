@@ -3347,16 +3347,33 @@ public:
   {
     return this->UpperDictPtr;
   }
-  vtkFoamEntry *Lookup(const vtkStdString& keyword) const
+  vtkFoamEntry *Lookup(const vtkStdString& keyword, bool regex = false) const
   {
     if (this->Token.GetType() == vtkFoamToken::UNDEFINED)
     {
+      int lastMatch = -1;
       for (size_t i = 0; i < this->Superclass::size(); i++)
       {
+        vtksys::RegularExpression rex;
         if (this->operator[](i)->GetKeyword() == keyword) // found
         {
           return this->operator[](i);
         }
+        else if
+        (
+            regex &&
+            rex.compile(this->operator[](i)->GetKeyword()) &&
+            rex.find(keyword) &&
+            rex.start(0) == 0 && rex.end(0) == keyword.size()
+        )
+        {
+          // regular expression matches full keyword
+          lastMatch = static_cast<int>(i);
+        }
+      }
+      if (lastMatch >= 0)
+      {
+        return this->operator[](lastMatch);
       }
     }
 
@@ -7885,7 +7902,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
     const vtkFoamBoundaryEntry &beI = this->BoundaryDict[boundaryI];
     const vtkStdString &boundaryNameI = beI.BoundaryName;
 
-    const vtkFoamEntry *bEntryI = bEntry->Dictionary().Lookup(boundaryNameI);
+    const vtkFoamEntry *bEntryI = bEntry->Dictionary().Lookup(boundaryNameI, true);
     if (bEntryI == nullptr)
     {
       vtkWarningMacro(<< "boundaryField " << boundaryNameI.c_str()
