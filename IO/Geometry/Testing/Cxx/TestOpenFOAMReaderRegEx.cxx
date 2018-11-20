@@ -36,6 +36,7 @@ int TestOpenFOAMReaderRegEx(int argc, char* argv[])
   // Read the case to get list of boundary patches and fields
   vtkNew<vtkOpenFOAMReader> reader;
   reader->SetFileName(filename);
+  delete [] filename;
   reader->Update();
 
   // Re-read again, this time with all patches (i.e. polydata)
