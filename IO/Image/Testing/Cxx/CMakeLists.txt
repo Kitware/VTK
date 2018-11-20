@@ -40,6 +40,10 @@ vtk_add_test_cxx(vtkIOImageCxxTests tests
     "DATA{${VTK_TEST_INPUT_DIR}/masonry.bmp}")
 
 vtk_add_test_cxx(vtkIOImageCxxTests tests
+  TestSEPReader.cxx,NO_OUTPUT
+    "DATA{${VTK_TEST_INPUT_DIR}/small.H}")
+
+vtk_add_test_cxx(vtkIOImageCxxTests tests
   TestTIFFReaderMultipleMulti,TestTIFFReaderMultiple.cxx,NO_VALID,NO_OUTPUT
     "DATA{${VTK_TEST_INPUT_DIR}/libtiff/multipage_tiff_example.tif}")
 

@@ -29,6 +29,7 @@ set(Module_SRCS
   vtkPNMReader.cxx
   vtkPNMWriter.cxx
   vtkPostScriptWriter.cxx
+  vtkSEPReader.cxx
   vtkSLCReader.cxx
   vtkTIFFReader.cxx
   vtkTIFFWriter.cxx
