@@ -86,9 +86,9 @@ public:
 
   //@{
   /**
-   * Get raster width and height
+   * Get raster width and height in number of pixels (cells)
    */
-  vtkGetVector2Macro(RasterDimensions, int);
+  int* GetRasterDimensions();
   //@}
 
   /**
@@ -151,7 +151,6 @@ protected:
 
 protected:
   int TargetDimensions[2];
-  int RasterDimensions[2];
   std::string Projection;
   std::string DomainMetaData;
   std::string DriverShortName;

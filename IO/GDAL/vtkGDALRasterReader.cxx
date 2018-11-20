@@ -110,10 +110,8 @@ public:
   int NumberOfDigitsForBands;
   int NumberOfBytesPerPixel;
 
-  int SourceOffset[2];
-  int SourceDimensions[2];
-
   std::string PrevReadFileName;
+  int RasterDimensions[2];
 
   GDALDataset* GDALData;
   GDALDataType TargetDataType;
@@ -146,16 +144,12 @@ vtkGDALRasterReader::vtkGDALRasterReaderInternal::vtkGDALRasterReaderInternal(
   NumberOfCells(0),
   Reader(reader)
 {
-  this->SourceOffset[0] = 0;
-  this->SourceOffset[1] = 0;
-  this->SourceDimensions[0] = 0;
-  this->SourceDimensions[1] = 0;
-
   for (int i = 0; i < 8; ++i)
   {
     this->CornerPoints[i] = this->BadCornerPoint;
   }
-
+  this->RasterDimensions[0] = 0;
+  this->RasterDimensions[1] = 0;
   this->CellArraySelection = vtkDataArraySelection::New();
   this->SelectionObserver = vtkCallbackCommand::New();
   this->SelectionObserver->SetCallback(
@@ -215,8 +209,8 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReadMetaData(
     // Clear last read metadata
     this->Reader->MetaData.clear();
 
-    this->Reader->RasterDimensions[0] = this->GDALData->GetRasterXSize();
-    this->Reader->RasterDimensions[1] = this->GDALData->GetRasterYSize();
+    this->RasterDimensions[0] = this->GDALData->GetRasterXSize();
+    this->RasterDimensions[1] = this->GDALData->GetRasterYSize();
 
     GDALDriverH driver = GDALGetDatasetDriver(this->GDALData);
     this->Reader->DriverShortName = GDALGetDriverShortName(driver);
@@ -398,10 +392,10 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
   const int& destHeight = this->Reader->TargetDimensions[1];
 
   // GDAL top left is at 0,0
-  const int& windowX = this->SourceOffset[0];
-  const int& windowY = this->SourceOffset[1];
-  const int& windowWidth = this->SourceDimensions[0];
-  const int& windowHeight = this->SourceDimensions[1];
+  const int& windowX = 0;
+  const int& windowY = 0;
+  const int& windowWidth = this->RasterDimensions[0];
+  const int& windowHeight = this->RasterDimensions[1];
 
   const int& pixelSpace = this->NumberOfBytesPerPixel;
   const int lineSpace = destWidth * pixelSpace;
@@ -724,14 +718,14 @@ const double* vtkGDALRasterReader::vtkGDALRasterReaderInternal::GetGeoCornerPoin
                           0,
                           &this->CornerPoints[0]);
   this->GetGeoCornerPoint(this->GDALData, 0,
-                          this->Reader->RasterDimensions[1],
+                          this->RasterDimensions[1],
                           &this->CornerPoints[2]);
   this->GetGeoCornerPoint(this->GDALData,
-                          this->Reader->RasterDimensions[0],
-                          this->Reader->RasterDimensions[1],
+                          this->RasterDimensions[0],
+                          this->RasterDimensions[1],
                           &this->CornerPoints[4]);
   this->GetGeoCornerPoint(this->GDALData,
-                          this->Reader->RasterDimensions[0],
+                          this->RasterDimensions[0],
                           0,
                           &this->CornerPoints[6]);
 
@@ -743,8 +737,8 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GetOriginSpacing(
 {
   const double* d = GetGeoCornerPoints();
   // 4,5 are the x,y coordinates for the opposite corner to 0,1
-  double geoSpacing[] = {(d[4]-d[0])/this->Reader->RasterDimensions[0],
-                         (d[5]-d[1])/this->Reader->RasterDimensions[1],
+  double geoSpacing[] = {(d[4]-d[0])/this->RasterDimensions[0],
+                         (d[5]-d[1])/this->RasterDimensions[1],
                          1};
 
   spacing[0] = std::abs(geoSpacing[0]);
@@ -823,8 +817,8 @@ void vtkGDALRasterReader::PrintSelf(std::ostream& os, vtkIndent indent)
 
   os << indent << "TargetDimensions: " <<
     this->TargetDimensions[0] << indent << this->TargetDimensions[1] << "\n";
-  os << indent << "TargetDimensions: " <<
-    this->RasterDimensions[0] << indent << this->RasterDimensions[1] << "\n";
+  os << indent << "RasterDimensions: " <<
+    this->Impl->RasterDimensions[0] << indent << this->Impl->RasterDimensions[1] << "\n";
   os << indent << "DomainMetaData: " << this->DomainMetaData << "\n";
   os << indent << "DriverShortName: " << this->DriverShortName << "\n";
   os << indent << "DriverLongName: " << this->DriverLongName << "\n";
@@ -875,8 +869,6 @@ vtkGDALRasterReader::vtkGDALRasterReader() : vtkImageReader2()
   this->TargetDimensions[0] = -1;
   this->TargetDimensions[1] = -1;
 
-  this->RasterDimensions[0] = -1;
-  this->RasterDimensions[1] = -1;
   this->CollateBands = true;
 }
 
@@ -1061,80 +1053,31 @@ int vtkGDALRasterReader::RequestInformation(vtkInformation * vtkNotUsed(request)
     return 0;
   }
 
-  if (this->RasterDimensions[0] <= 0 &&
-      this->RasterDimensions[1] <= 0)
+  if (this->Impl->RasterDimensions[0] <= 0 ||
+      this->Impl->RasterDimensions[1] <= 0)
   {
     vtkErrorMacro("Invalid image dimensions");
     return 0;
   }
 
-  if (this->TargetDimensions[0] == -1 &&
+  if (this->TargetDimensions[0] == -1 ||
       this->TargetDimensions[1] == -1)
   {
-    this->TargetDimensions[0] = this->RasterDimensions[0];
-    this->TargetDimensions[1] = this->RasterDimensions[1];
+    this->TargetDimensions[0] = this->Impl->RasterDimensions[0];
+    this->TargetDimensions[1] = this->Impl->RasterDimensions[1];
   }
 
   if (this->DataExtent[0] == -1)
   {
     this->DataExtent[0] = 0;
-    this->DataExtent[1] = this->RasterDimensions[0] - 1;
+    // RasterDimensions counts number of cells, DataExtent counts number of points
+    // which is one more than number of cells
+    this->DataExtent[1] = this->Impl->RasterDimensions[0];
     this->DataExtent[2] = 0;
-    this->DataExtent[3] = this->RasterDimensions[1] - 1;
+    this->DataExtent[3] = this->Impl->RasterDimensions[1];
     this->DataExtent[4] = 0;
     this->DataExtent[5] = 0;
   }
-
-  // GDAL top left is at 0,0
-  this->Impl->SourceOffset[0] = this->DataExtent[0];
-  this->Impl->SourceOffset[1] = this->RasterDimensions[1] -
-                                          (this->DataExtent[3] + 1);
-
-  this->Impl->SourceDimensions[0] =
-    this->DataExtent[1] - this->DataExtent[0] + 1;
-  this->Impl->SourceDimensions[1] =
-    this->DataExtent[3] - this->DataExtent[2] + 1;
-
-  // Clamp pixel offset and image dimension
-  this->Impl->SourceOffset[0] =
-    Min(this->RasterDimensions[0], this->Impl->SourceOffset[0]);
-  this->Impl->SourceOffset[0] =
-    Max(0.0, this->Impl->SourceOffset[0]);
-
-  this->Impl->SourceOffset[1] =
-    Min(this->RasterDimensions[1], this->Impl->SourceOffset[1]);
-  this->Impl->SourceOffset[1] =
-    Max(0.0, this->Impl->SourceOffset[1]);
-
-  this->Impl->SourceDimensions[0] =
-    Max(0.0, this->Impl->SourceDimensions[0]);
-  if ((this->Impl->SourceDimensions[0] +
-       this->Impl->SourceOffset[0]) >
-      this->RasterDimensions[0])
-  {
-    this->Impl->SourceDimensions[0] =
-      this->RasterDimensions[0] - this->Impl->SourceOffset[0];
-  }
-
-  this->Impl->SourceDimensions[1] =
-    Max(0.0, this->Impl->SourceDimensions[1]);
-  if ((this->Impl->SourceDimensions[1] +
-       this->Impl->SourceOffset[1]) >
-      this->RasterDimensions[1])
-  {
-    this->Impl->SourceDimensions[1] =
-      this->RasterDimensions[1] - this->Impl->SourceOffset[1];
-  }
-
-  this->DataExtent[0] = this->Impl->SourceOffset[0];
-  this->DataExtent[1] = this->DataExtent[0] +
-                         this->Impl->SourceDimensions[0] - 1;
-  this->DataExtent[3] = this->RasterDimensions[1] -
-                         this->Impl->SourceOffset[1] - 1;
-  this->DataExtent[2] = this->DataExtent[3] -
-                         this->Impl->SourceDimensions[1] + 1;
-  this->DataExtent[4] = 0;
-  this->DataExtent[5] = 0;
 
   double origin[3];
   double spacing[3];
@@ -1157,6 +1100,13 @@ int vtkGDALRasterReader::RequestInformation(vtkInformation * vtkNotUsed(request)
 
   return 1;
 }
+
+//-----------------------------------------------------------------------------
+int *vtkGDALRasterReader::GetRasterDimensions()
+{
+  return this->Impl->RasterDimensions;
+}
+
 
 //-----------------------------------------------------------------------------
 int vtkGDALRasterReader::FillOutputPortInformation(int port, vtkInformation* info)

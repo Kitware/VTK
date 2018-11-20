@@ -21,6 +21,7 @@
 #include <vtkCompositePolyDataMapper.h>
 #include <vtkDataSetAttributes.h>
 #include <vtkDoubleArray.h>
+#include <vtkInformation.h>
 #include <vtkLookupTable.h>
 #include <vtkMapper.h>
 #include <vtkMultiBlockDataSet.h>
@@ -33,10 +34,12 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkSmartPointer.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkTestUtilities.h>
 #include <vtkUniformGrid.h>
 
 // C++ includes
+#include <iterator>
 #include <sstream>
 
 // Main program
@@ -48,6 +51,24 @@ int TestGDALRasterReader(int argc, char** argv)
   // Create reader to read shape file.
   vtkNew<vtkGDALRasterReader> reader;
   reader->SetFileName(rasterFileName);
+  reader->UpdateInformation();
+  // extent in points
+  int* extent = reader->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  std::ostream_iterator<int> out_it(std::cout, " ");
+  std::cout << "Point extents: ";
+  std::copy(extent, extent + 6, out_it);
+  std::cout << "\n";
+  // raster dimensions in cells (pixels)
+  int* rasterdims = reader->GetRasterDimensions();
+  std::cout << "Cell dimensions: ";
+  std::copy(rasterdims, rasterdims + 2, out_it);
+  std::cout << std::endl;
+  if (extent[1] - extent[0] != rasterdims[0] ||
+      extent[3] - extent[2] != rasterdims[1])
+  {
+    std::cerr << "Error: Number of cells should be one less than the number of points\n";
+    return 1;
+  }
 
   // test if we read all 3 bands with CollateBands=0 (default is 1)
   reader->SetCollateBands(0);
