@@ -62,6 +62,14 @@ public:
   const char*  GetProjectionString() const;
 
   /**
+   * Returns WKT spatial reference.
+   */
+  const char* GetProjectionWKT () const
+  {
+    return this->ProjectionWKT.c_str();
+  }
+
+  /**
    * Return geo-referenced corner points (Upper left,
    * lower left, lower right, upper right)
    */
@@ -152,6 +160,7 @@ protected:
 protected:
   int TargetDimensions[2];
   std::string Projection;
+  std::string ProjectionWKT;
   std::string DomainMetaData;
   std::string DriverShortName;
   std::string DriverLongName;
