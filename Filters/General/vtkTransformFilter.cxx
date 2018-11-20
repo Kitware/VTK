@@ -316,16 +316,16 @@ int vtkTransformFilter::RequestData(
   {
     for (int i = 0; i < pd->GetNumberOfArrays(); i++)
     {
-      if(!outPD->GetArray(pd->GetArray(i)->GetName()))
+      if(!outPD->GetArray(pd->GetAbstractArray(i)->GetName()))
       {
-        outPD->AddArray(pd->GetArray(i));
+        outPD->AddArray(pd->GetAbstractArray(i));
       }
     }
     for (int i = 0; i < cd->GetNumberOfArrays(); i++)
     {
-      if(!outCD->GetArray(cd->GetArray(i)->GetName()))
+      if(!outCD->GetArray(cd->GetAbstractArray(i)->GetName()))
       {
-        outCD->AddArray(cd->GetArray(i));
+        outCD->AddArray(cd->GetAbstractArray(i));
       }
     }
     //TODO does order matters ?
