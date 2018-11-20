@@ -1175,13 +1175,17 @@ int vtkGDALRasterReader::FillOutputPortInformation(int port, vtkInformation* inf
 }
 
 //-----------------------------------------------------------------------------
-double vtkGDALRasterReader::GetInvalidValue(size_t bandIndex)
+double vtkGDALRasterReader::GetInvalidValue(size_t bandIndex, int* hasNoData)
 {
   if (bandIndex >= this->Impl->NoDataValue.size())
   {
     vtkErrorMacro("bandIndex >= "
                   << this->Impl->NoDataValue.size() << ": " << bandIndex);
     return 0;
+  }
+  if (hasNoData)
+  {
+    *hasNoData = this->Impl->HasNoDataValue[bandIndex];
   }
   return this->Impl->NoDataValue[bandIndex];
 }
