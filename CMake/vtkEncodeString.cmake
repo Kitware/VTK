@@ -26,7 +26,7 @@ vtk_encode_string
   [EXPORT_HEADER  <header>
   [HEADER_OUTPUT  <variable>]
   [SOURCE_OUTPUT  <variable>]
-  [BINARY])
+  [BINARY] [NUL_TERMINATE])
 ```
 
 The only required variable is `INPUT`, however, it is likely that at least one
@@ -47,10 +47,14 @@ library.
   * `SOURCE_OUTPUT`: The variable to store the generated source path.
   * `BINARY`: If given, the data will be written as an array of `unsigned char`
     bytes.
+  * `NUL_TERMINATE`: If given, the binary data will be `NUL`-terminated. Only
+    makes sense with the `BINARY` flag. This is intended to be used if
+    embedding a file as a C string exceeds compiler limits on string literals
+    in various compilers.
 #]==]
 function (vtk_encode_string)
   cmake_parse_arguments(_vtk_encode_string
-    "BINARY"
+    "BINARY;NUL_TERMINATE"
     "INPUT;NAME;EXPORT_SYMBOL;EXPORT_HEADER;HEADER_OUTPUT;SOURCE_OUTPUT"
     ""
     ${ARGN})
@@ -83,6 +87,11 @@ function (vtk_encode_string)
       "Missing `EXPORT_SYMBOL` when using `EXPORT_HEADER`.")
   endif ()
 
+  if (NOT _vtk_encode_string_BINARY AND _vtk_encode_string_NUL_TERMINATE)
+    message(FATAL_ERROR
+      "The `NUL_TERMINATE` flag only makes sense with the `BINARY` flag.")
+  endif ()
+
   set(_vtk_encode_string_header
     "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_encode_string_NAME}.h")
   set(_vtk_encode_string_source
@@ -109,6 +118,7 @@ function (vtk_encode_string)
             "-Dexport_symbol=${_vtk_encode_string_EXPORT_SYMBOL}"
             "-Dexport_header=${_vtk_encode_string_EXPORT_HEADER}"
             "-Dbinary=${_vtk_encode_string_BINARY}"
+            "-Dnul_terminate=${_vtk_encode_string_NUL_TERMINATE}"
             "-D_vtk_encode_string_run=ON"
             -P "${_vtkEncodeString_script_file}")
 
@@ -151,6 +161,9 @@ if (_vtk_encode_string_run)
   file(READ "${source_file_full}" original_content ${hex_arg})
 
   if (binary)
+    if (nul_terminate)
+      string(APPEND original_content "00")
+    endif ()
     string(LENGTH "${original_content}" output_size)
     math(EXPR output_size "${output_size} / 2")
     file(APPEND "${output_header}"
