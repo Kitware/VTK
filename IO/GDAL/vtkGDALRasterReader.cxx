@@ -54,20 +54,6 @@
 vtkStandardNewMacro(vtkGDALRasterReader);
 
 //-----------------------------------------------------------------------------
-namespace
-{
-  double Min(double val1, double val2)
-  {
-    return ((val1 < val2) ? val1 : val2);
-  }
-
-  double Max(double val1, double val2)
-  {
-    return ((val1 > val2) ? val1 : val2);
-  }
-}
-
-//-----------------------------------------------------------------------------
 class vtkGDALRasterReader::vtkGDALRasterReaderInternal
 {
 public:
