@@ -3,6 +3,7 @@ vtk_module(vtkCommonCore
     StandAlone
   TEST_DEPENDS
     vtkTestingCore
+    vtkCommonDataModel
     vtkCommonSystem
     vtkCommonTransforms
     vtkFiltersProgrammable

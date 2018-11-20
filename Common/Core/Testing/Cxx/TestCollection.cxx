@@ -16,7 +16,10 @@
 #include "vtkCollection.h"
 #include "vtkIntArray.h"
 #include "vtkNew.h"
+#include "vtkRange.h"
 #include "vtkSmartPointer.h"
+
+#include <algorithm>
 
 bool TestRegister();
 bool TestRemoveItem(int index, bool removeIndex);
@@ -38,6 +41,31 @@ int TestCollection(int,char *[])
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+static bool IsEqualRange(vtkCollection* collection,
+                         const std::vector<vtkSmartPointer<vtkIntArray> >& v)
+{
+  const auto range = vtk::Range(collection);
+  if (range.size() != static_cast<int>(v.size()))
+  {
+    std::cerr << "Range size invalid.\n";
+    return false;
+  }
+
+  // Test C++11 for-range interop
+  auto vecIter = v.begin();
+  for (auto item : range)
+  {
+    if (item != vecIter->GetPointer())
+    {
+      std::cerr << "Range iterator returned unexpected value.\n";
+      return false;
+    }
+    ++vecIter;
+  }
+
+  return true;
+}
+
 static bool IsEqual(vtkCollection* collection, const std::vector<vtkSmartPointer<vtkIntArray> >& v)
 {
   if (collection->GetNumberOfItems() != static_cast<int>(v.size()))
@@ -55,7 +83,7 @@ static bool IsEqual(vtkCollection* collection, const std::vector<vtkSmartPointer
       return false;
     }
   }
-  return true;
+  return IsEqualRange(collection, v); // test range iterators, too.
 }
 
 bool TestRegister()

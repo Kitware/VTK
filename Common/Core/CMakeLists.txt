@@ -14,6 +14,8 @@ option(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids"
   ${VTK_USE_64BIT_IDS_DEFAULT})
 
 option(VTK_DEBUG_LEAKS "Build leak checking support into VTK." OFF)
+option(VTK_DEBUG_RANGE_ITERATORS
+  "Detect usage errors with the for-range iterators (SLOW)." OFF)
 
 # This option determines the behavior of the New methods of vtkObject derived
 # classes. If this option is off then only classes specifically using the
@@ -23,7 +25,13 @@ option(VTK_DEBUG_LEAKS "Build leak checking support into VTK." OFF)
 option(VTK_ALL_NEW_OBJECT_FACTORY
   "Build all vtkObject derived classes with object factory new methods." OFF)
 
-mark_as_advanced(VTK_DEBUG_LEAKS VTK_USE_64BIT_IDS VTK_ALL_NEW_OBJECT_FACTORY VTK_USE_64BIT_TIMESTAMPS)
+mark_as_advanced(
+  VTK_DEBUG_LEAKS
+  VTK_DEBUG_RANGE_ITERATORS
+  VTK_USE_64BIT_IDS
+  VTK_ALL_NEW_OBJECT_FACTORY
+  VTK_USE_64BIT_TIMESTAMPS
+  )
 
 set(vtkCommonCore_EXPORT_OPTIONS
   VTK_DEBUG_LEAKS
@@ -225,6 +233,12 @@ set(${vtk-module}_HDRS
   vtkBuffer.h
   vtkDataArrayAccessor.h
   vtkDataArrayIteratorMacro.h
+  vtkDataArrayMeta.h
+  vtkDataArrayRange.h
+  vtkDataArrayTupleRange_AOS.h
+  vtkDataArrayTupleRange_Generic.h
+  vtkDataArrayValueRange_AOS.h
+  vtkDataArrayValueRange_Generic.h
   vtkDataArrayTemplate.h
   vtkGenericDataArrayLookupHelper.h
   vtkIOStream.h

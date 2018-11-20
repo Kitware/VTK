@@ -1,0 +1,145 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkDataArrayMeta.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+#ifndef vtkDataArrayMeta_h
+#define vtkDataArrayMeta_h
+
+#include "vtkDataArrayAccessor.h"
+#include "vtkMeta.h"
+#include "vtkType.h"
+
+#include <type_traits>
+#include <utility>
+
+/**
+ * @file vtkDataArrayMeta.h
+ * This file contains a variety of metaprogramming constructs for working
+ * with vtkDataArrays.
+ */
+
+namespace vtk
+{
+
+// Typedef for data array indices:
+using ComponentIdType = int;
+using TupleIdType = vtkIdType;
+using ValueIdType = vtkIdType;
+
+namespace detail
+{
+
+//------------------------------------------------------------------------------
+// Used by ranges/iterators when tuple size is unknown at compile time
+static constexpr ComponentIdType DynamicTupleSize = 0;
+
+//------------------------------------------------------------------------------
+// Detect data array value types
+template <typename T>
+struct IsVtkDataArray : std::is_base_of<vtkDataArray, T> {};
+
+template <typename T>
+using EnableIfVtkDataArray =
+typename std::enable_if<IsVtkDataArray<T>::value>::type;
+
+//------------------------------------------------------------------------------
+// If a value is a valid tuple size
+template <ComponentIdType Size>
+struct IsValidTupleSize :
+    std::integral_constant<bool, (Size > 0 || Size == DynamicTupleSize)> {};
+
+template <ComponentIdType TupleSize>
+using EnableIfValidTupleSize =
+typename std::enable_if<IsValidTupleSize<TupleSize>::value>::type;
+
+//------------------------------------------------------------------------------
+// If a value is a non-dynamic tuple size
+template <ComponentIdType Size>
+struct IsStaticTupleSize : std::integral_constant<bool, (Size > 0)> {};
+
+template <ComponentIdType TupleSize>
+using EnableIfStaticTupleSize =
+typename std::enable_if<IsStaticTupleSize<TupleSize>::value>::type;
+
+//------------------------------------------------------------------------------
+// If two values are valid non-dynamic tuple sizes:
+template <ComponentIdType S1, ComponentIdType S2>
+struct AreStaticTupleSizes :
+    std::integral_constant<bool, (IsStaticTupleSize<S1>::value &&
+                                  IsStaticTupleSize<S2>::value)> {};
+
+template <ComponentIdType S1, ComponentIdType S2, typename T = void>
+using EnableIfStaticTupleSizes =
+typename std::enable_if<AreStaticTupleSizes<S1, S2>::value, T>::type;
+
+//------------------------------------------------------------------------------
+// If either of the tuple sizes is not statically defined
+template <ComponentIdType S1, ComponentIdType S2>
+struct IsEitherTupleSizeDynamic :
+    std::integral_constant<bool, (!IsStaticTupleSize<S1>::value ||
+                                  !IsStaticTupleSize<S2>::value)> {};
+
+template <ComponentIdType S1, ComponentIdType S2, typename T = void>
+using EnableIfEitherTupleSizeIsDynamic =
+typename std::enable_if<IsEitherTupleSizeDynamic<S1, S2>::value, T>::type;
+
+//------------------------------------------------------------------------------
+// Helper that switches between a storageless integral constant for known
+// sizes, and a runtime variable for variable sizes.
+template <ComponentIdType TupleSize>
+struct GenericTupleSize :
+    public std::integral_constant<ComponentIdType, TupleSize>
+{
+  static_assert(IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
+
+private:
+  using Superclass = std::integral_constant<ComponentIdType, TupleSize>;
+public:
+  // Need to construct from array for specialization.
+  using Superclass::Superclass;
+  GenericTupleSize(vtkDataArray *) {}
+};
+
+// Specialize for dynamic types, mimicing integral_constant API:
+template <>
+struct GenericTupleSize<DynamicTupleSize>
+{
+  using value_type = ComponentIdType;
+
+  GenericTupleSize() = default;
+  explicit GenericTupleSize(vtkDataArray *array)
+    : value(array->GetNumberOfComponents())
+  {
+  }
+
+  operator value_type() const noexcept { return value; }
+  value_type operator()() const noexcept { return value; }
+
+  ComponentIdType value;
+};
+
+} // end namespace detail
+
+//------------------------------------------------------------------------------
+// Typedef for double if vtkDataArray, or the array's ValueType for subclasses.
+template <typename ArrayType,
+          typename = detail::EnableIfVtkDataArray<ArrayType>>
+using GetAPIType = typename vtkDataArrayAccessor<ArrayType>::APIType;
+
+} // end namespace vtk
+
+
+#endif // vtkDataArrayMeta_h
+
+// VTK-HeaderTest-Exclude: vtkDataArrayMeta.h

@@ -103,6 +103,9 @@
 /* Debug leaks support.  */
 #cmakedefine VTK_DEBUG_LEAKS
 
+/* Debug for-range iterator support.  */
+#cmakedefine VTK_DEBUG_RANGE_ITERATORS
+
 /* Print warning on vtkArrayDispatch failure.  */
 #cmakedefine VTK_WARN_ON_DISPATCH_FAILURE
 
