@@ -9,6 +9,7 @@ set(Module_SRCS
 
 # Now to generate our object factory.
 vtk_add_override(vtkNrrdReader vtkPNrrdReader)
+vtk_add_override(vtkMPIImageReader vtkImageReader)
 vtk_object_factory_configure("${vtk_module_overrides}")
 
 vtk_module_library(vtkIOMPIImage ${Module_SRCS})
