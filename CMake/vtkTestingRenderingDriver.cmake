@@ -1,6 +1,9 @@
 SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
 "
     vtksys::SystemInformation::SetStackTraceOnError(1);
+#ifndef NDEBUG
+    vtkFloatingPointExceptions::Enable();
+#endif
 
     // Set defaults
     vtkTestingInteractor::ValidBaseline = \"Use_-V_for_Baseline\";

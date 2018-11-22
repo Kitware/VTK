@@ -962,8 +962,14 @@ bool vtkLagrangianBasicIntegrationModel::BreakParticle(vtkLagrangianParticle* pa
   double part2Norm = vtkMath::Norm(part2Vel);
   for (int i = 0; i < 3; i++)
   {
-    part1Vel[i] = part1Vel[i] / part1Norm * bounceNorm;
-    part2Vel[i] = part2Vel[i] / part2Norm * bounceNorm;
+    if (part1Norm != 0.0)
+    {
+      part1Vel[i] = part1Vel[i] / part1Norm * bounceNorm;
+    }
+    if (part2Norm != 0.0)
+    {
+      part2Vel[i] = part2Vel[i] / part2Norm * bounceNorm;
+    }
   }
 
   // push new particle in queue

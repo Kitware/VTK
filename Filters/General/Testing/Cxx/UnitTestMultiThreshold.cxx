@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkSmartPointer.h"
 #include "vtkMultiThreshold.h"
-
+#include "vtkFloatingPointExceptions.h"
 #include "vtkImageData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
@@ -458,10 +458,12 @@ int TestErrorsAndWarnings()
 
 #ifndef _WIN32
   // WARNING: One of the interval endpoints is not a number.
+  vtkFloatingPointExceptions::Disable();
   intervalSets.push_back(threshold->AddIntervalSet(
     vtkMath::Nan(), 10,
     vtkMultiThreshold::CLOSED, vtkMultiThreshold::CLOSED,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, "PointVectors", -3, 1 ));
+  vtkFloatingPointExceptions::Enable();
   if (filterObserver->GetWarning())
   {
     std::cout << "Caught expected warning: "

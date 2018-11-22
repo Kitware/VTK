@@ -1372,13 +1372,13 @@ int vtkCubeAxesActor::Digits(double min, double max )
   long digitsPastDecimal;
 
   double range = max - min;
-  double pow10 = log10(range);
-  if (!vtkMath::IsFinite(pow10))
+  if (max == min)
   {
     digitsPastDecimal = 0;
   }
   else
   {
+    double pow10 = log10(range);
     long ipow10 = static_cast<long>(floor(pow10));
     digitsPastDecimal = -ipow10;
 

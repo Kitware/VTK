@@ -250,7 +250,7 @@ public:
     // Returns true if v2 is higher priority than v1
     bool operator()(WeightedVertex& v1, WeightedVertex& v2)
     {
-    if (v1.weight < v2.weight)
+    if (v1.weight <= v2.weight)
     {
       return false;
     }

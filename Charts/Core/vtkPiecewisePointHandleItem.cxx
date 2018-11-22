@@ -216,10 +216,22 @@ bool vtkPiecewisePointHandleItem::Paint(vtkContext2D *painter)
   this->Internal->PointHandles[3].Init(-(fDistance+blxdistance*(1-preMid)), 0.f,
     preIdx,enMidPoint, preMid, blxdistance, pointInScene);
 
-  painter->DrawLine(0, ptRadius+trydistance*curSharp, 0, ptRadius);
-  painter->DrawLine(ptRadius, 0, ptRadius+trxdistance*curMid, 0);
-  painter->DrawLine(0, -(ptRadius+blydistance*preSharp), 0, -ptRadius);
-  painter->DrawLine(-(ptRadius+blxdistance*(1-preMid)), 0, -ptRadius, 0);
+  if ( ptRadius+trydistance*curSharp != ptRadius)
+  {
+    painter->DrawLine(0, ptRadius+trydistance*curSharp, 0, ptRadius);
+  }
+  if (ptRadius != ptRadius+trxdistance*curMid)
+  {
+    painter->DrawLine(ptRadius, 0, ptRadius+trxdistance*curMid, 0);
+  }
+  if (ptRadius+blydistance*preSharp != ptRadius)
+  {
+    painter->DrawLine(-(ptRadius+blxdistance*(1-preMid)), 0, -ptRadius, 0);
+  }
+  if (ptRadius+blxdistance*(1-preMid) != ptRadius)
+  {
+    painter->DrawLine(-(ptRadius+blxdistance*(1-preMid)), 0, -ptRadius, 0);
+  }
 
   for(int i=0; i<4; i++)
   {
