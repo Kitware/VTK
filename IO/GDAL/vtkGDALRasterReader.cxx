@@ -80,7 +80,7 @@ public:
   template <typename VTK_TYPE, typename RAW_TYPE> void GenericReadData();
   void ReleaseData();
 
-  void GetOriginSpacing(double* spacing, double* origin, int* flip);
+  void GetOriginSpacing(double* origin, double* spacing, int* flip);
 
   template <typename VTK_TYPE, typename RAW_TYPE>
   void Convert(std::vector<RAW_TYPE>& rawUniformGridData,

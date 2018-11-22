@@ -93,7 +93,9 @@ public:
   }
 
 private:
-  MessageStream(const MessageStream&) {}
+  MessageStream(const MessageStream&) = delete;
+  void operator=(const MessageStream&) = delete;
+
   char* Data;
   char* Head;
   int Size;

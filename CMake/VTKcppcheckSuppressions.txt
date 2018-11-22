@@ -26,6 +26,10 @@
 *:Utilities/KWSys/*
 *:Utilities/MetaIO/*
 *:Utilities/DICOMParser/*
+*:Remote/WikiExamples/*
+
+// If cppcheck itself crashes, well, that's its problem, ignore that.
+cppcheckError
 
 // Can't fix in portable way for all VTK-supported platforms.
 duplicateExpression:IO/PostgreSQL/vtkPostgreSQLQuery.cxx
@@ -36,6 +40,9 @@ memleakOnRealloc
 
 // VTK assumes IEEE 754 floats, so this warning isn't useful.
 memsetClassFloat
+
+// These are too stylistic
+useStlAlgorithm
 
 // Gives too many false positives.
 assertWithSideEffect
@@ -574,21 +581,13 @@ redundantAssignment:Filters/General/vtkBoxClipDataSet.cxx
 redundantAssignment:*/Testing/*
 
 // 13 warnings
-useInitializationList:Filters/MomentInvariants/vtkMomentsTensor.h
-useInitializationList:Interaction/Widgets/vtkBalloonWidget.cxx
-useInitializationList:IO/Exodus/vtkExodusIIWriter.h
-useInitializationList:IO/Import/vtkOBJImporter.cxx
-useInitializationList:IO/Import/vtkOBJImporterInternals.cxx
-useInitializationList:IO/TRUCHAS/vtkTRUCHASReader.cxx
-useInitializationList:IO/XML/vtkXMLReader.cxx
-useInitializationList:Rendering/Core/vtkTextActor3D.cxx
-useInitializationList:Rendering/OpenGL2/vtkValuePass.cxx
-useInitializationList:Rendering/OpenVR/vtkOpenVROverlay.cxx
-useInitializationList:Utilities/Benchmarks/vtkRenderTimings.h
-useInitializationList:Utilities/ParseOGLExt/ParseOGLExt.cxx
-useInitializationList:Filters/Core/Testing/Cxx/TestAppendFilter.cxx
+useInitializationList:*
 
 // False positives.
+arrayIndexOutOfBounds:Rendering/VolumeOpenGL2/vtkOpenGLUniforms.cxx
+arrayIndexOutOfBoundsCond:Imaging/Morphological/vtkImageConnectivityFilter.cxx
+arrayIndexOutOfBoundsCond:IO/MINC/vtkMINCImageAttributes.cxx
+arrayIndexOutOfBoundsCond:Rendering/Volume/vtkGPUVolumeRayCastMapper.cxx
 AssignmentAddressToInteger:IO/Exodus/vtkExodusIIReader.cxx
 CastIntegerToAddressAtReturn:Geovis/Core/vtkGeoTreeNode.h
 copyCtorPointerCopying:IO/NetCDF/vtkSLACReader.cxx
@@ -602,17 +601,18 @@ operatorEqVarError:Filters/General/vtkHyperStreamline.cxx
 redundantAssignment:Wrapping/Tools/vtkParsePreprocess.c
 stlIfStrFind:Infovis/Core/vtkPipelineGraphSource.cxx
 stlIfStrFind:Rendering/OpenGL2/vtkOpenGLRenderer.cxx
+syntaxError:Rendering/OpenGL2/vtkOpenGLGlyph3DMapper.cxx
+uninitMemberVar:GUISupport/Qt/QVTKOpenGLWidget.cxx
+uninitMemberVarPrivate:Filters/ParallelFlowPaths/vtkPLagrangianParticleTracker.cxx
 unsafeClassCanLeak:Filters/General/vtkDensifyPolyData.cxx
 unsafeClassCanLeak:GUISupport/Qt/QVTKInteractorInternal.h
 unsafeClassCanLeak:Interaction/Widgets/vtkBiDimensionalRepresentation.h
 unusedStructMember:Common/Misc/vtkHeap.cxx
 unusedStructMember:IO/Infovis/vtkTulipReader.cxx
-uselessAssignmentArg:Common/DataModel/vtkReebGraph.cxx
-uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
-syntaxError:Rendering/OpenGL2/vtkOpenGLGlyph3DMapper.cxx
-arrayIndexOutOfBoundsCond:IO/MINC/vtkMINCImageAttributes.cxx
-uninitMemberVar:GUISupport/Qt/QVTKOpenGLWidget.cxx
 unusedVariable:IO/SegY/vtkSegYReaderInternal.cxx
+uselessAssignmentArg:Common/DataModel/vtkReebGraph.cxx
+uselessAssignmentPtrArg:Filters/General/vtkYoungsMaterialInterface.cxx
+uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
 
 // false positive: <https://trac.cppcheck.net/ticket/8346>
 syntaxError:Accelerators/Vtkm/vtkmlib/Portals.hxx
@@ -629,16 +629,22 @@ syntaxError:Accelerators/Vtkm/vtkmCellSetSingleType.cxx
 // false positive: struct member is never used.
 unusedStructMember:Common/Core/Testing/Cxx/TestArrayFreeFunctions.cxx
 
+// false positive: <https://trac.cppcheck.net/ticket/8809>
+incorrectLogicOperator:IO/XML/Testing/Cxx/TestXMLHyperTreeGridIO.cxx
+
 // Not worth fixing, but not actually false positives.
-knownConditionTrueFalse:Rendering/Label/vtkLabeledTreeMapDataMapper.cxx
 duplicateExpression:Common/Math/Testing/Cxx/TestPolynomialSolversUnivariate.cxx
+knownConditionTrueFalse:Common/Core/Testing/Cxx/TestObserversPerformance.cxx
 knownConditionTrueFalse:Common/Core/Testing/Cxx/UnitTestMath.cxx
+knownConditionTrueFalse:Filters/Parallel/Testing/Cxx/UnitTestPMaskPoints.cxx
 knownConditionTrueFalse:GUISupport/Qt/QVTKWidget.cxx
+knownConditionTrueFalse:Rendering/Label/vtkLabeledTreeMapDataMapper.cxx
 knownConditionTrueFalse:Rendering/OpenGL/vtkXGPUInfoList.cxx
+knownConditionTrueFalse:Rendering/OpenGL2/vtkOpenGLRenderer.cxx
 knownConditionTrueFalse:Rendering/OpenGL2/vtkOpenGLRenderWindow.cxx
 knownConditionTrueFalse:Rendering/OpenGL2/vtkOpenGLShaderCache.cxx
-knownConditionTrueFalse:Filters/Parallel/Testing/Cxx/UnitTestPMaskPoints.cxx
 knownConditionTrueFalse:Rendering/OSPRay/vtkOSPRayRendererNode.cxx
+knownConditionTrueFalse:Wrapping/PythonCore/vtkPythonArgs.cxx
 nullPointer:Wrapping/Tools/lex.yy.c
 passedByValue:Filters/General/vtkYoungsMaterialInterface.cxx
 uninitMemberVar:Common/DataModel/vtkStaticPointLocator2D.cxx

@@ -358,12 +358,13 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
     EGL_NONE
   };
 
+#if !defined(ANDROID)
   const EGLint surface_attribs[] = {
     EGL_WIDTH, width,
     EGL_HEIGHT, height,
     EGL_NONE
   };
-
+#endif
 
   EGLint numConfigs = 0;
   EGLConfig config;

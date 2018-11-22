@@ -942,7 +942,7 @@ int vtkNetCDFCAMReader::RequestData(
     {
       return 0;
     }
-    if(this->VerticalDimension != VERTICAL_DIMENSION_SINGLE_LAYER)
+    if (this->VerticalDimension != VERTICAL_DIMENSION_SINGLE_LAYER)
     { // check for a 3D field variable
       if (ndims != 3)
       {
@@ -975,7 +975,7 @@ int vtkNetCDFCAMReader::RequestData(
         continue;
       }
     }
-    else if(this->VerticalDimension == VERTICAL_DIMENSION_SINGLE_LAYER)
+    else
     { // check for a 2D field variable
       if (ndims != 2)
       {
