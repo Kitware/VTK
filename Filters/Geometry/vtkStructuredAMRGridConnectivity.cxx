@@ -898,7 +898,7 @@ vtkStructuredAMRGridConnectivity::TransferGhostDataFromNeighbors(
   // Sanity check
   assert("pre: gridID is out-of-bounds!" &&
        (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
-  assert("pre: Neigbors is not propertly allocated" &&
+  assert("pre: Neighbors is not properly allocated" &&
        (this->NumberOfGrids==this->Neighbors.size() ) );
 
   this->CellCenteredDonorLevel.resize( this->NumberOfGrids );
@@ -1009,7 +1009,7 @@ vtkStructuredAMRGridConnectivity::ComputeNeighborSendAndRcvExtent(
   // Sanity check
   assert( "pre: gridID is out-of-bounds!" &&
           (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
-  assert( "pre: Neigbors is not propertly allocated" &&
+  assert( "pre: Neighbors is not properly allocated" &&
           (this->NumberOfGrids==this->Neighbors.size() ) );
 
   int gridRealExtent[6];

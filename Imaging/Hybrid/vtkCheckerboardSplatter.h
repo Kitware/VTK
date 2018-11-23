@@ -143,7 +143,7 @@ public:
   /**
    * Control the footprint size of the splat in terms of propagation across a
    * voxel neighborhood. The Footprint value simply indicates the number of
-   * neigboring voxels in the i-j-k directions to extend the splat. A value
+   * neighboring voxels in the i-j-k directions to extend the splat. A value
    * of zero means that only the voxel containing the splat point is
    * affected. A value of one means the immediate neighbors touching the
    * affected voxel are affected as well. Larger numbers increase the splat

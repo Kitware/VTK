@@ -32,7 +32,7 @@
  * where S is the local scalar value; E is a user-defined eccentricity factor
  * that controls the elliptical shape of the splat; z is the distance of the
  * current voxel sample point along the local normal N; and rxy is the
- * distance to neigbor point x in the direction prependicular to N.
+ * distance to neighbor point x in the direction prependicular to N.
  *
  * @warning
  * The weights are normalized so that SUM(Wi) = 1. If a neighbor point p

@@ -1468,7 +1468,7 @@ void vtkStructuredGridConnectivity::TransferGhostDataFromNeighbors(
   // Sanity check
   assert( "pre: gridID is out-of-bounds!" &&
           (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
-  assert( "pre: Neigbors is not propertly allocated" &&
+  assert( "pre: Neighbors is not properly allocated" &&
           (this->NumberOfGrids==this->Neighbors.size() ) );
 
   int NumNeis = static_cast<int>(this->Neighbors[ gridID ].size());
@@ -1579,7 +1579,7 @@ void vtkStructuredGridConnectivity::ComputeNeighborSendAndRcvExtent(
   // Sanity check
   assert( "pre: gridID is out-of-bounds!" &&
           (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
-  assert( "pre: Neigbors is not propertly allocated" &&
+  assert( "pre: Neighbors is not properly allocated" &&
           (this->NumberOfGrids==this->Neighbors.size() ) );
 
   int myRealGridExtent[6];

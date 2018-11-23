@@ -1418,7 +1418,7 @@ void vtkDelaunay2D::FillPolygons(vtkCellArray *polys, int *triUse)
               triUse[neiId] = 0;
               nextFront->InsertNextId(neiId);
             }
-          }//mark all neigbors
+          }//mark all neighbors
         }//for all edges of cell
       } //all cells in front
 
