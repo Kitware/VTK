@@ -1560,7 +1560,6 @@ bool vtkTextureObject::CreateDepthFromRaw(unsigned int width,
                                           void *raw)
 {
   assert("pre: context_exists" && this->GetContext()!=nullptr);
-  assert("pre: raw_exists" && raw!=nullptr);
 
   assert("pre: valid_internalFormat" && internalFormat>=0
          && internalFormat<NumberOfDepthFormats);

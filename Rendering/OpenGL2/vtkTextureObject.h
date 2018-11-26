@@ -210,6 +210,7 @@ public:
   /**
    * Create a 2D depth texture using a raw pointer.
    * This is a blocking call. If you can, use PBO instead.
+   * raw can be null in order to allocate texture without initialization.
    */
   bool CreateDepthFromRaw(unsigned int width, unsigned int height,
                           int internalFormat, int rawType,
