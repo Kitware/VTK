@@ -13,7 +13,6 @@
 =========================================================================*/
 #include "vtkOpenVROverlay.h"
 
-#include "vtkBase64Utilities.h"
 #include "vtkCallbackCommand.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
@@ -34,6 +33,8 @@
 
 #include "vtkOpenVROverlayInternal.h"
 
+#include "OpenVRDashboard.h"
+
 #include <cmath>
 
 vtkStandardNewMacro(vtkOpenVROverlay);
@@ -47,6 +48,7 @@ vtkOpenVROverlay::vtkOpenVROverlay()
   this->LastSpot = nullptr;
   this->SessionName = "";
   this->VRSystem = nullptr;
+  this->DashboardImageFileName = "OpenVRDashboard.jpg";
   this->LastCameraPoseIndex = -1;
   this->LastSpotIntensity = 0.3;
   this->ActiveSpotIntensity = 0.3;
@@ -245,17 +247,9 @@ void vtkOpenVROverlay::Hide()
 
 void vtkOpenVROverlay::SetDashboardImageData(vtkJPEGReader *imgReader)
 {
-  #include "vtkOpenVROverlayImage.h"
-  unsigned char *output = new unsigned char [dbimg.size()];
-  size_t len = vtkBase64Utilities::DecodeSafely(
-    reinterpret_cast<const unsigned char *>(dbimg.c_str()),
-    dbimg.size(),
-    output,
-    dbimg.size());
-  imgReader->SetMemoryBuffer(output);
-  imgReader->SetMemoryBufferLength(len);
+  imgReader->SetMemoryBuffer(OpenVRDashboard);
+  imgReader->SetMemoryBufferLength(sizeof(OpenVRDashboard));
   imgReader->Update();
-  delete [] output;
 }
 
 void vtkOpenVROverlay::Create(vtkOpenVRRenderWindow *win)
@@ -304,7 +298,7 @@ void vtkOpenVROverlay::Create(vtkOpenVRRenderWindow *win)
 
   // if dashboard image exists use it
   vtkNew<vtkJPEGReader> imgReader;
-  if (this->DashboardImageFileName.size()
+  if (!this->DashboardImageFileName.empty()
       && imgReader->CanReadFile(this->DashboardImageFileName.c_str()))
   {
     imgReader->SetFileName(this->DashboardImageFileName.c_str());
