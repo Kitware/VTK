@@ -1,9 +1,9 @@
 #ifndef vtkAvatarHead_h
 #define vtkAvatarHead_h
 
-#include "vtkRenderingOpenGL2Module.h"
+#include "vtkRenderingOpenVRModule.h"
 
-VTKRENDERINGOPENGL2_EXPORT extern const char *vtkAvatarHead;
+VTKRENDERINGOPENVR_EXPORT extern const char *vtkAvatarHead;
 
 #endif
 // VTK-HeaderTest-Exclude: vtkAvatarHead.h

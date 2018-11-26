@@ -36,6 +36,15 @@ vtk_encode_string(
   BINARY)
 list(APPEND Module_SRCS ${source})
 
+# Avatar's dependency on vtkIOXML keeps it out of OpenGL2 module
+list(APPEND Module_SRCS
+  vtkAvatarHead.cxx
+  vtkAvatarLeftHand.cxx
+  vtkAvatarRightHand.cxx
+  vtkOpenGLAvatar.cxx
+  )
+vtk_add_override(vtkAvatar vtkOpenGLAvatar)
+
 list(APPEND ${vtk-module}_SYSTEM_INCLUDE_DIRS ${OPENVR_INCLUDE_DIRS})
 
 vtk_module_library(${vtk-module} ${Module_SRCS})

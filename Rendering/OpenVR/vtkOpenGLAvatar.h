@@ -23,7 +23,7 @@
 #ifndef vtkOpenGLAvatar_h
 #define vtkOpenGLAvatar_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkAvatar.h"
 #include "vtkNew.h" // for ivars
 
@@ -31,7 +31,7 @@ class vtkOpenGLActor;
 class vtkOpenGLPolyDataMapper;
 class vtkOpenGLRenderer;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLAvatar : public vtkAvatar
+class VTKRENDERINGOPENVR_EXPORT vtkOpenGLAvatar : public vtkAvatar
 {
 public:
   static vtkOpenGLAvatar *New();

@@ -1,4 +1,5 @@
 vtk_add_test_cxx(vtkRenderingOpenVRCxxTests tests
+  TestAvatar.cxx
   TestDragon.cxx,NO_VALID
 #  Medical.cxx,NO_VALID
   )
