@@ -115,9 +115,18 @@ vtkMTimeType vtkImageSeparableConvolution::GetMTime()
 //----------------------------------------------------------------------------
 vtkImageSeparableConvolution::~vtkImageSeparableConvolution()
 {
-  SetXKernel ( nullptr );
-  SetYKernel ( nullptr );
-  SetZKernel ( nullptr );
+  if (this->XKernel)
+  {
+    this->XKernel->UnRegister(this);
+  }
+  if (this->YKernel)
+  {
+    this->YKernel->UnRegister(this);
+  }
+  if (this->ZKernel)
+  {
+    this->ZKernel->UnRegister(this);
+  }
 }
 
 //----------------------------------------------------------------------------

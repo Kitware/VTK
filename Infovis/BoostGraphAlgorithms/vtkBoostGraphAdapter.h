@@ -225,14 +225,13 @@ namespace boost {
 
               if (!directed)
               {
-                while(iter != 0
-                      && (// Skip non-local edges
-                          (helper && helper->GetEdgeOwner(iter->Id) != myRank)
-                          // Skip entirely-local edges where Source > Target
-                          || (((helper
-                                && myRank == helper->GetVertexOwner(iter->Target))
-                               || !helper)
-                              && vertex > iter->Target)))
+                while(// Skip non-local edges
+                      (helper && helper->GetEdgeOwner(iter->Id) != myRank)
+                      // Skip entirely-local edges where Source > Target
+                      || (((helper
+                            && myRank == helper->GetVertexOwner(iter->Target))
+                           || !helper)
+                          && vertex > iter->Target))
                 {
                   this->inc();
                 }
@@ -241,7 +240,7 @@ namespace boost {
           }
           else
           {
-            iter = 0;
+            iter = nullptr;
           }
         }
       }
@@ -300,7 +299,7 @@ namespace boost {
           }
           else
           {
-            iter = 0;
+            iter = nullptr;
           }
         }
       }
