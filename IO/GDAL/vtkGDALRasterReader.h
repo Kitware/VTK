@@ -62,6 +62,14 @@ public:
   const char*  GetProjectionString() const;
 
   /**
+   * Returns WKT spatial reference.
+   */
+  const char* GetProjectionWKT () const
+  {
+    return this->ProjectionWKT.c_str();
+  }
+
+  /**
    * Return geo-referenced corner points (Upper left,
    * lower left, lower right, upper right)
    */
@@ -86,9 +94,9 @@ public:
 
   //@{
   /**
-   * Get raster width and height
+   * Get raster width and height in number of pixels (cells)
    */
-  vtkGetVector2Macro(RasterDimensions, int);
+  int* GetRasterDimensions();
   //@}
 
   /**
@@ -151,8 +159,8 @@ protected:
 
 protected:
   int TargetDimensions[2];
-  int RasterDimensions[2];
   std::string Projection;
+  std::string ProjectionWKT;
   std::string DomainMetaData;
   std::string DriverShortName;
   std::string DriverLongName;
