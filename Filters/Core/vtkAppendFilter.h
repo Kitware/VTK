@@ -40,36 +40,39 @@ class VTKFILTERSCORE_EXPORT vtkAppendFilter : public vtkUnstructuredGridAlgorith
 {
 public:
   static vtkAppendFilter *New();
-
   vtkTypeMacro(vtkAppendFilter,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  //@{
   /**
    * Get any input of this filter.
    */
   vtkDataSet *GetInput(int idx);
-  vtkDataSet *GetInput()
-    {return this->GetInput( 0 );}
-
-  //@{
-  /**
-   * Get if the filter should merge coincidental points
-   * Note: The filter will only merge points if the ghost cell array doesn't exist
-   * Defaults to Off
-   */
-  vtkGetMacro(MergePoints,vtkTypeBool);
+  vtkDataSet* GetInput() { return this->GetInput(0); }
   //@}
 
   //@{
   /**
-   * Set the filter to merge coincidental points.
+   * Get/Set if the filter should merge coincidental points
    * Note: The filter will only merge points if the ghost cell array doesn't exist
    * Defaults to Off
    */
-  vtkSetMacro(MergePoints,vtkTypeBool);
+  vtkGetMacro(MergePoints, vtkTypeBool);
+  vtkSetMacro(MergePoints, vtkTypeBool);
+  vtkBooleanMacro(MergePoints, vtkTypeBool);
   //@}
 
-  vtkBooleanMacro(MergePoints,vtkTypeBool);
+  //@{
+  /**
+   * Get/Set the tolerance to use to find coincident points when `MergePoints`
+   * is `true`. Default is 0.0.
+   *
+   * This is simply passed on to the internal vtkLocator used to merge points.
+   * @sa `vtkLocator::SetTolerance`.
+   */
+  vtkSetClampMacro(Tolerance, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(Tolerance, double);
+  //@}
 
   /**
    * Remove a dataset from the list of data to append.
@@ -111,6 +114,7 @@ protected:
   vtkTypeBool MergePoints;
 
   int OutputPointsPrecision;
+  double Tolerance;
 
 private:
   vtkAppendFilter(const vtkAppendFilter&) = delete;
