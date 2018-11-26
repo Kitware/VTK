@@ -3,6 +3,7 @@ vtk_module(vtkPythonInterpreter
     vtkCommonCore
     vtkPython
     vtksys
+  EXCLUDE_FROM_WRAPPING
   PRIVATE_DEPENDS
     vtkCommonMisc
   OPTIONAL_PYTHON_LINK
