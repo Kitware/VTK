@@ -16,10 +16,6 @@
 
 #include "vtkObjectFactory.h"
 
-#if defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
-# pragma warn -8012 /* signed/unsigned comparison */
-#endif
-
 // The VTK_SOCKET_FAKE_API definition is given to the compiler
 // command line by CMakeLists.txt if there is no real sockets
 // interface available.  When this macro is defined we simply make

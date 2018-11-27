@@ -123,19 +123,6 @@ Do_not_include_vtkWin32Header_directly_vtkSystemIncludes_includes_it;
 # endif
 #endif
 
-#if defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
-  // Disable Borland compiler warning messages that often occur in valid code.
-# if !defined(VTK_DISPLAY_WIN32_WARNINGS)
-#  pragma warn -8004 /* assigned a value that is never used */
-#  pragma warn -8008 /* condition is always false */
-#  pragma warn -8026 /* funcs w/class-by-value args not expanded inline */
-#  pragma warn -8027 /* functions w/ do/for/while not expanded inline */
-#  pragma warn -8060 /* possibly incorrect assignment */
-#  pragma warn -8066 /* unreachable code */
-#  pragma warn -8072 /* suspicious pointer arithmetic */
-# endif
-#endif
-
 // Now set up the generic VTK export macro.
 #if defined(VTK_BUILD_SHARED_LIBS)
 # define VTK_EXPORT VTK_ABI_EXPORT
