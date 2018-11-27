@@ -28,7 +28,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkShaderProgram.h"
-#include "vtkAvatar.h"
+#include "vtkOpenGLAvatar.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
@@ -75,7 +75,7 @@ int TestAvatar(int argc, char *argv[])
   renderer->AddActor(actor);
   actor->SetMapper(mapper);
 
-  vtkNew<vtkAvatar> avatar;
+  vtkNew<vtkOpenGLAvatar> avatar;
   avatar->SetHeadPosition(-1.4, 0.2, 0);
   avatar->SetHeadOrientation(0, 0, 0);
   avatar->SetLeftHandPosition(-0.6, -0.3, -0.5);

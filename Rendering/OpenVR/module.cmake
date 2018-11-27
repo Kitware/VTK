@@ -20,6 +20,7 @@ vtk_module(vtkRenderingOpenVR
     vtkglew
     vtkImagingSources
     vtkFiltersSources
+    vtkIOXML
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering

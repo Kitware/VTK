@@ -28,7 +28,6 @@ set(Module_SRCS
   vtkLightsPass.cxx
   vtkOpaquePass.cxx
   vtkOpenGLActor.cxx
-  vtkOpenGLAvatar.cxx
   vtkOpenGLBillboardTextActor3D.cxx
   vtkOpenGLBufferObject.cxx
   vtkOpenGLCamera.cxx
@@ -149,28 +148,6 @@ foreach(file ${shader_files})
   list(APPEND Module_SRCS ${source})
 endforeach()
 
-# Used for generating encoded strings when models change.
-# set(geometry_files
-#   data/vtkAvatarHead.vtp
-#   data/vtkAvatarLeftHand.vtp
-#   data/vtkAvatarRightHand.vtp
-#   )
-# unset(geometry_h_files)
-# foreach(file ${geometry_files})
-#   vtk_encode_string(
-#     INPUT         "${file}"
-#     EXPORT_SYMBOL "VTKRENDERINGOPENGL2_EXPORT"
-#     EXPORT_HEADER "vtkRenderingOpenGL2Module.h"
-#     HEADER_OUTPUT header
-#     SOURCE_OUTPUT source)
-#   list(APPEND Module_SRCS ${source})
-# endforeach()
-list(APPEND Module_SRCS
-  vtkAvatarHead.cxx
-  vtkAvatarLeftHand.cxx
-  vtkAvatarRightHand.cxx
-  )
-
 if(VTK_USE_X)
   find_package(X11 REQUIRED)
   if(NOT X11_Xt_FOUND)
@@ -182,7 +159,6 @@ endif()
 # setup factory overrides
 set(opengl_overrides
   Actor
-  Avatar
   BillboardTextActor3D
   Camera
   LabeledContourMapper
