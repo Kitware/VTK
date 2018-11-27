@@ -51,14 +51,16 @@ else()
     CACHE INTERNAL "Directory where python modules will be built")
 endif()
 
-if(WIN32 AND NOT CYGWIN)
-  set(VTK_INSTALL_PYTHON_MODULES_DIR
-    "${VTK_INSTALL_RUNTIME_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
-    CACHE INTERNAL "Directory where python modules will be installed")
-else()
-  set(VTK_INSTALL_PYTHON_MODULES_DIR
-    "${VTK_INSTALL_LIBRARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
-    CACHE INTERNAL "Directory where python modules will be installed")
+if(NOT DEFINED VTK_INSTALL_PYTHON_MODULES_DIR)
+  if(WIN32 AND NOT CYGWIN)
+    set(VTK_INSTALL_PYTHON_MODULES_DIR
+      "${VTK_INSTALL_RUNTIME_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
+      CACHE INTERNAL "Directory where python modules will be installed")
+  else()
+    set(VTK_INSTALL_PYTHON_MODULES_DIR
+      "${VTK_INSTALL_LIBRARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
+      CACHE INTERNAL "Directory where python modules will be installed")
+  endif()
 endif()
 
 # Export location of python module dirs in install and build tree for for
