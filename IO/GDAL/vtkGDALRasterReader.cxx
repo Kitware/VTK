@@ -956,9 +956,8 @@ int vtkGDALRasterReader::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // Get the projection.
-  char* proj = strdup(this->Impl->GDALData->GetProjectionRef());
-  this->ProjectionWKT = proj;
-  OGRSpatialReference spRef(proj);
+  this->ProjectionWKT = this->Impl->GDALData->GetProjectionRef();
+  OGRSpatialReference spRef(this->ProjectionWKT.c_str());
 
   char* projection;
   spRef.exportToProj4(&projection);
