@@ -29,7 +29,7 @@
  * repeats until the error metric is satisfied.
  *
  * A significant issue addressed by this algorithm is to insure face
- * compatibility across neigboring cells. That is, diagonals due to face
+ * compatibility across neighboring cells. That is, diagonals due to face
  * triangulation must match to insure that the mesh is compatible. The
  * algorithm employs a precomputed table to accelerate the tessellation
  * process. The table was generated with the help of vtkOrderedTriangulator;

@@ -195,7 +195,7 @@ public:
   /**
    * Compute the bounds of the supplied string while taking into account the
    * justification of the currently applied text property. Simple rotations
-   * (0, 90, 180, 270 degrees) are also propertly taken into account.
+   * (0, 90, 180, 270 degrees) are also properly taken into account.
    */
   void ComputeJustifiedStringBounds(const char* string, float bounds[4]) override;
 

@@ -51,7 +51,7 @@
  * with an initial Voronoi tile, which is simply the bounding box of the
  * point set. A locator is then used to identify nearby points: each neighbor
  * in turn generates a clipping line positioned halfway between the
- * generating point and the neigboring point, and orthogonal to the line
+ * generating point and the neighboring point, and orthogonal to the line
  * connecting them. Clips are readily performed by evaluationg the vertices
  * of the convex Voronoi tile as being on either side (inside,outside) of the
  * clip line. If two intersections of the Voronoi tile are found, the portion

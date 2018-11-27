@@ -67,7 +67,7 @@ public:
 
   //@{
   /**
-   * Specify the cell types to extract. Any cells of the type specfied are
+   * Specify the cell types to extract. Any cells of the type specified are
    * extracted. Methods for clearing the set of cells, adding all cells, and
    * determining if a cell is in the set are also provided.
    */

@@ -117,7 +117,7 @@ int vtkEdgePoints::RequestData(
 
   // Traverse all edges. Since edges are not explicitly represented, use a
   // trick: traverse all cells and obtain cell edges and then cell edge
-  // neighbors. If cell id < all edge neigbors ids, then this edge has not
+  // neighbors. If cell id < all edge neighbors ids, then this edge has not
   // yet been visited and is processed.
   //
   int abort=0;

@@ -32,7 +32,7 @@
  * radius is defined in absolute terms.
  *
  * Other parameters are used to further qualify what it means to be a
- * neigboring point. For example, scalar range and/or point normals can be
+ * neighboring point. For example, scalar range and/or point normals can be
  * used to further constrain the neighborhood. Also the extraction mode
  * defines how the filter operates. By default, all regions are extracted but
  * it is possible to extract particular regions; the region closest to a seed
