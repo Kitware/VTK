@@ -51,13 +51,6 @@
 # if VTK_SIZEOF_VOID_P == 8
 #   define VTK_GCC_ATOMICS_64
 # endif
-#elif defined(__APPLE__)
-# warning 2018-04-25: Seemingly dead code on currently-supported VTK platforms. Contact vtk-developers list if you see this!
-# include <libkern/OSAtomic.h>
-# define VTK_APPLE_ATOMICS_32
-# if VTK_SIZEOF_VOID_P == 8
-#   define VTK_APPLE_ATOMICS_64
-# endif
 #elif defined(_WIN32) && defined(_MSC_VER)
 # define VTK_WINDOWS_ATOMICS_32
 # if VTK_SIZEOF_VOID_P == 8
@@ -133,58 +126,6 @@ public:
   {
     *static_cast<volatile value_type*>(ref) = val;
     __sync_synchronize();
-  }
-};
-
-#elif defined(VTK_APPLE_ATOMICS_64)
-template <> class AtomicOps<8>
-{
-public:
-  typedef vtkTypeInt64 VTK_ALIGN(8) atomic_type;
-  typedef vtkTypeInt64 value_type;
-
-  static vtkTypeInt64 AddAndFetch(vtkTypeInt64 *ref, vtkTypeInt64 val)
-  {
-    return OSAtomicAdd64Barrier(val, ref);
-  }
-
-  static vtkTypeInt64 SubAndFetch(vtkTypeInt64 *ref, vtkTypeInt64 val)
-  {
-    return OSAtomicAdd64Barrier(-val, ref);
-  }
-
-  static vtkTypeInt64 PreIncrement(vtkTypeInt64 *ref)
-  {
-    return OSAtomicIncrement64Barrier(ref);
-  }
-
-  static vtkTypeInt64 PreDecrement(vtkTypeInt64 *ref)
-  {
-    return OSAtomicDecrement64Barrier(ref);
-  }
-
-  static vtkTypeInt64 PostIncrement(vtkTypeInt64 *ref)
-  {
-    vtkTypeInt64 val = OSAtomicIncrement64Barrier(ref);
-    return --val;
-  }
-
-  static vtkTypeInt64 PostDecrement(vtkTypeInt64 *ref)
-  {
-    vtkTypeInt64 val = OSAtomicDecrement64Barrier(ref);
-    return ++val;
-  }
-
-  static vtkTypeInt64 Load(const vtkTypeInt64 *ref);
-  {
-    OSMemoryBarrier();
-    return *static_cast<const volatile vtkTypeInt64*>(ref);
-  }
-
-  static void Store(vtkTypeInt64 *ref, vtkTypeInt64 val);
-  {
-    *static_cast<volatile vtkTypeInt64*>(ref) = val;
-    OSMemoryBarrier();
   }
 };
 
@@ -266,58 +207,6 @@ public:
   {
     *static_cast<volatile value_type*>(ref) = val;
     __sync_synchronize();
-  }
-};
-
-#elif defined(VTK_APPLE_ATOMICS_32)
-template <> class AtomicOps<4>
-{
-public:
-  typedef vtkTypeInt32 VTK_ALIGN(4) atomic_type;
-  typedef vtkTypeInt32 value_type;
-
-  static vtkTypeInt32 AddAndFetch(vtkTypeInt32 *ref, vtkTypeInt32 val)
-  {
-    return OSAtomicAdd32Barrier(val, ref);
-  }
-
-  static vtkTypeInt32 SubAndFetch(vtkTypeInt32 *ref, vtkTypeInt32 val)
-  {
-    return OSAtomicAdd32Barrier(-val, ref);
-  }
-
-  static vtkTypeInt32 PreIncrement(vtkTypeInt32 *ref)
-  {
-    return OSAtomicIncrement32Barrier(ref);
-  }
-
-  static vtkTypeInt32 PreDecrement(vtkTypeInt32 *ref)
-  {
-    return OSAtomicDecrement32Barrier(ref);
-  }
-
-  static vtkTypeInt32 PostIncrement(vtkTypeInt32 *ref)
-  {
-    vtkTypeInt32 val = OSAtomicIncrement32Barrier(ref);
-    return --val;
-  }
-
-  static vtkTypeInt32 PostDecrement(vtkTypeInt32 *ref)
-  {
-    vtkTypeInt32 val = OSAtomicDecrement32Barrier(ref);
-    return ++val;
-  }
-
-  static vtkTypeInt32 Load(const vtkTypeInt32 *ref);
-  {
-    OSMemoryBarrier();
-    return *static_cast<const volatile vtkTypeInt32*>(ref);
-  }
-
-  static void Store(vtkTypeInt32 *ref, vtkTypeInt32 val);
-  {
-    *static_cast<volatile vtkTypeInt32*>(ref) = val;
-    OSMemoryBarrier();
   }
 };
 
