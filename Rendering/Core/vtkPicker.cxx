@@ -311,6 +311,25 @@ int vtkPicker::Pick3DPoint(
   return picked;
 }
 
+//----------------------------------------------------------------------
+int vtkPicker::Pick3DPoint(double selectionPt[3],
+                           double focalPt[3],
+                           vtkRenderer* ren)
+{
+  // Initialize the picking process
+  this->Initialize();
+  this->Renderer = ren;
+
+  // Invoke start pick method if defined
+  this->InvokeEvent(vtkCommand::StartPickEvent, nullptr);
+
+  int result = this->Pick3DInternal(ren, selectionPt, focalPt);
+
+  // Invoke end pick method if defined
+  this->InvokeEvent(vtkCommand::EndPickEvent, nullptr);
+
+  return result;
+}
 
 //----------------------------------------------------------------------
 // Perform pick operation with selection point provided. Normally the
