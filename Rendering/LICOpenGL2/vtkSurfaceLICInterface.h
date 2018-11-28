@@ -394,7 +394,7 @@ public:
 
   //@{
   /**
-   * Control the density of of the noise. A value of 1.0 produces uniform random
+   * Control the density of the noise. A value of 1.0 produces uniform random
    * noise while values < 1.0 produce impulse noise with the given probability.
    */
   void SetImpulseNoiseProbability(double val);

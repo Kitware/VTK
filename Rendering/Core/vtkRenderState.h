@@ -97,7 +97,7 @@ class VTKRENDERINGCORE_EXPORT vtkRenderState
   int GetPropArrayCount() const;
 
   /**
-   * Set the array of of filtered props and its size.
+   * Set the array of filtered props and its size.
    * It is a subset of props to render. A renderpass might ignore this
    * filtered list and access to all the props of the vtkRenderer object
    * directly. For example, a render pass may filter props that are visible and

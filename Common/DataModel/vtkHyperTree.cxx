@@ -466,7 +466,7 @@ public:
 
   //---------------------------------------------------------------------------
   // Description:
-  // Return the index of of the 'i'-th child. If the result of
+  // Return the index of the 'i'-th child. If the result of
   // IsChildLeaf( i ) is true, the index points to an element in the ParentIndex
   // and Attribute arrays of the HyperTree class. If not, the index points to
   // an element in the Nodes array of the HyperTree class.

@@ -256,7 +256,7 @@ public:
    * will be generated incorrectly.
    * Setting ParticleCoordinatesByIndex to true will force
    * all Id's to increment from 0->N-1 (relative to their order
-   * in the file) and regardless of the actual Id of of the point.
+   * in the file) and regardless of the actual Id of the point.
    * Warning, if the Points are listed in non sequential order
    * then setting this flag will reorder them.
    */

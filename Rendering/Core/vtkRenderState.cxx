@@ -113,7 +113,7 @@ int vtkRenderState::GetPropArrayCount() const
 
 // ----------------------------------------------------------------------------
 // Description:
-// Set the array of of filtered props and its size.
+// Set the array of filtered props and its size.
 // \pre positive_size: propArrayCount>=0
 // \pre valid_null_array: propArray!=0 || propArrayCount==0
 // \post is_set: GetPropArray()==propArray && GetPropArrayCount()==propArrayCount
