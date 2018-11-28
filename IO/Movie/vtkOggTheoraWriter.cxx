@@ -580,10 +580,13 @@ void vtkOggTheoraWriter::Write()
 //---------------------------------------------------------------------------
 void vtkOggTheoraWriter::End()
 {
-  this->Internals->End();
+  if (this->Internals)
+  {
+    this->Internals->End();
 
-  delete this->Internals;
-  this->Internals = nullptr;
+    delete this->Internals;
+    this->Internals = nullptr;
+  }
 }
 
 //---------------------------------------------------------------------------
