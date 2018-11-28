@@ -153,4 +153,6 @@
 #endif
 #endif
 
+#define Xdmf_EXPORTS
+
 #endif /* __XdmfConfig_h */
