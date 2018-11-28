@@ -87,7 +87,6 @@ mark_as_advanced(
   CMAKE_INSTALL_PREFIX
   CMAKE_OSX_ARCHITECTURES
   CMAKE_OSX_DEPLOYMENT_TARGET
-  VTK_RENDERING_BACKEND
 )
 
 # Now cross-compile VTK with the android toolchain

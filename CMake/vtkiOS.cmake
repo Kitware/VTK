@@ -97,7 +97,6 @@ mark_as_advanced(FORCE
   CMAKE_OSX_ARCHITECTURES
   CMAKE_OSX_DEPLOYMENT_TARGET
   CMAKE_OSX_ROOT
-  VTK_RENDERING_BACKEND
 )
 if(BUILD_SHARED_LIBS)
   message(WARNING "Can not build shared libraries for iOS framework. BUILD_SHARED_LIBS will be ignored.")

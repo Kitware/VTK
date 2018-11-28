@@ -23,7 +23,7 @@ vtk_encode_string
   INPUT           <input>
   [NAME           <name>]
   [EXPORT_SYMBOL  <symbol>]
-  [EXPORT_HEADER  <header>
+  [EXPORT_HEADER  <header>]
   [HEADER_OUTPUT  <variable>]
   [SOURCE_OUTPUT  <variable>]
   [BINARY] [NUL_TERMINATE])

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 import os, sys
 import re
 
@@ -6,38 +6,12 @@ def displayHelp():
     print """
 Usage: WhatModulesVTK.py vtkSourceTree applicationFile|applicationFolder
   Generate a FindPackage(VTK COMPONENTS) that lists all modules
-    referenced by a set of files.
-  Additionally, two extra find_package( VTK COMPONENTS) lists of modules
-  are produced. One is a minimal set and the other chases down all the
-  dependencies to produce a maximal set of modules. This is done by
-  parsing the module.cmake files.
+  referenced by a set of files.
 
     For example:
       Running from the VTK source,
         ./Utilities/Maintenance/WhatModulesVTK.py . Filters/Modeling/Testing/Cxx/TestRotationalExtrusion.cxx
       Produces
-        Modules and their dependencies:
-        find_package(VTK COMPONENTS
-          vtkCommonComputationalGeometry
-          vtkCommonCore
-          vtkCommonDataModel
-          vtkCommonExecutionModel
-          vtkCommonMath
-          vtkCommonMisc
-          vtkCommonSystem
-          vtkCommonTransforms
-          vtkFiltersCore
-          vtkFiltersGeneral
-          vtkFiltersModeling
-          vtkFiltersSources
-          vtkImagingCore
-          vtkRenderingCore
-          vtkRenderingOpenGL2
-          vtkTestingCore
-          vtkTestingRendering
-        )
-        Your application code includes 17 of 170 vtk modules.
-
         All modules referenced in the files:
         find_package(VTK COMPONENTS
           vtkCommonCore
@@ -50,16 +24,6 @@ Usage: WhatModulesVTK.py vtkSourceTree applicationFile|applicationFolder
           vtkTestingRendering
         )
         Your application code includes 8 of 170 vtk modules.
-
-        Minimal set of modules:
-        find_package(VTK COMPONENTS
-          vtkCommonCore
-          vtkFiltersCore
-          vtkFiltersModeling
-          vtkRenderingOpenGL2
-          vtkTestingRendering
-        )
-        Your application code includes 5 of 170 vtk modules.
 
 """
     exit(0)
@@ -74,9 +38,7 @@ def IncludesToPaths(path):
         for f in files:
             if prog.match(f):
                 includeFile = prog.findall(f)[0]
-                parts = root.split("/")
-                module = parts[len(parts)-2] + parts[len(parts)-1]
-                includeToPath[includeFile] = module
+                includeToPath[includeFile] = root
     return includeToPath
 
 def FindModules(path):
@@ -89,14 +51,12 @@ def FindModules(path):
     for root, dirs, files in os.walk(path):
         for f in files:
             if fileProg.match(f):
-                fid = open(os.path.join(root, f), "r")
-                contents = fid.read()
+                with open(os.path.join(root, f), "r") as fid:
+                    contents = fid.read()
                 m = moduleProg.match(contents)
                 if m:
                     moduleName = m.group(1)
-                    parts = root.split("/")
-                    pathToModule[parts[len(parts)-2] + parts[len(parts)-1]] = moduleName
-                fid.close()
+                    pathToModule[root] = moduleName
     return pathToModule
 
 def FindIncludes(path):
@@ -105,11 +65,10 @@ def FindIncludes(path):
     '''
     includes = set()
     includeProg = re.compile(r"((?:vtk|QVTK).*\.h)")
-    fid = open(path, "r")
-    contents = fid.read()
+    with open(path, "r") as fid:
+        contents = fid.read()
     incs = includeProg.findall(contents)
     includes.update(incs)
-    fid.close()
     return includes
 
 def FindModuleFiles(path):
@@ -121,74 +80,6 @@ def FindModuleFiles(path):
                  for name in files
                  if name == ("module.cmake")]
     return moduleFiles
-
-def ParseModuleFile(fileName):
-    '''
-    Read each module file returning the module name and what
-    it depends on or implements.
-    '''
-    fh = open(fileName, 'rb')
-    lines = []
-    for line in fh:
-        line = line.strip()
-        if line.startswith('$'): # Skip CMake variable names
-            continue
-        if line.startswith('#'):
-            continue
-        line = line.split('#')[0].strip() # inline comments
-        if line == "":
-            continue
-        line = line.split(')')[0].strip() # closing brace with no space
-        if line == "":
-            continue
-        for l in line.split(" "):
-            lines.append(l)
-    languages = ['PYTHON', 'JAVA']
-    keywords = ['BACKEND', 'COMPILE_DEPENDS', 'DEPENDS', 'EXCLUDE_FROM_ALL',
-                'EXCLUDE_FROM_WRAPPING', 'GROUPS', 'IMPLEMENTS', 'KIT', 'LEGACY',
-                'PRIVATE_DEPENDS', 'TEST_DEPENDS',
-                'IMPLEMENTATION_REQUIRED_BY_BACKEND', 'OPTIONAL_PYTHON_LINK'] + \
-               map(lambda l: 'EXCLUDE_FROM_%s_WRAPPING' % l, languages)
-    moduleName = ""
-    depends = []
-    implements = []
-    state = "START";
-    for item in lines:
-        if state == "START" and item.startswith("vtk_module("):
-            moduleName = item.split("(")[1]
-            continue
-        if item in keywords:
-            state = item
-            continue
-        if state == 'DEPENDS' and item !=  ')':
-            depends.append(item)
-            continue
-        if state == 'IMPLEMENTS' and item !=  ')':
-            implements.append(item)
-            continue
-    return [moduleName, depends + implements]
-
-def FindMinimalSetOfModules(modules, moduleDepencencies):
-    '''
-    Find the minimal set of modules needed.
-    '''
-    dependencies = set()
-    for m in modules:
-        dependencies = dependencies | set(moduleDepencencies[m]) # Set union
-    return modules - dependencies # Set difference
-
-
-def FindAllNeededModules(modules, foundModules, moduleDepencencies):
-    '''
-    Recursively search moduleDependencies finding all modules.
-    '''
-    if modules != None and len(modules) > 0:
-        for m in modules:
-            foundModules.add(m)
-            foundModules = foundModules | set(moduleDepencencies[m]) # Set union
-            foundModules = FindAllNeededModules(moduleDepencencies[m],
-                                                foundModules,moduleDepencencies)
-    return foundModules
 
 def MakeFindPackage(modules):
     '''
@@ -218,12 +109,7 @@ def main(vtkSourceDir, sourceFiles):
 
     # Parse the module files making a dictionary of each module and its
     # dependencies or what it implements.
-    moduleDepencencies = dict()
     moduleFiles = FindModuleFiles(vtkSourceDir + "/")
-
-    for fname in moduleFiles:
-        m = ParseModuleFile(fname)
-        moduleDepencencies[m[0]] = m[1]
 
     # Build a set of includes for all command line files
     allIncludes = set()
@@ -246,35 +132,13 @@ def main(vtkSourceDir, sourceFiles):
             if module in pathsToModules:
                 allModules.add(pathsToModules[includesToPaths[inc]])
 
-    # Add vtkInteractionStyle if required.
-    if "vtkRenderWindowInteractor.h" in allIncludes:
-        allModules.add("vtkInteractionStyle")
-
-    # Add OpenGL factory classes if required.
-    if "vtkRenderingFreeType" in allModules:
-        allModules.add("vtkRenderingFreeTypeFontConfig")
-    if "vtkRenderingCore" in allModules:
-        allModules.add("vtkRenderingOpenGL2")
-    if "vtkRenderingVolume" in allModules:
-        allModules.add("vtkRenderingVolumeOpenGL2")
-
-    # Find the minimal set of modules.
-    minimalSetOfModules =\
-        FindMinimalSetOfModules(allModules, moduleDepencencies)
-    # Find all the modules, chasing down all the dependencies.
-    allNeededModules =\
-        FindAllNeededModules(minimalSetOfModules, set(), moduleDepencencies)
-
     modules = {'All modules referenced in the files:': allModules,
-                'Minimal set of modules:': minimalSetOfModules,
-                'Modules and their dependencies:': allNeededModules
               }
     for k, v in modules.iteritems():
         print k
         print MakeFindPackage(v)
         print "Your application code includes " + str(len(v)) +\
-              " of " + str(len(pathsToModules)) + " vtk modules.\n"
-    print
+              " of " + str(len(pathsToModules)) + " vtk modules."
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
