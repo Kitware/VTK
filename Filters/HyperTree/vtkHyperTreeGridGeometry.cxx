@@ -394,7 +394,7 @@ void vtkHyperTreeGridGeometry::ProcessLeaf1D( vtkHyperTreeGridCursor* cursor )
    double* origin = cursor->GetOrigin();
    ids[0] = this->Points->InsertNextPoint( origin );
 
-   // Move to end of of cursor along orientation axis for second endpoint
+   // Move to end of cursor along orientation axis for second endpoint
    double pt[3];
    memcpy( pt, origin, 3 * sizeof( double ) );
    pt[this->Orientation] += cursor->GetSize()[this->Orientation];

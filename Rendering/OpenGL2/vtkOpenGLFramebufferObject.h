@@ -536,7 +536,7 @@ protected:
   // gen buffer (occurs when context is set)
   void CreateFBO();
 
-  // delete buffer (occurs during destruction or context swicth)
+  // delete buffer (occurs during destruction or context switch)
   void DestroyFBO();
 
   // detach and delete our reference(s)
