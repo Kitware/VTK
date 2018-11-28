@@ -30,7 +30,7 @@
  *
  * @sa
  * vtkGlyph3D vtkLabeledDataMapper
-*/
+ */
 
 #ifndef vtkCellCenters_h
 #define vtkCellCenters_h
@@ -41,32 +41,33 @@
 class VTKFILTERSGENERAL_EXPORT vtkCellCenters : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkCellCenters,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkCellCenters, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with vertex cell generation turned off.
    */
-  static vtkCellCenters *New();
+  static vtkCellCenters* New();
 
   //@{
   /**
    * Enable/disable the generation of vertex cells. The default
    * is Off.
    */
-  vtkSetMacro(VertexCells,vtkTypeBool);
-  vtkGetMacro(VertexCells,vtkTypeBool);
-  vtkBooleanMacro(VertexCells,vtkTypeBool);
+  vtkSetMacro(VertexCells, bool);
+  vtkGetMacro(VertexCells, bool);
+  vtkBooleanMacro(VertexCells, bool);
   //@}
 
 protected:
-  vtkCellCenters();
-  ~vtkCellCenters() override {}
+  vtkCellCenters() = default;
+  ~vtkCellCenters() override = default;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  vtkTypeBool VertexCells;
+  bool VertexCells = false;
+
 private:
   vtkCellCenters(const vtkCellCenters&) = delete;
   void operator=(const vtkCellCenters&) = delete;
