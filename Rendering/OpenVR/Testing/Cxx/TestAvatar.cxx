@@ -13,6 +13,7 @@
 =========================================================================*/
 
 #include "vtkActor.h"
+#include "vtkAvatar.h"
 #include "vtkCamera.h"
 #include "vtkImageGridSource.h"
 #include "vtkInteractorStyleTrackballCamera.h"
@@ -28,7 +29,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkShaderProgram.h"
-#include "vtkOpenGLAvatar.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
@@ -75,7 +75,7 @@ int TestAvatar(int argc, char *argv[])
   renderer->AddActor(actor);
   actor->SetMapper(mapper);
 
-  vtkNew<vtkOpenGLAvatar> avatar;
+  vtkNew<vtkAvatar> avatar;
   avatar->SetHeadPosition(-1.4, 0.2, 0);
   avatar->SetHeadOrientation(0, 0, 0);
   avatar->SetLeftHandPosition(-0.6, -0.3, -0.5);

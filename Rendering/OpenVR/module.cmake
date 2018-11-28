@@ -1,5 +1,6 @@
+set(_impl)
 if (VTK_OPENVR_OBJECT_FACTORY)
-  set (_impl IMPLEMENTS vtkRenderingOpenGL2)
+  set (_impl vtkRenderingOpenGL2)
 endif()
 
 vtk_module(vtkRenderingOpenVR
@@ -15,7 +16,9 @@ vtk_module(vtkRenderingOpenVR
     vtkInteractionWidgets
     vtkIOImage
     vtkIOXMLParser
-  ${_impl}
+  IMPLEMENTS
+    vtkRenderingCore
+    ${_impl}
   PRIVATE_DEPENDS
     vtkglew
     vtkImagingSources
