@@ -25,7 +25,7 @@
 // GLUT includes
 #if defined(__APPLE__)
 # include <AvailabilityMacros.h>
-#if MAC_OS_X_VERSION_MIN_REQUIRED > 1009
+#if MAC_OS_X_VERSION_MIN_REQUIRED > 1090
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 # include <GLUT/glut.h> // Include GLUT API.
