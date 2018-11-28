@@ -75,6 +75,47 @@
 (((type) == VTK_OBJECT) ? "object" : \
 "Undefined"))))))))))))))))))))))
 
+
+/* Various compiler-specific performance hints. */
+#if defined(VTK_COMPILER_GCC) //------------------------------------------------
+
+#define VTK_ALWAYS_INLINE __attribute__((always_inline)) inline
+#define VTK_ALWAYS_OPTIMIZE_START \
+  _Pragma("GCC push_options") \
+  _Pragma("GCC optimize (\"O3\")")
+#define VTK_ALWAYS_OPTIMIZE_END _Pragma("GCC pop_options")
+
+#elif defined(VTK_COMPILER_CLANG) //--------------------------------------------
+
+#define VTK_ALWAYS_INLINE __attribute__((always_inline)) inline
+// Clang doesn't seem to support temporarily increasing optimization level,
+// only decreasing it.
+#define VTK_ALWAYS_OPTIMIZE_START
+#define VTK_ALWAYS_OPTIMIZE_END
+
+#elif defined(VTK_COMPILER_ICC) //----------------------------------------------
+
+#define VTK_ALWAYS_INLINE __attribute((always_inline)) inline
+// ICC doesn't seem to support temporarily increasing optimization level,
+// only decreasing it.
+#define VTK_ALWAYS_OPTIMIZE_START
+#define VTK_ALWAYS_OPTIMIZE_END
+
+#elif defined(VTK_COMPILER_MSVC) //---------------------------------------------
+
+#define VTK_ALWAYS_INLINE __forceinline
+#define VTK_ALWAYS_OPTIMIZE_START _Pragma("optimize(\"tgs\", on)")
+// optimize("", on) resets to command line settings
+#define VTK_ALWAYS_OPTIMIZE_END _Pragma("optimize(\"\", on)")
+
+#else //------------------------------------------------------------------------
+
+#define VTK_ALWAYS_INLINE inline
+#define VTK_ALWAYS_OPTIMIZE_START
+#define VTK_ALWAYS_OPTIMIZE_END
+
+#endif
+
 //
 // Set built-in type.  Creates member Set"name"() (e.g., SetVisibility());
 //

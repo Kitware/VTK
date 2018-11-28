@@ -31,6 +31,8 @@
 
 #ifndef __VTK_WRAP__
 
+VTK_ITER_OPTIMIZE_START
+
 namespace vtk
 {
 
@@ -62,6 +64,7 @@ private:
 
 public:
 
+  VTK_ITER_INLINE
   ComponentReference(ArrayType* array,
                      NumCompsType numComps,
                      TupleIdType tuple,
@@ -77,18 +80,21 @@ public:
                     "Invalid component accessed by iterator.");
   }
 
+  VTK_ITER_INLINE
   ComponentReference(const ComponentReference &o) noexcept
     : Data{static_cast<APIType>(o)}
     , IsValue(true)
   {
   }
 
+  VTK_ITER_INLINE
   ComponentReference& operator=(const ComponentReference& o) noexcept
   {
     return *this = static_cast<APIType>(o);
   }
 
   template <typename OArray, ComponentIdType OSize>
+  VTK_ITER_INLINE
   ComponentReference&
   operator=(const ComponentReference<OArray, OSize>& o) noexcept
   {
@@ -96,6 +102,7 @@ public:
     return *this = std::move(tmp);
   }
 
+  VTK_ITER_INLINE
   operator APIType() const noexcept
   {
     if (this->IsValue)
@@ -104,14 +111,15 @@ public:
     }
     else
     {
-      VTK_ASSUME(this->Data.Lookup.NumComps.value > 0);
-      VTK_ASSUME(this->Data.Lookup.Array->GetNumberOfComponents() ==
-                 this->Data.Lookup.NumComps.value);
+      VTK_ITER_ASSUME(this->Data.Lookup.NumComps.value > 0);
+      VTK_ITER_ASSUME(this->Data.Lookup.Array->GetNumberOfComponents() ==
+                      this->Data.Lookup.NumComps.value);
       vtkDataArrayAccessor<ArrayType> acc{this->Data.Lookup.Array};
       return acc.Get(this->Data.Lookup.TupleId, this->Data.Lookup.ComponentId);
     }
   }
 
+  VTK_ITER_INLINE
   ComponentReference& operator= (APIType val) noexcept
   {
     if (this->IsValue)
@@ -120,16 +128,17 @@ public:
     }
     else
     {
-      VTK_ASSUME(this->Data.Lookup.NumComps.value > 0);
-      VTK_ASSUME(this->Data.Lookup.Array->GetNumberOfComponents() ==
-                 this->Data.Lookup.NumComps.value);
+      VTK_ITER_ASSUME(this->Data.Lookup.NumComps.value > 0);
+      VTK_ITER_ASSUME(this->Data.Lookup.Array->GetNumberOfComponents() ==
+                      this->Data.Lookup.NumComps.value);
       vtkDataArrayAccessor<ArrayType> acc{this->Data.Lookup.Array};
       acc.Set(this->Data.Lookup.TupleId, this->Data.Lookup.ComponentId, val);
     }
     return *this;
   }
 
-  friend void swap(ComponentReference &lhs,
+  friend VTK_ITER_INLINE
+  void swap(ComponentReference &lhs,
                    ComponentReference &rhs) noexcept
   {
     APIType tmp = std::move(static_cast<APIType>(lhs));
@@ -138,7 +147,8 @@ public:
   }
 
   template <typename OArray, ComponentIdType OSize>
-  friend void swap(ComponentReference &lhs,
+  friend VTK_ITER_INLINE
+  void swap(ComponentReference &lhs,
                    ComponentReference<OArray, OSize> &rhs) noexcept
   {
     using OAPIType = GetAPIType<OArray>;
@@ -150,14 +160,16 @@ public:
     rhs = std::move(tmp);
   }
 
-  friend void swap(ComponentReference &lhs, APIType &rhs) noexcept
+  friend VTK_ITER_INLINE
+  void swap(ComponentReference &lhs, APIType &rhs) noexcept
   {
     APIType tmp = std::move(static_cast<APIType>(lhs));
     lhs = std::move(rhs);
     rhs = std::move(tmp);
   }
 
-  friend void swap(APIType &lhs, ComponentReference &rhs) noexcept
+  friend VTK_ITER_INLINE
+  void swap(APIType &lhs, ComponentReference &rhs) noexcept
   {
     APIType tmp = std::move(lhs);
     lhs = std::move(static_cast<APIType>(rhs));
@@ -169,6 +181,7 @@ public:
 protected:
   struct CopyStateTag {};
 
+  VTK_ITER_INLINE
   ComponentReference(const ComponentReference &o, CopyStateTag) noexcept
     : Data{o.Data.Lookup.Array,
            o.Data.Lookup.NumComps,
@@ -180,6 +193,7 @@ protected:
                     "Cannot copy reference state from value reference.");
   }
 
+  VTK_ITER_INLINE
   void CopyReference(const ComponentReference& o) noexcept
   {
     VTK_ITER_ASSERT(!this->IsValue && !o.IsValue,
@@ -194,13 +208,17 @@ protected:
   // semantics when appropriate.
   union Storage
   {
+    VTK_ITER_INLINE
     Storage() noexcept {}
+    VTK_ITER_INLINE
     Storage(ArrayType* array,
             NumCompsType numComps,
             TupleIdType tupleId,
             ComponentIdType comp) noexcept
       : Lookup{array, numComps, tupleId, comp} {}
+    VTK_ITER_INLINE
     Storage(const APIType& val) noexcept : Value(val) {}
+    VTK_ITER_INLINE
     ~Storage() noexcept {}
     APIType Value;
     struct
@@ -245,6 +263,7 @@ public:
   using pointer = typename Superclass::pointer;
   using reference = typename Superclass::reference;
 
+  VTK_ITER_INLINE
   ConstComponentIterator(ArrayType* array,
                          NumCompsType numComps,
                          TupleIdType tupleId,
@@ -262,10 +281,13 @@ public:
                     "Const component iterator at invalid component id.");
   }
 
+  VTK_ITER_INLINE
   ConstComponentIterator(const ConstComponentIterator& o) noexcept = default;
+  VTK_ITER_INLINE
   ConstComponentIterator&
   operator=(const ConstComponentIterator& o) noexcept = default;
 
+  VTK_ITER_INLINE
   ConstComponentIterator& operator++() noexcept // prefix
   {
     ++this->ComponentId;
@@ -275,6 +297,7 @@ public:
     return *this;
   }
 
+  VTK_ITER_INLINE
   ConstComponentIterator operator++(int) noexcept // postfix
   {
     return ConstComponentIterator{this->Array,
@@ -283,6 +306,7 @@ public:
                                   this->ComponentId++};
   }
 
+  VTK_ITER_INLINE
   ConstComponentIterator& operator--() noexcept // prefix
   {
     --this->ComponentId;
@@ -292,6 +316,7 @@ public:
     return *this;
   }
 
+  VTK_ITER_INLINE
   ConstComponentIterator operator--(int) noexcept // postfix
   {
     return ConstComponentIterator{this->Array,
@@ -303,33 +328,37 @@ public:
   // operator[] is disabled. See vtk::DataArrayTupleRange documentation.
 #if 0
   // Note that this is just a value_type, not an actual reference.
+  VTK_ITER_INLINE
   value_type operator[](difference_type i) const noexcept
   {
-    VTK_ASSUME(this->Array->GetNumberOfComponents() == this->NumComps.value);
+    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() ==
+                    this->NumComps.value);
     vtkDataArrayAccessor<ArrayType> acc{this->Array};
     return acc.Get(this->TupleId, this->ComponentId + i);
   }
 #endif
 
   // Note that this is just a value_type, not an actual reference.
+  VTK_ITER_INLINE
   value_type operator*() const noexcept
   {
-    VTK_ASSUME(this->NumComps.value > 0);
-    VTK_ASSUME(this->Array->GetNumberOfComponents() == this->NumComps.value);
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
+    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->NumComps.value);
     vtkDataArrayAccessor<ArrayType> acc{this->Array};
     return acc.Get(this->TupleId, this->ComponentId);
   }
 
 #define VTK_TMP_MAKE_OPERATOR(OP) \
-  friend bool operator OP (const ConstComponentIterator& lhs, \
+  friend VTK_ITER_INLINE \
+  bool operator OP (const ConstComponentIterator& lhs, \
                            const ConstComponentIterator& rhs) noexcept \
   { \
     VTK_ITER_ASSERT(lhs.Array == rhs.Array, \
                     "Mismatched arrays in iterator comparison."); \
     VTK_ITER_ASSERT(lhs.TupleId == rhs.TupleId, \
                     "Mismatched tuple ids in iterator comparison."); \
-    VTK_ASSUME(lhs.NumComps.value > 0); \
-    VTK_ASSUME(lhs.NumComps.value == rhs.NumComps.value); \
+    VTK_ITER_ASSUME(lhs.NumComps.value > 0); \
+    VTK_ITER_ASSUME(lhs.NumComps.value == rhs.NumComps.value); \
     return lhs.ComponentId OP rhs.ComponentId; \
   }
 
@@ -342,6 +371,7 @@ public:
 
 #undef VTK_TMP_MAKE_OPERATOR
 
+  VTK_ITER_INLINE
   ConstComponentIterator& operator+=(difference_type offset) noexcept
   {
     this->ComponentId += offset;
@@ -351,8 +381,9 @@ public:
     return *this;
   }
 
-  friend ConstComponentIterator operator+(const ConstComponentIterator& it,
-                                          difference_type offset) noexcept
+  friend VTK_ITER_INLINE
+  ConstComponentIterator operator+(const ConstComponentIterator& it,
+                                   difference_type offset) noexcept
   {
     return ConstComponentIterator{it.Array,
                                   it.NumComps,
@@ -360,9 +391,9 @@ public:
                                   it.ComponentId + offset};
   }
 
-  friend ConstComponentIterator
-      operator+(difference_type offset,
-                const ConstComponentIterator& it) noexcept
+  friend VTK_ITER_INLINE
+  ConstComponentIterator operator+(difference_type offset,
+                                   const ConstComponentIterator& it) noexcept
   {
     return ConstComponentIterator{it.Array,
                                   it.NumComps,
@@ -370,6 +401,7 @@ public:
                                   it.ComponentId + offset};
   }
 
+  VTK_ITER_INLINE
   ConstComponentIterator& operator-=(difference_type offset) noexcept
   {
     this->ComponentId -= offset;
@@ -379,8 +411,9 @@ public:
     return *this;
   }
 
-  friend ConstComponentIterator operator-(const ConstComponentIterator& it,
-                                          difference_type offset) noexcept
+  friend VTK_ITER_INLINE
+  ConstComponentIterator operator-(const ConstComponentIterator& it,
+                                   difference_type offset) noexcept
   {
     return ConstComponentIterator{it.Array,
                                   it.NumComps,
@@ -388,8 +421,9 @@ public:
                                   it.ComponentId - offset};
   }
 
-  friend difference_type operator-(const ConstComponentIterator& it1,
-                                   const ConstComponentIterator& it2) noexcept
+  friend VTK_ITER_INLINE
+  difference_type operator-(const ConstComponentIterator& it1,
+                            const ConstComponentIterator& it2) noexcept
   {
     VTK_ITER_ASSERT(it1.Array == it2.Array,
                     "Cannot do math with iterators from different arrays.");
@@ -399,8 +433,8 @@ public:
     return it1.ComponentId - it2.ComponentId;
   }
 
-  friend void swap(ConstComponentIterator& lhs,
-                   ConstComponentIterator &rhs) noexcept
+  friend VTK_ITER_INLINE
+  void swap(ConstComponentIterator& lhs, ConstComponentIterator &rhs) noexcept
   {
     // Different arrays may use different iterator implementations.
     VTK_ITER_ASSERT(lhs.Array == rhs.Array,
@@ -448,6 +482,7 @@ public:
   using pointer = typename Superclass::pointer;
   using reference = typename Superclass::reference;
 
+  VTK_ITER_INLINE
   ComponentIterator(ArrayType* array,
                     NumCompsType numComps,
                     TupleIdType tupleId,
@@ -464,6 +499,7 @@ public:
                     "Iterator's internal ref cannot be in value state.");
   }
 
+  VTK_ITER_INLINE
   ComponentIterator(const ComponentIterator& o) noexcept
     : Ref(o.Ref, typename reference::CopyStateTag{})
   {
@@ -471,6 +507,7 @@ public:
                     "Iterator's internal ref cannot be in value state.");
   }
 
+  VTK_ITER_INLINE
   ComponentIterator& operator=(const ComponentIterator& o) noexcept
   {
     VTK_ITER_ASSERT(this->Ref.IsValue == false,
@@ -479,6 +516,7 @@ public:
     return *this;
   }
 
+  VTK_ITER_INLINE
   ComponentIterator& operator++() noexcept // prefix
   {
     VTK_ITER_ASSERT(this->Ref.IsValue == false,
@@ -491,6 +529,7 @@ public:
     return *this;
   }
 
+  VTK_ITER_INLINE
   ComponentIterator operator++(int) noexcept // postfix
   {
     VTK_ITER_ASSERT(this->Ref.IsValue == false,
@@ -501,6 +540,7 @@ public:
                              this->Ref.Data.Lookup.ComponentId++};
   }
 
+  VTK_ITER_INLINE
   ComponentIterator& operator--() noexcept // prefix
   {
     VTK_ITER_ASSERT(this->Ref.IsValue == false,
@@ -513,6 +553,7 @@ public:
     return *this;
   }
 
+  VTK_ITER_INLINE
   ComponentIterator operator--(int) noexcept // postfix
   {
     VTK_ITER_ASSERT(this->Ref.IsValue == false,
@@ -525,37 +566,43 @@ public:
 
   // Intentionally disabled. See vtk::DataArrayTupleRange documentation.
 #if 0
-   reference operator[](difference_type i) const noexcept
-   {
-     return reference{this->Ref.Array,
-                      this->Ref.NumComps,
-                      this->Ref.TupleId,
-                      this->Ref.ComponentId + i};
-   }
+  VTK_ITER_INLINE
+  reference operator[](difference_type i) const noexcept
+  {
+    return reference{this->Ref.Array,
+                     this->Ref.NumComps,
+                     this->Ref.TupleId,
+                     this->Ref.ComponentId + i};
+  }
 #endif
 
+  VTK_ITER_INLINE
   const reference& operator*() const noexcept
   {
     return this->Ref;
   }
 
+  VTK_ITER_INLINE
   reference& operator*() noexcept
   {
     return this->Ref;
   }
 
+  VTK_ITER_INLINE
   const pointer& operator->() const noexcept
   {
     return this->Ref;
   }
 
+  VTK_ITER_INLINE
   pointer& operator->() noexcept
   {
     return this->Ref;
   }
 
 #define VTK_TMP_MAKE_OPERATOR(OP) \
-  friend bool operator OP (const ComponentIterator& lhs, \
+  friend VTK_ITER_INLINE \
+  bool operator OP (const ComponentIterator& lhs, \
                            const ComponentIterator& rhs) noexcept \
   { \
     VTK_ITER_ASSERT(!lhs.RefIsValue() && !rhs.RefIsValue(), \
@@ -564,8 +611,8 @@ public:
                     "Mismatched arrays in iterator comparison."); \
     VTK_ITER_ASSERT(lhs.GetTupleId() == rhs.GetTupleId(), \
                     "Mismatched tuple ids in iterator comparison."); \
-    VTK_ASSUME(lhs.GetNumComps().value > 0); \
-    VTK_ASSUME(lhs.GetNumComps().value == rhs.GetNumComps().value); \
+    VTK_ITER_ASSUME(lhs.GetNumComps().value > 0); \
+    VTK_ITER_ASSUME(lhs.GetNumComps().value == rhs.GetNumComps().value); \
     return lhs.GetComponentId() OP rhs.GetComponentId(); \
   }
 
@@ -578,6 +625,7 @@ public:
 
 #undef VTK_TMP_MAKE_OPERATOR
 
+  VTK_ITER_INLINE
   ComponentIterator& operator+=(difference_type offset) noexcept
   {
     VTK_ITER_ASSERT(this->Ref.IsValue == false,
@@ -590,7 +638,8 @@ public:
     return *this;
   }
 
-  friend ComponentIterator operator+(const ComponentIterator& it,
+  friend VTK_ITER_INLINE
+  ComponentIterator operator+(const ComponentIterator& it,
                                      difference_type offset) noexcept
   {
     VTK_ITER_ASSERT(!it.RefIsValue(),
@@ -601,7 +650,8 @@ public:
                              it.GetComponentId() + offset};
   }
 
-  friend ComponentIterator operator+(difference_type offset,
+  friend VTK_ITER_INLINE
+  ComponentIterator operator+(difference_type offset,
                                      const ComponentIterator& it) noexcept
   {
     VTK_ITER_ASSERT(!it.RefIsValue(),
@@ -612,6 +662,7 @@ public:
                              it.GetComponentId() + offset};
   }
 
+  VTK_ITER_INLINE
   ComponentIterator& operator-=(difference_type offset) noexcept
   {
     VTK_ITER_ASSERT(this->Ref.IsValue == false,
@@ -624,7 +675,8 @@ public:
     return *this;
   }
 
-  friend ComponentIterator operator-(const ComponentIterator& it,
+  friend VTK_ITER_INLINE
+  ComponentIterator operator-(const ComponentIterator& it,
                                      difference_type offset) noexcept
   {
     VTK_ITER_ASSERT(!it.RefIsValue(),
@@ -635,8 +687,9 @@ public:
                              it.GetComponentId() - offset};
   }
 
-  friend difference_type operator-(const ComponentIterator& it1,
-                                   const ComponentIterator& it2) noexcept
+  friend VTK_ITER_INLINE
+  difference_type operator-(const ComponentIterator& it1,
+                            const ComponentIterator& it2) noexcept
   {
     VTK_ITER_ASSERT(!it1.RefIsValue() && !it2.RefIsValue(),
                     "Iterator's internal ref cannot be in value state.");
@@ -649,7 +702,8 @@ public:
     return it1.GetComponentId() - it2.GetComponentId();
   }
 
-  friend void swap(ComponentIterator& lhs, ComponentIterator &rhs) noexcept
+  friend VTK_ITER_INLINE
+  void swap(ComponentIterator& lhs, ComponentIterator &rhs) noexcept
   {
     VTK_ITER_ASSERT(!lhs.RefIsValue() && !rhs.RefIsValue(),
                     "Iterator's internal ref cannot be in value state.");
@@ -663,26 +717,35 @@ public:
   }
 
 protected:
+  VTK_ITER_INLINE
   bool RefIsValue() const noexcept { return this->Ref.IsValue; }
+  VTK_ITER_INLINE
   ArrayType* GetArray() const noexcept { return this->Ref.Data.Lookup.Array; }
+  VTK_ITER_INLINE
   ArrayType*& GetArray() noexcept { return this->Ref.Data.Lookup.Array; }
+  VTK_ITER_INLINE
   const NumCompsType& GetNumComps() const noexcept
   {
     return this->Ref.Data.Lookup.NumComps;
   }
+  VTK_ITER_INLINE
   NumCompsType& GetNumComps() noexcept
   {
     return this->Ref.Data.Lookup.NumComps;
   }
+  VTK_ITER_INLINE
   const TupleIdType& GetTupleId() const noexcept
   {
     return this->Ref.Data.Lookup.TupleId;
   }
+  VTK_ITER_INLINE
   TupleIdType& GetTupleId() noexcept { return this->Ref.Data.Lookup.TupleId; }
+  VTK_ITER_INLINE
   const ComponentIdType& GetComponentId() const noexcept
   {
     return this->Ref.Data.Lookup.ComponentId;
   }
+  VTK_ITER_INLINE
   ComponentIdType& GetComponentId() noexcept
   {
     return this->Ref.Data.Lookup.ComponentId;
@@ -710,6 +773,7 @@ public:
   using iterator = ConstComponentIterator<ArrayType, TupleSize>;
   using const_iterator = ConstComponentIterator<ArrayType, TupleSize>;
 
+  VTK_ITER_INLINE
   ConstTupleReference(ArrayType* array,
                       NumCompsType numComps,
                       TupleIdType tupleId) noexcept
@@ -724,10 +788,13 @@ public:
   }
 
   // Allow this type to masquerade as a pointer, so that tupleIiter->foo works.
+  VTK_ITER_INLINE
   ConstTupleReference* operator->() noexcept { return this; }
+  VTK_ITER_INLINE
   const ConstTupleReference* operator->() const noexcept { return this; }
 
   // Caller must ensure that there are size() elements in array.
+  VTK_ITER_INLINE
   void GetTuple(APIType *tuple) const noexcept
   {
     vtkDataArrayAccessor<ArrayType> acc{this->Array};
@@ -737,6 +804,7 @@ public:
   // skips some runtime checks when both sizes are fixed:
   template <typename OArrayType,
             ComponentIdType OSize>
+  VTK_ITER_INLINE
   EnableIfStaticTupleSizes<TupleSize, OSize, bool>
   operator==(const TupleReference<OArrayType, OSize> &other) const noexcept
   {
@@ -755,6 +823,7 @@ public:
   // Needs a runtime check:
   template <typename OArrayType,
             ComponentIdType OSize>
+  VTK_ITER_INLINE
   EnableIfEitherTupleSizeIsDynamic<TupleSize, OSize, bool>
   operator==(const TupleReference<OArrayType, OSize> &other) const noexcept
   {
@@ -772,6 +841,7 @@ public:
   // skips some runtime checks when both sizes are fixed:
   template <typename OArrayType,
             ComponentIdType OSize>
+  VTK_ITER_INLINE
   EnableIfStaticTupleSizes<TupleSize, OSize, bool>
   operator==(const ConstTupleReference<OArrayType, OSize> &other) const noexcept
   {
@@ -790,6 +860,7 @@ public:
   // Needs a runtime check:
   template <typename OArrayType,
             ComponentIdType OSize>
+  VTK_ITER_INLINE
   EnableIfEitherTupleSizeIsDynamic<TupleSize, OSize, bool>
   operator==(const ConstTupleReference<OArrayType, OSize> &other) const noexcept
   {
@@ -806,6 +877,7 @@ public:
 
   template <typename OArrayType,
             ComponentIdType OSize>
+  VTK_ITER_INLINE
   bool operator!=(const TupleReference<OArrayType, OSize>& o) const noexcept
   {
     return !(*this == o);
@@ -813,6 +885,7 @@ public:
 
   template <typename OArrayT,
             ComponentIdType OSize>
+  VTK_ITER_INLINE
   bool operator!=(const ConstTupleReference<OArrayT, OSize>& o) const noexcept
   {
     return !(*this == o);
@@ -822,21 +895,27 @@ public:
 #if 0
   const_reference operator[](size_type i) const noexcept
   {
-    VTK_ASSUME(this->Array->GetNumberOfComponents() == this->NumComps.value);
+    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() ==
+                    this->NumComps.value);
     vtkDataArrayAccessor<ArrayType> acc{this->Array};
     return acc.Get(this->TupleId, i);
   }
 #endif
 
+  VTK_ITER_INLINE
   size_type size() const noexcept { return this->NumComps.value; }
 
+  VTK_ITER_INLINE
   const_iterator begin() const noexcept { return this->NewConstIterator(0); }
+  VTK_ITER_INLINE
   const_iterator end() const noexcept
   {
     return this->NewConstIterator(this->NumComps.value);
   }
 
+  VTK_ITER_INLINE
   const_iterator cbegin() const noexcept { return this->NewConstIterator(0); }
+  VTK_ITER_INLINE
   const_iterator cend() const noexcept
   {
     return this->NewConstIterator(this->NumComps.value);
@@ -846,9 +925,10 @@ public:
 
 protected:
 
+  VTK_ITER_INLINE
   const_iterator NewConstIterator(ComponentIdType comp) const noexcept
   {
-    VTK_ASSUME(this->NumComps.value > 0);
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
     return const_iterator{this->Array,
                           this->NumComps,
                           this->TupleId,
@@ -856,9 +936,12 @@ protected:
   }
 
   // Intentionally hidden. See vtk::DataArrayTupleRange documentation.
+  VTK_ITER_INLINE
   ConstTupleReference(const ConstTupleReference&) noexcept = default;
+  VTK_ITER_INLINE
   ConstTupleReference& operator=(const ConstTupleReference&) noexcept = default;
 
+  VTK_ITER_INLINE
   void CopyReference(const ConstTupleReference& o) noexcept
   {
     // Must use same array, other array types may use different implementations.
@@ -892,6 +975,7 @@ public:
   using iterator = ComponentIterator<ArrayType, TupleSize>;
   using const_iterator = ConstComponentIterator<ArrayType, TupleSize>;
 
+  VTK_ITER_INLINE
   TupleReference(ArrayType* array,
                  NumCompsType numComps,
                  TupleIdType tupleId) noexcept
@@ -906,10 +990,13 @@ public:
   }
 
   // Allow this type to masquerade as a pointer, so that tupleIiter->foo works.
+  VTK_ITER_INLINE
   TupleReference* operator->() noexcept { return this; }
+  VTK_ITER_INLINE
   const TupleReference* operator->() const noexcept { return this; }
 
   // Caller must ensure that there are size() elements in array.
+  VTK_ITER_INLINE
   void GetTuple(APIType *tuple) const noexcept
   {
     vtkDataArrayAccessor<ArrayType> acc{this->Array};
@@ -917,12 +1004,14 @@ public:
   }
 
   // Caller must ensure that there are size() elements in array.
+  VTK_ITER_INLINE
   void SetTuple(const APIType *tuple) noexcept
   {
     vtkDataArrayAccessor<ArrayType> acc{this->Array};
     acc.Set(this->TupleId, tuple);
   }
 
+  VTK_ITER_INLINE
   TupleReference& operator=(const TupleReference& other) noexcept
   {
     std::copy_n(other.cbegin(), this->NumComps.value, this->begin());
@@ -932,6 +1021,7 @@ public:
   // skips some runtime checks when both sizes are fixed:
   template <typename OArrayType,
             ComponentIdType OSize>
+  VTK_ITER_INLINE
   EnableIfStaticTupleSizes<TupleSize, OSize, TupleReference&>
   operator=(const TupleReference<OArrayType, OSize> &other) noexcept
   {
@@ -951,6 +1041,7 @@ public:
   // Needs a runtime check:
   template <typename OArrayType,
             ComponentIdType OSize>
+  VTK_ITER_INLINE
   EnableIfEitherTupleSizeIsDynamic<TupleSize, OSize, TupleReference&>
   operator=(const TupleReference<OArrayType, OSize> &other) noexcept
   {
@@ -969,6 +1060,7 @@ public:
   // skips some runtime checks when both sizes are fixed:
   template <typename OArrayType,
             ComponentIdType OSize>
+  VTK_ITER_INLINE
   EnableIfStaticTupleSizes<TupleSize, OSize, TupleReference&>
   operator=(const ConstTupleReference<OArrayType, OSize> &other) noexcept
   {
@@ -988,6 +1080,7 @@ public:
   // Needs a runtime check:
   template <typename OArrayType,
             ComponentIdType OSize>
+  VTK_ITER_INLINE
   EnableIfEitherTupleSizeIsDynamic<TupleSize, OSize, TupleReference&>
   operator=(const ConstTupleReference<OArrayType, OSize> &other) noexcept
   {
@@ -1006,6 +1099,7 @@ public:
   // skips some runtime checks when both sizes are fixed:
   template <typename OArrayType,
             ComponentIdType OSize>
+  VTK_ITER_INLINE
   EnableIfStaticTupleSizes<TupleSize, OSize, bool>
   operator==(const TupleReference<OArrayType, OSize> &other) const noexcept
   {
@@ -1024,6 +1118,7 @@ public:
   // Needs a runtime check:
   template <typename OArrayType,
             ComponentIdType OSize>
+  VTK_ITER_INLINE
   EnableIfEitherTupleSizeIsDynamic<TupleSize, OSize, bool>
   operator==(const TupleReference<OArrayType, OSize> &other) const noexcept
   {
@@ -1041,6 +1136,7 @@ public:
   // skips some runtime checks when both sizes are fixed:
   template <typename OArrayType,
             ComponentIdType OSize>
+  VTK_ITER_INLINE
   EnableIfStaticTupleSizes<TupleSize, OSize, bool>
   operator==(const ConstTupleReference<OArrayType, OSize> &other) const noexcept
   {
@@ -1059,6 +1155,7 @@ public:
   // Needs a runtime check:
   template <typename OArrayType,
             ComponentIdType OSize>
+  VTK_ITER_INLINE
   EnableIfEitherTupleSizeIsDynamic<TupleSize, OSize, bool>
   operator==(const ConstTupleReference<OArrayType, OSize> &other) const noexcept
   {
@@ -1075,6 +1172,7 @@ public:
 
   template <typename OArrayType,
             ComponentIdType OSize>
+  VTK_ITER_INLINE
   bool operator!=(const TupleReference<OArrayType, OSize>& o) const noexcept
   {
     return !(*this == o);
@@ -1082,6 +1180,7 @@ public:
 
   template <typename OArray,
             ComponentIdType OSize>
+  VTK_ITER_INLINE
   bool operator!=(const ConstTupleReference<OArray, OSize>& o) const noexcept
   {
     return !(*this == o);
@@ -1090,6 +1189,7 @@ public:
   // skips some runtime checks:
   template <typename OArrayType,
             ComponentIdType OSize>
+  VTK_ITER_INLINE
   EnableIfStaticTupleSizes<TupleSize, OSize, void>
   swap(TupleReference<OArrayType, OSize> &other) noexcept
   {
@@ -1108,6 +1208,7 @@ public:
   // Needs a runtime check:
   template <typename OArrayType,
             ComponentIdType OSize>
+  VTK_ITER_INLINE
   EnableIfEitherTupleSizeIsDynamic<TupleSize, OSize, void>
   swap(TupleReference<OArrayType, OSize> &other) noexcept
   {
@@ -1122,14 +1223,16 @@ public:
     std::swap_ranges(this->begin(), this->end(), other.begin());
   }
 
-  friend void swap(TupleReference &a,
+  friend VTK_ITER_INLINE
+  void swap(TupleReference &a,
                    TupleReference &b) noexcept
   {
     a.swap(b);
   }
 
   template <typename OArray, ComponentIdType OSize>
-  friend void swap(TupleReference &a,
+  friend VTK_ITER_INLINE
+  void swap(TupleReference &a,
                    TupleReference<OArray, OSize> &b) noexcept
   {
     a.swap(b);
@@ -1137,29 +1240,38 @@ public:
 
   // Intentionally disabled. See vtk::DataArrayTupleRange documentation.
 #if 0
+  VTK_ITER_INLINE
   reference operator[](size_type i) const
   {
     return reference{this->Array, this->NumComps, this->TupleId, i};
   }
 #endif
 
+  VTK_ITER_INLINE
   void fill(const value_type &v) noexcept
   {
     std::fill(this->begin(), this->end(), v);
   }
 
+  VTK_ITER_INLINE
   size_type size() const noexcept { return this->NumComps.value; }
 
+  VTK_ITER_INLINE
   iterator begin() noexcept { return this->NewIterator(0); }
+  VTK_ITER_INLINE
   iterator end() noexcept { return this->NewIterator(this->NumComps.value); }
 
+  VTK_ITER_INLINE
   const_iterator begin() const noexcept { return this->NewConstIterator(0); }
+  VTK_ITER_INLINE
   const_iterator end() const noexcept
   {
     return this->NewConstIterator(this->NumComps.value);
   }
 
+  VTK_ITER_INLINE
   const_iterator cbegin() const noexcept { return this->NewConstIterator(0); }
+  VTK_ITER_INLINE
   const_iterator cend() const noexcept
   {
     return this->NewConstIterator(this->NumComps.value);
@@ -1169,15 +1281,17 @@ public:
 
 protected:
 
+  VTK_ITER_INLINE
   iterator NewIterator(ComponentIdType comp) const noexcept
   {
-    VTK_ASSUME(this->NumComps.value > 0);
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
     return iterator{this->Array, this->NumComps, this->TupleId, comp};
   }
 
+  VTK_ITER_INLINE
   const_iterator NewConstIterator(ComponentIdType comp) const noexcept
   {
-    VTK_ASSUME(this->NumComps.value > 0);
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
     return const_iterator{this->Array,
                                this->NumComps,
                                this->TupleId,
@@ -1185,8 +1299,10 @@ protected:
   }
 
   // Intentionally hidden. See vtk::DataArrayTupleRange documentation.
+  VTK_ITER_INLINE
   TupleReference(const TupleReference&) = default;
 
+  VTK_ITER_INLINE
   void CopyReference(const TupleReference& o) noexcept
   {
     // Must use same array, other array types may use different implementations.
@@ -1230,6 +1346,7 @@ public:
   using pointer = typename Superclass::pointer;
   using reference = typename Superclass::reference;
 
+  VTK_ITER_INLINE
   ConstTupleIterator(ArrayType* array,
                      NumCompsType numComps,
                      TupleIdType tupleId) noexcept
@@ -1241,13 +1358,16 @@ public:
                     "Const tuple iterator at invalid tuple id.");
   }
 
+  VTK_ITER_INLINE
   ConstTupleIterator(const ConstTupleIterator& o) noexcept = default;
+  VTK_ITER_INLINE
   ConstTupleIterator& operator=(const ConstTupleIterator& o) noexcept
   {
     this->Ref.CopyReference(o.Ref);
     return *this;
   }
 
+  VTK_ITER_INLINE
   ConstTupleIterator& operator++() noexcept // prefix
   {
     ++this->Ref.TupleId;
@@ -1257,6 +1377,7 @@ public:
     return *this;
   }
 
+  VTK_ITER_INLINE
   ConstTupleIterator operator++(int) noexcept // postfix
   {
     return ConstTupleIterator{this->Ref.Array,
@@ -1264,6 +1385,7 @@ public:
                               this->Ref.TupleId++};
   }
 
+  VTK_ITER_INLINE
   ConstTupleIterator& operator--() noexcept // prefix
   {
     --this->Ref.TupleId;
@@ -1273,6 +1395,7 @@ public:
     return *this;
   }
 
+  VTK_ITER_INLINE
   ConstTupleIterator operator--(int) noexcept // postfix
   {
     return ConstTupleIterator{this->Ref.Array,
@@ -1282,30 +1405,34 @@ public:
 
   // Intentionally disabled. See vtk::DataArrayRange documentation.
 #if 0
+  VTK_ITER_INLINE
   reference operator[](difference_type i) const noexcept
   {
     return reference{this->Array, this->NumComps, TupleId + i};
   }
 #endif
 
+  VTK_ITER_INLINE
   reference& operator*() noexcept
   {
     return this->Ref;
   }
 
+  VTK_ITER_INLINE
   pointer& operator->() noexcept
   {
     return this->Ref;
   }
 
 #define VTK_TMP_MAKE_OPERATOR(OP) \
-  friend bool operator OP (const ConstTupleIterator& lhs, \
+  friend VTK_ITER_INLINE \
+  bool operator OP (const ConstTupleIterator& lhs, \
                            const ConstTupleIterator& rhs) noexcept \
   { \
     VTK_ITER_ASSERT(lhs.GetArray() == rhs.GetArray(), \
                     "Cannot compare iterators from different arrays."); \
-    VTK_ASSUME(lhs.GetNumComps().value > 0); \
-    VTK_ASSUME(lhs.GetNumComps().value == rhs.GetNumComps().value); \
+    VTK_ITER_ASSUME(lhs.GetNumComps().value > 0); \
+    VTK_ITER_ASSUME(lhs.GetNumComps().value == rhs.GetNumComps().value); \
     return lhs.GetTupleId() OP rhs.GetTupleId(); \
   }
 
@@ -1318,6 +1445,7 @@ public:
 
 #undef VTK_TMP_MAKE_OPERATOR
 
+  VTK_ITER_INLINE
   ConstTupleIterator& operator+=(difference_type offset) noexcept
   {
     this->Ref.TupleId += offset;
@@ -1327,22 +1455,25 @@ public:
     return *this;
   }
 
-  friend ConstTupleIterator operator+(const ConstTupleIterator& it,
-                                      difference_type offset) noexcept
+  friend VTK_ITER_INLINE
+  ConstTupleIterator operator+(const ConstTupleIterator& it,
+                               difference_type offset) noexcept
   {
     return ConstTupleIterator{it.GetArray(),
                               it.GetNumComps(),
                               it.GetTupleId() + offset};
   }
 
-  friend ConstTupleIterator operator+(difference_type offset,
-                                      const ConstTupleIterator& it) noexcept
+  friend VTK_ITER_INLINE
+  ConstTupleIterator operator+(difference_type offset,
+                               const ConstTupleIterator& it) noexcept
   {
     return ConstTupleIterator{it.GetArray(),
                               it.GetNumComps(),
                               it.GetTupleId() + offset};
   }
 
+  VTK_ITER_INLINE
   ConstTupleIterator& operator-=(difference_type offset) noexcept
   {
     this->Ref.TupleId -= offset;
@@ -1352,16 +1483,18 @@ public:
     return *this;
   }
 
-  friend ConstTupleIterator operator-(const ConstTupleIterator& it,
-                                      difference_type offset) noexcept
+  friend VTK_ITER_INLINE
+  ConstTupleIterator operator-(const ConstTupleIterator& it,
+                               difference_type offset) noexcept
   {
     return ConstTupleIterator{it.GetArray(),
                               it.GetNumComps(),
                               it.GetTupleId() - offset};
   }
 
-  friend difference_type operator-(const ConstTupleIterator& it1,
-                                   const ConstTupleIterator& it2) noexcept
+  friend VTK_ITER_INLINE
+  difference_type operator-(const ConstTupleIterator& it1,
+                            const ConstTupleIterator& it2) noexcept
   {
     VTK_ITER_ASSERT(it1.GetArray() == it2.GetArray(),
                     "Cannot do math with tuple iterators from different "
@@ -1369,7 +1502,8 @@ public:
     return it1.GetTupleId() - it2.GetTupleId();
   }
 
-  friend void swap(ConstTupleIterator& lhs, ConstTupleIterator &rhs) noexcept
+  friend VTK_ITER_INLINE
+  void swap(ConstTupleIterator& lhs, ConstTupleIterator &rhs) noexcept
   {
     // Different arrays may use different iterator implementations.
     VTK_ITER_ASSERT(lhs.GetArray() == rhs.GetArray(),
@@ -1380,11 +1514,17 @@ public:
   }
 
 private:
+  VTK_ITER_INLINE
   ArrayType* GetArray() const noexcept { return this->Ref.Array; }
+  VTK_ITER_INLINE
   ArrayType*& GetArray() noexcept { return this->Ref.Array; }
+  VTK_ITER_INLINE
   NumCompsType GetNumComps() const noexcept { return this->Ref.NumComps; }
+  VTK_ITER_INLINE
   NumCompsType& GetNumComps() noexcept { return this->Ref.NumComps; }
+  VTK_ITER_INLINE
   TupleIdType GetTupleId() const noexcept { return this->Ref.TupleId; }
+  VTK_ITER_INLINE
   TupleIdType& GetTupleId() noexcept { return this->Ref.TupleId; }
 
   ConstTupleReference<ArrayType, TupleSize> Ref;
@@ -1418,6 +1558,7 @@ public:
   using pointer = typename Superclass::pointer;
   using reference = typename Superclass::reference;
 
+  VTK_ITER_INLINE
   TupleIterator(ArrayType* array,
                 NumCompsType numComps,
                 TupleIdType tupleId) noexcept
@@ -1429,14 +1570,17 @@ public:
                     "Tuple iterator at invalid tuple id.");
   }
 
+  VTK_ITER_INLINE
   TupleIterator(const TupleIterator& o) noexcept = default;
 
+  VTK_ITER_INLINE
   TupleIterator& operator=(const TupleIterator& o) noexcept
   {
     this->Ref.CopyReference(o.Ref);
     return *this;
   }
 
+  VTK_ITER_INLINE
   TupleIterator& operator++() noexcept // prefix
   {
     ++this->Ref.TupleId;
@@ -1446,6 +1590,7 @@ public:
     return *this;
   }
 
+  VTK_ITER_INLINE
   TupleIterator operator++(int) noexcept // postfix
   {
     return TupleIterator{this->Ref.Array,
@@ -1453,6 +1598,7 @@ public:
                          this->Ref.TupleId++};
   }
 
+  VTK_ITER_INLINE
   TupleIterator& operator--() noexcept // prefix
   {
     --this->Ref.TupleId;
@@ -1462,6 +1608,7 @@ public:
     return *this;
   }
 
+  VTK_ITER_INLINE
   TupleIterator operator--(int) noexcept // postfix
   {
     return TupleIterator{this->Ref.Array,
@@ -1471,6 +1618,7 @@ public:
 
   // Intentionally disabled. See vtk::DataArrayTupleRange documentation.
 #if 0
+  VTK_ITER_INLINE
   reference operator[](difference_type i) const
   {
     return reference{this->Ref.Array,
@@ -1479,24 +1627,27 @@ public:
   }
 #endif
 
+  VTK_ITER_INLINE
   reference& operator*() noexcept
   {
     return this->Ref;
   }
 
+  VTK_ITER_INLINE
   pointer& operator->() noexcept
   {
     return this->Ref;
   }
 
 #define VTK_TMP_MAKE_OPERATOR(OP) \
-  friend bool operator OP (const TupleIterator& lhs, \
+  friend VTK_ITER_INLINE \
+  bool operator OP (const TupleIterator& lhs, \
                            const TupleIterator& rhs) noexcept \
   { \
     VTK_ITER_ASSERT(lhs.GetArray() == rhs.GetArray(), \
                     "Cannot compare iterators from different arrays."); \
-    VTK_ASSUME(lhs.GetNumComps().value > 0); \
-    VTK_ASSUME(lhs.GetNumComps().value == rhs.GetNumComps().value); \
+    VTK_ITER_ASSUME(lhs.GetNumComps().value > 0); \
+    VTK_ITER_ASSUME(lhs.GetNumComps().value == rhs.GetNumComps().value); \
     return lhs.GetTupleId() OP rhs.GetTupleId(); \
   }
 
@@ -1509,6 +1660,7 @@ public:
 
 #undef VTK_TMP_MAKE_OPERATOR
 
+  VTK_ITER_INLINE
   TupleIterator& operator+=(difference_type offset) noexcept
   {
     this->Ref.TupleId += offset;
@@ -1518,22 +1670,25 @@ public:
     return *this;
   }
 
-  friend TupleIterator operator+(const TupleIterator& it,
-                                 difference_type offset) noexcept
+  friend VTK_ITER_INLINE
+  TupleIterator operator+(const TupleIterator& it,
+                          difference_type offset) noexcept
   {
     return TupleIterator{it.GetArray(),
                          it.GetNumComps(),
                          it.GetTupleId() + offset};
   }
 
-  friend TupleIterator operator+(difference_type offset,
-                                 const TupleIterator& it) noexcept
+  friend VTK_ITER_INLINE
+  TupleIterator operator+(difference_type offset,
+                          const TupleIterator& it) noexcept
   {
     return TupleIterator{it.GetArray(),
                          it.GetNumComps(),
                          it.GetTupleId() + offset};
   }
 
+  VTK_ITER_INLINE
   TupleIterator& operator-=(difference_type offset) noexcept
   {
     this->Ref.TupleId -= offset;
@@ -1543,16 +1698,18 @@ public:
     return *this;
   }
 
-  friend TupleIterator operator-(const TupleIterator& it,
-                                 difference_type offset) noexcept
+  friend VTK_ITER_INLINE
+  TupleIterator operator-(const TupleIterator& it,
+                          difference_type offset) noexcept
   {
     return TupleIterator{it.GetArray(),
                          it.GetNumComps(),
                          it.GetTupleId() - offset};
   }
 
-  friend difference_type operator-(const TupleIterator& it1,
-                                   const TupleIterator& it2) noexcept
+  friend VTK_ITER_INLINE
+  difference_type operator-(const TupleIterator& it1,
+                            const TupleIterator& it2) noexcept
   {
     VTK_ITER_ASSERT(it1.GetArray() == it2.GetArray(),
                     "Cannot do math with tuple iterators from different "
@@ -1560,7 +1717,8 @@ public:
     return it1.GetTupleId() - it2.GetTupleId();
   }
 
-  friend void swap(TupleIterator& lhs, TupleIterator &rhs) noexcept
+  friend VTK_ITER_INLINE
+  void swap(TupleIterator& lhs, TupleIterator &rhs) noexcept
   {
     // Different arrays may use different iterator implementations.
     VTK_ITER_ASSERT(lhs.GetArray() == rhs.GetArray(),
@@ -1571,11 +1729,17 @@ public:
   }
 
 private:
+  VTK_ITER_INLINE
   ArrayType* GetArray() const noexcept { return this->Ref.Array; }
+  VTK_ITER_INLINE
   ArrayType*& GetArray() noexcept { return this->Ref.Array; }
+  VTK_ITER_INLINE
   NumCompsType GetNumComps() const noexcept { return this->Ref.NumComps; }
+  VTK_ITER_INLINE
   NumCompsType& GetNumComps() noexcept { return this->Ref.NumComps; }
+  VTK_ITER_INLINE
   TupleIdType GetTupleId() const noexcept { return this->Ref.TupleId; }
+  VTK_ITER_INLINE
   TupleIdType& GetTupleId() noexcept { return this->Ref.TupleId; }
 
   TupleReference<ArrayType, TupleSize> Ref;
@@ -1606,6 +1770,7 @@ public:
   using reference = TupleReference<ArrayType, TupleSize>;
   using const_reference = ConstTupleReference<ArrayType, TupleSize>;
 
+  VTK_ITER_INLINE
   TupleRange(ArrayType *arr,
              TupleIdType beginTuple,
              TupleIdType endTuple) noexcept
@@ -1619,29 +1784,40 @@ public:
     assert(endTuple >= 0 && endTuple <= this->Array->GetNumberOfTuples());
   }
 
+  VTK_ITER_INLINE
   ArrayType* GetArray() const noexcept { return this->Array; }
+  VTK_ITER_INLINE
   ComponentIdType GetTupleSize() const noexcept { return this->NumComps.value; }
+  VTK_ITER_INLINE
   TupleIdType GetBeginTupleId() const noexcept { return this->BeginTuple; }
+  VTK_ITER_INLINE
   TupleIdType GetEndTupleId() const noexcept { return this->EndTuple; }
 
+  VTK_ITER_INLINE
   size_type size() const noexcept { return this->EndTuple - this->BeginTuple; }
 
+  VTK_ITER_INLINE
   iterator begin() noexcept { return this->NewIter(this->BeginTuple); }
+  VTK_ITER_INLINE
   iterator end() noexcept { return this->NewIter(this->EndTuple); }
 
+  VTK_ITER_INLINE
   const_iterator begin() const noexcept
   {
     return this->NewCIter(this->BeginTuple);
   }
+  VTK_ITER_INLINE
   const_iterator end() const noexcept
   {
     return this->NewCIter(this->EndTuple);
   }
 
+  VTK_ITER_INLINE
   const_iterator cbegin() const noexcept
   {
     return this->NewCIter(this->BeginTuple);
   }
+  VTK_ITER_INLINE
   const_iterator cend() const noexcept
   {
     return this->NewCIter(this->EndTuple);
@@ -1649,11 +1825,13 @@ public:
 
 private:
 
+  VTK_ITER_INLINE
   iterator NewIter(TupleIdType t) const
   {
     return iterator{this->Array, this->NumComps, t};
   }
 
+  VTK_ITER_INLINE
   const_iterator NewCIter(TupleIdType t) const
   {
     return const_iterator{this->Array, this->NumComps, t};
@@ -1667,6 +1845,8 @@ private:
 
 } // end namespace detail
 } // end namespace vtk
+
+VTK_ITER_OPTIMIZE_END
 
 #endif // __VTK_WRAP__
 #endif // vtkDataArrayTupleRange_Generic_h

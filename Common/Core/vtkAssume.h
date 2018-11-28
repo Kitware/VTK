@@ -47,6 +47,13 @@
   (void)c; /* Prevents unused var warnings */ \
   } while (false) /* do-while prevents extra semicolon warnings */
 
+#define VTK_ASSUME_NO_ASSERT(cond) \
+  do { \
+  const bool c = cond; \
+  VTK_ASSUME_IMPL(c); \
+  (void)c; /* Prevents unused var warnings */ \
+  } while (false) /* do-while prevents extra semicolon warnings */
+
 // VTK_ASSUME_IMPL is compiler-specific:
 #if defined(VTK_COMPILER_MSVC) || defined(VTK_COMPILER_ICC)
 # define VTK_ASSUME_IMPL(cond) __assume(cond)
