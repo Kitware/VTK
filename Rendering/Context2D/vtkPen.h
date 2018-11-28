@@ -50,7 +50,8 @@ public:
     DASH_LINE,
     DOT_LINE,
     DASH_DOT_LINE,
-    DASH_DOT_DOT_LINE};
+    DASH_DOT_DOT_LINE,
+    DENSE_DOT_LINE};
 
   /**
    * Set the type of line that the pen should draw. The default is solid (1).

@@ -2034,6 +2034,9 @@ void vtkOpenGLContextDevice2D::SetLineType(int type)
     case vtkPen::DASH_DOT_DOT_LINE:
       this->LinePattern = 0x1C47;
       break;
+    case vtkPen::DENSE_DOT_LINE:
+      this->LinePattern = 0x1111;
+      break;
     default:
       this->LinePattern = 0xFFFF;
   }

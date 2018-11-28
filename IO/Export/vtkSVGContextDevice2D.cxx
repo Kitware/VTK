@@ -1829,6 +1829,10 @@ void vtkSVGContextDevice2D::ApplyPenStippleToNode(vtkXMLDataElement *node)
       // This is dash-dot-dash, but eh. It matches the OpenGL2 0x1C47 pattern.
       node->SetAttribute("stroke-dasharray", "3,3,1,3,3,3");
       break;
+
+    case vtkPen::DENSE_DOT_LINE:
+      node->SetAttribute("stroke-dasharray", "1,3");
+      break;
   }
 }
 
