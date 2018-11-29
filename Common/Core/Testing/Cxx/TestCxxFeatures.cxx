@@ -297,8 +297,6 @@ int TestNonTypeTemplate()
 
 /* Test mixed type and non-type template arguments in a non-trivial way.  */
 
-#if !(defined(__BORLANDC__) && (__BORLANDC__ < 0x660))
-// Borland does not support this fancy array template.
 template <class T, int N>
 int TestMixedTypeTemplateFunction(T (*)[N])
 {
@@ -321,7 +319,6 @@ int TestMixedTypeTemplate()
   }
   return result;
 }
-#endif
 
 //----------------------------------------------------------------------------
 
@@ -481,9 +478,7 @@ int main()
   DO_TEST(TestFullySpecializedClass);
   DO_TEST(TestIfScope);
   DO_TEST(TestNonTypeTemplate);
-#if !(defined(__BORLANDC__) && (__BORLANDC__ < 0x660))
   DO_TEST(TestMixedTypeTemplate);
-#endif
   DO_TEST(TestSafeBoolIdiom);
   DO_TEST(TestException);
   DO_TEST(TestSetLocale);

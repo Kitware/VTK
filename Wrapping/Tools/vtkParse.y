@@ -113,9 +113,9 @@ to the more usual form y x; without parentheses.
 #endif
 #define YYINCLUDED_STDLIB_H
 
-/* Borland and MSVC do not define __STDC__ properly. */
+/* MSVC does not define __STDC__ properly. */
 #if !defined(__STDC__)
-# if defined(_MSC_VER) || (defined(__BORLANDC__) && (__BORLANDC__ < 0x660))
+# if defined(_MSC_VER)
 #  define __STDC__ 1
 # endif
 #endif
@@ -124,11 +124,6 @@ to the more usual form y x; without parentheses.
 #if defined(_MSC_VER)
 # pragma warning (disable: 4127) /* conditional expression is constant */
 # pragma warning (disable: 4244) /* conversion to smaller integer type */
-#endif
-#if defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
-# pragma warn -8004 /* assigned a value that is never used */
-# pragma warn -8008 /* conditional is always true */
-# pragma warn -8066 /* unreachable code */
 #endif
 
 /* Map from the type anonymous_enumeration in vtkType.h to the

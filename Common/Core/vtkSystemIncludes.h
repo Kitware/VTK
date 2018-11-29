@@ -58,20 +58,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Borland C++ defines several of the stdlib.h and string.h symbols in
-// sub-headers search.h and mem.h.  These sub-headers have using
-// declarations to pull functions from the std namespace to the global
-// namespace, but they are defined only if the header was not included
-// through the C++-style cstdlib or cstring header.  These outer
-// headers are included by the streams library in C++-style and
-// include blockers are put in place that prevent including the
-// C-style versions from ever including the sub-headers.  Therefore we
-// have to include the sub-headers here to get the using declarations.
-#if defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
-# include <mem.h>    /* mem... functions from string.h */
-# include <search.h> /* search functions from stdlib.h */
-#endif
-
 // These types define error codes for vtk functions
 #define VTK_OK                 1
 #define VTK_ERROR              2
