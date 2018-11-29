@@ -24,11 +24,12 @@ vtkStandardNewMacro(vtkSEPReader);
 
 namespace
 {
+//----------------------------------------------------------------------------
 void TrimString(std::string &s)
 {
   // trim trailing spaces
   std::size_t pos = s.find_last_not_of(" \t");
-  if(pos != std::string::npos)
+  if (pos != std::string::npos)
   {
     s = s.substr(0, pos + 1);
   }
@@ -40,29 +41,8 @@ void TrimString(std::string &s)
   }
 }
 }
-//----------------------------------------------------------------------------
-// Description: Replace FileName without calling Modified()
-void vtkSEPReader::ReplaceFileName(const char *name)
-{
-  if (this->FileName && name && (!strcmp(this->FileName, name)))
-  {
-    return;
-  }
-  if (!name && !this->FileName)
-  {
-    return;
-  }
-  delete[] this->FileName;
-  this->FileName = nullptr;
-  if (name)
-  {
-    this->FileName = new char[strlen(name) + 1];
-    strcpy(this->FileName, name);
-  }
-}
 
 //----------------------------------------------------------------------------
-// Description:
 vtkSEPReader::vtkSEPReader()
 {
   this->SetNumberOfInputPorts(0);
@@ -72,7 +52,7 @@ vtkSEPReader::vtkSEPReader()
 int vtkSEPReader::CanReadFile(const char *filename)
 {
   std::string extension =
-      vtksys::SystemTools::GetFilenameLastExtension(filename);
+    vtksys::SystemTools::GetFilenameLastExtension(filename);
   return (extension == ".H") ? 1 : 0;
 }
 
@@ -102,46 +82,51 @@ int vtkSEPReader::RequestData(vtkInformation *request,
                               vtkInformationVector **inputVector,
                               vtkInformationVector *outputVector)
 {
+  // Replace the filename with the data file and delegate the reading of this
+  // raw data to the underlying vtkImageReader
   const char *fileName = this->FileName;
   this->ReplaceFileName(this->DataFile.c_str());
+
   int res = this->Superclass::RequestData(request, inputVector, outputVector);
+
+  // Restore the user providen filename (the header file)
   this->ReplaceFileName(fileName);
   return res;
 }
 
+//-----------------------------------------------------------------------------
 int vtkSEPReader::ReadHeader()
 {
   if (!this->FileName)
   {
-    vtkErrorMacro(<<"A FileName must be specified.");
+    vtkErrorMacro(<< "A FileName must be specified.");
     return 0;
   }
 
   // Open the new file
-  vtkDebugMacro(<< "Initialize: opening file " << this->FileName);
-  if ( !vtksys::SystemTools::FileExists(this->FileName) )
+  if (!vtksys::SystemTools::FileExists(this->FileName))
   {
-    vtkErrorMacro(<< "Initialize: Could not open file "
-                  << this->FileName);
+    vtkErrorMacro(<< "Could not find file " << this->FileName);
     return 0;
   }
+
   ifstream file(this->FileName, ios::in | ios::binary);
   if (file.fail())
   {
-      file.close();
-      return 0;
+    vtkErrorMacro(<< "Could not open file " << this->FileName);
+    return 0;
   }
 
   std::string line;
   while (vtksys::SystemTools::GetLineFromStream(file, line))
   {
-    std::vector<vtksys::String> splittedLine = vtksys::SystemTools::SplitString(line.c_str(), '=');
+    auto splittedLine = vtksys::SystemTools::SplitString(line.c_str(), '=');
     if (splittedLine.size() == 2)
     {
       std::string key = splittedLine[0];
       std::string value = splittedLine[1];
-      TrimString(key);
-      TrimString(value);
+      ::TrimString(key);
+      ::TrimString(value);
       if (key.length() == 2 && key[0] == 'n')
       {
         this->DataExtent[2 * (key[1] - '0' - 1)] = 0;
@@ -165,8 +150,7 @@ int vtkSEPReader::ReadHeader()
         }
         else
         {
-          vtkErrorMacro("ERROR: Only float is supported!");
-          file.close();
+          vtkErrorMacro("Only xdr_float data format is currently supported!");
           return 0;
         }
         if (value.substr(0, 3) != "xdr")
@@ -196,25 +180,26 @@ int vtkSEPReader::ReadHeader()
         else
         {
           vtksys::SystemTools::LocateFileInDir(
-                value.c_str(),
-                vtksys::SystemTools::GetParentDirectory(this->FileName).c_str(),
-                this->DataFile);
+            value.c_str(),
+            vtksys::SystemTools::GetParentDirectory(this->FileName).c_str(),
+            this->DataFile);
         }
       }
     }
   }
-  if(!vtksys::SystemTools::PathExists(this->DataFile))
+
+  if (!vtksys::SystemTools::PathExists(this->DataFile))
   {
-    vtkErrorMacro("ERROR: Path to binary file is wrong.");
-    file.close();
+    vtkErrorMacro("Unable to find the raw data file " << this->DataFile);
     return 0;
   }
+
   int dim = 0;
-  for(int i = 0; i < 3; ++i)
+  for (int i = 0; i < 3; ++i)
   {
-    if(this->DataExtent[2*i + 1] == 0)
+    if (this->DataExtent[2 * i + 1] == 0)
     {
-      this->DataExtent[2*i + 1] = 1;
+      this->DataExtent[2 * i + 1] = 1;
     }
     else
     {
@@ -222,7 +207,27 @@ int vtkSEPReader::ReadHeader()
     }
   }
   this->FileDimensionality = dim;
-  file.close();
 
   return 1;
+}
+
+//----------------------------------------------------------------------------
+// Replace FileName without calling Modified()
+void vtkSEPReader::ReplaceFileName(const char *name)
+{
+  if (this->FileName && name && (!strcmp(this->FileName, name)))
+  {
+    return;
+  }
+  if (!name && !this->FileName)
+  {
+    return;
+  }
+  delete[] this->FileName;
+  this->FileName = nullptr;
+  if (name)
+  {
+    this->FileName = new char[strlen(name) + 1];
+    strcpy(this->FileName, name);
+  }
 }
