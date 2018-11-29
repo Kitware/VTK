@@ -15,6 +15,7 @@
 #include "vtkCellCenters.h"
 
 #include "vtkCell.h"
+#include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
@@ -23,128 +24,112 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkCellArray.h"
 
 vtkStandardNewMacro(vtkCellCenters);
 
 //----------------------------------------------------------------------------
-// Construct object with vertex cell generation turned off.
-vtkCellCenters::vtkCellCenters()
-{
-  this->VertexCells = 0;
-}
-
-//----------------------------------------------------------------------------
 // Generate points
-int vtkCellCenters::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkCellCenters::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
   // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::GetData(inputVector[0]);
+  vtkPolyData* output = vtkPolyData::GetData(outputVector);
 
-  vtkIdType cellId, numCells;
-  int subId;
-  vtkCellData *inCD;
-  vtkPointData *outPD;
-  vtkPoints *newPts;
-  vtkCell *cell;
-  double x[3], pcoords[3];
-  double *weights;
+  vtkCellData* inCD = input->GetCellData();
+  vtkPointData* outPD = output->GetPointData();
+  vtkCellData* outCD = output->GetCellData();
+  vtkIdType numCells = input->GetNumberOfCells();
 
-  inCD=input->GetCellData();
-  outPD=output->GetPointData();
-
-  if ( (numCells = input->GetNumberOfCells()) < 1 )
+  if (numCells == 0)
   {
-    vtkDebugMacro(<<"No cells to generate center points for");
+    vtkDebugMacro(<< "No cells to generate center points for");
     return 1;
   }
 
-  newPts = vtkPoints::New();
+  vtkNew<vtkPoints> newPts;
   newPts->SetNumberOfPoints(numCells);
-  weights = new double [input->GetMaxCellSize()];
 
-  int abort=0;
-  vtkIdType progressInterval = numCells/10 + 1;
-  int hasEmptyCells = 0;
-  for (cellId=0; cellId < numCells && !abort; cellId++)
+  vtkNew<vtkIdList> pointIdList;
+  pointIdList->SetNumberOfIds(numCells);
+
+  vtkNew<vtkIdList> cellIdList;
+  cellIdList->SetNumberOfIds(numCells);
+
+  vtkIdType pointId = 0;
+  vtkIdType numPoints = numCells;
+  std::vector<double> weights(input->GetMaxCellSize());
+  bool hasEmptyCells = false;
+  vtkTypeBool abort = 0;
+  vtkIdType progressInterval = numCells / 10 + 1;
+  for (vtkIdType cellId = 0; cellId < numCells && !abort; cellId++)
   {
-    if ( ! (cellId % progressInterval) )
+    if (!(cellId % progressInterval))
     {
-      vtkDebugMacro(<<"Processing #" << cellId);
-      this->UpdateProgress (0.5*cellId/numCells);
+      vtkDebugMacro(<< "Processing #" << cellId);
+      this->UpdateProgress(0.9 * cellId / numCells);
       abort = this->GetAbortExecute();
     }
 
-    cell = input->GetCell(cellId);
+    vtkCell* cell = input->GetCell(cellId);
     if (cell->GetCellType() != VTK_EMPTY_CELL)
     {
-      subId = cell->GetParametricCenter(pcoords);
-      cell->EvaluateLocation(subId, pcoords, x, weights);
-      newPts->SetPoint(cellId,x);
+      double x[3], pcoords[3];
+      int subId = cell->GetParametricCenter(pcoords);
+      cell->EvaluateLocation(subId, pcoords, x, weights.data());
+      newPts->SetPoint(pointId, x);
+      pointIdList->SetId(pointId, pointId);
+      cellIdList->SetId(pointId, cellId);
+      pointId++;
     }
     else
     {
-      hasEmptyCells = 1;
+      hasEmptyCells = true;
+      numPoints--;
     }
   }
-
-  if ( this->VertexCells )
+  if(abort)
   {
-    vtkIdType pts[1];
-    vtkCellData *outCD=output->GetCellData();
-    vtkCellArray *verts = vtkCellArray::New();
-    verts->Allocate(verts->EstimateSize(1,numCells),1);
-
-    for (cellId=0; cellId < numCells && !abort; cellId++)
-    {
-      if ( ! (cellId % progressInterval) )
-      {
-        vtkDebugMacro(<<"Processing #" << cellId);
-        this->UpdateProgress (0.5+0.5*cellId/numCells);
-        abort = this->GetAbortExecute();
-      }
-
-      cell = input->GetCell(cellId);
-      if (cell->GetCellType() != VTK_EMPTY_CELL)
-      {
-        pts[0] = cellId;
-        verts->InsertNextCell(1,pts);
-      }
-    }
-
-    output->SetVerts(verts);
-    verts->Delete();
-    if (!hasEmptyCells)
-    {
-      outCD->PassData(inCD); //only if verts are generated
-    }
+    return 0;
   }
 
-  // clean up and update output
+  newPts->Resize(numPoints);
+  pointIdList->Resize(numPoints);
+  cellIdList->Resize(numPoints);
   output->SetPoints(newPts);
-  newPts->Delete();
 
-  if (!hasEmptyCells)
+  if (hasEmptyCells)
   {
-    outPD->PassData(inCD); //because number of points = number of cells
+    outPD->CopyAllocate(inCD, numPoints);
+    outPD->CopyData(inCD, cellIdList, pointIdList);
   }
-  delete [] weights;
+  else
+  {
+    outPD->PassData(inCD); // because number of points == number of cells
+  }
 
+  if (this->VertexCells)
+  {
+    vtkNew<vtkIdTypeArray> iArray;
+    iArray->SetNumberOfComponents(1);
+    iArray->SetNumberOfTuples(numPoints * 2);
+    vtkIdType n = 0;
+    std::generate(iArray->GetPointer(0), iArray->GetPointer(numPoints * 2),
+      [&n]() { return n++ % 2 == 0 ? 1 : n / 2; });
+
+    vtkNew<vtkCellArray> verts;
+    verts->SetCells(numPoints, iArray);
+    output->SetVerts(verts);
+    outCD->ShallowCopy(outPD);
+  }
+
+  output->Squeeze();
+  this->UpdateProgress(1.0);
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkCellCenters::FillInputPortInformation(int, vtkInformation *info)
+int vtkCellCenters::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
@@ -153,8 +138,6 @@ int vtkCellCenters::FillInputPortInformation(int, vtkInformation *info)
 //----------------------------------------------------------------------------
 void vtkCellCenters::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Vertex Cells: " << (this->VertexCells ? "On\n" : "Off\n");
 }
-
