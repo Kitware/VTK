@@ -2,8 +2,10 @@
 # Los Alamos National Laboratory (2017).
 # Thanks to Lasse Collin for integration help
 
+if (FALSE) # XXX(kitware): hide subprojects.
 project(LZMA VERSION 5.2.3 LANGUAGES C)
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "LZMA compression library")
+endif ()
 
 # XXX(kitware): avoid quoted variable policy warning from CMake.
 IF(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR
@@ -283,27 +285,26 @@ set(headers
   src/liblzma/api/lzma/vli.h
   src/liblzma/api/vtk_lzma_mangle.h)
 
-vtk_add_library(vtklzma
-  ${sources}
-  ${headers}
-  ${private_headers})
-set_target_properties(vtklzma
+vtk_module_add_module(VTK::lzma
+  SOURCES ${sources}
+  HEADERS ${headers}
+  PRIVATE_HEADERS ${private_headers}
+  HEADERS_SUBDIR "vtklzma/src/liblzma/api")
+vtk_module_install_headers(
+  DIRECTORIES "src/liblzma/api/lzma"
+  SUBDIR      "vtklzma/src/liblzma/api")
+set_target_properties(lzma
   PROPERTIES
     C_STANDARD 99
     POSITION_INDEPENDENT_CODE 1)
 
 if (BUILD_SHARED_LIBS)
-  set_target_properties(vtklzma
+  set_target_properties(lzma
     PROPERTIES
       DEFINE_SYMBOL DLL_EXPORT)
-  if(CMAKE_USE_PTHREADS_INIT)
-    target_link_libraries(vtklzma ${CMAKE_THREAD_LIBS_INIT})
-  endif()
-endif ()
-
-if (NOT VTK_INSTALL_NO_DEVELOPMENT)
-  install(
-    DIRECTORY   "src/liblzma/api/"
-    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtklzma/src/liblzma/api/"
-    COMPONENT   Development)
+  if (CMAKE_USE_PTHREADS_INIT)
+    target_link_libraries(lzma
+      PRIVATE
+        ${CMAKE_THREAD_LIBS_INIT})
+  endif ()
 endif ()
