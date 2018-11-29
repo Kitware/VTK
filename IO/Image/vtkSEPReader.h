@@ -20,37 +20,42 @@
 
 #ifndef vtkSEPReader_h
 #define vtkSEPReader_h
-#include <string> //for string
-#include <vtkImageReader.h>
-class vtkCharArray;
 
-class VTKIOIMAGE_EXPORT vtkSEPReader
-    : public vtkImageReader
+#include <vtkImageReader.h>
+
+#include <string> //for string
+
+class VTKIOIMAGE_EXPORT vtkSEPReader : public vtkImageReader
 {
 public:
   static vtkSEPReader *New();
   vtkTypeMacro(vtkSEPReader, vtkImageReader);
+  void PrintSelf(ostream &os, vtkIndent indent) override;
+
   /**
-   * Is the given file a .H file?
+   * Check if the given file is a .H file
    */
   int CanReadFile(const char *fname) override;
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+
   const char *GetFileExtensions() override { return ".H"; }
 
 protected:
   vtkSEPReader();
   ~vtkSEPReader() override = default;
+
   int RequestInformation(vtkInformation *request,
                          vtkInformationVector **inputVector,
                          vtkInformationVector *outputVector) override;
+
   int RequestData(vtkInformation *request, vtkInformationVector **inputVector,
                   vtkInformationVector *outputVector) override;
 
   int ReadHeader();
-  void ReplaceFileName(const char *fileName);
+
+  void ReplaceFileName(const char* fname);
+  std::string DataFile;
 
 private:
-  std::string DataFile;
   vtkSEPReader(const vtkSEPReader &) = delete;
   void operator=(const vtkSEPReader &) = delete;
 };
