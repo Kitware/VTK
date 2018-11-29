@@ -86,12 +86,12 @@ public:
     , LastFrameBuffer(0)
     , LastColorBuffer(0)
   {
-    // If default frame-buffer id is provided (which happens when using external
-    // OpenGL context), we use that. Otherwise, we check if the render window
-    // was doing offscreen rendering, if so, we use the offscreen FBO.
-    const unsigned int fb = ren->GetDefaultFrameBufferId()
-      ? ren->GetDefaultFrameBufferId() :
-        (ren->GetUseOffScreenBuffers() && ren->GetOffScreenFramebuffer() ? ren->GetOffScreenFramebuffer()->GetFBOIndex() : 0);
+    // If offscreen buffers are in use, then use them, otherwise look at if the
+    // default frame-buffer id is provided (which happens when using external
+    // OpenGL context).
+    const unsigned int fb = (ren->GetUseOffScreenBuffers() && ren->GetOffScreenFramebuffer())
+      ? ren->GetOffScreenFramebuffer()->GetFBOIndex() : (ren->GetDefaultFrameBufferId()
+      ? ren->GetDefaultFrameBufferId() : 0);
     const GLint buf = front ?
       (right ? ren->GetFrontRightBuffer() : ren->GetFrontLeftBuffer()) :
       (right ? ren->GetBackRightBuffer() : ren->GetBackLeftBuffer());
@@ -909,6 +909,13 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
     {
       attachment = GL_BACK_LEFT;
     }
+
+    // make sure we clear any errors before we start
+    // otherwise we may get incorrect results
+    while (glGetError() != GL_NO_ERROR)
+    {
+    }
+
     glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
       attachment,
       GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, &size);
@@ -1244,9 +1251,12 @@ void vtkOpenGLRenderWindow::Start(void)
   }
 
   // assign the buffers correctly based on rendering destination
-  if (this->UseOffScreenBuffers && !this->OffScreenFramebufferBound)
+  if (this->UseOffScreenBuffers)
   {
-    this->OffScreenFramebuffer->SaveCurrentBindingsAndBuffers();
+    if (!this->OffScreenFramebufferBound)
+    {
+      this->OffScreenFramebuffer->SaveCurrentBindingsAndBuffers();
+    }
     this->OffScreenFramebuffer->Bind();
     this->OffScreenFramebufferBound = true;
     unsigned int buffer =

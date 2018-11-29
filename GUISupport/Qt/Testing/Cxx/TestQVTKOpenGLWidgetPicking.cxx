@@ -98,6 +98,9 @@ int TestQVTKOpenGLWidgetPicking(int argc, char* argv[])
     app.processEvents();
   }
 
+  // always process events before a resize to flush
+  // out any leftover old resize events.
+  app.processEvents();
   widget.resize(300, 300);
   app.processEvents();
 
