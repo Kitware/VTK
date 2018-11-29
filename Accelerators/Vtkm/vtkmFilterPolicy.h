@@ -235,8 +235,6 @@ public:
 
   typedef vtkm::TypeListTagFieldVec3 CoordinateTypeList;
   typedef tovtkm::PointListInVTK CoordinateStorageList;
-
-  typedef vtkm::filter::PolicyDefault::DeviceAdapterList DeviceAdapterList;
 };
 
 //------------------------------------------------------------------------------
@@ -253,8 +251,6 @@ public:
 
   typedef vtkm::TypeListTagFieldVec3 CoordinateTypeList;
   typedef tovtkm::PointListOutVTK CoordinateStorageList;
-
-  typedef vtkm::filter::PolicyDefault::DeviceAdapterList DeviceAdapterList;
 };
 
 #endif

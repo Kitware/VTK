@@ -39,6 +39,8 @@
 #include "vtkmCellSetSingleType.h"
 #include "vtkmFilterPolicy.h"
 
+#include <vtkm/cont/RuntimeDeviceTracker.h>
+
 #include <vtkm/filter/ClipWithField.h>
 #include <vtkm/filter/ClipWithImplicitFunction.h>
 
@@ -102,6 +104,11 @@ int vtkmClip::RequestData(vtkInformation *,
                           vtkInformationVector **inInfoVec,
                           vtkInformationVector *outInfoVec)
 {
+  vtkm::cont::ScopedGlobalRuntimeDeviceTracker tracker;
+  (void)tracker;
+  vtkm::cont::GetGlobalRuntimeDeviceTracker().DisableDevice(
+        vtkm::cont::DeviceAdapterTagCuda{});
+
   vtkInformation* inInfo = inInfoVec[0]->GetInformationObject(0);
   vtkInformation* outInfo = outInfoVec->GetInformationObject(0);
 
