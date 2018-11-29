@@ -4,10 +4,6 @@ include(vtkGhostscript)
 include(FindPythonModules)
 find_python_module(matplotlib MATPLOTLIB_FOUND)
 
-if(NOT MATPLOTLIB_FOUND)
-  message(STATUS "Matplotlib not found! MathText rendering will not be available until it is installed. Disabling tests.")
-endif()
-
 if(MATPLOTLIB_FOUND)
   # add tests that require data
   vtk_add_test_cxx(vtkRenderingMatplotlibCxxTests tests
