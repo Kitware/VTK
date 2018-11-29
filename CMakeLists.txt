@@ -108,10 +108,10 @@ set(TUKLIB_FAST_UNALIGNED_ACCESS 1)
 set(TUKLIB_SYMBOL_PREFIX vtklzma_)
 
 find_package(Threads REQUIRED)
-if (CMAKE_USE_PTHREADS_INIT)
-  set(MYTHREAD_POSIX 1)
-elseif (CMAKE_USE_WIN32_THREADS_INIT)
+if (CMAKE_USE_WIN32_THREADS_INIT)
   set(MYTHREAD_VISTA 1)
+elseif (CMAKE_USE_PTHREADS_INIT)
+  set(MYTHREAD_POSIX 1)
 else ()
   message(FATAL_ERROR
     "Unsupported threading backend for LZMA.")
