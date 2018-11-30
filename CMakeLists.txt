@@ -40,6 +40,12 @@ if (BUILD_SHARED_LIBS)
     target_compile_definitions(vtkglew
       PRIVATE
         GLEW_BUILD)
+    if(MINGW)
+      # https://github.com/nigels-com/glew/issues/157
+      target_link_libraries(vtkglew
+        PRIVATE
+          -nostdlib)
+    endif()
   endif ()
 else ()
   target_compile_definitions(vtkglew
