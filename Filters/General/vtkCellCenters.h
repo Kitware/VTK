@@ -28,6 +28,10 @@
  * Vertex cells are drawn during rendering; points are not. Use the ivar
  * VertexCells to generate cells.
  *
+ * @note
+ * Empty cells will be ignored but will require a one by one cell to
+ * point data copy that will make the processing slower.
+ *
  * @sa
  * vtkGlyph3D vtkLabeledDataMapper
  */
