@@ -1,141 +1,194 @@
-#
-# Find the native FFMPEG includes and library
-# This module defines
-# FFMPEG_INCLUDE_DIR, where to find avcodec.h, avformat.h ...
-# FFMPEG_LIBRARIES, the libraries to link against to use FFMPEG.
-# FFMPEG_FOUND, If false, do not try to use FFMPEG.
-# FFMPEG_ROOT, if this module use this path to find FFMPEG headers
-# and libraries.
+#[==[
+Provides the following variables:
 
-# Macro to find header and lib directories
-# example: FFMPEG_FIND(AVFORMAT avformat avformat.h)
-MACRO(FFMPEG_FIND varname shortname headername)
-    # old version of ffmpeg put header in $prefix/include/[ffmpeg]
-    # so try to find header in include directory
-    FIND_PATH(FFMPEG_${varname}_INCLUDE_DIRS lib${shortname}/${headername}
-        PATHS
-        ${FFMPEG_ROOT}/include/lib${shortname}
-        $ENV{FFMPEG_DIR}/include/lib${shortname}
-        ~/Library/Frameworks/lib${shortname}
-        /Library/Frameworks/lib${shortname}
-        /usr/local/include/lib${shortname}
-        /usr/include/lib${shortname}
-        /sw/include/lib${shortname} # Fink
-        /opt/local/include/lib${shortname} # DarwinPorts
-        /opt/csw/include/lib${shortname} # Blastwave
-        /opt/include/lib${shortname}
-        /usr/freeware/include/lib${shortname}
-        PATH_SUFFIXES ffmpeg
-        DOC "Location of FFMPEG Headers"
-    )
+  * `FFMPEG_INCLUDE_DIRS`: Include directories necessary to use FFMPEG.
+  * `FFMPEG_LIBRARIES`: Libraries necessary to use FFMPEG. Note that this only
+    includes libraries for the components requested.
+  * `FFMPEG_VERSION`: The version of FFMPEG found.
 
-    FIND_PATH(FFMPEG_${varname}_INCLUDE_DIRS lib${shortname}/${headername}
-        PATHS
-        ${FFMPEG_ROOT}/include
-        $ENV{FFMPEG_DIR}/include
-        ~/Library/Frameworks
-        /Library/Frameworks
-        /usr/local/include
-        /usr/include
-        /sw/include # Fink
-        /opt/local/include # DarwinPorts
-        /opt/csw/include # Blastwave
-        /opt/include
-        /usr/freeware/include
-        PATH_SUFFIXES ffmpeg
-        DOC "Location of FFMPEG Headers"
-    )
+The following components are supported:
 
-    # on windows static ffmpeg is put in lib/lib<name>.a
-    # and shared it is put in bin/<name>.lib
-    if (WIN32)
-        list(APPEND CMAKE_FIND_LIBRARY_SUFFIXES ".a" ".lib")
-        list(APPEND CMAKE_FIND_LIBRARY_PREFIXES "" "lib")
-    endif()
+  * `avcodec`
+  * `avdevice`
+  * `avfilter`
+  * `avformat`
+  * `avresample`
+  * `avutil`
+  * `swresample`
+  * `swscale`
 
-    FIND_LIBRARY(FFMPEG_${varname}_LIBRARIES
-        NAMES ${shortname}
-        PATHS
-        ${FFMPEG_ROOT}/lib
-        $ENV{FFMPEG_DIR}/lib
-        ~/Library/Frameworks
-        /Library/Frameworks
-        /usr/local/lib
-        /usr/local/lib64
-        /usr/lib
-        /usr/lib64
-        /sw/lib
-        /opt/local/lib
-        /opt/csw/lib
-        /opt/lib
-        /usr/freeware/lib64
-        ${FFMPEG_ROOT}/bin # on windows shared they install the .lib in bin
-        DOC "Location of FFMPEG Libraries"
-    )
+For each component, the following are provided:
 
-    IF (FFMPEG_${varname}_LIBRARIES AND FFMPEG_${varname}_INCLUDE_DIRS)
-        SET(FFMPEG_${varname}_FOUND 1)
-    ENDIF(FFMPEG_${varname}_LIBRARIES AND FFMPEG_${varname}_INCLUDE_DIRS)
+  * `FFMPEG_<component>_FOUND`: Libraries for the component.
+  * `FFMPEG_<component>_INCLUDE_DIRS`: Include directories for
+    the component.
+  * `FFMPEG_<component>_LIBRARIES`: Libraries for the component.
+  * `FFMPEG::<component>`: A target to use with `target_link_libraries`.
 
-ENDMACRO(FFMPEG_FIND)
+Note that only components requested with `COMPONENTS` or `OPTIONAL_COMPONENTS`
+are guaranteed to set these variables or provide targets.
+#]==]
 
-SET(FFMPEG_ROOT "$ENV{FFMPEG_DIR}" CACHE PATH "Location of FFMPEG")
+function (_ffmpeg_find component headername)
+  find_path("FFMPEG_${component}_INCLUDE_DIR"
+    NAMES
+      "lib${component}/${headername}"
+    PATHS
+      "${FFMPEG_ROOT}/include/lib${component}"
+      "~/Library/Frameworks/lib${component}"
+      "/Library/Frameworks/lib${component}"
+      "/usr/local/include/lib${component}"
+      "/usr/include/lib${component}"
+      "/sw/include/lib${component}" # Fink
+      "/opt/local/include/lib${component}" # DarwinPorts
+      "/opt/csw/include/lib${component}" # Blastwave
+      "/opt/include/lib${component}"
+      "/usr/freeware/include/lib${component}"
+    PATH_SUFFIXES
+      ffmpeg
+    DOC "FFMPEG's ${component} include directory")
+  mark_as_advanced("FFMPEG_${component}_INCLUDE_DIR")
 
-# find stdint.h
-IF(WIN32)
+  # On Windows, static FFMPEG is sometimes built as `lib<name>.a`.
+  if (WIN32)
+    list(APPEND CMAKE_FIND_LIBRARY_SUFFIXES ".a" ".lib")
+    list(APPEND CMAKE_FIND_LIBRARY_PREFIXES "" "lib")
+  endif ()
 
-    FIND_PATH(FFMPEG_STDINT_INCLUDE_DIR stdint.h
-        PATHS
-        ${FFMPEG_ROOT}/include
-        $ENV{FFMPEG_DIR}/include
-        ~/Library/Frameworks
-        /Library/Frameworks
-        /usr/local/include
-        /usr/include
-        /sw/include # Fink
-        /opt/local/include # DarwinPorts
-        /opt/csw/include # Blastwave
-        /opt/include
-        /usr/freeware/include
-        PATH_SUFFIXES ffmpeg
-        DOC "Location of FFMPEG stdint.h Header"
-    )
+  find_library("FFMPEG_${component}_LIBRARY"
+    NAMES
+      "${component}"
+    PATHS
+      "${FFMPEG_ROOT}/lib"
+      ~/Library/Frameworks
+      /Library/Frameworks
+      /usr/local/lib
+      /usr/local/lib64
+      /usr/lib
+      /usr/lib64
+      /sw/lib
+      /opt/local/lib
+      /opt/csw/lib
+      /opt/lib
+      /usr/freeware/lib64
+      "${FFMPEG_ROOT}/bin"
+    DOC "FFMPEG's ${component} library")
+  mark_as_advanced("FFMPEG_${component}_LIBRARY")
 
-    IF (FFMPEG_STDINT_INCLUDE_DIR)
-        SET(STDINT_OK TRUE)
-    ENDIF()
+  if (FFMPEG_${component}_LIBRARY AND FFMPEG_${component}_INCLUDE_DIR)
+    set(_deps_found TRUE)
+    set(_deps_link)
+    foreach (_ffmpeg_dep IN LISTS ARGN)
+      if (TARGET "FFMPEG::${_ffmpeg_dep}")
+        list(APPEND _deps_link "FFMPEG::${_ffmpeg_dep}")
+      else ()
+        set(_deps_found FALSE)
+      endif ()
+    endforeach ()
+    if (_deps_found)
+      add_library("FFMPEG::${component}" UNKNOWN IMPORTED)
+      set_target_properties("FFMPEG::${component}" PROPERTIES
+        IMPORTED_LOCATION "${FFMPEG_${component}_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${FFMPEG_${component}_INCLUDE_DIR}")
+      target_link_libraries("FFMPEG::${component}"
+        INTERFACE ${deps_link})
+      set("FFMPEG_${component}_FOUND" 1
+        PARENT_SCOPE)
 
-ELSE()
+      set(version_header_path "${FFMPEG_${component}_INCLUDE_DIR}/lib${component}/version.h")
+      if (EXISTS "${version_header_path}")
+        string(TOUPPER "${component}" component_upper)
+        file(STRINGS "${version_header_path}" version
+          REGEX "#define  *LIB${component_upper}_VERSION_(MAJOR|MINOR|MICRO) ")
+        string(REGEX REPLACE ".*_MAJOR *\([0-9]*\).*" "\\1" major "${version}")
+        string(REGEX REPLACE ".*_MINOR *\([0-9]*\).*" "\\1" minor "${version}")
+        string(REGEX REPLACE ".*_MICRO *\([0-9]*\).*" "\\1" micro "${version}")
+        if (NOT major STREQUAL "" AND
+            NOT minor STREQUAL "" AND
+            NOT micro STREQUAL "")
+          set("FFMPEG_${component}_VERSION" "${major}.${minor}.${micro}"
+            PARENT_SCOPE)
+        endif ()
+      endif ()
+    else ()
+      set("FFMPEG_${component}_FOUND" 0
+        PARENT_SCOPE)
+      set(what)
+      if (NOT FFMPEG_${component}_LIBRARY)
+        set(what "library")
+      endif ()
+      if (NOT FFMPEG_${component}_INCLUDE_DIR)
+        if (what)
+          string(APPEND what " or headers")
+        else ()
+          set(what "headers")
+        endif ()
+      endif ()
+      set("FFMPEG_${component}_NOT_FOUND_MESSAGE"
+        "Could not find the ${what} for ${component}."
+        PARENT_SCOPE)
+    endif ()
+  endif ()
+endfunction ()
 
-    SET(STDINT_OK TRUE)
+_ffmpeg_find(avutil     avutil.h)
+_ffmpeg_find(avresample avresample.h
+  avutil)
+_ffmpeg_find(swresample swresample.h
+  avutil)
+_ffmpeg_find(swscale    swscale.h
+  avutil)
+_ffmpeg_find(avcodec    avcodec.h
+  avutil)
+_ffmpeg_find(avformat   avformat.h
+  avcodec avutil)
+_ffmpeg_find(avfilter   avfilter.h
+  avutil)
+_ffmpeg_find(avdevice   avdevice.h
+  avformat avutil)
 
-ENDIF()
+if (TARGET FFMPEG::avutil)
+  set(_ffmpeg_version_header_path "${FFMPEG_avutil_INCLUDE_DIR}/libavutil/ffversion.h")
+  if (EXISTS "${_ffmpeg_version_header_path}")
+    file(STRINGS "${_ffmpeg_version_header_path}" _ffmpeg_version
+      REGEX "FFMPEG_VERSION")
+    string(REGEX REPLACE ".*\"\(.*\)\"" "\\1" FFMPEG_VERSION "${_ffmpeg_version}")
+    unset(_ffmpeg_version)
+  else ()
+    set(FFMPEG_VERSION FFMPEG_VERSION-NOTFOUND)
+  endif ()
+  unset(_ffmpeg_version_header_path)
+endif ()
 
-FFMPEG_FIND(LIBAVFORMAT avformat avformat.h)
-FFMPEG_FIND(LIBAVDEVICE avdevice avdevice.h)
-FFMPEG_FIND(LIBAVCODEC  avcodec  avcodec.h)
-FFMPEG_FIND(LIBAVUTIL   avutil   avutil.h)
-FFMPEG_FIND(LIBSWRESAMPLE swresample swresample.h)
-FFMPEG_FIND(LIBSWSCALE  swscale  swscale.h)  # not sure about the header to look for here.
+set(FFMPEG_INCLUDE_DIRS)
+set(FFMPEG_LIBRARIES)
+set(_ffmpeg_required_vars)
+foreach (_ffmpeg_component IN LISTS FFMPEG_FIND_COMPONENTS)
+  if (TARGET "FFMPEG::${_ffmpeg_component}")
+    set(FFMPEG_${_ffmpeg_component}_INCLUDE_DIRS
+      "${FFMPEG_${_ffmpeg_component}_INCLUDE_DIR}")
+    set(FFMPEG_${_ffmpeg_component}_LIBRARIES
+      "${FFMPEG_${_ffmpeg_component}_LIBRARY}")
+    list(APPEND FFMPEG_INCLUDE_DIRS
+      "${FFMPEG_${_ffmpeg_component}_INCLUDE_DIRS}")
+    list(APPEND FFMPEG_LIBRARIES
+      "${FFMPEG_${_ffmpeg_component}_LIBRARIES}")
+    if (FFMEG_FIND_REQUIRED_${_ffmpeg_component})
+      list(APPEND _ffmpeg_required_vars
+        "FFMPEG_${_ffmpeg_required_vars}_INCLUDE_DIRS"
+        "FFMPEG_${_ffmpeg_required_vars}_LIBRARIES")
+    endif ()
+  endif ()
+endforeach ()
+unset(_ffmpeg_component)
 
-SET(FFMPEG_FOUND "NO")
+if (FFMPEG_INCLUDE_DIRS)
+  list(REMOVE_DUPLICATES FFMPEG_INCLUDE_DIRS)
+endif ()
 
-# Note we don't check FFMPEG_LIBSWSCALE_FOUND, FFMPEG_LIBAVDEVICE_FOUND,
-# and FFMPEG_LIBAVUTIL_FOUND as they are optional.
-IF (FFMPEG_LIBAVFORMAT_FOUND AND FFMPEG_LIBAVCODEC_FOUND AND STDINT_OK)
-
-    SET(FFMPEG_FOUND "YES")
-
-    SET(FFMPEG_INCLUDE_DIR ${FFMPEG_LIBAVFORMAT_INCLUDE_DIRS})
-
-    SET(FFMPEG_LIBRARY_DIRS ${FFMPEG_LIBAVFORMAT_LIBRARY_DIRS})
-
-    # Note we don't add FFMPEG_LIBSWSCALE_LIBRARIES here,
-    # it will be added if found later.
-    SET(FFMPEG_LIBRARIES
-        ${FFMPEG_LIBAVFORMAT_LIBRARIES}
-        ${FFMPEG_LIBAVDEVICE_LIBRARIES}
-        ${FFMPEG_LIBAVCODEC_LIBRARIES}
-        ${FFMPEG_LIBAVUTIL_LIBRARIES}
-        ${FFMPEG_LIBSWSCALE_LIBRARIES})
-ENDIF()
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(FFMPEG
+  REQUIRED_VARS FFMPEG_INCLUDE_DIRS FFMPEG_LIBRARIES ${_ffmpeg_required_vars}
+  VERSION_VAR FFMPEG_VERSION
+  HANDLE_COMPONENTS)
+unset(_ffmpeg_required_vars)

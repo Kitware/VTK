@@ -18,41 +18,11 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkErrorCode.h"
-#include "vtkFFMPEGConfig.h"
 
 extern "C" {
-#ifdef VTK_FFMPEG_HAS_OLD_HEADER
-# include <ffmpeg/avformat.h>
-#else
-# include <libavformat/avformat.h>
-#endif
-
-#ifndef VTK_FFMPEG_HAS_IMG_CONVERT
-# ifdef VTK_FFMPEG_HAS_OLD_HEADER
-#  include <ffmpeg/swscale.h>
-# else
-#  include <libswscale/swscale.h>
-# endif
-#endif
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
 }
-
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
-#if LIBAVCODEC_VERSION_MAJOR < 55
-# define AV_CODEC_ID_MJPEG CODEC_ID_MJPEG
-# define AV_CODEC_ID_RAWVIDEO CODEC_ID_RAWVIDEO
-# define AV_PIX_FMT_BGR24 PIX_FMT_BGR24
-# define AV_PIX_FMT_RGB24 PIX_FMT_RGB24
-# define AV_PIX_FMT_YUVJ422P PIX_FMT_YUVJ422P
-#endif
-
-#if LIBAVCODEC_VERSION_MAJOR < 56 || \
-    LIBAVCODEC_VERSION_MAJOR == 55 && LIBAVCODEC_VERSION_MINOR < 28 || \
-    LIBAVCODEC_VERSION_MAJOR == 55 && LIBAVCODEC_VERSION_MINOR == 28 && LIBAVCODEC_VERSION_MICRO < 1
-# define av_frame_alloc avcodec_alloc_frame
-#endif
 
 //---------------------------------------------------------------------------
 class vtkFFMPEGWriterInternal
@@ -78,11 +48,6 @@ private:
 
   AVStream *avStream;
 
-#if LIBAVFORMAT_VERSION_MAJOR < 54
-  unsigned char *codecBuf;
-  int codecBufSize;
-#endif
-
   AVFrame *rgbInput;
   AVFrame *yuvOutput;
 
@@ -103,9 +68,6 @@ vtkFFMPEGWriterInternal::vtkFFMPEGWriterInternal(vtkFFMPEGWriter *creator)
 
   this->avStream = nullptr;
 
-#if LIBAVFORMAT_VERSION_MAJOR < 54
-  this->codecBuf = nullptr;
-#endif
   this->rgbInput = nullptr;
   this->yuvOutput = nullptr;
 
@@ -133,11 +95,7 @@ int vtkFFMPEGWriterInternal::Start()
   av_register_all();
 
   //create the format context that wraps all of the media output structures
-#if LIBAVFORMAT_VERSION_MAJOR >= 52
   this->avFormatContext = avformat_alloc_context();
-#else
-  this->avFormatContext = av_alloc_format_context();
-#endif
   if (!this->avFormatContext)
   {
     vtkGenericWarningMacro (<< "Could not open the format context.");
@@ -145,11 +103,7 @@ int vtkFFMPEGWriterInternal::Start()
   }
 
   //choose avi media file format
-#ifdef VTK_FFMPEG_HAS_OLD_HEADER
-  this->avOutputFormat = guess_format("avi", nullptr, nullptr);
-#else
   this->avOutputFormat = av_guess_format("avi", nullptr, nullptr);
-#endif
   if (!this->avOutputFormat)
   {
     vtkGenericWarningMacro (<< "Could not open the avi media file format.");
@@ -173,11 +127,7 @@ int vtkFFMPEGWriterInternal::Start()
   strcpy(this->avFormatContext->filename, this->Writer->GetFileName());
 
   //create a stream for that file
-#if LIBAVFORMAT_VERSION_MAJOR < 54
-  this->avStream = av_new_stream(this->avFormatContext, 0);
-#else
   this->avStream = avformat_new_stream(this->avFormatContext, 0);
-#endif
   if (!this->avStream)
   {
     vtkGenericWarningMacro (<< "Could not create video stream.");
@@ -186,16 +136,8 @@ int vtkFFMPEGWriterInternal::Start()
 
   //Set up the codec.
   AVCodecContext *c = this->avStream->codec;
-#ifdef VTK_FFMPEG_AVCODECID
   c->codec_id = static_cast<AVCodecID>(this->avOutputFormat->video_codec);
-#else
-  c->codec_id = static_cast<CodecID>(this->avOutputFormat->video_codec);
-#endif
-#ifdef VTK_FFMPEG_HAS_OLD_HEADER
-  c->codec_type = CODEC_TYPE_VIDEO;
-#else
- c->codec_type = AVMEDIA_TYPE_VIDEO;
-#endif
+  c->codec_type = AVMEDIA_TYPE_VIDEO;
   c->width = this->Dim[0];
   c->height = this->Dim[1];
   if (this->Writer->GetCompression())
@@ -243,15 +185,6 @@ int vtkFFMPEGWriterInternal::Start()
     c->bit_rate_tolerance = this->Writer->GetBitRateTolerance();
   }
 
-#if LIBAVFORMAT_VERSION_MAJOR < 54
-  //apply the chosen parameters
-  if (av_set_parameters(this->avFormatContext, nullptr) < 0)
-  {
-    vtkGenericWarningMacro (<< "Invalid output format parameters." );
-    return 0;
-  }
-#endif
-
   //manufacture a codec with the chosen parameters
   AVCodec *codec = avcodec_find_encoder(c->codec_id);
   if (!codec)
@@ -259,28 +192,11 @@ int vtkFFMPEGWriterInternal::Start()
     vtkGenericWarningMacro (<< "Codec not found." );
     return 0;
   }
-#if LIBAVFORMAT_VERSION_MAJOR < 54
-  if (avcodec_open(c, codec) < 0)
-#else
   if (avcodec_open2(c, codec, nullptr) < 0)
-#endif
   {
     vtkGenericWarningMacro (<< "Could not open codec.");
     return 0;
   }
-
-  //create buffers for the codec to work with.
-
-#if LIBAVFORMAT_VERSION_MAJOR < 54
-  //working compression space
-  this->codecBufSize = 2*c->width*c->height*4; //hopefully this is enough
-  this->codecBuf = new unsigned char[this->codecBufSize];
-  if (!this->codecBuf)
-  {
-    vtkGenericWarningMacro (<< "Could not make codec working space." );
-    return 0;
-  }
-#endif
 
   //for the output of the writer's input...
   this->rgbInput = av_frame_alloc();
@@ -318,26 +234,18 @@ int vtkFFMPEGWriterInternal::Start()
 
 
   //Finally, open the file and start it off.
-#if LIBAVFORMAT_VERSION_MAJOR < 54
-  if (url_fopen(&this->avFormatContext->pb, this->avFormatContext->filename, URL_WRONLY) < 0)
-#else
   if (avio_open(&this->avFormatContext->pb, this->avFormatContext->filename, AVIO_FLAG_WRITE) < 0)
-#endif
   {
     vtkGenericWarningMacro (<< "Could not open " << this->Writer->GetFileName() << "." );
     return 0;
   }
   this->openedFile = 1;
 
-#if LIBAVFORMAT_VERSION_MAJOR < 54
-  av_write_header(this->avFormatContext);
-#else
   if (avformat_write_header(this->avFormatContext, nullptr) < 0)
   {
     vtkGenericWarningMacro (<< "Could not allocate avcodec private data.");
     return 0;
   }
-#endif
   return 1;
 }
 
@@ -359,12 +267,6 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
     memcpy((void*)dest, (void*)src, cc->width*3);
   }
 
-  //convert that to YUV for input to the codec
-#ifdef VTK_FFMPEG_HAS_IMG_CONVERT
-  img_convert((AVPicture *)this->yuvOutput, cc->pix_fmt,
-              (AVPicture *)this->rgbInput, AV_PIX_FMT_RGB24,
-              cc->width, cc->height);
-#else
   //convert that to YUV for input to the codec
   SwsContext* convert_ctx = sws_getContext(
     cc->width, cc->height, AV_PIX_FMT_RGB24,
@@ -390,7 +292,6 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
     vtkGenericWarningMacro(<< "sws_scale() failed");
     return 0;
   }
-#endif
 
   //run the encoder
   AVPacket pkt;
@@ -398,39 +299,6 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
   pkt.data = nullptr;
   pkt.size = 0;
 
-#if LIBAVFORMAT_VERSION_MAJOR < 54
-  int toAdd = avcodec_encode_video(cc,
-                                   this->codecBuf,
-                                   this->codecBufSize,
-                                   this->yuvOutput);
-  if (toAdd)
-  {
-    //to do playback at actual recorded rate, this will need more work
-    pkt.pts = cc->coded_frame->pts;
-    //pkt.dts = ?; not dure what decompression time stamp should be
-    pkt.data = this->codecBuf;
-    pkt.size = toAdd;
-    pkt.stream_index = this->avStream->index;
-    if (cc->coded_frame->key_frame) //treat keyframes well
-    {
-#ifdef VTK_FFMPEG_HAS_OLD_HEADER
-      pkt.flags |= PKT_FLAG_KEY;
-#else
-      pkt.flags |= AV_PKT_FLAG_KEY;
-#endif
-    }
-    pkt.duration = 0; //presentation duration in time_base units or 0 if NA
-    pkt.pos = -1; //byte position in stream or -1 if NA
-
-    toAdd = av_write_frame(this->avFormatContext, &pkt);
-  }
-  if (toAdd) //should not have anything left over
-  {
-    vtkGenericWarningMacro (<< "Problem encoding frame." );
-    return 0;
-  }
-
-#else
   int got_frame;
   int ret = avcodec_encode_video2(cc,
                                   &pkt,
@@ -449,7 +317,6 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
     vtkGenericWarningMacro (<< "Problem encoding frame." );
     return 0;
   }
-#endif
 
   return 1;
 }
@@ -471,25 +338,12 @@ void vtkFFMPEGWriterInternal::End()
     this->rgbInput = nullptr;
   }
 
-
-#if LIBAVFORMAT_VERSION_MAJOR < 54
-  if (this->codecBuf)
-  {
-    av_free(this->codecBuf);
-    this->codecBuf = nullptr;
-  }
-#endif
-
   if (this->avFormatContext)
   {
     if (this->openedFile)
     {
       av_write_trailer(this->avFormatContext);
-#if LIBAVFORMAT_VERSION_MAJOR < 54
-      url_fclose(this->avFormatContext->pb);
-#else
       avio_close(this->avFormatContext->pb);
-#endif
       this->openedFile = 0;
     }
 
