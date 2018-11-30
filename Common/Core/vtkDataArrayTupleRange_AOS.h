@@ -28,6 +28,8 @@
 #include <iterator>
 #include <type_traits>
 
+#ifndef __VTK_WRAP__
+
 // Disable this specialization when iterator debugging is requested:
 #ifndef VTK_DEBUG_RANGE_ITERATORS
 
@@ -971,6 +973,7 @@ private:
 } // end namespace vtk
 
 #endif // VTK_DEBUG_RANGE_ITERATORS
+#endif // __VTK_WRAP__
 #endif // vtkDataArrayTupleRange_AOS_h
 
 // VTK-HeaderTest-Exclude: vtkDataArrayTupleRange_AOS.h

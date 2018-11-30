@@ -30,6 +30,8 @@
 #include <tuple>
 #include <type_traits>
 
+#ifndef __VTK_WRAP__
+
 namespace vtk
 {
 
@@ -846,6 +848,7 @@ private:
 } // end namespace detail
 } // end namespace vtk
 
+#endif // __VTK_WRAP__
 #endif // vtkDataArrayValueRange_Generic_h
 
 // VTK-HeaderTest-Exclude: vtkDataArrayValueRange_Generic.h

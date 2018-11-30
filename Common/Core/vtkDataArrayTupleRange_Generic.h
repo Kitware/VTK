@@ -29,6 +29,8 @@
 #include <iterator>
 #include <type_traits>
 
+#ifndef __VTK_WRAP__
+
 namespace vtk
 {
 
@@ -1666,6 +1668,7 @@ private:
 } // end namespace detail
 } // end namespace vtk
 
+#endif // __VTK_WRAP__
 #endif // vtkDataArrayTupleRange_Generic_h
 
 // VTK-HeaderTest-Exclude: vtkDataArrayTupleRange_Generic.h
