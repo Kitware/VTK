@@ -225,6 +225,10 @@ void vtkCaptionActor2D::SetLeaderGlyphData(vtkPolyData* leader)
 //----------------------------------------------------------------------------
 vtkPolyData* vtkCaptionActor2D::GetLeaderGlyph()
 {
+  if (this->LeaderGlyphConnectionHolder->GetNumberOfInputConnections(0) < 1)
+  {
+    return nullptr;
+  }
   return vtkPolyData::SafeDownCast(
     this->LeaderGlyphConnectionHolder->GetInputDataObject(0, 0));
 }
@@ -572,8 +576,15 @@ void vtkCaptionActor2D::ShallowCopy(vtkProp *prop)
     this->SetBorder(a->GetBorder());
     this->SetLeader(a->GetLeader());
     this->SetThreeDimensionalLeader(a->GetThreeDimensionalLeader());
-    this->SetLeaderGlyphConnection(
-      a->LeaderGlyphConnectionHolder->GetInputConnection(0, 0));
+    if (a->LeaderGlyphConnectionHolder->GetNumberOfInputConnections(0) < 1)
+    {
+      this->SetLeaderGlyphConnection(nullptr);
+    }
+    else
+    {
+     this->SetLeaderGlyphConnection(
+        a->LeaderGlyphConnectionHolder->GetInputConnection(0, 0));
+    }
     this->SetLeaderGlyphSize(a->GetLeaderGlyphSize());
     this->SetMaximumLeaderGlyphSize(a->GetMaximumLeaderGlyphSize());
     this->SetPadding(a->GetPadding());
