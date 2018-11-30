@@ -52,6 +52,20 @@ vtkAvatar::vtkAvatar()
   this->LeftHandOrientation[0] = 0.0;
   this->LeftHandOrientation[1] = 0.0;
   this->LeftHandOrientation[2] = 0.0;
+
+  for (int i = 0; i < NUM_BODY; ++i) {
+    this->BodyPosition[i][0] = 0.0;
+    this->BodyPosition[i][1] = 0.0;
+    this->BodyPosition[i][2] = 0.0;
+
+    this->BodyOrientation[i][0] = 0.0;
+    this->BodyOrientation[i][1] = 0.0;
+    this->BodyOrientation[i][2] = 0.0;
+  }
+  this->UpVector[0] = 0.0;
+  this->UpVector[1] = 1.0;
+  this->UpVector[2] = 0.0;
+
 }
 
 //------------------------------------------------------------------------------

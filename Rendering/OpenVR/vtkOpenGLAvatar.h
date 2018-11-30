@@ -47,12 +47,17 @@ protected:
   vtkOpenGLAvatar();
   ~vtkOpenGLAvatar() override;
 
+  // move the torso and arms based on head/hand inputs.
+  void CalcBody();
+
   vtkNew<vtkOpenGLPolyDataMapper> HeadMapper;
   vtkNew<vtkOpenGLActor> HeadActor;
   vtkNew<vtkOpenGLPolyDataMapper> LeftHandMapper;
   vtkNew<vtkOpenGLActor> LeftHandActor;
   vtkNew<vtkOpenGLPolyDataMapper> RightHandMapper;
   vtkNew<vtkOpenGLActor> RightHandActor;
+  vtkNew<vtkOpenGLPolyDataMapper> BodyMapper[NUM_BODY];
+  vtkNew<vtkOpenGLActor> BodyActor[NUM_BODY];
 
 private:
   vtkOpenGLAvatar(const vtkOpenGLAvatar&) = delete;

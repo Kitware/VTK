@@ -46,6 +46,9 @@ set(geometry_files
   data/vtkAvatarHead.vtp
   data/vtkAvatarLeftHand.vtp
   data/vtkAvatarRightHand.vtp
+  data/vtkAvatarTorso.vtp
+  data/vtkAvatarLeftForeArm.vtp
+  data/vtkAvatarRightForeArm.vtp
   )
 unset(geometry_h_files)
 foreach(file ${geometry_files})
