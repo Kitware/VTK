@@ -113,9 +113,11 @@ int vtkCellCenters::RequestData(vtkInformation* vtkNotUsed(request),
     vtkNew<vtkIdTypeArray> iArray;
     iArray->SetNumberOfComponents(1);
     iArray->SetNumberOfTuples(numPoints * 2);
-    vtkIdType n = 0;
-    std::generate(iArray->GetPointer(0), iArray->GetPointer(numPoints * 2),
-      [&n]() { return n++ % 2 == 0 ? 1 : n / 2; });
+    for (vtkIdType i = 0; i < numPoints; i++)
+    {
+      iArray->SetValue(2 * i, 1);
+      iArray->SetValue(2 * i + 1, i);
+    }
 
     vtkNew<vtkCellArray> verts;
     verts->SetCells(numPoints, iArray);
