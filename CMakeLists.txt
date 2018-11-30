@@ -7,52 +7,48 @@ set(headers
   include/GL/vtk_glew_mangle.h
   include/GL/wglew.h)
 
-vtk_add_library(vtkglew ${sources} ${headers})
-if (NOT VTK_INSTALL_NO_DEVELOPMENT)
-  install(FILES
-    ${headers}
-    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtkglew/include/GL"
-    COMPONENT Development)
-endif()
-include(vtkOpenGL)
-vtk_opengl_link(vtkglew)
-target_compile_definitions(vtkglew
+vtk_module_add_module(VTK::glew
+  SOURCES ${sources}
+  HEADERS ${headers}
+  HEADERS_SUBDIR "vtkglew/include/GL")
+target_compile_definitions(glew
   PRIVATE
     GLEW_NO_GLU)
 
-if(VTK_OPENGL_HAS_OSMESA AND UNIX)
-  target_compile_definitions(vtkglew
+# GLEW with OSMesa only works on Linux systems right now.
+if(VTK_OPENGL_HAS_OSMESA AND UNIX AND NOT APPLE)
+  target_compile_definitions(glew
     PRIVATE
       GLEW_OSMESA)
-  target_link_libraries(vtkglew
+  target_link_libraries(glew
     PRIVATE
       ${CMAKE_DL_LIBS})
 endif()
 
 if(VTK_OPENGL_HAS_EGL)
-  target_compile_definitions(vtkglew
+  target_compile_definitions(glew
     PRIVATE
       GLEW_EGL)
 endif()
 
 if (BUILD_SHARED_LIBS)
   if (WIN32)
-    target_compile_definitions(vtkglew
+    target_compile_definitions(glew
       PRIVATE
         GLEW_BUILD)
     if(MINGW)
       # https://github.com/nigels-com/glew/issues/157
-      target_link_libraries(vtkglew
+      target_link_libraries(glew
         PRIVATE
           -nostdlib)
     endif()
   endif ()
 else ()
-  target_compile_definitions(vtkglew
+  target_compile_definitions(glew
     PUBLIC
       GLEW_STATIC)
 endif ()
 
-target_include_directories(vtkglew
+target_include_directories(glew
   PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/include")
