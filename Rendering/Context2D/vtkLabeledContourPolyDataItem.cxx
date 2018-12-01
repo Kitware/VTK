@@ -862,19 +862,10 @@ bool vtkLabeledContourPolyDataItem::FreeTextActors()
     {
       this->TextActors[i]->Delete();
     }
-    if (this->LabelHelpers[i] != nullptr)
-    {
-      delete this->LabelHelpers[i];
-    }
+    delete this->LabelHelpers[i];
   }
-  if (this->TextActors != nullptr)
-  {
-    delete [] this->TextActors;
-  }
-  if (this->LabelHelpers != nullptr)
-  {
-    delete [] this->LabelHelpers;
-  }
+  delete [] this->TextActors;
+  delete [] this->LabelHelpers;
   this->TextActors = nullptr;
   this->LabelHelpers = nullptr;
   this->NumberOfTextActors = 0;
