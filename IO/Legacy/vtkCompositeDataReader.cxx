@@ -87,7 +87,7 @@ vtkDataObject* vtkCompositeDataReader::CreateOutput(vtkDataObject* currentOutput
   if (outputType < 0)
   {
     vtkErrorMacro("Failed to read data-type.");
-    return 0;
+    return nullptr;
   }
 
   if (currentOutput && (currentOutput->GetDataObjectType() == outputType))

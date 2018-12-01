@@ -70,10 +70,10 @@ vtkIntegrateAttributes::vtkIntegrateAttributes()
   this->IntegrationDimension = 0;
   this->Sum = 0.0;
   this->SumCenter[0] = this->SumCenter[1] = this->SumCenter[2] = 0.0;
-  this->Controller = 0;
+  this->Controller = nullptr;
 
-  this->PointFieldList = 0;
-  this->CellFieldList = 0;
+  this->PointFieldList = nullptr;
+  this->CellFieldList = nullptr;
   this->FieldListIndex = 0;
 
   this->DivideAllCellDataByVolume = false;
@@ -153,7 +153,7 @@ void vtkIntegrateAttributes::ExecuteBlock(vtkDataSet* input, vtkUnstructuredGrid
   vtkIdList* cellPtIds = vtkIdList::New();
   vtkIdType numCells = input->GetNumberOfCells();
   vtkIdType cellId;
-  vtkPoints* cellPoints = 0; // needed if we need to split 3D cells
+  vtkPoints* cellPoints = nullptr; // needed if we need to split 3D cells
   int cellType;
   for (cellId = 0; cellId < numCells; ++cellId)
   {
@@ -311,8 +311,8 @@ void vtkIntegrateAttributes::ExecuteBlock(vtkDataSet* input, vtkUnstructuredGrid
     cellPoints->Delete();
   }
 
-  this->PointFieldList = NULL;
-  this->CellFieldList = NULL;
+  this->PointFieldList = nullptr;
+  this->CellFieldList = nullptr;
   this->FieldListIndex = 0;
 }
 
@@ -435,7 +435,7 @@ int vtkIntegrateAttributes::RequestData(
   newPoints->InsertPoint(0, pt);
   output->SetPoints(newPoints);
   newPoints->Delete();
-  newPoints = 0;
+  newPoints = nullptr;
 
   output->Allocate(1);
   vtkIdType vertexPtIds[1];
@@ -575,7 +575,7 @@ void vtkIntegrateAttributes::ReceivePiece(vtkUnstructuredGrid* mergeTo, int from
     this->IntegrateSatelliteData(tmp->GetCellData(), mergeTo->GetCellData());
   }
   tmp->Delete();
-  tmp = 0;
+  tmp = nullptr;
 }
 
 //-----------------------------------------------------------------------------

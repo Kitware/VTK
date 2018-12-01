@@ -227,8 +227,8 @@ public:
       count++;
       std::ostringstream groupName;
       groupName << "/STATE_" << std::setw(4) << std::setfill('0') << count;
-      H5Eset_auto(NULL, NULL);
-      status = H5Gget_objinfo(this->FileId, groupName.str().c_str(), 0, NULL);
+      H5Eset_auto(nullptr, nullptr);
+      status = H5Gget_objinfo(this->FileId, groupName.str().c_str(), 0, nullptr);
     }
     // H5Eset_auto(NULL, NULL);
     this->NUMBER_OF_STATES = count ? count - 1 : 0;

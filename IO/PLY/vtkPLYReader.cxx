@@ -194,18 +194,18 @@ int vtkPLYReader::RequestData(
 
   bool RGBPointsAvailable = false;
   bool RGBPointsHaveAlpha = false;
-  vtkSmartPointer<vtkUnsignedCharArray> RGBPoints = NULL;
-  if ((elem = vtkPLY::find_element(ply, "vertex")) != NULL)
+  vtkSmartPointer<vtkUnsignedCharArray> RGBPoints = nullptr;
+  if ((elem = vtkPLY::find_element(ply, "vertex")) != nullptr)
   {
-    if (vtkPLY::find_property(elem, "red", &index) != NULL &&
-        vtkPLY::find_property(elem, "green", &index) != NULL &&
-        vtkPLY::find_property(elem, "blue", &index) != NULL)
+    if (vtkPLY::find_property(elem, "red", &index) != nullptr &&
+        vtkPLY::find_property(elem, "green", &index) != nullptr &&
+        vtkPLY::find_property(elem, "blue", &index) != nullptr)
     {
       RGBPointsAvailable = true;
     }
-    else if (vtkPLY::find_property(elem, "diffuse_red", &index) != NULL &&
-             vtkPLY::find_property(elem, "diffuse_green", &index) != NULL &&
-             vtkPLY::find_property(elem, "diffuse_blue", &index) != NULL)
+    else if (vtkPLY::find_property(elem, "diffuse_red", &index) != nullptr &&
+             vtkPLY::find_property(elem, "diffuse_green", &index) != nullptr &&
+             vtkPLY::find_property(elem, "diffuse_blue", &index) != nullptr)
     {
       RGBPointsAvailable = true;
       vertProps[8].name = "diffuse_red";
@@ -271,9 +271,9 @@ int vtkPLYReader::RequestData(
   }
 
   bool TexCoordsPointsAvailableFace = false;
-  if ((elem = vtkPLY::find_element(ply, "face")) != NULL && !TexCoordsPointsAvailable)
+  if ((elem = vtkPLY::find_element(ply, "face")) != nullptr && !TexCoordsPointsAvailable)
   {
-    if (vtkPLY::find_property(elem, "texcoord", &index) != NULL)
+    if (vtkPLY::find_property(elem, "texcoord", &index) != nullptr)
     {
       TexCoordsPointsAvailableFace = true;
       TexCoordsPoints = vtkSmartPointer<vtkFloatArray>::New();
