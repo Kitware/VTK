@@ -469,6 +469,9 @@ struct VTile
     return false;
   }
 
+// Dead code. Kept because this method seems to be here for instructional purposes,
+// and is mentioned in comments elsewhere.
+#if 0
   // Indicate whether the specified point x is inside the Voronoi flower. See
   // also IntersectTile(x) which is an equivalent computation.
   bool InFlower(const double x[2])
@@ -490,6 +493,7 @@ struct VTile
     }
     return false;
   }
+#endif
 
   // Generate a Voronoi tile by iterative clipping of the tile with nearby points.
   // Termination of the clipping process occurs when the neighboring points become

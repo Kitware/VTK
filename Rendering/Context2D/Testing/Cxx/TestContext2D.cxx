@@ -141,5 +141,9 @@ int TestContext2D(int, char*[])
   view->GetInteractor()->Initialize();
   view->Render();
 
+  // Exercise NewInstance for coverage.
+  auto dummy = test->NewInstance();
+  dummy->Delete();
+
   return test->Succeeded ? EXIT_SUCCESS : EXIT_FAILURE;
 }

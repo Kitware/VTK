@@ -373,11 +373,6 @@ struct PointSetFunctor : public CuttingFunctor
       }
     }
   }
-
-  bool IsCellSlicedByPlane(vtkIdType cellId)
-  {
-    return CuttingFunctor::IsCellSlicedByPlane(cellId);
-  }
 };
 
 // Process unstructured grids

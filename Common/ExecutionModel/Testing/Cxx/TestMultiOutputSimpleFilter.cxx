@@ -209,6 +209,11 @@ int TestComposite(std::string& inputDataFile, bool isAMR)
     std::cout << "Per block field data for the second output port changed" << std::endl;
     retVal = VTK_FAILURE;
   }
+
+  // Exercise NewInstance for coverage.
+  auto dummy = testAlg->NewInstance();
+  dummy->Delete();
+
   return retVal;
 }
 }

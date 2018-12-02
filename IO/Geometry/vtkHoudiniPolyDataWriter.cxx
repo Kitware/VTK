@@ -140,27 +140,6 @@ namespace
   {
     typedef vtkStdString Type;
     typedef vtkStringArray vtkArrayType;
-    std::string Name() const { return std::string("string"); }
-    vtkStdString Default() const { return vtkStdString("None"); }
-    static void Get(vtkIdType index, vtkStdString* in, vtkStringArray* array)
-    {
-      assert(array->GetNumberOfComponents() == 1);
-      *in = array->GetValue(index);
-    }
-    static void Stream(std::ostream& out, const vtkStdString& t)
-    {
-      std::size_t i = 0;
-      out << "\'";
-      for (; i < (t.size() < 32 ? t.size() : 32); i++)
-      {
-        out << t[i];
-      }
-      for (; i < 32; i++)
-      {
-        out << " ";
-      }
-      out << "\'";
-    }
   };
 
   template <int AttributeId>
