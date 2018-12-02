@@ -96,7 +96,7 @@ public:
    * and can be retrieved with these methods.  The string is deleted during
    * the next call to write ...
    */
-  vtkGetMacro(OutputStringLength, int);
+  vtkGetMacro(OutputStringLength, vtkIdType);
   vtkGetStringMacro(OutputString);
   unsigned char *GetBinaryOutputString()
   {
@@ -118,7 +118,7 @@ protected:
   // Stream management
   vtkTypeBool WriteToOutputString;
   char *OutputString;
-  int OutputStringLength;
+  vtkIdType OutputStringLength;
 
   /**
    * Write data to output.
