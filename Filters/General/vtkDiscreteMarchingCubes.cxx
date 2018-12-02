@@ -279,7 +279,7 @@ int vtkDiscreteMarchingCubes::RequestData(
   double bounds[6];
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  int numContours=this->ContourValues->GetNumberOfContours();
+  vtkIdType numContours=this->ContourValues->GetNumberOfContours();
   double *values=this->ContourValues->GetValues();
 
   vtkDebugMacro(<< "Executing marching cubes");

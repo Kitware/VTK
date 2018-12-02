@@ -3313,7 +3313,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderWithDepthPass(
         cam->GetParallelProjection();
 
       this->ContourFilter->SetInputData(this->Parent->GetTransformedInput(0));
-      for (int i = 0; i < this->Parent->GetDepthPassContourValues()->GetNumberOfContours(); ++i)
+      for (vtkIdType i = 0; i < this->Parent->GetDepthPassContourValues()->GetNumberOfContours(); ++i)
       {
         this->ContourFilter->SetValue(i,
           this->Parent->DepthPassContourValues->GetValue(i));
@@ -3727,7 +3727,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetAdvancedShaderParameters(
   //--------------------------------------------------------------------------
   if (this->Parent->BlendMode == vtkVolumeMapper::ISOSURFACE_BLEND)
   {
-    int nbContours = volProperty->GetIsoSurfaceValues()->GetNumberOfContours();
+    vtkIdType nbContours = volProperty->GetIsoSurfaceValues()->GetNumberOfContours();
 
     std::vector<float> values(nbContours);
     for (int i = 0; i < nbContours; i++)

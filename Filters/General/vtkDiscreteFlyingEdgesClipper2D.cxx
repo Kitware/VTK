@@ -1139,7 +1139,7 @@ ContourImage(vtkDiscreteFlyingEdgesClipper2D *self, T *scalars, vtkPoints *newPt
              vtkImageData *input, int *updateExt)
 {
   double *values=self->GetValues();
-  int numContours = self->GetNumberOfContours();
+  vtkIdType numContours = self->GetNumberOfContours();
   vtkIdType row, *eMD;
 
   // The update extent may be different than the extent of the image.

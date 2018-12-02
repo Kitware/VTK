@@ -418,7 +418,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
   int ydim = exExt[3] - exExt[2] + 1;
   double n0[3], n1[3];  // used in gradient macro
   double *values = self->GetValues();
-  int numContours = self->GetNumberOfContours();
+  vtkIdType numContours = self->GetNumberOfContours();
   PointsType *inPtPtrX, *inPtPtrY, *inPtPtrZ;
   PointsType *p0, *p1, *p2, *p3;
   T *inPtrX, *inPtrY, *inPtrZ;

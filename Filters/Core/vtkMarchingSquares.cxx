@@ -252,7 +252,7 @@ int vtkMarchingSquares::RequestData(
   int i, dims[3], roi[6], dataSize, dim, plane=0;
   int *ext;
   int start[2], end[2], offset[3], dir[3], estimatedSize;
-  int numContours=this->ContourValues->GetNumberOfContours();
+  vtkIdType numContours=this->ContourValues->GetNumberOfContours();
   double *values=this->ContourValues->GetValues();
 
   vtkDebugMacro(<< "Executing marching squares");

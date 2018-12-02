@@ -106,7 +106,7 @@ int vtkImageMarchingCubes::RequestData(
     vtkDemandDrivenPipeline::SafeDownCast(
       vtkExecutive::PRODUCER()->GetExecutive(inInfo));
 
-  int numContours=this->ContourValues->GetNumberOfContours();
+  vtkIdType numContours=this->ContourValues->GetNumberOfContours();
   double *values=this->ContourValues->GetValues();
 
   vtkDebugMacro("Starting Execute Method");

@@ -384,7 +384,7 @@ void vtkGenericContourFilter::SetNumberOfContours(int number)
 //----------------------------------------------------------------------------
 // Description:
 // Get the number of contours in the list of contour values.
-int vtkGenericContourFilter::GetNumberOfContours()
+vtkIdType vtkGenericContourFilter::GetNumberOfContours()
 {
   return this->ContourValues->GetNumberOfContours();
 }

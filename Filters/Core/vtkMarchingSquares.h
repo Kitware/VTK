@@ -76,7 +76,7 @@ public:
   double *GetValues();
   void GetValues(double *contourValues);
   void SetNumberOfContours(int number);
-  int GetNumberOfContours();
+  vtkIdType GetNumberOfContours();
   void GenerateValues(int numContours, double range[2]);
   void GenerateValues(int numContours, double rangeStart, double rangeEnd);
   //@}
@@ -150,7 +150,7 @@ inline void vtkMarchingSquares::SetNumberOfContours(int number)
 /**
  * Get the number of contours in the list of contour values.
  */
-inline int vtkMarchingSquares::GetNumberOfContours()
+inline vtkIdType vtkMarchingSquares::GetNumberOfContours()
 {return this->ContourValues->GetNumberOfContours();}
 
 /**

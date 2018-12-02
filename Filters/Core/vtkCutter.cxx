@@ -127,7 +127,7 @@ void vtkCutter::StructuredPointsCutter(vtkDataSet *dataSetInput,
     return;
   }
 
-  int numContours = this->GetNumberOfContours();
+  vtkIdType numContours = this->GetNumberOfContours();
 
   // for one contour we use the SyncTempCutter which is faster and has a
   // smaller memory footprint
@@ -219,7 +219,7 @@ void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
 
   vtkDataArray* dataArrayInput = input->GetPoints()->GetData();
   this->CutFunction->FunctionValue(dataArrayInput, cutScalars);
-  int numContours = this->GetNumberOfContours();
+  vtkIdType numContours = this->GetNumberOfContours();
 
   this->GridSynchronizedTemplates->SetDebug(this->GetDebug());
   this->GridSynchronizedTemplates->
@@ -281,7 +281,7 @@ void vtkCutter::RectilinearGridCutter(vtkDataSet *dataSetInput,
     double scalar = this->CutFunction->FunctionValue(x);
     cutScalars->SetComponent(i, 0, scalar);
   }
-  int numContours = this->GetNumberOfContours();
+  vtkIdType numContours = this->GetNumberOfContours();
 
   this->RectilinearSynchronizedTemplates->SetInputData(contourData);
   this->RectilinearSynchronizedTemplates->
@@ -497,7 +497,7 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
   vtkPointData *inPD, *outPD;
   vtkCellData *inCD = input->GetCellData(), *outCD = output->GetCellData();
   vtkIdList *cellIds;
-  int numContours = this->ContourValues->GetNumberOfContours();
+  vtkIdType numContours = this->ContourValues->GetNumberOfContours();
   int abortExecute = 0;
 
   cellScalars=vtkDoubleArray::New();
@@ -749,7 +749,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
   vtkPointData *inPD, *outPD;
   vtkCellData *inCD=input->GetCellData(), *outCD=output->GetCellData();
   vtkIdList *cellIds;
-  int numContours = this->ContourValues->GetNumberOfContours();
+  vtkIdType numContours = this->ContourValues->GetNumberOfContours();
   double *contourValues = this->ContourValues->GetValues();
   double *contourValuesEnd = contourValues + numContours;
   double *contourIter;

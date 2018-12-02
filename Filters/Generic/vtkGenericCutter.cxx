@@ -124,7 +124,7 @@ void vtkGenericCutter::SetNumberOfContours(int number)
 //-----------------------------------------------------------------------------
 // Description:
 // Get the number of contours in the list of contour values.
-int vtkGenericCutter::GetNumberOfContours()
+vtkIdType vtkGenericCutter::GetNumberOfContours()
 {
   return this->ContourValues->GetNumberOfContours();
 }
@@ -218,7 +218,7 @@ int vtkGenericCutter::RequestData(
   // Create objects to hold output of contour operation
   //
   vtkIdType numCells=input->GetNumberOfCells();
-  int numContours = this->ContourValues->GetNumberOfContours();
+  vtkIdType numContours = this->ContourValues->GetNumberOfContours();
 
   vtkIdType estimatedSize = static_cast<vtkIdType>(
     pow(static_cast<double>(numCells), .75)) * numContours;

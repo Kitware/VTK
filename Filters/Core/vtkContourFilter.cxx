@@ -149,7 +149,7 @@ int vtkContourFilter::RequestUpdateExtent(vtkInformation* request,
   vtkDataSet *input =
     vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  int numContours=this->ContourValues->GetNumberOfContours();
+  vtkIdType numContours=this->ContourValues->GetNumberOfContours();
   double *values=this->ContourValues->GetValues();
 
   vtkInformation *fInfo =
@@ -274,7 +274,7 @@ int vtkContourFilter::RequestData(
   }
 
   // get the contours
-  int numContours = this->ContourValues->GetNumberOfContours();
+  vtkIdType numContours = this->ContourValues->GetNumberOfContours();
   double *values = this->ContourValues->GetValues();
   int i;
 

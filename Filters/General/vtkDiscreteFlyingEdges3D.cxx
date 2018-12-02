@@ -1084,7 +1084,7 @@ Contour(vtkDiscreteFlyingEdges3D *self, vtkImageData *input, vtkDataArray *inSca
         vtkFloatArray *newNormals, vtkFloatArray *newGradients)
 {
   double value, *values = self->GetValues();
-  int numContours = self->GetNumberOfContours();
+  vtkIdType numContours = self->GetNumberOfContours();
   vtkIdType vidx, row, slice, *eMD, zInc;
   vtkIdType numOutXPts, numOutYPts, numOutZPts, numOutTris;
   vtkIdType numXPts=0, numYPts=0, numZPts=0, numTris=0;

@@ -102,7 +102,7 @@ public:
   /**
    * Get the number of contours in the list of contour values.
    */
-  int GetNumberOfContours();
+  vtkIdType GetNumberOfContours();
 
   /**
    * Generate numContours equally spaced contour values between specified
