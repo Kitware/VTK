@@ -173,7 +173,7 @@ int vtkSEPReader::ReadHeader()
       else if (key == "in")
       {
         std::string path = vtksys::SystemTools::GetFilenamePath(this->FileName);
-        if (path == "")
+        if (path.empty())
         {
           this->DataFile = value;
         }

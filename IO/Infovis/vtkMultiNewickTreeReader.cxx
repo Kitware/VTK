@@ -73,7 +73,7 @@ int vtkMultiNewickTreeReader::ReadMeshSimple(const std::string& fname,
 {
   vtkDebugMacro(<<"Reading Multiple Newick trees ...");
 
-  if(fname.empty() || fname == "")
+  if(fname.empty())
   {
     vtkErrorMacro(<<"Input filename not set");
     return 1;

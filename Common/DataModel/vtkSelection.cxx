@@ -167,11 +167,11 @@ class vtkSelection::vtkInternals
   bool ApplyBack(
     std::vector<char>& op_stack, std::vector<std::shared_ptr<parser::Node> >& var_stack) const
   {
-    assert(op_stack.size() > 0);
+    assert(!op_stack.empty());
 
     if (op_stack.back() == '!')
     {
-      if (var_stack.size() < 1)
+      if (var_stack.empty())
       {
         // failed
         return false;
@@ -256,7 +256,7 @@ public:
         case '|':
         case '&':
         case '!':
-          if (accumated_text.size())
+          if (!accumated_text.empty())
           {
             parts.push_back(accumated_text);
             accumated_text.clear();
@@ -272,7 +272,7 @@ public:
           break;
       }
     }
-    if (accumated_text.size())
+    if (!accumated_text.empty())
     {
       parts.push_back(accumated_text);
     }
@@ -289,10 +289,10 @@ public:
       {
         // apply operators till we encounter the opening paren.
         while (
-          op_stack.size() > 0 && op_stack.back() != '(' && this->ApplyBack(op_stack, var_stack))
+          !op_stack.empty() && op_stack.back() != '(' && this->ApplyBack(op_stack, var_stack))
         {
         }
-        if (op_stack.size() == 0)
+        if (op_stack.empty())
         {
           // missing opening paren???
           return nullptr;
@@ -303,7 +303,7 @@ public:
       }
       else if (term[0] == '&' || term[0] == '|' || term[0] == '!')
       {
-        while (op_stack.size() > 0 && (precedence(term[0]) < precedence(op_stack.back())) &&
+        while (!op_stack.empty() && (precedence(term[0]) < precedence(op_stack.back())) &&
           this->ApplyBack(op_stack, var_stack))
         {
         }
@@ -488,7 +488,7 @@ void vtkSelection::RemoveNode(vtkSelectionNode* node)
 void vtkSelection::RemoveAllNodes()
 {
   vtkInternals& internals = (*this->Internals);
-  if (internals.Items.size())
+  if (!internals.Items.empty())
   {
     internals.Items.clear();
     this->Modified();
@@ -675,7 +675,7 @@ vtkSmartPointer<vtkSignedCharArray> vtkSelection::Evaluate(
   }
 
   auto tree = this->Internals->BuildExpressionTree(expr, values_map);
-  if (tree && (values_map.size() > 0))
+  if (tree && (!values_map.empty()))
   {
     auto result = vtkSmartPointer<vtkSignedCharArray>::New();
     result->SetNumberOfComponents(1);

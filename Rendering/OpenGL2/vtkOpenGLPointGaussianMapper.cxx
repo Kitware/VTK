@@ -1144,7 +1144,7 @@ void vtkOpenGLPointGaussianMapper::ProcessSelectorPixelBuffers(
     return;
   }
 
-  if (PickPixels.size() == 0 && pixeloffsets.size())
+  if (PickPixels.empty() && !pixeloffsets.empty())
   {
     // preprocess the image to find matching pixels and
     // store them in a map of vectors based on flat index
@@ -1184,7 +1184,7 @@ void vtkOpenGLPointGaussianMapper::ProcessSelectorPixelBuffers(
   // for each block update the image
   for (auto hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
   {
-    if (this->PickPixels[(*hiter)->FlatIndex].size())
+    if (!this->PickPixels[(*hiter)->FlatIndex].empty())
     {
       (*hiter)->ProcessSelectorPixelBuffers(sel,
         this->PickPixels[(*hiter)->FlatIndex], prop);

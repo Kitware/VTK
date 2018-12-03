@@ -880,7 +880,7 @@ void vtkCompositeMapperHelper2::ProcessSelectorPixelBuffers(
     return;
   }
 
-  if (PickPixels.size() == 0 && pixeloffsets.size())
+  if (PickPixels.empty() && !pixeloffsets.empty())
   {
     // preprocess the image to find matching pixels and
     // store them in a map of vectors based on flat index
@@ -920,7 +920,7 @@ void vtkCompositeMapperHelper2::ProcessSelectorPixelBuffers(
   // for each block update the image
   for (dataIter it = this->Data.begin(); it != this->Data.end(); ++it)
   {
-    if (this->PickPixels[it->second->FlatIndex].size())
+    if (!this->PickPixels[it->second->FlatIndex].empty())
     {
       this->ProcessCompositePixelBuffers(sel, prop, it->second,
         this->PickPixels[it->second->FlatIndex]);

@@ -730,11 +730,11 @@ public:
     else if (polyDataCount == 1)
     {
       vtkPolyData* data = nullptr;
-      if (imageURIToPolyData.size() > 0)
+      if (!imageURIToPolyData.empty())
       {
         data = imageURIToPolyData.begin()->second;
       }
-      else if (materialIndexToPolyData.size() > 0)
+      else if (!materialIndexToPolyData.empty())
       {
         data = materialIndexToPolyData.begin()->second;
       }
