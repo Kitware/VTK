@@ -34,16 +34,16 @@ function (_ffmpeg_find component headername)
     NAMES
       "lib${component}/${headername}"
     PATHS
-      "${FFMPEG_ROOT}/include/lib${component}"
-      "~/Library/Frameworks/lib${component}"
-      "/Library/Frameworks/lib${component}"
-      "/usr/local/include/lib${component}"
-      "/usr/include/lib${component}"
-      "/sw/include/lib${component}" # Fink
-      "/opt/local/include/lib${component}" # DarwinPorts
-      "/opt/csw/include/lib${component}" # Blastwave
-      "/opt/include/lib${component}"
-      "/usr/freeware/include/lib${component}"
+      "${FFMPEG_ROOT}/include"
+      ~/Library/Frameworks
+      /Library/Frameworks
+      /usr/local/include
+      /usr/include
+      /sw/include # Fink
+      /opt/local/include # DarwinPorts
+      /opt/csw/include # Blastwave
+      /opt/include
+      /usr/freeware/include
     PATH_SUFFIXES
       ffmpeg
     DOC "FFMPEG's ${component} include directory")
