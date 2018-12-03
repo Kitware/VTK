@@ -155,6 +155,15 @@ public:
    */
   int Pick3DPoint(double selectionPt[3], vtkRenderer *ren) override;
 
+  /*
+   * Pick a point in the scene with the selection point and focal point
+   * provided. The two points are in world coordinates.
+   *
+   * Returns non-zero if something was successfully picked.
+   */
+  virtual int Pick3DPoint(double p1World[3],
+                          double p2World[3],
+                          vtkRenderer* ren);
   /**
    * Perform pick operation with selection point and orientation provided.
    * The selectionPt is in world coordinates.
