@@ -78,13 +78,13 @@ vtkAtom vtkBond::GetEndAtom()
 }
 
 //----------------------------------------------------------------------------
-const vtkAtom vtkBond::GetBeginAtom() const
+vtkAtom vtkBond::GetBeginAtom() const
 {
   return this->Molecule->GetAtom(this->BeginAtomId);
 }
 
 //----------------------------------------------------------------------------
-const vtkAtom vtkBond::GetEndAtom() const
+vtkAtom vtkBond::GetEndAtom() const
 {
   return this->Molecule->GetAtom(this->EndAtomId);
 }

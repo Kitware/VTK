@@ -69,7 +69,7 @@ vtkArrayExtents::vtkArrayExtents(const vtkArrayRange& i, const vtkArrayRange& j,
   this->Storage[2] = k;
 }
 
-const vtkArrayExtents vtkArrayExtents::Uniform(DimensionT n, CoordinateT m)
+vtkArrayExtents vtkArrayExtents::Uniform(DimensionT n, CoordinateT m)
 {
   vtkArrayExtents result;
   // IA64 HP-UX doesn't seem to have the vector<T> vector1(n, value)

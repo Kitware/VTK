@@ -188,7 +188,7 @@ void vtkArray::Resize(const vtkArrayExtents& extents)
   this->InternalResize(extents);
 }
 
-const vtkArrayRange vtkArray::GetExtent(DimensionT dimension)
+vtkArrayRange vtkArray::GetExtent(DimensionT dimension)
 {
   return this->GetExtents()[dimension];
 }
