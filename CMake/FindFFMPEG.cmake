@@ -34,16 +34,16 @@ function (_ffmpeg_find component headername)
     NAMES
       "lib${component}/${headername}"
     PATHS
-      "${FFMPEG_ROOT}/include/lib${component}"
-      "~/Library/Frameworks/lib${component}"
-      "/Library/Frameworks/lib${component}"
-      "/usr/local/include/lib${component}"
-      "/usr/include/lib${component}"
-      "/sw/include/lib${component}" # Fink
-      "/opt/local/include/lib${component}" # DarwinPorts
-      "/opt/csw/include/lib${component}" # Blastwave
-      "/opt/include/lib${component}"
-      "/usr/freeware/include/lib${component}"
+      "${FFMPEG_ROOT}/include"
+      ~/Library/Frameworks
+      /Library/Frameworks
+      /usr/local/include
+      /usr/include
+      /sw/include # Fink
+      /opt/local/include # DarwinPorts
+      /opt/csw/include # Blastwave
+      /opt/include
+      /usr/freeware/include
     PATH_SUFFIXES
       ffmpeg
     DOC "FFMPEG's ${component} include directory")
@@ -152,7 +152,7 @@ if (TARGET FFMPEG::avutil)
   if (EXISTS "${_ffmpeg_version_header_path}")
     file(STRINGS "${_ffmpeg_version_header_path}" _ffmpeg_version
       REGEX "FFMPEG_VERSION")
-    string(REGEX REPLACE ".*\"\(.*\)\"" "\\1" FFMPEG_VERSION "${_ffmpeg_version}")
+    string(REGEX REPLACE ".*\"n?\(.*\)\"" "\\1" FFMPEG_VERSION "${_ffmpeg_version}")
     unset(_ffmpeg_version)
   else ()
     set(FFMPEG_VERSION FFMPEG_VERSION-NOTFOUND)
