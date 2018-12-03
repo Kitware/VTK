@@ -80,7 +80,7 @@ void vtkParametricRandomHills::InitRNG(int randomSeed)
 }
 
 //----------------------------------------------------------------------------
-double vtkParametricRandomHills::Rand(void)
+double vtkParametricRandomHills::Rand()
 {
   double x = this->randomSequenceGenerator->GetValue();
   this->randomSequenceGenerator->Next();
@@ -132,7 +132,7 @@ double vtkParametricRandomHills::EvaluateScalar(double* vtkNotUsed(
   return 0;
 }
 
-void vtkParametricRandomHills::MakeTheHillData(void)
+void vtkParametricRandomHills::MakeTheHillData()
 {
   this->hillData->Initialize();
   this->hillData->SetNumberOfComponents(5);

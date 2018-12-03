@@ -105,7 +105,7 @@ void vtkImplicitSum::RemoveAllFunctions()
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitSum::CalculateTotalWeight(void)
+void vtkImplicitSum::CalculateTotalWeight()
 {
   this->TotalWeight = 0.0;
 

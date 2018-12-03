@@ -357,7 +357,7 @@ void vtkImageTracerWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
   }
 }
 
-void vtkImageTracerWidget::AddObservers(void)
+void vtkImageTracerWidget::AddObservers()
 {
   // Listen for the following events
   vtkRenderWindowInteractor *i = this->Interactor;
@@ -1137,7 +1137,7 @@ void vtkImageTracerWidget::Translate(const double *p1, const double *p2)
   this->LineData->Modified();
 }
 
-void vtkImageTracerWidget::ResetHandles(void)
+void vtkImageTracerWidget::ResetHandles()
 {
   if ( this->NumberOfHandles == 0 ){ return; }
 

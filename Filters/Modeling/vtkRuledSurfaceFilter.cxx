@@ -537,7 +537,7 @@ void  vtkRuledSurfaceFilter::PointWalk(vtkPolyData *output, vtkPoints *inPts,
   }//while still building the stripe
 }
 
-const char *vtkRuledSurfaceFilter::GetRuledModeAsString(void)
+const char *vtkRuledSurfaceFilter::GetRuledModeAsString()
 {
   if ( this->RuledMode == VTK_RULED_MODE_RESAMPLE )
   {

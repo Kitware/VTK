@@ -779,7 +779,7 @@ vtkIdType vtkTubeFilter::ComputeOffset(vtkIdType offset, vtkIdType npts)
 
 // Description:
 // Return the method of varying tube radius descriptive character string.
-const char *vtkTubeFilter::GetVaryRadiusAsString(void)
+const char *vtkTubeFilter::GetVaryRadiusAsString()
 {
   if ( this->VaryRadius == VTK_VARY_RADIUS_OFF )
   {
@@ -801,7 +801,7 @@ const char *vtkTubeFilter::GetVaryRadiusAsString(void)
 
 // Description:
 // Return the method of generating the texture coordinates.
-const char *vtkTubeFilter::GetGenerateTCoordsAsString(void)
+const char *vtkTubeFilter::GetGenerateTCoordsAsString()
 {
   if ( this->GenerateTCoords == VTK_TCOORDS_OFF )
   {

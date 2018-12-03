@@ -1702,7 +1702,7 @@ void vtkPlaneWidget::GetPlane(vtkPlane *plane)
   plane->SetOrigin(this->GetCenter());
 }
 
-void vtkPlaneWidget::UpdatePlacement(void)
+void vtkPlaneWidget::UpdatePlacement()
 {
   this->PlaneSource->Update();
   this->PositionHandles();

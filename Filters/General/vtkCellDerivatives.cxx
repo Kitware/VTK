@@ -250,7 +250,7 @@ int vtkCellDerivatives::RequestData(
   return 1;
 }
 
-const char *vtkCellDerivatives::GetVectorModeAsString(void)
+const char *vtkCellDerivatives::GetVectorModeAsString()
 {
   if ( this->VectorMode == VTK_VECTOR_MODE_PASS_VECTORS )
   {
@@ -266,7 +266,7 @@ const char *vtkCellDerivatives::GetVectorModeAsString(void)
   }
 }
 
-const char *vtkCellDerivatives::GetTensorModeAsString(void)
+const char *vtkCellDerivatives::GetTensorModeAsString()
 {
   if ( this->TensorMode == VTK_TENSOR_MODE_PASS_TENSORS )
   {

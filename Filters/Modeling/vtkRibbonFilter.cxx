@@ -496,7 +496,7 @@ vtkIdType vtkRibbonFilter::ComputeOffset(vtkIdType offset, vtkIdType npts)
 
 // Description:
 // Return the method of generating the texture coordinates.
-const char *vtkRibbonFilter::GetGenerateTCoordsAsString(void)
+const char *vtkRibbonFilter::GetGenerateTCoordsAsString()
 {
   if ( this->GenerateTCoords == VTK_TCOORDS_OFF )
   {

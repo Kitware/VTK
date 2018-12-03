@@ -363,7 +363,7 @@ int vtkMetaImageReader::CanReadFile(const char* fname)
 }
 
 //----------------------------------------------------------------------------
-int vtkMetaImageReader::GetDataByteOrder(void)
+int vtkMetaImageReader::GetDataByteOrder()
 {
   return vtkmetaio::MET_SystemByteOrderMSB();
 }

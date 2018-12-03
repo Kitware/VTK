@@ -1268,7 +1268,7 @@ void vtkLODProp3D::UpdateKeysForSelectedProp()
         this->GetPropertyKeys());
 }
 
-int vtkLODProp3D::GetPickLODID(void)
+int vtkLODProp3D::GetPickLODID()
 {
   vtkDebugMacro(<< "vtkLODProp3D::GetPickLODID");
   int lodID, index;

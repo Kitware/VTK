@@ -525,7 +525,7 @@ void ConvertDNotationToENotation (char *line)
 
 
 // Return the elevation reference.
-const char *vtkDEMReader::GetElevationReferenceAsString(void)
+const char *vtkDEMReader::GetElevationReferenceAsString()
 {
   if ( this->ElevationReference == REFERENCE_SEA_LEVEL )
   {

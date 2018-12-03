@@ -232,7 +232,7 @@ int vtkSphereTreeFilter::FillInputPortInformation(int, vtkInformation *info)
 }
 
 //----------------------------------------------------------------------------
-const char *vtkSphereTreeFilter::GetExtractionModeAsString(void)
+const char *vtkSphereTreeFilter::GetExtractionModeAsString()
 {
   if ( this->ExtractionMode == VTK_SPHERE_TREE_LEVELS )
   {

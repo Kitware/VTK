@@ -347,7 +347,7 @@ int vtkThreshold::EvaluateComponents( vtkDataArray *scalars, vtkIdType id )
 
 
 // Return the method for manipulating scalar data as a string.
-const char *vtkThreshold::GetAttributeModeAsString(void)
+const char *vtkThreshold::GetAttributeModeAsString()
 {
   if ( this->AttributeMode == VTK_ATTRIBUTE_MODE_DEFAULT )
   {
@@ -364,7 +364,7 @@ const char *vtkThreshold::GetAttributeModeAsString(void)
 }
 
 // Return a string representation of the component mode
-const char *vtkThreshold::GetComponentModeAsString(void)
+const char *vtkThreshold::GetComponentModeAsString()
 {
   if ( this->ComponentMode == VTK_COMPONENT_MODE_USE_SELECTED )
   {

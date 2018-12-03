@@ -112,7 +112,7 @@ void vtkAbstractVolumeMapper::SelectScalarArray(const char *arrayName)
 }
 
 // Return the method for obtaining scalar data.
-const char *vtkAbstractVolumeMapper::GetScalarModeAsString(void)
+const char *vtkAbstractVolumeMapper::GetScalarModeAsString()
 {
   if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA )
   {

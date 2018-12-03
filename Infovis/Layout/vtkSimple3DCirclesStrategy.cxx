@@ -39,7 +39,7 @@ template <class T> bool IsZero( T value )
 class vtkSimple3DCirclesStrategyInternal
 {
 public:
-  vtkSimple3DCirclesStrategyInternal( void ) = default;
+  vtkSimple3DCirclesStrategyInternal( ) = default;
   vtkSimple3DCirclesStrategyInternal( const vtkSimple3DCirclesStrategyInternal &from )
   {
     if ( &from != this )
@@ -56,15 +56,15 @@ public:
     this->store = from;
     return *this;
   };
-  vtkIdType front( void )
+  vtkIdType front( )
   {
     return this->store.front();
   };
-  void pop_front( void )
+  void pop_front( )
   {
     this->store.pop_front();
   };
-  std::size_t size( void )
+  std::size_t size( )
   {
     return this->store.size();
   };
@@ -72,7 +72,7 @@ public:
   {
     this->store.push_back( value );
   };
-  ~vtkSimple3DCirclesStrategyInternal( void )
+  ~vtkSimple3DCirclesStrategyInternal( )
   {
     this->store.clear();
   };
@@ -268,7 +268,7 @@ void vtkSimple3DCirclesStrategy::SetMarkedValue( vtkVariant val )
   }
 }
 
-vtkVariant vtkSimple3DCirclesStrategy::GetMarkedValue( void )
+vtkVariant vtkSimple3DCirclesStrategy::GetMarkedValue( )
 {
   return this->MarkedValue;
 }
@@ -278,7 +278,7 @@ void vtkSimple3DCirclesStrategy::SetMinimumDegree( double degree )
   this->SetMinimumRadian( vtkMath::RadiansFromDegrees( degree ) );
 }
 
-double vtkSimple3DCirclesStrategy::GetMinimumDegree( void )
+double vtkSimple3DCirclesStrategy::GetMinimumDegree( )
 {
   return vtkMath::DegreesFromRadians( this->GetMinimumRadian() );
 }
@@ -286,7 +286,7 @@ double vtkSimple3DCirclesStrategy::GetMinimumDegree( void )
 vtkCxxSetObjectMacro(vtkSimple3DCirclesStrategy,HierarchicalLayers,vtkIntArray);
 vtkCxxSetObjectMacro(vtkSimple3DCirclesStrategy,HierarchicalOrder,vtkIdTypeArray);
 
-vtkSimple3DCirclesStrategy::vtkSimple3DCirclesStrategy( void )
+vtkSimple3DCirclesStrategy::vtkSimple3DCirclesStrategy( )
 : Radius(1), Height(1), Method(FixedRadiusMethod), MarkedStartVertices(nullptr), ForceToUseUniversalStartPointsFinder(0), AutoHeight(0), MinimumRadian(vtkMath::Pi()/6.0), HierarchicalLayers(nullptr), HierarchicalOrder(nullptr)
 {
   this->Direction[0] = this->Direction[1] = 0.0; this->Direction[2] = 1.0;
@@ -296,14 +296,14 @@ vtkSimple3DCirclesStrategy::vtkSimple3DCirclesStrategy( void )
   this->Origin[0] = this->Origin[1] = this->Origin[2] = 0.0;
 }
 
-vtkSimple3DCirclesStrategy::~vtkSimple3DCirclesStrategy( void )
+vtkSimple3DCirclesStrategy::~vtkSimple3DCirclesStrategy( )
 {
   this->SetMarkedStartVertices(nullptr);
   this->SetHierarchicalLayers(nullptr);
   this->SetHierarchicalOrder(nullptr);
 }
 
-void vtkSimple3DCirclesStrategy::Layout( void )
+void vtkSimple3DCirclesStrategy::Layout( )
 {
   if ( this->Graph == nullptr )
   {

@@ -175,7 +175,7 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 
 //----------------------------------------------------------------------------
 // Private
-static void VTKStartNSApplicationEventLoop(void)
+static void VTKStartNSApplicationEventLoop()
 {
   // Start the NSApplication's run loop
   NSApplication *application = [NSApplication sharedApplication];
@@ -184,7 +184,7 @@ static void VTKStartNSApplicationEventLoop(void)
 
 //----------------------------------------------------------------------------
 // Private
-static void VTKStopNSApplicationEventLoop(void)
+static void VTKStopNSApplicationEventLoop()
 {
   // Stop the current run loop. Do not terminate as it will not return to
   // main. However, the stop message puts the run loop asleep. Let's send

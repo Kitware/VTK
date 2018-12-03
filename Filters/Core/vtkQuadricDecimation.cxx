@@ -593,7 +593,7 @@ void vtkQuadricDecimation::InitializeQuadrics(vtkIdType numPts)
 }
 
 
-void vtkQuadricDecimation::AddBoundaryConstraints(void)
+void vtkQuadricDecimation::AddBoundaryConstraints()
 {
   vtkPolyData *input = this->Mesh;
   double *QEM;
@@ -1312,7 +1312,7 @@ const double *x)
 }
 
 
-void vtkQuadricDecimation::ComputeNumberOfComponents(void)
+void vtkQuadricDecimation::ComputeNumberOfComponents()
 {
   vtkPointData *pd = this->Mesh->GetPointData();
   int i, j;

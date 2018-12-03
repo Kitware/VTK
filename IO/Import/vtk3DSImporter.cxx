@@ -71,7 +71,7 @@ static void cleanup_name (char *);
 static void list_insert (vtk3DSList **root, vtk3DSList *new_node);
 static void *list_find (vtk3DSList **root, const char *name);
 static void list_kill (vtk3DSList **root);
-static vtk3DSMatProp *create_mprop (void);
+static vtk3DSMatProp *create_mprop ();
 static vtk3DSMesh *create_mesh (char *name, int vertices, int faces);
 static int parse_3ds_file (vtk3DSImporter *importer);
 static void parse_3ds (vtk3DSImporter *importer, vtk3DSChunk *mainchunk);

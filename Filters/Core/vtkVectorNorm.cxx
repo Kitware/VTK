@@ -249,7 +249,7 @@ GenerateScalars(vtkIdType num, vtkDataArray *v, vtkFloatArray *s)
 
 //----------------------------------------------------------------------------
 // Return the method for generating scalar data as a string.
-const char *vtkVectorNorm::GetAttributeModeAsString(void)
+const char *vtkVectorNorm::GetAttributeModeAsString()
 {
   if ( this->AttributeMode == VTK_ATTRIBUTE_MODE_DEFAULT )
   {

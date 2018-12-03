@@ -39,7 +39,7 @@ const double Epsilon_=1E-8;
 //////////////////////////////////////////////////////////////////////////////
 // Main management and support for tree
 //////////////////////////////////////////////////////////////////////////////
-vtkModifiedBSPTree::vtkModifiedBSPTree(void)
+vtkModifiedBSPTree::vtkModifiedBSPTree()
 {
   this->NumberOfCellsPerNode       = 32;
   this->mRoot                      = nullptr;
@@ -49,13 +49,13 @@ vtkModifiedBSPTree::vtkModifiedBSPTree(void)
   this->npn = this->nln = this->tot_depth = 0;
 }
 //---------------------------------------------------------------------------
-vtkModifiedBSPTree::~vtkModifiedBSPTree(void)
+vtkModifiedBSPTree::~vtkModifiedBSPTree()
 {
   this->FreeSearchStructure();
   this->FreeCellBounds();
 }
 //---------------------------------------------------------------------------
-void vtkModifiedBSPTree::FreeSearchStructure(void)
+void vtkModifiedBSPTree::FreeSearchStructure()
 {
   delete this->mRoot;
   this->mRoot = nullptr;
@@ -93,7 +93,7 @@ public:
     }
     global_list_count += 1;
   };
-  ~Sorted_cell_extents_Lists(void)
+  ~Sorted_cell_extents_Lists()
   {
     for (int i=0; i<3; i++)
     {

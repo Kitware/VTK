@@ -1226,7 +1226,7 @@ int vtkCellTreeLocator::IntersectCellInternal(
   return this->GenericCell->IntersectWithLine(const_cast<double*>(p1), const_cast<double*>(p2), tol, t, ipt, pcoords, subId);
 }
 //----------------------------------------------------------------------------
-void vtkCellTreeLocator::FreeSearchStructure(void)
+void vtkCellTreeLocator::FreeSearchStructure()
 {
   delete this->Tree;
   this->Tree = nullptr;

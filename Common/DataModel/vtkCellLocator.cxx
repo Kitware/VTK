@@ -1141,7 +1141,7 @@ void vtkCellLocator::GetOverlappingBuckets(const double x[3], int vtkNotUsed(ijk
 
 //----------------------------------------------------------------------------
 // number of buckets available
-int vtkCellLocator::GetNumberOfBuckets(void)
+int vtkCellLocator::GetNumberOfBuckets()
 {
   if (this->Tree)
   {

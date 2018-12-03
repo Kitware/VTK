@@ -476,7 +476,7 @@ int vtkGlyph3DMapper::FillInputPortInformation(int port,
 // ---------------------------------------------------------------------------
 // Description:
 // Return the method of scaling as a descriptive character string.
-const char *vtkGlyph3DMapper::GetScaleModeAsString(void)
+const char *vtkGlyph3DMapper::GetScaleModeAsString()
 {
   if ( this->ScaleMode == SCALE_BY_MAGNITUDE)
   {

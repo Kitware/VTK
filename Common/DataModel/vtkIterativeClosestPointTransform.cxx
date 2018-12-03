@@ -93,7 +93,7 @@ void vtkIterativeClosestPointTransform::SetSource(vtkDataSet *source)
 
 //----------------------------------------------------------------------------
 
-void vtkIterativeClosestPointTransform::ReleaseSource(void) {
+void vtkIterativeClosestPointTransform::ReleaseSource() {
   if (this->Source)
   {
     this->Source->UnRegister(this);
@@ -126,7 +126,7 @@ void vtkIterativeClosestPointTransform::SetTarget(vtkDataSet *target)
 
 //----------------------------------------------------------------------------
 
-void vtkIterativeClosestPointTransform::ReleaseTarget(void) {
+void vtkIterativeClosestPointTransform::ReleaseTarget() {
   if (this->Target)
   {
     this->Target->UnRegister(this);
@@ -159,7 +159,7 @@ void vtkIterativeClosestPointTransform::SetLocator(vtkCellLocator *locator)
 
 //----------------------------------------------------------------------------
 
-void vtkIterativeClosestPointTransform::ReleaseLocator(void) {
+void vtkIterativeClosestPointTransform::ReleaseLocator() {
   if (this->Locator)
   {
     this->Locator->UnRegister(this);

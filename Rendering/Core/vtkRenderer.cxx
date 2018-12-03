@@ -232,7 +232,7 @@ void vtkRenderer::ReleaseGraphicsResources(vtkWindow *renWin)
 }
 
 // Concrete render method.
-void vtkRenderer::Render(void)
+void vtkRenderer::Render()
 {
   vtkRenderTimerLog *timer = this->RenderWindow->GetRenderTimer();
   VTK_SCOPED_RENDER_EVENT("vtkRenderer::Render this=@" << std::hex << this
@@ -935,7 +935,7 @@ vtkLight *vtkRenderer::MakeLight()
   return vtkLight::New();
 }
 
-void vtkRenderer::CreateLight(void)
+void vtkRenderer::CreateLight()
 {
   if ( !this->AutomaticLightCreation )
   {

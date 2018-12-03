@@ -42,7 +42,7 @@ void vtkLargeInteger::Contract()
 }
 
 
-vtkLargeInteger::vtkLargeInteger(void)
+vtkLargeInteger::vtkLargeInteger()
 {
     this->Number = new char[BIT_INCREMENT];
     this->Number[0] = 0;
@@ -150,27 +150,27 @@ vtkLargeInteger::vtkLargeInteger(const vtkLargeInteger& n)
   }
 }
 
-vtkLargeInteger::~vtkLargeInteger(void)
+vtkLargeInteger::~vtkLargeInteger()
 {
   delete []this->Number;
 }
 
-char vtkLargeInteger::CastToChar(void) const
+char vtkLargeInteger::CastToChar() const
 {
   return this->CastToLong();
 }
 
-short vtkLargeInteger::CastToShort(void) const
+short vtkLargeInteger::CastToShort() const
 {
   return this->CastToLong();
 }
 
-int vtkLargeInteger::CastToInt(void) const
+int vtkLargeInteger::CastToInt() const
 {
   return this->CastToLong();
 }
 
-long vtkLargeInteger::CastToLong(void) const
+long vtkLargeInteger::CastToLong() const
 {
   long n = 0;
 
@@ -188,7 +188,7 @@ long vtkLargeInteger::CastToLong(void) const
 }
 
 // convert to an unsigned long, return max if bigger than unsigned long
-unsigned long vtkLargeInteger::CastToUnsignedLong(void) const
+unsigned long vtkLargeInteger::CastToUnsignedLong() const
 {
   unsigned long n = 0;
 
@@ -212,17 +212,17 @@ unsigned long vtkLargeInteger::CastToUnsignedLong(void) const
   return n;
 }
 
-int vtkLargeInteger::IsEven(void) const
+int vtkLargeInteger::IsEven() const
 {
   return this->Number[0] == 0;
 }
 
-int vtkLargeInteger::IsOdd(void) const
+int vtkLargeInteger::IsOdd() const
 {
   return this->Number[0] == 1;
 }
 
-int vtkLargeInteger::GetLength(void) const
+int vtkLargeInteger::GetLength() const
 {
   return this->Sig + 1;
 }
@@ -237,12 +237,12 @@ int vtkLargeInteger::GetBit(unsigned int p) const
   return 0;
 }
 
-int vtkLargeInteger::IsZero(void) const
+int vtkLargeInteger::IsZero() const
 {
   return (this->Sig == 0 && this->Number[0] == 0);
 }
 
-int vtkLargeInteger::GetSign(void) const
+int vtkLargeInteger::GetSign() const
 {
   return this->Negative;
 }
@@ -262,7 +262,7 @@ void vtkLargeInteger::Truncate(unsigned int n)
   }
 }
 
-void vtkLargeInteger::Complement(void)
+void vtkLargeInteger::Complement()
 {
   if (!this->IsZero()) // can't have negative zeros
   {
@@ -579,12 +579,12 @@ vtkLargeInteger& vtkLargeInteger::operator>>=(int n)
   return *this;
 }
 
-vtkLargeInteger& vtkLargeInteger::operator++(void)
+vtkLargeInteger& vtkLargeInteger::operator++()
 {
   return (*this += 1);
 }
 
-vtkLargeInteger& vtkLargeInteger::operator--(void)
+vtkLargeInteger& vtkLargeInteger::operator--()
 {
   return (*this -= 1);
 }

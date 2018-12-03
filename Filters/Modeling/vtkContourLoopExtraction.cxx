@@ -370,7 +370,7 @@ int vtkContourLoopExtraction::RequestData(
 
 //----------------------------------------------------------------------------
 const char *vtkContourLoopExtraction::
-GetLoopClosureAsString(void)
+GetLoopClosureAsString()
 {
   if ( this->LoopClosure == VTK_LOOP_CLOSURE_OFF )
   {
@@ -388,7 +388,7 @@ GetLoopClosureAsString(void)
 
 //----------------------------------------------------------------------------
 const char *vtkContourLoopExtraction::
-GetOutputModeAsString(void)
+GetOutputModeAsString()
 {
   if ( this->OutputMode == VTK_OUTPUT_POLYGONS )
   {
