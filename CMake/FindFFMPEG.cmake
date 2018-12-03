@@ -152,7 +152,7 @@ if (TARGET FFMPEG::avutil)
   if (EXISTS "${_ffmpeg_version_header_path}")
     file(STRINGS "${_ffmpeg_version_header_path}" _ffmpeg_version
       REGEX "FFMPEG_VERSION")
-    string(REGEX REPLACE ".*\"\(.*\)\"" "\\1" FFMPEG_VERSION "${_ffmpeg_version}")
+    string(REGEX REPLACE ".*\"n?\(.*\)\"" "\\1" FFMPEG_VERSION "${_ffmpeg_version}")
     unset(_ffmpeg_version)
   else ()
     set(FFMPEG_VERSION FFMPEG_VERSION-NOTFOUND)
