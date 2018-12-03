@@ -13,11 +13,14 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on macOS with cppcheck 1.83.
+// at least on macOS with cppcheck 1.85 with the flags below.
 
 // To run:
 // cd /path/to/VTK/
-// cppcheck --platform=unspecified --enable=style -q --suppressions-list=CMake/VTKcppcheckSuppressions.txt --template='{id},{file}:{line},{severity},{message}' -j8 .
+// cppcheck --platform=unspecified --enable=style -q --library=qt --library=posix --library=gnu --library=bsd --library=windows --suppressions-list=CMake/VTKcppcheckSuppressions.txt --template='{id},{file}:{line},{severity},{message}' -j8 -I Common/Core .
+// or
+// cd /path/to/VTK-bin/
+// cppcheck --project=compile_commands.json --platform=unspecified --enable=style -q --library=qt --library=posix --library=gnu --library=bsd --library=windows --suppressions-list=../VTK/CMake/VTKcppcheckSuppressions.txt --template='{id},{file}:{line},{severity},{message}'
 
 // Suppress everything from ThirdParty.
 *:ThirdParty/*
@@ -29,7 +32,11 @@
 *:Remote/WikiExamples/*
 
 // If cppcheck itself crashes, well, that's its problem, ignore that.
+// <https://>
 cppcheckError
+
+// When analyzing different define possibilities, it will sometimes hit a #error line
+preprocessorErrorDirective
 
 // Can't fix in portable way for all VTK-supported platforms.
 duplicateExpression:IO/PostgreSQL/vtkPostgreSQLQuery.cxx
@@ -37,6 +44,9 @@ unpreciseMathCall
 
 // Using reallocf() would be a good solution, but it's not available on all platforms.
 memleakOnRealloc
+
+// Using strtok_r() would be a good solution, but it's not available on all platforms.
+strtokCalled
 
 // VTK assumes IEEE 754 floats, so this warning isn't useful.
 memsetClassFloat
@@ -47,9 +57,6 @@ useStlAlgorithm
 // Gives too many false positives.
 assertWithSideEffect
 argumentSize
-
-// Gives too many false positives with << stream operator.
-shiftNegative
 
 // There are *thousands* of these, too much to manage, so suppress all.
 variableScope
@@ -359,7 +366,7 @@ uninitMemberVar:Web/WebGLExporter/vtkWebGLObject.cxx
 uninitMemberVar:Web/WebGLExporter/vtkWebGLWidget.cxx
 uninitMemberVar:Wrapping/PythonCore/vtkPythonOverload.cxx
 
-// Many warnings
+// Many warnings, these could be fixed automatically with clang-tidy
 cstyleCast:Common/Core/vtkTypeFloat32ArrayJava.cxx
 cstyleCast:Common/Core/vtkTypeFloat64ArrayJava.cxx
 cstyleCast:Common/Core/vtkTypeInt16ArrayJava.cxx
@@ -584,76 +591,13 @@ redundantAssignment:*/Testing/*
 useInitializationList:*
 
 // False positives.
-arrayIndexOutOfBounds:Rendering/VolumeOpenGL2/vtkOpenGLUniforms.cxx
-arrayIndexOutOfBoundsCond:Imaging/Morphological/vtkImageConnectivityFilter.cxx
-arrayIndexOutOfBoundsCond:IO/MINC/vtkMINCImageAttributes.cxx
-arrayIndexOutOfBoundsCond:Rendering/Volume/vtkGPUVolumeRayCastMapper.cxx
-AssignmentAddressToInteger:IO/Exodus/vtkExodusIIReader.cxx
-CastIntegerToAddressAtReturn:Geovis/Core/vtkGeoTreeNode.h
-copyCtorPointerCopying:IO/NetCDF/vtkSLACReader.cxx
-duplicateExpression:Rendering/Annotation/vtkScalarBarActor.cxx
-knownConditionTrueFalse:IO/Exodus/vtkExodusIIReader.cxx
-knownConditionTrueFalse:IO/Geometry/Testing/Cxx/TestIncrementalOctreePointLocator.cxx
-memleak:Examples/Infovis/Cxx/MultiView.cxx
-memleak:Imaging/Hybrid/vtkSurfaceReconstructionFilter.cxx
-memleak:Rendering/OpenGL2/vtkOpenGLRenderTimerLog.cxx
-operatorEqVarError:Filters/General/vtkHyperStreamline.cxx
 redundantAssignment:Wrapping/Tools/vtkParsePreprocess.c
-stlIfStrFind:Infovis/Core/vtkPipelineGraphSource.cxx
-stlIfStrFind:Rendering/OpenGL2/vtkOpenGLRenderer.cxx
-syntaxError:Rendering/OpenGL2/vtkOpenGLGlyph3DMapper.cxx
-uninitMemberVar:GUISupport/Qt/QVTKOpenGLWidget.cxx
-uninitMemberVarPrivate:Filters/ParallelFlowPaths/vtkPLagrangianParticleTracker.cxx
-unsafeClassCanLeak:Filters/General/vtkDensifyPolyData.cxx
-unsafeClassCanLeak:GUISupport/Qt/QVTKInteractorInternal.h
-unsafeClassCanLeak:Interaction/Widgets/vtkBiDimensionalRepresentation.h
-unusedStructMember:Common/Misc/vtkHeap.cxx
-unusedStructMember:IO/Infovis/vtkTulipReader.cxx
-unusedVariable:IO/SegY/vtkSegYReaderInternal.cxx
-uselessAssignmentArg:Common/DataModel/vtkReebGraph.cxx
-uselessAssignmentPtrArg:Filters/General/vtkYoungsMaterialInterface.cxx
-uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
 
-// false positive: <https://trac.cppcheck.net/ticket/8346>
-syntaxError:Accelerators/Vtkm/vtkmlib/Portals.hxx
-syntaxError:Common/Math/vtkQuaternion.txx
-syntaxError:Rendering/OpenGL2/vtkOpenGLVertexBufferObject.cxx
-
-// false positive: <https://trac.cppcheck.net/ticket/8367>
+// False positive: <https://trac.cppcheck.net/ticket/8367>
 CastIntegerToAddressAtReturn:Common/ExecutionModel/vtkAlgorithm.h
 
-// false positive: "syntax error"
-syntaxError:Accelerators/Vtkm/vtkmCellSetExplicit.cxx
-syntaxError:Accelerators/Vtkm/vtkmCellSetSingleType.cxx
-
-// false positive: struct member is never used.
+// False positive: struct member is never used.
 unusedStructMember:Common/Core/Testing/Cxx/TestArrayFreeFunctions.cxx
-
-// false positive: <https://trac.cppcheck.net/ticket/8809>
-incorrectLogicOperator:IO/XML/Testing/Cxx/TestXMLHyperTreeGridIO.cxx
-
-// Not worth fixing, but not actually false positives.
-duplicateExpression:Common/Math/Testing/Cxx/TestPolynomialSolversUnivariate.cxx
-knownConditionTrueFalse:Common/Core/Testing/Cxx/TestObserversPerformance.cxx
-knownConditionTrueFalse:Common/Core/Testing/Cxx/UnitTestMath.cxx
-knownConditionTrueFalse:Filters/Parallel/Testing/Cxx/UnitTestPMaskPoints.cxx
-knownConditionTrueFalse:GUISupport/Qt/QVTKWidget.cxx
-knownConditionTrueFalse:Rendering/Label/vtkLabeledTreeMapDataMapper.cxx
-knownConditionTrueFalse:Rendering/OpenGL/vtkXGPUInfoList.cxx
-knownConditionTrueFalse:Rendering/OpenGL2/vtkOpenGLRenderer.cxx
-knownConditionTrueFalse:Rendering/OpenGL2/vtkOpenGLRenderWindow.cxx
-knownConditionTrueFalse:Rendering/OpenGL2/vtkOpenGLShaderCache.cxx
-knownConditionTrueFalse:Rendering/OSPRay/vtkOSPRayRendererNode.cxx
-knownConditionTrueFalse:Wrapping/PythonCore/vtkPythonArgs.cxx
-nullPointer:Wrapping/Tools/lex.yy.c
-passedByValue:Filters/General/vtkYoungsMaterialInterface.cxx
-uninitMemberVar:Common/DataModel/vtkStaticPointLocator2D.cxx
-
-// Style, not really problematic:
-duplicateAssignExpression:Rendering/Context2D/vtkMarkerUtilities.cxx
-duplicateAssignExpression:Common/Misc/vtkFunctionParser.cxx
-duplicateAssignExpression:Common/Math/vtkQuaternionInterpolator.cxx
-duplicateAssignExpression:Wrapping/Tools/vtkWrapText.c
 
 // 4 warnings, should fix!
 invalidPointerCast:Rendering/GL2PSOpenGL2/vtkOpenGLGL2PSHelperImpl.cxx
@@ -683,9 +627,7 @@ noConstructor:Filters/ParallelDIY2/vtkPResampleWithDataSet.cxx
 noConstructor:Rendering/Core/Testing/Cxx/TestInteractorTimers.cxx
 
 // Need someone that knows this code...
+syntaxError:Examples/GUI/Win32/vtkBorland/ProjectDemo/Project_vtkDemo.cpp
 memleak:Wrapping/Tools/vtkParsePreprocess.c
-redundantAssignment:IO/Image/vtkJPEGReader.cxx
-knownConditionTrueFalse:IO/Exodus/vtkExodusIIWriter.cxx
-knownConditionTrueFalse:Filters/ParallelFlowPaths/Testing/Cxx/TestPStreamGeometry.cxx
-knownConditionTrueFalse:Rendering/Label/vtkLabelSizeCalculator.cxx
-redundantAssignment:Rendering/OSPRay/vtkOSPRayRendererNode.cxx
+duplicateAssignExpression:Wrapping/Tools/vtkWrapText.c
+nullPointer:Wrapping/Tools/lex.yy.c

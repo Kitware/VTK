@@ -72,15 +72,22 @@ void vtkExodusIIReaderParser::StartElement( const char* tagName, const char** at
   {
     const char* instance = this->GetValue("instance", attrs);
     std::string instanceString = instance? instance : "";
-    const char* partNumber =this->GetValue("number",attrs);
+    const char* partNumber = this->GetValue("number",attrs);
+    std::string partNumberBasicString;
     std::string partNumberString;
     if (partNumber)
     {
+      partNumberBasicString = std::string(partNumber);
       partNumberString = std::string(partNumber) +
         std::string(" Instance: ") + instanceString;
     }
 
-    const char* partDescString=this->GetValue("description",attrs);
+    const char* partDesc = this->GetValue("description",attrs);
+    std::string partDescString;
+    if (partDesc)
+    {
+      partDescString = std::string(partDesc);
+    }
 
     // This will create a new vertex if none already present.
     vtkIdType partVertex = this->GetPartVertex(partNumberString.c_str());
@@ -88,7 +95,7 @@ void vtkExodusIIReaderParser::StartElement( const char* tagName, const char** at
     // Now fix the part vertex name.
     std::string result = std::string("Part: ") +
       partDescString + std::string(" (") +
-      partNumber + std::string(")") + std::string(" Instance: ") +
+      partNumberBasicString + std::string(")") + std::string(" Instance: ") +
       instanceString;
     this->NamesArray->InsertValue(partVertex, result.c_str());
 
@@ -99,7 +106,7 @@ void vtkExodusIIReaderParser::StartElement( const char* tagName, const char** at
 
     // Save the description for this part, this description is used later to
     // name the block appropriately.
-    this->PartVertexID_To_Descriptions[partVertex] = partDescString? partDescString : "";
+    this->PartVertexID_To_Descriptions[partVertex] = partDescString.c_str();
 
     // Add a "part" vertex in the "Assemblies" hierarchy.
     this->CurrentVertex.push_back(partVertex);
