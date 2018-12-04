@@ -115,21 +115,6 @@
 /*--------------------------------------------------------------------------*/
 /* Setup VTK based on platform features and configuration.                  */
 
-/* We now always use standard streams.  */
-#ifndef VTK_LEGACY_REMOVE
-# define VTK_USE_ANSI_STDLIB
-#endif
-
-/* Define a "vtkstd_bool" for backwards compatibility.  Only use bool
-   if this file is included by a c++ file. */
-#ifndef VTK_LEGACY_REMOVE
-# if defined(__cplusplus)
-  typedef bool vtkstd_bool;
-# else
-  typedef int vtkstd_bool;
-# endif
-#endif
-
 /* The maximum length of a file name in bytes including the
  * terminating null.
  */
