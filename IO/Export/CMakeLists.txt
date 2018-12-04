@@ -1,6 +1,7 @@
 set(Module_SRCS
   vtkExporter.cxx
   vtkGL2PSExporter.cxx
+  vtkGLTFExporter.cxx
   vtkIVExporter.cxx
   vtkOBJExporter.cxx
   vtkOOGLExporter.cxx
