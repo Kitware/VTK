@@ -14,9 +14,12 @@
 =========================================================================*/
 #include "vtkGLTFExporter.h"
 
+#include <sstream>
+
 #include "vtk_jsoncpp.h"
 
 #include "vtkAssemblyPath.h"
+#include "vtkBase64OutputStream.h"
 #include "vtkCamera.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
@@ -36,6 +39,7 @@ vtkStandardNewMacro(vtkGLTFExporter);
 vtkGLTFExporter::vtkGLTFExporter()
 {
   this->FileName = nullptr;
+  this->InlineData = false;
 }
 
 vtkGLTFExporter::~vtkGLTFExporter()
@@ -70,23 +74,22 @@ vtkPolyData *findPolyData(vtkDataObject* input)
   return nullptr;
 }
 
-std::string WriteBuffer(vtkCellArray *ca, const char *fileName)
+void WriteValues(vtkCellArray *ca, vtkBase64OutputStream *ostr)
 {
-  std::ostringstream toString;
-  toString
-    << "buffer"
-    << ca->GetMTime()
-    << ".bin";
-  std::string fname = toString.str();
+  vtkIdType npts;
+  vtkIdType *indx;
+  for (ca->InitTraversal(); ca->GetNextCell(npts,indx); )
+  {
+    for (int j = 0; j < npts; ++j)
+    {
+      unsigned int value = static_cast<unsigned int>(indx[j]);
+      ostr->Write(reinterpret_cast<char *>(&value), 4);
+    }
+  }
+}
 
-  std::string fullPath =
-    vtksys::SystemTools::GetFilenamePath(fileName);
-  fullPath += "/";
-  fullPath += fname;
-
-  // now write the data
-  ofstream myFile(fullPath, ios::out | ios::binary);
-
+void WriteValues(vtkCellArray *ca, ofstream &myFile)
+{
   vtkIdType npts;
   vtkIdType *indx;
   for (ca->InitTraversal(); ca->GetNextCell(npts,indx); )
@@ -97,28 +100,24 @@ std::string WriteBuffer(vtkCellArray *ca, const char *fileName)
       myFile.write(reinterpret_cast<char *>(&value), 4);
     }
   }
-  myFile.close();
-
-  return fname;
 }
 
-std::string WriteBuffer(vtkPoints *ca, const char *fileName)
+void WriteValues(vtkPoints *ca, vtkBase64OutputStream *ostr)
 {
-  std::ostringstream toString;
-  toString
-    << "buffer"
-    << ca->GetMTime()
-    << ".bin";
-  std::string fname = toString.str();
+  double pt[3];
+  float fpt[3];
+  for (int i = 0; i < ca->GetNumberOfPoints(); ++i)
+  {
+    ca->GetPoint(i, pt);
+    fpt[0] = pt[0];
+    fpt[1] = pt[1];
+    fpt[2] = pt[2];
+    ostr->Write(reinterpret_cast<char *>(fpt), 12);
+  }
+}
 
-  std::string fullPath =
-    vtksys::SystemTools::GetFilenamePath(fileName);
-  fullPath += "/";
-  fullPath += fname;
-
-  // now write the data
-  ofstream myFile(fullPath, ios::out | ios::binary);
-
+void WriteValues(vtkPoints *ca, ofstream &myFile)
+{
   double pt[3];
   float fpt[3];
   for (int i = 0; i < ca->GetNumberOfPoints(); ++i)
@@ -129,34 +128,60 @@ std::string WriteBuffer(vtkPoints *ca, const char *fileName)
     fpt[2] = pt[2];
     myFile.write(reinterpret_cast<char *>(fpt),12);
   }
-  myFile.close();
-
-  return fname;
 }
 
-std::string WriteBuffer(vtkUnsignedCharArray *ca, const char *fileName)
+void WriteValues(vtkUnsignedCharArray *ca, ofstream &myFile)
 {
+  myFile.write(reinterpret_cast<char *>(
+    ca->GetVoidPointer(0)),
+    ca->GetNumberOfTuples()*4);
+}
+
+void WriteValues(vtkUnsignedCharArray *ca, vtkBase64OutputStream *ostr)
+{
+  ostr->Write(reinterpret_cast<char *>(
+    ca->GetVoidPointer(0)),
+    ca->GetNumberOfTuples()*4);
+}
+
+template <typename T>
+std::string WriteBuffer(T *ca, const char *fileName, bool inlineData)
+{
+  // if inline then base64 encode the data
+  if (inlineData)
+  {
+    std::string result = "data:application/octet-stream;base64,";
+    std::ostringstream toString;
+    vtkNew<vtkBase64OutputStream> ostr;
+    ostr->SetStream(&toString);
+    ostr->StartWriting();
+    WriteValues(ca, ostr);
+    ostr->EndWriting();
+    result += toString.str();
+    return result;
+  }
+
+  // otherwise write binary files
+  std::string result;
   std::ostringstream toString;
   toString
     << "buffer"
     << ca->GetMTime()
     << ".bin";
-  std::string fname = toString.str();
+  result = toString.str();
 
   std::string fullPath =
     vtksys::SystemTools::GetFilenamePath(fileName);
   fullPath += "/";
-  fullPath += fname;
+  fullPath += result;
 
   // now write the data
   ofstream myFile(fullPath, ios::out | ios::binary);
 
-  myFile.write(reinterpret_cast<char *>(
-    ca->GetVoidPointer(0)),
-    ca->GetNumberOfTuples()*4);
+  WriteValues(ca, myFile);
   myFile.close();
 
-  return fname;
+  return result;
 }
 
 // gltf uses hard coded numbers to represent data types
@@ -180,7 +205,8 @@ void WriteMesh(
   Json::Value &nodes,
   vtkPolyData *pd,
   vtkActor *aPart,
-  const char *fileName
+  const char *fileName,
+  bool inlineData
 )
 {
   vtkNew<vtkTriangleFilter> trif;
@@ -196,7 +222,7 @@ void WriteMesh(
   // write the triangles
   {
     vtkCellArray *da = tris->GetPolys();
-    std::string fname = WriteBuffer(da, fileName);
+    std::string fname = WriteBuffer(da, fileName, inlineData);
     Json::Value buffer;
     // 12 bytes per tri, one tri per 4 entries
     buffer["byteLength"] = static_cast<vtkJson::Value::Int64>(12*da->GetNumberOfCells());
@@ -227,7 +253,7 @@ void WriteMesh(
   // write the point locations
   {
     vtkPoints *da = tris->GetPoints();
-    std::string fname = WriteBuffer(da, fileName);
+    std::string fname = WriteBuffer(da, fileName, inlineData);
     Json::Value buffer;
     // 3 floats per point
     buffer["byteLength"] = static_cast<vtkJson::Value::Int64>(12*da->GetNumberOfPoints());
@@ -273,7 +299,7 @@ void WriteMesh(
   if (aPart->GetMapper()->GetColorMapColors())
   {
     vtkUnsignedCharArray *da = aPart->GetMapper()->GetColorMapColors();
-    std::string fname = WriteBuffer(da, fileName);
+    std::string fname = WriteBuffer(da, fileName, inlineData);
     Json::Value buffer;
     // 4 uchar per point
     buffer["byteLength"] = static_cast<vtkJson::Value::Int64>(4*da->GetNumberOfTuples());
@@ -356,6 +382,15 @@ void WriteCamera(Json::Value &cameras, vtkRenderer *ren)
 
 }
 
+const std::string vtkGLTFExporter::WriteToString()
+{
+  std::ostringstream result;
+
+  this->WriteToStream(result);
+
+  return result.str();
+}
+
 void vtkGLTFExporter::WriteData()
 {
   ofstream output;
@@ -375,6 +410,12 @@ void vtkGLTFExporter::WriteData()
     return;
   }
 
+  this->WriteToStream(output);
+  output.close();
+}
+
+void vtkGLTFExporter::WriteToStream(ostream &output)
+{
   Json::Value cameras;
   Json::Value bufferViews;
   Json::Value buffers;
@@ -449,7 +490,7 @@ void vtkGLTFExporter::WriteData()
                 totalBufferViews, bufferViews,
                 totalMeshes, meshes,
                 totalNodes, nodes,
-                pd, aPart, this->FileName);
+                pd, aPart, this->FileName, this->InlineData);
               anode["children"].append(totalNodes - 1);
             }
           }
@@ -496,13 +537,13 @@ void vtkGLTFExporter::WriteData()
   std::unique_ptr<Json::StreamWriter> writer(
       builder.newStreamWriter());
   writer->write(root, &output);
-  output.close();
 }
 
 void vtkGLTFExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
+  os << "InlineData: " << this->InlineData << "\n";
   if (this->FileName)
   {
     os << indent << "FileName: " << this->FileName << "\n";
