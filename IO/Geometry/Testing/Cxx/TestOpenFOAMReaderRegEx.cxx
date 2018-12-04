@@ -158,10 +158,10 @@ int TestOpenFOAMReaderRegEx(int argc, char* argv[])
   if (!expected_data.empty())
   {
     std::cout << "FAILURE! The following data were not read:" << std::endl;
-    for (auto p : expected_data)
+    for (const auto& p : expected_data)
     {
       std::cout << " patch \"" << p.first << "\"" << std::endl;
-      for (auto q : p.second)
+      for (const auto& q : p.second)
         std::cout << "   field \"" << q.first << "\"" << std::endl;
     }
   }

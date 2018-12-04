@@ -715,7 +715,7 @@ public:
     if (polyDataCount > 1)
     {
       vtkNew<vtkMultiBlockDataSet> b;
-      for (auto p: imageURIToPolyData)
+      for (const auto& p: imageURIToPolyData)
       {
         vtkPolyData* data = p.second;
         b->SetBlock(b->GetNumberOfBlocks(), data);
