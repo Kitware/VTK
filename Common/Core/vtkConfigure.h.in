@@ -141,8 +141,8 @@
 # define VTK_MAXPATH 32767 // Possible with Windows "extended paths"
 #endif
 
-/* TODO: wrap in #ifndef VTK_LEGACY_REMOVE */
-#if 1
+/* Legacy macros that are not required as VTK requires a C++11 compiler */
+#ifndef VTK_LEGACY_REMOVE
 # define VTK_OVERRIDE override
 # define VTK_FINAL final
 # define VTK_DELETE_FUNCTION =delete
