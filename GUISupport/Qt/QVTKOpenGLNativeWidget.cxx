@@ -171,6 +171,7 @@ QVTKOpenGLNativeWidget::QVTKOpenGLNativeWidget(QWidget* parentWdg, Qt::WindowFla
   , InPaintGL(false)
   , DoVTKRenderInPaintGL(false)
   , Logger(nullptr)
+  , DefaultQVTKCursor(QCursor(Qt::ArrowCursor))
 {
   this->Observer->SetTarget(this);
 
@@ -370,6 +371,12 @@ void QVTKOpenGLNativeWidget::setEnableHiDPI(bool enable)
 void QVTKOpenGLNativeWidget::setQVTKCursor(const QCursor &cursor)
 {
   this->setCursor(cursor);
+}
+
+//-----------------------------------------------------------------------------
+void QVTKOpenGLNativeWidget::setDefaultQVTKCursor(const QCursor &cursor)
+{
+  this->DefaultQVTKCursor = cursor;
 }
 
 //-----------------------------------------------------------------------------
@@ -810,8 +817,10 @@ void QVTKOpenGLNativeWidget::cursorChangedCallback(vtkObject*, unsigned long,
       this->setCursor(QCursor(Qt::PointingHandCursor));
       break;
     case VTK_CURSOR_ARROW:
-    default:
       this->setCursor(QCursor(Qt::ArrowCursor));
+      break;
+    default:
+      this->setCursor(this->DefaultQVTKCursor);
       break;
   }
 }

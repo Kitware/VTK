@@ -141,6 +141,11 @@ public:
   void setQVTKCursor(const QCursor &cursor);
 
   /**
+   * Set the default cursor.
+   */
+  void setDefaultQVTKCursor(const QCursor &cursor);
+
+  /**
    * Returns true if the internal QOpenGLWindow's is valid, i.e. if OpenGL
    * resources, like the context, have been successfully initialized.
    */
