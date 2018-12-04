@@ -77,8 +77,11 @@ int TestGLTFExporter(int argc, char *argv[])
   vtkNew<vtkGLTFExporter> exporter;
   exporter->SetRenderWindow(window);
   exporter->SetFileName(filename.c_str());
+  exporter->InlineDataOn();
+  std::string estring = exporter->WriteToString();
+  // for debugging uncomment below
+  // cout << estring;
   exporter->Write();
-
 
   size_t correctSize = fileSize(filename);
   if (correctSize == 0)

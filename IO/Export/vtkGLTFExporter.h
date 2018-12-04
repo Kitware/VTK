@@ -53,6 +53,26 @@ public:
   vtkGetStringMacro(FileName);
   //@}
 
+  //@{
+  /**
+   * Should the binary data be included in the json file as a base64
+   * string.
+   */
+  vtkGetMacro(InlineData, bool);
+  vtkSetMacro(InlineData, bool);
+  vtkBooleanMacro(InlineData, bool);
+  //@}
+
+  /**
+   * Write the result to a string instead of a file
+   */
+  const std::string WriteToString();
+
+  /**
+   * Write the result to a provided ostream
+   */
+  void WriteToStream(ostream &out);
+
 protected:
   vtkGLTFExporter();
   ~vtkGLTFExporter() override;
@@ -60,6 +80,7 @@ protected:
   void WriteData() override;
 
   char *FileName;
+  bool InlineData;
 
 private:
   vtkGLTFExporter(const vtkGLTFExporter&) = delete;
