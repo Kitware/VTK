@@ -133,9 +133,9 @@
 # define VTK_DELETE_FUNCTION =delete
 #endif
 
-/** extern template declarations for C++11
+/** extern template declarations for C++11. Only MinGW32 doesn't support this
  */
-#if ((__cplusplus >= 201103L) || (defined(_MSC_VER) && _MSC_VER >= 1700)) && !defined(__MINGW32__)
+#if !defined(__MINGW32__)
 #define VTK_USE_EXTERN_TEMPLATE
 #endif
 
