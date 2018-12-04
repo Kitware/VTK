@@ -574,9 +574,9 @@ int vtkFLUENTReader::GetCaseChunk ()
   while(this->FluentCaseFile->peek() != ' ')
   {
     //index.push_back(this->FluentCaseFile->peek());
-        index += this->FluentCaseFile->peek();
+        index += static_cast<char>(this->FluentCaseFile->peek());
         //this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
-        this->CaseBuffer->value += this->FluentCaseFile->get();
+        this->CaseBuffer->value += static_cast<char>(this->FluentCaseFile->get());
     if (this->FluentCaseFile->eof())
     {
       return 0;
@@ -603,7 +603,7 @@ int vtkFLUENTReader::GetCaseChunk ()
     while (this->CaseBuffer->value.size() < len)
     {
       //this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
-      this->CaseBuffer->value += this->FluentCaseFile->get();
+      this->CaseBuffer->value += static_cast<char>(this->FluentCaseFile->get());
     }
 
     //while (CaseBuffer.compare(CaseBuffer.size()-strlen(end),
@@ -612,7 +612,7 @@ int vtkFLUENTReader::GetCaseChunk ()
                    (this->CaseBuffer->value.size()-len), end))
     {
       //this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
-      this->CaseBuffer->value += this->FluentCaseFile->get();
+      this->CaseBuffer->value += static_cast<char>(this->FluentCaseFile->get());
     }
 
   }
@@ -622,7 +622,7 @@ int vtkFLUENTReader::GetCaseChunk ()
     while ((this->FluentCaseFile->peek() != ')') || (level != 0) )
     {
       //this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
-      this->CaseBuffer->value += this->FluentCaseFile->get();
+      this->CaseBuffer->value += static_cast<char>(this->FluentCaseFile->get());
       if (this->CaseBuffer->value.at(this->CaseBuffer->value.length()-1) == '(')
       {
         level++;
@@ -637,7 +637,7 @@ int vtkFLUENTReader::GetCaseChunk ()
       }
     }
     //this->CaseBuffer->value.push_back(this->FluentCaseFile->get());
-    this->CaseBuffer->value += this->FluentCaseFile->get();
+    this->CaseBuffer->value += static_cast<char>(this->FluentCaseFile->get());
   }
   return 1;
 }
@@ -724,9 +724,9 @@ int vtkFLUENTReader::GetDataChunk ()
   while(this->FluentDataFile->peek() != ' ')
   {
     //index.push_back(this->FluentDataFile->peek());
-    index += this->FluentDataFile->peek();
+    index += static_cast<char>(this->FluentDataFile->peek());
     //this->DataBuffer->value.push_back(this->FluentDataFile->get());
-    this->DataBuffer->value += this->FluentDataFile->get();
+    this->DataBuffer->value += static_cast<char>(this->FluentDataFile->get());
     if (this->FluentDataFile->eof())
     {
       return 0;
@@ -757,7 +757,7 @@ int vtkFLUENTReader::GetDataChunk ()
     while (this->DataBuffer->value.size() < len)
     {
       //this->DataBuffer->value.push_back(this->FluentDataFile->get());
-      this->DataBuffer->value += this->FluentDataFile->get();
+      this->DataBuffer->value += static_cast<char>(this->FluentDataFile->get());
     }
 
     //while (DataBuffer.compare(DataBuffer.size()-strlen(end),
@@ -766,7 +766,7 @@ int vtkFLUENTReader::GetDataChunk ()
                   (this->DataBuffer->value.size()-len), end))
     {
       //this->DataBuffer->value.push_back(this->FluentDataFile->get());
-      this->DataBuffer->value += this->FluentDataFile->get();
+      this->DataBuffer->value += static_cast<char>(this->FluentDataFile->get());
     }
 
   }
@@ -776,7 +776,7 @@ int vtkFLUENTReader::GetDataChunk ()
     while ((this->FluentDataFile->peek() != ')') || (level != 0) )
     {
       //this->DataBuffer->value.push_back(this->FluentDataFile->get());
-      this->DataBuffer->value += this->FluentDataFile->get();
+      this->DataBuffer->value += static_cast<char>(this->FluentDataFile->get());
       if (this->DataBuffer->value.at(this->DataBuffer->value.length()-1) == '(')
       {
         level++;
@@ -791,7 +791,7 @@ int vtkFLUENTReader::GetDataChunk ()
       }
     }
     //this->DataBuffer->value.push_back(this->FluentDataFile->get());
-    this->DataBuffer->value += this->FluentDataFile->get();
+    this->DataBuffer->value += static_cast<char>(this->FluentDataFile->get());
   }
 
   return 1;
