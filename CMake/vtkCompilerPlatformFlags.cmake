@@ -111,15 +111,15 @@ if(MSVC)
   endif()
 endif()
 
-# Disable deprecation warnings for standard C and STL functions in VS2005
+# Disable deprecation warnings for standard C and STL functions in VS2015+
 # and later
-if(MSVC_VERSION EQUAL 1400 OR MSVC_VERSION GREATER 1400 OR MSVC10)
+if(MSVC)
   add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS)
   add_definitions(-D_SCL_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_WARNINGS)
 endif()
 
-# Enable /MP flag for Visual Studio 2008 and greator
-if(MSVC_VERSION GREATER 1400)
+# Enable /MP flag for Visual Studio
+if(MSVC)
   set(CMAKE_CXX_MP_FLAG OFF CACHE BOOL "Build with /MP flag enabled")
   set(PROCESSOR_COUNT "$ENV{NUMBER_OF_PROCESSORS}")
   set(CMAKE_CXX_MP_NUM_PROCESSORS CACHE ${PROCESSOR_COUNT} "The maximum number of processes for the /MP flag")
