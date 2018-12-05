@@ -142,7 +142,7 @@ bool ContextSVGTest::Paint(vtkContext2D *painter)
   painter->GetPen()->SetWidth(10);
   for (int i = 0; i < 10; ++i)
   {
-    painter->GetPen()->SetLineType(i % (vtkPen::DASH_DOT_DOT_LINE+1));
+    painter->GetPen()->SetLineType(i % (vtkPen::DENSE_DOT_LINE+1));
     painter->GetPen()->SetColor(static_cast<unsigned char>(float(i)*25.0),
                                 255,
                                 128);

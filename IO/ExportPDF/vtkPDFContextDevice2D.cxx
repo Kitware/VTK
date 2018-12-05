@@ -1734,6 +1734,7 @@ void vtkPDFContextDevice2D::ApplyLineType(int type)
   static const HPDF_UINT   dashLen = 1;
 
   static const HPDF_UINT16 dot[] = { 1, 7 };
+  static const HPDF_UINT16 denseDot[] = { 1, 3 };
   static const HPDF_UINT   dotLen = 2;
 
   static const HPDF_UINT16 dashDot[] = { 4, 6, 2, 4 };
@@ -1771,6 +1772,10 @@ void vtkPDFContextDevice2D::ApplyLineType(int type)
 
     case vtkPen::DASH_DOT_DOT_LINE:
       HPDF_Page_SetDash(this->Impl->Page, dashDotDot, dashDotDotLen, 0);
+      break;
+
+    case vtkPen::DENSE_DOT_LINE:
+      HPDF_Page_SetDash(this->Impl->Page, denseDot, dotLen, 0);
       break;
   }
 }
