@@ -1235,10 +1235,6 @@ int vtkTetraTile::Refine(vtkSimpleCellTessellator* tess,
       {
         for(k=0; k<4; k++)
         {
-          // This is the line that makes Visual Studio 7.0 to fail compiling
-          // a valid code in release mode. If we add the following line before
-          // the actual use of cases[k], everything works fine...
-          // line that fixes Visual Studio: cout<<cases[k]<<endl;
           tetra[k] = this->PointId[cases[k]];
         }
 
