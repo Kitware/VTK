@@ -1,5 +1,4 @@
-#!/usr/bin/python2.2
-# -*- coding: latin-1 -*-
+#!/usr/bin/python
 #
 # Copyright 2003 Sandia Corporation.
 # Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
@@ -9,6 +8,7 @@
 # statement of authorship are reproduced on all copies.
 #
 
+from __future__ import print_function
 import sys, re, math
 
 QualityThang = 0
@@ -34,16 +34,16 @@ vtkTessCase holds the tetrahedral decomposition of a simplex.
   AllCases = {}
 
   def PrintAll( fout ):
-    print >> fout, "vtkIdType vtkStreamingTessellator::TetrahedralDecompositions[] = \n{"
+    print("vtkIdType vtkStreamingTessellator::TetrahedralDecompositions[] = \n{", file=fout)
     tmp = []
     for k in vtkTessCase.AllCases.keys():
       tmp.append( ( vtkTessCase.AllCases[k].Offset, k ) )
     tmp.sort()
     #for t in tmp:
-    #  print t
+    #  print(t)
     for t in tmp:
       vtkTessCase.AllCases[t[1]].Print( fout )
-    print >> fout, "};\n"
+    print("};\n", file=fout)
   PrintAll = staticmethod( PrintAll )
 
   def GetOffset( label ):
@@ -58,7 +58,7 @@ vtkTessCase holds the tetrahedral decomposition of a simplex.
 
   def __init__( self, label ):
     """Create an empty decomposition with a unique name."""
-    #print >> sys.stderr, '  Tetrahedra: %s' % label
+    #print('  Tetrahedra: %s' % label, file=sys.stderr)
     self.Tets = []
     self.Label = label
     self.Offset = vtkTessCase.CurrentOffset
@@ -78,11 +78,11 @@ vtkTessCase holds the tetrahedral decomposition of a simplex.
 
   def Print( self, fout ):
     """Write the decomposition out to the given file."""
-    print >> fout, '// case %s' % self.Label
-    print >> fout, '  %2d,' % (len(self.Tets)/4)
-    for i in range(len(self.Tets)/4):
-      print >> fout, '  %2d, %2d, %2d, %2d,' % tuple(self.Tets[(i*4):(i*4+4)])
-    print >> fout, ''
+    print('// case %s' % self.Label, file=fout)
+    print('  %2d,' % (len(self.Tets)/4), file=fout)
+    for i in range(int(len(self.Tets)/4)):
+      print('  %2d, %2d, %2d, %2d,' % tuple(self.Tets[(i*4):(i*4+4)]), file=fout)
+    print('', file=fout)
     #self.Offset = vtkTessCase.CurrentOffset
     #vtkTessCase.CurrentOffset += len(self.Tets)+2
 
@@ -97,14 +97,14 @@ caseLabel = 0
 # ============================================================================
 # Constant global variables
 
-genCode = file('vtkStreamingTessellator.cxx','w')
+genCode = open('vtkStreamingTessellator.cxx','w')
 # These are EDGE numbers of the edges on a given face, NOT vertex numbers
 FaceEdges = [ [0,1,2], [0,3,4], [1,4,5], [2,5,3] ]
 # These are the vertices of a given edge
 EdgeVerts = [ [0,1], [1,2], [0,2], [0,3], [1,3], [2,3] ]
 # This dictionary maps from vertices to a face index
 FaceFromVerts = { (0,1,2):0, (0,1,3):1, (1,2,3):2, (0,2,3):3 }
-# The Ruprecht-Müller cases
+# The Ruprecht-MÃ¼ller cases
 # Each case is assigned a tuple containing:
 # 1. A unique integer (used in switch statements)
 # 2. A list of edges to be subdivided. This is the list
@@ -164,7 +164,7 @@ def GetInverse( op ):
   return '?'
 
 def GetBitcodeFromConditional( conditional, indices ):
-  #print 'Indices:   %s' % indices
+  #print('Indices:   %s' % indices)
   stuff = re_switch.split( conditional )
   bits = 0
   v = []
@@ -177,17 +177,17 @@ def GetBitcodeFromConditional( conditional, indices ):
       # This conditional requires multiple disjoint comparisons
       # and the ',' just serves as a separator. Skip it.
       continue
-    #print '%d: %s %s %s' % ( i, v[i-1], v[i], v[i+1] )
+    #print('%d: %s %s %s' % ( i, v[i-1], v[i], v[i+1] ))
     cind = ( int(v[i-1]), int(v[i+1]) )
     flip = 0
-    if not indices.has_key( cind ):
+    if not cind in indices:
       cind = ( cind[1], cind[0] )
       flip = 1
-    if not indices.has_key( cind ):
+    if not cind in indices:
       # This edge pair is unimportant (inequality contains
       # more constraints than are required to characterize
       # this case). Print warning and skip:
-      print '*** WARNING *** Edge comparison %s %s %s unnecessary!' % ( v[i-1], v[i], v[i+1] )
+      print('*** WARNING *** Edge comparison %s %s %s unneccessary!' % ( v[i-1], v[i], v[i+1] ))
       continue
     if v[i] == ',':
       continue
@@ -236,28 +236,28 @@ def EdgesToSubdivide( edges ):
   global currentCaseCtr, currentCase, currentBits
   possibleFaces = []
   edgePairs = {}
-  #print 'These edges are subdivided: %s' % edges
+  #print('These edges are subdivided: %s' % edges)
   for f in range(4):
     edgePair = ()
     for edge in FaceEdges[f]:
-      #print '  Is %s in the list?' % edge
+      #print('  Is %s in the list?' % edge)
       if edge in edges:
         edgePair = edgePair + tuple([ edge ])
-    #print 'edgePairs are %s' % str(edgePair)
+    #print('edgePairs are %s' % str(edgePair))
     if len(edgePair) == 2:
       possibleFaces += [ f ]
       edgePairs[ edgePair ] = 1
-  #print 'Possible faces: %s' % possibleFaces
+  #print('Possible faces: %s' % possibleFaces)
   edgePairs = edgePairs.keys()
-  #print 'Edge pairs : %s' % edgePairs
+  #print('Edge pairs : %s' % edgePairs)
   if len(edgePairs):
-    print >> genCode, '      comparisonBits = '
+    print('      comparisonBits =', file=genCode)
   tmp = 1;
   for p in edgePairs:
-    print >> genCode, '        (permlen[%d] <= permlen[%d] ? %d : 0) | (permlen[%d] >= permlen[%d] ? %d : 0) |' % ( p[0], p[1], tmp, p[0], p[1], 2*tmp )
+    print('        (permlen[%d] <= permlen[%d] ? %d : 0) | (permlen[%d] >= permlen[%d] ? %d : 0) |' % ( p[0], p[1], tmp, p[0], p[1], 2*tmp ), file=genCode)
     tmp = tmp * 4
   if len(edgePairs):
-    print >> genCode, '        0;'
+    print('        0;', file=genCode)
   tmp = 1
   for p in edgePairs:
     currentBits[ (p[0],p[1]) ] = math.frexp(tmp)[1]-1
@@ -265,29 +265,29 @@ def EdgesToSubdivide( edges ):
     tmp = tmp*4
     [v0,v1,v2] = GetVerticesFromPair( p )
     faceidx = 10 + GetFaceFromVertices( [v0,v1,v2] )
-    print >> genCode, '      if ( (comparisonBits & %d) == %d )' % (bits,bits)
-    print >> genCode, '        {'
-    print >> genCode, '        // Compute face point'
-    print >> genCode, '        for ( i=0; i<this->PointDimension[3]; i++ )'
-    print >> genCode, '          {'
-    print >> genCode, '          permuted[%d][i] = (permuted[%d][i] + permuted[%d][i])*0.375 + permuted[%d][i]/4.;' % ( faceidx, v1, v2, v0 )
-    print >> genCode, '          }'
-    print >> genCode, '        }'
+    print('      if ( (comparisonBits & %d) == %d )' % (bits,bits), file=genCode)
+    print('        {', file=genCode)
+    print('        // Compute face point', file=genCode)
+    print('        for ( i=0; i<this->PointDimension[3]; i++ )', file=genCode)
+    print('          {', file=genCode)
+    print('          permuted[%d][i] = (permuted[%d][i] + permuted[%d][i])*0.375 + permuted[%d][i]/4.;' % ( faceidx, v1, v2, v0 ), file=genCode)
+    print('          }', file=genCode)
+    print('        }', file=genCode)
     faceidx += 1
 
 def BeginCase( label ):
   global currentCaseCtr, currentCase, currentBits, caseLabel
-  print >> genCode, '    case %d: // Ruprecht-Müller Case %s' % ( RMCases[ label ][0]+1, label )
+  print('    case %d: // Ruprecht-MÃ¼ller Case %s' % ( RMCases[ label ][0]+1, label ), file=genCode)
   currentCase = label
   currentCaseCtr = 0
   currentBits = {}
   EdgesToSubdivide( RMCases[ label ][1] )
   caseLabel = 0
-  print >> genCode, '      VTK_TESSELLATOR_INCR_CASE_COUNT(%d);' % RMCases[ currentCase ][0]
+  print('      VTK_TESSELLATOR_INCR_CASE_COUNT(%d);' % RMCases[ currentCase ][0], file=genCode)
 
 def EndCase():
   global currentCaseCtr, currentCase, currentBits, caseLabel
-  print >> genCode, '      break;'
+  print('      break;', file=genCode)
   currentCase = 'invalid'
   currentCaseCtr = -1
   currentBits = {}
@@ -330,15 +330,15 @@ def __Unconditional( tets, perm, sign, indent='', label='', alternates=() ):
     for stuff in tc:
       altstring += str(stuff.Offset) + ', '
     altstring += '-1 }'
-    print >> genCode, '      %s{' % indent
-    print >> genCode, '      %s  int alternates[] = %s;' % (indent, altstring)
-    print >> genCode, '      %s  outputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + this->BestTets( alternates, permuted, %d, %d ) );' % ( indent, PermutationIndices[ perm ][0], sign )
-    print >> genCode, '      %s}' % indent
+    print('      %s{' % indent, file=genCode)
+    print('      %s  int alternates[] = %s;' % (indent, altstring), file=genCode)
+    print('      %s  outputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + this->BestTets( alternates, permuted, %d, %d ) );' % ( indent, PermutationIndices[ perm ][0], sign ), file=genCode)
+    print('      %s}' % indent, file=genCode)
   else:
-    print >> genCode, '      %soutputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + %d );' % (indent, tc[0].Offset)
-  print >> genCode, '      %soutputPerm.push( vtkStreamingTessellator::PermutationsFromIndex[%d] );' % (indent, PermutationIndices[ perm ][0])
-  print >> genCode, '      %soutputSign.push( %d );' % (indent, sign)
-  print >> genCode, '      %sVTK_TESSELLATOR_INCR_SUBCASE_COUNT(%d,%d);' % (indent,RMCases[ currentCase ][0],caseLabel)
+    print('      %soutputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + %d );' % (indent, tc[0].Offset), file=genCode)
+  print('      %soutputPerm.push( vtkStreamingTessellator::PermutationsFromIndex[%d] );' % (indent, PermutationIndices[ perm ][0]), file=genCode)
+  print('      %soutputSign.push( %d );' % (indent, sign), file=genCode)
+  print('      %sVTK_TESSELLATOR_INCR_SUBCASE_COUNT(%d,%d);' % (indent,RMCases[ currentCase ][0],caseLabel), file=genCode)
   caseLabel += 1
 
 def __Permuted( perm, sign, source, indent, label ):
@@ -364,43 +364,42 @@ def __Permuted( perm, sign, source, indent, label ):
 
   if len(tc) > 1 and QualityThang:
     altstring = str( tc ).replace( '[', '{' ).replace( ']', ', -1 }' )
-    print >> genCode, '      %s{' % indent
-    print >> genCode, '      %s  int alternates[] = %s;' % (indent, altstring)
-    print >> genCode, '      %s  outputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + this->BestTets( alternates, permuted, %d, %d ) );' % ( indent, PermutationIndices[ perm ][0], sign )
-    print >> genCode, '      %s}' % indent
+    print('      %s{' % indent, file=genCode)
+    print('      %s  int alternates[] = %s;' % (indent, altstring), file=genCode)
+    print('      %s  outputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + this->BestTets( alternates, permuted, %d, %d ) );' % ( indent, PermutationIndices[ perm ][0], sign ), file=genCode)
+    print('      %s}' % indent, file=genCode)
   else:
-    print >> genCode, '      %soutputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + %d );' % (indent, tc[0])
-  print >> genCode, '      %soutputPerm.push( vtkStreamingTessellator::PermutationsFromIndex[%d] );' % (indent, PermutationIndices[ perm ][0])
-  print >> genCode, '      %soutputSign.push( %d );' % (indent, sign)
-  print >> genCode, '      %sVTK_TESSELLATOR_INCR_SUBCASE_COUNT(%d,%d);' % (indent,RMCases[ currentCase ][0],caseLabel)
+    print('      %soutputTets.push( vtkStreamingTessellator::TetrahedralDecompositions + %d );' % (indent, tc[0]), file=genCode)
+  print('      %soutputPerm.push( vtkStreamingTessellator::PermutationsFromIndex[%d] );' % (indent, PermutationIndices[ perm ][0]), file=genCode)
+  print('      %soutputSign.push( %d );' % (indent, sign), file=genCode)
+  print('      %sVTK_TESSELLATOR_INCR_SUBCASE_COUNT(%d,%d);' % (indent,RMCases[ currentCase ][0],caseLabel), file=genCode)
   caseLabel += 1
 
 def __BeginSubcase():
-  print >> genCode, '      switch (comparisonBits)'
-  print >> genCode, '        {'
+  print('      switch (comparisonBits)', file=genCode)
+  print('        {', file=genCode)
 
 def __EndSubcase():
-  print >> genCode, '        }'
+  print('        }', file=genCode)
 
 def __SubCase( ctxt, tets, sgn, alternates=() ):
   global currentCaseCtr, currentCase, currentBits, caseLabel
   code = GetBitcodeFromConditional( ctxt, currentBits )
-  print >> genCode, '        case %d: // %s' % ( code, ctxt )
+  print('        case %d: // %s' % ( code, ctxt ), file=genCode)
   if sgn > 0:
     __Unconditional( tets, (0,1,2,3), +1, '    ', ctxt, alternates )
   else:
     __Unconditional( tets, (1,0,2,3), -1, '    ', ctxt, alternates )
-  print >> genCode, '      %sbreak;' % '    '
+  print('      %sbreak;' % '    ', file=genCode)
 
 def __PrmCase( ctxt, csrc, perm, sgn ):
   global currentCaseCtr, currentCase, currentBits, caseLabel
   code = GetBitcodeFromConditional( ctxt, currentBits )
-  print >> genCode, '        case %d: // %s' % ( code, ctxt )
+  print('        case %d: // %s' % ( code, ctxt ), file=genCode)
   __Permuted( perm, sgn, csrc, '    ', ctxt )
-  print >> genCode, '      %sbreak;' % '    '
+  print('      %sbreak;' % '    ', file=genCode)
 
-print >> genCode, \
-"""/*
+print("""/*
  * Copyright 2003 Sandia Corporation.
  * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
  * license for use of this work by or on behalf of the
@@ -417,10 +416,10 @@ print >> genCode, \
 
 #include "vtkStreamingTessellator.h"
 #include "vtkEdgeSubdivisionCriterion.h"
-"""
+""", file=genCode)
 
 if QualityThang:
-  print >> genCode, """
+  print("""
 #include "vtkMeshQuality.h"
 #include "vtkPoints.h"
 #include "vtkTetra.h"
@@ -428,9 +427,9 @@ if QualityThang:
 // how's this for avoiding namespace conflicts?! 8-)
 static vtkTetra* argyle = 0;
 static vtkPoints* goCallTheCops;
-"""
+""", file=genCode)
 
-print >> genCode, """
+print("""
 #undef UGLY_ASPECT_RATIO_HACK
 #undef DBG_MIDPTS
 
@@ -519,15 +518,15 @@ vtkStreamingTessellator::vtkStreamingTessellator()
     {
     this->EmbeddingDimension[i] = i;
     this->PointDimension[i] = i+3; // By default, FieldSize = 0
-    }"""
+    }""", file=genCode)
 if QualityThang:
-  print >> genCode, """
+  print("""
   if ( ! argyle )
     {
     argyle = vtkTetra::New();
     goCallTheCops = argyle->GetPoints();
-    }"""
-print >> genCode, """
+    }""", file=genCode)
+print("""
 }
 
 vtkStreamingTessellator::~vtkStreamingTessellator()
@@ -720,10 +719,10 @@ bool compareHopfCrossStringDist( const double* a0, const double* a1, const doubl
     }
   return SqMagA < SqMagB;
 }
-"""
+""", file=genCode)
 
 if QualityThang:
-  print >> genCode, """
+  print("""
 int vtkStreamingTessellator::BestTets( int* connOffsets, double** verts, int permOffset, int sgn ) const
 {
   int bestOffset = -1;
@@ -757,18 +756,18 @@ int vtkStreamingTessellator::BestTets( int* connOffsets, double** verts, int per
     std::cout << "Choose " << bestOffset << "\\n";
   return bestOffset;
 }
-"""
+""", file=genCode)
 else:
-  print >> genCode, """
+  print("""
 int vtkStreamingTessellator::BestTets( int* vtkNotUsed(connOffsets), double** vtkNotUsed(verts), int vtkNotUsed(permOffset), int vtkNotUsed(sgn) ) const
 {
   // Re-run vtkStreamingTessellatorGenerator.py with QualityThang=1
   // to get this implemented (along with on-the-fly quality improvement)
   return 1;
 }
-"""
+""", file=genCode)
 
-print >> genCode, """
+print("""
 void vtkStreamingTessellator::AdaptivelySample0Facet( double* v0 ) const
 {
   Callback0( v0, this->Algorithm, this->PrivateData, this->ConstPrivateData );
@@ -1085,11 +1084,11 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
     //    Note that case 0 is handled above (edgeCode == 0).
     switch (C)
       {
-"""
+""", file=genCode)
 
 # ============================================================================
 # Code generation
-#  Each BeginCase() ... EndCase() marks the start of a Ruprect-Muller case.
+#  Each BeginCase() ... EndCase() marks the start of a Ruprect-MÃ¼ller case.
 #  Inside a Begin/EndCase() pair, you may have
 #    - __Unconditional( tetList, permutation, sign ): unconditionally add
 #          the tetrahedra specified as a list of integer vertices in tetList
@@ -1451,7 +1450,7 @@ __Unconditional( [ 6, 4, 5, 8,   6, 5, 9, 8, \
                    )
 EndCase()
 
-print >> genCode, \
+print( \
 """      }
 
     vtkIdType* tets;
@@ -1504,17 +1503,16 @@ print >> genCode, \
       }
     }
 }
-"""
+""", file=genCode)
 
-print >> genCode, \
-"""
+print("""
 /*
  * The array below is indexed by the edge code for a tetrahedron.
  * Looking up a row with a tet's edge code will return C and P.
  * C is a configuration number and P is a permutation index.
  *
  * C is based on the case number from Ruprecht and
- * Müller's (1998) paper on adaptive tetrahedra. (The case
+ * MÃ¼ller's (1998) paper on adaptive tetrahedra. (The case
  * numbers are shown to the left of the row in the column
  * labeled case. The only difference is that we introduce
  * a case 3d which is part of case 3c in the paper.)
@@ -1540,7 +1538,7 @@ print >> genCode, \
  *
  * ===========
  * References:
- * (Ruprect and Müller, 1998) A Scheme for Edge-based Adaptive
+ * (Ruprect and MÃ¼ller, 1998) A Scheme for Edge-based Adaptive
  *   Tetrahedron Subdivision, Mathematical Visualization (eds.
  *   Hege and Polthier), pp. 61--70. Springer-Verlag. 1998.
  */
@@ -1690,7 +1688,7 @@ vtkIdType vtkStreamingTessellator::PermutationsFromIndex[24][14] =
  * combined to create the tessellation of a single
  * input tetrahedron.
  */
-"""
+""", file=genCode)
 # ============================================================================
 # Now that we have all our output tetrahedra defined, write
 # out the list of all tetrahedra.
