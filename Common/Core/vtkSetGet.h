@@ -912,6 +912,38 @@ virtual double *Get##name() VTK_SIZEHINT(2)\
   vtkGenericWarningMacro(#method " was deprecated for " version " and will be removed in a future version.  Use " #replace " instead.")
 #endif
 
+
+//----------------------------------------------------------------------------
+// Deprecation attribute.
+
+#if !defined(VTK_DEPRECATED)
+# if __cplusplus >= 201402L && defined(__has_cpp_attribute)
+#  if __has_cpp_attribute(deprecated)
+#   define VTK_DEPRECATED [[deprecated]]
+#  endif
+# elif defined(_MSC_VER)
+#  define VTK_DEPRECATED __declspec(deprecated)
+# elif defined(__GNUC__) && !defined(__INTEL_COMPILER)
+#  define VTK_DEPRECATED __attribute__((deprecated))
+# endif
+#endif
+
+#ifndef VTK_DEPRECATED
+# define VTK_DEPRECATED
+#endif
+
+//----------------------------------------------------------------------------
+// format string checking.
+
+#if !defined(VTK_FORMAT_PRINTF)
+# if defined(__GNUC__)
+#  define VTK_FORMAT_PRINTF(a,b) __attribute__((format (printf, a, b)))
+# else
+#  define VTK_FORMAT_PRINTF(a,b)
+# endif
+#endif
+
+
 // Qualifiers used for function arguments and return types indicating that the
 // class is wrapped externally.
 #define VTK_WRAP_EXTERN
