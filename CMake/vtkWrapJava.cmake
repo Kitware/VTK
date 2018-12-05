@@ -179,20 +179,3 @@ $<$<BOOL:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>>:
   CONFIGURE_FILE("${dir}/JavaDependencies.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/JavaDependencies.cmake" @ONLY)
 endmacro()
-
-# VS 6 does not like needing to run a huge number of custom commands
-# when building a single target.  Generate some extra custom targets
-# that run the custom commands before the main target is built.  This
-# is a hack to work-around the limitation.  The test to enable it is
-# done here since it does not need to be done for every macro
-# invocation.
-IF(CMAKE_GENERATOR STREQUAL "Visual Studio 6")
-  SET(VTK_WRAP_JAVA_NEED_CUSTOM_TARGETS 1)
-  SET(VTK_WRAP_JAVA_CUSTOM_LIMIT x)
-  # Limit the number of custom commands in each target
-  # to 2^7.
-  FOREACH(t 1 2 3 4 5 6 7)
-    SET(VTK_WRAP_JAVA_CUSTOM_LIMIT
-      ${VTK_WRAP_JAVA_CUSTOM_LIMIT}${VTK_WRAP_JAVA_CUSTOM_LIMIT})
-  ENDFOREACH()
-ENDIF()
