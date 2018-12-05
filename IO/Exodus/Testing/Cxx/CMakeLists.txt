@@ -1,12 +1,3 @@
-# Tests with data
-# VS6 builds do not handle out-of-range double assignment to float
-# properly. Do not run TestMultiBlockExodusWrite on VS6 builds.
-#
-if(NOT CMAKE_GENERATOR MATCHES "Visual Studio 6")
-  set(extra_tests
-    TestMultiBlockExodusWrite.cxx
-    )
-endif()
 
 # We need typed arrays to be supported by the dispatcher to run the insitu test:
 if(VTK_DISPATCH_TYPED_ARRAYS)
@@ -19,6 +10,7 @@ vtk_add_test_cxx(vtkIOExodusCxxTests tests
   TestExodusAttributes.cxx,NO_VALID,NO_OUTPUT
   TestExodusIgnoreFileTime.cxx,NO_VALID,NO_OUTPUT
   TestExodusSideSets.cxx,NO_VALID,NO_OUTPUT
+  TestMultiBlockExodusWrite.cxx
   ${extra_tests}
   )
 

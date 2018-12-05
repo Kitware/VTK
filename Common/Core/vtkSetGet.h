@@ -34,8 +34,8 @@
 
 //----------------------------------------------------------------------------
 // Check for unsupported old compilers.
-#if defined(_MSC_VER) && _MSC_VER < 1800
-# error VTK requires MSVC++ 12.0 aka Visual Studio 2013 or newer
+#if defined(_MSC_VER) && _MSC_VER < 1900
+# error VTK requires MSVC++ 14.0 aka Visual Studio 2015 or newer
 #endif
 
 #if !defined(__clang__) && defined(__GNUC__) && (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 8))

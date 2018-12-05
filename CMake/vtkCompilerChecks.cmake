@@ -16,15 +16,10 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" AND
   message(FATAL_ERROR "Apple Clang 5.0 or later is required.")
 endif ()
 
-# Minimum compiler version check: Microsoft C/C++ >= 18.0 (aka VS 2013 aka VS 12.0)
-if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 18.0)
-    message(FATAL_ERROR "Microsoft Visual Studio 2015 or later is required.")
-  else()
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0)
-      message(DEPRECATION "Microsoft Visual Studio 2013 is deprecated in VTK 8.2.0.")
-    endif()
-  endif()
+# Minimum compiler version check: Microsoft C/C++ >= 19.0 (aka VS 2015)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0)
+  message(FATAL_ERROR "Microsoft Visual Studio 2015 or later is required.")
 endif ()
 
 # Minimum compiler version check: Intel C++ (ICC) >= 14
