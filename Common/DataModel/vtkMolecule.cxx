@@ -823,3 +823,22 @@ vtkMolecule *vtkMolecule::GetData(vtkInformationVector *v, int i)
 {
   return vtkMolecule::GetData(v->GetInformationObject(i));
 }
+
+//----------------------------------------------------------------------------
+unsigned long vtkMolecule::GetActualMemorySize()
+{
+  unsigned long size = this->Superclass::GetActualMemorySize();
+  if (this->ElectronicData)
+  {
+    size += this->ElectronicData->GetActualMemorySize();
+  }
+  if (this->AtomGhostArray)
+  {
+    size += this->AtomGhostArray->GetActualMemorySize();
+  }
+  if (this->BondGhostArray)
+  {
+    size += this->BondGhostArray->GetActualMemorySize();
+  }
+  return size;
+}

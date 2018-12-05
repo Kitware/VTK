@@ -765,6 +765,19 @@ void vtkGraph::Squeeze()
 }
 
 //----------------------------------------------------------------------------
+unsigned long vtkGraph::GetActualMemorySize()
+{
+  unsigned long size = this->Superclass::GetActualMemorySize();
+  size += this->EdgeData->GetActualMemorySize();
+  size += this->VertexData->GetActualMemorySize();
+  if (this->Points)
+  {
+    size += this->Points->GetActualMemorySize();
+  }
+  return size;
+}
+
+//----------------------------------------------------------------------------
 vtkGraph *vtkGraph::GetData(vtkInformation *info)
 {
   return info? vtkGraph::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
