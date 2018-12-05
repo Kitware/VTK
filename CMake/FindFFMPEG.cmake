@@ -89,9 +89,8 @@ function (_ffmpeg_find component headername)
       add_library("FFMPEG::${component}" UNKNOWN IMPORTED)
       set_target_properties("FFMPEG::${component}" PROPERTIES
         IMPORTED_LOCATION "${FFMPEG_${component}_LIBRARY}"
-        INTERFACE_INCLUDE_DIRECTORIES "${FFMPEG_${component}_INCLUDE_DIR}")
-      target_link_libraries("FFMPEG::${component}"
-        INTERFACE ${deps_link})
+        INTERFACE_INCLUDE_DIRECTORIES "${FFMPEG_${component}_INCLUDE_DIR}"
+        IMPORTED_LINK_INTERFACE_LIBRARIES "${_deps_link}")
       set("FFMPEG_${component}_FOUND" 1
         PARENT_SCOPE)
 
