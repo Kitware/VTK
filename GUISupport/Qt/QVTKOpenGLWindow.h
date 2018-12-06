@@ -195,6 +195,11 @@ public slots:
     void* client_data, void* call_data);
 
   /**
+   * Set the default cursor.
+   */
+  void setDefaultQVTKCursor(const QCursor &cursor);
+
+  /**
    * slot to process events coming from the widget containing this window
    */
   virtual void widgetEvent(QEvent* e);
@@ -251,6 +256,8 @@ private:
   vtkSmartPointer<vtkEventQtSlotConnect> EventSlotConnector;
 
   QOffscreenSurface* OffscreenSurface;
+
+  QCursor DefaultQVTKCursor;
 };
 
 #endif // QVTKOpenGLWindow_H

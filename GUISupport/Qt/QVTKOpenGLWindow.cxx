@@ -37,6 +37,7 @@ QVTKOpenGLWindow::QVTKOpenGLWindow(vtkGenericOpenGLRenderWindow* w,
   , EnableHiDPI(false)
   , OriginalDPI(0)
   , OffscreenSurface(nullptr)
+  , DefaultQVTKCursor(QCursor(Qt::ArrowCursor))
 {
   this->IrenAdapter = new QVTKInteractorAdapter(this);
   this->IrenAdapter->SetDevicePixelRatio(this->devicePixelRatio());
@@ -616,8 +617,16 @@ void QVTKOpenGLWindow::ChangeCursor(vtkObject*, unsigned long, void*,
       this->setCursor(QCursor(Qt::PointingHandCursor));
       break;
     case VTK_CURSOR_ARROW:
-    default:
       this->setCursor(QCursor(Qt::ArrowCursor));
       break;
+    default:
+      this->setCursor(this->DefaultQVTKCursor);
+      break;
   }
+}
+
+//-----------------------------------------------------------------------------
+void QVTKOpenGLWindow::setDefaultQVTKCursor(const QCursor &cursor)
+{
+  this->DefaultQVTKCursor = cursor;
 }

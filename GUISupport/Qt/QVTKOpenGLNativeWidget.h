@@ -178,6 +178,11 @@ public:
    */
   void setQVTKCursor(const QCursor &cursor);
 
+  /**
+   * Set the default cursor.
+   */
+  void setDefaultQVTKCursor(const QCursor &cursor);
+
 signals:
   /**
    * This signal will be emitted whenever a mouse event occurs within the QVTK window.
@@ -276,6 +281,7 @@ private:
   vtkNew<QVTKOpenGLNativeWidgetObserver> Observer;
   friend class QVTKOpenGLNativeWidgetObserver;
   QOpenGLDebugLogger* Logger;
+  QCursor DefaultQVTKCursor;
 };
 
 #endif

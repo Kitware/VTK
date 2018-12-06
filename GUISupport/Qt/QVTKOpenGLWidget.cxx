@@ -156,6 +156,12 @@ void QVTKOpenGLWidget::setQVTKCursor(const QCursor &cursor)
 }
 
 //-----------------------------------------------------------------------------
+void QVTKOpenGLWidget::setDefaultQVTKCursor(const QCursor &cursor)
+{
+  this->qVTKOpenGLWindowInternal->setDefaultQVTKCursor(cursor);
+}
+
+//-----------------------------------------------------------------------------
 void QVTKOpenGLWidget::windowEvent(QEvent* e)
 {
   QApplication::sendEvent(this, e);
