@@ -90,6 +90,17 @@ public:
   vtkGetStringMacro(ScalarArrayName);
   //@}
 
+  /**
+   * vtkImageReader itself can read raw binary files. That being the case,
+   * we need to implement `CanReadFile` to return success for any file.
+   * Subclasses that read specific file format should override and implement
+   * appropriate checks for file format.
+   */
+  int CanReadFile(const char*) override
+  {
+    return 1; // I think I can read the file but I cannot prove it
+  }
+
 protected:
   vtkImageReader();
   ~vtkImageReader() override;
