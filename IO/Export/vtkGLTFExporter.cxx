@@ -383,7 +383,7 @@ void WriteCamera(Json::Value &cameras, vtkRenderer *ren)
 
 }
 
-const std::string vtkGLTFExporter::WriteToString()
+std::string vtkGLTFExporter::WriteToString()
 {
   std::ostringstream result;
 
