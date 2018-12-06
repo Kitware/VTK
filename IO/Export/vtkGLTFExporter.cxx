@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkGLTFExporter.h"
 
+#include <memory>
 #include <sstream>
 
 #include "vtk_jsoncpp.h"
