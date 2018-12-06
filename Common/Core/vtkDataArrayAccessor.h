@@ -107,32 +107,38 @@ struct vtkDataArrayAccessor
 
   vtkDataArrayAccessor(ArrayType *array) : Array(array) {}
 
-  inline APIType Get(vtkIdType tupleIdx, int compIdx) const
+  VTK_ALWAYS_INLINE
+  APIType Get(vtkIdType tupleIdx, int compIdx) const
   {
     return this->Array->GetTypedComponent(tupleIdx, compIdx);
   }
 
-  inline void Set(vtkIdType tupleIdx, int compIdx, APIType val) const
+  VTK_ALWAYS_INLINE
+  void Set(vtkIdType tupleIdx, int compIdx, APIType val) const
   {
     this->Array->SetTypedComponent(tupleIdx, compIdx, val);
   }
 
-  inline void Insert(vtkIdType tupleIdx, int compIdx, APIType val) const
+  VTK_ALWAYS_INLINE
+  void Insert(vtkIdType tupleIdx, int compIdx, APIType val) const
   {
     this->Array->InsertTypedComponent(tupleIdx, compIdx, val);
   }
 
-  inline void Get(vtkIdType tupleIdx, APIType *tuple) const
+  VTK_ALWAYS_INLINE
+  void Get(vtkIdType tupleIdx, APIType *tuple) const
   {
     this->Array->GetTypedTuple(tupleIdx, tuple);
   }
 
-  inline void Set(vtkIdType tupleIdx, const APIType *tuple) const
+  VTK_ALWAYS_INLINE
+  void Set(vtkIdType tupleIdx, const APIType *tuple) const
   {
     this->Array->SetTypedTuple(tupleIdx, tuple);
   }
 
-  inline void Insert(vtkIdType tupleIdx, const APIType *tuple) const
+  VTK_ALWAYS_INLINE
+  void Insert(vtkIdType tupleIdx, const APIType *tuple) const
   {
     this->Array->InsertTypedTuple(tupleIdx, tuple);
   }
@@ -149,32 +155,38 @@ struct vtkDataArrayAccessor<vtkDataArray>
 
   vtkDataArrayAccessor(ArrayType *array) : Array(array) {}
 
-  inline APIType Get(vtkIdType tupleIdx, int compIdx) const
+  VTK_ALWAYS_INLINE
+  APIType Get(vtkIdType tupleIdx, int compIdx) const
   {
     return this->Array->GetComponent(tupleIdx, compIdx);
   }
 
-  inline void Set(vtkIdType tupleIdx, int compIdx, APIType val) const
+  VTK_ALWAYS_INLINE
+  void Set(vtkIdType tupleIdx, int compIdx, APIType val) const
   {
     this->Array->SetComponent(tupleIdx, compIdx, val);
   }
 
-  inline void Insert(vtkIdType tupleIdx, int compIdx, APIType val) const
+  VTK_ALWAYS_INLINE
+  void Insert(vtkIdType tupleIdx, int compIdx, APIType val) const
   {
     this->Array->InsertComponent(tupleIdx, compIdx, val);
   }
 
-  inline void Get(vtkIdType tupleIdx, APIType *tuple) const
+  VTK_ALWAYS_INLINE
+  void Get(vtkIdType tupleIdx, APIType *tuple) const
   {
     this->Array->GetTuple(tupleIdx, tuple);
   }
 
-  inline void Set(vtkIdType tupleIdx, const APIType *tuple) const
+  VTK_ALWAYS_INLINE
+  void Set(vtkIdType tupleIdx, const APIType *tuple) const
   {
     this->Array->SetTuple(tupleIdx, tuple);
   }
 
-  inline void Insert(vtkIdType tupleIdx, const APIType *tuple) const
+  VTK_ALWAYS_INLINE
+  void Insert(vtkIdType tupleIdx, const APIType *tuple) const
   {
     this->Array->InsertTuple(tupleIdx, tuple);
   }

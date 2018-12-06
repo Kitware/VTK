@@ -14,8 +14,16 @@ option(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids"
   ${VTK_USE_64BIT_IDS_DEFAULT})
 
 option(VTK_DEBUG_LEAKS "Build leak checking support into VTK." OFF)
-option(VTK_DEBUG_RANGE_ITERATORS
-  "Detect usage errors with the for-range iterators (SLOW)." OFF)
+
+# See vtkDataArrayRange.h docs for more info on these:
+cmake_dependent_option(VTK_DEBUG_RANGE_ITERATORS
+  "Detect usage errors with the for-range iterators (SLOW)." OFF
+  "\"${CMAKE_BUILD_TYPE}\" MATCHES \"Debug\"" OFF
+)
+cmake_dependent_option(VTK_ALWAYS_OPTIMIZE_ARRAY_ITERATORS
+  "Enable additional optimizations for array iterators in Debug builds." OFF
+  "NOT VTK_DEBUG_RANGE_ITERATORS" OFF
+)
 
 # This option determines the behavior of the New methods of vtkObject derived
 # classes. If this option is off then only classes specifically using the
@@ -26,6 +34,7 @@ option(VTK_ALL_NEW_OBJECT_FACTORY
   "Build all vtkObject derived classes with object factory new methods." OFF)
 
 mark_as_advanced(
+  VTK_ALWAYS_OPTIMIZE_ARRAY_ITERATORS
   VTK_DEBUG_LEAKS
   VTK_DEBUG_RANGE_ITERATORS
   VTK_USE_64BIT_IDS

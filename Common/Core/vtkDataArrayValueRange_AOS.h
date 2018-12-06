@@ -33,6 +33,8 @@
 // Disable this specialization when iterator debugging is requested:
 #ifndef VTK_DEBUG_RANGE_ITERATORS
 
+VTK_ITER_OPTIMIZE_START
+
 namespace vtk
 {
 
@@ -66,6 +68,7 @@ public:
   using iterator = ValueType*;
   using const_iterator = const ValueType*;
 
+  VTK_ITER_INLINE
   ValueRange(ArrayType *arr,
              ValueIdType beginValue,
              ValueIdType endValue) noexcept
@@ -79,27 +82,43 @@ public:
     assert(endValue >= 0 && endValue <= this->Array->GetNumberOfValues());
   }
 
+  VTK_ITER_INLINE
   ArrayType* GetArray() const noexcept { return this->Array; }
+
+  VTK_ITER_INLINE
   ComponentIdType GetTupleSize() const noexcept { return this->NumComps.value; }
+
+  VTK_ITER_INLINE
   ValueIdType GetBeginValueId() const noexcept
   {
     return static_cast<ValueIdType>(this->Begin - this->Array->GetPointer(0));
   }
+
+  VTK_ITER_INLINE
   ValueIdType GetEndValueId() const noexcept
   {
     return static_cast<ValueIdType>(this->End - this->Array->GetPointer(0));
   }
 
+  VTK_ITER_INLINE
   size_type size() const noexcept
   {
     return static_cast<size_type>(this->End - this->Begin);
   }
 
+  VTK_ITER_INLINE
   iterator begin() noexcept { return this->Begin; }
+  VTK_ITER_INLINE
   iterator end() noexcept { return this->End; }
+
+  VTK_ITER_INLINE
   const_iterator begin() const noexcept { return this->Begin; }
+  VTK_ITER_INLINE
   const_iterator end() const noexcept { return this->End; }
+
+  VTK_ITER_INLINE
   const_iterator cbegin() const noexcept { return this->Begin; }
+  VTK_ITER_INLINE
   const_iterator cend() const noexcept { return this->End; }
 
 private:
@@ -111,6 +130,8 @@ private:
 
 }
 } // end namespace vtk::detail
+
+VTK_ITER_OPTIMIZE_END
 
 #endif // VTK_DEBUG_RANGE_ITERATORS
 #endif // __VTK_WRAP__

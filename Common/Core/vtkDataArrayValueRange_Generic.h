@@ -20,7 +20,6 @@
 #ifndef vtkDataArrayValueRange_Generic_h
 #define vtkDataArrayValueRange_Generic_h
 
-#include "vtkAssume.h"
 #include "vtkDataArrayAccessor.h"
 #include "vtkDataArrayMeta.h"
 
@@ -31,6 +30,8 @@
 #include <type_traits>
 
 #ifndef __VTK_WRAP__
+
+VTK_ITER_OPTIMIZE_START
 
 namespace vtk
 {
@@ -56,6 +57,7 @@ struct IdStorage
 {
   using NumCompsType = GenericTupleSize<TupleSize>;
 
+  VTK_ITER_INLINE
   IdStorage(ValueIdType valueId, NumCompsType numComps) noexcept
     : ValueId(valueId)
     , TupleId(static_cast<TupleIdType>(valueId) /
@@ -66,6 +68,7 @@ struct IdStorage
   {
   }
 
+  VTK_ITER_INLINE
   IdStorage(TupleIdType tupleId,
             ComponentIdType comp,
             NumCompsType numComps) noexcept
@@ -76,6 +79,7 @@ struct IdStorage
   {
   }
 
+  VTK_ITER_INLINE
   IdStorage(ValueIdType valueId,
             TupleIdType tupleId,
             ComponentIdType comp,
@@ -88,6 +92,7 @@ struct IdStorage
   }
 
   template <typename ArrayType>
+  VTK_ITER_INLINE
   void DebugAsserts(ArrayType *array) const noexcept
   {
     (void)array;
@@ -112,6 +117,7 @@ struct IdStorage
                     "Invalid value id.");
   }
 
+  VTK_ITER_INLINE
   IdStorage& operator++() noexcept // prefix
   {
     ++this->ValueId;
@@ -124,6 +130,7 @@ struct IdStorage
     return *this;
   }
 
+  VTK_ITER_INLINE
   IdStorage operator++(int) noexcept // postfix
   {
     auto v = this->ValueId++;
@@ -137,13 +144,15 @@ struct IdStorage
     return IdStorage{v, t, c, this->NumComps};
   }
 
-  friend IdStorage operator+(const IdStorage& id, ValueIdType offset) noexcept
+  friend VTK_ITER_INLINE
+  IdStorage operator+(const IdStorage& id, ValueIdType offset) noexcept
   {
     IdStorage res = id;
     res.AddOffset(offset);
     return res;
   }
 
+  VTK_ITER_INLINE
   IdStorage& operator--() noexcept // prefix
   {
     --this->ValueId;
@@ -156,6 +165,7 @@ struct IdStorage
     return *this;
   }
 
+  VTK_ITER_INLINE
   IdStorage operator--(int) noexcept // postfix
   {
     auto v = this->ValueId--;
@@ -169,11 +179,13 @@ struct IdStorage
     return IdStorage{v, t, c, this->NumComps};
   }
 
+  VTK_ITER_INLINE
   ValueIdType Convert(TupleIdType tuple, ComponentIdType comp) const noexcept
   {
     return static_cast<ValueIdType>(tuple) * this->NumComps.value + comp;
   }
 
+  VTK_ITER_INLINE
   std::pair<TupleIdType, ComponentIdType>
   Convert(ValueIdType value) const noexcept
   {
@@ -182,22 +194,30 @@ struct IdStorage
           static_cast<ComponentIdType>(value % this->NumComps.value));
   }
 
+  VTK_ITER_INLINE
   void AddOffset(ValueIdType offset) noexcept
   {
     this->ValueId += offset;
     std::tie(this->TupleId, this->ComponentId) = this->Convert(this->ValueId);
   }
 
+  VTK_ITER_INLINE
   ComponentIdType GetTupleSize() const noexcept { return this->NumComps.value; }
 
+  VTK_ITER_INLINE
   TupleIdType GetTupleId() const noexcept { return this->TupleId; }
+
+  VTK_ITER_INLINE
   ComponentIdType GetComponentId() const noexcept { return this->ComponentId; }
+
+  VTK_ITER_INLINE
   ValueIdType GetValueId() const noexcept
   {
     return this->ValueId;
   }
 
-  friend void swap(IdStorage &lhs, IdStorage &rhs) noexcept
+  friend VTK_ITER_INLINE
+  void swap(IdStorage &lhs, IdStorage &rhs) noexcept
   {
     using std::swap;
     swap(lhs.ValueId, rhs.ValueId);
@@ -229,6 +249,7 @@ public:
   using ValueType = APIType;
   using value_type = APIType;
 
+  VTK_ITER_INLINE
   ValueReference(ArrayType* array,
                  IdStorageType id) noexcept
     : Data{array, id}
@@ -237,24 +258,28 @@ public:
     this->Data.Lookup.Id.DebugAsserts(this->Data.Lookup.Array);
   }
 
+  VTK_ITER_INLINE
   ValueReference(const ValueReference &o) noexcept
     : Data{static_cast<APIType>(o)}
     , IsValue(true)
   {
   }
 
+  VTK_ITER_INLINE
   ValueReference& operator=(const ValueReference& o) noexcept
   {
     return *this = static_cast<APIType>(o);
   }
 
   template <typename OArray, ComponentIdType OSize>
+  VTK_ITER_INLINE
   ValueReference& operator=(const ValueReference<OArray, OSize>& o) noexcept
   {
     APIType tmp = o;
     return *this = std::move(tmp);
   }
 
+  VTK_ITER_INLINE
   operator APIType() const noexcept
   {
     if (this->IsValue)
@@ -263,14 +288,15 @@ public:
     }
     else
     {
-      VTK_ASSUME(this->Data.Lookup.Array->GetNumberOfComponents() ==
-                 this->Data.Lookup.Id.GetTupleSize());
+      VTK_ITER_ASSUME(this->Data.Lookup.Array->GetNumberOfComponents() ==
+                      this->Data.Lookup.Id.GetTupleSize());
       vtkDataArrayAccessor<ArrayType> acc{this->Data.Lookup.Array};
       return acc.Get(this->Data.Lookup.Id.GetTupleId(),
                      this->Data.Lookup.Id.GetComponentId());
     }
   }
 
+  VTK_ITER_INLINE
   ValueReference& operator= (APIType val) noexcept
   {
     if (this->IsValue)
@@ -279,8 +305,8 @@ public:
     }
     else
     {
-      VTK_ASSUME(this->Data.Lookup.Array->GetNumberOfComponents() ==
-                 this->Data.Lookup.Id.GetTupleSize());
+      VTK_ITER_ASSUME(this->Data.Lookup.Array->GetNumberOfComponents() ==
+                      this->Data.Lookup.Id.GetTupleSize());
       vtkDataArrayAccessor<ArrayType> acc{this->Data.Lookup.Array};
       acc.Set(this->Data.Lookup.Id.GetTupleId(),
               this->Data.Lookup.Id.GetComponentId(), val);
@@ -288,8 +314,9 @@ public:
     return *this;
   }
 
-  friend void swap(ValueReference &lhs,
-                   ValueReference &rhs) noexcept
+  friend VTK_ITER_INLINE
+  void swap(ValueReference &lhs,
+            ValueReference &rhs) noexcept
   {
     APIType tmp = std::move(static_cast<APIType>(lhs));
     lhs = std::move(static_cast<APIType>(rhs));
@@ -297,8 +324,9 @@ public:
   }
 
   template <typename OArray, ComponentIdType OSize>
-  friend void swap(ValueReference &lhs,
-                   ValueReference<OArray, OSize> &rhs) noexcept
+  friend VTK_ITER_INLINE
+  void swap(ValueReference &lhs,
+            ValueReference<OArray, OSize> &rhs) noexcept
   {
     using OAPIType = typename ValueReference<OArray, OSize>::value_type;
     static_assert(std::is_same<APIType, OAPIType>::value,
@@ -309,14 +337,16 @@ public:
     rhs = std::move(tmp);
   }
 
-  friend void swap(ValueReference &lhs, APIType &rhs) noexcept
+  friend VTK_ITER_INLINE
+  void swap(ValueReference &lhs, APIType &rhs) noexcept
   {
     APIType tmp = std::move(static_cast<APIType>(lhs));
     lhs = std::move(rhs);
     rhs = std::move(tmp);
   }
 
-  friend void swap(APIType &lhs, ValueReference &rhs) noexcept
+  friend VTK_ITER_INLINE
+  void swap(APIType &lhs, ValueReference &rhs) noexcept
   {
     APIType tmp = std::move(lhs);
     lhs = std::move(static_cast<APIType>(rhs));
@@ -329,6 +359,7 @@ protected:
 
   struct CopyStateTag {};
 
+  VTK_ITER_INLINE
   ValueReference(const ValueReference &o, CopyStateTag) noexcept
     : Data{o.Data.Lookup.Array, o.Data.Lookup.Id}
     , IsValue(false)
@@ -338,6 +369,7 @@ protected:
     this->Data.Lookup.Id.DebugAsserts(this->Data.Lookup.Array);
   }
 
+  VTK_ITER_INLINE
   void CopyReference(const ValueReference& o) noexcept
   {
     VTK_ITER_ASSERT(!this->IsValue && !o.IsValue,
@@ -352,9 +384,13 @@ protected:
   // semantics when appropriate.
   union Storage
   {
+    VTK_ITER_INLINE
     Storage() noexcept {}
+    VTK_ITER_INLINE
     Storage(ArrayType* array, IdStorageType id) noexcept : Lookup{array, id} {}
+    VTK_ITER_INLINE
     Storage(const APIType& val) noexcept : Value{val} {}
+    VTK_ITER_INLINE
     ~Storage() noexcept {}
     APIType Value;
     struct
@@ -398,6 +434,7 @@ public:
   using pointer = typename Superclass::pointer;
   using reference = typename Superclass::reference;
 
+  VTK_ITER_INLINE
   ConstValueIterator(ArrayType* array, IdStorageType id) noexcept
     : Array(array)
     , Id(id)
@@ -405,9 +442,13 @@ public:
     this->Id.DebugAsserts(this->Array);
   }
 
+  VTK_ITER_INLINE
   ConstValueIterator(const ConstValueIterator& o) noexcept = default;
+
+  VTK_ITER_INLINE
   ConstValueIterator& operator=(const ConstValueIterator& o) noexcept = default;
 
+  VTK_ITER_INLINE
   ConstValueIterator& operator++() noexcept // prefix
   {
     ++this->Id;
@@ -415,6 +456,7 @@ public:
     return *this;
   }
 
+  VTK_ITER_INLINE
   ConstValueIterator operator++(int) noexcept // postfix
   {
     auto ret = this->Id++;
@@ -422,6 +464,7 @@ public:
     return ConstValueIterator{this->Array, ret};
   }
 
+  VTK_ITER_INLINE
   ConstValueIterator& operator--() noexcept // prefix
   {
     --this->Id;
@@ -429,6 +472,7 @@ public:
     return *this;
   }
 
+  VTK_ITER_INLINE
   ConstValueIterator operator--(int) noexcept // postfix
   {
     auto ret = this->Id--;
@@ -438,15 +482,18 @@ public:
 
   // operator[] is disabled. See vtk::DataArrayTupleRange documentation.
 #if 0
+  VTK_ITER_INLINE
   reference operator[](difference_type i) const noexcept
   {
   }
 #endif
 
   // Note that this is just a value_type, not an actual reference.
+  VTK_ITER_INLINE
   value_type operator*() const noexcept
   {
-    VTK_ASSUME(this->Array->GetNumberOfComponents() == this->Id.GetTupleSize());
+    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() ==
+                    this->Id.GetTupleSize());
     vtkDataArrayAccessor<ArrayType> acc{this->Array};
     return acc.Get(this->Id.GetTupleId(), this->Id.GetComponentId());
   }
@@ -454,8 +501,9 @@ public:
   // Using GetValueType here makes iteration 50% faster by reducing comparisons
   // and jumps (instead of comparing std::tie(tupleId, compId)).
 #define VTK_TMP_MAKE_OPERATOR(OP) \
-  friend bool operator OP (const ConstValueIterator& lhs, \
-                           const ConstValueIterator& rhs) noexcept \
+  friend VTK_ITER_INLINE \
+  bool operator OP (const ConstValueIterator& lhs, \
+                    const ConstValueIterator& rhs) noexcept \
   { \
     VTK_ITER_ASSERT(lhs.Array == rhs.Array, \
                     "Mismatched arrays in iterator comparison."); \
@@ -471,6 +519,7 @@ public:
 
 #undef VTK_TMP_MAKE_OPERATOR
 
+  VTK_ITER_INLINE
   ConstValueIterator& operator+=(difference_type offset) noexcept
   {
     this->Id.AddOffset(offset);
@@ -478,18 +527,21 @@ public:
     return *this;
   }
 
-  friend ConstValueIterator operator+(const ConstValueIterator& it,
-                                      difference_type offset) noexcept
+  friend VTK_ITER_INLINE
+  ConstValueIterator operator+(const ConstValueIterator& it,
+                               difference_type offset) noexcept
   {
     return ConstValueIterator{it.Array, it.Id + offset};
   }
 
-  friend ConstValueIterator operator+(difference_type offset,
-                                      const ConstValueIterator& it) noexcept
+  friend VTK_ITER_INLINE
+  ConstValueIterator operator+(difference_type offset,
+                               const ConstValueIterator& it) noexcept
   {
     return ConstValueIterator{it.Array, it.Id + offset};
   }
 
+  VTK_ITER_INLINE
   ConstValueIterator& operator-=(difference_type offset) noexcept
   {
     this->Id.AddOffset(-offset);
@@ -497,13 +549,15 @@ public:
     return *this;
   }
 
-  friend ConstValueIterator operator-(const ConstValueIterator& it,
+  friend VTK_ITER_INLINE
+  ConstValueIterator operator-(const ConstValueIterator& it,
                                       difference_type offset) noexcept
   {
     return ConstValueIterator{it.Array, it.Id + (-offset)};
   }
 
-  friend difference_type operator-(const ConstValueIterator& it1,
+  friend VTK_ITER_INLINE
+  difference_type operator-(const ConstValueIterator& it1,
                                    const ConstValueIterator& it2) noexcept
   {
     VTK_ITER_ASSERT(it1.Array == it2.Array,
@@ -511,7 +565,8 @@ public:
     return it1.Id.GetValueId() - it2.Id.GetValueId();
   }
 
-  friend void swap(ConstValueIterator& lhs,
+  friend VTK_ITER_INLINE
+  void swap(ConstValueIterator& lhs,
                    ConstValueIterator &rhs) noexcept
   {
     // Different arrays may use different iterator implementations.
@@ -556,6 +611,7 @@ public:
   using pointer = typename Superclass::pointer;
   using reference = typename Superclass::reference;
 
+  VTK_ITER_INLINE
   ValueIterator(ArrayType* array, IdStorageType id) noexcept
     : Ref(array, id)
   {
@@ -564,6 +620,7 @@ public:
     this->DebugIdAsserts();
   }
 
+  VTK_ITER_INLINE
   ValueIterator(const ValueIterator& o) noexcept
     : Ref(o.Ref, typename reference::CopyStateTag{})
   {
@@ -572,6 +629,7 @@ public:
     this->DebugIdAsserts();
   }
 
+  VTK_ITER_INLINE
   ValueIterator& operator=(const ValueIterator& o) noexcept
   {
     VTK_ITER_ASSERT(!this->RefIsValue(),
@@ -581,6 +639,7 @@ public:
     return *this;
   }
 
+  VTK_ITER_INLINE
   ValueIterator& operator++() noexcept // prefix
   {
     VTK_ITER_ASSERT(!this->RefIsValue(),
@@ -590,6 +649,7 @@ public:
     return *this;
   }
 
+  VTK_ITER_INLINE
   ValueIterator operator++(int) noexcept // postfix
   {
     VTK_ITER_ASSERT(!this->RefIsValue(),
@@ -599,6 +659,7 @@ public:
     return ValueIterator{this->Ref.Data.Lookup.Array, ret};
   }
 
+  VTK_ITER_INLINE
   ValueIterator& operator--() noexcept // prefix
   {
     VTK_ITER_ASSERT(!this->RefIsValue(),
@@ -608,6 +669,7 @@ public:
     return *this;
   }
 
+  VTK_ITER_INLINE
   ValueIterator operator--(int) noexcept // postfix
   {
     VTK_ITER_ASSERT(!this->RefIsValue(),
@@ -619,44 +681,46 @@ public:
 
   // Intentionally disabled. See vtk::DataArrayValueRange documentation.
 #if 0
-   reference operator[](difference_type i) const noexcept
-   {
-   }
+  VTK_ITER_INLINE
+  reference operator[](difference_type i) const noexcept
+  {
+  }
 #endif
 
+  VTK_ITER_INLINE
   const reference& operator*() const noexcept
   {
     return this->Ref;
   }
 
+  VTK_ITER_INLINE
   reference& operator*() noexcept
   {
     return this->Ref;
   }
 
+  VTK_ITER_INLINE
   const pointer& operator->() const noexcept
   {
     return this->Ref;
   }
 
+  VTK_ITER_INLINE
   pointer& operator->() noexcept
   {
     return this->Ref;
   }
 
 #define VTK_TMP_MAKE_OPERATOR(OP) \
-  friend bool operator OP (const ValueIterator& lhs, \
-                           const ValueIterator& rhs) noexcept \
+  friend VTK_ITER_INLINE \
+  bool operator OP (const ValueIterator& lhs, \
+                    const ValueIterator& rhs) noexcept \
   { \
     VTK_ITER_ASSERT(!lhs.RefIsValue() && !rhs.RefIsValue(), \
                     "Iterator's internal ref cannot be in value state."); \
     VTK_ITER_ASSERT(lhs.GetArray() == rhs.GetArray(), \
                     "Mismatched arrays in iterator comparison."); \
-    auto lt = lhs.GetId().GetTupleId(); \
-    auto lc = lhs.GetId().GetComponentId(); \
-    auto rt = rhs.GetId().GetTupleId(); \
-    auto rc = rhs.GetId().GetComponentId(); \
-    return std::tie(lt, lc) OP std::tie(rt, rc); \
+    return lhs.GetId().GetValueId() OP rhs.GetId().GetValueId(); \
   }
 
   VTK_TMP_MAKE_OPERATOR(==)
@@ -668,6 +732,7 @@ public:
 
 #undef VTK_TMP_MAKE_OPERATOR
 
+  VTK_ITER_INLINE
   ValueIterator& operator+=(difference_type offset) noexcept
   {
     VTK_ITER_ASSERT(!this->RefIsValue(),
@@ -677,22 +742,25 @@ public:
     return *this;
   }
 
-  friend ValueIterator operator+(const ValueIterator& it,
-                                 difference_type offset) noexcept
+  friend VTK_ITER_INLINE
+  ValueIterator operator+(const ValueIterator& it,
+                          difference_type offset) noexcept
   {
     VTK_ITER_ASSERT(!it.RefIsValue(),
                     "Iterator's internal ref cannot be in value state.");
     return ValueIterator{it.GetArray(), it.GetId() + offset};
   }
 
-  friend ValueIterator operator+(difference_type offset,
-                                 const ValueIterator& it) noexcept
+  friend VTK_ITER_INLINE
+  ValueIterator operator+(difference_type offset,
+                          const ValueIterator& it) noexcept
   {
     VTK_ITER_ASSERT(!it.RefIsValue(),
                     "Iterator's internal ref cannot be in value state.");
     return ValueIterator{it.GetArray(), it.GetId() + offset};
   }
 
+  VTK_ITER_INLINE
   ValueIterator& operator-=(difference_type offset) noexcept
   {
     VTK_ITER_ASSERT(!this->RefIsValue(),
@@ -702,16 +770,18 @@ public:
     return *this;
   }
 
-  friend ValueIterator operator-(const ValueIterator& it,
-                                 difference_type offset) noexcept
+  friend VTK_ITER_INLINE
+  ValueIterator operator-(const ValueIterator& it,
+                          difference_type offset) noexcept
   {
     VTK_ITER_ASSERT(!it.RefIsValue(),
                     "Iterator's internal ref cannot be in value state.");
     return ValueIterator{it.GetArray(), it.GetId() + (-offset)};
   }
 
-  friend difference_type operator-(const ValueIterator& it1,
-                                   const ValueIterator& it2) noexcept
+  friend VTK_ITER_INLINE
+  difference_type operator-(const ValueIterator& it1,
+                            const ValueIterator& it2) noexcept
   {
     VTK_ITER_ASSERT(!it1.RefIsValue() && !it2.RefIsValue(),
                     "Iterator's internal ref cannot be in value state.");
@@ -720,7 +790,8 @@ public:
     return it1.GetId().GetValueId() - it2.GetId().GetValueId();
   }
 
-  friend void swap(ValueIterator& lhs, ValueIterator &rhs) noexcept
+  friend VTK_ITER_INLINE
+  void swap(ValueIterator& lhs, ValueIterator &rhs) noexcept
   {
     VTK_ITER_ASSERT(!lhs.RefIsValue() && !rhs.RefIsValue(),
                     "Iterator's internal ref cannot be in value state.");
@@ -733,17 +804,24 @@ public:
   }
 
 protected:
+  VTK_ITER_INLINE
   void DebugIdAsserts() const
   {
     this->Ref.Data.Lookup.Id.DebugAsserts(this->GetArray());
   }
+
+  VTK_ITER_INLINE
   bool RefIsValue() const noexcept { return this->Ref.IsValue; }
+  VTK_ITER_INLINE
   ArrayType* GetArray() const noexcept { return this->Ref.Data.Lookup.Array; }
+  VTK_ITER_INLINE
   ArrayType*& GetArray() noexcept { return this->Ref.Data.Lookup.Array; }
+  VTK_ITER_INLINE
   const IdStorageType& GetId() const noexcept
   {
     return this->Ref.Data.Lookup.Id;
   }
+  VTK_ITER_INLINE
   IdStorageType& GetId() noexcept { return this->Ref.Data.Lookup.Id; }
 
   ValueReference<ArrayType, TupleSize> Ref;
@@ -776,6 +854,7 @@ public:
   using iterator = ValueIterator<ArrayType, TupleSize>;
   using const_iterator = ConstValueIterator<ArrayType, TupleSize>;
 
+  VTK_ITER_INLINE
   ValueRange(ArrayType *arr,
              ValueIdType beginValue,
              ValueIdType endValue) noexcept
@@ -789,39 +868,52 @@ public:
     assert(endValue >= 0 && endValue <= this->Array->GetNumberOfValues());
   }
 
+  VTK_ITER_INLINE
   ArrayType* GetArray() const noexcept { return this->Array; }
+
+  VTK_ITER_INLINE
   ComponentIdType GetTupleSize() const noexcept { return this->NumComps.value; }
 
+  VTK_ITER_INLINE
   ValueIdType GetBeginValueId() const noexcept
   {
     return this->BeginValue.GetValueId();
   }
+
+  VTK_ITER_INLINE
   ValueIdType GetEndValueId() const noexcept
   {
     return this->EndValue.GetValueId();
   }
 
+  VTK_ITER_INLINE
   size_type size() const noexcept
   {
     return this->EndValue.GetValueId() - this->BeginValue.GetValueId();
   }
 
+  VTK_ITER_INLINE
   iterator begin() noexcept { return this->NewIterator(this->BeginValue); }
+  VTK_ITER_INLINE
   iterator end() noexcept { return this->NewIterator(this->EndValue); }
 
+  VTK_ITER_INLINE
   const_iterator begin() const noexcept
   {
     return this->NewConstIterator(this->BeginValue);
   }
+  VTK_ITER_INLINE
   const_iterator end() const noexcept
   {
     return this->NewConstIterator(this->EndValue);
   }
 
+  VTK_ITER_INLINE
   const_iterator cbegin() const noexcept
   {
     return this->NewConstIterator(this->BeginValue);
   }
+  VTK_ITER_INLINE
   const_iterator cend() const noexcept
   {
     return this->NewConstIterator(this->EndValue);
@@ -829,11 +921,13 @@ public:
 
 private:
 
+  VTK_ITER_INLINE
   iterator NewIterator(IdStorageType id) const noexcept
   {
     return iterator{this->Array, id};
   }
 
+  VTK_ITER_INLINE
   const_iterator NewConstIterator(IdStorageType id) const noexcept
   {
     return const_iterator{this->Array, id};
@@ -847,6 +941,8 @@ private:
 
 } // end namespace detail
 } // end namespace vtk
+
+VTK_ITER_OPTIMIZE_END
 
 #endif // __VTK_WRAP__
 #endif // vtkDataArrayValueRange_Generic_h

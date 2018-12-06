@@ -16,8 +16,11 @@
 #ifndef vtkDataArrayMeta_h
 #define vtkDataArrayMeta_h
 
+#include "vtkAssume.h"
+#include "vtkConfigure.h"
 #include "vtkDataArrayAccessor.h"
 #include "vtkMeta.h"
+#include "vtkSetGet.h"
 #include "vtkType.h"
 
 #include <type_traits>
@@ -28,6 +31,31 @@
  * This file contains a variety of metaprogramming constructs for working
  * with vtkDataArrays.
  */
+
+// When enabled, extra debugging checks are enabled for the iterators.
+// Specifically:
+// - Specializations are disabled (All code uses the generic implementation).
+// - Additional assertions are inserted to ensure correct runtime usage.
+// - Perfomance-related annotations (e.g. force inlining) are disabled.
+#if defined(VTK_DEBUG_RANGE_ITERATORS)
+#define VTK_ITER_ASSERT(x, msg) assert((x) && msg)
+#else
+#define VTK_ITER_ASSERT(x, msg)
+#endif
+
+#if defined(VTK_ALWAYS_OPTIMIZE_ARRAY_ITERATORS) && !defined(VTK_DEBUG_RANGE_ITERATORS)
+#define VTK_ITER_INLINE VTK_ALWAYS_INLINE
+#define VTK_ITER_ASSUME VTK_ASSUME_NO_ASSERT
+#define VTK_ITER_OPTIMIZE_START VTK_ALWAYS_OPTIMIZE_START
+#define VTK_ITER_OPTIMIZE_END VTK_ALWAYS_OPTIMIZE_START
+#else
+#define VTK_ITER_INLINE inline
+#define VTK_ITER_ASSUME VTK_ASSUME
+#define VTK_ITER_OPTIMIZE_START
+#define VTK_ITER_OPTIMIZE_END
+#endif
+
+VTK_ITER_OPTIMIZE_START
 
 namespace vtk
 {
@@ -108,7 +136,7 @@ private:
 public:
   // Need to construct from array for specialization.
   using Superclass::Superclass;
-  GenericTupleSize(vtkDataArray *) {}
+  VTK_ITER_INLINE GenericTupleSize(vtkDataArray *) {}
 };
 
 // Specialize for dynamic types, mimicing integral_constant API:
@@ -118,13 +146,13 @@ struct GenericTupleSize<DynamicTupleSize>
   using value_type = ComponentIdType;
 
   GenericTupleSize() = default;
-  explicit GenericTupleSize(vtkDataArray *array)
+  VTK_ITER_INLINE explicit GenericTupleSize(vtkDataArray *array)
     : value(array->GetNumberOfComponents())
   {
   }
 
-  operator value_type() const noexcept { return value; }
-  value_type operator()() const noexcept { return value; }
+  VTK_ITER_INLINE operator value_type() const noexcept { return value; }
+  VTK_ITER_INLINE value_type operator()() const noexcept { return value; }
 
   ComponentIdType value;
 };
@@ -139,6 +167,7 @@ using GetAPIType = typename vtkDataArrayAccessor<ArrayType>::APIType;
 
 } // end namespace vtk
 
+VTK_ITER_OPTIMIZE_END
 
 #endif // vtkDataArrayMeta_h
 

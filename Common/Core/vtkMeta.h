@@ -16,8 +16,6 @@
 #ifndef vtkMeta_h
 #define vtkMeta_h
 
-#include "vtkConfigure.h"
-
 #include <cassert>
 #include <type_traits>
 #include <utility>
@@ -27,16 +25,6 @@
  * This file contains a variety of metaprogramming constructs for working
  * with vtk types.
  */
-
-// When enabled, extra debugging checks are enabled for the iterators. This is
-// only effective in debugging mode. Specifically:
-// - Specializations are disabled (All code uses the generic implementation).
-// - Additional assertions are inserted to ensure correct runtime usage.
-#ifdef VTK_DEBUG_RANGE_ITERATORS
-#define VTK_ITER_ASSERT(x, msg) assert((x) && msg)
-#else
-#define VTK_ITER_ASSERT(x, msg)
-#endif
 
 // Forward decs for StripPointers:
 template <typename ArrayType> class vtkNew;

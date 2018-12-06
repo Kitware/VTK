@@ -106,6 +106,9 @@
 /* Debug for-range iterator support.  */
 #cmakedefine VTK_DEBUG_RANGE_ITERATORS
 
+/* Debug for-range iterator support.  */
+#cmakedefine VTK_ALWAYS_OPTIMIZE_ARRAY_ITERATORS
+
 /* Print warning on vtkArrayDispatch failure.  */
 #cmakedefine VTK_WARN_ON_DISPATCH_FAILURE
 

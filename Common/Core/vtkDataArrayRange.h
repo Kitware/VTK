@@ -28,7 +28,6 @@
 #define vtkDataArrayRange_h
 
 #include "vtkAOSDataArrayTemplate.h"
-#include "vtkAssume.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayAccessor.h"
 #include "vtkDataArrayMeta.h"
@@ -36,11 +35,14 @@
 #include "vtkDataArrayTupleRange_Generic.h"
 #include "vtkDataArrayValueRange_AOS.h"
 #include "vtkDataArrayValueRange_Generic.h"
+#include "vtkMeta.h"
 #include "vtkSmartPointer.h"
 
 #include <cassert>
 #include <iterator>
 #include <type_traits>
+
+VTK_ITER_OPTIMIZE_START
 
 namespace vtk
 {
@@ -90,6 +92,14 @@ namespace vtk
  * range/iterator/reference classes. This slow things down significantly, but is
  * useful for diagnosing problems.
  *
+ * In some situations, developers may want to build in Debug mode while still
+ * maintaining decent performance for data-heavy computations. For these
+ * usecases, and additional CMake option `VTK_ALWAYS_OPTIMIZE_ARRAY_ITERATORS`
+ * may be enabled to force optimization of code using these iterators. This
+ * option will force inlining and enable -O3 (or equivalent) optimization level
+ * for iterator code when compiling on platforms that support these features.
+ * This option has no effect when `VTK_DEBUG_RANGE_ITERATORS` is enabled.
+ *
  * @note References obtained through iterators are invalidated when the iterator
  * is modified.
  *
@@ -101,6 +111,7 @@ namespace vtk
  */
 template <ComponentIdType TupleSize = detail::DynamicTupleSize,
           typename ArrayType = vtkDataArray*>
+VTK_ITER_INLINE
 auto DataArrayTupleRange(const ArrayType& array,
                          TupleIdType start = -1,
                          TupleIdType end = -1)
@@ -167,6 +178,14 @@ auto DataArrayTupleRange(const ArrayType& array,
  * range/iterator/reference classes. This slow things down significantly, but is
  * useful for diagnosing problems.
  *
+ * In some situations, developers may want to build in Debug mode while still
+ * maintaining decent performance for data-heavy computations. For these
+ * usecases, and additional CMake option `VTK_ALWAYS_OPTIMIZE_ARRAY_ITERATORS`
+ * may be enabled to force optimization of code using these iterators. This
+ * option will force inlining and enable -O3 (or equivalent) optimization level
+ * for iterator code when compiling on platforms that support these features.
+ * This option has no effect when `VTK_DEBUG_RANGE_ITERATORS` is enabled.
+ *
  * @note References obtained through iterators are invalidated when the iterator
  * is modified.
  *
@@ -178,6 +197,7 @@ auto DataArrayTupleRange(const ArrayType& array,
  */
 template <ComponentIdType TupleSize = detail::DynamicTupleSize,
           typename ArrayType = vtkDataArray*>
+VTK_ITER_INLINE
 auto DataArrayValueRange(const ArrayType& array,
                          ValueIdType start = -1,
                          ValueIdType end = -1)
@@ -200,6 +220,8 @@ auto DataArrayValueRange(const ArrayType& array,
 }
 
 } // end namespace vtk
+
+VTK_ITER_OPTIMIZE_END
 
 #endif // vtkDataArrayRange_h
 
