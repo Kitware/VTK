@@ -66,7 +66,7 @@ public:
   /**
    * Write the result to a string instead of a file
    */
-  const std::string WriteToString();
+  std::string WriteToString();
 
   /**
    * Write the result to a provided ostream
