@@ -134,7 +134,7 @@ void vtkOpenGLImageAlgorithmHelper::Execute(
   vtkOpenGLState *ostate = this->RenderWindow->GetState();
 
   outputTex->Create2D(outDims[0], outDims[1], 4, VTK_FLOAT, false);
-  fbo->AddColorAttachment(fbo->GetDrawMode(), 0, outputTex);
+  fbo->AddColorAttachment(0, outputTex);
 
   // because the same FBO can be used in another pass but with several color
   // buffers, force this pass to use 1, to avoid side effects from the

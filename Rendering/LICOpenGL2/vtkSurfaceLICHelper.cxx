@@ -58,8 +58,8 @@ void vtkSurfaceLICHelper::StreamingFindMinMax(
           GL_FLOAT,
           GL_RGBA);
   }
-  fbo->RemoveTexColorAttachment(GL_DRAW_FRAMEBUFFER, 0U);
-  fbo->RemoveTexColorAttachment(GL_DRAW_FRAMEBUFFER, 1U);
+  fbo->RemoveColorAttachment(0U);
+  fbo->RemoveColorAttachment(1U);
   fbo->DeactivateDrawBuffers();
   fbo->DeactivateReadBuffer();
   // map search and release each region

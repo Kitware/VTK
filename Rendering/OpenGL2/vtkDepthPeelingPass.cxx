@@ -278,8 +278,7 @@ void vtkDepthPeelingPass::BlendIntermediatePeels(
 
   this->State->vtkglDisable(GL_DEPTH_TEST);
 
-  this->Framebuffer->AddColorAttachment(
-    this->Framebuffer->GetBothMode(), 0,
+  this->Framebuffer->AddColorAttachment(0,
     this->TranslucentRGBATexture[this->ColorDrawCount % 3]);
   this->ColorDrawCount++;
 
@@ -315,8 +314,7 @@ void vtkDepthPeelingPass::BlendFinalPeel(vtkOpenGLRenderWindow *renWin)
     this->FinalBlend->Program->SetUniformi(
       "opaqueZTexture", this->OpaqueZTexture->GetTextureUnit());
 
-    this->Framebuffer->AddColorAttachment(
-      this->Framebuffer->GetBothMode(), 0,
+    this->Framebuffer->AddColorAttachment(0,
       this->TranslucentRGBATexture[this->ColorDrawCount % 3]);
     this->ColorDrawCount++;
 
@@ -466,10 +464,8 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
   }
   this->Framebuffer->SaveCurrentBindingsAndBuffers();
   this->Framebuffer->Bind();
-  this->Framebuffer->AddDepthAttachment(
-    this->Framebuffer->GetBothMode(), this->TranslucentZTexture[0]);
-  this->Framebuffer->AddColorAttachment(
-    this->Framebuffer->GetBothMode(), 0,
+  this->Framebuffer->AddDepthAttachment(this->TranslucentZTexture[0]);
+  this->Framebuffer->AddColorAttachment(0,
     this->TranslucentRGBATexture[0]);
 
   this->State->vtkglViewport(0, 0,
@@ -485,9 +481,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
   this->State->vtkglClearDepth(static_cast<GLclampf>(1.0));
   // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  this->Framebuffer->AddDepthAttachment(
-    this->Framebuffer->GetBothMode(),
-    this->TranslucentZTexture[1]);
+  this->Framebuffer->AddDepthAttachment(this->TranslucentZTexture[1]);
   this->State->vtkglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 #ifdef GL_MULTISAMPLE
@@ -542,8 +536,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     this->State->vtkglDepthMask(GL_TRUE);
     this->State->vtkglEnable(GL_DEPTH_TEST);
 
-    this->Framebuffer->AddColorAttachment(
-      this->Framebuffer->GetBothMode(), 0,
+    this->Framebuffer->AddColorAttachment(0,
       this->TranslucentRGBATexture[this->ColorDrawCount % 3]);
     this->ColorDrawCount++;
 
@@ -584,15 +577,13 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
       if (this->PeelCount % 2)
       {
         this->TranslucentZTexture[0]->Deactivate();
-        this->Framebuffer->AddDepthAttachment(
-          this->Framebuffer->GetBothMode(), this->TranslucentZTexture[0]);
+        this->Framebuffer->AddDepthAttachment(this->TranslucentZTexture[0]);
         this->TranslucentZTexture[1]->Activate();
       }
       else
       {
         this->TranslucentZTexture[1]->Deactivate();
-        this->Framebuffer->AddDepthAttachment(
-          this->Framebuffer->GetBothMode(), this->TranslucentZTexture[1]);
+        this->Framebuffer->AddDepthAttachment(this->TranslucentZTexture[1]);
         this->TranslucentZTexture[0]->Activate();
       }
 

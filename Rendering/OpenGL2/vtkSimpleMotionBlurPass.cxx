@@ -227,8 +227,7 @@ void vtkSimpleMotionBlurPass::Render(const vtkRenderState *s)
     renWin->GetShaderCache()->ReadyShaderProgram(this->BlendProgram->Program);
   }
 
-  this->FrameBufferObject->AddColorAttachment(
-    this->FrameBufferObject->GetBothMode(), 0,
+  this->FrameBufferObject->AddColorAttachment(0,
     this->AccumulationTexture[this->ActiveAccumulationTexture]);
 
   ostate->vtkglViewport(0, 0,
@@ -269,8 +268,7 @@ void vtkSimpleMotionBlurPass::Render(const vtkRenderState *s)
   this->CurrentSubFrame++;
   if (this->CurrentSubFrame < this->SubFrames)
   {
-    this->FrameBufferObject->AddColorAttachment(
-      this->FrameBufferObject->GetBothMode(), 0,
+    this->FrameBufferObject->AddColorAttachment(0,
       this->AccumulationTexture[
         this->ActiveAccumulationTexture == 0 ? 1 : 0]);
   }

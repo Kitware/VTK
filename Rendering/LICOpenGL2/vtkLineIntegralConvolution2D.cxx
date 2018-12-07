@@ -275,14 +275,14 @@ public:
     vtkOpenGLState *ostate = fbo->GetContext()->GetState();
 
     //attach
-    fbo->AddColorAttachment(GL_DRAW_FRAMEBUFFER, 0U, this->LICTexture0);
-    fbo->AddColorAttachment(GL_DRAW_FRAMEBUFFER, 1U, this->SeedTexture0);
-    fbo->AddColorAttachment(GL_DRAW_FRAMEBUFFER, 2U, this->LICTexture1);
-    fbo->AddColorAttachment(GL_DRAW_FRAMEBUFFER, 3U, this->SeedTexture1);
+    fbo->AddColorAttachment(0U, this->LICTexture0);
+    fbo->AddColorAttachment(1U, this->SeedTexture0);
+    fbo->AddColorAttachment(2U, this->LICTexture1);
+    fbo->AddColorAttachment(3U, this->SeedTexture1);
     unsigned int num = 4U;
     if (clearEETex)
     {
-      fbo->AddColorAttachment(GL_DRAW_FRAMEBUFFER, 4U, this->EETexture);
+      fbo->AddColorAttachment(4U, this->EETexture);
       num = 5U;
     }
     fbo->ActivateDrawBuffers(num);
@@ -311,9 +311,7 @@ public:
       ostate->vtkglClear(GL_COLOR_BUFFER_BIT);
     }
     ostate->vtkglDisable(GL_SCISSOR_TEST);
-    // detach
-    // detach
-    fbo->RemoveTexColorAttachments(GL_DRAW_FRAMEBUFFER, num);
+    fbo->RemoveColorAttachments(num);
     fbo->DeactivateDrawBuffers();
   }
 
@@ -328,7 +326,7 @@ public:
     vtkOpenGLState *ostate = fbo->GetContext()->GetState();
 
     //attach
-    fbo->AddColorAttachment(GL_DRAW_FRAMEBUFFER, 0U, tex);
+    fbo->AddColorAttachment(0U, tex);
     fbo->ActivateDrawBuffers(1);
     DEBUG3CheckFrameBufferStatusMacro(GL_DRAW_FRAMEBUFFER);
 
@@ -356,7 +354,7 @@ public:
     }
     ostate->vtkglDisable(GL_SCISSOR_TEST);
     // detach
-    fbo->RemoveTexColorAttachments(GL_DRAW_FRAMEBUFFER, 1);
+    fbo->RemoveColorAttachments(1);
     fbo->DeactivateDrawBuffers();
   }
 
@@ -953,8 +951,7 @@ void StreamingFindMinMax(
 {
   size_t nExtents = extents.size();
   // initiate download of each region
-  fbo->AddColorAttachment(GL_DRAW_FRAMEBUFFER, 0U, tex);
-  fbo->AddColorAttachment(GL_READ_FRAMEBUFFER, 0U, tex);
+  fbo->AddColorAttachment(0U, tex);
   fbo->ActivateDrawBuffer(0U);
   fbo->ActivateReadBuffer(0U);
   fbo->CheckFrameBufferStatus(GL_FRAMEBUFFER);
@@ -970,8 +967,8 @@ void StreamingFindMinMax(
   }
   fbo->DeactivateDrawBuffers();
   fbo->DeactivateReadBuffer();
-  fbo->RemoveTexColorAttachment(GL_DRAW_FRAMEBUFFER, 0U);
-  fbo->RemoveTexColorAttachment(GL_READ_FRAMEBUFFER, 0U);
+  fbo->RemoveColorAttachment(0U);
+  fbo->RemoveColorAttachment(0U);
   // search each region
   for (size_t q=0; q<nExtents; ++q)
   {

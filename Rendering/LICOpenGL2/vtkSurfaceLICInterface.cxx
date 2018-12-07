@@ -195,10 +195,10 @@ void vtkSurfaceLICInterface::PrepareForGeometry()
   vtkOpenGLFramebufferObject *fbo = this->Internals->FBO;
   fbo->SaveCurrentBindings();
   fbo->Bind(GL_FRAMEBUFFER);
-  fbo->AddDepthAttachment(GL_DRAW_FRAMEBUFFER, this->Internals->DepthImage);
-  fbo->AddColorAttachment(GL_DRAW_FRAMEBUFFER, 0U, this->Internals->GeometryImage);
-  fbo->AddColorAttachment(GL_DRAW_FRAMEBUFFER, 1U, this->Internals->VectorImage);
-  fbo->AddColorAttachment(GL_DRAW_FRAMEBUFFER, 2U, this->Internals->MaskVectorImage);
+  fbo->AddDepthAttachment(this->Internals->DepthImage);
+  fbo->AddColorAttachment(0U, this->Internals->GeometryImage);
+  fbo->AddColorAttachment(1U, this->Internals->VectorImage);
+  fbo->AddColorAttachment(2U, this->Internals->MaskVectorImage);
   fbo->ActivateDrawBuffers(3);
   vtkCheckFrameBufferStatusMacro(GL_FRAMEBUFFER);
 
@@ -215,10 +215,10 @@ void vtkSurfaceLICInterface::PrepareForGeometry()
 void vtkSurfaceLICInterface::CompletedGeometry()
 {
   vtkOpenGLFramebufferObject *fbo = this->Internals->FBO;
-  fbo->RemoveRenDepthAttachment(GL_DRAW_FRAMEBUFFER);
-  fbo->RemoveTexColorAttachment(GL_DRAW_FRAMEBUFFER, 0U);
-  fbo->RemoveTexColorAttachment(GL_DRAW_FRAMEBUFFER, 1U);
-  fbo->RemoveTexColorAttachment(GL_DRAW_FRAMEBUFFER, 2U);
+  fbo->RemoveDepthAttachment();
+  fbo->RemoveColorAttachment(0U);
+  fbo->RemoveColorAttachment(1U);
+  fbo->RemoveColorAttachment(2U);
   fbo->DeactivateDrawBuffers();
   fbo->UnBind(GL_FRAMEBUFFER);
 
@@ -508,8 +508,8 @@ void vtkSurfaceLICInterface::CombineColorsAndLIC()
   fbo->SaveCurrentBindings();
   fbo->Bind(GL_FRAMEBUFFER);
   fbo->InitializeViewport(this->Internals->Viewsize[0], this->Internals->Viewsize[1]);
-  fbo->AddColorAttachment(GL_DRAW_FRAMEBUFFER, 0U, this->Internals->RGBColorImage);
-  fbo->AddColorAttachment(GL_DRAW_FRAMEBUFFER, 1U, this->Internals->HSLColorImage);
+  fbo->AddColorAttachment(0U, this->Internals->RGBColorImage);
+  fbo->AddColorAttachment(1U, this->Internals->HSLColorImage);
   fbo->ActivateDrawBuffers(2U);
   vtkCheckFrameBufferStatusMacro(GL_FRAMEBUFFER);
 
@@ -612,7 +612,7 @@ void vtkSurfaceLICInterface::CombineColorsAndLIC()
     LMaxMinDiff = LMax-LMin;
 
     // normalize shader
-    fbo->AddColorAttachment(GL_DRAW_FRAMEBUFFER, 0U, this->Internals->RGBColorImage);
+    fbo->AddColorAttachment(0U, this->Internals->RGBColorImage);
     fbo->ActivateDrawBuffer(0U);
     vtkCheckFrameBufferStatusMacro(GL_DRAW_FRAMEBUFFER);
 
@@ -646,13 +646,13 @@ void vtkSurfaceLICInterface::CombineColorsAndLIC()
     this->Internals->HSLColorImage->Deactivate();
     this->Internals->LICImage->Deactivate();
 
-    fbo->RemoveTexColorAttachment(GL_DRAW_FRAMEBUFFER, 0U);
+    fbo->RemoveColorAttachment(0U);
     fbo->DeactivateDrawBuffers();
   }
   else
   {
-    fbo->RemoveTexColorAttachment(GL_DRAW_FRAMEBUFFER, 0U);
-    fbo->RemoveTexColorAttachment(GL_DRAW_FRAMEBUFFER, 1U);
+    fbo->RemoveColorAttachment(0U);
+    fbo->RemoveColorAttachment(1U);
     fbo->DeactivateDrawBuffers();
   }
 

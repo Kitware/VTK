@@ -150,13 +150,11 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
   vtkRenderState s2(r);
   s2.SetPropArrayAndCount(s->GetPropArray(),s->GetPropArrayCount());
   s2.SetFrameBuffer(this->FrameBufferObject);
-
-  this->FrameBufferObject->AddColorAttachment(
-    this->FrameBufferObject->GetBothMode(), 0,this->Pass1);
+  this->FrameBufferObject->Bind();
+  this->FrameBufferObject->AddColorAttachment(0,this->Pass1);
   this->FrameBufferObject->ActivateDrawBuffer(0);
 
-  this->FrameBufferObject->AddDepthAttachment(
-    this->FrameBufferObject->GetBothMode());
+  this->FrameBufferObject->AddDepthAttachment();
   this->FrameBufferObject->StartNonOrtho(w,h);
   ostate->vtkglViewport(0, 0, w, h);
   ostate->vtkglScissor(0, 0, w, h);
@@ -181,8 +179,7 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
                           VTK_UNSIGNED_CHAR,false);
   }
 
-  this->FrameBufferObject->AddColorAttachment(
-    this->FrameBufferObject->GetBothMode(), 0,this->Pass2);
+  this->FrameBufferObject->AddColorAttachment(0,this->Pass2);
   this->FrameBufferObject->Start(width,h);
 
   // Use a subsample shader, do it horizontally. this->Pass1 is the source

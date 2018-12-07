@@ -277,14 +277,9 @@ void vtkOrderIndependentTranslucentPass::Render(const vtkRenderState *s)
     this->Framebuffer->SetContext(renWin);
     this->Framebuffer->SaveCurrentBindingsAndBuffers();
     this->Framebuffer->Bind();
-    this->Framebuffer->AddDepthAttachment(
-      this->Framebuffer->GetBothMode(), this->TranslucentZTexture);
-    this->Framebuffer->AddColorAttachment(
-      this->Framebuffer->GetBothMode(), 0,
-      this->TranslucentRGBATexture);
-    this->Framebuffer->AddColorAttachment(
-      this->Framebuffer->GetDrawMode(), 1,
-      this->TranslucentRTexture);
+    this->Framebuffer->AddDepthAttachment(this->TranslucentZTexture);
+    this->Framebuffer->AddColorAttachment(0, this->TranslucentRGBATexture);
+    this->Framebuffer->AddColorAttachment(1, this->TranslucentRTexture);
     this->Framebuffer->RestorePreviousBindingsAndBuffers();
   }
 

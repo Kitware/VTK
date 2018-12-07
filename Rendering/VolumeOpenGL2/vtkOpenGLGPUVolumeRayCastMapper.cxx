@@ -1688,8 +1688,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::InitializeImageSampleFBO(
     auto num = static_cast<unsigned int>(this->NumImageSampleDrawBuffers);
     for (unsigned int i = 0; i < num; i++)
     {
-      this->ImageSampleFBO->AddColorAttachment(
-        GL_FRAMEBUFFER, i, this->ImageSampleTexture[i]);
+      this->ImageSampleFBO->AddColorAttachment(i, this->ImageSampleTexture[i]);
     }
 
     // Verify completeness
@@ -1934,12 +1933,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupRenderToTexture(
     }
 
     this->FBO->Bind(GL_FRAMEBUFFER);
-    this->FBO->AddDepthAttachment(
-      GL_FRAMEBUFFER, this->RTTDepthBufferTextureObject);
-    this->FBO->AddColorAttachment(
-      GL_FRAMEBUFFER, 0U, this->RTTColorTextureObject);
-    this->FBO->AddColorAttachment(
-      GL_FRAMEBUFFER, 1U, this->RTTDepthTextureObject);
+    this->FBO->AddDepthAttachment(this->RTTDepthBufferTextureObject);
+    this->FBO->AddColorAttachment(0U, this->RTTColorTextureObject);
+    this->FBO->AddColorAttachment(1U, this->RTTDepthTextureObject);
     this->FBO->ActivateDrawBuffers(2);
 
     this->FBO->CheckFrameBufferStatus(GL_FRAMEBUFFER);
@@ -1955,9 +1951,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ExitRenderToTexture(
 {
   if (this->Parent->RenderToImage && this->Parent->CurrentPass == RenderPass)
   {
-    this->FBO->RemoveTexDepthAttachment(GL_FRAMEBUFFER);
-    this->FBO->RemoveTexColorAttachment(GL_FRAMEBUFFER, 0U);
-    this->FBO->RemoveTexColorAttachment(GL_FRAMEBUFFER, 1U);
+    this->FBO->RemoveDepthAttachment();
+    this->FBO->RemoveColorAttachment(0U);
+    this->FBO->RemoveColorAttachment(1U);
     this->FBO->DeactivateDrawBuffers();
     this->FBO->RestorePreviousBindingsAndBuffers();
 
@@ -2025,11 +2021,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupDepthPass(
       vtkTextureObject::Nearest);
     this->DPColorTextureObject->SetAutoParameters(0);
 
-    this->DPFBO->AddDepthAttachment(
-      GL_FRAMEBUFFER, this->DPDepthBufferTextureObject);
+    this->DPFBO->AddDepthAttachment(this->DPDepthBufferTextureObject);
 
-    this->DPFBO->AddColorAttachment(
-      GL_FRAMEBUFFER, 0U, this->DPColorTextureObject);
+    this->DPFBO->AddColorAttachment(0U, this->DPColorTextureObject);
   }
 
   this->DPFBO->ActivateDrawBuffers(1);

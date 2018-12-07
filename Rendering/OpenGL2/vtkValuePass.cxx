@@ -660,10 +660,8 @@ bool vtkValuePass::InitializeFBO(vtkRenderer* ren)
   this->ImplFloat->ValueFBO->Bind(GL_FRAMEBUFFER);
   this->ImplFloat->ValueFBO->InitializeViewport(size[0], size[1]);
   /* GL_COLOR_ATTACHMENT0 */
-  this->ImplFloat->ValueFBO->AddColorAttachment(GL_FRAMEBUFFER,
-    0, this->ImplFloat->ValueRBO);
-  this->ImplFloat->ValueFBO->AddDepthAttachment(GL_FRAMEBUFFER,
-    this->ImplFloat->DepthRBO);
+  this->ImplFloat->ValueFBO->AddColorAttachment(0, this->ImplFloat->ValueRBO);
+  this->ImplFloat->ValueFBO->AddDepthAttachment(this->ImplFloat->DepthRBO);
 
   // Verify FBO
   if(!this->ImplFloat->ValueFBO->CheckFrameBufferStatus(GL_FRAMEBUFFER))
