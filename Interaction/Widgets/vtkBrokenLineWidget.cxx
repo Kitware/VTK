@@ -1184,7 +1184,7 @@ void vtkBrokenLineWidget::SetNumberOfHandles( int npts )
   }
 }
 
-void vtkBrokenLineWidget::Initialize( void )
+void vtkBrokenLineWidget::Initialize( )
 {
   int i;
   if ( this->Interactor )

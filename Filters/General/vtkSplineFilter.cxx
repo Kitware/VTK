@@ -347,7 +347,7 @@ const char *vtkSplineFilter::GetSubdivideAsString()
 }
 
 // Return the method of generating the texture coordinates.
-const char *vtkSplineFilter::GetGenerateTCoordsAsString(void)
+const char *vtkSplineFilter::GetGenerateTCoordsAsString()
 {
   if ( this->GenerateTCoords == VTK_TCOORDS_OFF )
   {

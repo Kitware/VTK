@@ -105,7 +105,7 @@ public:
   vtkTableBasedClipperEdgeHashEntry();
   virtual ~vtkTableBasedClipperEdgeHashEntry() = default;
 
-  int      GetPointId(void) { return ptId; };
+  int      GetPointId() { return ptId; };
   void     SetInfo( int, int, int );
   void     SetNext( vtkTableBasedClipperEdgeHashEntry * n ) { next = n; };
   bool     IsMatch( int i1, int i2 )

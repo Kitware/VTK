@@ -3491,7 +3491,7 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
           inval = convertToCells(offset, stride, inval);
         }
         vtkIdType outval = inval;
-        if (this->CellCellMap.size())
+        if (!this->CellCellMap.empty())
         {
           outval = this->CellCellMap[outval];
         }
@@ -3534,7 +3534,7 @@ void vtkOpenGLPolyDataMapper::ProcessSelectorPixelBuffers(
           inval = convertToCells(offset, stride, inval);
         }
         vtkIdType outval = inval;
-        if (this->CellCellMap.size())
+        if (!this->CellCellMap.empty())
         {
           outval = this->CellCellMap[outval];
         }

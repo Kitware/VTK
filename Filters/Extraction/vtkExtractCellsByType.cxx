@@ -79,7 +79,7 @@ void vtkExtractCellsByType::RemoveCellType(unsigned int cellType)
 //----------------------------------------------------------------------------
 void vtkExtractCellsByType::RemoveAllCellTypes()
 {
-  if ( this->CellTypes->size() > 0 )
+  if ( !this->CellTypes->empty() )
   {
     this->CellTypes->clear();
     this->Modified();
@@ -380,7 +380,7 @@ int vtkExtractCellsByType::RequestData(
 
   // Handle the trivial case
   vtkIdType numCells = input->GetNumberOfCells();
-  if ( this->CellTypes->size() <= 0 || numCells <= 0 )
+  if ( this->CellTypes->empty() || numCells <= 0 )
   {
     output->Initialize(); //output is empty
     return 1;

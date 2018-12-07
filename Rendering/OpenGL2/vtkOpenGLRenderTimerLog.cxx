@@ -304,7 +304,7 @@ void vtkOpenGLRenderTimerLog::TrimTimerPool()
   // Try not to keep too many timers around in the pool. If there are 2x as
   // many as we currently need, free the extras.
   size_t needed = this->CurrentFrame.ChildCount;
-  for (auto frame : this->PendingFrames)
+  for (const auto& frame : this->PendingFrames)
   {
     needed += frame.ChildCount;
   }

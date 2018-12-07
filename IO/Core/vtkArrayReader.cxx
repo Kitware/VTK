@@ -186,7 +186,7 @@ vtkSparseArray<vtkStdString>* ReadSparseArrayBinary<vtkStdString>(istream& strea
     }
     else
     {
-      null_value += character;
+      null_value += static_cast<char>(character);
     }
   }
 
@@ -212,7 +212,7 @@ vtkSparseArray<vtkStdString>* ReadSparseArrayBinary<vtkStdString>(istream& strea
     }
     else
     {
-      buffer += character;
+      buffer += static_cast<char>(character);
     }
   }
 
@@ -244,7 +244,7 @@ vtkSparseArray<vtkUnicodeString>* ReadSparseArrayBinary<vtkUnicodeString>(istrea
     }
     else
     {
-      null_value += character;
+      null_value += static_cast<char>(character);
     }
   }
 
@@ -270,7 +270,7 @@ vtkSparseArray<vtkUnicodeString>* ReadSparseArrayBinary<vtkUnicodeString>(istrea
     }
     else
     {
-      buffer += character;
+      buffer += static_cast<char>(character);
     }
   }
 
@@ -330,7 +330,7 @@ vtkDenseArray<vtkStdString>* ReadDenseArrayBinary<vtkStdString>(istream& stream)
     }
     else
     {
-      buffer += character;
+      buffer += static_cast<char>(character);
     }
   }
 
@@ -363,7 +363,7 @@ vtkDenseArray<vtkUnicodeString>* ReadDenseArrayBinary<vtkUnicodeString>(istream&
     }
     else
     {
-      buffer += character;
+      buffer += static_cast<char>(character);
     }
   }
 

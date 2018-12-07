@@ -205,7 +205,7 @@ int vtkOpenGLRenderer::GetDepthPeelingHigherLayer()
 
 // ----------------------------------------------------------------------------
 // Concrete open gl render method.
-void vtkOpenGLRenderer::DeviceRender(void)
+void vtkOpenGLRenderer::DeviceRender()
 {
   vtkTimerLog::MarkStartEvent("OpenGL Dev Render");
 
@@ -549,7 +549,7 @@ void vtkOpenGLRenderer::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-void vtkOpenGLRenderer::Clear(void)
+void vtkOpenGLRenderer::Clear()
 {
   vtkOpenGLClearErrorMacro();
 

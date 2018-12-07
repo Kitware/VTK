@@ -57,8 +57,8 @@ public:
    */
   vtkAtom GetBeginAtom();
   vtkAtom GetEndAtom();
-  const vtkAtom GetBeginAtom() const;
-  const vtkAtom GetEndAtom() const;
+  vtkAtom GetBeginAtom() const;
+  vtkAtom GetEndAtom() const;
   //@}
 
   /**

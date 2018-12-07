@@ -297,7 +297,7 @@ void vtkPolyDataMapper2D::CreateDefaultLookupTable()
 
 //----------------------------------------------------------------------------
 // Return the method of coloring scalar data.
-const char *vtkPolyDataMapper2D::GetColorModeAsString(void)
+const char *vtkPolyDataMapper2D::GetColorModeAsString()
 {
   return (this->ColorMode == VTK_COLOR_MODE_MAP_SCALARS) ? "MapScalars" : "Default";
 }

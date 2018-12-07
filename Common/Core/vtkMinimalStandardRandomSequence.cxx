@@ -65,7 +65,7 @@ void vtkMinimalStandardRandomSequence::SetSeed(int value)
 }
 
 // ----------------------------------------------------------------------------
-int vtkMinimalStandardRandomSequence::GetSeed(void)
+int vtkMinimalStandardRandomSequence::GetSeed()
 {
   return this->Seed;
 }

@@ -584,8 +584,8 @@ int vtkNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
   // If the fastest changing dimension is 9 or less we consider that a tuple.
   // We will also consider any 4th dimension as a tuple.
   if (   (dimSizes.size() > 3)
-      || ((dimSizes.size() > 0) && (dimSizes[0] <= 9))
-      || ((dimSpacing.size() > 0) && (dimSpacing[0] == 0)) )
+      || ((!dimSizes.empty()) && (dimSizes[0] <= 9))
+      || ((!dimSpacing.empty()) && (dimSpacing[0] == 0)) )
   {
     this->NumberOfScalarComponents = dimSizes[0];
     dimSizes.erase(dimSizes.begin());

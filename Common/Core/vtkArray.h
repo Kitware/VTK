@@ -123,7 +123,7 @@ public:
    * Returns the extent (valid coordinate range) along the given
    * dimension.
    */
-  const vtkArrayRange GetExtent(DimensionT dimension);
+  vtkArrayRange GetExtent(DimensionT dimension);
   /**
    * Returns the extents (the number of dimensions and size along each
    * dimension) of the array.

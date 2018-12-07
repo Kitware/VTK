@@ -149,7 +149,7 @@ struct FieldInfo
       int cc = 0;
       for (const auto& cname : this->ComponentNames)
       {
-        if (cname.size())
+        if (!cname.empty())
         {
           array->SetComponentName(cc, cname.c_str());
         }
@@ -766,7 +766,7 @@ const char* vtkDataSetAttributesFieldList::GetFieldName(int i) const
   VTK_LEGACY_BODY(vtkDataSetAttributesFieldList::GetNumberOfFields, "VTK 8.2");
   const auto& internals = *this->Internals;
   const auto* finfo = internals.GetLegacyFieldForIndex(i);
-  return finfo && finfo->Name.size() ? finfo->Name.c_str() : nullptr;
+  return (finfo && !finfo->Name.empty()) ? finfo->Name.c_str() : nullptr;
 }
 #endif
 

@@ -508,13 +508,13 @@ vtkIdType vtkStringArray::InsertNextValue(vtkStdString f)
 }
 
 // ----------------------------------------------------------------------------
-int vtkStringArray::GetDataTypeSize( void )
+int vtkStringArray::GetDataTypeSize( )
 {
   return static_cast<int>(sizeof(vtkStdString));
 }
 
 // ----------------------------------------------------------------------------
-unsigned long vtkStringArray::GetActualMemorySize( void )
+unsigned long vtkStringArray::GetActualMemorySize( )
 {
   size_t totalSize = 0;
   size_t  numPrims = static_cast<size_t>(this->GetSize());

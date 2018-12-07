@@ -68,7 +68,7 @@ void vtkRenderWindowInteractor3D::Disable()
 }
 
 //----------------------------------------------------------------------------
-void vtkRenderWindowInteractor3D::TerminateApp(void)
+void vtkRenderWindowInteractor3D::TerminateApp()
 {
   this->Done = true;
 }

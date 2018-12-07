@@ -156,7 +156,7 @@ void vtkViewport::RemoveViewProp(vtkProp *p)
 }
 
 //----------------------------------------------------------------------------
-void vtkViewport::RemoveAllViewProps(void)
+void vtkViewport::RemoveAllViewProps()
 {
   vtkProp *aProp;
   vtkCollectionSimpleIterator pit;

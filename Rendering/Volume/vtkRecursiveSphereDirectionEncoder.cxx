@@ -109,7 +109,7 @@ float *vtkRecursiveSphereDirectionEncoder::GetDecodedGradient( int value )
   return (this->DecodedNormal + value*3);
 }
 
-int vtkRecursiveSphereDirectionEncoder::GetNumberOfEncodedDirections( void )
+int vtkRecursiveSphereDirectionEncoder::GetNumberOfEncodedDirections( )
 {
   int     outer_size, inner_size;
   int     norm_size;
@@ -122,7 +122,7 @@ int vtkRecursiveSphereDirectionEncoder::GetNumberOfEncodedDirections( void )
   return (norm_size*2 + 1);
 }
 
-float *vtkRecursiveSphereDirectionEncoder::GetDecodedGradientTable( void )
+float *vtkRecursiveSphereDirectionEncoder::GetDecodedGradientTable( )
 {
   if ( this->IndexTableRecursionDepth != this->RecursionDepth )
   {
@@ -145,7 +145,7 @@ float *vtkRecursiveSphereDirectionEncoder::GetDecodedGradientTable( void )
 // NORM_SQR_SIZE - 1 grid inside of it.  The vertices all fall on
 // (x,y) locatiions in a grid that is 2*NORM_SQR_SIZE - 1 by
 // 2*NORM_SQR_SIZE - 1, although not every (x,y) location has a vertex.
-void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( void )
+void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( )
 {
   int     i, j, index, max_index;
   int     xindex, yindex;

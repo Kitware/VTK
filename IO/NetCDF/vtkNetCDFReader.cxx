@@ -471,7 +471,7 @@ int vtkNetCDFReader::RequestData(vtkInformation *vtkNotUsed(request),
   }
 
   // Add data array units as field arrays
-  for (auto pair : this->Private->ArrayUnits)
+  for (const auto& pair : this->Private->ArrayUnits)
   {
     vtkNew<vtkStringArray> arr;
     std::stringstream ss;

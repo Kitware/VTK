@@ -795,11 +795,11 @@ public:
                                : static_cast<float>(this->Double);
   }
 
-  const vtkStdString ToString() const
+  vtkStdString ToString() const
   {
     return *this->String;
   }
-  const vtkStdString ToIdentifier() const
+  vtkStdString ToIdentifier() const
   {
     return *this->String;
   }
@@ -1259,11 +1259,11 @@ public:
   {
     return this->InputMode;
   }
-  const vtkStdString GetCasePath() const
+  vtkStdString GetCasePath() const
   {
     return this->CasePath;
   }
-  const vtkStdString GetFilePath() const
+  vtkStdString GetFilePath() const
   {
     return this->ExtractPath(this->FileName);
   }

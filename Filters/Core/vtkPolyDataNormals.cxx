@@ -530,7 +530,7 @@ int vtkPolyDataNormals::RequestData(
 
 //  Propagate wave of consistently ordered polygons.
 //
-void vtkPolyDataNormals::TraverseAndOrder (void)
+void vtkPolyDataNormals::TraverseAndOrder ()
 {
   vtkIdType i, k;
   int j, l, j1;

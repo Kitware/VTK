@@ -675,7 +675,7 @@ void vtkMapper::CreateDefaultLookupTable()
 
 //-------------------------------------------------------------------
 // Return the method of coloring scalar data.
-const char *vtkMapper::GetColorModeAsString(void)
+const char *vtkMapper::GetColorModeAsString()
 {
   if ( this->ColorMode == VTK_COLOR_MODE_MAP_SCALARS )
   {
@@ -688,7 +688,7 @@ const char *vtkMapper::GetColorModeAsString(void)
 }
 
 // Return the method for obtaining scalar data.
-const char *vtkMapper::GetScalarModeAsString(void)
+const char *vtkMapper::GetScalarModeAsString()
 {
   if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA )
   {

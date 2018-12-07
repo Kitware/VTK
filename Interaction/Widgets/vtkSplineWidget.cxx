@@ -1254,7 +1254,7 @@ void vtkSplineWidget::SetNumberOfHandles(int npts)
   }
 }
 
-void vtkSplineWidget::Initialize(void)
+void vtkSplineWidget::Initialize()
 {
   int i;
   if ( this->Interactor )

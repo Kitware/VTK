@@ -441,7 +441,7 @@ void vtkImagePlaneWidget::OnChar()
 }
 
 //----------------------------------------------------------------------------
-void vtkImagePlaneWidget::AddObservers(void)
+void vtkImagePlaneWidget::AddObservers()
 {
   // listen for the following events
   vtkRenderWindowInteractor *i = this->Interactor;
@@ -2406,7 +2406,7 @@ vtkPolyDataAlgorithm *vtkImagePlaneWidget::GetPolyDataAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-void vtkImagePlaneWidget::UpdatePlacement(void)
+void vtkImagePlaneWidget::UpdatePlacement()
 {
   this->UpdatePlane();
   this->UpdateMargins();

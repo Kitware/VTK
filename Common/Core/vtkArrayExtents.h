@@ -112,7 +112,7 @@ public:
    * Create n-dimensional extents with extent [0, m) along each dimension.
    * This is useful for creating e.g: a square matrix.
    */
-  static const vtkArrayExtents Uniform(DimensionT n, CoordinateT m);
+  static vtkArrayExtents Uniform(DimensionT n, CoordinateT m);
 
   /**
    * Grow the number of dimensions by one, specifying the extent

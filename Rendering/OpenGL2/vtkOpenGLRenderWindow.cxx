@@ -1234,7 +1234,7 @@ int vtkOpenGLRenderWindow::ReadPixels(
 }
 
 // Begin the rendering process.
-void vtkOpenGLRenderWindow::Start(void)
+void vtkOpenGLRenderWindow::Start()
 {
   if (!this->Initialized)
   {
@@ -1286,7 +1286,7 @@ void vtkOpenGLRenderWindow::Start(void)
 //----------------------------------------------------------------------------
 // Update the system, if needed, due to stereo rendering. For some stereo
 // methods, subclasses might need to switch some hardware settings here.
-void vtkOpenGLRenderWindow::StereoUpdate(void)
+void vtkOpenGLRenderWindow::StereoUpdate()
 {
   this->Superclass::StereoUpdate();
 
@@ -1341,7 +1341,7 @@ void vtkOpenGLRenderWindow::StereoUpdate(void)
 //----------------------------------------------------------------------------
 // Intermediate method performs operations required between the rendering
 // of the left and right eye.
-void vtkOpenGLRenderWindow::StereoMidpoint(void)
+void vtkOpenGLRenderWindow::StereoMidpoint()
 {
   this->Superclass::StereoMidpoint();
 
