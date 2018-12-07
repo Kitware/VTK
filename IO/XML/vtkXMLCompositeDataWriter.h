@@ -195,7 +195,7 @@ protected:
    */
   virtual int WriteNonCompositeData(
     vtkDataObject* dObj, vtkXMLDataElement* element,
-    int& writerIdx, const char* FileName);
+    int& writerIdx, const char* fileName);
 
   /**
    * Utility function to remove any already written files
