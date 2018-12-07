@@ -30,8 +30,8 @@
 
 class vtkBitArray;
 class vtkHyperTree;
-class vtkHyperTreeCursor;
 class vtkHyperTreeGrid;
+class vtkHyperTreeGridNonOrientedCursor;
 class vtkIdTypeArray;
 
 class VTKIOXML_EXPORT vtkXMLHyperTreeGridReader : public vtkXMLDataReader
@@ -61,9 +61,10 @@ protected:
   // Declare that this reader produces HyperTreeGrids
   int FillOutputPortInformation(int, vtkInformation*) override;
 
-  //These defer to the HyperTreeGrid output.
-  vtkIdType GetNumberOfPoints() override;
-  vtkIdType GetNumberOfCells() override;
+
+  // These return 0 as not easily available.
+  vtkIdType GetNumberOfPoints() override { return 0; };
+  vtkIdType GetNumberOfCells() override { return 0; };
 
   // Overridden here to do allocation.
   int ReadArrayForPoints(vtkXMLDataElement* da,
@@ -84,11 +85,10 @@ protected:
 protected:
   // Used by ReadTopology to recursively build the tree
   void SubdivideFromDescriptor(
-                          vtkHyperTreeCursor* treeCursor,
-                          vtkHyperTree* tree,
+                          vtkHyperTreeGridNonOrientedCursor* treeCursor,
                           unsigned int level,
                           int numChildren,
-                          vtkBitArray* desc,
+                          vtkBitArray* descriptor,
                           vtkIdTypeArray* posByLevel,
                           vtkIdType* cellsOnProcessor);
 

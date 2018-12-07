@@ -18,7 +18,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkExtentTranslator.h"
 #include "vtkHyperTree.h"
-#include "vtkHyperTreeCursor.h"
+#include "vtkHyperTreeGridNonOrientedCursor.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -41,7 +41,6 @@ vtkRandomHyperTreeGridSource::vtkRandomHyperTreeGridSource()
   : Seed(0)
   , MaxDepth(5)
   , SplitFraction(0.5)
-  , HTG(nullptr)
   , Levels(nullptr)
 {
   this->SetNumberOfInputPorts(0);
@@ -117,7 +116,6 @@ int vtkRandomHyperTreeGridSource::RequestData(vtkInformation *,
   htg->SetGridSize(this->GridSize);
   htg->SetDimension(3);
   htg->SetBranchFactor(2);
-  this->HTG = htg;
 
   {
     vtkNew<vtkDoubleArray> coords;
@@ -145,9 +143,6 @@ int vtkRandomHyperTreeGridSource::RequestData(vtkInformation *,
   htg->GetPointData()->AddArray(levels);
   this->Levels = levels;
 
-  vtkNew<vtkIdTypeArray> mask;
-  mask->SetName("MaterialMaskIndex");
-
   vtkIdType treeOffset = 0;
   for (int i = updateExtent[0]; i < updateExtent[1]; ++i)
   {
@@ -161,14 +156,11 @@ int vtkRandomHyperTreeGridSource::RequestData(vtkInformation *,
                                               static_cast<unsigned int>(j),
                                               static_cast<unsigned int>(k));
 
-        mask->InsertNextValue(treeId);
-
         // Initialize RNG per tree to make it easier to parallelize
         this->RNG->Initialize(this->Seed + treeId);
 
         // Build this tree:
-        vtkHyperTreeCursor *cursor = htg->NewCursor(treeId, true);
-        cursor->ToRoot();
+        vtkHyperTreeGridNonOrientedCursor *cursor = htg->NewNonOrientedCursor(treeId, true);
         cursor->GetTree()->SetGlobalIndexStart(treeOffset);
         this->SubdivideLeaves(cursor, treeId);
         treeOffset += cursor->GetTree()->GetNumberOfVertices();
@@ -177,10 +169,7 @@ int vtkRandomHyperTreeGridSource::RequestData(vtkInformation *,
     }
   }
 
-  htg->SetMaterialMaskIndex(mask);
-
   // Cleanup
-  this->HTG = nullptr;
   this->Levels = nullptr;
 
   return 1;
@@ -195,7 +184,7 @@ int vtkRandomHyperTreeGridSource::FillOutputPortInformation(
 }
 
 //------------------------------------------------------------------------------
-void vtkRandomHyperTreeGridSource::SubdivideLeaves(vtkHyperTreeCursor *cursor,
+void vtkRandomHyperTreeGridSource::SubdivideLeaves(vtkHyperTreeGridNonOrientedCursor *cursor,
                                                    vtkIdType treeId)
 {
   vtkIdType vertexId = cursor->GetVertexId();
@@ -209,7 +198,7 @@ void vtkRandomHyperTreeGridSource::SubdivideLeaves(vtkHyperTreeCursor *cursor,
   {
     if (this->ShouldRefine(level))
     {
-      this->HTG->SubdivideLeaf(cursor, treeId);
+      cursor->SubdivideLeaf();
       this->SubdivideLeaves(cursor, treeId);
     }
   }

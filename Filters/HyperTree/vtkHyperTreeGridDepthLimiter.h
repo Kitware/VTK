@@ -31,7 +31,9 @@
  * @par Thanks:
  * This class was written by Guenole Harel and Jacques-Bernard Lekien 2014
  * This class was modified by Philippe Pebay, 2016
- * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+ * This class was modified by Jacques-Bernard Lekien, 2018
+ * This work was supported by Commissariat a l'Energie Atomique
+ * CEA, DAM, DIF, F-91297 Arpajon, France.
 */
 
 #ifndef vtkHyperTreeGridDepthLimiter_h
@@ -41,9 +43,8 @@
 #include "vtkHyperTreeGridAlgorithm.h"
 
 class vtkBitArray;
-class vtkHyperTreeCursor;
 class vtkHyperTreeGrid;
-class vtkHyperTreeGridCursor;
+class vtkHyperTreeGridNonOrientedCursor;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridDepthLimiter : public vtkHyperTreeGridAlgorithm
 {
@@ -77,9 +78,8 @@ protected:
   /**
    * Recursively descend into tree down to leaves
    */
-  void RecursivelyProcessTree( vtkHyperTreeGridCursor*,
-                               vtkHyperTreeCursor*,
-                               vtkBitArray* );
+  void RecursivelyProcessTree( vtkHyperTreeGridNonOrientedCursor*,
+                               vtkHyperTreeGridNonOrientedCursor* );
 
   /**
    * Maximum depth of hyper tree grid to be extracted
@@ -89,7 +89,8 @@ protected:
   /**
    * Output material mask constructed by this filter
    */
-  vtkBitArray* MaterialMask;
+  vtkBitArray* InMaterialMask;
+  vtkBitArray* OutMaterialMask;
 
   /**
    * Keep track of current index in output hyper tree grid
@@ -101,4 +102,4 @@ private:
   void operator=(const vtkHyperTreeGridDepthLimiter&) = delete;
 };
 
-#endif /* vtkHyperTreeGridDepthLimiter_h */
+#endif // vtkHyperTreeGridDepthLimiter_h

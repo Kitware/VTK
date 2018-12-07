@@ -27,7 +27,7 @@
 
 class vtkDoubleArray;
 class vtkExtentTranslator;
-class vtkHyperTreeCursor;
+class vtkHyperTreeGridNonOrientedCursor;
 class vtkMinimalStandardRandomSequence;
 
 class VTKFILTERSSOURCES_EXPORT vtkRandomHyperTreeGridSource
@@ -99,7 +99,7 @@ protected:
 
   int FillOutputPortInformation(int port, vtkInformation *info) override;
 
-  void SubdivideLeaves(vtkHyperTreeCursor *cursor, vtkIdType treeId);
+  void SubdivideLeaves(vtkHyperTreeGridNonOrientedCursor *cursor, vtkIdType treeId);
 
   bool ShouldRefine(vtkIdType level);
 
@@ -115,7 +115,6 @@ private:
 
   vtkNew<vtkMinimalStandardRandomSequence> RNG;
   vtkNew<vtkExtentTranslator> ExtentTranslator;
-  vtkHyperTreeGrid *HTG;
   vtkDoubleArray *Levels;
 };
 

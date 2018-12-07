@@ -20,11 +20,12 @@
  * vtkHyperTreeGrid vtkHyperTreeGridAlgorithm
  *
  * @par Thanks:
- * This class was written by Philippe Pebay, Joachim Pouderoux,
- * and Charles Law, Kitware 2013
+ * This class was written by Philippe Pebay, Joachim Pouderoux, and Charles Law, Kitware 2013
  * This class was modified by Guenole Harel and Jacques-Bernard Lekien, 2014
- * This class was rewritten by Philippe Pebay, NexGen Analytics 2017
- * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+ * This class was rewritten by Philippe Pebay, 2016
+ * This class was modified by Jacques-Bernard Lekien and Guenole Harel, 2018
+ * This work was supported by Commissariat a l'Energie Atomique
+ * CEA, DAM, DIF, F-91297 Arpajon, France.
 */
 
 #ifndef vtkHyperTreeGridGeometry_h
@@ -35,12 +36,14 @@
 
 class vtkBitArray;
 class vtkCellArray;
-class vtkDoubleArray;
 class vtkHyperTreeGrid;
-class vtkHyperTreeGridCursor;
+class vtkPoints;
+class vtkIncrementalPointLocator;
+class vtkDoubleArray;
 class vtkIdList;
 class vtkIdTypeArray;
-class vtkPoints;
+class vtkHyperTreeGridNonOrientedGeometryCursor;
+class vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGeometry : public vtkHyperTreeGridAlgorithm
 {
@@ -48,6 +51,16 @@ public:
   static vtkHyperTreeGridGeometry* New();
   vtkTypeMacro( vtkHyperTreeGridGeometry, vtkHyperTreeGridAlgorithm );
   void PrintSelf( ostream&, vtkIndent ) override;
+
+  //@{
+  /**
+   * Turn on/off merging of coincident points. Note that is merging is
+   * on, points with different point attributes (e.g., normals) are merged,
+   * which may cause rendering artifacts.
+   */
+  vtkSetMacro( Merging, bool );
+  vtkGetMacro( Merging, bool );
+  //@}
 
 protected:
   vtkHyperTreeGridGeometry();
@@ -66,27 +79,55 @@ protected:
   /**
    * Recursively descend into tree down to leaves
    */
-  void RecursivelyProcessTree( vtkHyperTreeGridCursor*, vtkBitArray* );
+  void RecursivelyProcessTreeNot3D( vtkHyperTreeGridNonOrientedGeometryCursor* );
+  void RecursivelyProcessTree3D(
+    vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight*,
+    char,
+    bool);
 
   /**
    * Process 1D leaves and issue corresponding edges (lines)
    */
-  void ProcessLeaf1D( vtkHyperTreeGridCursor* );
+  void ProcessLeaf1D( vtkHyperTreeGridNonOrientedGeometryCursor* );
 
   /**
    * Process 2D leaves and issue corresponding faces (quads)
    */
-  void ProcessLeaf2D( vtkHyperTreeGridCursor*, vtkBitArray* );
+  void ProcessLeaf2D( vtkHyperTreeGridNonOrientedGeometryCursor* );
 
   /**
    * Process 3D leaves and issue corresponding cells (voxels)
    */
-  void ProcessLeaf3D( vtkHyperTreeGridCursor*, vtkBitArray* );
+  void ProcessLeaf3D( vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* );
 
   /**
    * Helper method to generate a face based on its normal and offset from cursor origin
    */
-  void AddFace( vtkIdType, double*, double*, int, unsigned int, bool create = true );
+  void AddFace(
+    vtkIdType useId,
+    const double* origin,
+    const double* size,
+    unsigned int offset,
+    unsigned int orientation );
+
+  void AddFace2(
+    vtkIdType inId,
+    vtkIdType useId,
+    const double* origin,
+    const double* size,
+    unsigned int offset,
+    unsigned int orientation,
+    bool create = true );
+
+  /**
+   * material Mask
+   */
+  vtkBitArray* MaterialMask;
+
+  /**
+   * Pure Material Mask
+   */
+  vtkBitArray* PureMaterialMask;
 
   /**
    * Dimension of input grid
@@ -99,6 +140,11 @@ protected:
   unsigned int Orientation;
 
   /**
+   * Branch Factor
+   */
+  int BranchFactor;
+
+  /**
    * Storage for points of output unstructured mesh
    */
   vtkPoints* Points;
@@ -108,46 +154,29 @@ protected:
    */
   vtkCellArray* Cells;
 
-  //@{
   /**
-   * Keep track of input interface parameters
+   *JB Un locator est utilise afin de produire un maillage avec moins
+   *JB de points. Le gain en 3D est de l'ordre d'un facteur 4 !
    */
+  bool Merging;
+  vtkIncrementalPointLocator* Locator;
+
+  // JB A RECUPERER DANS LE .H VTK9
   bool HasInterface;
   vtkDoubleArray* Normals;
   vtkDoubleArray* Intercepts;
-  //@}
 
-  //@{
-  /**
-   * Storage for interface points
-   */
-  vtkPoints* FacePoints;
   vtkIdList* FaceIDs;
-  //@}
+  vtkPoints* FacePoints;
 
-  //@{
-  /**
-   * Storage for interface edges
-   */
   vtkIdType EdgesA[12];
   vtkIdType EdgesB[12];
-  //@}
 
-  //@{
-  /**
-   * Storage for interface faces
-   */
   vtkIdTypeArray* FacesA;
   vtkIdTypeArray* FacesB;
-  //@}
 
-  //@{
-  /**
-   * Storage for interface scalars
-   */
   vtkDoubleArray* FaceScalarsA;
   vtkDoubleArray* FaceScalarsB;
-  //@}
 
 private:
   vtkHyperTreeGridGeometry(const vtkHyperTreeGridGeometry&) = delete;

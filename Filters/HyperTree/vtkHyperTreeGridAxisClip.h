@@ -17,7 +17,7 @@
  * @brief   Axis aligned hyper tree grid clip
  *
  *
- * Clip a hyper tree grid along an axis aligned plane or box and output
+ * Clip an hyper tree grid along an axis aligned plane or box and output
  * a hyper tree grid with same dimensionality.
  * This filter also allows for reversal of the direction of what is inside
  * versus what is outside by setting the InsideOut instance variable.
@@ -26,8 +26,10 @@
  * vtkHyperTreeGrid vtkHyperTreeGridAlgorithm
  *
  * @par Thanks:
- * This class was written by Philippe Pebay on a idea of Guénolé Harel and Jacques-Bernard Lekien, 2016
- * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+ * This class was written by Philippe Pebay on a idea of Guenole Harel and Jacques-Bernard Lekien, 2016
+ * This class was modified by Jacques-Bernard Lekien, 2018
+ * This work was supported by Commissariat a l'Energie Atomique
+ * CEA, DAM, DIF, F-91297 Arpajon, France.
 */
 
 #ifndef vtkHyperTreeGridAxisClip_h
@@ -37,10 +39,10 @@
 #include "vtkHyperTreeGridAlgorithm.h"
 
 class vtkBitArray;
-class vtkHyperTreeCursor;
 class vtkHyperTreeGrid;
-class vtkHyperTreeGridCursor;
 class vtkQuadric;
+class vtkHyperTreeGridNonOrientedCursor;
+class vtkHyperTreeGridNonOrientedGeometryCursor;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisClip : public vtkHyperTreeGridAlgorithm
 {
@@ -98,12 +100,8 @@ public:
    */
   vtkSetVector6Macro(Bounds,double);
   vtkGetVectorMacro(Bounds,double,6);
-  void SetMinimumBounds(double x, double y, double z);
-  void SetMaximumBounds(double x, double y, double z);
-  void SetMinimumBounds(double[3]) VTK_SIZEHINT(3);
-  void SetMaximumBounds(double[3]) VTK_SIZEHINT(3);
-  void GetMinimumBounds(double[3]) VTK_SIZEHINT(3);
-  void GetMaximumBounds(double[3]) VTK_SIZEHINT(3);
+  void GetMinimumBounds( double[3] );
+  void GetMaximumBounds( double[3] );
   //@}
 
   //@{
@@ -131,11 +129,8 @@ public:
   /**
    * Helpers to set/get the 10 coefficients of the quadric function
    */
-  void SetQuadricCoefficients(double a0, double a1, double a2, double a3,
-                              double a4, double a5, double a6, double a7,
-                              double a8, double a9);
-  void SetQuadricCoefficients(double[10]) VTK_SIZEHINT(10) ;
-  void GetQuadricCoefficients(double[10]) VTK_SIZEHINT(10);
+  void SetQuadricCoefficients( double[10] );
+  void GetQuadricCoefficients( double[10] );
   double* GetQuadricCoefficients();
   //@}
 
@@ -154,7 +149,7 @@ protected:
   /**
    * Decide whether the cell is clipped out
    */
-  bool IsClipped( vtkHyperTreeGridCursor* );
+  bool IsClipped( vtkHyperTreeGridNonOrientedGeometryCursor* );
 
   /**
    * Main routine to generate hyper tree grid clip
@@ -164,9 +159,8 @@ protected:
   /**
    * Recursively descend into tree down to leaves
    */
-  void RecursivelyProcessTree( vtkHyperTreeGridCursor*,
-                               vtkHyperTreeCursor*,
-                               vtkBitArray* );
+  void RecursivelyProcessTree( vtkHyperTreeGridNonOrientedGeometryCursor* inCursor,
+                               vtkHyperTreeGridNonOrientedCursor* outCursor );
 
   /**
    * Type of clip to be performed
@@ -182,6 +176,7 @@ protected:
    * Intercept of clipping plane along normal
    */
   double PlanePosition;
+  double PlanePositionRealUse;
 
   /**
    * Bounds of axis-aligned clipping box
@@ -201,7 +196,8 @@ protected:
   /**
    * Output material mask constructed by this filter
    */
-  vtkBitArray* MaterialMask;
+  vtkBitArray* InMaterialMask;
+  vtkBitArray* OutMaterialMask;
 
   /**
    * Keep track of current index in output hyper tree grid
@@ -213,4 +209,4 @@ private:
   void operator=(const vtkHyperTreeGridAxisClip&) = delete;
 };
 
-#endif /* vtkHyperTreeGridAxisClip_h */
+#endif // vtkHyperTreeGridAxisClip_h

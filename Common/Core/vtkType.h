@@ -127,6 +127,7 @@
 #define VTK_UNSTRUCTURED_GRID_BASE         36
 #define VTK_PARTITIONED_DATA_SET           37
 #define VTK_PARTITIONED_DATA_SET_COLLECTION 38
+#define VTK_UNIFORM_HYPER_TREE_GRID 39
 
 /*--------------------------------------------------------------------------*/
 /* Define a casting macro for use by the constants below.  */

@@ -22,6 +22,9 @@
  * following threshold: a cell is considered to be within range if its
  * value for the active scalar is within a specified range (inclusive).
  * The output remains a hyper tree grid.
+ * JB Un parametre (JustCreateNewMask=true) permet de ne pas faire
+ * le choix de la creation d'un nouveau HTG mais
+ * de redefinir juste le masque.
  *
  * @sa
  * vtkHyperTreeGrid vtkHyperTreeGridAlgorithm vtkThreshold
@@ -29,7 +32,9 @@
  * @par Thanks:
  * This class was written by Guenole Harel and Jacques-Bernard Lekien 2014
  * This class was revised by Philippe Pebay, 2016
- * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+ * This class was optimized by Jacques-Bernard Lekien, 2018.
+ * This work was supported by Commissariat a l'Energie Atomique
+ * CEA, DAM, DIF, F-91297 Arpajon, France.
 */
 
 #ifndef vtkHyperTreeGridThreshold_h
@@ -39,9 +44,9 @@
 #include "vtkHyperTreeGridAlgorithm.h"
 
 class vtkBitArray;
-class vtkHyperTreeCursor;
 class vtkHyperTreeGrid;
-class vtkHyperTreeGridCursor;
+
+class vtkHyperTreeGridNonOrientedCursor;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridThreshold : public vtkHyperTreeGridAlgorithm
 {
@@ -52,18 +57,26 @@ public:
 
   //@{
   /**
+   * Set/Get True, create a new mask ; false, create a new HTG.
+   */
+  vtkSetMacro( JustCreateNewMask, bool );
+  vtkGetMacro( JustCreateNewMask, bool );
+  //@}
+
+  //@{
+  /**
    * Set/Get minimum scalar value of threshold
    */
-  vtkSetMacro(LowerThreshold, double);
-  vtkGetMacro(LowerThreshold, double);
+  vtkSetMacro( LowerThreshold, double );
+  vtkGetMacro( LowerThreshold, double );
   //@}
 
   //@{
   /**
    * Set/Get maximum scalar value of threshold
    */
-  vtkSetMacro(UpperThreshold, double);
-  vtkGetMacro(UpperThreshold, double);
+  vtkSetMacro( UpperThreshold, double );
+  vtkGetMacro( UpperThreshold, double );
   //@}
 
   /**
@@ -88,9 +101,9 @@ protected:
   /**
    * Recursively descend into tree down to leaves
    */
-  bool RecursivelyProcessTree( vtkHyperTreeGridCursor*,
-                               vtkHyperTreeCursor*,
-                               vtkBitArray* );
+  bool RecursivelyProcessTree( vtkHyperTreeGridNonOrientedCursor*,
+                               vtkHyperTreeGridNonOrientedCursor* );
+  bool RecursivelyProcessTreeWithCreateNewMask( vtkHyperTreeGridNonOrientedCursor*  );
 
   /**
    * LowerThreshold scalar value to be accepted
@@ -103,9 +116,14 @@ protected:
   double UpperThreshold;
 
   /**
+   * Input material mask
+   */
+  vtkBitArray* InMaterialMask;
+
+  /**
    * Output material mask constructed by this filter
    */
-  vtkBitArray* MaterialMask;
+  vtkBitArray* OutMaterialMask;
 
   /**
    * Keep track of current index in output hyper tree grid
@@ -116,6 +134,11 @@ protected:
    * Keep track of selected input scalars
    */
   vtkDataArray* InScalars;
+
+  /**
+   * With or without copy
+   */
+  bool JustCreateNewMask;
 
 private:
   vtkHyperTreeGridThreshold(const vtkHyperTreeGridThreshold&) = delete;

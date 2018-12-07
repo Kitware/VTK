@@ -29,6 +29,7 @@
  * This test was written by Philippe Pebay and Charles Law, Kitware 2012
  * This test was rewritten by Philippe Pebay, 2016
  * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+ * CEA, DAM, DIF, F-91297 Arpajon, France.
 */
 
 #ifndef vtkHyperTreeGridAlgorithm_h
@@ -85,7 +86,7 @@ public:
   /**
    * See vtkAlgorithm for details
    */
-  int ProcessRequest( vtkInformation*,
+  virtual int ProcessRequest( vtkInformation*,
                               vtkInformationVector**,
                               vtkInformationVector*) override;
 
@@ -112,6 +113,13 @@ public:
 protected:
   vtkHyperTreeGridAlgorithm();
   ~vtkHyperTreeGridAlgorithm() override;
+
+  /**
+   * see vtkAlgorithm for details
+   */
+  int RequestDataObject( vtkInformation*,
+                         vtkInformationVector** inputVector ,
+                         vtkInformationVector* outputVector);
 
   // convenience method
   virtual int RequestInformation( vtkInformation*,
@@ -149,8 +157,20 @@ protected:
   int FillOutputPortInformation( int, vtkInformation* ) override;
   //@}
 
+  //@{
+  /**
+   * Reference to input and output data
+   */
   vtkDataSetAttributes* InData;
   vtkDataSetAttributes* OutData;
+  //@}
+
+  //@{
+  /**
+   * JB Si a vrai, l'objet output aura le meme type que le type d'objet en entree input.
+   */
+  bool AppropriateOutput;
+  //@}
 
 private:
   vtkHyperTreeGridAlgorithm(const vtkHyperTreeGridAlgorithm&) = delete;

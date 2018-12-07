@@ -18,12 +18,13 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeGridCursor.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkPointData.h"
+
+#include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 
 vtkStandardNewMacro(vtkHyperTreeGridToUnstructuredGrid);
 
@@ -114,23 +115,19 @@ int vtkHyperTreeGridToUnstructuredGrid::ProcessTrees( vtkHyperTreeGrid* input,
   this->OutData->CopyAllocate( this->InData );
 
   // Retrieve material mask
-  vtkBitArray* mask
-    = input->HasMaterialMask() ? input->GetMaterialMask() : nullptr;
+  this->MaterialMask = input->HasMaterialMask() ? input->GetMaterialMask() : nullptr;
 
   // Iterate over all hyper trees
   vtkIdType index;
   vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
   input->InitializeTreeIterator( it );
+  vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursor;
   while ( it.GetNextTree( index ) )
   {
     // Initialize new geometric cursor at root of current tree
-    vtkHyperTreeGridCursor* cursor = input->NewGeometricCursor( index );
-
+    input->InitializeNonOrientedGeometryCursor( cursor, index );
     // Convert hyper tree into unstructured mesh recursively
-    this->RecursivelyProcessTree( cursor, mask );
-
-    // Clean up
-    cursor->Delete();
+    this->RecursivelyProcessTree( cursor );
   } // it
 
   // Set output geometry and topology
@@ -157,12 +154,8 @@ int vtkHyperTreeGridToUnstructuredGrid::ProcessTrees( vtkHyperTreeGrid* input,
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridToUnstructuredGrid::RecursivelyProcessTree( vtkHyperTreeGridCursor* cursor,
-                                                                 vtkBitArray* mask )
+void vtkHyperTreeGridToUnstructuredGrid::RecursivelyProcessTree( vtkHyperTreeGridNonOrientedGeometryCursor* cursor )
 {
-  // Retrieve input grid
-  vtkHyperTreeGrid* input = cursor->GetGrid();
-
   // Create unstructured output if cursor is at leaf
   if ( cursor->IsLeaf() )
   {
@@ -170,7 +163,7 @@ void vtkHyperTreeGridToUnstructuredGrid::RecursivelyProcessTree( vtkHyperTreeGri
     vtkIdType id = cursor->GetGlobalNodeIndex();
 
     // If leaf is masked, skip it
-    if ( mask && mask->GetValue( id ) )
+    if ( this->MaterialMask && this->MaterialMask->GetValue( id ) )
     {
       return;
     }
@@ -181,19 +174,13 @@ void vtkHyperTreeGridToUnstructuredGrid::RecursivelyProcessTree( vtkHyperTreeGri
   else
   {
      // Cursor is not at leaf, recurse to all children
-    int numChildren = input->GetNumberOfChildren();
-    for ( int child = 0; child < numChildren; ++ child )
+    int numChildren = cursor->GetNumberOfChildren();
+    for ( int ichild = 0; ichild < numChildren; ++ ichild )
     {
-      // Create child cursor from parent
-      vtkHyperTreeGridCursor* childCursor = cursor->Clone();
-      childCursor->ToChild( child );
-
+      cursor->ToChild( ichild );
       // Recurse
-      this->RecursivelyProcessTree( childCursor, mask );
-
-      // Clean up
-      childCursor->Delete();
-      childCursor = nullptr;
+      this->RecursivelyProcessTree( cursor );
+      cursor->ToParent();
     } // child
   } // else
 }

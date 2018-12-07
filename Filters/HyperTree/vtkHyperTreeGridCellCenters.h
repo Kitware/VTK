@@ -18,7 +18,7 @@
  * tree grid leaf cell centers.
  *
  *
- * vtkHyperTreeGridCellCenters is a filter that takes as input a hyper
+ * vtkHyperTreeGridCellCenters is a filter that takes as input an hyper
  * tree grid and generates on output points at the center of the leaf
  * cells in the hyper tree grid.
  * These points can be used for placing glyphs (vtkGlyph3D) or labeling
@@ -31,75 +31,71 @@
  * VertexCells to generate cells.
  *
  * @sa
- * vtkCellCenters vtkHyperTreeGrid vtkHyperTreeGridAlgorithm
+ * vtkCellCenters vtkHyperTreeGrid vtkGlyph3D
  *
  * @par Thanks:
  * This class was written by Guenole Harel and Jacques-Bernard Lekien 2014
- * This class was rewritten by Philippe Pebay, NexGen Analytics 2017
- * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+ * This class was modified by Philippe Pebay, 2016
+ * This class was modified by Jacques-Bernard Lekien, 2018
+ * This work was supported by Commissariat a l'Energie Atomique
+ * CEA, DAM, DIF, F-91297 Arpajon, France.
 */
 
 #ifndef vtkHyperTreeGridCellCenters_h
 #define vtkHyperTreeGridCellCenters_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
-#include "vtkHyperTreeGridAlgorithm.h"
+#include "vtkCellCenters.h"
 
 class vtkBitArray;
+class vtkDataSetAttributes;
 class vtkHyperTreeGrid;
-class vtkHyperTreeGridCursor;
-class vtkPoints;
+class vtkPolyData;
+class vtkHyperTreeGridNonOrientedGeometryCursor;
 
-class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridCellCenters : public vtkHyperTreeGridAlgorithm
+class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridCellCenters : public vtkCellCenters
 {
 public:
   static vtkHyperTreeGridCellCenters* New();
-  vtkTypeMacro( vtkHyperTreeGridCellCenters, vtkHyperTreeGridAlgorithm );
+  vtkTypeMacro( vtkHyperTreeGridCellCenters, vtkCellCenters );
   void PrintSelf( ostream&, vtkIndent ) override;
-
-  //@{
-  /**
-   * Enable/disable the generation of vertex cells. The default
-   * is Off.
-   */
-  vtkSetMacro(VertexCells,int);
-  vtkGetMacro(VertexCells,int);
-  vtkBooleanMacro(VertexCells,int);
-  //@}
 
 protected:
   vtkHyperTreeGridCellCenters();
   ~vtkHyperTreeGridCellCenters() override;
 
-  /**
-   * For this algorithm the output is a vtkPolyData instance
-   */
-  int FillOutputPortInformation( int, vtkInformation* ) override;
+  int ProcessRequest( vtkInformation* request,
+                      vtkInformationVector** inputVector,
+                      vtkInformationVector* outputVector ) override;
+  int FillInputPortInformation( int, vtkInformation* ) override;
+  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
 
   /**
-   * Main routine to generate cell centers
+   * Main routine to process individual trees in the grid
    */
-  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) override;
+  virtual void ProcessTrees();
 
   /**
    * Recursively descend into tree down to leaves
    */
-  void RecursivelyProcessTree( vtkHyperTreeGridCursor*, vtkBitArray* );
+  void RecursivelyProcessTree( vtkHyperTreeGridNonOrientedGeometryCursor* );
 
-  /**
-   * Storage for points of output unstructured mesh
-   */
+  vtkHyperTreeGrid* Input;
+  vtkPolyData* Output;
+
+  vtkDataSetAttributes* InData;
+  vtkDataSetAttributes* OutData;
+
   vtkPoints* Points;
 
-  /**
-   * Keep track as to whether vertex cells shall be generated.
-   */
-  int VertexCells;
+  vtkPointData* InPointData;
+  vtkPointData* OutPointData;
+
+  vtkBitArray* InMaterialMask;
 
 private:
   vtkHyperTreeGridCellCenters(const vtkHyperTreeGridCellCenters&) = delete;
   void operator=(const vtkHyperTreeGridCellCenters&) = delete;
 };
 
-
-#endif /* vtkHyperTreeGridCellCenters_h */
+#endif // vtkHyperTreeGridCellCenters_h

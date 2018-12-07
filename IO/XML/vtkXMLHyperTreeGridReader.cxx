@@ -22,8 +22,8 @@
 #include "vtkBitArray.h"
 #include "vtkDataArray.h"
 #include "vtkHyperTree.h"
-#include "vtkHyperTreeCursor.h"
 #include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridNonOrientedCursor.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
@@ -74,30 +74,6 @@ int vtkXMLHyperTreeGridReader::FillOutputPortInformation(int,
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid");
   return 1;
-}
-
-//----------------------------------------------------------------------------
-vtkIdType vtkXMLHyperTreeGridReader::GetNumberOfPoints()
-{
-  vtkIdType numPts = 0;
-  vtkDataSet* output = vtkDataSet::SafeDownCast(this->GetCurrentOutput());
-  if (output)
-  {
-    numPts = output->GetNumberOfPoints();
-  }
-  return numPts;
-}
-
-//----------------------------------------------------------------------------
-vtkIdType vtkXMLHyperTreeGridReader::GetNumberOfCells()
-{
-  vtkIdType numCells = 0;
-  vtkDataSet* output = vtkDataSet::SafeDownCast(this->GetCurrentOutput());
-  if (output)
-  {
-    numCells = output->GetNumberOfCells();
-  }
-  return numCells;
 }
 
 //----------------------------------------------------------------------------
@@ -309,8 +285,6 @@ void vtkXMLHyperTreeGridReader::ReadTopology(vtkXMLDataElement *elem)
       id = static_cast<vtkIdTypeArray*>(id_d);
       id->SetNumberOfTuples(0);
       output->Initialize();
-      output->SetMaterialMaskIndex(id);
-      output->GenerateTrees();
       id_d->Delete();
       return;
     }
@@ -416,28 +390,23 @@ void vtkXMLHyperTreeGridReader::ReadTopology(vtkXMLDataElement *elem)
     nCurrentLevelCount++;
   }
 
-  // Initialize the hyper tree grid with empty hypertrees from file
-  //output->Initialize();
-  output->SetMaterialMaskIndex(id);
-  output->GenerateTrees();
-
   // Iterate over all hypertrees belonging to this processor
   vtkIdType cellsOnProcessor = 0;
+  vtkNew<vtkHyperTreeGridNonOrientedCursor> treeCursor;
   for (int t = 0; t < numberOfIds; t++)
   {
     vtkIdType counter = 1;
     vtkIdType index = (id?id->GetValue(t):t); //fill sequentially without mask
-    vtkHyperTreeCursor* treeCursor = output->NewCursor(index, true);
-    treeCursor->ToRoot();
-    vtkHyperTree* hyperTree = treeCursor->GetTree();
-
-    this->SubdivideFromDescriptor(treeCursor, hyperTree, 0, numberOfChildren,
+    // CEAWarning TODO Read index in XML file
+    //initialize a HyperTree identified by index
+    output->InitializeNonOrientedCursor( treeCursor, index, true );
+    this->SubdivideFromDescriptor(treeCursor, 0, numberOfChildren,
                                   desc, posByLevel, &counter);
-
-    hyperTree->SetGlobalIndexStart(cellsOnProcessor);
+    treeCursor->SetGlobalIndexStart(cellsOnProcessor);
     cellsOnProcessor += counter;
 
 #if 0
+    vtkHyperTree* hyperTree = cursor->GetTree();
     if (hyperTree->GetNumberOfLevels() > 1)
     {
       cerr << "Proc " << " Tree from Reader " << index
@@ -447,7 +416,6 @@ void vtkXMLHyperTreeGridReader::ReadTopology(vtkXMLDataElement *elem)
              << endl;
     }
 #endif
-    treeCursor->Delete();
   }
 
   // Material mask set because convert to unstructured grid wants to look at
@@ -470,8 +438,7 @@ void vtkXMLHyperTreeGridReader::ReadTopology(vtkXMLDataElement *elem)
 //----------------------------------------------------------------------------
 void vtkXMLHyperTreeGridReader::SubdivideFromDescriptor
 (
- vtkHyperTreeCursor* treeCursor,
- vtkHyperTree* tree,
+ vtkHyperTreeGridNonOrientedCursor* treeCursor,
  unsigned int level,
  int numChildren,
  vtkBitArray* descriptor,
@@ -489,13 +456,13 @@ void vtkXMLHyperTreeGridReader::SubdivideFromDescriptor
   }
 
   // Subdivide hyper tree grid leaf and traverse to children
-  tree->SubdivideLeaf(treeCursor);
+  treeCursor->SubdivideLeaf();
   *cellsOnProcessor = *cellsOnProcessor + numChildren;
 
   for (int child = 0; child < numChildren; ++child)
   {
     treeCursor->ToChild(child);
-    this->SubdivideFromDescriptor(treeCursor, tree, level + 1, numChildren,
+    this->SubdivideFromDescriptor(treeCursor, level + 1, numChildren,
                                   descriptor, posByLevel, cellsOnProcessor);
     treeCursor->ToParent();
   }

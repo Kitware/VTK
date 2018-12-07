@@ -21,7 +21,7 @@
  * This filter extracts cells from a hyper tree grid that satisfy the
  * following contour: a cell is considered to be within range if its
  * value for the active scalar is within a specified range (inclusive).
- * The output is a vtkPolyData.
+ * The output remains a hyper tree grid.
  *
  * @sa
  * vtkHyperTreeGrid vtkHyperTreeGridAlgorithm vtkContourFilter
@@ -29,7 +29,9 @@
  * @par Thanks:
  * This class was written by Guenole Harel and Jacques-Bernard Lekien 2014
  * This class was revised by Philippe Pebay, 2016
- * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
+ * This class was modified by Jacques-Bernard Lekien, 2018
+ * This work was supported by Commissariat a l'Energie Atomique
+ * CEA, DAM, DIF, F-91297 Arpajon, France.
 */
 
 #ifndef vtkHyperTreeGridContour_h
@@ -44,9 +46,7 @@
 class vtkBitArray;
 class vtkContourHelper;
 class vtkDataArray;
-class vtkHyperTreeCursor;
 class vtkHyperTreeGrid;
-class vtkHyperTreeGridCursor;
 class vtkIdList;
 class vtkIncrementalPointLocator;
 class vtkLine;
@@ -54,6 +54,8 @@ class vtkPixel;
 class vtkPointData;
 class vtkUnsignedCharArray;
 class vtkVoxel;
+class vtkHyperTreeGridNonOrientedCursor;
+class vtkHyperTreeGridNonOrientedMooreSuperCursor;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridContour : public vtkHyperTreeGridAlgorithm
 {
@@ -113,12 +115,12 @@ protected:
   /**
    * Recursively decide whether a cell is intersected by a contour
    */
-  bool RecursivelyPreProcessTree( vtkHyperTreeGridCursor* );
+  bool RecursivelyPreProcessTree( vtkHyperTreeGridNonOrientedCursor* );
 
   /**
    * Recursively descend into tree down to leaves
    */
-  void RecursivelyProcessTree( vtkHyperTreeGridCursor*, vtkBitArray* );
+  void RecursivelyProcessTree( vtkHyperTreeGridNonOrientedMooreSuperCursor* );
 
   /**
    * Storage for contour values.
@@ -165,7 +167,9 @@ protected:
   /**
    * Keep track of selected input scalars
    */
- vtkDataArray* InScalars;
+  vtkDataArray* InScalars;
+
+  vtkBitArray* InMaterialMask;
 
 private:
   vtkHyperTreeGridContour(const vtkHyperTreeGridContour&) = delete;
@@ -231,4 +235,4 @@ inline void vtkHyperTreeGridContour::GenerateValues( int numContours,
                                                      double rangeEnd )
   { this->ContourValues->GenerateValues( numContours, rangeStart, rangeEnd ); }
 
-#endif /* vtkHyperTreeGridContour_h */
+#endif // vtkHyperTreeGridContour_h

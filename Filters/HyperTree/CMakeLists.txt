@@ -9,6 +9,7 @@ set(Module_SRCS
   vtkHyperTreeGridPlaneCutter.cxx
   vtkHyperTreeGridThreshold.cxx
   vtkHyperTreeGridToUnstructuredGrid.cxx
+  vtkHyperTreeGridEvaluateCoarse.cxx
   )
 
 vtk_module_library(vtkFiltersHyperTree ${Module_SRCS})
