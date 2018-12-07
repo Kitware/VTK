@@ -145,8 +145,7 @@ void vtkMolecule::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-vtkAtom vtkMolecule::AppendAtom(unsigned short atomicNumber,
-                                const vtkVector3f &pos)
+vtkAtom vtkMolecule::AppendAtom(unsigned short atomicNumber, double x, double y, double z)
 {
   vtkUnsignedShortArray *atomicNums = this->GetAtomicNumberArray();
 
@@ -156,7 +155,7 @@ vtkAtom vtkMolecule::AppendAtom(unsigned short atomicNumber,
   this->AddVertexInternal(nullptr, &id);
 
   atomicNums->InsertValue(id, atomicNumber);
-  vtkIdType coordID = this->Points->InsertNextPoint(pos.GetData());
+  vtkIdType coordID = this->Points->InsertNextPoint(x, y, z);
   (void)coordID;
   assert("point ids synced with vertex ids" && coordID == id);
 
@@ -227,6 +226,12 @@ void vtkMolecule::GetAtomPosition(vtkIdType id, float pos[3])
   pos[0] = position.GetX();
   pos[1] = position.GetY();
   pos[2] = position.GetZ();
+}
+
+//----------------------------------------------------------------------------
+void vtkMolecule::GetAtomPosition(vtkIdType id, double pos[3])
+{
+  this->Points->GetPoint(id, pos);
 }
 
 //----------------------------------------------------------------------------
@@ -817,4 +822,23 @@ vtkMolecule *vtkMolecule::GetData(vtkInformation *info)
 vtkMolecule *vtkMolecule::GetData(vtkInformationVector *v, int i)
 {
   return vtkMolecule::GetData(v->GetInformationObject(i));
+}
+
+//----------------------------------------------------------------------------
+unsigned long vtkMolecule::GetActualMemorySize()
+{
+  unsigned long size = this->Superclass::GetActualMemorySize();
+  if (this->ElectronicData)
+  {
+    size += this->ElectronicData->GetActualMemorySize();
+  }
+  if (this->AtomGhostArray)
+  {
+    size += this->AtomGhostArray->GetActualMemorySize();
+  }
+  if (this->BondGhostArray)
+  {
+    size += this->BondGhostArray->GetActualMemorySize();
+  }
+  return size;
 }
