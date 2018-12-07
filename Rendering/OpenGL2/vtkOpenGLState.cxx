@@ -21,6 +21,8 @@
 // must be included after a vtkObject subclass
 #include "vtkOpenGLError.h"
 
+#include <cmath>
+
 // If you define NO_CACHE then all state->vtkgl* calls
 // will get passed down to OpenGL regardless of the current
 // state. This basically bypasses the caching mechanism
@@ -214,13 +216,13 @@ void vtkOpenGLState::CheckState()
   // note people do set this to nan
   ::glGetFloatv(GL_COLOR_CLEAR_VALUE, fparams);
   if (
-      (!(isnan(fparams[0]) && isnan(this->CurrentState.ClearColor[0]))
+      (!(std::isnan(fparams[0]) && std::isnan(this->CurrentState.ClearColor[0]))
         && fparams[0] != this->CurrentState.ClearColor[0]) ||
-      (!(isnan(fparams[1]) && isnan(this->CurrentState.ClearColor[1]))
+      (!(std::isnan(fparams[1]) && std::isnan(this->CurrentState.ClearColor[1]))
         && fparams[1] != this->CurrentState.ClearColor[1]) ||
-      (!(isnan(fparams[2]) && isnan(this->CurrentState.ClearColor[2]))
+      (!(std::isnan(fparams[2]) && std::isnan(this->CurrentState.ClearColor[2]))
         && fparams[2] != this->CurrentState.ClearColor[2]) ||
-      (!(isnan(fparams[3]) && isnan(this->CurrentState.ClearColor[3]))
+      (!(std::isnan(fparams[3]) && std::isnan(this->CurrentState.ClearColor[3]))
         && fparams[3] != this->CurrentState.ClearColor[3])
       )
   {
