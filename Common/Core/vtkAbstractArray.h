@@ -375,7 +375,7 @@ public:
    * information returned is valid only after the pipeline has
    * been updated.
    */
-  virtual unsigned long GetActualMemorySize() = 0;
+  virtual unsigned long GetActualMemorySize() const = 0;
 
   //@{
   /**

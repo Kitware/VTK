@@ -1045,7 +1045,7 @@ int vtkCellArray::GetMaxCellSize()
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkCellArray::GetActualMemorySize()
+unsigned long vtkCellArray::GetActualMemorySize() const
 {
   return this->Visit(GetActualMemorySizeImpl{});
 }

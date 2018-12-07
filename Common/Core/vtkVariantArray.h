@@ -212,7 +212,7 @@ public:
    * information returned is valid only after the pipeline has
    * been updated.
    */
-  unsigned long GetActualMemorySize() override;
+  unsigned long GetActualMemorySize() const override;
 
   /**
    * Since each item can be of a different type, we say that a variant array is not numeric.

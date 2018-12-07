@@ -287,7 +287,7 @@ public:
    * This function takes into account the size of the contents of the
    * strings as well as the string containers themselves.
    */
-  unsigned long GetActualMemorySize() override;
+  unsigned long GetActualMemorySize() const override;
 
   /**
    * Returns a vtkArrayIteratorTemplate<vtkStdString>.

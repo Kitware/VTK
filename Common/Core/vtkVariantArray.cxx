@@ -593,7 +593,7 @@ void vtkVariantArray::SetVoidArray(void* arr, vtkIdType size, int save, int dele
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkVariantArray::GetActualMemorySize()
+unsigned long vtkVariantArray::GetActualMemorySize() const
 {
   // NOTE: Currently does not take into account the "pointed to" data.
   size_t totalSize = 0;

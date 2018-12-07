@@ -312,7 +312,7 @@ void vtkUnicodeStringArray::SetArrayFreeFunction(void (*)(void*))
   vtkErrorMacro("Not implemented.");
 }
 
-unsigned long vtkUnicodeStringArray::GetActualMemorySize()
+unsigned long vtkUnicodeStringArray::GetActualMemorySize() const
 {
   unsigned long count = 0;
   for (Implementation::StorageT::size_type i = 0; i != this->Internal->Storage.size(); ++i)

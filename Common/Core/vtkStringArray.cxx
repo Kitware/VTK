@@ -495,7 +495,7 @@ int vtkStringArray::GetDataTypeSize() const
 }
 
 // ----------------------------------------------------------------------------
-unsigned long vtkStringArray::GetActualMemorySize()
+unsigned long vtkStringArray::GetActualMemorySize() const
 {
   size_t totalSize = 0;
   size_t numPrims = static_cast<size_t>(this->GetSize());
