@@ -28,15 +28,26 @@
 #include "vtkRenderWindow.h"
 #include "vtkShaderProgram.h"
 #include "vtkTexture.h"
+#include "vtkTransform.h"
 #include "vtkXMLPolyDataReader.h"
 #include "vtkAvatarHead.h" // geometry for head
 #include "vtkAvatarLeftHand.h" // geometry for hand
 #include "vtkAvatarRightHand.h" // geometry for hand
 #include "vtkAvatarTorso.h" // geometry for torso
-#include "vtkAvatarLeftForeArm.h" // geometry for torso
-#include "vtkAvatarRightForeArm.h" // geometry for torso
+#include "vtkAvatarLeftForeArm.h" // geometry for arm
+#include "vtkAvatarRightForeArm.h" // geometry for arm
+#include "vtkAvatarLeftUpperArm.h" // geometry for arm
+#include "vtkAvatarRightUpperArm.h" // geometry for arm
 
 #include <cmath>
+
+void setOrientation(vtkTransform* trans, const double* orientation)
+{
+  trans->Identity();
+  trans->RotateZ(orientation[2]);
+  trans->RotateX(orientation[0]);
+  trans->RotateY(orientation[1]);
+}
 
 vtkStandardNewMacro(vtkOpenGLAvatar);
 
@@ -69,15 +80,15 @@ vtkOpenGLAvatar::vtkOpenGLAvatar()
     vtkAvatarTorso,
     vtkAvatarLeftForeArm,
     vtkAvatarRightForeArm,
-    nullptr,
-    nullptr,
+    vtkAvatarLeftUpperArm,
+    vtkAvatarRightUpperArm,
   };
   size_t modelSize[NUM_BODY] = {
     sizeof vtkAvatarTorso,
     sizeof vtkAvatarLeftForeArm,
     sizeof vtkAvatarRightForeArm,
-    0,
-    0,
+    sizeof vtkAvatarLeftUpperArm,
+    sizeof vtkAvatarRightUpperArm,
   };
 
   this->GetProperty()->SetDiffuse(0.7);
@@ -126,7 +137,7 @@ void vtkOpenGLAvatar::Render(vtkRenderer *ren, vtkMapper *mapper)
   mapper->Render(ren, this->HeadActor);
   this->LeftHandMapper->Render(ren, this->LeftHandActor);
   this->RightHandMapper->Render(ren, this->RightHandActor);
-  for (int i = 0; i <= RIGHT_FORE; ++i) {
+  for (int i = 0; i < NUM_BODY; ++i) {
     this->BodyActor[i]->SetScale(this->GetScale());
     this->BodyActor[i]->SetPosition(this->BodyPosition[i]);
     this->BodyActor[i]->SetOrientation(this->BodyOrientation[i]);
@@ -162,6 +173,64 @@ void vtkOpenGLAvatar::CalcBody()
   this->BodyOrientation[RIGHT_FORE][0] = this->RightHandOrientation[0];
   this->BodyOrientation[RIGHT_FORE][1] = this->RightHandOrientation[1];
   this->BodyOrientation[RIGHT_FORE][2] = this->RightHandOrientation[2];
+
+  // Attach upper arm at shoulder, and rotate to hit the end of the forearm.
+  // end of forearm, relative to the hand at 0, is elbow pos.
+  double shoulderPos[3] = {-0.138, -0.5, -0.61};
+  vtkNew<vtkTransform> trans;
+  setOrientation(trans, this->BodyOrientation[TORSO]);
+  // calculate relative left shoulder position (to torso)
+  trans->TransformPoint(shoulderPos, this->BodyPosition[LEFT_UPPER]);
+
+  // move with torso
+  this->BodyPosition[LEFT_UPPER][0] += this->BodyPosition[TORSO][0];
+  this->BodyPosition[LEFT_UPPER][1] += this->BodyPosition[TORSO][1];
+  this->BodyPosition[LEFT_UPPER][2] += this->BodyPosition[TORSO][2];
+
+  shoulderPos[2] = +0.61;
+  // calculate relative right shoulder position (to torso)
+  trans->TransformPoint(shoulderPos, this->BodyPosition[RIGHT_UPPER]);
+
+  // move with torso
+  this->BodyPosition[RIGHT_UPPER][0] += this->BodyPosition[TORSO][0];
+  this->BodyPosition[RIGHT_UPPER][1] += this->BodyPosition[TORSO][1];
+  this->BodyPosition[RIGHT_UPPER][2] += this->BodyPosition[TORSO][2];
+
+  // orient the upper left arm to aim at the elbow.
+  double leftElbowPos[3] = {-0.85, 0.02, 0};
+  setOrientation(trans, this->LeftHandOrientation);
+  trans->TransformPoint(leftElbowPos, leftElbowPos);
+  leftElbowPos[0] += this->LeftHandPosition[0];
+  leftElbowPos[1] += this->LeftHandPosition[1];
+  leftElbowPos[2] += this->LeftHandPosition[2];
+  // upper-arm extends along +x at zero rotation. rotate (1,0,0) to
+  // vector between shoulder and elbow.
+  double leftUpperDir[3], cross[3], startDir[3] = { 1, 0, 0 };
+  vtkMath::Subtract(leftElbowPos, this->BodyPosition[LEFT_UPPER], leftUpperDir);
+  vtkMath::Cross(startDir, leftUpperDir, cross);
+  vtkMath::Normalize(cross);
+  double angle = vtkMath::AngleBetweenVectors(startDir, leftUpperDir) * 180 / vtkMath::Pi();
+  trans->Identity();
+  trans->RotateWXYZ(angle, cross);
+  trans->GetOrientation(this->BodyOrientation[LEFT_UPPER]);
+
+  // now the right upper arm
+  double rightElbowPos[3] = {-0.85, 0.02, 0};
+  setOrientation(trans, this->RightHandOrientation);
+  trans->TransformPoint(rightElbowPos, rightElbowPos);
+  rightElbowPos[0] += this->RightHandPosition[0];
+  rightElbowPos[1] += this->RightHandPosition[1];
+  rightElbowPos[2] += this->RightHandPosition[2];
+  // upper-arm extends along +x at zero rotation. rotate (1,0,0) to
+  // vector between shoulder and elbow.
+  double rightUpperDir[3];
+  vtkMath::Subtract(rightElbowPos, this->BodyPosition[RIGHT_UPPER], rightUpperDir);
+  vtkMath::Cross(startDir, rightUpperDir, cross);
+  vtkMath::Normalize(cross);
+  angle = vtkMath::AngleBetweenVectors(startDir, rightUpperDir) * 180 / vtkMath::Pi();
+  trans->Identity();
+  trans->RotateWXYZ(angle, cross);
+  trans->GetOrientation(this->BodyOrientation[RIGHT_UPPER]);
 
 }
 

@@ -77,18 +77,18 @@ int TestAvatar(int argc, char *argv[])
 
   vtkNew<vtkAvatar> avatar;
   avatar->SetHeadPosition(-2.4, 0.2, 0);
-  avatar->SetHeadOrientation(20, 20, 0);
-  avatar->SetLeftHandPosition(-0.6, -0.3, -0.5);
-  avatar->SetLeftHandOrientation(0, 0, 30);
+  avatar->SetHeadOrientation(0, 20, 0);
+  avatar->SetLeftHandPosition(-0.9, -0.3, -0.7);
+  avatar->SetLeftHandOrientation(-10, -20, 15);
   avatar->SetRightHandPosition(-0.6, -0.4, 0.5);
   avatar->SetRightHandOrientation(0, 0, 0);
   avatar->GetProperty()->SetColor(0.8, 1.0, 0.8);
   // avatar->SetScale(0.3);
   renderer->AddActor(avatar);
 
-  renderer->GetActiveCamera()->SetPosition(-1.0, 0.25, 4.0);
+  renderer->GetActiveCamera()->SetPosition(-1.0, 0.25, 5.0);
   renderer->GetActiveCamera()->SetFocalPoint(-1.0, 0.25, 0.0);
-  renderer->GetActiveCamera()->SetViewAngle(60.0);
+  renderer->GetActiveCamera()->SetViewAngle(55.0);
   renderer->GetActiveCamera()->Zoom(1.1);
   renderer->GetActiveCamera()->Azimuth(0);
   renderer->GetActiveCamera()->Elevation(15);
