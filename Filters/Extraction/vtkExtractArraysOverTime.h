@@ -32,10 +32,10 @@ class vtkTable;
 class vtkExtractSelection;
 class vtkDataSetAttributes;
 
-class VTKFILTERSEXTRACTION_EXPORT vtkExtractArraysOverTime : public vtkExtractSelectedArraysOverTime
+class VTK_DEPRECATED VTKFILTERSEXTRACTION_EXPORT vtkExtractArraysOverTime : public vtkExtractSelectedArraysOverTime
 {
 public:
-  VTK_LEGACY(static vtkExtractArraysOverTime* New());
+  static vtkExtractArraysOverTime* New();
   vtkTypeMacro(vtkExtractArraysOverTime, vtkExtractSelectedArraysOverTime);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 

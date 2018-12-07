@@ -116,9 +116,11 @@ public:
    * ComputeGradients is not used so these methods don't affect
    * anything (VTK 6.0).
    */
+#ifndef VTK_LEGACY_REMOVE
   vtkSetMacro(ComputeGradients,vtkTypeBool);
   vtkGetMacro(ComputeGradients,vtkTypeBool);
   vtkBooleanMacro(ComputeGradients,vtkTypeBool);
+#endif
   //@}
 
   //@{
@@ -195,7 +197,9 @@ protected:
 
   vtkContourValues *ContourValues;
   vtkTypeBool ComputeNormals;
+#ifndef VTK_LEGACY_REMOVE
   vtkTypeBool ComputeGradients;
+#endif
   vtkTypeBool ComputeScalars;
   vtkTypeBool GenerateTriangles;
 

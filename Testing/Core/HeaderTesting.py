@@ -230,7 +230,7 @@ class TestVTKFiles:
             self.Error("Guard does not match the filename")
 
     def CheckParent(self):
-        classre = "^class(\s+[^\s]*_EXPORT)?\s+(vtk[A-Z0-9_][^ :\n]*)\s*:\s*public\s+(vtk[^ \n\{]*)"
+        classre = "^class(\s+VTK_DEPRECATED)?(\s+[^\s]*_EXPORT)?\s+(vtk[A-Z0-9_][^ :\n]*)\s*:\s*public\s+(vtk[^ \n\{]*)"
         cname = ""
         pname = ""
         classlines = []
@@ -243,11 +243,11 @@ class TestVTKFiles:
             if not rm and not cname:
                 rm = regx.match(lastline + line)
             if rm:
-                export = rm.group(1)
+                export = rm.group(2)
                 if export:
                     export = export.strip()
-                cname = rm.group(2)
-                pname = rm.group(3)
+                cname = rm.group(3)
+                pname = rm.group(4)
                 classlines.append(" %4d: %s" % (cc, line))
                 if not export:
                     self.Print("File: %s defines 1 class with no export macro:" % self.FileName)

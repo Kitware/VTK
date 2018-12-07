@@ -111,7 +111,9 @@ public:
    * Record a timing event.  The event is represented by a formatted
    * string.
    */
-  static void FormatAndMarkEvent(const char *EventString, ...);
+#ifndef __VTK_WRAP__
+  static void FormatAndMarkEvent(const char *EventString, ...) VTK_FORMAT_PRINTF(1, 2);
+#endif
 
   //@{
   /**
@@ -170,7 +172,9 @@ public:
    * Allocate timing table with MaxEntries elements.  @deprecated
    * AllocateLog() should be replaced with SetMaxEntries() (VTK 7.1.0).
    */
-  static void AllocateLog();
+#ifndef VTK_LEGACY_REMOVE
+  VTK_LEGACY(static void AllocateLog();)
+#endif
   //@}
 
   /**

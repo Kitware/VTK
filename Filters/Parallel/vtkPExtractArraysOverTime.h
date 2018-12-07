@@ -27,10 +27,10 @@
 #include "vtkPExtractSelectedArraysOverTime.h"
 
 #ifndef VTK_LEGACY_REMOVE
-class VTKFILTERSPARALLEL_EXPORT vtkPExtractArraysOverTime : public vtkPExtractSelectedArraysOverTime
+class VTK_DEPRECATED VTKFILTERSPARALLEL_EXPORT vtkPExtractArraysOverTime : public vtkPExtractSelectedArraysOverTime
 {
 public:
-  VTK_LEGACY(static vtkPExtractArraysOverTime* New());
+  static vtkPExtractArraysOverTime* New();
   vtkTypeMacro(vtkPExtractArraysOverTime, vtkPExtractSelectedArraysOverTime);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
