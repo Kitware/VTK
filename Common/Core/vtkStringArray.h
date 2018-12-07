@@ -299,7 +299,7 @@ public:
    * for the data can be computed by GetDataSize() * GetDataTypeSize().
    * The size computation includes the string termination character for each string.
    */
-  vtkIdType GetDataSize() override;
+  vtkIdType GetDataSize() const override;
 
   //@{
   /**

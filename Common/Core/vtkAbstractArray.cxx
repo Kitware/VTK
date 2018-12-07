@@ -136,7 +136,7 @@ void vtkAbstractArray::SetComponentName(vtkIdType component, const char* name)
 }
 
 //----------------------------------------------------------------------------
-const char* vtkAbstractArray::GetComponentName(vtkIdType component)
+const char* vtkAbstractArray::GetComponentName(vtkIdType component) const
 {
   unsigned int index = static_cast<unsigned int>(component);
   if (!this->ComponentNames || component < 0 || index >= this->ComponentNames->size())

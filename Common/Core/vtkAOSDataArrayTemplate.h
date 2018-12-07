@@ -315,7 +315,7 @@ vtkArrayDownCast_TemplateFastCastMacro(vtkAOSDataArrayTemplate);
   void SetTypedTuple(vtkIdType i, const T* tuple) VTK_EXPECTS(0 <= i && i < GetNumberOfTuples());  \
   void InsertTypedTuple(vtkIdType i, const T* tuple) VTK_EXPECTS(0 <= i);                          \
   vtkIdType InsertNextTypedTuple(const T* tuple);                                                  \
-  T GetValue(vtkIdType id) VTK_EXPECTS(0 <= id && id < GetNumberOfValues());                       \
+  T GetValue(vtkIdType id) const VTK_EXPECTS(0 <= id && id < GetNumberOfValues());                 \
   void SetValue(vtkIdType id, T value) VTK_EXPECTS(0 <= id && id < GetNumberOfValues());           \
   bool SetNumberOfValues(vtkIdType number) override;                                               \
   void InsertValue(vtkIdType id, T f) VTK_EXPECTS(0 <= id);                                        \

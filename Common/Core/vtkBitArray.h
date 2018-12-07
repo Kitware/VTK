@@ -169,7 +169,7 @@ public:
   /**
    * Get the data at a particular index.
    */
-  int GetValue(vtkIdType id);
+  int GetValue(vtkIdType id) const;
 
   /**
    * Set the data at a particular index. Does not do range checking. Make sure

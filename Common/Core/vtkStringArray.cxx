@@ -510,7 +510,7 @@ unsigned long vtkStringArray::GetActualMemorySize()
 }
 
 // ----------------------------------------------------------------------------
-vtkIdType vtkStringArray::GetDataSize()
+vtkIdType vtkStringArray::GetDataSize() const
 {
   size_t size = 0;
   size_t numStrs = static_cast<size_t>(this->GetMaxId() + 1);

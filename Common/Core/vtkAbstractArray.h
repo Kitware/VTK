@@ -124,7 +124,7 @@ public:
    * this is set before allocation.
    */
   vtkSetClampMacro(NumberOfComponents, int, 1, VTK_INT_MAX);
-  int GetNumberOfComponents() { return this->NumberOfComponents; }
+  int GetNumberOfComponents() const { return this->NumberOfComponents; }
   //@}
 
   /**
@@ -136,7 +136,7 @@ public:
    * Get the component name for a given component.
    * Note: will return the actual string that is stored
    */
-  const char* GetComponentName(vtkIdType component);
+  const char* GetComponentName(vtkIdType component) const;
 
   /**
    * Returns if any component has had a name assigned
@@ -169,7 +169,7 @@ public:
   /**
    * Get the number of complete tuples (a component group) in the array.
    */
-  vtkIdType GetNumberOfTuples() { return (this->MaxId + 1) / this->NumberOfComponents; }
+  vtkIdType GetNumberOfTuples() const { return (this->MaxId + 1) / this->NumberOfComponents; }
 
   /**
    * Get the total number of values in the array. This is typically equivalent
@@ -388,7 +388,7 @@ public:
   /**
    * Get the name of a data type as a string.
    */
-  virtual const char* GetDataTypeAsString(void)
+  virtual const char* GetDataTypeAsString(void) const
   {
     return vtkImageScalarTypeNameMacro(this->GetDataType());
   }
@@ -424,7 +424,7 @@ public:
    * GetDataTypeSize(). Non-contiguous or variable- size arrays need
    * to override this method.
    */
-  virtual vtkIdType GetDataSize()
+  virtual vtkIdType GetDataSize() const
   {
     return this->GetNumberOfComponents() * this->GetNumberOfTuples();
   }
