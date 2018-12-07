@@ -65,8 +65,6 @@ class vtkmGradientFilterPolicy
 
     typedef vtkm::TypeListTagFieldVec3 CoordinateTypeList;
     typedef tovtkm::PointListInVTK CoordinateStorageList;
-
-    typedef vtkm::filter::PolicyDefault::DeviceAdapterList DeviceAdapterList;
   };
 
 vtkm::cont::DataSet CopyDataSetStructure(const vtkm::cont::DataSet& ds)

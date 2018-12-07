@@ -69,8 +69,6 @@ public:
 
   using CoordinateTypeList = vtkm::TypeListTagFieldVec3;
   using CoordinateStorageList = tovtkm::PointListInVTK;
-
-  using DeviceAdapterList = vtkm::filter::PolicyDefault::DeviceAdapterList;
 };
 
 }
