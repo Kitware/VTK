@@ -124,7 +124,7 @@ void vtkTimerLog::FormatAndMarkEvent(const char *format, ...)
   static  char event[4096];
   va_list var_args;
   va_start(var_args, format);
-  vsprintf(event, format, var_args);
+  vsnprintf(event, sizeof(event), format, var_args);
   va_end(var_args);
 
   vtkTimerLog::MarkEventInternal(event, vtkTimerLogEntry::STANDALONE);

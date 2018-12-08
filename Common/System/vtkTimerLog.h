@@ -109,7 +109,7 @@ public:
 
   /**
    * Record a timing event.  The event is represented by a formatted
-   * string.
+   * string.  The internal buffer is 4096 bytes and will truncate anything longer.
    */
 #ifndef __VTK_WRAP__
   static void FormatAndMarkEvent(const char *EventString, ...) VTK_FORMAT_PRINTF(1, 2);
