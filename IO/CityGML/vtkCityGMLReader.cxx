@@ -263,6 +263,8 @@ public:
     {
     case PolygonType::MATERIAL:
       return materialIndexToPolyData.find(materialIndex) == materialIndexToPolyData.end();
+    case PolygonType::NONE:
+    case PolygonType::TEXTURE:
     default:
       // for NONE imageURI is empty string
       return imageURIToPolyData.find(imageURI) == imageURIToPolyData.end();
@@ -281,6 +283,8 @@ public:
     case PolygonType::MATERIAL:
       materialIndexToPolyData[materialIndex] = polyData;
       break;
+    case PolygonType::NONE:
+    case PolygonType::TEXTURE:
     default:
       // for NONE imageURI is empty string
       imageURIToPolyData[imageURI] = polyData;
@@ -298,6 +302,8 @@ public:
     {
     case PolygonType::MATERIAL:
       return materialIndexToPolyData[materialIndex];
+    case PolygonType::NONE:
+    case PolygonType::TEXTURE:
     default:
       // for NONE imageURI is empty string
       return imageURIToPolyData[imageURI];
@@ -550,6 +556,7 @@ public:
             this->SetField(polyData, "transparency", &material.Transparency, 1);
             break;
           }
+        case PolygonType::NONE:
         default:
           // no fields to set
           break;

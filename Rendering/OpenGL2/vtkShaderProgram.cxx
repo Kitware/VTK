@@ -307,6 +307,7 @@ bool vtkShaderProgram::DetachShader(const vtkShader *shader)
         return true;
       }
 #endif
+    case vtkShader::Unknown:
     default:
       return false;
   }

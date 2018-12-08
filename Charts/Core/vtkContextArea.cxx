@@ -176,6 +176,7 @@ vtkRecti vtkContextArea::ComputeExpandedDrawAreaGeometry(vtkContext2D *painter)
           topRight.SetY(geo.GetTop() -
                         static_cast<int>(bounds.GetHeight()));
           break;
+        case vtkAxis::PARALLEL:
         default:
           abort(); // Shouldn't happen unless vtkAxis::Location is changed.
       }

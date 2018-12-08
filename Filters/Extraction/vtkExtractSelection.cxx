@@ -388,8 +388,8 @@ vtkSmartPointer<vtkSelector> vtkExtractSelection::NewSelectionOperator(
       return vtkSmartPointer<vtkBlockSelector>::New();
 
     case vtkSelectionNode::USER:
-      return nullptr;
-
+    case vtkSelectionNode::SELECTIONS:
+    case vtkSelectionNode::QUERY:
     default:
       return nullptr;
   }
