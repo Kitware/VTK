@@ -183,8 +183,8 @@ public:
   static void CleanupLog();
 
   /**
-   * Returns the elapsed number of seconds since January 1, 1970. This
-   * is also called Universal Coordinated Time.
+   * Returns the elapsed number of seconds since 00:00:00 Coordinated Universal
+   * Time (UTC), Thursday, 1 January 1970. This is also called Unix Time.
    */
   static double GetUniversalTime();
 
