@@ -58,6 +58,11 @@ VTKRENDERINGOPENGL2_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,L
 #define MOUSEEVENTF_FROMTOUCH 0xFF515700
 #define WM_TOUCH              0x0240
 #define TOUCH_COORD_TO_PIXEL(l)  ((l) / 100)
+
+// TOUCHINPUT and HTOUCHINPUT are aready defined in winuser.h under Windows 7 and MinGW64.
+#if defined(_WIN32_WINNT_WIN7) && defined(__MINGW32__)
+typedef TOUCHINPUT* PTOUCHINPUT;
+#else
 typedef struct _TOUCHINPUT {
   LONG      x;
   LONG      y;
@@ -71,6 +76,8 @@ typedef struct _TOUCHINPUT {
   DWORD     cyContact;
 } TOUCHINPUT, *PTOUCHINPUT;
 DECLARE_HANDLE(HTOUCHINPUT);
+#endif
+
 //#define HTOUCHINPUT ULONG
 #define TOUCHEVENTF_MOVE  0x0001
 #define TOUCHEVENTF_DOWN  0x0002
