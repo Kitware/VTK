@@ -38,6 +38,8 @@
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
 
+#include <string> // for std::string
+
 class VTKIOEXPORT_EXPORT vtkGLTFExporter : public vtkExporter
 {
 public:
