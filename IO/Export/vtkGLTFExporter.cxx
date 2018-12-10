@@ -226,7 +226,7 @@ void WriteMesh(
     std::string fname = WriteBuffer(da, fileName, inlineData);
     Json::Value buffer;
     // 12 bytes per tri, one tri per 4 entries
-    buffer["byteLength"] = static_cast<vtkJson::Value::Int64>(12*da->GetNumberOfCells());
+    buffer["byteLength"] = static_cast<Json::Value::Int64>(12*da->GetNumberOfCells());
     buffer["uri"] = fname;
     buffers.append(buffer);
     totalBuffers++;
@@ -235,7 +235,7 @@ void WriteMesh(
     Json::Value view;
     view["buffer"] = totalBuffers - 1;
     view["byteOffset"] = 0;
-    view["byteLength"] = static_cast<vtkJson::Value::Int64>(12*da->GetNumberOfCells());
+    view["byteLength"] = static_cast<Json::Value::Int64>(12*da->GetNumberOfCells());
     bufferViews.append(view);
     totalBufferViews++;
 
@@ -245,7 +245,7 @@ void WriteMesh(
     acc["byteOffset"] = 0;
     acc["type"] = "SCALAR";
     acc["componentType"] = 5125;
-    acc["count"] = static_cast<vtkJson::Value::Int64>(da->GetNumberOfCells()*3);
+    acc["count"] = static_cast<Json::Value::Int64>(da->GetNumberOfCells()*3);
     accessors.append(acc);
     aprim["indices"] = totalAccessors;
     totalAccessors++;
@@ -257,7 +257,7 @@ void WriteMesh(
     std::string fname = WriteBuffer(da, fileName, inlineData);
     Json::Value buffer;
     // 3 floats per point
-    buffer["byteLength"] = static_cast<vtkJson::Value::Int64>(12*da->GetNumberOfPoints());
+    buffer["byteLength"] = static_cast<Json::Value::Int64>(12*da->GetNumberOfPoints());
     buffer["uri"] = fname;
     buffers.append(buffer);
     totalBuffers++;
@@ -266,7 +266,7 @@ void WriteMesh(
     Json::Value view;
     view["buffer"] = totalBuffers - 1;
     view["byteOffset"] = 0;
-    view["byteLength"] = static_cast<vtkJson::Value::Int64>(12*da->GetNumberOfPoints());
+    view["byteLength"] = static_cast<Json::Value::Int64>(12*da->GetNumberOfPoints());
     view["byteStride"] = 12;
     bufferViews.append(view);
     totalBufferViews++;
@@ -277,7 +277,7 @@ void WriteMesh(
     acc["byteOffset"] = 0;
     acc["type"] = "VEC3";
     acc["componentType"] = 5126;
-    acc["count"] = static_cast<vtkJson::Value::Int64>(da->GetNumberOfPoints());
+    acc["count"] = static_cast<Json::Value::Int64>(da->GetNumberOfPoints());
     double range[6];
     da->GetBounds(range);
     Json::Value mins;
@@ -303,7 +303,7 @@ void WriteMesh(
     std::string fname = WriteBuffer(da, fileName, inlineData);
     Json::Value buffer;
     // 4 uchar per point
-    buffer["byteLength"] = static_cast<vtkJson::Value::Int64>(4*da->GetNumberOfTuples());
+    buffer["byteLength"] = static_cast<Json::Value::Int64>(4*da->GetNumberOfTuples());
     buffer["uri"] = fname;
     buffers.append(buffer);
     totalBuffers++;
@@ -312,7 +312,7 @@ void WriteMesh(
     Json::Value view;
     view["buffer"] = totalBuffers - 1;
     view["byteOffset"] = 0;
-    view["byteLength"] = static_cast<vtkJson::Value::Int64>(4*da->GetNumberOfTuples());
+    view["byteLength"] = static_cast<Json::Value::Int64>(4*da->GetNumberOfTuples());
     view["byteStride"] = 4;
     bufferViews.append(view);
     totalBufferViews++;
@@ -324,7 +324,7 @@ void WriteMesh(
     acc["type"] = "VEC4";
     acc["componentType"] = 5121;
     acc["normalized"] = true;
-    acc["count"] = static_cast<vtkJson::Value::Int64>(da->GetNumberOfTuples());
+    acc["count"] = static_cast<Json::Value::Int64>(da->GetNumberOfTuples());
     attribs["COLOR_0"] = totalAccessors;
     accessors.append(acc);
     totalAccessors++;
