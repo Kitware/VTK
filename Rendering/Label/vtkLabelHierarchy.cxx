@@ -1961,6 +1961,10 @@ void vtkLabelHierarchyBuildCoincidenceMap(
 // in the highest possible level of octree which is not already full.
 void vtkLabelHierarchy::ComputeHierarchy()
 {
+  if (this->CoincidentPoints != nullptr)
+  {
+    this->CoincidentPoints->Clear();
+  }
   delete this->Impl->Hierarchy3;
   delete this->Impl->Hierarchy2;
   this->Impl->ActualDepth = 0;
