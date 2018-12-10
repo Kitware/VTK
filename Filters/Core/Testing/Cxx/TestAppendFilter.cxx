@@ -356,6 +356,31 @@ vtkDataSetAttributes* CellDataSelector(vtkDataSet* ds)
   return nullptr;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+// Returns 1 on success, 0 otherwise
+//////////////////////////////////////////////////////////////////////////////
+int AppendDatasetsAndCheckMergedArrayLengths(vtkAppendFilter* append)
+{
+  append->MergePointsOn();
+  append->Update();
+  vtkUnstructuredGrid * output = append->GetOutput();
+
+  if (output->GetPointData()->GetNumberOfArrays() > 0 &&
+      output->GetPointData()->GetArray(0)->GetNumberOfTuples() != output->GetNumberOfPoints())
+  {
+    std::cerr << "Wrong number of tuples in output point data arrays\n";
+    return 0;
+  }
+
+  if (output->GetCellData()->GetNumberOfArrays() > 0 &&
+      output->GetCellData()->GetArray(0)->GetNumberOfTuples() != output->GetNumberOfCells())
+  {
+    std::cerr << "Wrong number of tuples in output cell data arrays\n";
+    return 0;
+  }
+
+  return 1;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 // Returns 1 on success, 0 otherwise
@@ -369,18 +394,17 @@ int AppendDatasetsAndPrint(const std::vector<vtkPolyData*>& inputs)
   }
   append->Update();
   vtkUnstructuredGrid * output = append->GetOutput();
+
   if (!PrintAndCheck(inputs, output, PointDataSelector))
   {
     return 0;
   }
-#if 1
   if (!PrintAndCheck(inputs, output, CellDataSelector))
   {
     return 0;
   }
-#endif
 
-  return 1;
+  return AppendDatasetsAndCheckMergedArrayLengths(append);
 }
 
 } // end anonymous namespace
@@ -655,6 +679,17 @@ int TestAppendFilter( int, char* [])
   if (!AppendDatasetsAndPrint(inputs))
   {
     std::cerr << "vtkAppendFilter failed with scalar arrays with same name but different components\n";
+    return EXIT_FAILURE;
+  }
+
+  std::cout << "===========================================================\n";
+  std::cout << "Append result of deep copied dataset: " << std::endl;
+  inputs[0] = d7;
+  d8->DeepCopy(d7);
+  inputs[1] = d8;
+  if (!AppendDatasetsAndPrint(inputs))
+  {
+    std::cerr << "vtkAppendFilter failed with deep copied datasets\n";
     return EXIT_FAILURE;
   }
 
