@@ -417,7 +417,7 @@ void vtkAppendFilter::AppendArrays(int attributesType,
       {
         for (vtkIdType id=0; id < numberOfInputTuples; ++id)
         {
-          fieldList.CopyData(inputIndex, inputData, id, outputData, offset + id);
+          fieldList.CopyData(inputIndex, inputData, id, outputData, globalIds[offset + id]);
         }
       }
       else
