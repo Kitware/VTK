@@ -152,7 +152,7 @@ void vtkHyperTreeGridOrientedGeometryCursor::SetGlobalIndexFromLocal( vtkIdType 
 //-----------------------------------------------------------------------------
 double* vtkHyperTreeGridOrientedGeometryCursor::GetOrigin( )
 {
-  return (double*)(this->Entry.GetOrigin( ));
+  return (double*)this->Entry.GetOrigin();
 }
 
 //-----------------------------------------------------------------------------

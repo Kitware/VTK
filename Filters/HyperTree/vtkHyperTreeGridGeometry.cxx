@@ -57,7 +57,7 @@ static const unsigned int EdgeIndices[3][2][4] = {
 }
 };
 
-const char FULL_WORK_FACES = (char)255;
+const unsigned char FULL_WORK_FACES = (unsigned char)255;
 
 vtkStandardNewMacro(vtkHyperTreeGridGeometry);
 
@@ -506,7 +506,7 @@ void vtkHyperTreeGridGeometry::ProcessLeaf2D( vtkHyperTreeGridNonOrientedGeometr
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::RecursivelyProcessTree3D(
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* cursor,
-  char crtWorkFaces,
+  unsigned char crtWorkFaces,
   bool isCentralChild
   )
 {
@@ -542,7 +542,7 @@ void vtkHyperTreeGridGeometry::RecursivelyProcessTree3D(
     std::set<int> childList;
 
     const unsigned int numChildren = cursor->GetNumberOfChildren();
-    std::vector<char> workFaces( numChildren, 0 );
+    std::vector<unsigned char> workFaces( numChildren, 0 );
 
     //FR Toutes les filles sont dans le materiau, on traite que les filles du bord
     for ( unsigned int f = 0; f < 3; ++ f ) // dimension

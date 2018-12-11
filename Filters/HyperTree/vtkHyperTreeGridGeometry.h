@@ -82,7 +82,7 @@ protected:
   void RecursivelyProcessTreeNot3D( vtkHyperTreeGridNonOrientedGeometryCursor* );
   void RecursivelyProcessTree3D(
     vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight*,
-    char,
+    unsigned char,
     bool);
 
   /**
