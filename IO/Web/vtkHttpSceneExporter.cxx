@@ -98,7 +98,7 @@ void vtkHttpSceneExporter::WriteDataObject(ostream& os, vtkDataObject* dataObjec
 std::string vtkHttpSceneExporter::ExtractRenderingSetup(vtkActor* actor)
 {
   vtkMapper* mapper = actor->GetMapper();
-  int scalarVisibility = mapper->GetScalarVisibility();
+  // int scalarVisibility = mapper->GetScalarVisibility();
   const char* colorArrayName = mapper->GetArrayName();
   int colorMode = mapper->GetColorMode();
   int scalarMode = mapper->GetScalarMode();
