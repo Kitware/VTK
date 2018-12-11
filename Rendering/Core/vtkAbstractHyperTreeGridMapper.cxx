@@ -322,7 +322,8 @@ vtkMTimeType vtkAbstractHyperTreeGridMapper::GetMTime()
       if ( this->LastRendererSize[0] != s[0]
            || this->LastRendererSize[1] != s[1] )
       {
-        memcpy( this->LastRendererSize, s, 2 * sizeof( unsigned int ) );
+        this->LastRendererSize[0] = s[0];
+        this->LastRendererSize[1] = s[1];
         this->Modified();
       }
 
