@@ -10,6 +10,8 @@ The following variables are provided by this module:
   * `VTK_LEGACY_REMOVE`: Whether VTK's deprecated APIs are
     compiled out or not.
   * `VTK_HAS_VTKm`: If VTK provides VTK-m.
+  * `VTK_OPENGL_HAS_EGL`: If VTK::opengl uses EGL. Only provided if the
+    `VTK::opengl` target exists.
   * `VTK_WRAP_PYTHON`: If VTK itself provides Python wrapping. If so, the
     Python parts of the module API are available.
   * `VTK_WRAP_JAVA`: If VTK itself provides Java wrapping. If so, the
@@ -46,6 +48,10 @@ include("${CMAKE_CURRENT_LIST_DIR}/vtkCMakeBackports.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}-targets.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}-vtk-module-properties.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/${CMAKE_FIND_PACKAGE_NAME}-vtk-module-find-packages.cmake")
+
+if (TARGET VTK::opengl)
+  set(VTK_OPENGL_HAS_EGL "@VTK_OPENGL_HAS_EGL@")
+endif ()
 
 include("${CMAKE_CURRENT_LIST_DIR}/vtkExternalData.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/vtkModule.cmake")
