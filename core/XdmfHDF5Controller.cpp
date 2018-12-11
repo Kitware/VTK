@@ -21,8 +21,7 @@
 /*                                                                           */
 /*****************************************************************************/
 
-#include <H5public.h>
-#include <hdf5.h>
+#include <vtk_hdf5.h>
 #include <numeric>
 #include <sstream>
 #include "string.h"
