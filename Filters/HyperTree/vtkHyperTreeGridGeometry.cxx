@@ -57,7 +57,7 @@ static const unsigned int EdgeIndices[3][2][4] = {
 }
 };
 
-const char FULL_WORK_FACES = 255;
+const char FULL_WORK_FACES = (char)255;
 
 vtkStandardNewMacro(vtkHyperTreeGridGeometry);
 
