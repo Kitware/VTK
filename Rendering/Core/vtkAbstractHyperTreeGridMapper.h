@@ -209,7 +209,7 @@ protected:
   /**
    * Last renderer size parameters for adaptive view
    */
-  unsigned int LastRendererSize[2];
+  int LastRendererSize[2];
 
   /**
    * Last camera focal point coordinates for adaptive view
