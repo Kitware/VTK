@@ -16,6 +16,7 @@ vtk_module(vtkWebCore
     vtkFiltersGeometry
     vtkIOCore
     vtkIOImage
+    vtkIOWeb
     vtkParallelCore
     vtkPython
     vtkRenderingCore
