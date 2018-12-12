@@ -177,13 +177,13 @@ void vtkHyperTreeGridNonOrientedGeometryCursor::SetGlobalIndexFromLocal( vtkIdTy
 //-----------------------------------------------------------------------------
 double* vtkHyperTreeGridNonOrientedGeometryCursor::GetOrigin( )
 {
-  return (double*)(this->Entries[ this->LastValidEntry ].GetOrigin( ));
+  return this->Entries[ this->LastValidEntry ].GetOrigin( );
 }
 
 //-----------------------------------------------------------------------------
 double* vtkHyperTreeGridNonOrientedGeometryCursor::GetSize( )
 {
-  return (double*)(this->Scales->GetScale( this->GetLevel() ));
+  return this->Scales->GetScale( this->GetLevel() );
 }
 
 //-----------------------------------------------------------------------------
