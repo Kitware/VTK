@@ -19,8 +19,7 @@
 
 
 #ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0501  // for trackmouseevent support, 0x0501 means target Windows XP or later
-//#define _WIN32_WINNT 0x0601  // for touch support, 0x0601 means target Windows 7 or later
+#define _WIN32_WINNT 0x0601  // for touch support, 0x0601 means target Windows 7 or later
 #endif
 
 #include "vtkWin32OpenGLRenderWindow.h"
