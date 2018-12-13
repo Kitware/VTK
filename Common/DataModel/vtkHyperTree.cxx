@@ -178,7 +178,7 @@ public:
   vtkIdType GetElderChildIndex( unsigned int idx_parent ) const override
   {
     assert( "pre: valid_range" &&
-            idx_parent < this->Datas->NumberOfVertices );
+            idx_parent < static_cast<unsigned int>(this->Datas->NumberOfVertices) );
     return this->CompactDatas->ParentToElderChild_stl[idx_parent];
   }
 

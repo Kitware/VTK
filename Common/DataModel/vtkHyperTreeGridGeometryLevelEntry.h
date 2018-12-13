@@ -212,7 +212,8 @@ public:
   /**
    * Getter for origin coordinates of the current cell.
    */
-  double* GetOrigin() const { return (double*)this->Origin; }
+  double* GetOrigin() { return this->Origin; }
+  const double* GetOrigin() const { return this->Origin; }
 
   /**
    * Getter for bounding box of the current cell.
