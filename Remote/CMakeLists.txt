@@ -3,7 +3,7 @@ include(vtkModuleRemote)
 
 file(GLOB remotes "*.remote.cmake")
 foreach(remote_module ${remotes})
-  if (remote_module MATCHES "^\.")
+  if (remote_module MATCHES "/\\.")
     continue ()
   endif ()
   include(${remote_module})
