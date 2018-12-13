@@ -43,6 +43,8 @@ public:
    */
   void Render(vtkRenderer *ren, vtkMapper *mapper) override;
 
+  double *GetBounds() VTK_SIZEHINT(6) override;
+
 protected:
   vtkOpenGLAvatar();
   ~vtkOpenGLAvatar() override;

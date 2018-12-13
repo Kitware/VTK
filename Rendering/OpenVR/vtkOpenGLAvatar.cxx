@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkOpenGLAvatar.h"
 
+#include "vtkBoundingBox.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
@@ -232,6 +233,23 @@ void vtkOpenGLAvatar::CalcBody()
   trans->RotateWXYZ(angle, cross);
   trans->GetOrientation(this->BodyOrientation[RIGHT_UPPER]);
 
+}
+
+// Multiple sub-actors require a custom bounding box calc.
+double *vtkOpenGLAvatar::GetBounds()
+{
+  vtkDebugMacro( << "Getting Bounds" );
+  vtkBoundingBox bbox;
+
+  bbox.AddBounds(this->HeadActor->GetBounds());
+  bbox.AddBounds(this->RightHandActor->GetBounds());
+  bbox.AddBounds(this->LeftHandActor->GetBounds());
+  for (int i = 0; i < NUM_BODY; ++i) {
+    bbox.AddBounds(this->BodyActor[i]->GetBounds());
+  }
+
+  bbox.GetBounds(this->Bounds);
+  return this->Bounds;
 }
 
 //----------------------------------------------------------------------------
