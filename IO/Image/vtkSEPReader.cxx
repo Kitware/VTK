@@ -84,13 +84,18 @@ int vtkSEPReader::RequestData(vtkInformation *request,
 {
   // Replace the filename with the data file and delegate the reading of this
   // raw data to the underlying vtkImageReader
-  const char *fileName = this->FileName;
-  this->ReplaceFileName(this->DataFile.c_str());
+  char * const fileName = this->FileName;
+
+  // This `const_cast` is valid because the `RequestData` of
+  // `Superclass` does not try to modify the string pointed by
+  // `FileName`. (It does not modify the pointer `FileName` as well,
+  // but that is not why the `const_cast` is valid.)
+  this->FileName = const_cast<char*>(this->DataFile.c_str());
 
   int res = this->Superclass::RequestData(request, inputVector, outputVector);
 
-  // Restore the user providen filename (the header file)
-  this->ReplaceFileName(fileName);
+  // Restore the user provided filename (the header file)
+  this->FileName = fileName;
   return res;
 }
 
@@ -209,25 +214,4 @@ int vtkSEPReader::ReadHeader()
   this->FileDimensionality = dim;
 
   return 1;
-}
-
-//----------------------------------------------------------------------------
-// Replace FileName without calling Modified()
-void vtkSEPReader::ReplaceFileName(const char *name)
-{
-  if (this->FileName && name && (!strcmp(this->FileName, name)))
-  {
-    return;
-  }
-  if (!name && !this->FileName)
-  {
-    return;
-  }
-  delete[] this->FileName;
-  this->FileName = nullptr;
-  if (name)
-  {
-    this->FileName = new char[strlen(name) + 1];
-    strcpy(this->FileName, name);
-  }
 }
