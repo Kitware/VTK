@@ -52,7 +52,6 @@ protected:
 
   int ReadHeader();
 
-  void ReplaceFileName(const char* fname);
   std::string DataFile;
 
 private:
