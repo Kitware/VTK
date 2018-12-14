@@ -43,9 +43,14 @@ public:
    */
   void Render(vtkRenderer *ren, vtkMapper *mapper) override;
 
+  double *GetBounds() VTK_SIZEHINT(6) override;
+
 protected:
   vtkOpenGLAvatar();
   ~vtkOpenGLAvatar() override;
+
+  // move the torso and arms based on head/hand inputs.
+  void CalcBody();
 
   vtkNew<vtkOpenGLPolyDataMapper> HeadMapper;
   vtkNew<vtkOpenGLActor> HeadActor;
@@ -53,6 +58,8 @@ protected:
   vtkNew<vtkOpenGLActor> LeftHandActor;
   vtkNew<vtkOpenGLPolyDataMapper> RightHandMapper;
   vtkNew<vtkOpenGLActor> RightHandActor;
+  vtkNew<vtkOpenGLPolyDataMapper> BodyMapper[NUM_BODY];
+  vtkNew<vtkOpenGLActor> BodyActor[NUM_BODY];
 
 private:
   vtkOpenGLAvatar(const vtkOpenGLAvatar&) = delete;

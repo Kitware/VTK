@@ -51,6 +51,8 @@ public:
   vtkGetVector3Macro(RightHandOrientation, double);
   vtkSetVector3Macro(RightHandOrientation, double);
 
+  vtkGetVector3Macro(UpVector, double);
+  vtkSetVector3Macro(UpVector, double);
 protected:
   vtkAvatar();
   ~vtkAvatar() override;
@@ -61,7 +63,18 @@ protected:
   double LeftHandOrientation[3];
   double RightHandPosition[3];
   double RightHandOrientation[3];
+  enum {
+    TORSO,
+    LEFT_FORE,
+    RIGHT_FORE,
+    LEFT_UPPER,
+    RIGHT_UPPER,
+    NUM_BODY,
+  };
+  double BodyPosition[NUM_BODY][3];
+  double BodyOrientation[NUM_BODY][3];
 
+  double UpVector[3];
 private:
   vtkAvatar(const vtkAvatar&) = delete;
   void operator=(const vtkAvatar&) = delete;

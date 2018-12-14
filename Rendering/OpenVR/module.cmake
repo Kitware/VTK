@@ -1,8 +1,3 @@
-set(_impl)
-if (VTK_OPENVR_OBJECT_FACTORY)
-  set (_impl vtkRenderingOpenGL2)
-endif()
-
 vtk_module(vtkRenderingOpenVR
   BACKEND
     OpenGL2
@@ -18,7 +13,6 @@ vtk_module(vtkRenderingOpenVR
     vtkIOXMLParser
   IMPLEMENTS
     vtkRenderingCore
-    ${_impl}
   PRIVATE_DEPENDS
     vtkglew
     vtkImagingSources

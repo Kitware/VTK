@@ -38,11 +38,33 @@ list(APPEND Module_SRCS ${source})
 
 # Avatar's dependency on vtkIOXML keeps it out of OpenGL2 module
 list(APPEND Module_SRCS
-  vtkAvatarHead.cxx
-  vtkAvatarLeftHand.cxx
-  vtkAvatarRightHand.cxx
   vtkOpenGLAvatar.cxx
   )
+
+# Generates headers with char arrays that contain the model file contents.
+set(geometry_files
+  data/vtkAvatarHead.vtp
+  data/vtkAvatarLeftHand.vtp
+  data/vtkAvatarRightHand.vtp
+  data/vtkAvatarTorso.vtp
+  data/vtkAvatarLeftForeArm.vtp
+  data/vtkAvatarRightForeArm.vtp
+  data/vtkAvatarLeftUpperArm.vtp
+  data/vtkAvatarRightUpperArm.vtp
+  )
+unset(geometry_h_files)
+foreach(file ${geometry_files})
+  vtk_encode_string(
+    INPUT         "${file}"
+    EXPORT_SYMBOL "VTKRENDERINGOPENVR_EXPORT"
+    EXPORT_HEADER "vtkRenderingOpenVRModule.h"
+    HEADER_OUTPUT header
+    SOURCE_OUTPUT source
+    BINARY
+    NUL_TERMINATE)
+  list(APPEND Module_SRCS ${source})
+endforeach()
+
 vtk_add_override(vtkAvatar vtkOpenGLAvatar)
 vtk_object_factory_configure("${vtk_module_overrides}")
 
