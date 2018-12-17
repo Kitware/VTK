@@ -411,6 +411,7 @@ vtkCompositeMapperHelperData *vtkCompositeMapperHelper2::AddData(
     this->Modified();
     return hdata;
   }
+  found->second->FlatIndex = flatIndex;
   found->second->Marked = true;
   return found->second;
 }
