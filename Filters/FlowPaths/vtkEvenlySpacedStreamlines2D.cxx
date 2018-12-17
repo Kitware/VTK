@@ -189,16 +189,33 @@ int vtkEvenlySpacedStreamlines2D::RequestData(
   const char* velocityName = this->GetInputArrayToProcessName();
   double deltaOne = this->SeparatingDistanceArcLength / 1000;
   double delta[3] = {deltaOne, deltaOne, deltaOne};
+  int maxNumberOfItems = 0;
+  float lastProgress = 0.0;
   while (this->Streamlines->GetNumberOfItems())
   {
+    int numberOfItems = this->Streamlines->GetNumberOfItems();
+    if (numberOfItems > maxNumberOfItems)
+    {
+      maxNumberOfItems = numberOfItems;
+    }
+    if (processedSeedId % 10 == 0)
+    {
+      float progress = (static_cast<float>(maxNumberOfItems) - numberOfItems) / maxNumberOfItems;
+      if (progress > lastProgress)
+      {
+        this->UpdateProgress(progress);
+        lastProgress = progress;
+      }
+    }
+
     streamline = vtkPolyData::SafeDownCast(this->Streamlines->GetItemAsObject(0));
-    vtkDataArray* normals = streamline->GetPointData()->GetArray("Normals");
     vtkDataArray* velocity = streamline->GetPointData()->GetArray(velocityName);
     for (vtkIdType pointId = 0; pointId < streamline->GetNumberOfPoints(); ++pointId)
     {
       // generate 2 new seeds for every streamline point
       double newSeedVector[3];
-      vtkMath::Cross(normals->GetTuple(pointId), velocity->GetTuple(pointId),
+      double normal[3] = {0, 0, 1};
+      vtkMath::Cross(normal, velocity->GetTuple(pointId),
                      newSeedVector);
       // floating point errors move newSeedVector out of XY plane.
       newSeedVector[2] = 0;
