@@ -13,7 +13,9 @@
 
 =========================================================================*/
 
+#include <vtkFloatArray.h>
 #include <vtkMinimalStandardRandomSequence.h>
+#include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 #include <vtkTransform.h>
@@ -29,10 +31,12 @@ void InitializePointSet(vtkPointSet *pointSet, int dataType)
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 
-  if(dataType == VTK_DOUBLE)
+  const int numPoints = 4;
+
+  if (dataType == VTK_DOUBLE)
   {
     points->SetDataType(VTK_DOUBLE);
-    for(unsigned int i = 0; i < 4; ++i)
+    for(unsigned int i = 0; i < numPoints; ++i)
     {
       double point[3];
       for(unsigned int j = 0; j < 3; ++j)
@@ -46,7 +50,7 @@ void InitializePointSet(vtkPointSet *pointSet, int dataType)
   else
   {
     points->SetDataType(VTK_FLOAT);
-    for(unsigned int i = 0; i < 4; ++i)
+    for(unsigned int i = 0; i < numPoints; ++i)
     {
       float point[3];
       for(unsigned int j = 0; j < 3; ++j)
@@ -57,6 +61,15 @@ void InitializePointSet(vtkPointSet *pointSet, int dataType)
       points->InsertNextPoint(point);
     }
   }
+
+  // Add texture coordinates. Values don't matter, we just want to make sure
+  // they are passed through the transform filter.
+  vtkSmartPointer<vtkFloatArray> tcoords = vtkSmartPointer<vtkFloatArray>::New();
+  tcoords->SetNumberOfComponents(2);
+  tcoords->SetNumberOfTuples(numPoints);
+  tcoords->FillComponent(0, 0.0);
+  tcoords->FillComponent(1, 1.0);
+  pointSet->GetPointData()->SetTCoords(tcoords);
 
   points->Squeeze();
   pointSet->SetPoints(points);
@@ -78,7 +91,7 @@ void InitializeTransform(vtkTransform *transform)
 }
 }
 
-int TransformPointSet(int dataType, int outputPointsPrecision)
+vtkSmartPointer<vtkPointSet> TransformPointSet(int dataType, int outputPointsPrecision)
 {
   vtkSmartPointer<vtkPointSet> inputPointSet
     = vtkSmartPointer<vtkPolyData>::New();
@@ -90,6 +103,7 @@ int TransformPointSet(int dataType, int outputPointsPrecision)
 
   vtkSmartPointer<vtkTransformFilter> transformFilter
     = vtkSmartPointer<vtkTransformFilter>::New();
+  transformFilter->SetTransformAllInputVectors(true);
   transformFilter->SetOutputPointsPrecision(outputPointsPrecision);
 
   transformFilter->SetTransform(transform);
@@ -100,49 +114,55 @@ int TransformPointSet(int dataType, int outputPointsPrecision)
   vtkSmartPointer<vtkPointSet> outputPointSet = transformFilter->GetOutput();
   vtkSmartPointer<vtkPoints> points = outputPointSet->GetPoints();
 
-  return points->GetDataType();
+  return outputPointSet;
 }
 
 int TestTransformFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
-  int dataType = TransformPointSet(VTK_FLOAT, vtkAlgorithm::DEFAULT_PRECISION);
+  vtkSmartPointer<vtkPointSet> pointSet = TransformPointSet(VTK_FLOAT, vtkAlgorithm::DEFAULT_PRECISION);
 
-  if(dataType != VTK_FLOAT)
+  if (pointSet->GetPoints()->GetDataType() != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
-  dataType = TransformPointSet(VTK_DOUBLE, vtkAlgorithm::DEFAULT_PRECISION);
+  pointSet = TransformPointSet(VTK_DOUBLE, vtkAlgorithm::DEFAULT_PRECISION);
 
-  if(dataType != VTK_DOUBLE)
+  if (pointSet->GetPoints()->GetDataType() != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }
 
-  dataType = TransformPointSet(VTK_FLOAT, vtkAlgorithm::SINGLE_PRECISION);
+  pointSet = TransformPointSet(VTK_FLOAT, vtkAlgorithm::SINGLE_PRECISION);
 
-  if(dataType != VTK_FLOAT)
+  if (pointSet->GetPoints()->GetDataType() != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
-  dataType = TransformPointSet(VTK_DOUBLE, vtkAlgorithm::SINGLE_PRECISION);
+  if (pointSet->GetPointData()->GetTCoords() == nullptr)
+  {
+    std::cerr << "TCoords were not passed through vtkTransformFilter." << std::endl;
+    return EXIT_FAILURE;
+  }
 
-  if(dataType != VTK_FLOAT)
+  pointSet = TransformPointSet(VTK_DOUBLE, vtkAlgorithm::SINGLE_PRECISION);
+
+  if (pointSet->GetPoints()->GetDataType() != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
-  dataType = TransformPointSet(VTK_FLOAT, vtkAlgorithm::DOUBLE_PRECISION);
+  pointSet = TransformPointSet(VTK_FLOAT, vtkAlgorithm::DOUBLE_PRECISION);
 
-  if(dataType != VTK_DOUBLE)
+  if (pointSet->GetPoints()->GetDataType() != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }
 
-  dataType = TransformPointSet(VTK_DOUBLE, vtkAlgorithm::DOUBLE_PRECISION);
+  pointSet = TransformPointSet(VTK_DOUBLE, vtkAlgorithm::DOUBLE_PRECISION);
 
-  if(dataType != VTK_DOUBLE)
+  if (pointSet->GetPoints()->GetDataType() != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }

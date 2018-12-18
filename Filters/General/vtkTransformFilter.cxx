@@ -319,6 +319,13 @@ int vtkTransformFilter::RequestData(
       if(!outPD->GetArray(pd->GetAbstractArray(i)->GetName()))
       {
         outPD->AddArray(pd->GetAbstractArray(i));
+        int attributeType = pd->IsArrayAnAttribute(i);
+        if (attributeType >= 0 &&
+            attributeType != vtkDataSetAttributes::VECTORS &&
+            attributeType != vtkDataSetAttributes::NORMALS)
+        {
+          outPD->SetAttribute(pd->GetAbstractArray(i), attributeType);
+        }
       }
     }
     for (int i = 0; i < cd->GetNumberOfArrays(); i++)
@@ -326,6 +333,13 @@ int vtkTransformFilter::RequestData(
       if(!outCD->GetArray(cd->GetAbstractArray(i)->GetName()))
       {
         outCD->AddArray(cd->GetAbstractArray(i));
+        int attributeType = pd->IsArrayAnAttribute(i);
+        if (attributeType >= 0 &&
+            attributeType != vtkDataSetAttributes::VECTORS &&
+            attributeType != vtkDataSetAttributes::NORMALS)
+        {
+          outPD->SetAttribute(pd->GetAbstractArray(i), attributeType);
+        }
       }
     }
     //TODO does order matters ?
