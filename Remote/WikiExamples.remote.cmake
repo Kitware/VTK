@@ -7,7 +7,7 @@
 # If the environment var WikiExamplesTag exists, use it
 if (NOT DEFINED ENV{WikiExamplesTag})
   # December 18 Baseline additions
-  set(GIT_TAG 0f5c80fee304ddf228b6290c7242c366941be406)
+  set(GIT_TAG 70bdbe30488629fa48ad2edb57f9e3a017880a74)
 else()
   set(GIT_TAG $ENV{WikiExamplesTag})
 endif()
