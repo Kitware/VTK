@@ -45,24 +45,23 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
-
 // Note this class may have an accelerated subclass ala
 // vtkOpenGLMoleculeMapper. If you change this class please
 // also check that class for impacts.
-vtkObjectFactoryNewMacro( vtkMoleculeMapper );
+vtkObjectFactoryNewMacro(vtkMoleculeMapper);
 
 //----------------------------------------------------------------------------
 vtkMoleculeMapper::vtkMoleculeMapper()
-  : RenderAtoms(true),
-    AtomicRadiusType(VDWRadius),
-    AtomicRadiusScaleFactor(0.3),
-    AtomicRadiusArrayName(nullptr),
-    AtomColorMode(DiscreteByAtom),
-    RenderBonds(true),
-    BondColorMode(DiscreteByAtom),
-    UseMultiCylindersForBonds(true),
-    BondRadius(0.075),
-    RenderLattice(true)
+  : RenderAtoms(true)
+  , AtomicRadiusType(VDWRadius)
+  , AtomicRadiusScaleFactor(0.3)
+  , AtomicRadiusArrayName(nullptr)
+  , AtomColorMode(DiscreteByAtom)
+  , RenderBonds(true)
+  , BondColorMode(DiscreteByAtom)
+  , UseMultiCylindersForBonds(true)
+  , BondRadius(0.075)
+  , RenderLattice(true)
 {
   // Initialize ivars:
   this->AtomColor[0] = this->AtomColor[1] = this->AtomColor[2] = 150;
@@ -100,8 +99,7 @@ vtkMoleculeMapper::vtkMoleculeMapper()
   this->SetLookupTable(lut);
 
   // Setup glyph mappers
-  this->AtomGlyphMapper->SetScalarRange
-    (0, this->PeriodicTable->GetNumberOfElements());
+  this->AtomGlyphMapper->SetScalarRange(0, this->PeriodicTable->GetNumberOfElements());
   this->AtomGlyphMapper->SetColorModeToMapScalars();
   this->AtomGlyphMapper->SetScalarModeToUsePointFieldData();
   this->AtomGlyphMapper->SetScaleModeToScaleByMagnitude();
@@ -114,22 +112,18 @@ vtkMoleculeMapper::vtkMoleculeMapper()
 
   this->AtomGlyphMapper->AddObserver(vtkCommand::StartEvent, cb);
   this->AtomGlyphMapper->AddObserver(vtkCommand::EndEvent, cb);
-  this->AtomGlyphMapper->AddObserver(vtkCommand::ProgressEvent,
-                                     cb);
+  this->AtomGlyphMapper->AddObserver(vtkCommand::ProgressEvent, cb);
 
   this->BondGlyphMapper->AddObserver(vtkCommand::StartEvent, cb);
   this->BondGlyphMapper->AddObserver(vtkCommand::EndEvent, cb);
-  this->BondGlyphMapper->AddObserver(vtkCommand::ProgressEvent,
-                                     cb);
+  this->BondGlyphMapper->AddObserver(vtkCommand::ProgressEvent, cb);
 
   // Connect the trivial producers to forward the glyph polydata
   this->AtomGlyphPointOutput->SetOutput(this->AtomGlyphPolyData);
-  this->AtomGlyphMapper->SetInputConnection
-    (this->AtomGlyphPointOutput->GetOutputPort());
+  this->AtomGlyphMapper->SetInputConnection(this->AtomGlyphPointOutput->GetOutputPort());
 
   this->BondGlyphPointOutput->SetOutput(this->BondGlyphPolyData);
-  this->BondGlyphMapper->SetInputConnection
-    (this->BondGlyphPointOutput->GetOutputPort());
+  this->BondGlyphMapper->SetInputConnection(this->BondGlyphPointOutput->GetOutputPort());
 
   this->LatticeMapper->SetInputData(this->LatticePolyData);
   this->LatticeMapper->SetColorModeToDefault();
@@ -150,13 +144,13 @@ vtkMoleculeMapper::~vtkMoleculeMapper()
 }
 
 //----------------------------------------------------------------------------
-void vtkMoleculeMapper::SetInputData(vtkMolecule *input)
+void vtkMoleculeMapper::SetInputData(vtkMolecule* input)
 {
   this->SetInputDataInternal(0, input);
 }
 
 //----------------------------------------------------------------------------
-vtkMolecule *vtkMoleculeMapper::GetInput()
+vtkMolecule* vtkMoleculeMapper::GetInput()
 {
   return vtkMolecule::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
 }
@@ -166,12 +160,12 @@ void vtkMoleculeMapper::UseBallAndStickSettings()
 {
   this->SetRenderAtoms(true);
   this->SetRenderBonds(true);
-  this->SetAtomicRadiusType( VDWRadius );
-  this->SetAtomicRadiusScaleFactor( 0.3 );
+  this->SetAtomicRadiusType(VDWRadius);
+  this->SetAtomicRadiusScaleFactor(0.3);
   this->SetAtomColorMode(DiscreteByAtom);
-  this->SetBondColorMode( DiscreteByAtom );
-  this->SetUseMultiCylindersForBonds( true );
-  this->SetBondRadius( 0.075 );
+  this->SetBondColorMode(DiscreteByAtom);
+  this->SetUseMultiCylindersForBonds(true);
+  this->SetBondRadius(0.075);
 }
 
 //----------------------------------------------------------------------------
@@ -179,12 +173,12 @@ void vtkMoleculeMapper::UseVDWSpheresSettings()
 {
   this->SetRenderAtoms(true);
   this->SetRenderBonds(true);
-  this->SetAtomicRadiusType( VDWRadius );
-  this->SetAtomicRadiusScaleFactor( 1.0 );
+  this->SetAtomicRadiusType(VDWRadius);
+  this->SetAtomicRadiusScaleFactor(1.0);
   this->SetAtomColorMode(DiscreteByAtom);
-  this->SetBondColorMode( DiscreteByAtom );
-  this->SetUseMultiCylindersForBonds( true );
-  this->SetBondRadius( 0.075 );
+  this->SetBondColorMode(DiscreteByAtom);
+  this->SetUseMultiCylindersForBonds(true);
+  this->SetBondRadius(0.075);
 }
 
 //----------------------------------------------------------------------------
@@ -192,12 +186,12 @@ void vtkMoleculeMapper::UseLiquoriceStickSettings()
 {
   this->SetRenderAtoms(true);
   this->SetRenderBonds(true);
-  this->SetAtomicRadiusType( UnitRadius );
-  this->SetAtomicRadiusScaleFactor( 0.15 );
+  this->SetAtomicRadiusType(UnitRadius);
+  this->SetAtomicRadiusScaleFactor(0.15);
   this->SetAtomColorMode(DiscreteByAtom);
-  this->SetBondColorMode( DiscreteByAtom );
-  this->SetUseMultiCylindersForBonds( false );
-  this->SetBondRadius( 0.15 );
+  this->SetBondColorMode(DiscreteByAtom);
+  this->SetUseMultiCylindersForBonds(false);
+  this->SetBondRadius(0.15);
 }
 
 //----------------------------------------------------------------------------
@@ -205,17 +199,17 @@ void vtkMoleculeMapper::UseFastSettings()
 {
   this->SetRenderAtoms(true);
   this->SetRenderBonds(true);
-  this->SetAtomicRadiusType( UnitRadius );
-  this->SetAtomicRadiusScaleFactor( 0.60 );
+  this->SetAtomicRadiusType(UnitRadius);
+  this->SetAtomicRadiusScaleFactor(0.60);
   this->SetAtomColorMode(DiscreteByAtom);
-  this->SetBondColorMode( SingleColor );
-  this->SetBondColor( 50, 50, 50 );
-  this->SetUseMultiCylindersForBonds( false );
-  this->SetBondRadius( 0.075 );
+  this->SetBondColorMode(SingleColor);
+  this->SetBondColor(50, 50, 50);
+  this->SetUseMultiCylindersForBonds(false);
+  this->SetBondRadius(0.075);
 }
 
 //----------------------------------------------------------------------------
-const char * vtkMoleculeMapper::GetAtomicRadiusTypeAsString()
+const char* vtkMoleculeMapper::GetAtomicRadiusTypeAsString()
 {
   switch (this->AtomicRadiusType)
   {
@@ -233,7 +227,7 @@ const char * vtkMoleculeMapper::GetAtomicRadiusTypeAsString()
 }
 
 //----------------------------------------------------------------------------
-const char * vtkMoleculeMapper::GetBondColorModeAsString()
+const char* vtkMoleculeMapper::GetBondColorModeAsString()
 {
   switch (this->BondColorMode)
   {
@@ -247,12 +241,11 @@ const char * vtkMoleculeMapper::GetBondColorModeAsString()
 }
 
 //----------------------------------------------------------------------------
-void vtkMoleculeMapper::GetSelectedAtomsAndBonds(vtkSelection *selection,
-                                                 vtkIdTypeArray *atomIds,
-                                                 vtkIdTypeArray *bondIds)
+void vtkMoleculeMapper::GetSelectedAtomsAndBonds(
+  vtkSelection* selection, vtkIdTypeArray* atomIds, vtkIdTypeArray* bondIds)
 {
   // Sanity check
-  if (selection == nullptr || (atomIds == nullptr && bondIds == nullptr) )
+  if (selection == nullptr || (atomIds == nullptr && bondIds == nullptr))
   {
     return;
   }
@@ -275,16 +268,15 @@ void vtkMoleculeMapper::GetSelectedAtomsAndBonds(vtkSelection *selection,
   const vtkIdType numNodes = selection->GetNumberOfNodes();
   for (vtkIdType nodeId = 0; nodeId < numNodes; ++nodeId)
   {
-    vtkSelectionNode *node = selection->GetNode(nodeId);
+    vtkSelectionNode* node = selection->GetNode(nodeId);
 
     // Check if the mapper is this instance of MoleculeMapper
-    vtkActor *selActor = vtkActor::SafeDownCast(
-               node->GetProperties()->Get(vtkSelectionNode::PROP()));
+    vtkActor* selActor =
+      vtkActor::SafeDownCast(node->GetProperties()->Get(vtkSelectionNode::PROP()));
     if (selActor && (selActor->GetMapper() == this))
     {
       // Separate the selection ids into atoms and bonds
-      vtkIdTypeArray *selIds = vtkArrayDownCast<vtkIdTypeArray>(
-            node->GetSelectionList());
+      vtkIdTypeArray* selIds = vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
       if (selIds)
       {
         vtkIdType numIds = selIds->GetNumberOfTuples();
@@ -295,7 +287,7 @@ void vtkMoleculeMapper::GetSelectedAtomsAndBonds(vtkSelection *selection,
           {
             atomIds->InsertNextValue(curId);
           }
-          else if (bondIds != nullptr && curId < numAtomsAndBonds)// bonds
+          else if (bondIds != nullptr && curId < numAtomsAndBonds) // bonds
           {
             // Remove offset
             curId -= numAtoms;
@@ -308,14 +300,14 @@ void vtkMoleculeMapper::GetSelectedAtomsAndBonds(vtkSelection *selection,
 }
 
 //----------------------------------------------------------------------------
-void vtkMoleculeMapper::Render(vtkRenderer *ren, vtkActor *act )
+void vtkMoleculeMapper::Render(vtkRenderer* ren, vtkActor* act)
 {
   // If we add more rendering backend (e.g. point sprites), add a switch here.
   this->GlyphRender(ren, act);
 }
 
 //----------------------------------------------------------------------------
-void vtkMoleculeMapper::GlyphRender(vtkRenderer *ren, vtkActor *act)
+void vtkMoleculeMapper::GlyphRender(vtkRenderer* ren, vtkActor* act)
 {
   // Update cached polydata if needed
   this->UpdateGlyphPolyData();
@@ -340,30 +332,30 @@ void vtkMoleculeMapper::GlyphRender(vtkRenderer *ren, vtkActor *act)
 //----------------------------------------------------------------------------
 void vtkMoleculeMapper::UpdateGlyphPolyData()
 {
-  vtkMolecule *molecule = this->GetInput();
+  vtkMolecule* molecule = this->GetInput();
 
-  if (!this->GlyphDataInitialized || (
-        (molecule->GetMTime() > this->AtomGlyphPolyData->GetMTime() ||
-         this->GetMTime() > this->AtomGlyphPolyData->GetMTime() ||
-         this->LookupTable->GetMTime() > this->AtomGlyphPolyData->GetMTime()) &&
-        this->RenderAtoms))
+  if (!this->GlyphDataInitialized ||
+    ((molecule->GetMTime() > this->AtomGlyphPolyData->GetMTime() ||
+       this->GetMTime() > this->AtomGlyphPolyData->GetMTime() ||
+       this->LookupTable->GetMTime() > this->AtomGlyphPolyData->GetMTime()) &&
+      this->RenderAtoms))
   {
     this->UpdateAtomGlyphPolyData();
   }
 
-  if (!this->GlyphDataInitialized || (
-        (molecule->GetMTime() > this->BondGlyphPolyData->GetMTime() ||
-         this->GetMTime() > this->BondGlyphPolyData->GetMTime() ||
-         this->LookupTable->GetMTime() > this->BondGlyphPolyData->GetMTime()) &&
-        this->RenderBonds))
+  if (!this->GlyphDataInitialized ||
+    ((molecule->GetMTime() > this->BondGlyphPolyData->GetMTime() ||
+       this->GetMTime() > this->BondGlyphPolyData->GetMTime() ||
+       this->LookupTable->GetMTime() > this->BondGlyphPolyData->GetMTime()) &&
+      this->RenderBonds))
   {
     this->UpdateBondGlyphPolyData();
   }
 
-  if (!this->GlyphDataInitialized || (
-        (molecule->GetMTime() > this->LatticePolyData->GetMTime() ||
-         this->GetMTime() > this->LatticePolyData->GetMTime()) &&
-        this->RenderLattice))
+  if (!this->GlyphDataInitialized ||
+    ((molecule->GetMTime() > this->LatticePolyData->GetMTime() ||
+       this->GetMTime() > this->LatticePolyData->GetMTime()) &&
+      this->RenderLattice))
   {
     this->UpdateLatticePolyData();
   }
@@ -377,7 +369,7 @@ void vtkMoleculeMapper::UpdateAtomGlyphPolyData()
 {
   this->AtomGlyphPolyData->Initialize();
 
-  vtkMolecule *molecule = this->GetInput();
+  vtkMolecule* molecule = this->GetInput();
 
   vtkAbstractArray* inputColorArray = this->GetInputAbstractArrayToProcess(0, molecule);
   vtkAbstractArray* colorArray = nullptr;
@@ -463,8 +455,8 @@ void vtkMoleculeMapper::UpdateAtomGlyphPolyData()
   switch (this->AtomicRadiusType)
   {
     default:
-      vtkWarningMacro(<<"Unknown radius type: " << this->AtomicRadiusType
-                      <<". Falling back to 'VDWRadius' ("<<VDWRadius<<").");
+      vtkWarningMacro(<< "Unknown radius type: " << this->AtomicRadiusType
+                      << ". Falling back to 'VDWRadius' (" << VDWRadius << ").");
       VTK_FALLTHROUGH;
     case VDWRadius:
       for (vtkIdType i = 0; i < numAtoms; ++i)
@@ -486,12 +478,14 @@ void vtkMoleculeMapper::UpdateAtomGlyphPolyData()
         scaleFactors->InsertNextValue(this->AtomicRadiusScaleFactor);
       }
       break;
-    case CustomArrayRadius: {
-      vtkDataArray *allRadii = molecule->GetVertexData()->GetArray(this->AtomicRadiusArrayName);
+    case CustomArrayRadius:
+    {
+      vtkDataArray* allRadii = molecule->GetVertexData()->GetArray(this->AtomicRadiusArrayName);
       if (!allRadii)
       {
         vtkWarningMacro("AtomicRadiusType set to CustomArrayRadius, but no "
-                        "array named " << this->AtomicRadiusArrayName << " found in input VertexData.");
+                        "array named "
+          << this->AtomicRadiusArrayName << " found in input VertexData.");
         scaleFactors->SetNumberOfTuples(numAtoms);
         scaleFactors->FillComponent(0, this->AtomicRadiusScaleFactor);
         break;
@@ -507,8 +501,8 @@ void vtkMoleculeMapper::UpdateAtomGlyphPolyData()
       }
       if (radii->GetNumberOfTuples() != numAtoms)
       {
-        vtkWarningMacro("'radii' array contains " << radii->GetNumberOfTuples()
-                        << " entries, but there are " << numAtoms << " atoms.");
+        vtkWarningMacro("'radii' array contains "
+          << radii->GetNumberOfTuples() << " entries, but there are " << numAtoms << " atoms.");
         scaleFactors->SetNumberOfTuples(numAtoms);
         scaleFactors->FillComponent(0, this->AtomicRadiusScaleFactor);
       }
@@ -531,7 +525,7 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
 {
   this->BondGlyphPolyData->Initialize();
 
-  vtkMolecule *molecule = this->GetInput();
+  vtkMolecule* molecule = this->GetInput();
   const vtkIdType numBonds = molecule->GetNumberOfBonds();
 
   // For selection ID offset:
@@ -574,29 +568,28 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
   }
 
   // Allocate memory. Multiply numCylinders by number of components in array.
-  cylCenters->Allocate(3*numCylinders);
-  cylScales->Allocate(3*numCylinders);
-  orientationVectors->Allocate(3*numCylinders);
+  cylCenters->Allocate(3 * numCylinders);
+  cylScales->Allocate(3 * numCylinders);
+  orientationVectors->Allocate(3 * numCylinders);
   selectionIds->Allocate(numCylinders);
 
   // Add arrays to BondGlyphPolyData
   this->BondGlyphPolyData->SetPoints(cylCenters);
   this->BondGlyphPolyData->GetPointData()->AddArray(cylScales);
-  this->BondGlyphPolyData->GetPointData()->AddArray(
-    orientationVectors);
-  this->BondGlyphPolyData->GetPointData()->AddArray(
-        selectionIds);
+  this->BondGlyphPolyData->GetPointData()->AddArray(orientationVectors);
+  this->BondGlyphPolyData->GetPointData()->AddArray(selectionIds);
 
   // Set up coloring mode
   vtkAbstractArray* atomColorArray = this->GetInputAbstractArrayToProcess(0, molecule);
   vtkUnsignedCharArray* singleColorArray = nullptr;
   vtkAbstractArray* cylColors = nullptr;
 
-  bool useColorArray = this->BondColorMode == DiscreteByAtom && atomColorArray != nullptr;
+  bool useColorArray =
+    this->BondColorMode == DiscreteByAtom && atomColorArray != nullptr;
 
-  // In DiscreteByAtom mode, coloring is done with the data used for atom coloring.
-  // So we need an array of the same type, with data corresponding to begin and end atom for each bond :
-  // { beginAtom0, endAtom0, beginAtom1, endAtom1, ... }
+  // In DiscreteByAtom mode, coloring is done with the data used for atom
+  // coloring. So we need an array of the same type, with data corresponding to begin and end atom
+  // for each bond : { beginAtom0, endAtom0, beginAtom1, endAtom1, ... }
   if (useColorArray)
   {
     cylColors = atomColorArray->NewInstance();
@@ -608,7 +601,8 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
     this->BondGlyphMapper->SetScalarModeToUsePointFieldData();
     this->BondGlyphMapper->SetLookupTable(this->LookupTable);
   }
-  // Otherwise an unique color will be used, so we fill a 3-components unsigned char array with BondColor value.
+  // Otherwise an unique color will be used, so we fill a 3-components unsigned char array with
+  // BondColor value.
   else
   {
     singleColorArray = vtkUnsignedCharArray::New();
@@ -651,7 +645,7 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
   // Normalized vector pointing along bond from begin->end atom
   vtkVector3f bondVec;
   // Unit z vector -- used for multicylinder orientation
-  static const vtkVector3f unitZ (0.0, 0.0, 1.0);
+  static const vtkVector3f unitZ(0.0, 0.0, 1.0);
 
   // Generate the scale, orientation, and position of each cylinder
   for (vtkIdType bondInd = 0; bondInd < numBonds; ++bondInd)
@@ -671,7 +665,7 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
     bondLength = bondVec.Normalize();
     // - Center of bond for translation
     // TODO vtkVector scalar multiplication
-//    bondCenter = (pos1 + pos2) * 0.5;
+    // bondCenter = (pos1 + pos2) * 0.5;
     bondCenter[0] = (pos1[0] + pos2[0]) * 0.5;
     bondCenter[1] = (pos1[1] + pos2[1]) * 0.5;
     bondCenter[2] = (pos1[2] + pos2[2]) * 0.5;
@@ -689,19 +683,19 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
           break;
         case 2:
           // TODO vtkVector scalar multiplication
-//          delta = bondVec.Cross(unitZ).Normalized() * deltaLength;
-//          initialDisp = delta * (-0.5);
+          // delta = bondVec.Cross(unitZ).Normalized() * deltaLength;
+          // initialDisp = delta * (-0.5);
           delta = bondVec.Cross(unitZ).Normalized();
           delta[0] *= deltaLength;
           delta[1] *= deltaLength;
           delta[2] *= deltaLength;
-          initialDisp.Set(delta[0]*(-0.5), delta[1]*(-0.5), delta[2]*(-0.5));
+          initialDisp.Set(delta[0] * (-0.5), delta[1] * (-0.5), delta[2] * (-0.5));
           // End vtkVector TODO
           break;
         case 3:
           // TODO vtkVector scalar multiplication, negation
-//          delta = bondVec.Cross(unitZ).Normalized() * deltaLength;
-//          initialDisp = -delta;
+          // delta = bondVec.Cross(unitZ).Normalized() * deltaLength;
+          // initialDisp = -delta;
           delta = bondVec.Cross(unitZ).Normalized();
           delta[0] *= deltaLength;
           delta[1] *= deltaLength;
@@ -716,11 +710,11 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
     switch (this->BondColorMode)
     {
       case SingleColor:
-        scale.Set( bondLength, this->BondRadius, this->BondRadius);
+        scale.Set(bondLength, this->BondRadius, this->BondRadius);
         break;
       default:
       case DiscreteByAtom:
-        scale.Set( 0.5 * bondLength, this->BondRadius, this->BondRadius);
+        scale.Set(0.5 * bondLength, this->BondRadius, this->BondRadius);
         break;
     }
 
@@ -756,13 +750,10 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
 
           // Add cylinder for begin atom:
           // TODO vtkVector subtraction, scalar multiplication
-//          halfCylinderCenter = cylinderCenter - (bondVec * quarterLength);
-          halfCylinderCenter[0] = cylinderCenter[0] -
-              (bondVec[0] * quarterLength);
-          halfCylinderCenter[1] = cylinderCenter[1] -
-              (bondVec[1] * quarterLength);
-          halfCylinderCenter[2] = cylinderCenter[2] -
-              (bondVec[2] * quarterLength);
+          // halfCylinderCenter = cylinderCenter - (bondVec * quarterLength);
+          halfCylinderCenter[0] = cylinderCenter[0] - (bondVec[0] * quarterLength);
+          halfCylinderCenter[1] = cylinderCenter[1] - (bondVec[1] * quarterLength);
+          halfCylinderCenter[2] = cylinderCenter[2] - (bondVec[2] * quarterLength);
           // end vtkVector TODO
 
           cylCenters->InsertNextPoint(halfCylinderCenter.GetData());
@@ -780,13 +771,10 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
 
           // Add cylinder for begin atom:
           // TODO vtkVector addition, scalar multiplication
-//          halfCylinderCenter = cylinderCenter + (bondVec * quarterLength);
-          halfCylinderCenter[0] = cylinderCenter[0] +
-              (bondVec[0] * quarterLength);
-          halfCylinderCenter[1] = cylinderCenter[1] +
-              (bondVec[1] * quarterLength);
-          halfCylinderCenter[2] = cylinderCenter[2] +
-              (bondVec[2] * quarterLength);
+          // halfCylinderCenter = cylinderCenter + (bondVec * quarterLength);
+          halfCylinderCenter[0] = cylinderCenter[0] + (bondVec[0] * quarterLength);
+          halfCylinderCenter[1] = cylinderCenter[1] + (bondVec[1] * quarterLength);
+          halfCylinderCenter[2] = cylinderCenter[2] + (bondVec[2] * quarterLength);
           // end vtkVector TODO
 
           cylCenters->InsertNextPoint(halfCylinderCenter.GetData());
@@ -807,7 +795,7 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
       if (this->UseMultiCylindersForBonds && bondOrder != 1)
       {
         // TODO vtkVector in-place addition
-//        cylinderCenter += delta;
+        // cylinderCenter += delta;
         cylinderCenter[0] += delta[0];
         cylinderCenter[1] += delta[1];
         cylinderCenter[2] += delta[2];
@@ -837,7 +825,7 @@ void vtkMoleculeMapper::UpdateLatticePolyData()
 {
   this->LatticePolyData->Initialize();
 
-  vtkMolecule *molecule = this->GetInput();
+  vtkMolecule* molecule = this->GetInput();
   if (!molecule->HasLattice())
   {
     return;
@@ -915,15 +903,15 @@ void vtkMoleculeMapper::UpdateLatticePolyData()
 }
 
 //----------------------------------------------------------------------------
-void vtkMoleculeMapper::ReleaseGraphicsResources(vtkWindow *w)
+void vtkMoleculeMapper::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->AtomGlyphMapper->ReleaseGraphicsResources(w);
   this->BondGlyphMapper->ReleaseGraphicsResources(w);
 }
 
-double *vtkMoleculeMapper::GetBounds()
+double* vtkMoleculeMapper::GetBounds()
 {
-  vtkMolecule *input = this->GetInput();
+  vtkMolecule* input = this->GetInput();
   if (!input)
   {
     vtkMath::UninitializeBounds(this->Bounds);
@@ -947,8 +935,7 @@ double *vtkMoleculeMapper::GetBounds()
 }
 
 //----------------------------------------------------------------------------
-int vtkMoleculeMapper::FillInputPortInformation(int vtkNotUsed(port),
-                                                vtkInformation* info)
+int vtkMoleculeMapper::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMolecule");
   return 1;
@@ -957,7 +944,7 @@ int vtkMoleculeMapper::FillInputPortInformation(int vtkNotUsed(port),
 //----------------------------------------------------------------------------
 void vtkMoleculeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "AtomGlyphMapper:\n";
   this->AtomGlyphMapper->PrintSelf(os, indent.GetNextIndent());
