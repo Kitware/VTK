@@ -155,9 +155,6 @@ private:
 
   std::vector<vtkDataArray*> Arrays;
 
-  vtkDataSetAttributes* InData;
-  vtkDataSetAttributes* OutData;
-
   vtkBitArray* MaterialMask;
 };
 

@@ -2146,14 +2146,14 @@ void vtkHyperTreeGrid::GenerateDualCornerFromLeaf2D( vtkHyperTreeGridNonOriented
   //   (d-1)-faces are corners, neighbor cursors are 0, 2, 6, 8
   //   (d-2)-faces do not exist
 
-  const unsigned int _S  = 1;
-  const unsigned int _W  = 3;
-  const unsigned int _E  = 5;
-  const unsigned int _N  = 7;
-  const unsigned int _SW = 0;
-  const unsigned int _SE = 2;
-  const unsigned int _NW = 6;
-  const unsigned int _NE = 8;
+  const unsigned int dS  = 1;
+  const unsigned int dW  = 3;
+  const unsigned int dE  = 5;
+  const unsigned int dN  = 7;
+  const unsigned int dSW = 0;
+  const unsigned int dSE = 2;
+  const unsigned int dNW = 6;
+  const unsigned int dNE = 8;
 
   // Retrieve 2D axes (east-west/south-north)
   unsigned int axisWE = this->Orientation ? 0 : 1;
@@ -2172,48 +2172,48 @@ void vtkHyperTreeGrid::GenerateDualCornerFromLeaf2D( vtkHyperTreeGridNonOriented
   bool shifted = false;
 
   // Check across edge neighbors whether point must be adjusted
-  if ( ! cursor->HasTree( _S ) )
+  if ( ! cursor->HasTree( dS ) )
   {
     // Move to south edge
     pt[axisSN] -= shift[1];
     shifted = true;
-  } else if ( cursor->IsLeaf( _S ) && mask->GetValue( cursor->GetGlobalNodeIndex ( _S ) ) )
+  } else if ( cursor->IsLeaf( dS ) && mask->GetValue( cursor->GetGlobalNodeIndex ( dS ) ) )
   {
     // Move to south edge
     pt[axisSN] -= shift[1];
     shifted = true;
   }
 
-  if ( ! cursor->HasTree( _W ) )
+  if ( ! cursor->HasTree( dW ) )
   {
     // Move to west edge
     pt[axisWE] -= shift[0];
     shifted = true;
-  } else if ( cursor->IsLeaf( _W ) && mask->GetValue( cursor->GetGlobalNodeIndex ( _W ) ) )
+  } else if ( cursor->IsLeaf( dW ) && mask->GetValue( cursor->GetGlobalNodeIndex ( dW ) ) )
   {
     // Move to west edge
     pt[axisWE] -= shift[0];
     shifted = true;
   }
 
-  if ( ! cursor->HasTree( _E ) )
+  if ( ! cursor->HasTree( dE ) )
   {
     // Move to east edge
     pt[axisWE] += shift[0];
     shifted = true;
-  } else if ( cursor->IsLeaf( _E ) && mask->GetValue( cursor->GetGlobalNodeIndex ( _E ) ) )
+  } else if ( cursor->IsLeaf( dE ) && mask->GetValue( cursor->GetGlobalNodeIndex ( dE ) ) )
   {
     // Move to east edge
     pt[axisWE] += shift[0];
     shifted = true;
   }
 
-  if ( ! cursor->HasTree( _N ) )
+  if ( ! cursor->HasTree( dN ) )
   {
     // Move to north edge
     pt[axisSN] += shift[1];
     shifted = true;
-  } else if ( cursor->IsLeaf( _N ) && mask->GetValue( cursor->GetGlobalNodeIndex ( _N ) ) )
+  } else if ( cursor->IsLeaf( dN ) && mask->GetValue( cursor->GetGlobalNodeIndex ( dN ) ) )
   {
     // Move to north edge
     pt[axisSN] += shift[1];
@@ -2223,48 +2223,48 @@ void vtkHyperTreeGrid::GenerateDualCornerFromLeaf2D( vtkHyperTreeGridNonOriented
   // Only when point was not moved to edge, check corner neighbors
   if ( ! shifted )
   {
-    if ( ! cursor->HasTree( _SW ) )
+    if ( ! cursor->HasTree( dSW ) )
     {
       // Move to southwest corner
       pt[axisWE] -= shift[0];
       pt[axisSN] -= shift[1];
-    } else if ( cursor->IsLeaf( _SW ) && mask->GetValue( cursor->GetGlobalNodeIndex ( _SW ) ) )
+    } else if ( cursor->IsLeaf( dSW ) && mask->GetValue( cursor->GetGlobalNodeIndex ( dSW ) ) )
     {
       // Move to southwest corner
       pt[axisWE] -= shift[0];
       pt[axisSN] -= shift[1];
     }
 
-    if ( ! cursor->HasTree( _SE ) )
+    if ( ! cursor->HasTree( dSE ) )
     {
       // Move to southeast corner
       pt[axisWE] += shift[0];
       pt[axisSN] -= shift[1];
-    } else if ( cursor->IsLeaf( _SE ) && mask->GetValue( cursor->GetGlobalNodeIndex ( _SE ) ) )
+    } else if ( cursor->IsLeaf( dSE ) && mask->GetValue( cursor->GetGlobalNodeIndex ( dSE ) ) )
     {
       // Move to southeast corner
       pt[axisWE] += shift[0];
       pt[axisSN] -= shift[1];
     }
 
-    if ( ! cursor->HasTree( _NW ) )
+    if ( ! cursor->HasTree( dNW ) )
     {
       // Move to northwest corner
       pt[axisWE] -= shift[0];
       pt[axisSN] += shift[1];
-    } else if ( cursor->IsLeaf( _NW ) && mask->GetValue( cursor->GetGlobalNodeIndex ( _NW ) ) )
+    } else if ( cursor->IsLeaf( dNW ) && mask->GetValue( cursor->GetGlobalNodeIndex ( dNW ) ) )
     {
       // Move to northwest corner
       pt[axisWE] -= shift[0];
       pt[axisSN] += shift[1];
     }
 
-    if ( ! cursor->HasTree( _NE ) )
+    if ( ! cursor->HasTree( dNE ) )
     {
       // Move to northeast corner
       pt[axisWE] += shift[0];
       pt[axisSN] += shift[1];
-    } else if ( cursor->IsLeaf( _NE ) && mask->GetValue( cursor->GetGlobalNodeIndex ( _NE ) ) )
+    } else if ( cursor->IsLeaf( dNE ) && mask->GetValue( cursor->GetGlobalNodeIndex ( dNE ) ) )
     {
       // Move to northeast corner
       pt[axisWE] += shift[0];
@@ -2294,13 +2294,13 @@ void vtkHyperTreeGrid::GenerateDualCornerFromLeaf2D( vtkHyperTreeGridNonOriented
   unsigned int level = cursor->GetLevel();
 
   // Check whether a dual cell around SW corner exists
-  if (    cursor->HasTree( _SW ) && cursor->HasTree( _S ) && cursor->HasTree( _W )
-       && cursor->IsLeaf( _SW )  && cursor->IsLeaf( _S )  && cursor->IsLeaf( _W ) )
+  if (    cursor->HasTree( dSW ) && cursor->HasTree( dS ) && cursor->HasTree( dW )
+       && cursor->IsLeaf( dSW )  && cursor->IsLeaf( dS )  && cursor->IsLeaf( dW ) )
   {
     vtkIdType idSW, idS, idW;
-    if (    ! mask->GetValue( idSW = cursor->GetGlobalNodeIndex ( _SW ) )
-         && ! mask->GetValue( idS = cursor->GetGlobalNodeIndex ( _S ) )
-         && ! mask->GetValue( idW = cursor->GetGlobalNodeIndex ( _W ) ) )
+    if (    ! mask->GetValue( idSW = cursor->GetGlobalNodeIndex ( dSW ) )
+         && ! mask->GetValue( idS = cursor->GetGlobalNodeIndex ( dS ) )
+         && ! mask->GetValue( idW = cursor->GetGlobalNodeIndex ( dW ) ) )
     {
       // If SW, S, and W neighbors are leaves, always create a face
       ids[1] = idW;
@@ -2311,14 +2311,14 @@ void vtkHyperTreeGrid::GenerateDualCornerFromLeaf2D( vtkHyperTreeGridNonOriented
   }
 
   // Check whether a dual cell around SE corner exists
-  if (    cursor->HasTree( _S ) && cursor->HasTree( _SE ) && cursor->HasTree( _E )
-       && cursor->IsLeaf( _S )  && cursor->IsLeaf( _SE )  && cursor->IsLeaf( _E ) )
+  if (    cursor->HasTree( dS ) && cursor->HasTree( dSE ) && cursor->HasTree( dE )
+       && cursor->IsLeaf( dS )  && cursor->IsLeaf( dSE )  && cursor->IsLeaf( dE ) )
   {
     vtkIdType idS, idSE, idE;
-    if (    ! mask->GetValue( idS = cursor->GetGlobalNodeIndex ( _S ) )
-         && ! mask->GetValue( idSE = cursor->GetGlobalNodeIndex ( _SE ) )
-         && ! mask->GetValue( idE = cursor->GetGlobalNodeIndex ( _E ) )
-         && level != cursor->GetLevel( _E ) )
+    if (    ! mask->GetValue( idS = cursor->GetGlobalNodeIndex ( dS ) )
+         && ! mask->GetValue( idSE = cursor->GetGlobalNodeIndex ( dSE ) )
+         && ! mask->GetValue( idE = cursor->GetGlobalNodeIndex ( dE ) )
+         && level != cursor->GetLevel( dE ) )
     {
       // If S, SE, and E neighbors are leaves, create a face if E at higher level
       ids[1] = idE;
@@ -2329,16 +2329,16 @@ void vtkHyperTreeGrid::GenerateDualCornerFromLeaf2D( vtkHyperTreeGridNonOriented
   }
 
   // Check whether a dual cell around NE corner exists
-  if (    cursor->HasTree( _E ) && cursor->HasTree( _NE ) && cursor->HasTree( _N )
-       && cursor->IsLeaf( _E )  && cursor->IsLeaf( _NE )  && cursor->IsLeaf( _N ) )
+  if (    cursor->HasTree( dE ) && cursor->HasTree( dNE ) && cursor->HasTree( dN )
+       && cursor->IsLeaf( dE )  && cursor->IsLeaf( dNE )  && cursor->IsLeaf( dN ) )
   {
     vtkIdType idE, idNE, idN;
-    if (    ! mask->GetValue( idE = cursor->GetGlobalNodeIndex ( _E ) )
-         && ! mask->GetValue( idNE = cursor->GetGlobalNodeIndex ( _NE ) )
-         && ! mask->GetValue( idN = cursor->GetGlobalNodeIndex ( _N ) )
-         && level != cursor->GetLevel( _E )
-         && level != cursor->GetLevel( _NE )
-         && level != cursor->GetLevel( _N ) )
+    if (    ! mask->GetValue( idE = cursor->GetGlobalNodeIndex ( dE ) )
+         && ! mask->GetValue( idNE = cursor->GetGlobalNodeIndex ( dNE ) )
+         && ! mask->GetValue( idN = cursor->GetGlobalNodeIndex ( dN ) )
+         && level != cursor->GetLevel( dE )
+         && level != cursor->GetLevel( dNE )
+         && level != cursor->GetLevel( dN ) )
     {
       // If E, NE, and N neighbors are leaves, create a face if E, NE, N at higher level
       ids[1] = idE;
@@ -2349,15 +2349,15 @@ void vtkHyperTreeGrid::GenerateDualCornerFromLeaf2D( vtkHyperTreeGridNonOriented
   }
 
   // Check whether a dual cell around NW corner exists
-  if (    cursor->HasTree( _W ) && cursor->HasTree( _N ) && cursor->HasTree( _NW )
-       && cursor->IsLeaf( _W )  && cursor->IsLeaf( _N )  && cursor->IsLeaf( _NW ) )
+  if (    cursor->HasTree( dW ) && cursor->HasTree( dN ) && cursor->HasTree( dNW )
+       && cursor->IsLeaf( dW )  && cursor->IsLeaf( dN )  && cursor->IsLeaf( dNW ) )
   {
     vtkIdType idW, idN, idNW;
-    if (    ! mask->GetValue( idW = cursor->GetGlobalNodeIndex ( _W ) )
-         && ! mask->GetValue( idN = cursor->GetGlobalNodeIndex ( _N ) )
-         && ! mask->GetValue( idNW = cursor->GetGlobalNodeIndex ( _NW ) )
-         && level != cursor->GetLevel( _NW )
-         && level != cursor->GetLevel( _N ) )
+    if (    ! mask->GetValue( idW = cursor->GetGlobalNodeIndex ( dW ) )
+         && ! mask->GetValue( idN = cursor->GetGlobalNodeIndex ( dN ) )
+         && ! mask->GetValue( idNW = cursor->GetGlobalNodeIndex ( dNW ) )
+         && level != cursor->GetLevel( dNW )
+         && level != cursor->GetLevel( dN ) )
     {
       // If W, N, and NW neighbors are leaves, create a face if NW and N at higher level
       ids[1] = idW;
