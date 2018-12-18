@@ -183,7 +183,7 @@ public:
   /**
    * JB Return a frozen instance (a priori compact but potentially not changeable).
    */
-  virtual vtkHyperTree* Frozen() = 0;
+  virtual vtkHyperTree* Freeze() = 0;
 
   //@{
   /**

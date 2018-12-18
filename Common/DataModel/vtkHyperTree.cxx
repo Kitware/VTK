@@ -131,7 +131,7 @@ public:
   static vtkCompactHyperTree* New();
 
   //---------------------------------------------------------------------------
-  vtkHyperTree* Frozen( ) override
+  vtkHyperTree* Freeze( ) override
   {
     return this;
   }
