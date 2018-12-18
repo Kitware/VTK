@@ -26,6 +26,8 @@
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
+#include <libavutil/stereo3d.h>
+#include <libavcodec/avcodec.h>
 }
 
 #include <cctype>
@@ -133,6 +135,8 @@ vtkFFMPEGVideoSource::vtkFFMPEGVideoSource()
   this->FrameBufferRowAlignment = 4;
 
   this->Internal = new vtkFFMPEGVideoSourceInternal;
+
+  this->Stereo3D = false;
 }
 
 //----------------------------------------------------------------------------
@@ -198,6 +202,24 @@ void vtkFFMPEGVideoSource::Initialize()
 
   this->Internal->VideoDecodeContext->thread_count = this->DecodingThreads;
   // this->Internal->VideoDecodeContext->thread_type = FF_THREAD_FRAME;
+
+  // examine the video stream side data for additional information
+  this->Stereo3D = false;
+  if (this->Internal->VideoStream->nb_side_data > 0)
+  {
+    for (int i = 0; i < this->Internal->VideoStream->nb_side_data; ++i)
+    {
+      AVPacketSideData sd = this->Internal->VideoStream->side_data[i];
+      if (sd.type == AV_PKT_DATA_STEREO3D)
+      {
+        AVStereo3D *stereo = reinterpret_cast<AVStereo3D *>(sd.data);
+        if (stereo->type == AV_STEREO3D_TOPBOTTOM)
+        {
+          this->Stereo3D = true;
+        }
+      }
+    }
+  }
 
   avcodec_parameters_to_context(
     this->Internal->VideoDecodeContext,

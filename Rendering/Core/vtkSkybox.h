@@ -39,26 +39,34 @@ public:
   using Superclass::GetBounds;
   double *GetBounds() override;
 
+  //@{
+  /**
+   * Set/Get the projection to be used
+   */
   enum Projection
   {
     Cube,
     Sphere,
     Floor,
+    StereoSphere
   };
   vtkGetMacro(Projection, int);
   vtkSetMacro(Projection, int);
   void SetProjectionToCube() { this->SetProjection(vtkSkybox::Cube); }
   void SetProjectionToSphere() {this->SetProjection(vtkSkybox::Sphere); }
+  void SetProjectionToStereoSphere() {this->SetProjection(vtkSkybox::StereoSphere); }
   void SetProjectionToFloor() {this->SetProjection(vtkSkybox::Floor); }
+  //@}
 
+  //@{
   /**
    * Set/Get the plane equation for the floor.
    */
   vtkSetVector4Macro(FloorPlane, float);
   vtkGetVector4Macro(FloorPlane, float);
-
   vtkSetVector3Macro(FloorRight, float);
   vtkGetVector3Macro(FloorRight, float);
+  //@}
 
 protected:
   vtkSkybox();

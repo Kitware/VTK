@@ -130,6 +130,9 @@ public:
   // Usefull for while loops
   vtkGetMacro(EndOfFile,bool);
 
+  // Is the video stream stereo 3d
+  vtkGetMacro(Stereo3D, bool);
+
   // we do not use Invoke Observers here because this callback
   // will happen in a different thread that could conflict
   // with events from other threads. In this function you should
@@ -189,6 +192,8 @@ protected:
   vtkFFMPEGVideoSourceInternal *Internal;
 
   void ReadFrame();
+
+  bool Stereo3D;
 
 private:
   vtkFFMPEGVideoSource(const vtkFFMPEGVideoSource&) = delete;
