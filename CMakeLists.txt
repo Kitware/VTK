@@ -135,7 +135,7 @@ if (VTK_USE_MPI)
 else ()
   # Reject `VTK::mpi`, but allow those which happen to be part of the group to
   # be built.
-  set(VTK_GROUP_ENABLE_MPI DONT_WANT)
+  set(_vtk_module_group_default_MPI "DONT_WANT")
   list(APPEND vtk_rejected_modules
     VTK::mpi)
 endif ()
@@ -218,6 +218,9 @@ if (NOT vtk_python_idx EQUAL "-1")
   vtk_module_python_default_destination(VTK_PYTHON_SITE_PACKAGES_SUFFIX)
 endif ()
 
+set(vtk_cmake_destination
+  "${CMAKE_INSTALL_LIBDIR}/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+
 option(VTK_ENABLE_KITS "Enable kits compilation" OFF)
 mark_as_advanced(VTK_ENABLE_KITS)
 
@@ -229,7 +232,7 @@ vtk_module_build(
   KITS                ${vtk_kits}
   INSTALL_EXPORT      VTK
   HEADERS_DESTINATION "include/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
-  CMAKE_DESTINATION   "lib/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
+  CMAKE_DESTINATION   "${vtk_cmake_destination}"
   LIBRARY_NAME_SUFFIX "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
   VERSION             "${VTK_VERSION}"
   SOVERSION           "1"
@@ -250,6 +253,16 @@ vtk_module_graphviz(
   OUTPUT  "modules.dot")
 
 ExternalData_Add_Target(VTKData)
+# Create target to download data from the VTKData group.  This must come after
+# all tests have been added that reference the group, so we put it last.
+if(VTK_DATA_EXCLUDE_FROM_ALL)
+  set_property(TARGET VTKData PROPERTY EXCLUDE_FROM_ALL 1)
+  if(BUILD_TESTING AND NOT VTK_DATA_EXCLUDE_FROM_ALL_NO_WARNING)
+    message(WARNING "VTK_DATA_EXCLUDE_FROM_ALL is ON so test data "
+      "(needed because BUILD_TESTING is ON) may not be available "
+      "without manually building the 'VTKData' target.")
+  endif()
+endif()
 
 if (VTK_WRAP_PYTHON)
   vtk_module_wrap_python(
@@ -257,7 +270,7 @@ if (VTK_WRAP_PYTHON)
     INSTALL_EXPORT  VTK
     PYTHON_PACKAGE  "vtkmodules"
     MODULE_DESTINATION  "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
-    CMAKE_DESTINATION   "lib/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
+    CMAKE_DESTINATION   "${vtk_cmake_destination}"
     WRAPPED_MODULES vtk_python_wrapped_modules
     TARGET          VTK::vtkpythonmodules)
 
@@ -269,116 +282,8 @@ if (VTK_WRAP_JAVA)
 endif ()
 
 set(vtk_cmake_build_dir
-  "${CMAKE_CURRENT_BINARY_DIR}/lib/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
-
-if (TARGET "VTK::vtkm")
-  set(vtk_has_vtkm ON)
-else ()
-  set(vtk_has_vtkm OFF)
-endif ()
-
-configure_file(
-  "${vtk_cmake_dir}/vtk-config.cmake.in"
-  "${vtk_cmake_build_dir}/vtk-config.cmake"
-  @ONLY)
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file("${vtk_cmake_build_dir}/vtk-config-version.cmake"
-  VERSION "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}"
-  COMPATIBILITY SameMinorVersion)
-
-set(vtk_cmake_module_files
-  FindADIOS1.cmake
-  Finddouble-conversion.cmake
-  FindEigen3.cmake
-  FindEXPAT.cmake
-  FindFFMPEG.cmake
-  FindFontConfig.cmake
-  FindFreetype.cmake
-  FindGL2PS.cmake
-  FindGLEW.cmake
-  FindJsonCpp.cmake
-  FindLibHaru.cmake
-  FindLibPROJ.cmake
-  FindLibXml2.cmake
-  FindLZ4.cmake
-  FindLZMA.cmake
-  Findmpi4py.cmake
-  FindMySQL.cmake
-  FindNetCDF.cmake
-  FindODBC.cmake
-  FindOGG.cmake
-  FindOpenMP.cmake
-  FindOpenSlide.cmake
-  FindOpenVR.cmake
-  FindOptiX.cmake
-  FindOSMesa.cmake
-  FindPostgreSQL.cmake
-  FindPythonModules.cmake
-  FindTBB.cmake
-  FindTHEORA.cmake
-
-  vtkCMakeBackports.cmake
-  vtkEncodeString.cmake
-  vtkExternalData.cmake
-  vtkHashSource.cmake
-  vtkModule.cmake
-  vtkModuleGraphviz.cmake
-  vtkModuleJson.cmake
-  vtkModuleTesting.cmake
-  vtkModuleWrapJava.cmake
-  vtkModuleWrapPython.cmake
-  vtkObjectFactory.cmake
-  vtkObjectFactory.cxx.in
-  vtkObjectFactory.h.in
-  vtkTestingRenderingDriver.cmake
-  vtkTopologicalSort.cmake)
-set(vtk_cmake_patch_files
-  patches/3.7/FindPNG.cmake
-  patches/3.7/FindTIFF.cmake
-  patches/3.7/exportheader.cmake.in
-  patches/3.7/GenerateExportHeader.cmake
-  patches/3.10/FindMPI/fortranparam_mpi.f90.in
-  patches/3.10/FindMPI/libver_mpi.c
-  patches/3.10/FindMPI/libver_mpi.f90.in
-  patches/3.10/FindMPI/mpiver.f90.in
-  patches/3.10/FindMPI/test_mpi.c
-  patches/3.10/FindMPI/test_mpi.f90.in
-  patches/3.10/FindMPI.cmake
-  patches/3.13/FindZLIB.cmake
-  patches/3.14/FindGDAL.cmake
-  patches/3.14/FindJPEG.cmake
-  patches/3.14/FindOpenGL.cmake
-  patches/3.14/FindSQLite3.cmake
-  patches/3.14/FindX11.cmake)
-
-set(vtk_cmake_files_to_install)
-foreach (vtk_cmake_module_file IN LISTS vtk_cmake_module_files vtk_cmake_patch_files)
-  configure_file(
-    "${vtk_cmake_dir}/${vtk_cmake_module_file}"
-    "${vtk_cmake_build_dir}/${vtk_cmake_module_file}"
-    COPYONLY)
-  list(APPEND vtk_cmake_files_to_install
-    "${vtk_cmake_module_file}")
-endforeach ()
-
-foreach (vtk_cmake_file IN LISTS vtk_cmake_files_to_install)
-  get_filename_component(subdir "${vtk_cmake_file}" DIRECTORY)
-  install(
-    FILES       "${vtk_cmake_dir}/${vtk_cmake_file}"
-    DESTINATION "lib/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}/${subdir}"
-    COMPONENT   "development")
-endforeach ()
-
-install(
-  FILES       "${vtk_cmake_build_dir}/vtk-config.cmake"
-              "${vtk_cmake_build_dir}/vtk-config-version.cmake"
-  DESTINATION "lib/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
-  COMPONENT   "development")
-
-vtk_module_export_find_packages(
-  CMAKE_DESTINATION "lib/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
-  FILE_NAME         "VTK-vtk-module-find-packages.cmake"
-  MODULES           ${vtk_modules})
+  "${CMAKE_CURRENT_BINARY_DIR}/${vtk_cmake_destination}")
+include(vtkInstallCMakePackage)
 
 configure_file(
   "${vtk_cmake_dir}/CTestCustom.cmake.in"
@@ -409,10 +314,6 @@ endif()
 
 # TODO: The VTKCompileTools package.
 # TODO: HeaderTest exclusions for memcheck.
-
-#-----------------------------------------------------------------------------
-# Install the license file
-install(FILES ${VTK_SOURCE_DIR}/Copyright.txt DESTINATION ${VTK_INSTALL_DOC_DIR})
 
 #-----------------------------------------------------------------------------
 # Do this at the end so the all variables it uses are setup.
