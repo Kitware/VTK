@@ -299,6 +299,11 @@ bool vtkHardwareSelector::CaptureBuffers()
   this->Internals->OriginalGradient = this->Renderer->GetGradientBackground();
   this->Renderer->GradientBackgroundOff();
 
+  int preserveDepth = this->Renderer->GetPreserveDepthBuffer();
+  int preserveColor = this->Renderer->GetPreserveColorBuffer();
+  this->Renderer->SetPreserveDepthBuffer(0);
+  this->Renderer->SetPreserveColorBuffer(0);
+
   this->BeginSelection();
   for (this->Iteration = 0; this->Iteration < 2; this->Iteration++)
   {
@@ -316,6 +321,9 @@ bool vtkHardwareSelector::CaptureBuffers()
     }
   }
   this->EndSelection();
+
+  this->Renderer->SetPreserveDepthBuffer(preserveDepth);
+  this->Renderer->SetPreserveColorBuffer(preserveColor);
 
   //restore original background
   this->Renderer->SetBackground(this->Internals->OriginalBackground);
@@ -887,4 +895,3 @@ void vtkHardwareSelector::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UseProcessIdFromData: " << this->UseProcessIdFromData << endl;
   os << indent << "ActorPassOnly: " << this->ActorPassOnly << endl;
 }
-
