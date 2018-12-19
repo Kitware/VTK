@@ -84,6 +84,7 @@ vtkOpenGLSkybox::vtkOpenGLSkybox()
   this->GetProperty()->SetAmbient(1.0);
   this->GetProperty()->SetSpecular(0.0);
   this->OpenGLActor->SetProperty(this->GetProperty());
+  this->CurrentRenderer = nullptr;
 }
 
 vtkOpenGLSkybox::~vtkOpenGLSkybox() = default;
@@ -104,6 +105,8 @@ void vtkOpenGLSkybox::UpdateUniforms(vtkObject *, unsigned long, void *calldata)
   float front[3];
   vtkMath::Cross(plane, this->FloorRight, front);
   program->SetUniform3f("floorFront", front);
+  program->SetUniformf("leftEye",
+    (this->CurrentRenderer->GetActiveCamera()->GetLeftEye() ? 1.0 : 0.0));
 }
 
 // Actual Skybox render method.
@@ -149,6 +152,29 @@ void vtkOpenGLSkybox::Render(vtkRenderer *ren, vtkMapper *mapper)
         "}\n"
         );
     }
+    if (this->Projection == vtkSkybox::StereoSphere)
+    {
+      // Replace VTK fragment shader
+      this->CubeMapper->SetFragmentShaderCode(
+        "//VTK::System::Dec\n"  // always start with this line
+        "//VTK::Output::Dec\n"  // always have this line in your FS
+        "in vec3 TexCoords;\n"
+        "uniform vec3 cameraPos;\n" // wc camera position
+        "uniform sampler2D actortexture;\n"
+        "uniform vec4 floorPlane;\n" // floor plane eqn
+        "uniform vec3 floorRight;\n" // floor plane right
+        "uniform vec3 floorFront;\n" // floor plane front
+        "uniform float leftEye;\n" // 1.0 for left, 0.0 for right
+        "void main () {\n"
+        "  vec3 diri = normalize(TexCoords - cameraPos);\n"
+        "  vec3 dirv = vec3(dot(diri,floorRight),\n"
+        "    dot(diri,floorPlane.xyz),\n"
+        "    -dot(diri,floorFront));\n"
+        "  float phix = length(vec2(dirv.x, dirv.z));\n"
+        "  gl_FragData[0] = texture(actortexture, vec2(0.5*atan(dirv.z, dirv.x)/3.1415927 + 0.5, 0.5*atan(dirv.y,phix)/3.1415927 + 0.25 + 0.5*leftEye));\n"
+        "}\n"
+        );
+    }
     if (this->Projection == vtkSkybox::Floor)
     {
       // Replace VTK fragment shader
@@ -189,11 +215,12 @@ void vtkOpenGLSkybox::Render(vtkRenderer *ren, vtkMapper *mapper)
     this->LastProjection = this->Projection;
   }
 
-
   double *pos = ren->GetActiveCamera()->GetPosition();
   this->LastCameraPosition[0] = pos[0];
   this->LastCameraPosition[1] = pos[1];
   this->LastCameraPosition[2] = pos[2];
+
+  this->CurrentRenderer = ren;
 
   // get opacity
   static_cast<vtkOpenGLRenderer*>(ren)->GetState()->vtkglDepthMask(GL_TRUE);
