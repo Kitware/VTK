@@ -1,14 +1,9 @@
 vtk_module(vtkIOWeb
   GROUPS
-    StandAlone
-  TEST_DEPENDS
-    vtkRenderingOpenGL2
-    vtkTestingRendering
-    vtkInteractionStyle
+    Rendering
   KIT
     vtkIO
   DEPENDS
-    vtkCommonCore
     vtkIOCore
     vtkIOExport
   PRIVATE_DEPENDS
