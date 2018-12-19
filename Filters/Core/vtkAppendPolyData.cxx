@@ -331,6 +331,11 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
     return 0;
   }
 
+  // Since points are cells are not merged,
+  // this filter can easily pass all field arrays, including global ids.
+  outputPD->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
+  outputCD->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
+
   // Allocate the point and cell data
   outputPD->CopyAllocate(ptList,numPts);
   outputCD->CopyAllocate(cellList,numCells);
