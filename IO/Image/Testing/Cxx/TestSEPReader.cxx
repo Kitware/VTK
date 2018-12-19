@@ -34,20 +34,22 @@
 
 int TestSEPReader(int argc, char *argv[])
 {
-  std::string filename =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/small.H");
+  char* filename =
+      vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/small.H");
 
   vtkNew<vtkSEPReader> SEPReader;
 
   // Check the image can be read
-  if (!SEPReader->CanReadFile(filename.c_str()))
+  if (!SEPReader->CanReadFile(filename))
   {
-    std::cerr << "CanReadFile failed for " << filename.c_str() << "\n";
+    std::cerr << "CanReadFile failed for " << filename << "\n";
+    delete filename;
     return EXIT_FAILURE;
   }
 
   // Read the input image
-  SEPReader->SetFileName(filename.c_str());
+  SEPReader->SetFileName(filename);
+  delete filename;
   SEPReader->Update();
 
   // Check the image properties
