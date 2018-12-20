@@ -135,7 +135,7 @@ function (vtk_encode_string)
   endif ()
 endfunction ()
 
-if (_vtk_encode_string_run)
+if (_vtk_encode_string_run AND CMAKE_SCRIPT_MODE_FILE)
   set(output_header "${binary_dir}/${output_name}.h")
   set(output_source "${binary_dir}/${output_name}.cxx")
 
