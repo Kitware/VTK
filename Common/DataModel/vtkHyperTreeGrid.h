@@ -51,7 +51,6 @@
 #include <memory> // std::shared_ptr
 
 
-class vtkHyperTree;
 
 class vtkBitArray;
 class vtkBoundingBox;
@@ -79,9 +78,6 @@ class vtkHyperTreeGridNonOrientedMooreSuperCursorLight ;
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGrid : public vtkDataSet
 {
 public:
-  class vtkHyperTreeSimpleCursor;
-  class vtkHyperTreePositionCursor;
-  struct vtkHyperTreeGridSuperCursor;
 
   static vtkInformationIntegerKey* LEVELS();
   static vtkInformationIntegerKey* DIMENSION();
@@ -631,56 +627,6 @@ public:
    */
   void InitializeLocalIndexNode();
 
-  //@{
-  /**
-   * A simplified hyper tree cursor, to be used by the hyper tree.
-   * grid supercursor.
-   */
-  class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeSimpleCursor
-  {
-  public:
-    vtkHyperTreeSimpleCursor();
-    ~vtkHyperTreeSimpleCursor();
-  //@}
-
-    //@{
-    /**
-     * Methods that belong to the vtkHyperTreeCursor API.
-     */
-    vtkHyperTree* GetTree() { return this->Tree; }
-    //@}
-
-    /**
-     * Only valid for leaves.
-     */
-    vtkIdType GetLeafIndex() { return this->Index; }
-
-    /**
-     * Return level at which cursor is positioned.
-     */
-    unsigned short GetLevel() { return this->Level; }
-
-  private:
-    vtkHyperTree* Tree;
-    vtkIdType Index;
-    unsigned short Level;
-  };
-
-  /**
-   * Public structure used by filters to move around the hyper
-   * tree grid and easily access neighbors to leaves.
-   * The super cursor is 'const'. Methods in vtkHyperTreeGrid
-   * initialize and compute children for moving toward leaves.
-   */
-  struct vtkHyperTreeGridSuperCursor
-  {
-    double Origin[3];
-    double Size[3];
-    int NumberOfCursors;
-    int MiddleCursorId;
-    vtkHyperTreeSimpleCursor Cursors[3*3*3];
-    vtkHyperTreeSimpleCursor* GetCursor( int );
-  };
 
   /**
    * An iterator object to iteratively access trees in the grid.
@@ -865,10 +811,6 @@ protected:
                                   vtkHyperTreeGridNonOrientedCursor*,
                                   double*,
                                   double* );
-
-#if !defined(__VTK_WRAP__) && !defined(__WRAP_GCCXML__)
-  void EvaluateDualCorner( vtkHyperTreeSimpleCursor* );
-#endif
 
   //@{
   /**
