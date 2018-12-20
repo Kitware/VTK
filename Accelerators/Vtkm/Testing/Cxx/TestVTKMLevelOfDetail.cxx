@@ -462,7 +462,7 @@ int TestVTKMLevelOfDetail(int argc, char *argv[])
   // Load file and make only triangles
   //---------------------------------------------------
   char* fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cow.vtp");
+      vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cow.vtp");
   vtkNew<vtkXMLPolyDataReader> reader;
   reader->SetFileName(fname);
   delete[] fname;
@@ -482,8 +482,8 @@ int TestVTKMLevelOfDetail(int argc, char *argv[])
   std::vector< vtkNew<vtkPolyDataMapper> > mappers(4);
   std::vector< vtkNew<vtkActor> > actors(4);
 
-  for(int i=0; i < 4; ++i)
-    {
+  for (int i=0; i < 4; ++i)
+  {
     levelOfDetails[i]->SetInputConnection(clean->GetOutputPort());
     //subdivision levels of 16, 32, 48, 64
     levelOfDetails[i]->SetNumberOfXDivisions( ((i+1) * 16) );
@@ -498,7 +498,7 @@ int TestVTKMLevelOfDetail(int argc, char *argv[])
     actors[i]->SetPosition( i * 10, 0, 0);
 
     ren->AddActor(actors[i]);
-    }
+  }
 
   ren->SetBackground(0.1, 0.2, 0.4);
   ren->ResetCamera();
@@ -510,8 +510,8 @@ int TestVTKMLevelOfDetail(int argc, char *argv[])
   int retVal = vtkRegressionTestImage(renWin);
   if(retVal == vtkRegressionTester::DO_INTERACTOR)
   {
-  iren->Start();
-  retVal = vtkRegressionTester::PASSED;
+    iren->Start();
+    retVal = vtkRegressionTester::PASSED;
   }
   return (!retVal);
 }
