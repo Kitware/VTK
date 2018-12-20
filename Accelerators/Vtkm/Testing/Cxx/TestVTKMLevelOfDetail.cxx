@@ -495,15 +495,15 @@ int TestVTKMLevelOfDetail(int argc, char *argv[])
     mappers[i]->SetInputConnection(surfaces[i]->GetOutputPort());
 
     actors[i]->SetMapper(mappers[i]);
-    actors[i]->SetPosition( i * 10, 0, 0);
+    actors[i]->SetPosition((i % 2) * 10,  -(i / 2) * 10, 0);
 
     ren->AddActor(actors[i]);
   }
 
   ren->SetBackground(0.1, 0.2, 0.4);
   ren->ResetCamera();
-  ren->GetActiveCamera()->Zoom(6.);
-  renWin->SetSize(1600, 250);
+  ren->GetActiveCamera()->Zoom(1.3);
+  renWin->SetSize(600, 600);
 
   renWin->Render();
 
