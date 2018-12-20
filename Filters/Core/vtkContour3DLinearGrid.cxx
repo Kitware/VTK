@@ -31,6 +31,7 @@
 #include "vtkStaticEdgeLocatorTemplate.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkStaticCellLinksTemplate.h"
+#include "vtkSpanSpace.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -42,6 +43,7 @@
 #include <set>
 
 vtkStandardNewMacro(vtkContour3DLinearGrid);
+vtkCxxSetObjectMacro(vtkContour3DLinearGrid,ScalarTree,vtkScalarTree);
 
 //-----------------------------------------------------------------------------
 // Classes to support threaded execution. Note that there are different
@@ -64,7 +66,7 @@ vtkStandardNewMacro(vtkContour3DLinearGrid);
   _op(0,_num);\
   }
 
-#define EXECUTE_REDUCED_SMPFOR(_seq,_num,_op) \
+#define EXECUTE_REDUCED_SMPFOR(_seq,_num,_op,_nt)  \
   if ( !_seq) \
   {\
     vtkSMPTools::For(0,_num,_op); \
@@ -75,6 +77,8 @@ vtkStandardNewMacro(vtkContour3DLinearGrid);
   _op(0,_num);\
   _op.Reduce();\
   }\
+  _nt = _op.NumThreadsUsed;
+
 
 namespace {
 
@@ -521,6 +525,15 @@ struct CellIter
     return incr;
   }
 
+  // Method for random access of cell, no caching
+  const vtkIdType* GetCellIds(vtkIdType cellId)
+  {
+    this->Cell = this->GetCell(this->Types[cellId]);
+    this->NumVerts = this->Cell->NumVerts;
+    this->Cases = this->Cell->Cases;
+    return (this->Conn + this->Locs[cellId] + 1);
+  }
+
   // Switch to the appropriate cell type.
   BaseCell *GetCell(int cellType)
   {
@@ -544,9 +557,10 @@ struct CellIter
 
 
 //========================= FAST PATH =========================================
-// Perform the contouring operation without merging coincident points.
+// Perform the contouring operation without merging coincident points. There is
+// a fast path with and without a scalar tree.
 template <typename TIP, typename TOP, typename TS>
-struct ContourCells
+struct ContourCellsBase
 {
   typedef std::vector<TOP> LocalPtsType;
 
@@ -581,9 +595,9 @@ struct ContourCells
   vtkIdType TotalPts; //the total points thus far (support multiple contours)
   vtkIdType TotalTris; //the total triangles thus far (support multiple contours)
 
-  ContourCells(TIP *inPts, CellIter *iter, TS *s, double value,
-               vtkPoints* outPts, vtkCellArray *tris, vtkIdType totalPts,
-               vtkIdType totalTris) :
+  ContourCellsBase(TIP *inPts, CellIter *iter, TS *s, double value,
+                   vtkPoints* outPts, vtkCellArray *tris, vtkIdType totalPts,
+                   vtkIdType totalTris) :
     Iter(iter), InPts(inPts), Scalars(s), Value(value), NewPts(outPts),
     NewPolys(tris), NumPts(0), NumTris(0), NumThreadsUsed(0),
     TotalPts(totalPts), TotalTris(totalTris)
@@ -593,16 +607,71 @@ struct ContourCells
   // Set up the iteration process.
   void Initialize()
   {
-    typename ContourCells<TIP,TOP,TS>::LocalDataType& localData = this->LocalData.Local();
+    auto & localData = this->LocalData.Local();
     localData.LocalCellIter = *(this->Iter);
+  }
+
+  // operator() method implemented by subclasses (with and without scalar tree)
+
+  // Composite results from each thread
+  void Reduce()
+  {
+    // Count the number of points. For fun keep track of the number of
+    // threads used.
+    vtkIdType numPts = 0;
+    this->NumThreadsUsed = 0;
+    auto ldEnd = this->LocalData.end();
+    for ( auto ldItr=this->LocalData.begin(); ldItr != ldEnd; ++ldItr )
+    {
+      numPts += static_cast<vtkIdType>(((*ldItr).LocalPts.size() / 3)); //x-y-z components
+      this->NumThreadsUsed++;
+    }
+
+    // (Re)Allocate space for output. Multiple contours require writing into
+    // the middle of arrays.
+    this->NumPts = numPts;
+    this->NumTris = numPts / 3;
+    this->NewPts->GetData()->WriteVoidPointer(0,3*(this->NumPts+this->TotalPts));
+    TOP *pts = static_cast<TOP*>(this->NewPts->GetVoidPointer(this->TotalPts*3));
+    this->NewPolys->WritePointer((this->NumTris+this->TotalTris),
+                                 4*(this->NumTris+this->TotalTris));
+
+    // Copy points output to VTK structures. Only point coordinates are
+    // copied for now; later we'll define the triangle topology.
+    for ( auto ldItr=this->LocalData.begin(); ldItr != ldEnd; ++ldItr )
+    {
+      auto pEnd = (*ldItr).LocalPts.end();
+      for ( auto pItr = (*ldItr).LocalPts.begin(); pItr != pEnd; )
+      {
+        *pts++ = *pItr++;
+      }
+    }//For all threads
+  }//Reduce
+};//ContourCellsBase
+
+// Fast path operator() without scalar tree
+template <typename TIP, typename TOP, typename TS>
+struct ContourCells : public ContourCellsBase<TIP,TOP,TS>
+{
+  ContourCells(TIP *inPts, CellIter *iter, TS *s, double value,
+               vtkPoints* outPts, vtkCellArray *tris, vtkIdType totalPts,
+               vtkIdType totalTris) :
+    ContourCellsBase<TIP,TOP,TS>(inPts, iter, s, value, outPts, tris, totalPts, totalTris)
+  {
+  }
+
+  // Set up the iteration process.
+  void Initialize()
+  {
+    this->ContourCellsBase<TIP,TOP,TS>::Initialize();
   }
 
   // operator() method extracts points from cells (points taken three at a
   // time form a triangle)
   void operator()(vtkIdType cellId, vtkIdType endCellId)
   {
-    typename ContourCells<TIP,TOP,TS>::LocalDataType& localData = this->LocalData.Local();
-    typename ContourCells<TIP,TOP,TS>::LocalPtsType& lPts = localData.LocalPts;
+    auto & localData = this->LocalData.Local();
+    auto & lPts = localData.LocalPts;
     CellIter *cellIter = &localData.LocalCellIter;
     const vtkIdType *c = cellIter->Initialize(cellId);
     unsigned short isoCase, numEdges, i;
@@ -648,46 +717,99 @@ struct ContourCells
   // Composite results from each thread
   void Reduce()
   {
-    // Count the number of points. For fun keep track of the number of
-    // threads used.
-    vtkIdType numPts = 0;
-    this->NumThreadsUsed = 0;
-    typename vtkSMPThreadLocal<LocalDataType>::iterator ldItr;
-    typename vtkSMPThreadLocal<LocalDataType>::iterator ldEnd = this->LocalData.end();
-    for ( ldItr=this->LocalData.begin(); ldItr != ldEnd; ++ldItr )
-    {
-      numPts += static_cast<vtkIdType>(((*ldItr).LocalPts.size() / 3)); //x-y-z components
-      this->NumThreadsUsed++;
-    }
-
-    // (Re)Allocate space for output. Multiple contours require writing into
-    // the middle of arrays.
-    this->NumPts = numPts;
-    this->NumTris = numPts / 3;
-    this->NewPts->GetData()->WriteVoidPointer(0,3*(this->NumPts+this->TotalPts));
-    TOP *pts = static_cast<TOP*>(this->NewPts->GetVoidPointer(this->TotalPts*3));
-    this->NewPolys->WritePointer((this->NumTris+this->TotalTris),
-                                 4*(this->NumTris+this->TotalTris));
-
-    // Copy points output to VTK structures. Only point coordinates are
-    // copied for now; later we'll define the triangle topology.
-    typename LocalPtsType::iterator pItr, pEnd;
-    for ( ldItr=this->LocalData.begin(); ldItr != ldEnd; ++ldItr )
-    {
-      pEnd = (*ldItr).LocalPts.end();
-      for ( pItr = (*ldItr).LocalPts.begin(); pItr != pEnd; )
-      {
-        *pts++ = *pItr++;
-      }
-    }//For all threads
+    this->ContourCellsBase<TIP,TOP,TS>::Reduce();
   }//Reduce
 };//ContourCells
 
+// Fast path operator() with a scalar tree
+template <typename TIP, typename TOP, typename TS>
+struct ContourCellsST : public ContourCellsBase<TIP,TOP,TS>
+{
+  vtkScalarTree *ScalarTree;
+  vtkIdType NumBatches;
 
-// Fast path processing. Handles template dispatching and such.
+  ContourCellsST(TIP *inPts, CellIter *iter, TS *s, double value,
+                 vtkScalarTree *st, vtkPoints* outPts, vtkCellArray *tris,
+                 vtkIdType totalPts, vtkIdType totalTris) :
+    ContourCellsBase<TIP,TOP,TS>(inPts, iter, s, value, outPts, tris, totalPts, totalTris),
+    ScalarTree(st)
+  {
+    this->ScalarTree->InitTraversal(this->Value);
+    this->NumBatches = this->ScalarTree->GetNumberOfCellBatches();
+  }
+
+  // Set up the iteration process.
+  void Initialize()
+  {
+    this->ContourCellsBase<TIP,TOP,TS>::Initialize();
+  }
+
+  // operator() method extracts points from cells (points taken three at a
+  // time form a triangle). Uses a scalar tree to accelerate operations.
+  void operator()(vtkIdType batchNum, vtkIdType endBatchNum)
+  {
+    auto & localData = this->LocalData.Local();
+    auto & lPts = localData.LocalPts;
+    CellIter *cellIter = &localData.LocalCellIter;
+    const vtkIdType *c;
+    unsigned short isoCase, numEdges, i;
+    const unsigned short *edges;
+    double s[MAX_CELL_VERTS], value=this->Value, deltaScalar;
+    float t;
+    unsigned char v0, v1;
+    const TIP *x[MAX_CELL_VERTS];
+    const vtkIdType *cellIds;
+    vtkIdType numCells;
+
+    for ( ; batchNum < endBatchNum; ++batchNum)
+    {
+      cellIds = this->ScalarTree->GetCellBatch(batchNum,numCells);
+      for (vtkIdType idx=0; idx < numCells; ++idx)
+      {
+        c = cellIter->GetCellIds(cellIds[idx]);
+        // Compute case by repeated masking of scalar value
+        for ( isoCase=0, i=0; i < cellIter->NumVerts; ++i )
+        {
+          s[i] = static_cast<double>(*(this->Scalars + c[i]));
+          isoCase |= ( s[i] >= value ? BaseCell::Mask[i] : 0 );
+        }
+        edges = cellIter->GetCase(isoCase);
+
+        if ( *edges > 0 )
+        {
+          numEdges = *edges++;
+          for ( i=0; i < cellIter->NumVerts; ++i )
+          {
+            x[i] = this->InPts + 3*c[i];
+          }
+
+          for (i=0; i<numEdges; ++i, edges+=2)
+          {
+            v0 = edges[0];
+            v1 = edges[1];
+            deltaScalar = s[v1] - s[v0];
+            t = (deltaScalar == 0.0 ? 0.0 : (value - s[v0]) / deltaScalar);
+            lPts.emplace_back(x[v0][0] + t*(x[v1][0] - x[v0][0]));
+            lPts.emplace_back(x[v0][1] + t*(x[v1][1] - x[v0][1]));
+            lPts.emplace_back(x[v0][2] + t*(x[v1][2] - x[v0][2]));
+          }//for all edges in this case
+        }//if contour passes through this cell
+      }//for all cells in this batch
+    }//for each batch
+  }
+
+  // Composite results from each thread
+  void Reduce()
+  {
+    this->ContourCellsBase<TIP,TOP,TS>::Reduce();
+  }//Reduce
+};//ContourCellsST
+
+
+// Dispath method for Fast path processing. Handles template dispatching etc.
 template <typename TS>
-void ProcessFastPath(vtkIdType numTets, vtkPoints *inPts, CellIter *cellIter,
-                     TS *s, double isoValue, vtkPoints *outPts,
+void ProcessFastPath(vtkIdType numCells, vtkPoints *inPts, CellIter *cellIter,
+                     TS *s, double isoValue, vtkScalarTree *st, vtkPoints *outPts,
                      vtkCellArray *tris, vtkTypeBool seqProcessing,
                      int &numThreads, vtkIdType totalPts, vtkIdType totalTris)
 {
@@ -697,31 +819,63 @@ void ProcessFastPath(vtkIdType numTets, vtkPoints *inPts, CellIter *cellIter,
   int outPtsType = outPts->GetDataType();
   if ( inPtsType == VTK_FLOAT && outPtsType == VTK_FLOAT )
   {
-    ContourCells<float,float,TS> contour((float*)inPtsPtr,cellIter,
-                                         (TS*)s,val,outPts,tris,totalPts,totalTris);
-    EXECUTE_REDUCED_SMPFOR(seqProcessing,numTets,contour);
-    numThreads = contour.NumThreadsUsed;
+    if ( st != nullptr )
+    {
+      ContourCellsST<float,float,TS> contour((float*)inPtsPtr,cellIter,(TS*)s,val,
+                                             st,outPts,tris,totalPts,totalTris);
+      EXECUTE_REDUCED_SMPFOR(seqProcessing,contour.NumBatches,contour,numThreads);
+    }
+    else
+    {
+      ContourCells<float,float,TS> contour((float*)inPtsPtr,cellIter,
+                                           (TS*)s,val,outPts,tris,totalPts,totalTris);
+      EXECUTE_REDUCED_SMPFOR(seqProcessing,numCells,contour,numThreads);
+    }
   }
   else if ( inPtsType == VTK_DOUBLE && outPtsType == VTK_DOUBLE )
   {
-    ContourCells<double,double,TS> contour((double*)inPtsPtr,cellIter,
-                                          (TS*)s,val,outPts,tris,totalPts,totalTris);
-    EXECUTE_REDUCED_SMPFOR(seqProcessing,numTets,contour);
-    numThreads = contour.NumThreadsUsed;
+    if ( st != nullptr )
+    {
+      ContourCellsST<double,double,TS> contour((double*)inPtsPtr,cellIter,(TS*)s,val,
+                                               st,outPts,tris,totalPts,totalTris);
+      EXECUTE_REDUCED_SMPFOR(seqProcessing,contour.NumBatches,contour,numThreads);
+    }
+    else
+    {
+      ContourCells<double,double,TS> contour((double*)inPtsPtr,cellIter,
+                                             (TS*)s,val,outPts,tris,totalPts,totalTris);
+      EXECUTE_REDUCED_SMPFOR(seqProcessing,numCells,contour,numThreads);
+    }
   }
   else if ( inPtsType == VTK_FLOAT && outPtsType == VTK_DOUBLE )
   {
-    ContourCells<float,double,TS> contour((float*)inPtsPtr,cellIter,
-                                         (TS*)s,val,outPts,tris,totalPts,totalTris);
-    EXECUTE_REDUCED_SMPFOR(seqProcessing,numTets,contour);
-    numThreads = contour.NumThreadsUsed;
+    if ( st != nullptr )
+    {
+      ContourCellsST<float,double,TS> contour((float*)inPtsPtr,cellIter,(TS*)s,val,
+                                              st,outPts,tris,totalPts,totalTris);
+      EXECUTE_REDUCED_SMPFOR(seqProcessing,contour.NumBatches,contour,numThreads);
+    }
+    else
+    {
+      ContourCells<float,double,TS> contour((float*)inPtsPtr,cellIter,
+                                            (TS*)s,val,outPts,tris,totalPts,totalTris);
+      EXECUTE_REDUCED_SMPFOR(seqProcessing,numCells,contour,numThreads);
+    }
   }
   else //if ( inPtsType == VTK_DOUBLE && outPtsType == VTK_FLOAT )
   {
-    ContourCells<double,float,TS> contour((double*)inPtsPtr,cellIter,
-                                         (TS*)s,val,outPts,tris,totalPts,totalTris);
-    EXECUTE_REDUCED_SMPFOR(seqProcessing,numTets,contour);
-    numThreads = contour.NumThreadsUsed;
+    if ( st != nullptr )
+    {
+      ContourCellsST<double,float,TS> contour((double*)inPtsPtr,cellIter,(TS*)s,val,
+                                              st,outPts,tris,totalPts,totalTris);
+      EXECUTE_REDUCED_SMPFOR(seqProcessing,contour.NumBatches,contour,numThreads);
+    }
+    else
+    {
+      ContourCells<double,float,TS> contour((double*)inPtsPtr,cellIter,
+                                            (TS*)s,val,outPts,tris,totalPts,totalTris);
+      EXECUTE_REDUCED_SMPFOR(seqProcessing,numCells,contour,numThreads);
+    }
   }
 };
 
@@ -749,9 +903,10 @@ struct ProduceTriangles
 
 
 //========================= GENERAL PATH (POINT MERGING) =======================
-// Use vtkStaticEdgeLocatorTemplate for edge-based point merging
+// Use vtkStaticEdgeLocatorTemplate for edge-based point merging. Processing is
+// available with and without a scalar tree.
 template <typename IDType, typename TS>
-struct ExtractEdges
+struct ExtractEdgesBase
 {
   typedef std::vector<EdgeTuple<IDType,float>> EdgeVectorType;
   typedef std::vector<MergeTuple<IDType,float>> MergeVectorType;
@@ -781,8 +936,8 @@ struct ExtractEdges
   // Keep track of generated points and triangles on a per thread basis
   vtkSMPThreadLocal<LocalDataType> LocalData;
 
-  ExtractEdges(CellIter *c, TS *s, double value, vtkCellArray *tris,
-               vtkIdType totalTris) :
+  ExtractEdgesBase(CellIter *c, TS *s, double value, vtkCellArray *tris,
+                   vtkIdType totalTris) :
     Iter(c), Scalars(s), Value(value), Edges(nullptr), Tris(tris),
     NumTris(0), NumThreadsUsed(0), TotalTris(totalTris)
   {}
@@ -790,16 +945,73 @@ struct ExtractEdges
   // Set up the iteration process
   void Initialize()
   {
-    typename ExtractEdges<IDType,TS>::LocalDataType& localData = this->LocalData.Local();
+    auto & localData = this->LocalData.Local();
     localData.LocalCellIter = *(this->Iter);
+  }
+
+  // operator() provided by subclass
+
+  // Composite local thread data
+  void Reduce()
+  {
+    // Count the number of triangles, and number of threads used.
+    vtkIdType numTris = 0;
+    this->NumThreadsUsed = 0;
+    auto ldEnd = this->LocalData.end();
+    for ( auto ldItr=this->LocalData.begin(); ldItr != ldEnd; ++ldItr )
+    {
+      numTris += static_cast<vtkIdType>(((*ldItr).LocalEdges.size() / 3)); //three edges per triangle
+      this->NumThreadsUsed++;
+    }
+
+    // Allocate space for VTK triangle output. Take into account previous
+    // contours.
+    this->NumTris = numTris;
+    this->Tris->WritePointer((this->NumTris+this->TotalTris),
+                             4*(this->NumTris+this->TotalTris));
+
+    // Copy local edges to global edge array. Add in the originating edge id
+    // used later when merging.
+    EdgeVectorType emptyVector;
+    this->Edges = new MergeTuple<IDType,float>[3*this->NumTris]; //three edges per triangle
+    vtkIdType edgeNum=0;
+    for ( auto ldItr=this->LocalData.begin(); ldItr != ldEnd; ++ldItr )
+    {
+      auto eEnd = (*ldItr).LocalEdges.end();
+      for ( auto eItr = (*ldItr).LocalEdges.begin(); eItr != eEnd; ++eItr )
+      {
+        this->Edges[edgeNum].V0 = eItr->V0;
+        this->Edges[edgeNum].V1 = eItr->V1;
+        this->Edges[edgeNum].T = eItr->T;
+        this->Edges[edgeNum].EId = edgeNum;
+        edgeNum++;
+      }
+      (*ldItr).LocalEdges.swap(emptyVector); //frees memory
+    }//For all threads
+  }//Reduce
+};//ExtractEdgesBase
+
+// Traverse all cells and extract intersected edges (without scalar tree).
+template <typename IDType, typename TS>
+struct ExtractEdges : public ExtractEdgesBase<IDType,TS>
+{
+  ExtractEdges(CellIter *c, TS *s, double value, vtkCellArray *tris,
+               vtkIdType totalTris) :
+    ExtractEdgesBase<IDType,TS>(c, s, value, tris, totalTris)
+  {}
+
+  // Set up the iteration process
+  void Initialize()
+  {
+    this->ExtractEdgesBase<IDType,TS>::Initialize();
   }
 
   // operator() method extracts edges from cells (edges taken three at a
   // time form a triangle)
   void operator()(vtkIdType cellId, vtkIdType endCellId)
   {
-    typename ExtractEdges<IDType,TS>::LocalDataType& localData = this->LocalData.Local();
-    typename ExtractEdges<IDType,TS>::EdgeVectorType& lEdges = localData.LocalEdges;
+    auto & localData = this->LocalData.Local();
+    auto & lEdges = localData.LocalEdges;
     CellIter *cellIter = &localData.LocalCellIter;
     const vtkIdType *c = cellIter->Initialize(cellId); //connectivity array
     unsigned short isoCase, numEdges, i;
@@ -838,44 +1050,86 @@ struct ExtractEdges
   // Composite local thread data
   void Reduce()
   {
-    // Count the number of triangles, and number of threads used.
-    vtkIdType numTris = 0;
-    this->NumThreadsUsed = 0;
-    typename vtkSMPThreadLocal<LocalDataType>::iterator ldItr;
-    typename vtkSMPThreadLocal<LocalDataType>::iterator ldEnd = this->LocalData.end();
-    for ( ldItr=this->LocalData.begin(); ldItr != ldEnd; ++ldItr )
-    {
-      numTris += static_cast<vtkIdType>(((*ldItr).LocalEdges.size() / 3)); //three edges per triangle
-      this->NumThreadsUsed++;
-    }
-
-    // Allocate space for VTK triangle output. Take into account previous
-    // contours.
-    this->NumTris = numTris;
-    this->Tris->WritePointer((this->NumTris+this->TotalTris),
-                             4*(this->NumTris+this->TotalTris));
-
-    // Copy local edges to global edge array. Add in the originating edge id
-    // used later when merging.
-    EdgeVectorType emptyVector;
-    typename EdgeVectorType::iterator eItr, eEnd;
-    this->Edges = new MergeTuple<IDType,float>[3*this->NumTris]; //three edges per triangle
-    vtkIdType edgeNum=0;
-    for ( ldItr=this->LocalData.begin(); ldItr != ldEnd; ++ldItr )
-    {
-      eEnd = (*ldItr).LocalEdges.end();
-      for ( eItr = (*ldItr).LocalEdges.begin(); eItr != eEnd; ++eItr )
-      {
-        this->Edges[edgeNum].V0 = eItr->V0;
-        this->Edges[edgeNum].V1 = eItr->V1;
-        this->Edges[edgeNum].T = eItr->T;
-        this->Edges[edgeNum].EId = edgeNum;
-        edgeNum++;
-      }
-      (*ldItr).LocalEdges.swap(emptyVector); //frees memory
-    }//For all threads
+    this->ExtractEdgesBase<IDType,TS>::Reduce();
   }//Reduce
 };//ExtractEdges
+
+
+// Generate edges using a scalar tree.
+template <typename IDType, typename TS>
+struct ExtractEdgesST : public ExtractEdgesBase<IDType,TS>
+{
+  vtkScalarTree *ScalarTree;
+  vtkIdType NumBatches;
+
+  ExtractEdgesST(CellIter *c, TS *s, double value, vtkScalarTree *st,
+                 vtkCellArray *tris, vtkIdType totalTris) :
+    ExtractEdgesBase<IDType,TS>(c, s, value,  tris, totalTris), ScalarTree(st)
+  {
+    this->ScalarTree->InitTraversal(this->Value);
+    this->NumBatches = this->ScalarTree->GetNumberOfCellBatches();
+  }
+
+  // Set up the iteration process
+  void Initialize()
+  {
+    this->ExtractEdgesBase<IDType,TS>::Initialize();
+  }
+
+  // operator() method extracts edges from cells (edges taken three at a
+  // time form a triangle)
+  void operator()(vtkIdType batchNum, vtkIdType endBatchNum)
+  {
+    auto & localData = this->LocalData.Local();
+    auto & lEdges = localData.LocalEdges;
+    CellIter *cellIter = &localData.LocalCellIter;
+    const vtkIdType *c;
+    unsigned short isoCase, numEdges, i;
+    const unsigned short *edges;
+    double s[MAX_CELL_VERTS], value=this->Value, deltaScalar;
+    float t;
+    unsigned char v0, v1;
+    const vtkIdType *cellIds;
+    vtkIdType numCells;
+
+    for ( ; batchNum < endBatchNum; ++batchNum)
+    {
+      cellIds = this->ScalarTree->GetCellBatch(batchNum,numCells);
+      for (vtkIdType idx=0; idx < numCells; ++idx)
+      {
+        c = cellIter->GetCellIds(cellIds[idx]);
+        // Compute case by repeated masking of scalar value
+        for ( isoCase=0, i=0; i < cellIter->NumVerts; ++i )
+        {
+          s[i] = static_cast<double>(*(this->Scalars + c[i]));
+          isoCase |= ( s[i] >= value ? BaseCell::Mask[i] : 0 );
+        }
+        edges = cellIter->GetCase(isoCase);
+
+        if ( *edges > 0 )
+        {
+          numEdges = *edges++;
+          for (i=0; i<numEdges; ++i, edges+=2)
+          {
+            v0 = edges[0];
+            v1 = edges[1];
+            deltaScalar = s[v1] - s[v0];
+            t = (deltaScalar == 0.0 ? 0.0 : (value - s[v0]) / deltaScalar);
+            t = ( c[v0] < c[v1] ? t : (1.0-t) ); //edges (v0,v1) must have v0<v1
+            lEdges.emplace_back(c[v0],c[v1],t); //edge constructor may swap v0<->v1
+          }//for all edges in this case
+        }//if contour passes through this cell
+      }//for all cells in this batch
+    }//for all batches
+  }
+
+  // Composite local thread data
+  void Reduce()
+  {
+    this->ExtractEdgesBase<IDType,TS>::Reduce();
+  }//Reduce
+
+};//ExtractEdgesST
 
 // This method generates the output isosurface triangle connectivity list.
 template <typename IDType>
@@ -888,12 +1142,13 @@ struct ProduceMergedTriangles
   vtkIdType NumTris;
   vtkIdType *Tris;
   vtkIdType TotalPts;
+  int NumThreadsUsed; //placeholder
 
   ProduceMergedTriangles(const MergeTupleType *merge, const IDType *offsets,
                          vtkIdType numTris, vtkIdType *tris,
                          vtkIdType totalPts, vtkIdType totalTris) :
     MergeArray(merge), Offsets(offsets), NumTris(numTris), Tris(tris),
-    TotalPts(totalPts)
+    TotalPts(totalPts), NumThreadsUsed(1)
   {
     this->Tris = tris + 4*totalTris;
   }
@@ -1014,34 +1269,40 @@ struct ProduceAttributes
 // Make the source code a little more readable
 #define EXTRACT_MERGED(VTK_type,_type)          \
   case VTK_type: \
+  { \
+    if ( st == nullptr ) \
     { \
-    ExtractEdges<TIds,_type> extractEdges(cellIter,(_type*)s,isoValue,newPolys,totalTris); \
-    EXECUTE_REDUCED_SMPFOR(seqProcessing,numTets,extractEdges); \
-    numThreads = extractEdges.NumThreadsUsed; \
-    numTris = extractEdges.NumTris; \
-    tris = newPolys->GetPointer(); \
-    mergeEdges = extractEdges.Edges; \
+      ExtractEdges<TIds,_type> extractEdges(cellIter,(_type*)s,isoValue,newPolys,totalTris); \
+      EXECUTE_REDUCED_SMPFOR(seqProcessing,numCells,extractEdges,numThreads); \
+      numTris = extractEdges.NumTris;  \
+      tris = newPolys->GetPointer();   \
+      mergeEdges = extractEdges.Edges; \
     } \
-    break;
+    else                                       \
+    { \
+      ExtractEdgesST<TIds,_type> extractEdges(cellIter,(_type*)s,isoValue,st,newPolys,totalTris); \
+      EXECUTE_REDUCED_SMPFOR(seqProcessing,extractEdges.NumBatches,extractEdges,numThreads); \
+      numTris = extractEdges.NumTris;  \
+      tris = newPolys->GetPointer();   \
+      mergeEdges = extractEdges.Edges; \
+    } \
+  } \
+  break;
 
 // Wrapper to handle multiple template types for merged processing
 template <typename TIds>
-int ProcessMerged(vtkIdType numTets, vtkPoints *inPts, CellIter *cellIter,
+int ProcessMerged(vtkIdType numCells, vtkPoints *inPts, CellIter *cellIter,
                   int sType, void *s, double isoValue, vtkPoints *outPts,
                   vtkCellArray *newPolys, vtkTypeBool intAttr, vtkDataArray *inScalars,
-                  vtkPointData *inPD, vtkPointData *outPD, vtkTypeBool seqProcessing,
+                  vtkPointData *inPD, vtkPointData *outPD, vtkScalarTree *st, vtkTypeBool seqProcessing,
                   int &numThreads, vtkIdType totalPts, vtkIdType totalTris)
 {
   // Extract edges that the contour intersects. Templated on type of scalars.
   // List below the explicit choice of scalars that can be processed.
   vtkIdType numTris=0, *tris=nullptr;
   MergeTuple<TIds,float> *mergeEdges=nullptr; //may need reference counting
-  switch ( sType )
+  switch ( sType ) //process these scalar types, others could easily be added
   {
-    EXTRACT_MERGED(VTK_UNSIGNED_CHAR,unsigned char);
-    EXTRACT_MERGED(VTK_CHAR,char);
-    EXTRACT_MERGED(VTK_UNSIGNED_SHORT,unsigned short);
-    EXTRACT_MERGED(VTK_SHORT,short);
     EXTRACT_MERGED(VTK_UNSIGNED_INT,unsigned int);
     EXTRACT_MERGED(VTK_INT,int);
     EXTRACT_MERGED(VTK_FLOAT,float);
@@ -1050,6 +1311,7 @@ int ProcessMerged(vtkIdType numTets, vtkPoints *inPts, CellIter *cellIter,
       vtkGenericWarningMacro(<<"Scalar type not supported");
       return 0;
   };
+  int nt = numThreads;
 
   // Make sure data was produced
   if ( numTris <= 0 )
@@ -1068,7 +1330,8 @@ int ProcessMerged(vtkIdType numTets, vtkPoints *inPts, CellIter *cellIter,
   // Generate triangles.
   ProduceMergedTriangles<TIds> produceTris(mergeEdges,offsets,numTris,tris,
                                            totalPts,totalTris);
-  EXECUTE_REDUCED_SMPFOR(seqProcessing,numPts,produceTris);
+  EXECUTE_REDUCED_SMPFOR(seqProcessing,numPts,produceTris,numThreads);
+  numThreads = nt;
 
   // Generate points (one per unique edge)
   outPts->GetData()->WriteVoidPointer(0,3*(numPts+totalPts));
@@ -1265,12 +1528,21 @@ vtkContour3DLinearGrid::vtkContour3DLinearGrid()
   this->SequentialProcessing = false;
   this->NumberOfThreadsUsed = 0;
   this->LargeIds = false;
+
+  this->UseScalarTree = 0;
+  this->ScalarTree = nullptr;
 }
 
 //-----------------------------------------------------------------------------
 vtkContour3DLinearGrid::~vtkContour3DLinearGrid()
 {
   this->ContourValues->Delete();
+
+  if ( this->ScalarTree )
+  {
+    this->ScalarTree->Delete();
+    this->ScalarTree = nullptr;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1294,7 +1566,7 @@ vtkMTimeType vtkContour3DLinearGrid::GetMTime()
 #define EXTRACT_FAST_PATH(VTK_SCALAR_type,_type) \
   case VTK_SCALAR_type: \
   ProcessFastPath<_type>(numCells, inPts, cellIter, \
-    (_type*)sPtr, value, outPts, newPolys, \
+    (_type*)sPtr, value, stree, outPts, newPolys, \
     this->SequentialProcessing,this->NumberOfThreadsUsed, \
     totalPts, totalTris); \
     break;
@@ -1377,6 +1649,21 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
   vtkIdType *locs = static_cast<vtkIdType*>(input->GetCellLocationsArray()->GetVoidPointer(0));
   CellIter *cellIter = new CellIter(numCells,cellTypes,conn,locs);
 
+  // See whether scalar tree has been provided.
+  vtkScalarTree *stree=nullptr;
+  if ( this->UseScalarTree )
+  {
+    if ( this->ScalarTree == nullptr )
+    {
+      vtkSpanSpace *spanSpace = vtkSpanSpace::New();
+      spanSpace->SetResolution(sqrt(numCells)/20); //clamped to 100 minimum
+      spanSpace->SetBatchSize(100);
+      this->ScalarTree = spanSpace;
+    }
+    stree = this->ScalarTree;
+    this->ScalarTree->SetDataSet(input);
+   }
+
   // Now produce the output: fast path or general path
   int mergePoints = this->MergePoints | this->ComputeNormals | this->InterpolateAttributes;
   if ( ! mergePoints )
@@ -1385,12 +1672,8 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
     for (int vidx = 0; vidx < numContours; vidx++)
     {
       value = values[vidx];
-      switch ( sType ) //process these scalar types
+      switch ( sType ) //process these scalar types, others could easily be added
       {
-        EXTRACT_FAST_PATH(VTK_UNSIGNED_CHAR,unsigned char);
-        EXTRACT_FAST_PATH(VTK_CHAR,char);
-        EXTRACT_FAST_PATH(VTK_UNSIGNED_SHORT,unsigned short);
-        EXTRACT_FAST_PATH(VTK_SHORT,short);
         EXTRACT_FAST_PATH(VTK_UNSIGNED_INT,unsigned int);
         EXTRACT_FAST_PATH(VTK_INT,int);
         EXTRACT_FAST_PATH(VTK_FLOAT,float);
@@ -1435,7 +1718,7 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
       {
         if ( ! ProcessMerged<int>(numCells, inPts, cellIter, sType, sPtr, value,
                                   outPts, newPolys, this->InterpolateAttributes,
-                                  inScalars, inPD, outPD, this->SequentialProcessing,
+                                  inScalars, inPD, outPD, stree, this->SequentialProcessing,
                                   this->NumberOfThreadsUsed, totalPts, totalTris) )
         {
           return 0;
@@ -1445,7 +1728,7 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
       {
         if ( ! ProcessMerged<vtkIdType>(numCells, inPts, cellIter, sType, sPtr, value,
                                         outPts, newPolys, this->InterpolateAttributes,
-                                        inScalars, inPD, outPD, this->SequentialProcessing,
+                                        inScalars, inPD, outPD, stree, this->SequentialProcessing,
                                         this->NumberOfThreadsUsed, totalPts, totalTris) )
         {
           return 0;
@@ -1533,6 +1816,18 @@ void vtkContour3DLinearGrid::PrintSelf(ostream& os, vtkIndent indent)
      << (this->SequentialProcessing ? "true\n" : "false\n");
   os << indent << "Large Ids: "
      << (this->LargeIds ? "true\n" : "false\n");
+
+  os << indent << "Use Scalar Tree: "
+     << (this->UseScalarTree ? "On\n" : "Off\n");
+  if ( this->ScalarTree )
+  {
+    os << indent << "Scalar Tree: " << this->ScalarTree << "\n";
+  }
+  else
+  {
+    os << indent << "Scalar Tree: (none)\n";
+  }
+
 }
 
 #undef EXECUTE_SMPFOR

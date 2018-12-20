@@ -37,6 +37,11 @@
  * many situations the results of the fast path are quite good and do not
  * require additional processing.
  *
+ * Finally note that an option exists to use a vtkScalarTree, which is an
+ * object that accelerates isosurface extraction, at an initial cost of
+ * building the scalar tree. (This feature is useful for exploratory
+ * isosurface extraction when the isovalue is frequently changed.)
+ *
  * @warning The fast path simply produces output points and triangles (the
  * fast path executes when MergePoints if off; InterpolateAttributes is off;
  * and ComputeNormals is off). Since the fast path does not merge points, it
@@ -81,8 +86,8 @@
  *
  * @sa
  * vtkContourGrid vtkContourFilter vtkFlyingEdges3D vtkMarchingCubes
- * vtkPolyDataNormals vtkStaticEdgeLocatorTemplate.h
-*/
+ * vtkPolyDataNormals vtkStaticEdgeLocatorTemplate.h vtkScalarTree
+ */
 
 #ifndef vtkContour3DLinearGrid_h
 #define vtkContour3DLinearGrid_h
@@ -92,6 +97,7 @@
 #include "vtkContourValues.h" // Needed for inline methods
 
 class vtkUnstructuredGrid;
+class vtkScalarTree;
 
 
 class VTKFILTERSCORE_EXPORT vtkContour3DLinearGrid : public vtkPolyDataAlgorithm
@@ -170,6 +176,26 @@ public:
 
   //@{
   /**
+   * Enable the use of a scalar tree to accelerate contour extraction. By
+   * default this is off. If enabled, and a scalar tree is not specified, then
+   * a vtkSpanSpace instance will be constructed and used.
+   */
+  vtkSetMacro(UseScalarTree,vtkTypeBool);
+  vtkGetMacro(UseScalarTree,vtkTypeBool);
+  vtkBooleanMacro(UseScalarTree,vtkTypeBool);
+  //@}
+
+  //@{
+  /**
+   * Specify the scalar tree to use. By default a vtkSpanSpace scalar tree is
+   * used.
+   */
+  virtual void SetScalarTree(vtkScalarTree*);
+  vtkGetObjectMacro(ScalarTree,vtkScalarTree);
+  //@}
+
+  //@{
+  /**
    * Force sequential processing (i.e. single thread) of the contouring
    * process. By default, sequential processing is off. Note this flag only
    * applies if the class has been compiled with VTK_SMP_IMPLEMENTATION_TYPE
@@ -212,6 +238,9 @@ protected:
   vtkTypeBool SequentialProcessing;
   int NumberOfThreadsUsed;
   bool LargeIds; //indicate whether integral ids are large(==true) or not
+
+  vtkTypeBool UseScalarTree;
+  vtkScalarTree *ScalarTree;
 
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
