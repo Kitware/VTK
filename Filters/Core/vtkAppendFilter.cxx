@@ -332,6 +332,14 @@ int vtkAppendFilter::RequestData(
     ptOffset += dataSetNumPts;
   }
 
+  // this filter can copy global ids except for global point ids when merging
+  // points (see paraview/paraview#18666).
+  // Note, not copying global ids is the default behavior.
+  if (reallyMergePoints == false)
+  {
+    output->GetPointData()->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
+  }
+  output->GetCellData()->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
 
   // Now copy the array data
   this->AppendArrays(
