@@ -1662,6 +1662,7 @@ RequestData(vtkInformation*, vtkInformationVector** inputVector,
     }
     stree = this->ScalarTree;
     this->ScalarTree->SetDataSet(input);
+    this->ScalarTree->SetScalars(inScalars);
    }
 
   // Now produce the output: fast path or general path
