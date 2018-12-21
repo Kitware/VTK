@@ -13,15 +13,16 @@
 
 =========================================================================*/
 
-#include "vtkScatterPlotMatrix.h"
-#include "vtkRenderWindow.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkNew.h"
-#include "vtkTestUtilities.h"
+#include "vtkContextView.h"
 #include "vtkDelimitedTextReader.h"
+#include "vtkNew.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkScatterPlotMatrix.h"
 #include "vtkTable.h"
+#include "vtkTestUtilities.h"
+#include "vtkTextProperty.h"
 
 //----------------------------------------------------------------------------
 int TestScatterPlotMatrixVehicles(int argc, char *argv[])
@@ -44,6 +45,14 @@ int TestScatterPlotMatrixVehicles(int argc, char *argv[])
 
   // Set the scatter plot matrix up to analyze all columns in the table.
   matrix->SetInput(reader->GetOutput());
+
+  // Add a title
+  matrix->SetTitle("Vehicles");
+  vtkTextProperty* prop = matrix->GetTitleProperties();
+  prop->SetJustification(1);
+  prop->SetColor(0, 0, 0);
+  prop->SetFontSize(15);
+  prop->BoldOn();
 
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
