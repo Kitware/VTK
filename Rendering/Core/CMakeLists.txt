@@ -26,6 +26,7 @@ set(Module_SRCS
   vtkDataSetMapper.cxx
   vtkDiscretizableColorTransferFunction.cxx
   vtkDistanceToCamera.cxx
+  vtkFlagpoleLabel.cxx
   vtkFollower.cxx
   vtkFrameBufferObjectBase.cxx
   vtkFrustumCoverageCuller.cxx

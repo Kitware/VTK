@@ -6,6 +6,7 @@ set(TestMathTextFreeTypeTextRendererNoMath_ARGS
 vtk_add_test_cxx(vtkRenderingFreeTypeCxxTests tests
   TestBillboardTextActor3D.cxx
   TestFTStringToPath.cxx
+  TestFlagpoleLabel.cxx
   TestFreeTypeTextMapperNoMath.cxx
   TestFreeTypeTools.cxx,NO_VALID
   TestMathTextFreeTypeTextRendererNoMath.cxx
