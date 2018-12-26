@@ -89,6 +89,16 @@ void vtkGenericOpenGLRenderWindow::SetBackRightBuffer(unsigned int b)
   this->BackRightBuffer = b;
 }
 
+void vtkGenericOpenGLRenderWindow::SetDefaultFrameBufferId(unsigned int id)
+{
+  this->DefaultFrameBufferId = id;
+}
+
+void vtkGenericOpenGLRenderWindow::SetOwnContext(int val)
+{
+  this->OwnContext = val;
+}
+
 void vtkGenericOpenGLRenderWindow::Finalize()
 {
   // tell each of the renderers that this render window/graphics context

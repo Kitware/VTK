@@ -6,6 +6,7 @@ set(classes
   QVTKOpenGLNativeWidget
   QVTKOpenGLWidget
   QVTKOpenGLWindow
+  QVTKRenderWindowAdapter
   vtkEventQtSlotConnect
   vtkQtAbstractModelAdapter
   vtkQtAnnotationLayersModelAdapter
@@ -49,6 +50,7 @@ endif ()
 
 vtk_module_find_package(
   PACKAGE     Qt5
+  VERSION     5.6
   COMPONENTS  ${qt5_components}
   FORWARD_VERSION_REQ MINOR
   VERSION_VAR         Qt5_VERSION)

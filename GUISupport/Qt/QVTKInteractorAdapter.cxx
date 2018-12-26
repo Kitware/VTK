@@ -38,7 +38,6 @@
 #include <QEvent>
 #include <QSignalMapper>
 #include <QTimer>
-#include <QResizeEvent>
 #include <QGestureEvent>
 
 #include "vtkCommand.h"
@@ -89,16 +88,6 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
     return false;
 
   const QEvent::Type t = e->type();
-
-  if(t == QEvent::Resize)
-  {
-    QResizeEvent* e2 = static_cast<QResizeEvent*>(e);
-    QSize size = e2->size();
-    iren->SetSize(static_cast<int>(size.width() * this->DevicePixelRatio + DevicePixelRatioTolerance),
-                  static_cast<int>(size.height() * this->DevicePixelRatio + DevicePixelRatioTolerance));
-    iren->InvokeEvent(vtkCommand::ConfigureEvent, e2);
-    return true;
-  }
 
   if(t == QEvent::FocusIn)
   {

@@ -16,8 +16,10 @@
 #define QVTKOpenGLWidget_h
 
 #include "vtkGUISupportQtModule.h" // For export macro
-
 #include <QWidget>
+
+#include "QVTKOpenGLWindow.h" // needed for ivar
+#include <QPointer>           // needed for ivar
 
 // Forward Qt class declarations
 class QSurfaceFormat;
@@ -34,50 +36,28 @@ class vtkRenderWindowInteractor;
  * @class QVTKOpenGLWidget
  * @brief QWidget for displaying a vtkRenderWindow in a Qt Application.
  *
- * QVTKOpenGLWidget is a QWidget wrapper around QVTKOpenGLWindow. It holds a
- * pointer to an internal QVTKOpenGLWindow instance in order to display VTK
- * data in a Qt OpenGL context.
+ * QVTKOpenGLWidget simplifies using a QVTKOpenGLWindow as a widget in Qt
+ * application so it can be embedded in a layout rather than being a top-level
+ * window. QVTKOpenGLWindow has all the limitations posed by Qt with
+ * `QWidget::createWindowContainer` hence developers are advised to refer to Qt
+ * docs for more details.
  *
- * It was designed to support quad buffer stereo rendering.
- *
- * A typical usage for QVTKOpenGLWidget is as follows:
- * @code{.cpp}
- *
- *  // This must be done before instantiating the app in order to setup the
- *  // right context for our widget.
- *  QSurfaceFormat::setDefaultFormat(QVTKOpenGLWidget::defaultFormat());
- *
- *  QApplication app(argc, argv);
- *
- *  vtkNew<vtkGenericOpenGLRenderWindow> window;
- *  QScopedPointer<QVTKOpenGLWidget> qvtkWidget(new QVTKOpenGLWidget(window));
- *
- *  // You can continue to use `window` as a regular vtkRenderWindow
- *  // including adding renderers, actors etc.
- *
- *  // Show the widget and start the app.
- *  qvtkWidget->show();
- *  return app.exec();
- *
- * @endcode
- *
- * External calls requesting the render window to render might not be safe.
- * Please make sure that QVTKOpenGLWidget::isValid() returns true before
- * making explicit call to vtkGenericOpenGLRenderWindow::Render().
- * An alternative is to call update() on the widget instance to trigger a
- * render once the context gets validated;
- *
- * QVTKOpenGLWidget is compatible with Qt version 5.6 and above,
- * but it is mainly tested on Qt 5.9 and above.
+ * In general QVTKOpenGLNativeWidget may be a better choice, however
+ * QVTKOpenGLWindow-based QVTKOpenGLWidget may be better choice for applications
+ * requiring quad-buffer stereo.
  *
  * Due to Qt limitations, QVTKOpenGLWidget does not support being a
- * native widget.
- * But native widget are sometimes mandatory, for example within
+ * native widget. But native widget are sometimes mandatory, for example within
  * QScrollArea and QMDIArea, so the QVTKOpenGLNativeWidget should be
  * used when in needs of VTK rendering in the context of Qt native widget.
  *
  * If a QVTKOpenGLWidget is used in a QScrollArea or in a QMDIArea, it
  * will force it to be native and this is *NOT* supported.
+ *
+ * Unlike QVTKOpenGLNativeWidget, QVTKOpenGLWidget does not require that the
+ * default surface format for the application be changed. One can simply specify
+ * the needed QSurfaceFormat for the specific QVTKOpenGLWidget instance by
+ * calling `QVTKOpenGLWidget::setFormat` before the widget is initialized.
  *
  * @sa QVTKOpenGLWindow QVTKOpenGLNativeWidget
  */
@@ -86,80 +66,63 @@ class VTKGUISUPPORTQT_EXPORT QVTKOpenGLWidget : public QWidget
   Q_OBJECT
   typedef QWidget Superclass;
 public:
-  QVTKOpenGLWidget(QWidget* parent = Q_NULLPTR,
+  QVTKOpenGLWidget(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+  QVTKOpenGLWidget(
+    QOpenGLContext* shareContext, QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+  QVTKOpenGLWidget(vtkGenericOpenGLRenderWindow* w, QWidget* parent = nullptr,
     Qt::WindowFlags f = Qt::WindowFlags());
-  QVTKOpenGLWidget(QOpenGLContext *shareContext, QWidget* parent = Q_NULLPTR,
-    Qt::WindowFlags f = Qt::WindowFlags());
-  QVTKOpenGLWidget(vtkGenericOpenGLRenderWindow* w,
-    QWidget* parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags());
-  QVTKOpenGLWidget(vtkGenericOpenGLRenderWindow* w, QOpenGLContext *shareContext,
-    QWidget* parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags());
+  QVTKOpenGLWidget(vtkGenericOpenGLRenderWindow* w, QOpenGLContext* shareContext,
+    QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
   ~QVTKOpenGLWidget() override;
 
+  //@{
   /**
-   * Set the VTK render window for the internal QVTKOpenGLWindow.
+   * @copydoc QVTKOpenGLWindow::setRenderWindow()
    */
-  void SetRenderWindow(vtkGenericOpenGLRenderWindow* win);
-  void SetRenderWindow(vtkRenderWindow* win);
+  void setRenderWindow(vtkGenericOpenGLRenderWindow* win)
+  {
+    this->VTKOpenGLWindow->setRenderWindow(win);
+  }
+  void setRenderWindow(vtkRenderWindow* win) { this->VTKOpenGLWindow->setRenderWindow(win); }
+  //@}
 
   /**
-   * Get the VTK render window from the internal QVTKOpenGLWindow.
+   * @copydoc QVTKOpenGLWindow::renderWindow()
    */
-  virtual vtkRenderWindow* GetRenderWindow();
+  vtkRenderWindow* renderWindow() const { return this->VTKOpenGLWindow->renderWindow(); }
 
   /**
-   * Get the VTK render window interactor from the internal QVTKOpenGLWindow.
+   * @copydoc QVTKOpenGLWindow::interactor()
    */
-  virtual vtkRenderWindowInteractor* GetInteractor();
+  QVTKInteractor* interactor() const { return this->VTKOpenGLWindow->interactor(); }
 
   /**
-   * Get the QEvent to VTK events translator.
+   * @copydoc QVTKRenderWindowAdapter::defaultFormat(bool)
    */
-  virtual QVTKInteractorAdapter* GetInteractorAdapter();
+  static QSurfaceFormat defaultFormat(bool stereo_capable = false)
+  {
+    return QVTKOpenGLWindow::defaultFormat(stereo_capable);
+  }
 
   /**
-   * Returns a typical QSurfaceFormat suitable for most applications using
-   * QVTKOpenGLWidget. Note that this is not the QSurfaceFormat that gets used
-   * if none is specified. That is set using `QSurfaceFormat::setDefaultFormat`.
+   * @copydoc QVTKOpenGLWindow::setEnableHiDPI()
    */
-  static QSurfaceFormat defaultFormat();
+  void setEnableHiDPI(bool enable) { this->VTKOpenGLWindow->setEnableHiDPI(enable); }
+  bool enableHiDPI() const { return this->VTKOpenGLWindow->enableHiDPI(); }
 
+  //@{
   /**
-   * Set the QSurfaceFormat used to create the OpenGL context.
+   * @copydoc QVTKOpenGLWindow::setDefaultCursor()
    */
-  void setFormat(const QSurfaceFormat& format);
-
-  /**
-   * Enable or disable support for HiDPI displays.
-   */
-  virtual void setEnableHiDPI(bool enable);
-  virtual bool enableHiDPI() { return this->EnableHiDPI; }
-
-  /**
-   * Set the cursor on this widget.
-   */
-  void setQVTKCursor(const QCursor &cursor);
-
-  /**
-   * Set the default cursor.
-   */
-  void setDefaultQVTKCursor(const QCursor &cursor);
+  void setDefaultCursor(const QCursor& cursor) { this->VTKOpenGLWindow->setDefaultCursor(cursor); }
+  const QCursor& defaultCursor() const { return this->VTKOpenGLWindow->defaultCursor(); }
+  //@}
 
   /**
    * Returns true if the internal QOpenGLWindow's is valid, i.e. if OpenGL
    * resources, like the context, have been successfully initialized.
    */
-  virtual bool isValid();
-
-  /**
-   * Forward events to the internal QVTKOpenGLWindow when events are
-   * explicitly sent to the widget. This is required due to QTBUG-61836 that
-   * prevents the use of the flag Qt::TransparentForMouseInput.
-   * This flag indicates that the internal window let events pass through.
-   * When this misbehavior gets fixed, events will be forwarded to this widget's
-   * event() callback, that will then forward them back to the window.
-   */
-  virtual bool testingEvent(QEvent* e);
+  bool isValid() { return this->VTKOpenGLWindow->isValid(); }
 
   /**
    * Expose internal QVTKOpenGLWindow::grabFramebuffer(). Renders and returns
@@ -167,36 +130,68 @@ public:
    */
   QImage grabFramebuffer();
 
-signals:
   /**
-   * This signal will be emitted whenever a mouse event occurs within the QVTK window.
+   * Returns the embedded QVTKOpenGLWindow.
    */
-  void mouseEvent(QMouseEvent* event);
+  QVTKOpenGLWindow* embeddedOpenGLWindow() const { return this->VTKOpenGLWindow; }
 
   /**
-   * This signal will be emitted whenever a resize event occurs within the QVTK window.
+   * Sets the requested surface format.
+   *
+   * When the format is not explicitly set via this function, the format
+   * returned by QSurfaceFormat::defaultFormat() will be used. This means that
+   * when having multiple OpenGL widgets, individual calls to this function can
+   * be replaced by one single call to QSurfaceFormat::setDefaultFormat() before
+   * creating the first widget.
    */
-  void resized();
+  void setFormat(const QSurfaceFormat& fmt) { this->VTKOpenGLWindow->setFormat(fmt); }
 
   /**
-   * Forward events to the internal QVTK window.
+   * Returns the context and surface format used by this widget and its toplevel window.
    */
-  void widgetEvent(QEvent* e);
+  QSurfaceFormat format() const { return this->VTKOpenGLWindow->format(); }
 
-private slots:
+  //@{
   /**
-   * called as a response to `QVTKOpenGLWindow::event` to forward the signal.
+   * @deprecated in VTK 8.3
    */
-  void windowEvent(QEvent* event);
+  VTK_LEGACY(void SetRenderWindow(vtkGenericOpenGLRenderWindow* win));
+  VTK_LEGACY(void SetRenderWindow(vtkRenderWindow* win));
+  //@}
+
+  //@{
+  /**
+   * These methods have be deprecated to fix naming style. Since
+   * QVTKOpenGLNativeWidget is QObject subclass, we follow Qt naming conventions
+   * rather than VTK's.
+   */
+  VTK_LEGACY(vtkRenderWindow* GetRenderWindow());
+  VTK_LEGACY(QVTKInteractor* GetInteractor());
+  //@}
+
+  /**
+   * @deprecated in VTK 8.3
+   * QVTKInteractorAdapter is an internal helper. Hence the API was removed.
+   */
+  VTK_LEGACY(QVTKInteractorAdapter* GetInteractorAdapter());
+
+  /**
+   * @deprecated in VTK 8.3. Simply use `QWidget::setCursor` API to change
+   * cursor.
+   */
+  VTK_LEGACY(void setQVTKCursor(const QCursor& cursor));
+
+  /**
+   * @deprecated in VTK 8.3. Use `setDefaultCursor` instead.
+   */
+  VTK_LEGACY(void setDefaultQVTKCursor(const QCursor& cursor));
 
 protected:
-  virtual void resizeEvent(QResizeEvent* event) Q_DECL_OVERRIDE;
-  virtual bool event(QEvent* e) Q_DECL_OVERRIDE;
-
-  bool EnableHiDPI = true;
+  void resizeEvent(QResizeEvent* evt) override;
+  void paintEvent(QPaintEvent *evt) override;
 
 private:
-  QVTKOpenGLWindow* qVTKOpenGLWindowInternal;
+  QPointer<QVTKOpenGLWindow> VTKOpenGLWindow;
 };
 
 #endif

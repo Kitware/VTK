@@ -1244,6 +1244,14 @@ void vtkOpenGLRenderWindow::Start()
   // set the current window
   this->MakeCurrent();
 
+  if (!this->OwnContext)
+  {
+    // if the context doesn't belong to us, it's unreasonable to expect that the
+    // OpenGL state we maintain is going to sync up between subsequent renders.
+    // Hence, we need to reset it.
+    this->GetState()->Initialize(this);
+  }
+
   // if rendering offscreen then make sure the vo is created
   if (this->UseOffScreenBuffers && !this->OffScreenFramebuffer)
   {

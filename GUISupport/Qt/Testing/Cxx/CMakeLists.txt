@@ -3,18 +3,32 @@ vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
   TestQtDebugLeaksView.cxx
   TestQtTableModelAdapter.cxx
   TestQtTreeModelAdapter.cxx
-  TestQVTKOpenGLNativeWidgetPicking.cxx
-  TestQVTKOpenGLWidgetPicking.cxx
-  TestQVTKOpenGLNativeWidgetSwapWindows.cxx
-  TestQVTKOpenGLWidgetSwapWindows.cxx
   )
 
 vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
-  TestQVTKOpenGLNativeWidget.cxx
-  TestQVTKOpenGLWidget.cxx
-  TestQVTKOpenGLNativeWidgetWithDisabledInteractor.cxx
-  TestQVTKOpenGLNativeWidgetWithMSAA.cxx
-  TestQVTKOpenGLWidgetWithMSAA.cxx
+  -w QVTKOpenGLWidget
+  TestQVTKOpenGLWidgetPicking,TestQtPicking.cxx,NO_VALID
+  TestQVTKOpenGLWidgetSwapWindows,TestQtSwapWindows.cxx,NO_VALID
+  TestQVTKOpenGLWidget,TestQtWidget.cxx
+  TestQVTKOpenGLWidgetWithDisabledInteractor,TestQtWithDisabledInteractor.cxx
+  TestQVTKOpenGLWidgetWithMSAA,TestQtWithMSAA.cxx
+  )
+
+vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
+  -w QVTKOpenGLNativeWidget
+  TestQVTKOpenGLNativeWidgetPicking,TestQtPicking.cxx,NO_VALID
+  TestQVTKOpenGLNativeWidgetSwapWindows,TestQtSwapWindows.cxx,NO_VALID
+  TestQVTKOpenGLNativeWidget,TestQtWidget.cxx
+  TestQVTKOpenGLNativeWidgetWithDisabledInteractor,TestQtWithDisabledInteractor.cxx
+  TestQVTKOpenGLNativeWidgetWithMSAA,TestQtWithMSAA.cxx
+  )
+
+vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
+  -w QVTKOpenGLWindow
+  TestQVTKOpenGLWindowPicking,TestQtPicking.cxx,NO_VALID
+  TestQVTKOpenGLWindow,TestQtWidget.cxx
+  TestQVTKOpenGLWindowWithDisabledInteractor,TestQtWithDisabledInteractor.cxx
+  TestQVTKOpenGLWindowWithMSAA,TestQtWithMSAA.cxx
   )
 
 if(NOT VTK_LEGACY_REMOVE)
@@ -29,11 +43,24 @@ endif()
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 vtk_test_cxx_executable(vtkGUISupportQtCxxTests tests
-  QTestApp.cxx)
+  QTestApp.cxx
+  TestQtCommon.cxx)
 
 target_link_libraries(vtkGUISupportQtCxxTests
   PRIVATE
     Qt5::Widgets)
 
 set_tests_properties(VTK::GUISupportQtCxx-TestQVTKOpenGLWidgetPicking
+ PROPERTIES RUN_SERIAL ON)
+set_tests_properties(VTK::GUISupportQtCxx-TestQVTKOpenGLNativeWidgetPicking
+ PROPERTIES RUN_SERIAL ON)
+set_tests_properties(VTK::GUISupportQtCxx-TestQVTKOpenGLWindowPicking
+ PROPERTIES RUN_SERIAL ON)
+
+# since these tests grab from on-screen buffer, they must be run serially.
+set_tests_properties(VTK::GUISupportQtCxx-TestQVTKOpenGLWidgetWithDisabledInteractor
+ PROPERTIES RUN_SERIAL ON)
+set_tests_properties(VTK::GUISupportQtCxx-TestQVTKOpenGLNativeWidgetWithDisabledInteractor
+ PROPERTIES RUN_SERIAL ON)
+set_tests_properties(VTK::GUISupportQtCxx-TestQVTKOpenGLWindowWithDisabledInteractor
  PROPERTIES RUN_SERIAL ON)
