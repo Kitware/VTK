@@ -367,11 +367,23 @@ void vtkXRenderWindowInteractor::Initialize()
       XMapWindow(this->DisplayId, XtWindow(this->Top));
     }
     XSync(this->DisplayId,False);
+
+    // Wait for the MapNotify event
+    if (ren->GetShowWindow())
+    {
+      while(true)
+      {
+        XEvent e;
+        XNextEvent(this->DisplayId, &e);
+        if (e.type == MapNotify)
+        {
+          break;
+        }
+      }
+    }
   }
   else
   {
-    XWindowAttributes attribs;
-
     XtRealizeWidget(this->Top);
     XSync(this->DisplayId,False);
     ren->SetWindowId(XtWindow(this->Top));
@@ -381,19 +393,21 @@ void vtkXRenderWindowInteractor::Initialize()
       XMapWindow(this->DisplayId, XtWindow(this->Top));
     }
     XSync(this->DisplayId,False);
-
-    //  Find the current window size
-    XGetWindowAttributes(this->DisplayId,
-                         XtWindow(this->Top), &attribs);
-    size[0] = attribs.width;
-    size[1] = attribs.height;
-    ren->SetSize(size[0], size[1]);
   }
+  XWindowAttributes attribs;
+  //  Find the current window size
+  XGetWindowAttributes(this->DisplayId,
+                       XtWindow(this->Top), &attribs);
+
+  size[0] = attribs.width;
+  size[1] = attribs.height;
+  ren->SetSize(size[0], size[1]);
 
   this->WindowId = XtWindow(this->Top);
 
   ren->Start();
   this->Enable();
+
   this->Size[0] = size[0];
   this->Size[1] = size[1];
 }
