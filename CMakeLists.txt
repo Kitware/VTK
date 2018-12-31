@@ -5,6 +5,7 @@ set(sources
   jccolor.c
   jcdctmgr.c
   jchuff.c
+  jcicc.c
   jcinit.c
   jcmainct.c
   jcmarker.c
@@ -23,6 +24,7 @@ set(sources
   jdcolor.c
   jddctmgr.c
   jdhuff.c
+  jdicc.c
   jdinput.c
   jdmainct.c
   jdmarker.c
@@ -40,11 +42,11 @@ set(sources
   jidctfst.c
   jidctint.c
   jidctred.c
-  jmemmgr.c
-  jmemnobs.c
   jquant1.c
   jquant2.c
   jutils.c
+  jmemmgr.c
+  jmemnobs.c
 
   jaricom.c
   jcarith.c
@@ -66,9 +68,11 @@ check_include_file("stdlib.h" HAVE_STDLIB_H)
 set(HAVE_UNSIGNED_CHAR 1)
 set(HAVE_UNSIGNED_SHORT 1)
 
+set(BITS_IN_JSAMPLE 8)
+
 set(JPEG_LIB_VERSION 80)
-set(LIBJPEG_TURBO_VERSION "1.5.3")
-set(LIBJPEG_TURBO_VERSION_NUMBER "1005003")
+set(LIBJPEG_TURBO_VERSION "2.0.0")
+set(LIBJPEG_TURBO_VERSION_NUMBER "2000000")
 set(MEM_SRCDST_SUPPORTED 1)
 set(C_ARITH_CODING_SUPPORTED 1)
 set(D_ARITH_CODING_SUPPORTED 1)
@@ -98,27 +102,26 @@ set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/jconfig.h")
 
 include(CheckTypeSize)
-check_type_size("size_t" SIZEOF_SIZE_T)
-set(VERSION "1.5.3")
+check_type_size("size_t" SIZE_T)
+set(SIZEOF_SIZE_T "${SIZE_T}")
+set(VERSION "${LIBJPEG_TURBO_VERSION}")
 # TODO: See `configure.ac` for `ljt_cv_inline` for this part.
 set(INLINE "inline")
 set(PACKAGE_NAME "vtkjpeg")
 string(TIMESTAMP BUILD "%Y%m%d")
 
 configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}${header_input_dir}/jconfigint.h.in"
+  "${CMAKE_CURRENT_SOURCE_DIR}/jconfigint.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/jconfigint.h")
 
 set(private_headers
   "${CMAKE_CURRENT_BINARY_DIR}/jconfigint.h")
 
-vtk_add_library(vtkjpeg ${sources} ${headers} ${private_headers})
-if (NOT VTK_INSTALL_NO_DEVELOPMENT)
-  install(FILES
-    ${headers}
-    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtkjpeg"
-    COMPONENT Development)
-endif()
-target_include_directories(vtkjpeg
+vtk_module_add_module(VTK::jpeg
+  SOURCES ${sources}
+  HEADERS ${headers}
+  HEADERS_SUBDIR "vtkjpeg"
+  PRIVATE_HEADERS ${private_headers})
+target_include_directories(jpeg
   PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>")
