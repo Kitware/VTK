@@ -314,7 +314,6 @@ void vtkSeedWidget::DeleteAction(vtkAbstractWidget *w)
   // Invoke event for seed handle before actually deleting
   self->InvokeEvent(vtkCommand::DeletePointEvent, &(removeId));
 
-  rep->RemoveHandle(removeId);
   self->DeleteSeed(removeId);
   // Got this event, abort processing if it
   self->EventCallbackCommand->SetAbortFlag(1);

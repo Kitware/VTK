@@ -36,7 +36,6 @@ vtkWidgetRepresentation::vtkWidgetRepresentation()
 
   this->PlaceFactor = 0.5;
   this->Placed = 0;
-  this->HandleSize = 0.05;
   this->ValidPick = 0;
   this->HandleSize = 0.01;
 
