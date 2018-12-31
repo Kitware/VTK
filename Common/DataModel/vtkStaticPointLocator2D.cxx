@@ -981,7 +981,6 @@ struct IdTuple
   vtkIdType PtId;
   double    Dist2;
 
-  IdTuple() : PtId(-1), Dist2(0.0) {}
   IdTuple(vtkIdType ptId, double dist2) : PtId(ptId), Dist2(dist2) {}
 
   bool operator< (const IdTuple& tuple) const

@@ -62,7 +62,6 @@ protected:
 
 public:
   static PointPickCommand * New() {return new PointPickCommand;}
-  vtkTypeMacro(PointPickCommand, vtkCommand);
 
   PointPickCommand() = default;
 

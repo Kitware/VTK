@@ -61,6 +61,14 @@ vtkLZMADataCompressor::CompressBuffer(unsigned char const* uncompressedData,
     case LZMA_UNSUPPORTED_CHECK:
       vtkErrorMacro("Specified integrity check is not supported.");
       break;
+    case LZMA_STREAM_END:
+    case LZMA_NO_CHECK:
+    case LZMA_MEMLIMIT_ERROR:
+    case LZMA_FORMAT_ERROR:
+    case LZMA_DATA_ERROR:
+    case LZMA_BUF_ERROR:
+    case LZMA_PROG_ERROR:
+    case LZMA_GET_CHECK:
     default:
       vtkErrorMacro("Unknown error.");
   }
@@ -111,6 +119,9 @@ vtkLZMADataCompressor::UncompressBuffer(unsigned char const* compressedData,
     case LZMA_PROG_ERROR:
       vtkErrorMacro("LZMA program error.");
       break;
+    case LZMA_STREAM_END:
+    case LZMA_GET_CHECK:
+    case LZMA_FORMAT_ERROR:
     default:
       vtkErrorMacro("Unknown error.");
   }

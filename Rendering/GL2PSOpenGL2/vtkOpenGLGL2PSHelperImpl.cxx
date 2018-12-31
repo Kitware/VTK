@@ -245,6 +245,8 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
           break;
         }
 
+        case vtkTransformFeedback::Normal_F:
+        case vtkTransformFeedback::Next_Buffer:
         default:
           vtkWarningMacro("Unhandled data role: " << it->Role);
       }

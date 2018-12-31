@@ -152,7 +152,6 @@ class MappedGridImpl : public vtkObject
 {
 public:
   static MappedGridImpl* New();
-  vtkTypeMacro(MappedGridImpl, vtkObject);
 
   void Initialize(vtkUnstructuredGrid* ug) { ug->Register(this); _grid = ug; }
 
@@ -286,7 +285,6 @@ class MappedGrid : public vtkMappedUnstructuredGrid<MappedGridImpl, MappedCellIt
 {
 public:
   typedef vtkMappedUnstructuredGrid<MappedGridImpl, MappedCellIterator<MappedGridImpl> > _myBase;
-  vtkTypeMacro(MappedGrid, _myBase);
 
   int GetDataObjectType() override { return VTK_UNSTRUCTURED_GRID_BASE; }
 

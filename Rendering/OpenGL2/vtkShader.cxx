@@ -66,6 +66,7 @@ bool vtkShader::Compile()
       type = GL_FRAGMENT_SHADER;
       break;
     case vtkShader::Vertex:
+    case vtkShader::Unknown:
     default:
       type = GL_VERTEX_SHADER;
       break;

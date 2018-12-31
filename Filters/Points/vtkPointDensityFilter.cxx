@@ -297,10 +297,6 @@ struct ComputeGradients
     }//over slices
   }
 
-  void Reduce()
-  {
-  }
-
   static void Execute(int dims[3], double origin[3], double spacing[3],
                       float *density, float *grad, float *mag,
                       unsigned char *fclass)

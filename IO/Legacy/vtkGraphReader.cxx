@@ -82,6 +82,7 @@ int vtkGraphReader::ReadMeshSimple(const std::string& fname,
       builder = undir_builder;
       break;
 
+    case vtkGraphReader::UnknownGraph:
     default:
       vtkErrorMacro("ReadGraphType gave invalid result.");
       this->CloseVTKFile();
@@ -116,6 +117,7 @@ int vtkGraphReader::ReadMeshSimple(const std::string& fname,
           undir_builder->SetFieldData(field_data);
           break;
 
+        case vtkGraphReader::UnknownGraph:
         default: // Can't happen, would return earlier.
           break;
       }
@@ -160,6 +162,7 @@ int vtkGraphReader::ReadMeshSimple(const std::string& fname,
             undir_builder->AddVertex();
             break;
 
+          case vtkGraphReader::UnknownGraph:
           default: // Can't happen, would return earlier.
             break;
         }
@@ -198,6 +201,7 @@ int vtkGraphReader::ReadMeshSimple(const std::string& fname,
             undir_builder->AddEdge(source, target);
             break;
 
+          case vtkGraphReader::UnknownGraph:
           default: // Can't happen, would return earlier.
             break;
         }
@@ -421,6 +425,7 @@ vtkDataObject* vtkGraphReader::CreateOutput(vtkDataObject* currentOutput)
       }
       return vtkMolecule::New();
 
+    case vtkGraphReader::UnknownGraph:
     default:
       vtkErrorMacro("ReadGraphType returned invalid result.");
       return nullptr;

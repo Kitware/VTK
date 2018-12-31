@@ -392,6 +392,7 @@ public:
         return !(this->InputCellGhostArray[id] & this->MASKED_CELL_VALUE);
       case POINTS:
         return this->InputStructuredGrid->IsCellVisible(id) ? true : false;
+      case NONE:
       default:
         return 1;
     }

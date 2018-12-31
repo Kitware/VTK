@@ -397,6 +397,8 @@ bool vtkDualDepthPeelingPass::PostReplaceTranslucentShaderValues(
             );
       break;
 
+    case vtkDualDepthPeelingPass::Inactive:
+    case vtkDualDepthPeelingPass::NumberOfPasses:
     default:
       break;
   }
@@ -749,6 +751,8 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
 
       break;
 
+    case vtkDualDepthPeelingPass::Inactive:
+    case vtkDualDepthPeelingPass::NumberOfPasses:
     default:
       break;
   }
@@ -784,6 +788,8 @@ bool vtkDualDepthPeelingPass::SetTranslucentShaderParameters(
             this->Textures[this->DepthSource]->GetTextureUnit());
       break;
 
+    case vtkDualDepthPeelingPass::Inactive:
+    case vtkDualDepthPeelingPass::NumberOfPasses:
     default:
       break;
   }
@@ -827,6 +833,8 @@ bool vtkDualDepthPeelingPass::SetVolumetricShaderParameters(
             this->Textures[this->DepthSource]->GetTextureUnit());
       break;
 
+    case vtkDualDepthPeelingPass::Inactive:
+    case vtkDualDepthPeelingPass::NumberOfPasses:
     default:
       break;
   }
