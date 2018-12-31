@@ -1,5 +1,3 @@
-/* $Id: tif_win32.c,v 1.42 2017-01-11 19:02:49 erouault Exp $ */
-
 /*
  * Copyright (c) 1988-1997 Sam Leffler
  * Copyright (c) 1991-1997 Silicon Graphics, Inc.
