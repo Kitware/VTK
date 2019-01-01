@@ -90,6 +90,13 @@ protected:
     vtkCompositeMapperHelperData *hdata,
     size_t primOffset);
 
+  /**
+   * Make sure appropriate shaders are defined, compiled and bound.  This method
+   * orchistrates the process, much of the work is done in other methods
+   */
+  virtual void UpdateShaders(
+    vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) override;
+
   // Description:
   // Perform string replacements on the shader templates, called from
   // ReplaceShaderValues
