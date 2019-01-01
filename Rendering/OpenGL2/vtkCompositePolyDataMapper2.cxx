@@ -155,6 +155,17 @@ void vtkCompositeMapperHelper2::SetShaderValues(
   }
 }
 
+void vtkCompositeMapperHelper2::UpdateShaders(
+  vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act)
+{
+  Superclass::UpdateShaders(cellBO, ren, act);
+  if (cellBO.Program && this->Parent)
+  {
+    // allow the program to set what it wants
+    this->Parent->InvokeEvent(vtkCommand::UpdateShaderEvent, cellBO.Program);
+  }
+}
+
 void vtkCompositeMapperHelper2::ReplaceShaderColor(
   std::map<vtkShader::Type, vtkShader *> shaders,
   vtkRenderer *ren, vtkActor *actor)
@@ -1669,11 +1680,11 @@ void vtkCompositePolyDataMapper2::CopyMapperValuesToHelper(vtkCompositeMapperHel
   helper->SetCompositeIdArrayName(this->GetCompositeIdArrayName());
   helper->SetProcessIdArrayName(this->GetProcessIdArrayName());
   helper->SetCellIdArrayName(this->GetCellIdArrayName());
+  helper->ClearAllShaderReplacements();
   helper->SetVertexShaderCode(this->GetVertexShaderCode());
   helper->SetGeometryShaderCode(this->GetGeometryShaderCode());
   helper->SetFragmentShaderCode(this->GetFragmentShaderCode());
   helper->SetStatic(1);
-  helper->ClearAllShaderReplacements();
   for (auto& repl : this->UserShaderReplacements)
   {
     const vtkShader::ReplacementSpec& spec = repl.first;
