@@ -55,6 +55,7 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 #include <cstddef>
 #include <cstring>
 #include <cassert>
+#include <limits>
 
 /* memory allocation */
 #define myalloc(mem_size) vtkPLY::my_alloc((mem_size), __LINE__, __FILE__)
@@ -2078,7 +2079,8 @@ void vtkPLY::write_ascii_item(
     case PLY_FLOAT32:
     case PLY_DOUBLE:
     case PLY_FLOAT64:
-      fprintf (fp, "%g ", double_val);
+      // Use needed precision.
+      fprintf (fp, "%.*g ", std::numeric_limits<double>::max_digits10, double_val);
       break;
     default:
       fprintf (stderr, "write_ascii_item: bad type = %d\n", type);
@@ -2803,4 +2805,3 @@ void *vtkPLY::my_alloc(size_t size, int lnum, const char *fname)
 
   return (ptr);
 }
-

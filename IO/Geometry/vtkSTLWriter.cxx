@@ -34,6 +34,11 @@
 # include <io.h> /* unlink */
 #endif
 
+namespace {
+  // For C format strings
+  constexpr int max_double_digits = std::numeric_limits<double>::max_digits10;
+}
+
 vtkStandardNewMacro(vtkSTLWriter);
 vtkCxxSetObjectMacro(vtkSTLWriter, BinaryHeader, vtkUnsignedCharArray);
 
@@ -152,11 +157,22 @@ void vtkSTLWriter::WriteAsciiSTL(
 
     vtkTriangle::ComputeNormal(pts, npts, indx, n);
 
-    fprintf(fp, " facet normal %.6g %.6g %.6g\n  outer loop\n",
-             n[0], n[1], n[2]);
-    fprintf(fp, "   vertex %.6g %.6g %.6g\n", v1[0], v1[1], v1[2]);
-    fprintf(fp, "   vertex %.6g %.6g %.6g\n", v2[0], v2[1], v2[2]);
-    fprintf(fp, "   vertex %.6g %.6g %.6g\n", v3[0], v3[1], v3[2]);
+    fprintf(fp, " facet normal %.*g %.*g %.*g\n  outer loop\n",
+      max_double_digits, n[0],
+      max_double_digits, n[1],
+      max_double_digits, n[2]);
+    fprintf(fp, "   vertex %.*g %.*g %.*g\n",
+      max_double_digits, v1[0],
+      max_double_digits, v1[1],
+      max_double_digits, v1[2]);
+    fprintf(fp, "   vertex %.*g %.*g %.*g\n",
+      max_double_digits, v2[0],
+      max_double_digits, v2[1],
+      max_double_digits, v2[2]);
+    fprintf(fp, "   vertex %.*g %.*g %.*g\n",
+      max_double_digits, v3[0],
+      max_double_digits, v3[1],
+      max_double_digits, v3[2]);
     fprintf(fp, "  endloop\n endfacet\n");
   }
 
@@ -173,11 +189,22 @@ void vtkSTLWriter::WriteAsciiSTL(
 
       vtkTriangle::ComputeNormal(pts, npts, indx, n);
 
-      fprintf(fp, " facet normal %.6g %.6g %.6g\n  outer loop\n",
-               n[0], n[1], n[2]);
-      fprintf(fp, "   vertex %.6g %.6g %.6g\n", v1[0], v1[1], v1[2]);
-      fprintf(fp, "   vertex %.6g %.6g %.6g\n", v2[0], v2[1], v2[2]);
-      fprintf(fp, "   vertex %.6g %.6g %.6g\n", v3[0], v3[1], v3[2]);
+      fprintf(fp, " facet normal %.*g %.*g %.*g\n  outer loop\n",
+        max_double_digits, n[0],
+        max_double_digits, n[1],
+        max_double_digits, n[2]);
+      fprintf(fp, "   vertex %.*g %.*g %.*g\n",
+        max_double_digits, v1[0],
+        max_double_digits, v1[1],
+        max_double_digits, v1[2]);
+      fprintf(fp, "   vertex %.*g %.*g %.*g\n",
+        max_double_digits, v2[0],
+        max_double_digits, v2[1],
+        max_double_digits, v2[2]);
+      fprintf(fp, "   vertex %.*g %.*g %.*g\n",
+        max_double_digits, v3[0],
+        max_double_digits, v3[1],
+        max_double_digits, v3[2]);
       fprintf(fp, "  endloop\n endfacet\n");
     }
     else if (npts > 3)

@@ -24,6 +24,9 @@
 
 #include <sstream>
 #include <fstream>
+#include <iomanip>
+#include <ios>
+#include <limits>
 #include <string>
 #include <cassert>
 
@@ -84,6 +87,7 @@ int vtkX3DExporterXMLWriter::OpenFile(const char* file)
   else
   {
     this->OutputStream = fileStream;
+    *this->OutputStream << std::scientific << std::setprecision(std::numeric_limits<double>::max_digits10);
     return 1;
   }
 }
@@ -356,4 +360,3 @@ void vtkX3DExporterXMLWriter::SubDepth()
 {
   this->ActTab.erase(0, 2);
 }
-
