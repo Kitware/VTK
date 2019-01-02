@@ -284,8 +284,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5AC_proxy_entry_add_child(H5AC_proxy_entry_t *pentry, H5F_t *f, hid_t dxpl_id,
-    void *child)
+H5AC_proxy_entry_add_child(H5AC_proxy_entry_t *pentry, H5F_t *f, void *child)
 {
     herr_t ret_value = SUCCEED;         	/* Return value */
 
@@ -303,7 +302,7 @@ H5AC_proxy_entry_add_child(H5AC_proxy_entry_t *pentry, H5F_t *f, hid_t dxpl_id,
                 HGOTO_ERROR(H5E_CACHE, H5E_CANTALLOC, FAIL, "temporary file space allocation failed for proxy entry")
 
         /* Insert the proxy entry into the cache */
-        if(H5AC_insert_entry(f, dxpl_id, H5AC_PROXY_ENTRY, pentry->addr, pentry, H5AC__PIN_ENTRY_FLAG) < 0)
+        if(H5AC_insert_entry(f, H5AC_PROXY_ENTRY, pentry->addr, pentry, H5AC__PIN_ENTRY_FLAG) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_CANTINSERT, FAIL, "unable to cache proxy entry")
 
         /* Proxies start out clean (insertions are automatically marked dirty) */

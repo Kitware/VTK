@@ -110,7 +110,7 @@ static herr_t H5EA__cache_dblock_serialize(const H5F_t *f, void *image, size_t l
     void *thing);
 static herr_t H5EA__cache_dblock_notify(H5AC_notify_action_t action, void *thing);
 static herr_t H5EA__cache_dblock_free_icr(void *thing);
-static herr_t H5EA__cache_dblock_fsf_size(const void *thing, size_t *fsf_size);
+static herr_t H5EA__cache_dblock_fsf_size(const void *thing, hsize_t *fsf_size);
 
 static herr_t H5EA__cache_dblk_page_get_initial_load_size(void *udata, size_t *image_len);
 static htri_t H5EA__cache_dblk_page_verify_chksum(const void *image_ptr, size_t len, void *udata_ptr);
@@ -1875,7 +1875,7 @@ END_FUNC(STATIC)   /* end H5EA__cache_dblock_free_icr() */
  */
 BEGIN_FUNC(STATIC, NOERR,
 herr_t, SUCCEED, -,
-H5EA__cache_dblock_fsf_size(const void *_thing, size_t *fsf_size))
+H5EA__cache_dblock_fsf_size(const void *_thing, hsize_t *fsf_size))
 
     /* Local variables */
     const H5EA_dblock_t *dblock = (const H5EA_dblock_t *)_thing;        /* Pointer to the object */

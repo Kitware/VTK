@@ -20,10 +20,31 @@
 #include "H5Rpublic.h"
 
 /* Private headers needed by this file */
+#include "H5Fprivate.h"         /* Files                                    */
+#include "H5Gprivate.h"         /* Groups                                   */
+#include "H5Oprivate.h"         /* Object headers                           */
+#include "H5Sprivate.h"         /* Dataspaces                               */
 
-/* Internal data structures */
 
-/* Private functions */
+/**************************/
+/* Library Private Macros */
+/**************************/
+
+
+/****************************/
+/* Library Private Typedefs */
+/****************************/
+
+
+/*****************************/
+/* Library Private Variables */
+/*****************************/
+
+
+/******************************/
+/* Library Private Prototypes */
+/******************************/
+
 
 #endif  /* _H5Rprivate_H */
 

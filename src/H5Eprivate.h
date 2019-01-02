@@ -72,8 +72,7 @@ typedef struct H5E_t H5E_t;
  * H5_END_TAG statements.  Resets the metadata tag before leaving the function.
  */
 #define HGOTO_ERROR_TAG(maj, min, ret_val, ...) {                              \
-   if(H5AC_tag(my_dxpl_id, prv_tag, NULL) < 0)                                 \
-      HERROR(H5E_CACHE, H5E_CANTTAG, "unable to apply metadata tag");          \
+   H5AC_tag(prv_tag, NULL);                                                    \
    HCOMMON_ERROR(maj, min, __VA_ARGS__);                                       \
    HGOTO_DONE(ret_val)                                                         \
 }
@@ -90,9 +89,8 @@ typedef struct H5E_t H5E_t;
  * HGOTO_DONE_TAG macro, used like HGOTO_DONE between H5_BEGIN_TAG and
  * H5_END_TAG statements.  Resets the metadata tag before leaving the function.
  */
-#define HGOTO_DONE_TAG(ret_val, err) {                                         \
-   if(H5AC_tag(my_dxpl_id, prv_tag, NULL) < 0)                                 \
-      HGOTO_ERROR(H5E_CACHE, H5E_CANTTAG, err, "unable to apply metadata tag") \
+#define HGOTO_DONE_TAG(ret_val) {                                              \
+   H5AC_tag(prv_tag, NULL);                                                    \
    HGOTO_DONE(ret_val)                                                         \
 }
 
@@ -181,8 +179,6 @@ extern	int	H5E_mpi_error_str_len;
 
 /* Library-private functions defined in H5E package */
 H5_DLL herr_t H5E_init(void);
-H5_DLL herr_t H5E_push_stack(H5E_t *estack, const char *file, const char *func,
-    unsigned line, hid_t cls_id, hid_t maj_id, hid_t min_id, const char *desc);
 H5_DLL herr_t H5E_printf_stack(H5E_t *estack, const char *file, const char *func,
     unsigned line, hid_t cls_id, hid_t maj_id, hid_t min_id, const char *fmt, ...)H5_ATTR_FORMAT(printf, 8, 9);
 H5_DLL herr_t H5E_clear_stack(H5E_t *estack);

@@ -18,7 +18,7 @@
  * Purpose: Manage priority queues of free-lists (of blocks of bytes).
  *      These are used in various places in the library which allocate and
  *      free differently blocks of bytes repeatedly.  Usually the same size
- *      of block is allocated and freed repeatly in a loop, while writing out
+ *      of block is allocated and freed repeatedly in a loop, while writing out
  *      chunked data for example, but the blocks may also be of different sizes
  *      from different datasets and an attempt is made to optimize access to
  *      the proper free list of blocks by using these priority queues to
@@ -499,7 +499,7 @@ H5FL_reg_calloc(H5FL_reg_head_t *head H5FL_TRACK_PARAMS)
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
 
     /* Clear to zeros */
-    /* (Accomodate tracking information, if present) */
+    /* (Accommodate tracking information, if present) */
     HDmemset(ret_value,0,head->size - H5FL_TRACK_SIZE);
 
 done:
@@ -2220,7 +2220,7 @@ H5FL_fac_calloc(H5FL_fac_head_t *head H5FL_TRACK_PARAMS)
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
 
     /* Clear to zeros */
-    /* (Accomodate tracking information, if present) */
+    /* (Accommodate tracking information, if present) */
     HDmemset(ret_value,0,head->size - H5FL_TRACK_SIZE);
 
 done:

@@ -13,11 +13,11 @@
 
 /*-------------------------------------------------------------------------
  *
- * Created:		H5Pocpl.c
- *			Nov 28 2006
- *			Quincey Koziol <koziol@hdfgroup.org>
+ * Created:   H5Pocpl.c
+ *            Nov 28 2006
+ *            Quincey Koziol <koziol@hdfgroup.org>
  *
- * Purpose:		Object creation property list class routines
+ * Purpose:   Object creation property list class routines
  *
  *-------------------------------------------------------------------------
  */
@@ -26,21 +26,21 @@
 /* Module Setup */
 /****************/
 
-#define H5O_FRIEND		/*suppress error about including H5Opkg	  */
+#define H5O_FRIEND              /*suppress error about including H5Opkg      */
 #include "H5Pmodule.h"          /* This source code file is part of the H5P module */
 
 
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5Iprivate.h"		/* IDs			  		*/
-#include "H5MMprivate.h"	/* Memory management			*/
-#include "H5Opkg.h"             /* Object headers			*/
-#include "H5Ppkg.h"		/* Property lists		  	*/
-#include "H5PLprivate.h"	/* Dynamic plugin			*/
-#include "H5Zprivate.h"	        /* Filter pipeline			*/
+#include "H5private.h"         /* Generic Functions */
+#include "H5Eprivate.h"        /* Error handling    */
+#include "H5Iprivate.h"        /* IDs               */
+#include "H5MMprivate.h"       /* Memory management */
+#include "H5Opkg.h"            /* Object headers    */
+#include "H5Ppkg.h"            /* Property lists    */
+#include "H5PLprivate.h"       /* Dynamic plugin    */
+#include "H5Zprivate.h"        /* Filter pipeline   */
 
 
 /****************/
@@ -90,7 +90,7 @@
 static herr_t H5P__ocrt_reg_prop(H5P_genclass_t *pclass);
 
 /* Property callbacks */
-static herr_t H5P__ocrt_pipeline_enc(const void *value, void **_pp, size_t *size);
+static herr_t H5P__ocrt_pipeline_enc(const void *value, void **_pp, size_t *size, void *udata);
 static herr_t H5P__ocrt_pipeline_dec(const void **_pp, void *value);
 static herr_t H5P__ocrt_pipeline_set(hid_t prop_id, const char *name, size_t size, void *value);
 static herr_t H5P__ocrt_pipeline_get(hid_t prop_id, const char *name, size_t size, void *value);
@@ -100,7 +100,7 @@ static int H5P__ocrt_pipeline_cmp(const void *value1, const void *value2, size_t
 static herr_t H5P__ocrt_pipeline_close(const char *name, size_t size, void *value);
 
 /* Local routines */
-static herr_t H5P__set_filter(H5P_genplist_t *plist, H5Z_filter_t filter, 
+static herr_t H5P__set_filter(H5P_genplist_t *plist, H5Z_filter_t filter,
     unsigned int flags, size_t cd_nelmts, const unsigned int cd_values[/*cd_nelmts*/]);
 
 /*********************/
@@ -109,21 +109,21 @@ static herr_t H5P__set_filter(H5P_genplist_t *plist, H5Z_filter_t filter,
 
 /* Object creation property list class library initialization object */
 const H5P_libclass_t H5P_CLS_OCRT[1] = {{
-    "object create",		/* Class name for debugging     */
-    H5P_TYPE_OBJECT_CREATE,     /* Class type                   */
+    "object create",                /* Class name for debugging     */
+    H5P_TYPE_OBJECT_CREATE,         /* Class type                   */
 
-    &H5P_CLS_ROOT_g,		/* Parent class                 */
-    &H5P_CLS_OBJECT_CREATE_g,	/* Pointer to class             */
-    &H5P_CLS_OBJECT_CREATE_ID_g,	/* Pointer to class ID          */
-    NULL,			/* Pointer to default property list ID */
-    H5P__ocrt_reg_prop,		/* Default property registration routine */
+    &H5P_CLS_ROOT_g,                /* Parent class                 */
+    &H5P_CLS_OBJECT_CREATE_g,       /* Pointer to class             */
+    &H5P_CLS_OBJECT_CREATE_ID_g,    /* Pointer to class ID          */
+    NULL,                           /* Pointer to default property list ID   */
+    H5P__ocrt_reg_prop,             /* Default property registration routine */
 
-    NULL,		        /* Class creation callback      */
-    NULL,		        /* Class creation callback info */
-    NULL,			/* Class copy callback          */
-    NULL,		        /* Class copy callback info     */
-    NULL,			/* Class close callback         */
-    NULL 		        /* Class close callback info    */
+    NULL,                           /* Class creation callback      */
+    NULL,                           /* Class creation callback info */
+    NULL,                           /* Class copy callback          */
+    NULL,                           /* Class copy callback info     */
+    NULL,                           /* Class close callback         */
+    NULL                            /* Class close callback info    */
 }};
 
 
@@ -165,25 +165,25 @@ H5P__ocrt_reg_prop(H5P_genclass_t *pclass)
     FUNC_ENTER_STATIC
 
     /* Register max. compact attribute storage property */
-    if(H5P_register_real(pclass, H5O_CRT_ATTR_MAX_COMPACT_NAME, H5O_CRT_ATTR_MAX_COMPACT_SIZE, &H5O_def_attr_max_compact_g, 
+    if(H5P_register_real(pclass, H5O_CRT_ATTR_MAX_COMPACT_NAME, H5O_CRT_ATTR_MAX_COMPACT_SIZE, &H5O_def_attr_max_compact_g,
             NULL, NULL, NULL, H5O_CRT_ATTR_MAX_COMPACT_ENC, H5O_CRT_ATTR_MAX_COMPACT_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register min. dense attribute storage property */
-    if(H5P_register_real(pclass, H5O_CRT_ATTR_MIN_DENSE_NAME, H5O_CRT_ATTR_MIN_DENSE_SIZE, &H5O_def_attr_min_dense_g, 
+    if(H5P_register_real(pclass, H5O_CRT_ATTR_MIN_DENSE_NAME, H5O_CRT_ATTR_MIN_DENSE_SIZE, &H5O_def_attr_min_dense_g,
             NULL, NULL, NULL, H5O_CRT_ATTR_MIN_DENSE_ENC, H5O_CRT_ATTR_MIN_DENSE_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register object header flags property */
-    if(H5P_register_real(pclass, H5O_CRT_OHDR_FLAGS_NAME, H5O_CRT_OHDR_FLAGS_SIZE, &H5O_def_ohdr_flags_g, 
+    if(H5P_register_real(pclass, H5O_CRT_OHDR_FLAGS_NAME, H5O_CRT_OHDR_FLAGS_SIZE, &H5O_def_ohdr_flags_g,
             NULL, NULL, NULL, H5O_CRT_OHDR_FLAGS_ENC, H5O_CRT_OHDR_FLAGS_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the pipeline property */
-    if(H5P_register_real(pclass, H5O_CRT_PIPELINE_NAME, H5O_CRT_PIPELINE_SIZE, &H5O_def_pline_g, 
+    if(H5P_register_real(pclass, H5O_CRT_PIPELINE_NAME, H5O_CRT_PIPELINE_SIZE, &H5O_def_pline_g,
             NULL, H5O_CRT_PIPELINE_SET, H5O_CRT_PIPELINE_GET, H5O_CRT_PIPELINE_ENC, H5O_CRT_PIPELINE_DEC,
             H5O_CRT_PIPELINE_DEL, H5O_CRT_PIPELINE_COPY, H5O_CRT_PIPELINE_CMP, H5O_CRT_PIPELINE_CLOSE) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
@@ -194,9 +194,9 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_attr_phase_change
+ * Function:    H5Pset_attr_phase_change
  *
- * Purpose:	Sets the cutoff values for indexes storing attributes
+ * Purpose:    Sets the cutoff values for indexes storing attributes
  *              in object headers for this file.  If more than max_compact
  *              attributes are in an object header, the attributes will be
  *              moved to a heap and indexed with a B-tree.
@@ -208,10 +208,10 @@ done:
  *              never be stored in the object header but will be always be
  *              stored in a heap.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *		Tuesday, November 28, 2006
+ * Programmer:    Quincey Koziol
+ *        Tuesday, November 28, 2006
  *
  *-------------------------------------------------------------------------
  */
@@ -248,14 +248,14 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_attr_phase_change
+ * Function:    H5Pget_attr_phase_change
  *
- * Purpose:	Gets the phase change values for attribute storage
+ * Purpose:    Gets the phase change values for attribute storage
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *		Tuesday, November 28, 2006
+ * Programmer:    Quincey Koziol
+ *        Tuesday, November 28, 2006
  *
  *-------------------------------------------------------------------------
  */
@@ -486,37 +486,37 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5P_modify_filter
+ * Function:    H5P_modify_filter
  *
- * Purpose:	Modifies the specified FILTER in the
- *		transient or permanent output filter pipeline
- *		depending on whether PLIST is a dataset creation or dataset
- *		transfer property list.  The FLAGS argument specifies certain
- *		general properties of the filter and is documented below.
- *		The CD_VALUES is an array of CD_NELMTS integers which are
- *		auxiliary data for the filter.  The integer vlues will be
- *		stored in the dataset object header as part of the filter
- *		information.
+ * Purpose:    Modifies the specified FILTER in the
+ *        transient or permanent output filter pipeline
+ *        depending on whether PLIST is a dataset creation or dataset
+ *        transfer property list.  The FLAGS argument specifies certain
+ *        general properties of the filter and is documented below.
+ *        The CD_VALUES is an array of CD_NELMTS integers which are
+ *        auxiliary data for the filter.  The integer vlues will be
+ *        stored in the dataset object header as part of the filter
+ *        information.
  *
- * 		The FLAGS argument is a bit vector of the following fields:
+ *         The FLAGS argument is a bit vector of the following fields:
  *
- * 		H5Z_FLAG_OPTIONAL(0x0001)
- *		If this bit is set then the filter is optional.  If the
- *		filter fails during an H5Dwrite() operation then the filter
- *		is just excluded from the pipeline for the chunk for which it
- *		failed; the filter will not participate in the pipeline
- *		during an H5Dread() of the chunk.  If this bit is clear and
- *		the filter fails then the entire I/O operation fails.
+ *         H5Z_FLAG_OPTIONAL(0x0001)
+ *        If this bit is set then the filter is optional.  If the
+ *        filter fails during an H5Dwrite() operation then the filter
+ *        is just excluded from the pipeline for the chunk for which it
+ *        failed; the filter will not participate in the pipeline
+ *        during an H5Dread() of the chunk.  If this bit is clear and
+ *        the filter fails then the entire I/O operation fails.
  *      If this bit is set but encoding is disabled for a filter,
  *      attempting to write will generate an error.
  *
- * Note:	This function currently supports only the permanent filter
- *		pipeline.  That is, PLIST_ID must be a dataset creation
- *		property list.
+ * Note:    This function currently supports only the permanent filter
+ *        pipeline.  That is, PLIST_ID must be a dataset creation
+ *        property list.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Wednesday, October 17, 2007
  *
  *-------------------------------------------------------------------------
@@ -623,33 +623,33 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_filter
+ * Function:    H5Pset_filter
  *
- * Purpose:	Adds the specified FILTER and corresponding properties to the
- *		end of the data or link output filter pipeline
- *		depending on whether PLIST is a dataset creation or group
- *		creation property list.  The FLAGS argument specifies certain
- *		general properties of the filter and is documented below.
- *		The CD_VALUES is an array of CD_NELMTS integers which are
- *		auxiliary data for the filter.  The integer vlues will be
- *		stored in the dataset object header as part of the filter
- *		information.
+ * Purpose:    Adds the specified FILTER and corresponding properties to the
+ *        end of the data or link output filter pipeline
+ *        depending on whether PLIST is a dataset creation or group
+ *        creation property list.  The FLAGS argument specifies certain
+ *        general properties of the filter and is documented below.
+ *        The CD_VALUES is an array of CD_NELMTS integers which are
+ *        auxiliary data for the filter.  The integer vlues will be
+ *        stored in the dataset object header as part of the filter
+ *        information.
  *
- * 		The FLAGS argument is a bit vector of the following fields:
+ *         The FLAGS argument is a bit vector of the following fields:
  *
- * 		H5Z_FLAG_OPTIONAL(0x0001)
- *		If this bit is set then the filter is optional.  If the
- *		filter fails during an H5Dwrite() operation then the filter
- *		is just excluded from the pipeline for the chunk for which it
- *		failed; the filter will not participate in the pipeline
- *		during an H5Dread() of the chunk.  If this bit is clear and
- *		the filter fails then the entire I/O operation fails.
+ *         H5Z_FLAG_OPTIONAL(0x0001)
+ *        If this bit is set then the filter is optional.  If the
+ *        filter fails during an H5Dwrite() operation then the filter
+ *        is just excluded from the pipeline for the chunk for which it
+ *        failed; the filter will not participate in the pipeline
+ *        during an H5Dread() of the chunk.  If this bit is clear and
+ *        the filter fails then the entire I/O operation fails.
  *      If this bit is set but encoding is disabled for a filter,
  *      attempting to write will generate an error.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Wednesday, April 15, 1998
  *
  * Modifications:
@@ -668,7 +668,7 @@ done:
  */
 herr_t
 H5Pset_filter(hid_t plist_id, H5Z_filter_t filter, unsigned int flags,
-	       size_t cd_nelmts, const unsigned int cd_values[/*cd_nelmts*/])
+        size_t cd_nelmts, const unsigned int cd_values[/*cd_nelmts*/])
 {
     H5P_genplist_t  *plist;             /* Property list */
     herr_t          ret_value=SUCCEED;  /* return value */
@@ -698,43 +698,43 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5P__set_filter
+ * Function:    H5P__set_filter
  *
- * Purpose:	Adds the specified FILTER and corresponding properties to the
- *		end of the data or link output filter pipeline
- *		depending on whether PLIST is a dataset creation or group
- *		creation property list.  The FLAGS argument specifies certain
- *		general properties of the filter and is documented below.
- *		The CD_VALUES is an array of CD_NELMTS integers which are
- *		auxiliary data for the filter.  The integer vlues will be
- *		stored in the dataset object header as part of the filter
- *		information.
+ * Purpose:    Adds the specified FILTER and corresponding properties to the
+ *        end of the data or link output filter pipeline
+ *        depending on whether PLIST is a dataset creation or group
+ *        creation property list.  The FLAGS argument specifies certain
+ *        general properties of the filter and is documented below.
+ *        The CD_VALUES is an array of CD_NELMTS integers which are
+ *        auxiliary data for the filter.  The integer vlues will be
+ *        stored in the dataset object header as part of the filter
+ *        information.
  *
- * 		The FLAGS argument is a bit vector of the following fields:
+ *         The FLAGS argument is a bit vector of the following fields:
  *
- * 		H5Z_FLAG_OPTIONAL(0x0001)
- *		If this bit is set then the filter is optional.  If the
- *		filter fails during an H5Dwrite() operation then the filter
- *		is just excluded from the pipeline for the chunk for which it
- *		failed; the filter will not participate in the pipeline
- *		during an H5Dread() of the chunk.  If this bit is clear and
- *		the filter fails then the entire I/O operation fails.
- *		If this bit is set but encoding is disabled for a filter,
- *		attempting to write will generate an error.
+ *         H5Z_FLAG_OPTIONAL(0x0001)
+ *        If this bit is set then the filter is optional.  If the
+ *        filter fails during an H5Dwrite() operation then the filter
+ *        is just excluded from the pipeline for the chunk for which it
+ *        failed; the filter will not participate in the pipeline
+ *        during an H5Dread() of the chunk.  If this bit is clear and
+ *        the filter fails then the entire I/O operation fails.
+ *        If this bit is set but encoding is disabled for a filter,
+ *        attempting to write will generate an error.
  *
- *              If the filter is not registered, this function tries to load 
+ *              If the filter is not registered, this function tries to load
  *              it dynamically during run time.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Wednesday, April 15, 1998
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5P__set_filter(H5P_genplist_t *plist, H5Z_filter_t filter, unsigned int flags,
-	       size_t cd_nelmts, const unsigned int cd_values[/*cd_nelmts*/])
+        size_t cd_nelmts, const unsigned int cd_values[/*cd_nelmts*/])
 {
     H5O_pline_t     pline;                  /* Filter pipeline */
     htri_t          filter_avail;           /* Filter availability */
@@ -745,16 +745,6 @@ H5P__set_filter(H5P_genplist_t *plist, H5Z_filter_t filter, unsigned int flags,
     /* Check if filter is already available */
     if((filter_avail = H5Z_filter_avail(filter)) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't check filter availability")
-
-    /* If filter is not available, try to dynamically load it */
-    if(!filter_avail) {
-        const H5Z_class2_t *filter_info;
-
-        if(NULL == (filter_info = (const H5Z_class2_t *)H5PL_load(H5PL_TYPE_FILTER, (int)filter)))
-            HGOTO_ERROR(H5E_PLINE, H5E_CANTLOAD, FAIL, "failed to load dynamically loaded plugin")
-        if(H5Z_register(filter_info) < 0)
-	    HGOTO_ERROR(H5E_PLINE, H5E_CANTINIT, FAIL, "unable to register filter")
-    } /* end if */
 
     /* Get the pipeline property to append to */
     if(H5P_peek(plist, H5O_CRT_PIPELINE_NAME, &pline) < 0)
@@ -774,21 +764,21 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_nfilters
+ * Function:    H5Pget_nfilters
  *
- * Purpose:	Returns the number of filters in the data or link
- *		pipeline depending on whether PLIST_ID is a dataset creation
- *		or group creation property list.  In each pipeline the
- *		filters are numbered from zero through N-1 where N is the
- *		value returned by this function.  During output to the file
- *		the filters of a pipeline are applied in increasing order
- *		(the inverse is true for input).
+ * Purpose:    Returns the number of filters in the data or link
+ *        pipeline depending on whether PLIST_ID is a dataset creation
+ *        or group creation property list.  In each pipeline the
+ *        filters are numbered from zero through N-1 where N is the
+ *        value returned by this function.  During output to the file
+ *        the filters of a pipeline are applied in increasing order
+ *        (the inverse is true for input).
  *
- * Return:	Success:	Number of filters or zero if there are none.
+ * Return:    Success:    Number of filters or zero if there are none.
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Tuesday, August  4, 1998
  *
  * Modifications:
@@ -827,25 +817,25 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_filter2
+ * Function:    H5Pget_filter2
  *
- * Purpose:	This is the query counterpart of H5Pset_filter() and returns
- *		information about a particular filter number in a permanent
- *		or transient pipeline depending on whether PLIST_ID is a
- *		dataset creation or transfer property list.  On input,
- *		CD_NELMTS indicates the number of entries in the CD_VALUES
- *		array allocated by the caller while on exit it contains the
- *		number of values defined by the filter.  FILTER_CONFIG is a bit
+ * Purpose:    This is the query counterpart of H5Pset_filter() and returns
+ *        information about a particular filter number in a permanent
+ *        or transient pipeline depending on whether PLIST_ID is a
+ *        dataset creation or transfer property list.  On input,
+ *        CD_NELMTS indicates the number of entries in the CD_VALUES
+ *        array allocated by the caller while on exit it contains the
+ *        number of values defined by the filter.  FILTER_CONFIG is a bit
  *      field contaning encode/decode flags from H5Zpublic.h.  The IDX
  *      should be a value between zero and N-1 as described for
  *      H5Pget_nfilters() and the function will return failure if the
  *      filter number is out of range.
  *
- * Return:	Success:	Filter identification number.
+ * Return:    Success:    Filter identification number.
  *
- *		Failure:	H5Z_FILTER_ERROR (Negative)
+ *        Failure:    H5Z_FILTER_ERROR (Negative)
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Wednesday, April 15, 1998
  *
  * Modifications:
@@ -859,8 +849,8 @@ done:
  */
 H5Z_filter_t
 H5Pget_filter2(hid_t plist_id, unsigned idx, unsigned int *flags/*out*/,
-	       size_t *cd_nelmts/*in_out*/, unsigned cd_values[]/*out*/,
-	       size_t namelen, char name[]/*out*/,
+        size_t *cd_nelmts/*in_out*/, unsigned cd_values[]/*out*/,
+        size_t namelen, char name[]/*out*/,
                unsigned *filter_config /*out*/)
 {
     H5P_genplist_t  *plist;             /* Property list */
@@ -921,23 +911,23 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5P_get_filter_by_id
+ * Function:    H5P_get_filter_by_id
  *
- * Purpose:	This is an additional query counterpart of H5Pset_filter() and
+ * Purpose:    This is an additional query counterpart of H5Pset_filter() and
  *              returns information about a particular filter in a permanent
- *		or transient pipeline depending on whether PLIST_ID is a
- *		dataset creation or transfer property list.  On input,
- *		CD_NELMTS indicates the number of entries in the CD_VALUES
- *		array allocated by the caller while on exit it contains the
- *		number of values defined by the filter.  FILTER_CONFIG is a bit
+ *        or transient pipeline depending on whether PLIST_ID is a
+ *        dataset creation or transfer property list.  On input,
+ *        CD_NELMTS indicates the number of entries in the CD_VALUES
+ *        array allocated by the caller while on exit it contains the
+ *        number of values defined by the filter.  FILTER_CONFIG is a bit
  *      field contaning encode/decode flags from H5Zpublic.h.  The ID
  *      should be the filter ID to retrieve the parameters for.  If the
  *      filter is not set for the property list, an error will be returned.
  *
- * Return:	Success:	Non-negative
- *		Failure:	Negative
+ * Return:    Success:    Non-negative
+ *        Failure:    Negative
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Wednesday, October 17, 2007
  *
  *-------------------------------------------------------------------------
@@ -971,23 +961,23 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_filter_by_id2
+ * Function:    H5Pget_filter_by_id2
  *
- * Purpose:	This is an additional query counterpart of H5Pset_filter() and
+ * Purpose:    This is an additional query counterpart of H5Pset_filter() and
  *              returns information about a particular filter in a permanent
- *		or transient pipeline depending on whether PLIST_ID is a
- *		dataset creation or transfer property list.  On input,
- *		CD_NELMTS indicates the number of entries in the CD_VALUES
- *		array allocated by the caller while on exit it contains the
- *		number of values defined by the filter.  FILTER_CONFIG is a bit
+ *        or transient pipeline depending on whether PLIST_ID is a
+ *        dataset creation or transfer property list.  On input,
+ *        CD_NELMTS indicates the number of entries in the CD_VALUES
+ *        array allocated by the caller while on exit it contains the
+ *        number of values defined by the filter.  FILTER_CONFIG is a bit
  *      field contaning encode/decode flags from H5Zpublic.h.  The ID
  *      should be the filter ID to retrieve the parameters for.  If the
  *      filter is not set for the property list, an error will be returned.
  *
- * Return:	Success:	Non-negative
- *		Failure:	Negative
+ * Return:    Success:    Non-negative
+ *        Failure:    Negative
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Friday, April  5, 2003
  *
  * Modifications:
@@ -1047,16 +1037,16 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5Pall_filters_avail
+ * Function:    H5Pall_filters_avail
  *
- * Purpose:	This is a query routine to verify that all the filters set
+ * Purpose:    This is a query routine to verify that all the filters set
  *              in the dataset creation property list are available currently.
  *
- * Return:	Success:	TRUE if all filters available, FALSE if one or
+ * Return:    Success:    TRUE if all filters available, FALSE if one or
  *                              more filters not currently available.
- *		Failure:	FAIL on error
+ *        Failure:    FAIL on error
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Tuesday, April  8, 2003
  *
  * Modifications:
@@ -1096,16 +1086,16 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5P_filter_in_pline
+ * Function:    H5P_filter_in_pline
  *
- * Purpose:	Check whether the filter is in the pipeline of the object
- *              creation property list.  
+ * Purpose:    Check whether the filter is in the pipeline of the object
+ *              creation property list.
  *
- * Return:	TRUE:		found
- *		FALSE:		not found
- *              FAIL: 		error
+ * Return:    TRUE:        found
+ *        FALSE:        not found
+ *              FAIL:         error
  *
- * Programmer:	Raymond Lu
+ * Programmer:    Raymond Lu
  *              26 April 2013
  *
  *-------------------------------------------------------------------------
@@ -1198,7 +1188,7 @@ done:
  *
  * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Wednesday, April 15, 1998
  *
  * Modifications:
@@ -1258,7 +1248,7 @@ done:
  *
  * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:	Raymond Lu
+ * Programmer:    Raymond Lu
  *              Dec 19, 2002
  *
  * Modifications:
@@ -1302,13 +1292,13 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5P_get_filter
+ * Function:    H5P_get_filter
  *
- * Purpose:	Internal component of H5Pget_filter & H5Pget_filter_id
+ * Purpose:    Internal component of H5Pget_filter & H5Pget_filter_id
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Monday, October 23, 2006
  *
  *-------------------------------------------------------------------------
@@ -1330,7 +1320,7 @@ H5P_get_filter(const H5Z_filter_info_t *filter, unsigned int *flags/*out*/,
 
     /* Filter parameters */
     if(cd_values) {
-        size_t	i;                      /* Local index variable */
+        size_t    i;                      /* Local index variable */
 
         for(i = 0; i < filter->cd_nelmts && i < *cd_nelmts; i++)
             cd_values[i] = filter->cd_values[i];
@@ -1460,8 +1450,8 @@ done:
  *                 property in the dataset access property list is
  *                 decoded.
  *
- * Return:	   Success:	Non-negative
- *		   Failure:	Negative
+ * Return:       Success:    Non-negative
+ *           Failure:    Negative
  *
  * Programmer:     Mohamad Chaarawi
  *                 Monday, October 10, 2011
@@ -1469,7 +1459,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__ocrt_pipeline_enc(const void *value, void **_pp, size_t *size)
+H5P__ocrt_pipeline_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
 {
     const H5O_pline_t *pline = (const H5O_pline_t *)value;
     uint8_t **pp = (uint8_t **)_pp;
@@ -1553,15 +1543,15 @@ H5P__ocrt_pipeline_enc(const void *value, void **_pp, size_t *size)
  *                 property in the dataset access property list is
  *                 decoded.
  *
- * Return:	   Success:	Non-negative
- *		   Failure:	Negative
+ * Return:       Success:    Non-negative
+ *           Failure:    Negative
  *
  * Programmer:     Mohamad Chaarawi
  *                 Monday, October 10, 2011
  *
  *-------------------------------------------------------------------------
  */
-static herr_t 
+static herr_t
 H5P__ocrt_pipeline_dec(const void **_pp, void *_value)
 {
     H5O_pline_t *pline = (H5O_pline_t *)_value;   /* Property to set */
@@ -1637,7 +1627,7 @@ H5P__ocrt_pipeline_dec(const void **_pp, void *_value)
         filter.cd_values = (unsigned *)H5MM_xfree(filter.cd_values);
     } /* end for */
 
-done: 
+done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5P__ocrt_pipeline_dec() */
 
@@ -1830,32 +1820,32 @@ done:
 #ifndef H5_NO_DEPRECATED_SYMBOLS
 
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_filter1
+ * Function:    H5Pget_filter1
  *
- * Purpose:	This is the query counterpart of H5Pset_filter() and returns
- *		information about a particular filter number in a permanent
- *		or transient pipeline depending on whether PLIST_ID is a
- *		dataset creation or transfer property list.  On input,
- *		CD_NELMTS indicates the number of entries in the CD_VALUES
- *		array allocated by the caller while on exit it contains the
- *		number of values defined by the filter.  The IDX
+ * Purpose:    This is the query counterpart of H5Pset_filter() and returns
+ *        information about a particular filter number in a permanent
+ *        or transient pipeline depending on whether PLIST_ID is a
+ *        dataset creation or transfer property list.  On input,
+ *        CD_NELMTS indicates the number of entries in the CD_VALUES
+ *        array allocated by the caller while on exit it contains the
+ *        number of values defined by the filter.  The IDX
  *      should be a value between zero and N-1 as described for
  *      H5Pget_nfilters() and the function will return failure if the
  *      filter number is out of range.
  *
- * Return:	Success:	Filter identification number.
+ * Return:    Success:    Filter identification number.
  *
- *		Failure:	H5Z_FILTER_ERROR (Negative)
+ *        Failure:    H5Z_FILTER_ERROR (Negative)
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Wednesday, April 15, 1998
  *
  *-------------------------------------------------------------------------
  */
 H5Z_filter_t
 H5Pget_filter1(hid_t plist_id, unsigned idx, unsigned int *flags/*out*/,
-	       size_t *cd_nelmts/*in_out*/, unsigned cd_values[]/*out*/,
-	       size_t namelen, char name[]/*out*/)
+        size_t *cd_nelmts/*in_out*/, unsigned cd_values[]/*out*/,
+        size_t namelen, char name[]/*out*/)
 {
     H5O_pline_t         pline;  /* Filter pipeline */
     const H5Z_filter_info_t *filter;  /* Pointer to filter information */
@@ -1915,22 +1905,22 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_filter_by_id1
+ * Function:    H5Pget_filter_by_id1
  *
- * Purpose:	This is an additional query counterpart of H5Pset_filter() and
+ * Purpose:    This is an additional query counterpart of H5Pset_filter() and
  *              returns information about a particular filter in a permanent
- *		or transient pipeline depending on whether PLIST_ID is a
- *		dataset creation or transfer property list.  On input,
- *		CD_NELMTS indicates the number of entries in the CD_VALUES
- *		array allocated by the caller while on exit it contains the
- *		number of values defined by the filter.  The ID
+ *        or transient pipeline depending on whether PLIST_ID is a
+ *        dataset creation or transfer property list.  On input,
+ *        CD_NELMTS indicates the number of entries in the CD_VALUES
+ *        array allocated by the caller while on exit it contains the
+ *        number of values defined by the filter.  The ID
  *      should be the filter ID to retrieve the parameters for.  If the
  *      filter is not set for the property list, an error will be returned.
  *
- * Return:	Success:	Non-negative
- *		Failure:	Negative
+ * Return:    Success:    Non-negative
+ *        Failure:    Negative
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Friday, April  5, 2003
  *
  *-------------------------------------------------------------------------

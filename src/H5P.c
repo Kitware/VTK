@@ -27,6 +27,7 @@
 /* Headers */
 /***********/
 #include "H5private.h"		/* Generic Functions			*/
+#include "H5CXprivate.h"        /* API Contexts                         */
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5Iprivate.h"		/* IDs			  		*/
 #include "H5Ppkg.h"		/* Property lists		  	*/
@@ -398,7 +399,7 @@ done:
  GLOBAL VARIABLES
  COMMENTS, BUGS, ASSUMPTIONS
         The 'set' callback function may be useful to range check the value being
-    set for the property or may perform some tranformation/translation of the
+    set for the property or may perform some transformation/translation of the
     value set.  The 'get' callback would then [probably] reverse the
     transformation, etc.  A single 'get' or 'set' callback could handle
     multiple properties by performing different actions based on the property
@@ -580,7 +581,7 @@ done:
  GLOBAL VARIABLES
  COMMENTS, BUGS, ASSUMPTIONS
         The 'set' callback function may be useful to range check the value being
-    set for the property or may perform some tranformation/translation of the
+    set for the property or may perform some transformation/translation of the
     value set.  The 'get' callback would then [probably] reverse the
     transformation, etc.  A single 'get' or 'set' callback could handle
     multiple properties by performing different actions based on the property
@@ -839,6 +840,10 @@ herr_t
 H5Pencode(hid_t plist_id, void *buf, size_t *nalloc)
 {
     H5P_genplist_t	*plist;         /* Property list to query */
+    H5P_genplist_t *fapl_plist;
+    hid_t new_fapl_id;
+    H5F_libver_t low_bound = H5F_LIBVER_V110;
+    H5F_libver_t high_bound = H5F_LIBVER_V110;
     herr_t ret_value = SUCCEED;          /* return value */
 
     FUNC_ENTER_API(FAIL)
@@ -849,7 +854,7 @@ H5Pencode(hid_t plist_id, void *buf, size_t *nalloc)
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a property list");
 
     /* Call the internal encode routine */
-    if((ret_value = H5P__encode(plist, TRUE, buf, nalloc)) < 0)
+    if((ret_value = H5P__encode(plist, TRUE, buf, nalloc, H5P_FILE_ACCESS_DEFAULT)) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTENCODE, FAIL, "unable to encode property list");
 
 done:

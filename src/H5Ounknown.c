@@ -32,7 +32,7 @@
 
 
 /* PRIVATE PROTOTYPES */
-static herr_t H5O_unknown_free(void *_mesg);
+static herr_t H5O__unknown_free(void *_mesg);
 
 /* This message derives from H5O message class */
 const H5O_msg_class_t H5O_MSG_UNKNOWN[1] = {{
@@ -45,7 +45,7 @@ const H5O_msg_class_t H5O_MSG_UNKNOWN[1] = {{
     NULL,			/*copy the native value         */
     NULL,			/*size of symbol table entry    */
     NULL,                   	/*default reset method          */
-    H5O_unknown_free,	        /* free method			*/
+    H5O__unknown_free,	        /* free method			*/
     NULL,			/* file delete method		*/
     NULL,			/* link method			*/
     NULL, 			/*set share method		*/
@@ -63,9 +63,9 @@ H5FL_DEFINE(H5O_unknown_t);
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_unknown_free
+ * Function:	H5O__unknown_free
  *
- * Purpose:	Free's the message
+ * Purpose:	Frees the message
  *
  * Return:	Non-negative on success/Negative on failure
  *
@@ -75,14 +75,14 @@ H5FL_DEFINE(H5O_unknown_t);
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_unknown_free(void *mesg)
+H5O__unknown_free(void *mesg)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     HDassert(mesg);
 
     mesg = H5FL_FREE(H5O_unknown_t, mesg);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5O_unknown_free() */
+} /* end H5O__unknown_free() */
 

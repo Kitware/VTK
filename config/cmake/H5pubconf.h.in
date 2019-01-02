@@ -30,7 +30,7 @@
 #cmakedefine H5_AC_APPLE_UNIVERSAL_BUILD @H5_AC_APPLE_UNIVERSAL_BUILD@
 
 /* Define if C++ compiler recognizes offsetof */
-#cmakedefine H5_CXX_HAVE_OFFSETOF @H5_CXX_HAVE_OFFSETOF@
+#cmakedefine H5_CXX_HAVE_OFFSETOF @CXX_HAVE_OFFSETOF@
 
 /* Define the default plugins path to compile */
 #cmakedefine H5_DEFAULT_PLUGINDIR "@H5_DEFAULT_PLUGINDIR@"
@@ -53,10 +53,10 @@
 #define @H5_FC_FUNC_@
 
 /* Define if Fortran C_LONG_DOUBLE is different from C_DOUBLE */
-#cmakedefine H5_FORTRAN_C_LONG_DOUBLE_IS_UNIQUE @H5_FORTRAN_C_LONG_DOUBLE_IS_UNIQUE@
+#define H5_FORTRAN_C_LONG_DOUBLE_IS_UNIQUE @H5_FORTRAN_C_LONG_DOUBLE_IS_UNIQUE@
 
 /* Define if we have Fortran C_LONG_DOUBLE */
-#cmakedefine H5_FORTRAN_HAVE_C_LONG_DOUBLE @H5_FORTRAN_HAVE_C_LONG_DOUBLE@
+#define H5_FORTRAN_HAVE_C_LONG_DOUBLE @H5_FORTRAN_HAVE_C_LONG_DOUBLE@
 
 /* Define if we have Fortran intrinsic C_SIZEOF */
 #cmakedefine H5_FORTRAN_HAVE_C_SIZEOF @H5_FORTRAN_HAVE_C_SIZEOF@
@@ -71,10 +71,10 @@
 #cmakedefine H5_FORTRAN_SIZEOF_LONG_DOUBLE @H5_FORTRAN_SIZEOF_LONG_DOUBLE@
 
 /* Define Fortran compiler ID */
-#cmakedefine H5_Fortran_COMPILER_ID @H5_Fortran_COMPILER_ID@
+#define H5_Fortran_COMPILER_ID @CMAKE_Fortran_COMPILER_ID@
 
 /* Define valid Fortran INTEGER KINDs */
-#cmakedefine H5_H5CONFIG_F_IKIND @H5_HH5_H5CONFIG_F_NUM_RKIND5CONFIG_F_IKIND@
+#cmakedefine H5_H5CONFIG_F_IKIND @H5_H5CONFIG_F_IKIND@
 
 /* Define number of valid Fortran INTEGER KINDs */
 #cmakedefine H5_H5CONFIG_F_NUM_IKIND @H5_H5CONFIG_F_NUM_IKIND@
@@ -158,11 +158,11 @@
 /* Define to 1 if you have the `fseeko' function. */
 #cmakedefine H5_HAVE_FSEEKO @H5_HAVE_FSEEKO@
 
-/* Define to 1 if you have the `fstat64' function. */
-#cmakedefine H5_HAVE_FSTAT64 @H5_HAVE_FSTAT64@
-
 /* Define if the compiler understands the __FUNCTION__ keyword */
 #cmakedefine H5_HAVE_FUNCTION @H5_HAVE_FUNCTION@
+
+/* Determine if INTEGER*16 is available */
+#cmakedefine H5_HAVE_Fortran_INTEGER_SIZEOF_16 @H5_HAVE_Fortran_INTEGER_SIZEOF_16@
 
 /* Define to 1 if you have the `GetConsoleScreenBufferInfo' function. */
 #cmakedefine H5_HAVE_GETCONSOLESCREENBUFFERINFO @H5_HAVE_GETCONSOLESCREENBUFFERINFO@
@@ -222,10 +222,10 @@
 /* Define to 1 if you have the <mpe.h> header file. */
 #cmakedefine H5_HAVE_MPE_H @H5_HAVE_MPE_H@
 
-/* Define if `MPI_Comm_c2f' and `MPI_Comm_f2c' exists */
+/* Define if MPI_Comm_c2f and MPI_Comm_f2c exists */
 #cmakedefine H5_HAVE_MPI_MULTI_LANG_Comm @H5_HAVE_MPI_MULTI_LANG_Comm@
 
-/* Define if `MPI_Info_c2f' and `MPI_Info_f2c' exists */
+/* Define if MPI_Info_c2f and MPI_Info_f2c exists */
 #cmakedefine H5_HAVE_MPI_MULTI_LANG_Info @H5_HAVE_MPI_MULTI_LANG_Info@
 
 /* Define if we have parallel support */
@@ -291,10 +291,10 @@
 /* Define to 1 if you have the `strtoull' function. */
 #cmakedefine H5_HAVE_STRTOULL @H5_HAVE_STRTOULL@
 
-/* Define if `struct text_info' is defined */
+/* Define if struct text_info is defined */
 #cmakedefine H5_HAVE_STRUCT_TEXT_INFO @H5_HAVE_STRUCT_TEXT_INFO@
 
-/* Define if `struct videoconfig' is defined */
+/* Define if struct videoconfig is defined */
 #cmakedefine H5_HAVE_STRUCT_VIDEOCONFIG @H5_HAVE_STRUCT_VIDEOCONFIG@
 
 /* Define to 1 if you have the `symlink' function. */
@@ -327,7 +327,7 @@
 /* Define if we have thread safe support */
 #cmakedefine H5_HAVE_THREADSAFE @H5_HAVE_THREADSAFE@
 
-/* Define if `timezone' is a global variable */
+/* Define if timezone is a global variable */
 #cmakedefine H5_HAVE_TIMEZONE @H5_HAVE_TIMEZONE@
 
 /* Define if the ioctl TIOCGETD is defined */
@@ -339,7 +339,7 @@
 /* Define to 1 if you have the `tmpfile' function. */
 #cmakedefine H5_HAVE_TMPFILE @H5_HAVE_TMPFILE@
 
-/* Define if `tm_gmtoff' is a member of `struct tm' */
+/* Define if tm_gmtoff is a member of struct tm */
 #cmakedefine H5_HAVE_TM_GMTOFF @H5_HAVE_TM_GMTOFF@
 
 /* Define to 1 if you have the <unistd.h> header file. */
@@ -357,7 +357,7 @@
 /* Define if your system has window style path name. */
 #cmakedefine H5_HAVE_WINDOW_PATH @H5_HAVE_WINDOW_PATH@
 
-/* Define to 1 if you have the <winsock.h> header file. */
+/* Define to 1 if you have the <winsock2.h> header file. */
 #cmakedefine H5_HAVE_WINSOCK2_H @H5_HAVE_WINSOCK2_H@
 
 /* Define to 1 if you have the <zlib.h> header file. */
@@ -375,7 +375,7 @@
 /* Define if the compiler understands __inline__ */
 #cmakedefine H5_HAVE___INLINE__ @H5_HAVE___INLINE__@
 
-/* Define if HDF5's high-level library headers should be included in hdf5.h */
+/* Define if the high-level library headers should be included in hdf5.h */
 #cmakedefine H5_INCLUDE_HL @H5_INCLUDE_HL@
 
 /* Define if your system can convert long double to (unsigned) long long
@@ -431,7 +431,7 @@
 #define H5_PACKAGE_VERSION "@HDF5_PACKAGE_VERSION_STRING@"
 
 /* Determine the maximum decimal precision in C */
-#define H5_PAC_C_MAX_REAL_PRECISION @H5_PAC_C_MAX_REAL_PRECISION@
+#cmakedefine H5_PAC_C_MAX_REAL_PRECISION @H5_PAC_C_MAX_REAL_PRECISION@
 
 /* Define Fortran Maximum Real Decimal Precision */
 #cmakedefine H5_PAC_FC_MAX_REAL_PRECISION @H5_PAC_FC_MAX_REAL_PRECISION@
@@ -602,6 +602,9 @@
 
 /* Define using v1.8 public API symbols by default */
 #cmakedefine H5_USE_18_API_DEFAULT @H5_USE_18_API_DEFAULT@
+
+/* Define using v1.10 public API symbols by default */
+#cmakedefine H5_USE_110_API_DEFAULT @H5_USE_110_API_DEFAULT@
 
 /* Define if a memory checking tool will be used on the library, to cause
    library to be very picky about memory operations and also disable the

@@ -382,8 +382,7 @@ struct H5HF_indirect_t {
     size_t      rc;             /* Reference count of objects using this block */
     H5HF_hdr_t	*hdr;	        /* Shared heap header info	              */
     struct H5HF_indirect_t *parent;	/* Shared parent indirect block info  */
-    struct H5HF_indirect_t 
-		*fd_parent;	/* Saved copy of the parent pointer -- this   */
+    void        *fd_parent;	/* Saved copy of the parent pointer -- this   */
 				/* necessary as the parent field is sometimes */
 				/* nulled out before the eviction notify call */
 				/* is made from the metadata cache.  Since    */
@@ -397,6 +396,10 @@ struct H5HF_indirect_t {
     unsigned    nchildren;      /* Number of child blocks                     */
     unsigned    max_child;      /* Max. offset used in child entries          */
     struct H5HF_indirect_t **child_iblocks; /* Array of pointers to pinned child indirect blocks */
+    hbool_t     removed_from_cache;     /* Flag that indicates the block has  */
+                                /* been removed from the metadata cache, but  */
+                                /* is still 'live' due to a refcount (rc) > 0 */
+                                /* (usually from free space sections)         */
 
     /* Stored values */
     hsize_t     block_off;      /* Offset of the block within the heap's address space */
@@ -412,7 +415,7 @@ typedef struct H5HF_direct_t {
     /* Internal heap information */
     H5HF_hdr_t	*hdr;	        /* Shared heap header info	              */
     H5HF_indirect_t *parent;	/* Shared parent indirect block info          */
-    H5HF_indirect_t *fd_parent;	/* Saved copy of the parent pointer -- this   */
+    void        *fd_parent;	/* Saved copy of the parent pointer -- this   */
 				/* necessary as the parent field is sometimes */
 				/* nulled out before the eviction notify call */
 				/* is made from the metadata cache.  Since    */
@@ -498,20 +501,17 @@ typedef struct H5HF_huge_bt2_filt_dir_rec_t {
 /* User data for free space section 'add' callback */
 typedef struct {
     H5HF_hdr_t *hdr;            /* Fractal heap header */
-    hid_t dxpl_id;              /* DXPL ID for operation */
 } H5HF_sect_add_ud_t;
 
 /* User data for v2 B-tree 'remove' callback on 'huge' objects */
 typedef struct {
     H5HF_hdr_t *hdr;            /* Fractal heap header (in) */
-    hid_t dxpl_id;              /* DXPL ID for operation (in) */
     hsize_t obj_len;            /* Length of object removed (out) */
 } H5HF_huge_remove_ud_t;
 
 /* User data for fractal heap header cache client callback */
 typedef struct H5HF_hdr_cache_ud_t {
     H5F_t *f;                   /* File pointer */
-    hid_t dxpl_id;              /* DXPL ID for operation (in) */
 } H5HF_hdr_cache_ud_t;
 
 /* User data for fractal heap indirect block cache client callbacks */
@@ -617,9 +617,8 @@ H5_DLL hsize_t H5HF_dtable_span_size(const H5HF_dtable_t *dtable, unsigned start
 
 /* Heap header routines */
 H5_DLL H5HF_hdr_t * H5HF_hdr_alloc(H5F_t *f);
-H5_DLL haddr_t H5HF_hdr_create(H5F_t *f, hid_t dxpl_id, const H5HF_create_t *cparam);
-H5_DLL H5HF_hdr_t *H5HF_hdr_protect(H5F_t *f, hid_t dxpl_id, haddr_t addr,
-    unsigned flags);
+H5_DLL haddr_t H5HF_hdr_create(H5F_t *f, const H5HF_create_t *cparam);
+H5_DLL H5HF_hdr_t *H5HF__hdr_protect(H5F_t *f, haddr_t addr, unsigned flags);
 H5_DLL herr_t H5HF_hdr_finish_init_phase1(H5HF_hdr_t *hdr);
 H5_DLL herr_t H5HF_hdr_finish_init_phase2(H5HF_hdr_t *hdr);
 H5_DLL herr_t H5HF_hdr_finish_init(H5HF_hdr_t *hdr);
@@ -632,100 +631,95 @@ H5_DLL herr_t H5HF_hdr_adj_free(H5HF_hdr_t *hdr, ssize_t amt);
 H5_DLL herr_t H5HF_hdr_adjust_heap(H5HF_hdr_t *hdr, hsize_t new_size, hssize_t extra_free);
 H5_DLL herr_t H5HF_hdr_inc_alloc(H5HF_hdr_t *hdr, size_t alloc_size);
 H5_DLL herr_t H5HF_hdr_start_iter(H5HF_hdr_t *hdr, H5HF_indirect_t *iblock, hsize_t curr_off, unsigned curr_entry);
-H5_DLL herr_t H5HF_hdr_skip_blocks(H5HF_hdr_t *hdr, hid_t dxpl_id,
-    H5HF_indirect_t *iblock, unsigned start_entry, unsigned nentries);
-H5_DLL herr_t H5HF_hdr_update_iter(H5HF_hdr_t *hdr, hid_t dxpl_id, size_t min_dblock_size);
+H5_DLL herr_t H5HF__hdr_skip_blocks(H5HF_hdr_t *hdr, H5HF_indirect_t *iblock,
+    unsigned start_entry, unsigned nentries);
+H5_DLL herr_t H5HF__hdr_update_iter(H5HF_hdr_t *hdr, size_t min_dblock_size);
 H5_DLL herr_t H5HF_hdr_inc_iter(H5HF_hdr_t *hdr, hsize_t adv_size, unsigned nentries);
-H5_DLL herr_t H5HF_hdr_reverse_iter(H5HF_hdr_t *hdr, hid_t dxpl_id,
-    haddr_t dblock_addr);
+H5_DLL herr_t H5HF__hdr_reverse_iter(H5HF_hdr_t *hdr, haddr_t dblock_addr);
 H5_DLL herr_t H5HF_hdr_reset_iter(H5HF_hdr_t *hdr, hsize_t curr_off);
-H5_DLL herr_t H5HF_hdr_empty(H5HF_hdr_t *hdr);
+H5_DLL herr_t H5HF__hdr_empty(H5HF_hdr_t *hdr);
 H5_DLL herr_t H5HF_hdr_free(H5HF_hdr_t *hdr);
-H5_DLL herr_t H5HF_hdr_delete(H5HF_hdr_t *hdr, hid_t dxpl_id);
+H5_DLL herr_t H5HF__hdr_delete(H5HF_hdr_t *hdr);
 H5_DLL herr_t H5HF_hdr_dest(H5HF_hdr_t *hdr);
 
 /* Indirect block routines */
 H5_DLL herr_t H5HF_iblock_incr(H5HF_indirect_t *iblock);
-H5_DLL herr_t H5HF_iblock_decr(H5HF_indirect_t *iblock);
+H5_DLL herr_t H5HF__iblock_decr(H5HF_indirect_t *iblock);
 H5_DLL herr_t H5HF_iblock_dirty(H5HF_indirect_t *iblock);
-H5_DLL herr_t H5HF_man_iblock_root_create(H5HF_hdr_t *hdr, hid_t dxpl_id,
+H5_DLL herr_t H5HF__man_iblock_root_create(H5HF_hdr_t *hdr, 
     size_t min_dblock_size);
-H5_DLL herr_t H5HF_man_iblock_root_double(H5HF_hdr_t *hdr, hid_t dxpl_id,
+H5_DLL herr_t H5HF__man_iblock_root_double(H5HF_hdr_t *hdr, 
     size_t min_dblock_size);
-H5_DLL herr_t H5HF_man_iblock_alloc_row(H5HF_hdr_t *hdr, hid_t dxpl_id,
+H5_DLL herr_t H5HF__man_iblock_alloc_row(H5HF_hdr_t *hdr,
     H5HF_free_section_t **sec_node);
-H5_DLL herr_t H5HF_man_iblock_create(H5HF_hdr_t *hdr, hid_t dxpl_id,
-    H5HF_indirect_t *par_iblock, unsigned par_entry, unsigned nrows,
-    unsigned max_rows, haddr_t *addr_p);
-H5_DLL H5HF_indirect_t *H5HF_man_iblock_protect(H5HF_hdr_t *hdr, hid_t dxpl_id,
-    haddr_t iblock_addr, unsigned iblock_nrows,
-    H5HF_indirect_t *par_iblock, unsigned par_entry, hbool_t must_protect,
-    unsigned flags, hbool_t *did_protect);
-H5_DLL herr_t H5HF_man_iblock_unprotect(H5HF_indirect_t *iblock, hid_t dxpl_id,
-    unsigned cache_flags, hbool_t did_protect);
+H5_DLL herr_t H5HF__man_iblock_create(H5HF_hdr_t *hdr, H5HF_indirect_t *par_iblock,
+    unsigned par_entry, unsigned nrows, unsigned max_rows, haddr_t *addr_p);
+H5_DLL H5HF_indirect_t *H5HF__man_iblock_protect(H5HF_hdr_t *hdr, haddr_t iblock_addr,
+    unsigned iblock_nrows, H5HF_indirect_t *par_iblock, unsigned par_entry,
+    hbool_t must_protect, unsigned flags, hbool_t *did_protect);
+H5_DLL herr_t H5HF__man_iblock_unprotect(H5HF_indirect_t *iblock, unsigned cache_flags,
+    hbool_t did_protect);
 H5_DLL herr_t H5HF_man_iblock_attach(H5HF_indirect_t *iblock, unsigned entry,
     haddr_t dblock_addr);
-H5_DLL herr_t H5HF_man_iblock_detach(H5HF_indirect_t *iblock, hid_t dxpl_id, unsigned entry);
+H5_DLL herr_t H5HF__man_iblock_detach(H5HF_indirect_t *iblock, unsigned entry);
 H5_DLL herr_t H5HF_man_iblock_entry_addr(H5HF_indirect_t *iblock, unsigned entry,
     haddr_t *child_addr);
-H5_DLL herr_t H5HF_man_iblock_delete(H5HF_hdr_t *hdr, hid_t dxpl_id,
-    haddr_t iblock_addr, unsigned iblock_nrows, H5HF_indirect_t *par_iblock,
-    unsigned par_entry);
-H5_DLL herr_t H5HF_man_iblock_size(H5F_t *f, hid_t dxpl_id, H5HF_hdr_t *hdr,
+H5_DLL herr_t H5HF__man_iblock_delete(H5HF_hdr_t *hdr, haddr_t iblock_addr,
+    unsigned iblock_nrows, H5HF_indirect_t *par_iblock, unsigned par_entry);
+H5_DLL herr_t H5HF__man_iblock_size(H5F_t *f, H5HF_hdr_t *hdr,
     haddr_t iblock_addr, unsigned nrows, H5HF_indirect_t *par_iblock, unsigned par_entry, hsize_t *heap_size/*out*/);
+H5_DLL herr_t H5HF__man_iblock_parent_info(const H5HF_hdr_t *hdr,
+    hsize_t block_off, hsize_t *ret_par_block_off, unsigned *ret_entry);
 H5_DLL herr_t H5HF_man_iblock_dest(H5HF_indirect_t *iblock);
 
 /* Direct block routines */
-H5_DLL herr_t H5HF_man_dblock_new(H5HF_hdr_t *fh, hid_t dxpl_id, size_t request,
+H5_DLL herr_t H5HF__man_dblock_new(H5HF_hdr_t *fh, size_t request,
     H5HF_free_section_t **ret_sec_node);
-H5_DLL herr_t H5HF_man_dblock_create(hid_t dxpl_id, H5HF_hdr_t *hdr,
+H5_DLL herr_t H5HF__man_dblock_create(H5HF_hdr_t *hdr,
     H5HF_indirect_t *par_iblock, unsigned par_entry, haddr_t *addr_p,
     H5HF_free_section_t **ret_sec_node);
-H5_DLL herr_t H5HF_man_dblock_destroy(H5HF_hdr_t *hdr, hid_t dxpl_id,
-    H5HF_direct_t *dblock, haddr_t dblock_addr);
-H5_DLL H5HF_direct_t *H5HF_man_dblock_protect(H5HF_hdr_t *hdr, hid_t dxpl_id,
-    haddr_t dblock_addr, size_t dblock_size,
-    H5HF_indirect_t *par_iblock, unsigned par_entry,
+H5_DLL herr_t H5HF__man_dblock_destroy(H5HF_hdr_t *hdr, H5HF_direct_t *dblock,
+    haddr_t dblock_addr, hbool_t *parent_removed);
+H5_DLL H5HF_direct_t *H5HF__man_dblock_protect(H5HF_hdr_t *hdr, haddr_t dblock_addr,
+    size_t dblock_size, H5HF_indirect_t *par_iblock, unsigned par_entry,
     unsigned flags);
-H5_DLL herr_t H5HF_man_dblock_locate(H5HF_hdr_t *hdr, hid_t dxpl_id,
-    hsize_t obj_off, H5HF_indirect_t **par_iblock,
-    unsigned *par_entry, hbool_t *par_did_protect, unsigned flags);
-H5_DLL herr_t H5HF_man_dblock_delete(H5F_t *f, hid_t dxpl_id, haddr_t dblock_addr,
+H5_DLL herr_t H5HF__man_dblock_locate(H5HF_hdr_t *hdr, hsize_t obj_off,
+    H5HF_indirect_t **par_iblock, unsigned *par_entry, hbool_t *par_did_protect,
+    unsigned flags);
+H5_DLL herr_t H5HF__man_dblock_delete(H5F_t *f, haddr_t dblock_addr,
     hsize_t dblock_size);
 H5_DLL herr_t H5HF_man_dblock_dest(H5HF_direct_t *dblock);
 
 /* Managed object routines */
-H5_DLL herr_t H5HF_man_insert(H5HF_hdr_t *fh, hid_t dxpl_id, size_t obj_size,
+H5_DLL herr_t H5HF__man_insert(H5HF_hdr_t *fh, size_t obj_size,
     const void *obj, void *id);
 H5_DLL herr_t H5HF_man_get_obj_len(H5HF_hdr_t *hdr, const uint8_t *id,
     size_t *obj_len_p);
 H5_DLL void H5HF__man_get_obj_off(const H5HF_hdr_t *hdr, const uint8_t *id,
     hsize_t *obj_off_p);
-H5_DLL herr_t H5HF_man_read(H5HF_hdr_t *fh, hid_t dxpl_id, const uint8_t *id,
-    void *obj);
-H5_DLL herr_t H5HF_man_write(H5HF_hdr_t *hdr, hid_t dxpl_id, const uint8_t *id,
-    const void *obj);
-H5_DLL herr_t H5HF_man_op(H5HF_hdr_t *hdr, hid_t dxpl_id, const uint8_t *id,
-    H5HF_operator_t op, void *op_data);
-H5_DLL herr_t H5HF_man_remove(H5HF_hdr_t *hdr, hid_t dxpl_id, const uint8_t *id);
+H5_DLL herr_t H5HF__man_read(H5HF_hdr_t *fh, const uint8_t *id, void *obj);
+H5_DLL herr_t H5HF__man_write(H5HF_hdr_t *hdr, const uint8_t *id, const void *obj);
+H5_DLL herr_t H5HF__man_op(H5HF_hdr_t *hdr, const uint8_t *id, H5HF_operator_t op,
+    void *op_data);
+H5_DLL herr_t H5HF__man_remove(H5HF_hdr_t *hdr, const uint8_t *id);
 
 /* 'Huge' object routines */
 H5_DLL herr_t H5HF_huge_init(H5HF_hdr_t *hdr);
-H5_DLL herr_t H5HF_huge_insert(H5HF_hdr_t *hdr, hid_t dxpl_id, size_t obj_size,
+H5_DLL herr_t H5HF__huge_insert(H5HF_hdr_t *hdr, size_t obj_size,
     void *obj, void *id);
-H5_DLL herr_t H5HF_huge_get_obj_len(H5HF_hdr_t *hdr, hid_t dxpl_id,
-    const uint8_t *id, size_t *obj_len_p);
-H5_DLL herr_t H5HF__huge_get_obj_off(H5HF_hdr_t *hdr, hid_t dxpl_id,
-    const uint8_t *id, hsize_t *obj_off_p);
-H5_DLL herr_t H5HF_huge_read(H5HF_hdr_t *fh, hid_t dxpl_id, const uint8_t *id,
+H5_DLL herr_t H5HF__huge_get_obj_len(H5HF_hdr_t *hdr, const uint8_t *id,
+    size_t *obj_len_p);
+H5_DLL herr_t H5HF__huge_get_obj_off(H5HF_hdr_t *hdr, const uint8_t *id,
+    hsize_t *obj_off_p);
+H5_DLL herr_t H5HF__huge_read(H5HF_hdr_t *fh, const uint8_t *id,
     void *obj);
-H5_DLL herr_t H5HF_huge_write(H5HF_hdr_t *hdr, hid_t dxpl_id, const uint8_t *id,
+H5_DLL herr_t H5HF__huge_write(H5HF_hdr_t *hdr, const uint8_t *id,
     const void *obj);
-H5_DLL herr_t H5HF_huge_op(H5HF_hdr_t *hdr, hid_t dxpl_id, const uint8_t *id,
+H5_DLL herr_t H5HF__huge_op(H5HF_hdr_t *hdr, const uint8_t *id,
     H5HF_operator_t op, void *op_data);
-H5_DLL herr_t H5HF_huge_remove(H5HF_hdr_t *fh, hid_t dxpl_id, const uint8_t *id);
-H5_DLL herr_t H5HF_huge_term(H5HF_hdr_t *hdr, hid_t dxpl_id);
-H5_DLL herr_t H5HF_huge_delete(H5HF_hdr_t *hdr, hid_t dxpl_id);
+H5_DLL herr_t H5HF__huge_remove(H5HF_hdr_t *fh, const uint8_t *id);
+H5_DLL herr_t H5HF__huge_term(H5HF_hdr_t *hdr);
+H5_DLL herr_t H5HF__huge_delete(H5HF_hdr_t *hdr);
 
 /* 'Huge' object v2 B-tree function callbacks */
 H5_DLL herr_t H5HF__huge_bt2_indir_found(const void *nrecord, void *op_data);
@@ -748,21 +742,21 @@ H5_DLL herr_t H5HF_tiny_op(H5HF_hdr_t *hdr, const uint8_t *id,
 H5_DLL herr_t H5HF_tiny_remove(H5HF_hdr_t *fh, const uint8_t *id);
 
 /* Debugging routines for dumping file structures */
-H5_DLL void H5HF_hdr_print(const H5HF_hdr_t *hdr, hid_t dxpl_id,
-    hbool_t dump_internal, FILE *stream, int indent, int fwidth);
-H5_DLL herr_t H5HF_hdr_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr,
+H5_DLL void H5HF_hdr_print(const H5HF_hdr_t *hdr, hbool_t dump_internal,
     FILE *stream, int indent, int fwidth);
-H5_DLL herr_t H5HF_dblock_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr,
+H5_DLL herr_t H5HF_hdr_debug(H5F_t *f, haddr_t addr,
+    FILE *stream, int indent, int fwidth);
+H5_DLL herr_t H5HF_dblock_debug(H5F_t *f, haddr_t addr,
     FILE *stream, int indent, int fwidth, haddr_t hdr_addr, size_t nrec);
 H5_DLL void H5HF_iblock_print(const H5HF_indirect_t *iblock, hbool_t dump_internal,
     FILE *stream, int indent, int fwidth);
-H5_DLL herr_t H5HF_iblock_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr,
+H5_DLL herr_t H5HF_iblock_debug(H5F_t *f, haddr_t addr,
     FILE *stream, int indent, int fwidth, haddr_t hdr_addr, unsigned nrows);
 
 /* Block iteration routines */
 H5_DLL herr_t H5HF_man_iter_init(H5HF_block_iter_t *biter);
-H5_DLL herr_t H5HF_man_iter_start_offset(H5HF_hdr_t *hdr, hid_t dxpl_id,
-    H5HF_block_iter_t *biter, hsize_t offset);
+H5_DLL herr_t H5HF__man_iter_start_offset(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter,
+    hsize_t offset);
 H5_DLL herr_t H5HF_man_iter_start_entry(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter,
     H5HF_indirect_t *iblock, unsigned start_entry);
 H5_DLL herr_t H5HF_man_iter_set_entry(const H5HF_hdr_t *hdr,
@@ -779,39 +773,36 @@ H5_DLL herr_t H5HF_man_iter_offset(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter,
 H5_DLL hbool_t H5HF_man_iter_ready(H5HF_block_iter_t *biter);
 
 /* Free space manipulation routines */
-H5_DLL herr_t H5HF_space_start(H5HF_hdr_t *hdr, hid_t dxpl_id, hbool_t may_create);
-H5_DLL herr_t H5HF_space_add(H5HF_hdr_t *hdr, hid_t dxpl_id,
-    H5HF_free_section_t *node, unsigned flags);
-H5_DLL htri_t H5HF_space_find(H5HF_hdr_t *hdr, hid_t dxpl_id, hsize_t request,
+H5_DLL herr_t H5HF__space_start(H5HF_hdr_t *hdr, hbool_t may_create);
+H5_DLL herr_t H5HF__space_add(H5HF_hdr_t *hdr, H5HF_free_section_t *node,
+    unsigned flags);
+H5_DLL htri_t H5HF__space_find(H5HF_hdr_t *hdr, hsize_t request,
     H5HF_free_section_t **node);
-H5_DLL herr_t H5HF_space_revert_root(const H5HF_hdr_t *hdr, hid_t dxpl_id);
-H5_DLL herr_t H5HF_space_create_root(const H5HF_hdr_t *hdr, hid_t dxpl_id,
+H5_DLL herr_t H5HF__space_revert_root(const H5HF_hdr_t *hdr);
+H5_DLL herr_t H5HF__space_create_root(const H5HF_hdr_t *hdr, 
     H5HF_indirect_t *root_iblock);
-H5_DLL herr_t H5HF_space_size(H5HF_hdr_t *hdr, hid_t dxpl_id, hsize_t *fs_size);
-H5_DLL herr_t H5HF_space_remove(H5HF_hdr_t *hdr, hid_t dxpl_id,
-    H5HF_free_section_t *node);
-H5_DLL herr_t H5HF_space_close(H5HF_hdr_t *hdr, hid_t dxpl_id);
-H5_DLL herr_t H5HF_space_delete(H5HF_hdr_t *hdr, hid_t dxpl_id);
-H5_DLL herr_t H5HF_space_sect_change_class(H5HF_hdr_t *hdr, hid_t dxpl_id,
+H5_DLL herr_t H5HF__space_size(H5HF_hdr_t *hdr, hsize_t *fs_size);
+H5_DLL herr_t H5HF__space_remove(H5HF_hdr_t *hdr, H5HF_free_section_t *node);
+H5_DLL herr_t H5HF__space_close(H5HF_hdr_t *hdr);
+H5_DLL herr_t H5HF__space_delete(H5HF_hdr_t *hdr);
+H5_DLL herr_t H5HF__space_sect_change_class(H5HF_hdr_t *hdr, 
     H5HF_free_section_t *sect, uint16_t new_class);
 
 /* Free space section routines */
 H5_DLL H5HF_free_section_t *H5HF_sect_single_new(hsize_t sect_off,
     size_t sect_size, H5HF_indirect_t *parent, unsigned par_entry);
-H5_DLL herr_t H5HF_sect_single_revive(H5HF_hdr_t *hdr, hid_t dxpl_id,
-    H5HF_free_section_t *sect);
+H5_DLL herr_t H5HF__sect_single_revive(H5HF_hdr_t *hdr, H5HF_free_section_t *sect);
 H5_DLL herr_t H5HF_sect_single_dblock_info(H5HF_hdr_t *hdr,
-    H5HF_free_section_t *sect, haddr_t *dblock_addr, size_t *dblock_size);
-H5_DLL herr_t H5HF_sect_single_reduce(H5HF_hdr_t *hdr, hid_t dxpl_id,
-    H5HF_free_section_t *sect, size_t amt);
-H5_DLL herr_t H5HF_sect_row_revive(H5HF_hdr_t *hdr, hid_t dxpl_id,
-    H5HF_free_section_t *sect);
-H5_DLL herr_t H5HF_sect_row_reduce(H5HF_hdr_t *hdr, hid_t dxpl_id,
-    H5HF_free_section_t *sect, unsigned *entry_p);
+    const H5HF_free_section_t *sect, haddr_t *dblock_addr, size_t *dblock_size);
+H5_DLL herr_t H5HF__sect_single_reduce(H5HF_hdr_t *hdr, H5HF_free_section_t *sect,
+    size_t amt);
+H5_DLL herr_t H5HF__sect_row_revive(H5HF_hdr_t *hdr, H5HF_free_section_t *sect);
+H5_DLL herr_t H5HF__sect_row_reduce(H5HF_hdr_t *hdr, H5HF_free_section_t *sect,
+    unsigned *entry_p);
 H5_DLL H5HF_indirect_t *H5HF_sect_row_get_iblock(H5HF_free_section_t *sect);
-H5_DLL herr_t H5HF_sect_indirect_add(H5HF_hdr_t *hdr, hid_t dxpl_id,
-    H5HF_indirect_t *iblock, unsigned start_entry, unsigned nentries);
-H5_DLL herr_t H5HF_sect_single_free(H5FS_section_info_t *sect);
+H5_DLL herr_t H5HF__sect_indirect_add(H5HF_hdr_t *hdr, H5HF_indirect_t *iblock,
+    unsigned start_entry, unsigned nentries);
+H5_DLL herr_t H5HF__sect_single_free(H5FS_section_info_t *sect);
 
 /* Internal operator callbacks */
 H5_DLL herr_t H5HF_op_read(const void *obj, size_t obj_len, void *op_data);

@@ -86,8 +86,7 @@ H5FL_EXTERN(H5B_t);
 /******************************/
 H5_DLL herr_t H5B__node_dest(H5B_t *bt);
 #ifdef H5B_DEBUG
-herr_t H5B__assert(H5F_t *f, hid_t dxpl_id, haddr_t addr, const H5B_class_t *type,
-			 void *udata);
+herr_t H5B__assert(H5F_t *f, haddr_t addr, const H5B_class_t *type, void *udata);
 #endif
 
 #endif /*_H5Bpkg_H*/

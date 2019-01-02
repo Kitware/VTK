@@ -100,33 +100,32 @@ H5Tarray_create2(hid_t base_id, unsigned ndims, const hsize_t dim[/* ndims */])
     unsigned    u;              /* local index variable */
     hid_t	ret_value;	/* return value	*/
 
-    FUNC_ENTER_API(FAIL)
+    FUNC_ENTER_API(H5I_INVALID_HID)
     H5TRACE3("i", "iIu*h", base_id, ndims, dim);
 
     /* Check args */
     if(ndims < 1 || ndims > H5S_MAX_RANK)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid dimensionality")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "invalid dimensionality")
     if(!dim)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no dimensions specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "no dimensions specified")
     for(u = 0; u < ndims; u++)
         if(!(dim[u] > 0))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "zero-sized dimension specified")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "zero-sized dimension specified")
     if(NULL == (base = (H5T_t *)H5I_object_verify(base_id, H5I_DATATYPE)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not an valid base datatype")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not an valid base datatype")
 
     /* Create the array datatype */
     if(NULL == (dt = H5T__array_create(base, ndims, dim)))
-        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, FAIL, "unable to create datatype")
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to create datatype")
 
     /* Atomize the type */
     if((ret_value = H5I_register(H5I_DATATYPE, dt, TRUE)) < 0)
-        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, FAIL, "unable to register datatype")
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register datatype")
 
 done:
-    if(ret_value < 0) {
-        if(dt && H5T_close(dt) < 0)
-            HDONE_ERROR(H5E_DATATYPE, H5E_CANTRELEASE, FAIL, "can't release datatype")
-    } /* end if */
+    if(ret_value < 0)
+        if(dt && H5T_close_real(dt) < 0)
+            HDONE_ERROR(H5E_DATATYPE, H5E_CANTRELEASE, H5I_INVALID_HID, "can't release datatype")
 
     FUNC_LEAVE_API(ret_value)
 }   /* end H5Tarray_create2() */
@@ -356,33 +355,32 @@ H5Tarray_create1(hid_t base_id, int ndims, const hsize_t dim[/* ndims */],
     unsigned    u;              /* local index variable */
     hid_t	ret_value;	/* return value	*/
 
-    FUNC_ENTER_API(FAIL)
+    FUNC_ENTER_API(H5I_INVALID_HID)
     H5TRACE4("i", "iIs*h*Is", base_id, ndims, dim, perm);
 
     /* Check args */
     if(ndims < 1 || ndims > H5S_MAX_RANK)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid dimensionality")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "invalid dimensionality")
     if(!dim)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no dimensions specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "no dimensions specified")
     for(u = 0; u < (unsigned)ndims; u++)
         if(!(dim[u] > 0))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "zero-sized dimension specified")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "zero-sized dimension specified")
     if(NULL == (base = (H5T_t *)H5I_object_verify(base_id, H5I_DATATYPE)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not an valid base datatype")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not an valid base datatype")
 
     /* Create the array datatype */
     if(NULL == (dt = H5T__array_create(base, (unsigned)ndims, dim)))
-        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, FAIL, "unable to create datatype")
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to create datatype")
 
     /* Atomize the type */
     if((ret_value = H5I_register(H5I_DATATYPE, dt, TRUE)) < 0)
-        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, FAIL, "unable to register datatype")
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register datatype")
 
 done:
-    if(ret_value < 0) {
-        if(dt && H5T_close(dt) < 0)
-            HDONE_ERROR(H5E_DATATYPE, H5E_CANTRELEASE, FAIL, "can't release datatype")
-    } /* end if */
+    if(ret_value < 0)
+        if(dt && H5T_close_real(dt) < 0)
+            HDONE_ERROR(H5E_DATATYPE, H5E_CANTRELEASE, H5I_INVALID_HID, "can't release datatype")
 
     FUNC_LEAVE_API(ret_value)
 }   /* end H5Tarray_create1() */

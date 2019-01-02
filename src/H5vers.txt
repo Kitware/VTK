@@ -56,6 +56,11 @@ FUNCTION: H5Ewalk; H5E_walk, H5E_error; v10, v18
 FUNCTION: H5Fget_info; H5F_info; v18, v110
 FUNCTION: H5Gcreate; ; v10, v18
 FUNCTION: H5Gopen; ; v10, v18
+FUNCTION: H5Oget_info; ; v18, v112
+FUNCTION: H5Oget_info_by_name; ; v18, v112
+FUNCTION: H5Oget_info_by_idx; ; v18, v112
+FUNCTION: H5Ovisit; ; v18, v112
+FUNCTION: H5Ovisit_by_name; ; v18, v112
 FUNCTION: H5Pget_filter; ; v10, v18
 FUNCTION: H5Pget_filter_by_id; ; v16, v18
 FUNCTION: H5Pinsert; ; v14, v18

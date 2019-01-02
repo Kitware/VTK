@@ -22,6 +22,7 @@
 /* Headers */
 /***********/
 #include "H5private.h"		/* Generic Functions			*/
+#include "H5CXprivate.h"        /* API Contexts                         */
 #include "H5Dpkg.h"		/* Datasets 				*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5FLprivate.h"	/* Free lists                           */
@@ -107,7 +108,6 @@ H5Dcreate2(hid_t loc_id, const char *name, hid_t type_id, hid_t space_id,
     H5G_loc_t	   loc;                 /* Object location to insert dataset into */
     H5D_t	   *dset = NULL;        /* New dataset's info */
     const H5S_t    *space;              /* Dataspace for dataset */
-    hid_t           dxpl_id = H5AC_ind_read_dxpl_id; /* dxpl used by library */
     hid_t           ret_value;          /* Return value */
 
     FUNC_ENTER_API(FAIL)
@@ -136,12 +136,12 @@ H5Dcreate2(hid_t loc_id, const char *name, hid_t type_id, hid_t space_id,
         if(TRUE != H5P_isa_class(dcpl_id, H5P_DATASET_CREATE))
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not dataset create property list ID")
 
-    /* Verify access property list and get correct dxpl */
-    if(H5P_verify_apl_and_dxpl(&dapl_id, H5P_CLS_DACC, &dxpl_id, loc_id, TRUE) < 0)
-        HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "can't set access and transfer property lists")
+    /* Verify access property list and set up collective metadata if appropriate */
+    if(H5CX_set_apl(&dapl_id, H5P_CLS_DACC, loc_id, TRUE) < 0)
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, H5I_INVALID_HID, "can't set access property list info")
 
     /* Create the new dataset & get its ID */
-    if(NULL == (dset = H5D__create_named(&loc, name, type_id, space, lcpl_id, dcpl_id, dapl_id, dxpl_id)))
+    if(NULL == (dset = H5D__create_named(&loc, name, type_id, space, lcpl_id, dcpl_id, dapl_id)))
 	HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to create dataset")
     if((ret_value = H5I_register(H5I_DATASET, dset, TRUE)) < 0)
 	HGOTO_ERROR(H5E_DATASET, H5E_CANTREGISTER, FAIL, "unable to register dataset")
@@ -197,7 +197,6 @@ H5Dcreate_anon(hid_t loc_id, hid_t type_id, hid_t space_id, hid_t dcpl_id,
     H5G_loc_t	   loc;                 /* Object location to insert dataset into */
     H5D_t	   *dset = NULL;        /* New dataset's info */
     const H5S_t    *space;              /* Dataspace for dataset */
-    hid_t           dxpl_id = H5AC_ind_read_dxpl_id; /* dxpl used by library */
     hid_t           ret_value;          /* Return value */
 
     FUNC_ENTER_API(FAIL)
@@ -216,12 +215,12 @@ H5Dcreate_anon(hid_t loc_id, hid_t type_id, hid_t space_id, hid_t dcpl_id,
         if(TRUE != H5P_isa_class(dcpl_id, H5P_DATASET_CREATE))
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not dataset create property list ID")
 
-    /* Verify access property list and get correct dxpl */
-    if(H5P_verify_apl_and_dxpl(&dapl_id, H5P_CLS_DACC, &dxpl_id, loc_id, TRUE) < 0)
-        HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "can't set access and transfer property lists")
+    /* Verify access property list and set up collective metadata if appropriate */
+    if(H5CX_set_apl(&dapl_id, H5P_CLS_DACC, loc_id, TRUE) < 0)
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, H5I_INVALID_HID, "can't set access property list info")
 
     /* build and open the new dataset */
-    if(NULL == (dset = H5D__create(loc.oloc->file, type_id, space, dcpl_id, dapl_id, dxpl_id)))
+    if(NULL == (dset = H5D__create_anon(loc.oloc->file, type_id, space, dcpl_id, dapl_id)))
 	HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to create dataset")
 
     /* Register the new dataset to get an ID for it */
@@ -238,7 +237,7 @@ done:
             HDONE_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "unable to get object location of dataset")
 
         /* Decrement refcount on dataset's object header in memory */
-        if(H5O_dec_rc_by_loc(oloc, dxpl_id) < 0)
+        if(H5O_dec_rc_by_loc(oloc) < 0)
            HDONE_ERROR(H5E_DATASET, H5E_CANTDEC, FAIL, "unable to decrement refcount on newly created object")
     } /* end if */
 
@@ -273,7 +272,6 @@ H5Dopen2(hid_t loc_id, const char *name, hid_t dapl_id)
 {
     H5D_t       *dset = NULL;
     H5G_loc_t   loc;                    /* Object location of group */
-    hid_t       dxpl_id = H5AC_ind_read_dxpl_id; /* dxpl to use to open datset */
     hid_t       ret_value;
 
     FUNC_ENTER_API(FAIL)
@@ -285,12 +283,12 @@ H5Dopen2(hid_t loc_id, const char *name, hid_t dapl_id)
     if(!name || !*name)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name")
 
-    /* Verify access property list and get correct dxpl */
-    if(H5P_verify_apl_and_dxpl(&dapl_id, H5P_CLS_DACC, &dxpl_id, loc_id, FALSE) < 0)
-        HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "can't set access and transfer property lists")
+    /* Verify access property list and set up collective metadata if appropriate */
+    if(H5CX_set_apl(&dapl_id, H5P_CLS_DACC, loc_id, FALSE) < 0)
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, H5I_INVALID_HID, "can't set access property list info")
 
     /* Open the dataset */
-    if(NULL == (dset = H5D__open_name(&loc, name, dapl_id, dxpl_id)))
+    if(NULL == (dset = H5D__open_name(&loc, name, dapl_id)))
         HGOTO_ERROR(H5E_DATASET, H5E_CANTOPENOBJ, FAIL, "unable to open dataset")
 
     /* Register an atom for the dataset */
@@ -301,6 +299,7 @@ done:
     if(ret_value < 0)
         if(dset && H5D_close(dset) < 0)
             HDONE_ERROR(H5E_DATASET, H5E_CLOSEERROR, FAIL, "unable to release dataset")
+
     FUNC_LEAVE_API(ret_value)
 } /* end H5Dopen2() */
 
@@ -365,15 +364,15 @@ H5Dget_space(hid_t dset_id)
     H5D_t	*dset = NULL;
     hid_t	ret_value;
 
-    FUNC_ENTER_API(FAIL)
+    FUNC_ENTER_API(H5I_INVALID_HID)
     H5TRACE1("i", "i", dset_id);
 
     /* Check args */
     if(NULL == (dset = (H5D_t *)H5I_object_verify(dset_id, H5I_DATASET)))
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataset")
+	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not a dataset")
 
-    if((ret_value = H5D_get_space(dset)) < 0)
-	HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to get dataspace")
+    if((ret_value = H5D__get_space(dset)) < 0)
+	HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, H5I_INVALID_HID, "unable to get dataspace")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -408,7 +407,7 @@ H5Dget_space_status(hid_t dset_id, H5D_space_status_t *allocation)
 	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataset")
 
     /* Read dataspace address and return */
-    if(H5D__get_space_status(dset, allocation, H5AC_ind_read_dxpl_id) < 0)
+    if(H5D__get_space_status(dset, allocation) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to get space status")
 
 done:
@@ -435,7 +434,6 @@ done:
 hid_t
 H5Dget_type(hid_t dset_id)
 {
-
     H5D_t	*dset;                  /* Dataset */
     hid_t	ret_value;              /* Return value */
 
@@ -446,7 +444,7 @@ H5Dget_type(hid_t dset_id)
     if(NULL == (dset = (H5D_t *)H5I_object_verify(dset_id, H5I_DATASET)))
 	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataset")
 
-    if((ret_value = H5D_get_type(dset)) < 0)
+    if((ret_value = H5D__get_type(dset)) < 0)
 	HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to get dataspace")
 
 done:
@@ -473,18 +471,18 @@ done:
 hid_t
 H5Dget_create_plist(hid_t dset_id)
 {
-    H5D_t		*dataset;                  /* Dataset structure */
-    hid_t		ret_value = SUCCEED;    /* Return value */
+    H5D_t	*dataset;               /* Dataset structure */
+    hid_t	ret_value;    		/* Return value */
 
-    FUNC_ENTER_API(FAIL)
+    FUNC_ENTER_API(H5I_INVALID_HID)
     H5TRACE1("i", "i", dset_id);
 
     /* Check args */
     if(NULL == (dataset = (H5D_t *)H5I_object_verify(dset_id, H5I_DATASET)))
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataset")
+	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not a dataset")
 
-    if((ret_value = H5D_get_create_plist(dataset)) < 0)
-	HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "Can't get creation plist")
+    if((ret_value = H5D__get_create_plist(dataset)) < 0)
+	HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, H5I_INVALID_HID, "Can't get creation plist")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -577,7 +575,7 @@ H5Dget_storage_size(hid_t dset_id)
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, 0, "not a dataset")
 
     /* Set return value */
-    if(H5D__get_storage_size(dset, H5AC_ind_read_dxpl_id, &ret_value) < 0)
+    if(H5D__get_storage_size(dset, &ret_value) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, 0, "can't get size of dataset's storage")
 
 done:
@@ -732,13 +730,13 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Dvlen_reclaim(hid_t type_id, hid_t space_id, hid_t plist_id, void *buf)
+H5Dvlen_reclaim(hid_t type_id, hid_t space_id, hid_t dxpl_id, void *buf)
 {
     H5S_t *space;               /* Dataspace for iteration */
     herr_t ret_value;           /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE4("e", "iii*x", type_id, space_id, plist_id, buf);
+    H5TRACE4("e", "iii*x", type_id, space_id, dxpl_id, buf);
 
     /* Check args */
     if(H5I_DATATYPE != H5I_get_type(type_id) || buf == NULL)
@@ -749,14 +747,17 @@ H5Dvlen_reclaim(hid_t type_id, hid_t space_id, hid_t plist_id, void *buf)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "dataspace does not have extent set")
 
     /* Get the default dataset transfer property list if the user didn't provide one */
-    if(H5P_DEFAULT == plist_id)
-        plist_id = H5P_DATASET_XFER_DEFAULT;
+    if(H5P_DEFAULT == dxpl_id)
+        dxpl_id = H5P_DATASET_XFER_DEFAULT;
     else
-        if(TRUE != H5P_isa_class(plist_id, H5P_DATASET_XFER))
+        if(TRUE != H5P_isa_class(dxpl_id, H5P_DATASET_XFER))
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not xfer parms")
 
+    /* Set DXPL for operation */
+    H5CX_set_dxpl(dxpl_id);
+
     /* Call internal routine */
-    ret_value = H5D_vlen_reclaim(type_id, space, plist_id, buf);
+    ret_value = H5D_vlen_reclaim(type_id, space, buf);
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -791,13 +792,12 @@ herr_t
 H5Dvlen_get_buf_size(hid_t dataset_id, hid_t type_id, hid_t space_id,
         hsize_t *size)
 {
-    H5D_vlen_bufsize_t vlen_bufsize = {0, 0, 0, 0, 0, 0, 0};
+    H5D_vlen_bufsize_t vlen_bufsize = {0, 0, 0, 0, 0, 0};
     H5D_t *dset;                /* Dataset for operation */
     H5S_t *fspace = NULL;       /* Dataset's dataspace */
     H5S_t *mspace = NULL;       /* Memory dataspace */
     char bogus;                 /* bogus value to pass to H5Diterate() */
     H5S_t *space;               /* Dataspace for iteration */
-    H5P_genplist_t  *plist;     /* Property list */
     H5T_t *type;                /* Datatype */
     H5S_sel_iter_op_t dset_op;  /* Operator for iteration */
     herr_t ret_value;           /* Return value */
@@ -837,17 +837,9 @@ H5Dvlen_get_buf_size(hid_t dataset_id, hid_t type_id, hid_t space_id,
     if(NULL == (vlen_bufsize.vl_tbuf = H5FL_BLK_MALLOC(vlen_vl_buf, (size_t)1)))
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "no temporary buffers available")
 
-    /* Change to the custom memory allocation routines for reading VL data */
-    if((vlen_bufsize.xfer_pid = H5P_create_id(H5P_CLS_DATASET_XFER_g, FALSE)) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTCREATE, FAIL, "no dataset xfer plists available")
-
-    /* Get the property list struct */
-    if(NULL == (plist = (H5P_genplist_t *)H5I_object(vlen_bufsize.xfer_pid)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataset transfer property list")
-
     /* Set the memory manager to the special allocation routine */
-    if(H5P_set_vlen_mem_manager(plist, H5D__vlen_get_buf_size_alloc, &vlen_bufsize, NULL, NULL) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTINIT, FAIL, "can't set VL data allocation routine")
+    if(H5CX_set_vlen_alloc_info(H5D__vlen_get_buf_size_alloc, &vlen_bufsize, NULL, NULL) < 0)
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "can't set VL data allocation routine")
 
     /* Set the initial number of bytes required */
     vlen_bufsize.size = 0;
@@ -872,8 +864,6 @@ done:
         vlen_bufsize.fl_tbuf = H5FL_BLK_FREE(vlen_fl_buf, vlen_bufsize.fl_tbuf);
     if(vlen_bufsize.vl_tbuf != NULL)
         vlen_bufsize.vl_tbuf = H5FL_BLK_FREE(vlen_vl_buf, vlen_bufsize.vl_tbuf);
-    if(vlen_bufsize.xfer_pid > 0 && H5I_dec_ref(vlen_bufsize.xfer_pid) < 0)
-        HDONE_ERROR(H5E_DATASET, H5E_CANTDEC, FAIL, "unable to decrement ref count on property list")
 
     FUNC_LEAVE_API(ret_value)
 }   /* end H5Dvlen_get_buf_size() */
@@ -907,12 +897,16 @@ H5Dset_extent(hid_t dset_id, const hsize_t size[])
     if(!size)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no size specified")
 
+    /* Set up collective metadata if appropriate */
+    if(H5CX_set_loc(dset_id) < 0)
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "can't set collective metadata read info")
+
     /* Private function */
-    if(H5D__set_extent(dset, size, H5AC_ind_read_dxpl_id) < 0)
+    if(H5D__set_extent(dset, size) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to set extend dataset")
 
 done:
-        FUNC_LEAVE_API(ret_value)
+    FUNC_LEAVE_API(ret_value)
 } /* end H5Dset_extent() */
 
 
@@ -931,7 +925,7 @@ done:
 herr_t
 H5Dflush(hid_t dset_id)
 {
-    H5D_t *dset; /* Dataset for this operation */
+    H5D_t *dset;                /* Dataset for this operation */
     herr_t ret_value = SUCCEED; /* return value */
 
     FUNC_ENTER_API(FAIL)
@@ -941,13 +935,13 @@ H5Dflush(hid_t dset_id)
     if(NULL == (dset = (H5D_t *)H5I_object_verify(dset_id, H5I_DATASET)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataset")
 
-    /* Flush any dataset information still cached in memory */
-    if(H5D__flush_real(dset, H5AC_ind_read_dxpl_id) < 0)
-        HDONE_ERROR(H5E_DATASET, H5E_WRITEERROR, FAIL, "unable to flush cached dataset info")
+    /* Set up collective metadata if appropriate */
+    if(H5CX_set_loc(dset_id) < 0)
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "can't set collective metadata read info")
 
-    /* Flush object's metadata to file */
-    if(H5O_flush_common(&dset->oloc, dset_id, H5AC_ind_read_dxpl_id) < 0)
-        HGOTO_ERROR(H5E_DATASET, H5E_CANTFLUSH, FAIL, "unable to flush dataset and object flush callback")
+    /* Flush dataset information cached in memory */
+    if(H5D__flush(dset, dset_id) < 0)
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTFLUSH, FAIL, "unable to flush cached dataset info")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -969,8 +963,8 @@ done:
 herr_t
 H5Drefresh(hid_t dset_id)
 {
-    H5D_t       *dset;                  /* Dataset to refresh */
-    herr_t      ret_value = SUCCEED;    /* return value */
+    H5D_t *dset;                   /* Dataset to refresh */
+    herr_t ret_value = SUCCEED;    /* return value */
     
     FUNC_ENTER_API(FAIL)
     H5TRACE1("e", "i", dset_id);
@@ -979,8 +973,12 @@ H5Drefresh(hid_t dset_id)
     if(NULL == (dset = (H5D_t *)H5I_object_verify(dset_id, H5I_DATASET)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataset")
 
+    /* Set up collective metadata if appropriate */
+    if(H5CX_set_loc(dset_id) < 0)
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "can't set collective metadata read info")
+
     /* Call private function to refresh the dataset object */
-    if((H5D__refresh(dset_id, dset, H5AC_ind_read_dxpl_id)) < 0)
+    if((H5D__refresh(dset_id, dset)) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTLOAD, FAIL, "unable to refresh dataset")
 
 done:
@@ -1017,11 +1015,15 @@ H5Dformat_convert(hid_t dset_id)
     if(NULL == (dset = (H5D_t *)H5I_object_verify(dset_id, H5I_DATASET)))
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataset")
 
+    /* Set up collective metadata if appropriate */
+    if(H5CX_set_loc(dset_id) < 0)
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "can't set collective metadata read info")
+
     switch(dset->shared->layout.type) {
 	case H5D_CHUNKED:
 	    /* Convert the chunk indexing type to version 1 B-tree if not */
 	    if(dset->shared->layout.u.chunk.idx_type != H5D_CHUNK_IDX_BTREE)
-                if((H5D__format_convert(dset, H5AC_ind_read_dxpl_id)) < 0)
+                if((H5D__format_convert(dset)) < 0)
                     HGOTO_ERROR(H5E_DATASET, H5E_CANTLOAD, FAIL, "unable to downgrade chunk indexing type for dataset")
 	    break;
 
@@ -1029,7 +1031,7 @@ H5Dformat_convert(hid_t dset_id)
 	case H5D_COMPACT:
 	    /* Downgrade the layout version to 3 if greater than 3 */
 	    if(dset->shared->layout.version > H5O_LAYOUT_VERSION_DEFAULT)
-                if((H5D__format_convert(dset, H5AC_ind_read_dxpl_id)) < 0)
+                if((H5D__format_convert(dset)) < 0)
                     HGOTO_ERROR(H5E_DATASET, H5E_CANTLOAD, FAIL, "unable to downgrade layout version for dataset")
 	    break;
 
@@ -1086,4 +1088,45 @@ H5Dget_chunk_index_type(hid_t did, H5D_chunk_index_t *idx_type)
 done:
     FUNC_LEAVE_API(ret_value)
 } /* H5Dget_chunk_index_type() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5Dget_chunk_storage_size
+ *
+ * Purpose:     Returns the size of an allocated chunk.
+ *
+ * Return:	Non-negative on success, negative on failure
+ *
+ * Programmer:  Matthew Strong (GE Healthcare)
+ *              20 October 2016
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5Dget_chunk_storage_size(hid_t dset_id, const hsize_t *offset, hsize_t *chunk_nbytes)
+{
+    H5D_t       *dset = NULL;
+    herr_t      ret_value = SUCCEED;
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE3("e", "i*h*h", dset_id, offset, chunk_nbytes);
+
+    /* Check arguments */
+    if(NULL == (dset = (H5D_t *)H5I_object_verify(dset_id, H5I_DATASET)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataset")
+    if( NULL == offset )
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid argument (null)")
+    if( NULL == chunk_nbytes )
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid argument (null)")
+
+    if(H5D_CHUNKED != dset->shared->layout.type)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a chunked dataset")
+
+    /* Call private function */
+    if(H5D__get_chunk_storage_size(dset, offset, chunk_nbytes) < 0)
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't get storage size of chunk")
+
+done:
+    FUNC_LEAVE_API(ret_value);
+} /* H5Dget_chunk_storage_size() */
 

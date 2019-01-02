@@ -460,7 +460,11 @@ H5VM_power2up(hsize_t n)
 {
     hsize_t     ret_value = 1;  /* Return value */
 
-    while(ret_value < n)
+    /* Returns 0 when n exceeds 2^63 */
+    if(n >= (hsize_t)1 << ((sizeof(hsize_t) * CHAR_BIT) - 1))
+        ret_value = 0;
+
+    while(ret_value && ret_value < n)
         ret_value <<= 1;
 
     return(ret_value);

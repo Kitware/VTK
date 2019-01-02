@@ -56,7 +56,7 @@
 /********************/
 /* Local Prototypes */
 /********************/
-static herr_t H5B2__update_child_flush_depends(H5B2_hdr_t *hdr, hid_t dxpl_id,
+static herr_t H5B2__update_child_flush_depends(H5B2_hdr_t *hdr, 
     unsigned depth, const H5B2_node_ptr_t *node_ptrs, unsigned start_idx,
     unsigned end_idx, void *old_parent, void *new_parent);
 
@@ -146,9 +146,9 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5B2__split1(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
-    H5B2_node_ptr_t *curr_node_ptr, unsigned *parent_cache_info_flags_ptr,
-    H5B2_internal_t *internal, unsigned *internal_flags_ptr, unsigned idx)
+H5B2__split1(H5B2_hdr_t *hdr, uint16_t depth, H5B2_node_ptr_t *curr_node_ptr,
+    unsigned *parent_cache_info_flags_ptr, H5B2_internal_t *internal,
+    unsigned *internal_flags_ptr, unsigned idx)
 {
     const H5AC_class_t *child_class;    /* Pointer to child node's class info */
     haddr_t left_addr, right_addr;      /* Addresses of left & right child nodes */
@@ -180,7 +180,7 @@ H5B2__split1(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
         /* Create new internal node */
         internal->node_ptrs[idx + 1].all_nrec = internal->node_ptrs[idx + 1].node_nrec = 0;
-        if(H5B2__create_internal(hdr, dxpl_id, internal, &(internal->node_ptrs[idx + 1]), (uint16_t)(depth - 1)) < 0)
+        if(H5B2__create_internal(hdr, internal, &(internal->node_ptrs[idx + 1]), (uint16_t)(depth - 1)) < 0)
 	    HGOTO_ERROR(H5E_BTREE, H5E_CANTINIT, FAIL, "unable to create new internal node")
 
         /* Setup information for unlocking child nodes */
@@ -188,10 +188,10 @@ H5B2__split1(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
         /* Protect both leaves */
         /* (Shadow left node if doing SWMR writes) */
-        if(NULL == (left_int = H5B2__protect_internal(hdr, dxpl_id, internal, &internal->node_ptrs[idx], (uint16_t)(depth - 1), hdr->swmr_write, H5AC__NO_FLAGS_SET)))
+        if(NULL == (left_int = H5B2__protect_internal(hdr, internal, &internal->node_ptrs[idx], (uint16_t)(depth - 1), hdr->swmr_write, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree internal node")
         left_addr = internal->node_ptrs[idx].addr;
-        if(NULL == (right_int = H5B2__protect_internal(hdr, dxpl_id, internal, &internal->node_ptrs[idx + 1], (uint16_t)(depth - 1), FALSE, H5AC__NO_FLAGS_SET)))
+        if(NULL == (right_int = H5B2__protect_internal(hdr, internal, &internal->node_ptrs[idx + 1], (uint16_t)(depth - 1), FALSE, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree internal node")
         right_addr = internal->node_ptrs[idx + 1].addr;
 
@@ -210,7 +210,7 @@ H5B2__split1(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
         /* Create new leaf node */
         internal->node_ptrs[idx + 1].all_nrec = internal->node_ptrs[idx + 1].node_nrec = 0;
-        if(H5B2__create_leaf(hdr, dxpl_id, internal, &(internal->node_ptrs[idx + 1])) < 0)
+        if(H5B2__create_leaf(hdr, internal, &(internal->node_ptrs[idx + 1])) < 0)
 	    HGOTO_ERROR(H5E_BTREE, H5E_CANTINIT, FAIL, "unable to create new leaf node")
 
         /* Setup information for unlocking child nodes */
@@ -218,10 +218,10 @@ H5B2__split1(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
         /* Protect both leaves */
         /* (Shadow the left node if doing SWMR writes) */
-        if(NULL == (left_leaf = H5B2__protect_leaf(hdr, dxpl_id, internal, &internal->node_ptrs[idx], hdr->swmr_write, H5AC__NO_FLAGS_SET)))
+        if(NULL == (left_leaf = H5B2__protect_leaf(hdr, internal, &internal->node_ptrs[idx], hdr->swmr_write, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
         left_addr = internal->node_ptrs[idx].addr;
-        if(NULL == (right_leaf = H5B2__protect_leaf(hdr, dxpl_id, internal, &internal->node_ptrs[idx + 1], FALSE, H5AC__NO_FLAGS_SET)))
+        if(NULL == (right_leaf = H5B2__protect_leaf(hdr, internal, &internal->node_ptrs[idx + 1], FALSE, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
         right_addr = internal->node_ptrs[idx + 1].addr;
 
@@ -299,7 +299,7 @@ H5B2__split1(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
     /* Update flush dependencies for grandchildren, if using SWMR */
     if(hdr->swmr_write && depth > 1)
-        if(H5B2__update_child_flush_depends(hdr, dxpl_id, depth, right_node_ptrs,
+        if(H5B2__update_child_flush_depends(hdr, depth, right_node_ptrs,
                 0, (unsigned)(*right_nrec + 1), left_child, right_child) < 0)
             HGOTO_ERROR(H5E_BTREE, H5E_CANTUPDATE, FAIL, "unable to update child nodes to new parent")
 
@@ -317,9 +317,9 @@ H5B2__split1(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
 done:
     /* Release child nodes (marked as dirty) */
-    if(left_child && H5AC_unprotect(hdr->f, dxpl_id, child_class, left_addr, left_child, left_child_flags) < 0)
+    if(left_child && H5AC_unprotect(hdr->f, child_class, left_addr, left_child, left_child_flags) < 0)
         HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree leaf node")
-    if(right_child && H5AC_unprotect(hdr->f, dxpl_id, child_class, right_addr, right_child, right_child_flags) < 0)
+    if(right_child && H5AC_unprotect(hdr->f, child_class, right_addr, right_child, right_child_flags) < 0)
         HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree leaf node")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -341,7 +341,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5B2__split_root(H5B2_hdr_t *hdr, hid_t dxpl_id)
+H5B2__split_root(H5B2_hdr_t *hdr)
 {
     H5B2_internal_t *new_root = NULL;   /* Pointer to new root node */
     unsigned new_root_flags = H5AC__NO_FLAGS_SET;   /* Cache flags for new root node */
@@ -381,23 +381,23 @@ H5B2__split_root(H5B2_hdr_t *hdr, hid_t dxpl_id)
 
     /* Create new internal node to use as root */
     hdr->root.node_nrec = 0;
-    if(H5B2__create_internal(hdr, dxpl_id, hdr, &(hdr->root), hdr->depth) < 0)
+    if(H5B2__create_internal(hdr, hdr, &(hdr->root), hdr->depth) < 0)
         HGOTO_ERROR(H5E_BTREE, H5E_CANTINIT, FAIL, "unable to create new internal node")
 
     /* Protect new root node */
-    if(NULL == (new_root = H5B2__protect_internal(hdr, dxpl_id, hdr, &hdr->root, hdr->depth, FALSE, H5AC__NO_FLAGS_SET)))
+    if(NULL == (new_root = H5B2__protect_internal(hdr, hdr, &hdr->root, hdr->depth, FALSE, H5AC__NO_FLAGS_SET)))
         HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree internal node")
 
     /* Set first node pointer in root node to old root node pointer info */
     new_root->node_ptrs[0] = old_root_ptr;
 
     /* Split original root node */
-    if(H5B2__split1(hdr, dxpl_id, hdr->depth, &(hdr->root), NULL, new_root, &new_root_flags, 0) < 0)
+    if(H5B2__split1(hdr, hdr->depth, &(hdr->root), NULL, new_root, &new_root_flags, 0) < 0)
         HGOTO_ERROR(H5E_BTREE, H5E_CANTSPLIT, FAIL, "unable to split old root node")
 
 done:
     /* Release new root node (marked as dirty) */
-    if(new_root && H5AC_unprotect(hdr->f, dxpl_id, H5AC_BT2_INT, hdr->root.addr, new_root, new_root_flags) < 0)
+    if(new_root && H5AC_unprotect(hdr->f, H5AC_BT2_INT, hdr->root.addr, new_root, new_root_flags) < 0)
         HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree internal node")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -419,8 +419,8 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5B2__redistribute2(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
-    H5B2_internal_t *internal, unsigned idx)
+H5B2__redistribute2(H5B2_hdr_t *hdr, uint16_t depth, H5B2_internal_t *internal,
+    unsigned idx)
 {
     const H5AC_class_t *child_class;    /* Pointer to child node's class info */
     haddr_t left_addr, right_addr;      /* Addresses of left & right child nodes */
@@ -448,10 +448,10 @@ H5B2__redistribute2(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
         /* Lock left & right B-tree child nodes */
         /* (Shadow both nodes if doing SWMR writes) */
-        if(NULL == (left_internal = H5B2__protect_internal(hdr, dxpl_id, internal, &internal->node_ptrs[idx], (uint16_t)(depth - 1), hdr->swmr_write, H5AC__NO_FLAGS_SET)))
+        if(NULL == (left_internal = H5B2__protect_internal(hdr, internal, &internal->node_ptrs[idx], (uint16_t)(depth - 1), hdr->swmr_write, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
         left_addr = internal->node_ptrs[idx].addr;
-        if(NULL == (right_internal = H5B2__protect_internal(hdr, dxpl_id, internal, &internal->node_ptrs[idx + 1], (uint16_t)(depth - 1), hdr->swmr_write, H5AC__NO_FLAGS_SET)))
+        if(NULL == (right_internal = H5B2__protect_internal(hdr, internal, &internal->node_ptrs[idx + 1], (uint16_t)(depth - 1), hdr->swmr_write, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
         right_addr = internal->node_ptrs[idx + 1].addr;
 
@@ -474,10 +474,10 @@ H5B2__redistribute2(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
         /* Lock left & right B-tree child nodes */
         /* (Shadow both nodes if doing SWMR writes) */
-        if(NULL == (left_leaf = H5B2__protect_leaf(hdr, dxpl_id, internal, &internal->node_ptrs[idx], hdr->swmr_write, H5AC__NO_FLAGS_SET)))
+        if(NULL == (left_leaf = H5B2__protect_leaf(hdr, internal, &internal->node_ptrs[idx], hdr->swmr_write, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
         left_addr = internal->node_ptrs[idx].addr;
-        if(NULL == (right_leaf = H5B2__protect_leaf(hdr, dxpl_id, internal, &internal->node_ptrs[idx + 1], hdr->swmr_write, H5AC__NO_FLAGS_SET)))
+        if(NULL == (right_leaf = H5B2__protect_leaf(hdr, internal, &internal->node_ptrs[idx + 1], hdr->swmr_write, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
         right_addr = internal->node_ptrs[idx + 1].addr;
 
@@ -542,7 +542,7 @@ H5B2__redistribute2(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
         /* Update flush dependencies for grandchildren, if using SWMR */
         if(hdr->swmr_write && depth > 1)
-            if(H5B2__update_child_flush_depends(hdr, dxpl_id, depth, left_node_ptrs,
+            if(H5B2__update_child_flush_depends(hdr, depth, left_node_ptrs,
                     (unsigned)(*left_nrec + 1), (unsigned)(*left_nrec + move_nrec + 1), right_child, left_child) < 0)
                 HGOTO_ERROR(H5E_BTREE, H5E_CANTUPDATE, FAIL, "unable to update child nodes to new parent")
 
@@ -598,7 +598,7 @@ H5B2__redistribute2(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
         /* Update flush dependencies for grandchildren, if using SWMR */
         if(hdr->swmr_write && depth > 1)
-            if(H5B2__update_child_flush_depends(hdr, dxpl_id, depth, right_node_ptrs,
+            if(H5B2__update_child_flush_depends(hdr, depth, right_node_ptrs,
                     0, (unsigned)move_nrec, left_child, right_child) < 0)
                 HGOTO_ERROR(H5E_BTREE, H5E_CANTUPDATE, FAIL, "unable to update child nodes to new parent")
 
@@ -639,9 +639,9 @@ H5B2__redistribute2(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
 done:
     /* Release child nodes (marked as dirty) */
-    if(left_child && H5AC_unprotect(hdr->f, dxpl_id, child_class, left_addr, left_child, left_child_flags) < 0)
+    if(left_child && H5AC_unprotect(hdr->f, child_class, left_addr, left_child, left_child_flags) < 0)
         HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree child node")
-    if(right_child && H5AC_unprotect(hdr->f, dxpl_id, child_class, right_addr, right_child, right_child_flags) < 0)
+    if(right_child && H5AC_unprotect(hdr->f, child_class, right_addr, right_child, right_child_flags) < 0)
         HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree child node")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -663,8 +663,8 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5B2__redistribute3(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
-    H5B2_internal_t *internal, unsigned *internal_flags_ptr, unsigned idx)
+H5B2__redistribute3(H5B2_hdr_t *hdr, uint16_t depth, H5B2_internal_t *internal,
+    unsigned *internal_flags_ptr, unsigned idx)
 {
     H5B2_node_ptr_t *left_node_ptrs = NULL, *right_node_ptrs = NULL; /* Pointers to childs' node pointer info */
     H5B2_node_ptr_t *middle_node_ptrs = NULL; /* Pointers to childs' node pointer info */
@@ -701,13 +701,13 @@ H5B2__redistribute3(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
         /* Lock B-tree child nodes */
         /* (Shadow all nodes if doing SWMR writes) */
-        if(NULL == (left_internal = H5B2__protect_internal(hdr, dxpl_id, internal, &internal->node_ptrs[idx - 1], (uint16_t)(depth - 1), hdr->swmr_write, H5AC__NO_FLAGS_SET)))
+        if(NULL == (left_internal = H5B2__protect_internal(hdr, internal, &internal->node_ptrs[idx - 1], (uint16_t)(depth - 1), hdr->swmr_write, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree internal node")
         left_addr = internal->node_ptrs[idx - 1].addr;
-        if(NULL == (middle_internal = H5B2__protect_internal(hdr, dxpl_id, internal, &internal->node_ptrs[idx], (uint16_t)(depth - 1), hdr->swmr_write, H5AC__NO_FLAGS_SET)))
+        if(NULL == (middle_internal = H5B2__protect_internal(hdr, internal, &internal->node_ptrs[idx], (uint16_t)(depth - 1), hdr->swmr_write, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree internal node")
         middle_addr = internal->node_ptrs[idx].addr;
-        if(NULL == (right_internal = H5B2__protect_internal(hdr, dxpl_id, internal, &internal->node_ptrs[idx + 1], (uint16_t)(depth - 1), hdr->swmr_write, H5AC__NO_FLAGS_SET)))
+        if(NULL == (right_internal = H5B2__protect_internal(hdr, internal, &internal->node_ptrs[idx + 1], (uint16_t)(depth - 1), hdr->swmr_write, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree internal node")
         right_addr = internal->node_ptrs[idx + 1].addr;
 
@@ -735,13 +735,13 @@ H5B2__redistribute3(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
         /* Lock B-tree child nodes */
         /* (Shadow all nodes if doing SWMR writes) */
-        if(NULL == (left_leaf = H5B2__protect_leaf(hdr, dxpl_id, internal, &internal->node_ptrs[idx - 1], hdr->swmr_write, H5AC__NO_FLAGS_SET)))
+        if(NULL == (left_leaf = H5B2__protect_leaf(hdr, internal, &internal->node_ptrs[idx - 1], hdr->swmr_write, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
         left_addr = internal->node_ptrs[idx - 1].addr;
-        if(NULL == (middle_leaf = H5B2__protect_leaf(hdr, dxpl_id, internal, &internal->node_ptrs[idx], hdr->swmr_write, H5AC__NO_FLAGS_SET)))
+        if(NULL == (middle_leaf = H5B2__protect_leaf(hdr, internal, &internal->node_ptrs[idx], hdr->swmr_write, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
         middle_addr = internal->node_ptrs[idx].addr;
-        if(NULL == (right_leaf = H5B2__protect_leaf(hdr, dxpl_id, internal, &internal->node_ptrs[idx + 1], hdr->swmr_write, H5AC__NO_FLAGS_SET)))
+        if(NULL == (right_leaf = H5B2__protect_leaf(hdr, internal, &internal->node_ptrs[idx + 1], hdr->swmr_write, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
         right_addr = internal->node_ptrs[idx + 1].addr;
 
@@ -812,7 +812,7 @@ H5B2__redistribute3(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
             /* Update flush dependencies for grandchildren, if using SWMR */
             if(hdr->swmr_write && depth > 1)
-                if(H5B2__update_child_flush_depends(hdr, dxpl_id, depth, left_node_ptrs,
+                if(H5B2__update_child_flush_depends(hdr, depth, left_node_ptrs,
                         (unsigned)(*left_nrec + 1), (unsigned)(*left_nrec + moved_middle_nrec + 1), middle_child, left_child) < 0)
                     HGOTO_ERROR(H5E_BTREE, H5E_CANTUPDATE, FAIL, "unable to update child nodes to new parent")
 
@@ -861,7 +861,7 @@ H5B2__redistribute3(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
             /* Update flush dependencies for grandchildren, if using SWMR */
             if(hdr->swmr_write && depth > 1)
-                if(H5B2__update_child_flush_depends(hdr, dxpl_id, depth, right_node_ptrs,
+                if(H5B2__update_child_flush_depends(hdr, depth, right_node_ptrs,
                         0, (unsigned)right_nrec_move, middle_child, right_child) < 0)
                     HGOTO_ERROR(H5E_BTREE, H5E_CANTUPDATE, FAIL, "unable to update child nodes to new parent")
 
@@ -910,7 +910,7 @@ H5B2__redistribute3(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
             /* Update flush dependencies for grandchildren, if using SWMR */
             if(hdr->swmr_write && depth > 1)
-                if(H5B2__update_child_flush_depends(hdr, dxpl_id, depth, middle_node_ptrs,
+                if(H5B2__update_child_flush_depends(hdr, depth, middle_node_ptrs,
                         0, (unsigned)left_nrec_move, left_child, middle_child) < 0)
                     HGOTO_ERROR(H5E_BTREE, H5E_CANTUPDATE, FAIL, "unable to update child nodes to new parent")
 
@@ -958,7 +958,7 @@ H5B2__redistribute3(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
             /* Update flush dependencies for grandchildren, if using SWMR */
             if(hdr->swmr_write && depth > 1)
-                if(H5B2__update_child_flush_depends(hdr, dxpl_id, depth, middle_node_ptrs,
+                if(H5B2__update_child_flush_depends(hdr, depth, middle_node_ptrs,
                         (unsigned)(curr_middle_nrec + 1), (unsigned)(curr_middle_nrec + right_nrec_move + 1), right_child, middle_child) < 0)
                     HGOTO_ERROR(H5E_BTREE, H5E_CANTUPDATE, FAIL, "unable to update child nodes to new parent")
 
@@ -1010,11 +1010,11 @@ H5B2__redistribute3(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
 done:
     /* Unlock child nodes (marked as dirty) */
-    if(left_child && H5AC_unprotect(hdr->f, dxpl_id, child_class, left_addr, left_child, left_child_flags) < 0)
+    if(left_child && H5AC_unprotect(hdr->f, child_class, left_addr, left_child, left_child_flags) < 0)
         HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree child node")
-    if(middle_child && H5AC_unprotect(hdr->f, dxpl_id, child_class, middle_addr, middle_child, middle_child_flags) < 0)
+    if(middle_child && H5AC_unprotect(hdr->f, child_class, middle_addr, middle_child, middle_child_flags) < 0)
         HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree child node")
-    if(right_child && H5AC_unprotect(hdr->f, dxpl_id, child_class, right_addr, right_child, right_child_flags) < 0)
+    if(right_child && H5AC_unprotect(hdr->f, child_class, right_addr, right_child, right_child_flags) < 0)
         HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree child node")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1037,9 +1037,9 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5B2__merge2(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
-    H5B2_node_ptr_t *curr_node_ptr, unsigned *parent_cache_info_flags_ptr,
-    H5B2_internal_t *internal, unsigned *internal_flags_ptr, unsigned idx)
+H5B2__merge2(H5B2_hdr_t *hdr, uint16_t depth, H5B2_node_ptr_t *curr_node_ptr,
+    unsigned *parent_cache_info_flags_ptr, H5B2_internal_t *internal,
+    unsigned *internal_flags_ptr, unsigned idx)
 {
     const H5AC_class_t *child_class;    /* Pointer to child node's class info */
     haddr_t left_addr, right_addr;      /* Addresses of left & right child nodes */
@@ -1068,10 +1068,10 @@ H5B2__merge2(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
         /* Lock left & right B-tree child nodes */
         /* (Shadow the left node if doing SWMR writes) */
-        if(NULL == (left_internal = H5B2__protect_internal(hdr, dxpl_id, internal, &internal->node_ptrs[idx], (uint16_t)(depth - 1), hdr->swmr_write, H5AC__NO_FLAGS_SET)))
+        if(NULL == (left_internal = H5B2__protect_internal(hdr, internal, &internal->node_ptrs[idx], (uint16_t)(depth - 1), hdr->swmr_write, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree internal node")
         left_addr = internal->node_ptrs[idx].addr;
-        if(NULL == (right_internal = H5B2__protect_internal(hdr, dxpl_id, internal, &internal->node_ptrs[idx + 1], (uint16_t)(depth - 1), FALSE, H5AC__NO_FLAGS_SET)))
+        if(NULL == (right_internal = H5B2__protect_internal(hdr, internal, &internal->node_ptrs[idx + 1], (uint16_t)(depth - 1), FALSE, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree internal node")
         right_addr = internal->node_ptrs[idx + 1].addr;
 
@@ -1094,10 +1094,10 @@ H5B2__merge2(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
         /* Lock left & right B-tree child nodes */
         /* (Shadow the left node if doing SWMR writes) */
-        if(NULL == (left_leaf = H5B2__protect_leaf(hdr, dxpl_id, internal, &internal->node_ptrs[idx], hdr->swmr_write, H5AC__NO_FLAGS_SET)))
+        if(NULL == (left_leaf = H5B2__protect_leaf(hdr, internal, &internal->node_ptrs[idx], hdr->swmr_write, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
         left_addr = internal->node_ptrs[idx].addr;
-        if(NULL == (right_leaf = H5B2__protect_leaf(hdr, dxpl_id, internal, &internal->node_ptrs[idx + 1], FALSE, H5AC__NO_FLAGS_SET)))
+        if(NULL == (right_leaf = H5B2__protect_leaf(hdr, internal, &internal->node_ptrs[idx + 1], FALSE, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
         right_addr = internal->node_ptrs[idx + 1].addr;
 
@@ -1124,7 +1124,7 @@ H5B2__merge2(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
         /* Update flush dependencies for grandchildren, if using SWMR */
         if(hdr->swmr_write && depth > 1)
-            if(H5B2__update_child_flush_depends(hdr, dxpl_id, depth, left_node_ptrs,
+            if(H5B2__update_child_flush_depends(hdr, depth, left_node_ptrs,
                     (unsigned)(*left_nrec + 1), (unsigned)(*left_nrec + *right_nrec + 2), right_child, left_child) < 0)
                 HGOTO_ERROR(H5E_BTREE, H5E_CANTUPDATE, FAIL, "unable to update child nodes to new parent")
 
@@ -1173,11 +1173,11 @@ H5B2__merge2(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
 done:
     /* Unlock left node (marked as dirty) */
-    if(left_child && H5AC_unprotect(hdr->f, dxpl_id, child_class, left_addr, left_child, left_child_flags) < 0)
+    if(left_child && H5AC_unprotect(hdr->f, child_class, left_addr, left_child, left_child_flags) < 0)
         HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree child node")
 
     /* Delete right node & remove from cache (marked as dirty) */
-    if(right_child && H5AC_unprotect(hdr->f, dxpl_id, child_class, right_addr, right_child, right_child_flags) < 0)
+    if(right_child && H5AC_unprotect(hdr->f, child_class, right_addr, right_child, right_child_flags) < 0)
         HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree child node")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1200,9 +1200,9 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5B2__merge3(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
-    H5B2_node_ptr_t *curr_node_ptr, unsigned *parent_cache_info_flags_ptr,
-    H5B2_internal_t *internal, unsigned *internal_flags_ptr, unsigned idx)
+H5B2__merge3(H5B2_hdr_t *hdr, uint16_t depth, H5B2_node_ptr_t *curr_node_ptr,
+    unsigned *parent_cache_info_flags_ptr, H5B2_internal_t *internal,
+    unsigned *internal_flags_ptr, unsigned idx)
 {
     const H5AC_class_t *child_class;    /* Pointer to child node's class info */
     haddr_t left_addr, right_addr;      /* Addresses of left & right child nodes */
@@ -1239,13 +1239,13 @@ H5B2__merge3(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
         /* Lock B-tree child nodes */
         /* (Shadow left and middle nodes if doing SWMR writes) */
-        if(NULL == (left_internal = H5B2__protect_internal(hdr, dxpl_id, internal, &internal->node_ptrs[idx - 1], (uint16_t)(depth - 1), hdr->swmr_write, H5AC__NO_FLAGS_SET)))
+        if(NULL == (left_internal = H5B2__protect_internal(hdr, internal, &internal->node_ptrs[idx - 1], (uint16_t)(depth - 1), hdr->swmr_write, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree internal node")
         left_addr = internal->node_ptrs[idx - 1].addr;
-        if(NULL == (middle_internal = H5B2__protect_internal(hdr, dxpl_id, internal, &internal->node_ptrs[idx], (uint16_t)(depth - 1), hdr->swmr_write, H5AC__NO_FLAGS_SET)))
+        if(NULL == (middle_internal = H5B2__protect_internal(hdr, internal, &internal->node_ptrs[idx], (uint16_t)(depth - 1), hdr->swmr_write, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree internal node")
         middle_addr = internal->node_ptrs[idx].addr;
-        if(NULL == (right_internal = H5B2__protect_internal(hdr, dxpl_id, internal, &internal->node_ptrs[idx + 1], (uint16_t)(depth - 1), FALSE, H5AC__NO_FLAGS_SET)))
+        if(NULL == (right_internal = H5B2__protect_internal(hdr, internal, &internal->node_ptrs[idx + 1], (uint16_t)(depth - 1), FALSE, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree internal node")
         right_addr = internal->node_ptrs[idx + 1].addr;
 
@@ -1273,13 +1273,13 @@ H5B2__merge3(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
         /* Lock B-tree child nodes */
         /* (Shadow left and middle nodes if doing SWMR writes) */
-        if(NULL == (left_leaf = H5B2__protect_leaf(hdr, dxpl_id, internal, &internal->node_ptrs[idx - 1], hdr->swmr_write, H5AC__NO_FLAGS_SET)))
+        if(NULL == (left_leaf = H5B2__protect_leaf(hdr, internal, &internal->node_ptrs[idx - 1], hdr->swmr_write, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
         left_addr = internal->node_ptrs[idx - 1].addr;
-        if(NULL == (middle_leaf = H5B2__protect_leaf(hdr, dxpl_id, internal, &internal->node_ptrs[idx], hdr->swmr_write, H5AC__NO_FLAGS_SET)))
+        if(NULL == (middle_leaf = H5B2__protect_leaf(hdr, internal, &internal->node_ptrs[idx], hdr->swmr_write, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
         middle_addr = internal->node_ptrs[idx].addr;
-        if(NULL == (right_leaf = H5B2__protect_leaf(hdr, dxpl_id, internal, &internal->node_ptrs[idx + 1], FALSE, H5AC__NO_FLAGS_SET)))
+        if(NULL == (right_leaf = H5B2__protect_leaf(hdr, internal, &internal->node_ptrs[idx + 1], FALSE, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
         right_addr = internal->node_ptrs[idx + 1].addr;
 
@@ -1332,7 +1332,7 @@ H5B2__merge3(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
         /* Update flush dependencies for grandchildren, if using SWMR */
         if(hdr->swmr_write && depth > 1)
-            if(H5B2__update_child_flush_depends(hdr, dxpl_id, depth, left_node_ptrs,
+            if(H5B2__update_child_flush_depends(hdr, depth, left_node_ptrs,
                     (unsigned)(*left_nrec + 1), (unsigned)(*left_nrec + middle_nrec_move + 1), middle_child, left_child) < 0)
                 HGOTO_ERROR(H5E_BTREE, H5E_CANTUPDATE, FAIL, "unable to update child nodes to new parent")
 
@@ -1360,7 +1360,7 @@ H5B2__merge3(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
         /* Update flush dependencies for grandchildren, if using SWMR */
         if(hdr->swmr_write && depth > 1)
-            if(H5B2__update_child_flush_depends(hdr, dxpl_id, depth, middle_node_ptrs,
+            if(H5B2__update_child_flush_depends(hdr, depth, middle_node_ptrs,
                     (unsigned)(*middle_nrec + 1), (unsigned)(*middle_nrec + *right_nrec + 2), right_child, middle_child) < 0)
                 HGOTO_ERROR(H5E_BTREE, H5E_CANTUPDATE, FAIL, "unable to update child nodes to new parent")
 
@@ -1415,13 +1415,13 @@ H5B2__merge3(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
 done:
     /* Unlock left & middle nodes (marked as dirty) */
-    if(left_child && H5AC_unprotect(hdr->f, dxpl_id, child_class, left_addr, left_child, left_child_flags) < 0)
+    if(left_child && H5AC_unprotect(hdr->f, child_class, left_addr, left_child, left_child_flags) < 0)
         HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree child node")
-    if(middle_child && H5AC_unprotect(hdr->f, dxpl_id, child_class, middle_addr, middle_child, middle_child_flags) < 0)
+    if(middle_child && H5AC_unprotect(hdr->f, child_class, middle_addr, middle_child, middle_child_flags) < 0)
         HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree child node")
 
     /* Delete right node & remove from cache (marked as dirty) */
-    if(right_child && H5AC_unprotect(hdr->f, dxpl_id, child_class, right_addr, right_child, right_child_flags) < 0)
+    if(right_child && H5AC_unprotect(hdr->f, child_class, right_addr, right_child, right_child_flags) < 0)
         HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree child node")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1442,7 +1442,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5B2__insert(H5B2_hdr_t *hdr, hid_t dxpl_id, void *udata)
+H5B2__insert(H5B2_hdr_t *hdr, void *udata)
 {
     herr_t	ret_value = SUCCEED;    /* Return value */
 
@@ -1455,23 +1455,23 @@ H5B2__insert(H5B2_hdr_t *hdr, hid_t dxpl_id, void *udata)
     /* Check if the root node is allocated yet */
     if(!H5F_addr_defined(hdr->root.addr)) {
         /* Create root node as leaf node in B-tree */
-        if(H5B2__create_leaf(hdr, dxpl_id, hdr, &(hdr->root)) < 0)
+        if(H5B2__create_leaf(hdr, hdr, &(hdr->root)) < 0)
 	    HGOTO_ERROR(H5E_BTREE, H5E_CANTINIT, FAIL, "unable to create root node")
     } /* end if */
     /* Check if we need to split the root node (equiv. to a 1->2 node split) */
     else if(hdr->root.node_nrec == hdr->node_info[hdr->depth].split_nrec) {
         /* Split root node */
-        if(H5B2__split_root(hdr, dxpl_id) < 0)
+        if(H5B2__split_root(hdr) < 0)
             HGOTO_ERROR(H5E_BTREE, H5E_CANTSPLIT, FAIL, "unable to split root node")
     } /* end if */
 
     /* Attempt to insert record into B-tree */
     if(hdr->depth > 0) {
-        if(H5B2__insert_internal(hdr, dxpl_id, hdr->depth, NULL, &hdr->root, H5B2_POS_ROOT, hdr, udata) < 0)
+        if(H5B2__insert_internal(hdr, hdr->depth, NULL, &hdr->root, H5B2_POS_ROOT, hdr, udata) < 0)
             HGOTO_ERROR(H5E_BTREE, H5E_CANTINSERT, FAIL, "unable to insert record into B-tree internal node")
     } /* end if */
     else {
-        if(H5B2__insert_leaf(hdr, dxpl_id, &hdr->root, H5B2_POS_ROOT, hdr, udata) < 0)
+        if(H5B2__insert_leaf(hdr, &hdr->root, H5B2_POS_ROOT, hdr, udata) < 0)
             HGOTO_ERROR(H5E_BTREE, H5E_CANTINSERT, FAIL, "unable to insert record into B-tree leaf node")
     } /* end else */
 
@@ -1502,9 +1502,8 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5B2__iterate_node(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
-    const H5B2_node_ptr_t *curr_node, void *parent, H5B2_operator_t op,
-    void *op_data)
+H5B2__iterate_node(H5B2_hdr_t *hdr, uint16_t depth, const H5B2_node_ptr_t *curr_node,
+    void *parent, H5B2_operator_t op, void *op_data)
 {
     const H5AC_class_t *curr_node_class = NULL; /* Pointer to current node's class info */
     void *node = NULL;                  /* Pointers to current node */
@@ -1527,7 +1526,7 @@ H5B2__iterate_node(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
         H5B2_internal_t *internal;     /* Pointer to internal node */
 
         /* Lock the current B-tree node */
-        if(NULL == (internal = H5B2__protect_internal(hdr, dxpl_id, parent, (H5B2_node_ptr_t *)curr_node, depth, FALSE, H5AC__READ_ONLY_FLAG))) /* Casting away const OK -QAK */
+        if(NULL == (internal = H5B2__protect_internal(hdr, parent, (H5B2_node_ptr_t *)curr_node, depth, FALSE, H5AC__READ_ONLY_FLAG))) /* Casting away const OK -QAK */
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree internal node")
 
         /* Set up information about current node */
@@ -1546,7 +1545,7 @@ H5B2__iterate_node(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
         H5B2_leaf_t *leaf;             /* Pointer to leaf node */
 
         /* Lock the current B-tree node */
-        if(NULL == (leaf = H5B2__protect_leaf(hdr, dxpl_id, parent, (H5B2_node_ptr_t *)curr_node, FALSE, H5AC__READ_ONLY_FLAG)))   /* Casting away const OK -QAK */
+        if(NULL == (leaf = H5B2__protect_leaf(hdr, parent, (H5B2_node_ptr_t *)curr_node, FALSE, H5AC__READ_ONLY_FLAG)))   /* Casting away const OK -QAK */
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
 
         /* Set up information about current node */
@@ -1563,7 +1562,7 @@ H5B2__iterate_node(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
     HDmemcpy(native, node_native, (hdr->cls->nrec_size * curr_node->node_nrec));
 
     /* Unlock the node */
-    if(H5AC_unprotect(hdr->f, dxpl_id, curr_node_class, curr_node->addr, node, (unsigned)(hdr->swmr_write ? H5AC__PIN_ENTRY_FLAG : H5AC__NO_FLAGS_SET)) < 0)
+    if(H5AC_unprotect(hdr->f, curr_node_class, curr_node->addr, node, (unsigned)(hdr->swmr_write ? H5AC__PIN_ENTRY_FLAG : H5AC__NO_FLAGS_SET)) < 0)
         HGOTO_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree node")
     if(hdr->swmr_write)
         node_pinned = TRUE;
@@ -1574,7 +1573,7 @@ H5B2__iterate_node(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
     for(u = 0; u < curr_node->node_nrec && !ret_value; u++) {
         /* Descend into child node, if current node is an internal node */
         if(depth > 0) {
-            if((ret_value = H5B2__iterate_node(hdr, dxpl_id, (uint16_t)(depth - 1), &(node_ptrs[u]), node, op, op_data)) < 0)
+            if((ret_value = H5B2__iterate_node(hdr, (uint16_t)(depth - 1), &(node_ptrs[u]), node, op, op_data)) < 0)
                 HERROR(H5E_BTREE, H5E_CANTLIST, "node iteration failed");
         } /* end if */
 
@@ -1587,7 +1586,7 @@ H5B2__iterate_node(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
     /* Descend into last child node, if current node is an internal node */
     if(!ret_value && depth > 0) {
-        if((ret_value = H5B2__iterate_node(hdr, dxpl_id, (uint16_t)(depth - 1), &(node_ptrs[u]), node, op, op_data)) < 0)
+        if((ret_value = H5B2__iterate_node(hdr, (uint16_t)(depth - 1), &(node_ptrs[u]), node, op, op_data)) < 0)
             HERROR(H5E_BTREE, H5E_CANTLIST, "node iteration failed");
     } /* end if */
 
@@ -1621,9 +1620,8 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5B2__delete_node(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
-    const H5B2_node_ptr_t *curr_node, void *parent, H5B2_remove_t op,
-    void *op_data)
+H5B2__delete_node(H5B2_hdr_t *hdr, uint16_t depth, const H5B2_node_ptr_t *curr_node,
+    void *parent, H5B2_remove_t op, void *op_data)
 {
     const H5AC_class_t *curr_node_class = NULL; /* Pointer to current node's class info */
     void *node = NULL;                  /* Pointers to current node */
@@ -1641,7 +1639,7 @@ H5B2__delete_node(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
         unsigned u;                    /* Local index */
 
         /* Lock the current B-tree node */
-        if(NULL == (internal = H5B2__protect_internal(hdr, dxpl_id, parent, (H5B2_node_ptr_t *)curr_node, depth, FALSE, H5AC__NO_FLAGS_SET)))   /* Casting away const OK -QAK */
+        if(NULL == (internal = H5B2__protect_internal(hdr, parent, (H5B2_node_ptr_t *)curr_node, depth, FALSE, H5AC__NO_FLAGS_SET)))   /* Casting away const OK -QAK */
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree internal node")
 
         /* Set up information about current node */
@@ -1651,14 +1649,14 @@ H5B2__delete_node(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
         /* Descend into children */
         for(u = 0; u < internal->nrec + (unsigned)1; u++)
-            if(H5B2__delete_node(hdr, dxpl_id, (uint16_t)(depth - 1), &(internal->node_ptrs[u]), internal, op, op_data) < 0)
+            if(H5B2__delete_node(hdr, (uint16_t)(depth - 1), &(internal->node_ptrs[u]), internal, op, op_data) < 0)
                 HGOTO_ERROR(H5E_BTREE, H5E_CANTLIST, FAIL, "node descent failed")
     } /* end if */
     else {
         H5B2_leaf_t *leaf;             /* Pointer to leaf node */
 
         /* Lock the current B-tree node */
-        if(NULL == (leaf = H5B2__protect_leaf(hdr, dxpl_id, parent, (H5B2_node_ptr_t *)curr_node, FALSE, H5AC__NO_FLAGS_SET)))     /* Casting away const OK -QAK */
+        if(NULL == (leaf = H5B2__protect_leaf(hdr, parent, (H5B2_node_ptr_t *)curr_node, FALSE, H5AC__NO_FLAGS_SET)))     /* Casting away const OK -QAK */
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
 
         /* Set up information about current node */
@@ -1681,7 +1679,7 @@ H5B2__delete_node(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
 done:
     /* Unlock & delete current node */
-    if(node && H5AC_unprotect(hdr->f, dxpl_id, curr_node_class, curr_node->addr, node, (unsigned)(H5AC__DELETED_FLAG | (hdr->swmr_write ? 0 : H5AC__FREE_FILE_SPACE_FLAG))) < 0)
+    if(node && H5AC_unprotect(hdr->f, curr_node_class, curr_node->addr, node, (unsigned)(H5AC__DELETED_FLAG | (hdr->swmr_write ? 0 : H5AC__FREE_FILE_SPACE_FLAG))) < 0)
         HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree node")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1702,8 +1700,8 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5B2__node_size(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
-    const H5B2_node_ptr_t *curr_node, void *parent, hsize_t *btree_size)
+H5B2__node_size(H5B2_hdr_t *hdr, uint16_t depth, const H5B2_node_ptr_t *curr_node,
+    void *parent, hsize_t *btree_size)
 {
     H5B2_internal_t 	*internal = NULL;     	/* Pointer to internal node */
     herr_t 		ret_value = SUCCEED;  	/* Iterator return value */
@@ -1717,7 +1715,7 @@ H5B2__node_size(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
     HDassert(depth > 0);
 
     /* Lock the current B-tree node */
-    if(NULL == (internal = H5B2__protect_internal(hdr, dxpl_id, parent, (H5B2_node_ptr_t *)curr_node, depth, FALSE, H5AC__READ_ONLY_FLAG)))     /* Casting away const OK -QAK */
+    if(NULL == (internal = H5B2__protect_internal(hdr, parent, (H5B2_node_ptr_t *)curr_node, depth, FALSE, H5AC__READ_ONLY_FLAG)))     /* Casting away const OK -QAK */
         HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree internal node")
 
     /* Recursively descend into child nodes, if we are above the "twig" level in the B-tree */
@@ -1726,7 +1724,7 @@ H5B2__node_size(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
 
         /* Descend into children */
         for(u = 0; u < internal->nrec + (unsigned)1; u++)
-            if(H5B2__node_size(hdr, dxpl_id, (uint16_t)(depth - 1), &(internal->node_ptrs[u]), internal, btree_size) < 0)
+            if(H5B2__node_size(hdr, (uint16_t)(depth - 1), &(internal->node_ptrs[u]), internal, btree_size) < 0)
                 HGOTO_ERROR(H5E_BTREE, H5E_CANTLIST, FAIL, "node iteration failed")
     } /* end if */
     else /* depth is 1: count all the leaf nodes from this node */
@@ -1736,7 +1734,7 @@ H5B2__node_size(H5B2_hdr_t *hdr, hid_t dxpl_id, uint16_t depth,
     *btree_size += hdr->node_size;
 
 done:
-    if(internal && H5AC_unprotect(hdr->f, dxpl_id, H5AC_BT2_INT, curr_node->addr, internal, H5AC__NO_FLAGS_SET) < 0)
+    if(internal && H5AC_unprotect(hdr->f, H5AC_BT2_INT, curr_node->addr, internal, H5AC__NO_FLAGS_SET) < 0)
 	HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree node")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1789,7 +1787,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5B2__update_flush_depend(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned depth,
+H5B2__update_flush_depend(H5B2_hdr_t *hdr, unsigned depth,
     const H5B2_node_ptr_t *node_ptr, void *old_parent, void *new_parent)
 {
     const H5AC_class_t *child_class;    /* Pointer to child node's class info */
@@ -1820,7 +1818,7 @@ H5B2__update_flush_depend(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned depth,
             H5B2_internal_t *child_int;
 
             /* Protect child */
-            if(NULL == (child_int = H5B2__protect_internal(hdr, dxpl_id, new_parent, (H5B2_node_ptr_t *)node_ptr, (uint16_t)(depth - 1), FALSE, H5AC__NO_FLAGS_SET)))      /* Casting away const OK -QAK */
+            if(NULL == (child_int = H5B2__protect_internal(hdr, new_parent, (H5B2_node_ptr_t *)node_ptr, (uint16_t)(depth - 1), FALSE, H5AC__NO_FLAGS_SET)))      /* Casting away const OK -QAK */
                 HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree internal node")
             child_class = H5AC_BT2_INT;
             child = child_int;
@@ -1836,7 +1834,7 @@ H5B2__update_flush_depend(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned depth,
             H5B2_leaf_t *child_leaf;
 
             /* Protect child */
-            if(NULL == (child_leaf = H5B2__protect_leaf(hdr, dxpl_id, new_parent, (H5B2_node_ptr_t *)node_ptr, FALSE, H5AC__NO_FLAGS_SET)))    /* Casting away const OK -QAK */
+            if(NULL == (child_leaf = H5B2__protect_leaf(hdr, new_parent, (H5B2_node_ptr_t *)node_ptr, FALSE, H5AC__NO_FLAGS_SET)))    /* Casting away const OK -QAK */
                 HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
             child_class = H5AC_BT2_LEAF;
             child = child_leaf;
@@ -1866,7 +1864,7 @@ H5B2__update_flush_depend(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned depth,
 done:
     /* Unprotect the child */
     if(child)
-        if(H5AC_unprotect(hdr->f, dxpl_id, child_class, node_ptr->addr, child, H5AC__NO_FLAGS_SET) < 0)
+        if(H5AC_unprotect(hdr->f, child_class, node_ptr->addr, child, H5AC__NO_FLAGS_SET) < 0)
             HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree node")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1887,7 +1885,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5B2__update_child_flush_depends(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned depth,
+H5B2__update_child_flush_depends(H5B2_hdr_t *hdr, unsigned depth,
     const H5B2_node_ptr_t *node_ptrs, unsigned start_idx, unsigned end_idx, 
     void *old_parent, void *new_parent)
 {
@@ -1907,7 +1905,7 @@ H5B2__update_child_flush_depends(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned depth,
     /* Loop over children */
     for(u = start_idx; u < end_idx; u++)
         /* Update parent for children */
-        if(H5B2__update_flush_depend(hdr, dxpl_id, depth - 1, &node_ptrs[u], old_parent, new_parent) < 0)
+        if(H5B2__update_flush_depend(hdr, depth - 1, &node_ptrs[u], old_parent, new_parent) < 0)
             HGOTO_ERROR(H5E_BTREE, H5E_CANTUPDATE, FAIL, "unable to update child node to new parent")
 
 done:

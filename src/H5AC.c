@@ -39,6 +39,7 @@
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5ACpkg.h"		/* Metadata cache			*/
 #include "H5Cprivate.h"		/* Cache                                */
+#include "H5CXprivate.h"        /* API Contexts                         */
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5Fpkg.h"		/* Files				*/
 #include "H5FDprivate.h"	/* File drivers				*/
@@ -66,7 +67,7 @@ static herr_t H5AC__check_if_write_permitted(const H5F_t *f,
 static herr_t H5AC__ext_config_2_int_config(H5AC_cache_config_t *ext_conf_ptr,
     H5C_auto_size_ctl_t *int_conf_ptr);
 #if H5AC_DO_TAGGING_SANITY_CHECKS
-static herr_t H5AC__verify_tag(hid_t dxpl_id, const H5AC_class_t * type);
+static herr_t H5AC__verify_tag(const H5AC_class_t * type);
 #endif /* H5AC_DO_TAGGING_SANITY_CHECKS */
 
 
@@ -80,20 +81,6 @@ hbool_t H5_PKG_INIT_VAR = FALSE;
 /*****************************/
 /* Library Private Variables */
 /*****************************/
-
-/* Default dataset transfer property list for metadata I/O calls (coll write, ind read) */
-hid_t H5AC_ind_read_dxpl_id = (-1);
-#ifdef H5_HAVE_PARALLEL
-/* collective metadata read property */
-hid_t H5AC_coll_read_dxpl_id = (-1);
-#endif /* H5_HAVE_PARALLEL */
-
-/* DXPL to be used in operations that will not result in I/O calls */
-hid_t H5AC_noio_dxpl_id = (-1);
-
-/* Default DXPL to be used for raw data I/O operations when one is not
-   provided by the user (fill values in H5Dcreate) */
-hid_t H5AC_rawdata_dxpl_id = (-1);
 
 #ifdef H5_HAVE_PARALLEL
 /* Environment variable for collective API sanity checks */
@@ -187,18 +174,7 @@ done:
 herr_t
 H5AC__init_package(void)
 {
-#if defined H5_DEBUG_BUILD | defined H5_HAVE_PARALLEL
-    H5P_genplist_t  *xfer_plist;    /* Dataset transfer property list object */
-#endif /* defined H5_DEBUG_BUILD | defined H5_HAVE_PARALLEL */
-#ifdef H5_DEBUG_BUILD
-    H5FD_dxpl_type_t  dxpl_type;    /* Property indicating the type of the internal dxpl */
-#endif /* H5_DEBUG_BUILD */
-#ifdef H5_HAVE_PARALLEL
-    H5P_coll_md_read_flag_t coll_meta_read;
-#endif /* H5_HAVE_PARALLEL */
-    herr_t ret_value = SUCCEED;     /* Return value */
-
-    FUNC_ENTER_PACKAGE
+    FUNC_ENTER_PACKAGE_NOERR
 
 #ifdef H5_HAVE_PARALLEL
     /* check whether to enable strict collective function calling
@@ -212,81 +188,7 @@ H5AC__init_package(void)
     }
 #endif /* H5_HAVE_PARALLEL */
 
-#if defined(H5_HAVE_PARALLEL) || defined(H5_DEBUG_BUILD)
-    /* Get an ID for the internal independent metadata dxpl */
-    if((H5AC_ind_read_dxpl_id = H5P_create_id(H5P_CLS_DATASET_XFER_g, FALSE)) < 0)
-        HGOTO_ERROR(H5E_CACHE, H5E_CANTCREATE, FAIL, "unable to register property list")
-
-    /* Get an ID for the no I/O internal dxpl */
-    if((H5AC_noio_dxpl_id = H5P_create_id(H5P_CLS_DATASET_XFER_g, FALSE)) < 0)
-        HGOTO_ERROR(H5E_CACHE, H5E_CANTCREATE, FAIL, "unable to register property list")
-
-    /* Get an ID for the raw data (H5AC) dxpl */
-    if((H5AC_rawdata_dxpl_id = H5P_create_id(H5P_CLS_DATASET_XFER_g, FALSE)) < 0)
-        HGOTO_ERROR(H5E_CACHE, H5E_CANTCREATE, FAIL, "unable to register property list")
-
-    /* if this is a debug build, set the dxpl type flag on the
-       independent metadata dxpl and create the noio and raw data internal dxpls */
-#ifdef H5_DEBUG_BUILD
-    /* Get the property list object */
-    if (NULL == (xfer_plist = (H5P_genplist_t *)H5I_object(H5AC_ind_read_dxpl_id)))
-        HGOTO_ERROR(H5E_CACHE, H5E_BADATOM, FAIL, "can't get new property list object")
-    /* Insert the dxpl type property  */
-    dxpl_type = H5FD_METADATA_DXPL;
-    if(H5P_set(xfer_plist, H5FD_DXPL_TYPE_NAME, &dxpl_type) < 0)
-        HGOTO_ERROR(H5E_CACHE, H5E_CANTSET, FAIL, "can't set dxpl type property")
-
-    /* Get the property list object */
-    if (NULL == (xfer_plist = (H5P_genplist_t *)H5I_object(H5AC_noio_dxpl_id)))
-        HGOTO_ERROR(H5E_CACHE, H5E_BADATOM, FAIL, "can't get new property list object")
-    /* Insert the dxpl type property  */
-    dxpl_type = H5FD_NOIO_DXPL;
-    if(H5P_set(xfer_plist, H5FD_DXPL_TYPE_NAME, &dxpl_type) < 0)
-        HGOTO_ERROR(H5E_CACHE, H5E_CANTSET, FAIL, "can't set dxpl type property")
-
-    /* Get the property list object */
-    if (NULL == (xfer_plist = (H5P_genplist_t *)H5I_object(H5AC_rawdata_dxpl_id)))
-        HGOTO_ERROR(H5E_CACHE, H5E_BADATOM, FAIL, "can't get new property list object")
-    /* Insert the dxpl type property  */
-    dxpl_type = H5FD_RAWDATA_DXPL;
-    if(H5P_set(xfer_plist, H5FD_DXPL_TYPE_NAME, &dxpl_type) < 0)
-        HGOTO_ERROR(H5E_CACHE, H5E_CANTSET, FAIL, "can't set dxpl type property")
-#endif /* H5_DEBUG_BUILD */
-
-    /* if this is a parallel build, create an internal dxpl for
-       collective metadata reads */
-#ifdef H5_HAVE_PARALLEL
-    /* Get an ID for H5AC_coll_read_dxpl_id */
-    if((H5AC_coll_read_dxpl_id = H5P_create_id(H5P_CLS_DATASET_XFER_g, FALSE)) < 0)
-        HGOTO_ERROR(H5E_CACHE, H5E_CANTCREATE, FAIL, "unable to register property list")
-    /* Get the property list object */
-    if (NULL == (xfer_plist = (H5P_genplist_t *)H5I_object(H5AC_coll_read_dxpl_id)))
-        HGOTO_ERROR(H5E_CACHE, H5E_BADATOM, FAIL, "can't get new property list object")
-    /* set 'collective metadata read' property */
-    coll_meta_read = H5P_USER_TRUE;
-    if(H5P_set(xfer_plist, H5_COLL_MD_READ_FLAG_NAME, &coll_meta_read) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set collective metadata read flag")
-
-    /* if we have a debug build, set the dxpl type to metadata on the
-       collective metadata dxpl */
-#ifdef H5_DEBUG_BUILD
-    /* set metadata dxpl type */
-    dxpl_type = H5FD_METADATA_DXPL;
-    if(H5P_set(xfer_plist, H5FD_DXPL_TYPE_NAME, &dxpl_type) < 0)
-        HGOTO_ERROR(H5E_CACHE, H5E_CANTSET, FAIL, "can't set dxpl type property")
-#endif /* H5_DEBUG_BUILD */
-#endif /* H5_HAVE_PARALLEL */
-
-#else /* defined(H5_HAVE_PARALLEL) || defined(H5_DEBUG_BUILD) */
-    H5AC_ind_read_dxpl_id = H5P_DATASET_XFER_DEFAULT;
-    H5AC_noio_dxpl_id = H5P_DATASET_XFER_DEFAULT;
-    H5AC_rawdata_dxpl_id = H5P_DATASET_XFER_DEFAULT;
-#endif /* defined(H5_HAVE_PARALLEL) || defined(H5_DEBUG_BUILD) */
-
-#if defined(H5_DEBUG_BUILD) | defined(H5_HAVE_PARALLEL)
-done:
-#endif /* defined(H5_DEBUG_BUILD) | defined(H5_HAVE_PARALLEL) */
-    FUNC_LEAVE_NOAPI(ret_value)
+    FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5AC__init_package() */
 
 
@@ -307,46 +209,13 @@ done:
 int
 H5AC_term_package(void)
 {
-    int	n = 0;
-
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    if(H5_PKG_INIT_VAR) {
-        if(H5AC_ind_read_dxpl_id > 0 || H5AC_noio_dxpl_id > 0 || H5AC_rawdata_dxpl_id > 0
-#ifdef H5_HAVE_PARALLEL
-           || H5AC_coll_read_dxpl_id > 0
-#endif /* H5_HAVE_PARALLEL */
-           ) {
-#if defined(H5_HAVE_PARALLEL) || defined(H5_DEBUG_BUILD)
-            /* Indicate more work to do */
-            n = 1; /* H5I */
-
-            /* Close H5AC dxpls */
-            if(H5I_dec_ref(H5AC_ind_read_dxpl_id) < 0 ||
-               H5I_dec_ref(H5AC_noio_dxpl_id) < 0 ||
-               H5I_dec_ref(H5AC_rawdata_dxpl_id) < 0
-#ifdef H5_HAVE_PARALLEL
-               || H5I_dec_ref(H5AC_coll_read_dxpl_id) < 0
-#endif /* H5_HAVE_PARALLEL */
-               )
-                H5E_clear_stack(NULL); /*ignore error*/
-#endif /* defined(H5_HAVE_PARALLEL) || defined(H5_DEBUG_BUILD) */
-
-            /* Reset static IDs */
-            H5AC_ind_read_dxpl_id = (-1);
-            H5AC_noio_dxpl_id = (-1);
-            H5AC_rawdata_dxpl_id = (-1);
-#ifdef H5_HAVE_PARALLEL
-            H5AC_coll_read_dxpl_id = (-1);
-#endif /* H5_HAVE_PARALLEL */
-        } /* end if */
-
+    if(H5_PKG_INIT_VAR)
         /* Reset interface initialization flag */
-        if(0 == n)
-            H5_PKG_INIT_VAR = FALSE;
-    } /* end if */
+        H5_PKG_INIT_VAR = FALSE;
 
-    FUNC_LEAVE_NOAPI(n)
+    FUNC_LEAVE_NOAPI(0)
 } /* end H5AC_term_package() */
 
 
@@ -449,7 +318,7 @@ H5AC_create(const H5F_t *f, H5AC_cache_config_t *config_ptr, H5AC_cache_image_co
             HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "can't get mpi size")
 
         if(NULL == (aux_ptr = H5FL_CALLOC(H5AC_aux_t)))
-            HGOTO_ERROR(H5E_CACHE, H5E_CANTALLOC, FAIL, "Can't allocate H5AC auxilary structure")
+            HGOTO_ERROR(H5E_CACHE, H5E_CANTALLOC, FAIL, "Can't allocate H5AC auxiliary structure")
 
         aux_ptr->magic = H5AC__H5AC_AUX_T_MAGIC;
         aux_ptr->mpi_comm = mpi_comm;
@@ -563,7 +432,7 @@ H5AC_create(const H5F_t *f, H5AC_cache_config_t *config_ptr, H5AC_cache_image_co
 
 done:
 #ifdef H5_HAVE_PARALLEL
-    /* if there is a failure, try to tidy up the auxilary structure */
+    /* if there is a failure, try to tidy up the auxiliary structure */
     if(ret_value < 0) {
         if(aux_ptr != NULL) {
             if(aux_ptr->d_slist_ptr != NULL)
@@ -598,7 +467,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5AC_dest(H5F_t *f, hid_t dxpl_id)
+H5AC_dest(H5F_t *f)
 {
 #ifdef H5_HAVE_PARALLEL
     H5AC_aux_t * aux_ptr = NULL;
@@ -646,15 +515,13 @@ H5AC_dest(H5F_t *f, hid_t dxpl_id)
      * Must not flush in the R/O case, as this will trigger the 
      * free space manager settle routines.
      */
-    if ( ( H5F_ACC_RDWR & H5F_INTENT(f) ) && 
-         ( H5AC__flush_entries(f, dxpl_id) < 0 ) )
-
-        HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "Can't flush")
-
+    if(H5F_ACC_RDWR & H5F_INTENT(f))
+        if(H5AC__flush_entries(f) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "Can't flush")
 #endif /* H5_HAVE_PARALLEL */
 
     /* Destroy the cache */
-    if(H5C_dest(f, dxpl_id) < 0)
+    if(H5C_dest(f) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTFREE, FAIL, "can't destroy cache")
     f->shared->cache = NULL;
 
@@ -696,7 +563,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5AC_evict(H5F_t *f, hid_t dxpl_id)
+H5AC_evict(H5F_t *f)
 {
     hbool_t log_enabled;             /* TRUE if logging was set up */
     hbool_t curr_logging;            /* TRUE if currently logging */
@@ -714,7 +581,7 @@ H5AC_evict(H5F_t *f, hid_t dxpl_id)
         HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "unable to get logging status")
 
     /* Evict all entries in the cache except the pinned superblock entry */
-    if(H5C_evict(f, dxpl_id) < 0)
+    if(H5C_evict(f) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTFREE, FAIL, "can't evict cache")
 
 done:
@@ -743,8 +610,8 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5AC_expunge_entry(H5F_t *f, hid_t dxpl_id, const H5AC_class_t *type,
-    haddr_t addr, unsigned flags)
+H5AC_expunge_entry(H5F_t *f, const H5AC_class_t *type, haddr_t addr,
+    unsigned flags)
 {
 #if H5AC__TRACE_FILE_ENABLED
     char                trace[128] = "";
@@ -781,7 +648,7 @@ H5AC_expunge_entry(H5F_t *f, hid_t dxpl_id, const H5AC_class_t *type,
 }
 #endif /* H5AC__TRACE_FILE_ENABLED */
 
-    if(H5C_expunge_entry(f, dxpl_id, type, addr, flags) < 0)
+    if(H5C_expunge_entry(f, type, addr, flags) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTEXPUNGE, FAIL, "H5C_expunge_entry() failed")
 
 done:
@@ -820,7 +687,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5AC_flush(H5F_t *f, hid_t dxpl_id)
+H5AC_flush(H5F_t *f)
 {
 #if H5AC__TRACE_FILE_ENABLED
     char 	  trace[128] = "";
@@ -855,13 +722,13 @@ H5AC_flush(H5F_t *f, hid_t dxpl_id)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTGET, FAIL, "H5C_clear_coll_entries() failed")
 
     /* Attempt to flush all entries from rank 0 & Bcast clean list to other ranks */
-    if(H5AC__flush_entries(f, dxpl_id) < 0)
+    if(H5AC__flush_entries(f) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "Can't flush")
 #endif /* H5_HAVE_PARALLEL */
 
     /* Flush the cache */
     /* (Again, in parallel - writes out the superblock) */
-    if(H5C_flush_cache(f, dxpl_id, H5AC__NO_FLAGS_SET) < 0)
+    if(H5C_flush_cache(f, H5AC__NO_FLAGS_SET) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "Can't flush cache")
 
 done:
@@ -900,7 +767,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5AC_force_cache_image_load(H5F_t *f, hid_t dxpl_id)
+H5AC_force_cache_image_load(H5F_t *f)
 {
     herr_t ret_value = SUCCEED;      /* Return value */
 
@@ -911,7 +778,7 @@ H5AC_force_cache_image_load(H5F_t *f, hid_t dxpl_id)
     HDassert(f->shared);
     HDassert(f->shared->cache);
 
-    if(H5C_force_cache_image_load(f, dxpl_id) < 0)
+    if(H5C_force_cache_image_load(f) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTLOAD, FAIL, "Can't load cache image")
 
 done:
@@ -1003,8 +870,8 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5AC_insert_entry(H5F_t *f, hid_t dxpl_id, const H5AC_class_t *type, haddr_t addr,
-    void *thing, unsigned int flags)
+H5AC_insert_entry(H5F_t *f, const H5AC_class_t *type, haddr_t addr, void *thing,
+    unsigned int flags)
 {
 #if H5AC__TRACE_FILE_ENABLED
     char          	trace[128] = "";
@@ -1048,12 +915,12 @@ H5AC_insert_entry(H5F_t *f, hid_t dxpl_id, const H5AC_class_t *type, haddr_t add
 #endif /* H5AC__TRACE_FILE_ENABLED */
 
 #if H5AC_DO_TAGGING_SANITY_CHECKS
-    if(!H5C_get_ignore_tags(f->shared->cache) && H5AC__verify_tag(dxpl_id, type) < 0)
+    if(!H5C_get_ignore_tags(f->shared->cache) && H5AC__verify_tag(type) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTTAG, FAIL, "Bad tag value")
 #endif /* H5AC_DO_TAGGING_SANITY_CHECKS */
 
     /* Insert entry into metadata cache */
-    if(H5C_insert_entry(f, dxpl_id, type, addr, thing, flags) < 0)
+    if(H5C_insert_entry(f, type, addr, thing, flags) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTINS, FAIL, "H5C_insert_entry() failed")
 
 #if H5AC__TRACE_FILE_ENABLED
@@ -1073,7 +940,7 @@ H5AC_insert_entry(H5F_t *f, hid_t dxpl_id, const H5AC_class_t *type, haddr_t add
 
         /* Check if we should try to flush */
         if(aux_ptr->dirty_bytes >= aux_ptr->dirty_bytes_threshold)
-            if(H5AC__run_sync_point(f, dxpl_id, H5AC_SYNC_POINT_OP__FLUSH_TO_MIN_CLEAN) < 0)
+            if(H5AC__run_sync_point(f, H5AC_SYNC_POINT_OP__FLUSH_TO_MIN_CLEAN) < 0)
                 HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "Can't run sync point")
     } /* end if */
 }
@@ -1431,12 +1298,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5AC_move_entry(H5F_t *f, const H5AC_class_t *type, haddr_t old_addr, 
-                haddr_t new_addr, hid_t 
-#ifndef H5_HAVE_PARALLEL
-H5_ATTR_UNUSED
-#endif /* H5_HAVE_PARALLEL */
-                dxpl_id)
+H5AC_move_entry(H5F_t *f, const H5AC_class_t *type, haddr_t old_addr, haddr_t new_addr)
 {
 #if H5AC__TRACE_FILE_ENABLED
     char          	trace[128] = "";
@@ -1486,7 +1348,7 @@ H5_ATTR_UNUSED
 #ifdef H5_HAVE_PARALLEL
     /* Check if we should try to flush */
     if(NULL != aux_ptr && aux_ptr->dirty_bytes >= aux_ptr->dirty_bytes_threshold)
-        if(H5AC__run_sync_point(f, dxpl_id, H5AC_SYNC_POINT_OP__FLUSH_TO_MIN_CLEAN) < 0)
+        if(H5AC__run_sync_point(f, H5AC_SYNC_POINT_OP__FLUSH_TO_MIN_CLEAN) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "Can't run sync point")
 #endif /* H5_HAVE_PARALLEL */
 
@@ -1591,7 +1453,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5AC_prep_for_file_close(H5F_t *f, hid_t dxpl_id)
+H5AC_prep_for_file_close(H5F_t *f)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
@@ -1602,7 +1464,7 @@ H5AC_prep_for_file_close(H5F_t *f, hid_t dxpl_id)
     HDassert(f->shared);
     HDassert(f->shared->cache);
 
-    if(H5C_prep_for_file_close(f, dxpl_id) < 0)
+    if(H5C_prep_for_file_close(f) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "cache prep for file close failed")
 
 done:
@@ -1701,8 +1563,8 @@ done:
  *-------------------------------------------------------------------------
  */
 void *
-H5AC_protect(H5F_t *f, hid_t dxpl_id, const H5AC_class_t *type, haddr_t addr,
-    void *udata, unsigned flags)
+H5AC_protect(H5F_t *f, const H5AC_class_t *type, haddr_t addr, void *udata,
+    unsigned flags)
 {
 #if H5AC__TRACE_FILE_ENABLED
     char                trace[128] = "";
@@ -1755,11 +1617,11 @@ H5AC_protect(H5F_t *f, hid_t dxpl_id, const H5AC_class_t *type, haddr_t addr,
 #endif /* H5AC__TRACE_FILE_ENABLED */
 
 #if H5AC_DO_TAGGING_SANITY_CHECKS
-    if(!H5C_get_ignore_tags(f->shared->cache) && H5AC__verify_tag(dxpl_id, type) < 0)
+    if(!H5C_get_ignore_tags(f->shared->cache) && H5AC__verify_tag(type) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTTAG, NULL, "Bad tag value")
 #endif /* H5AC_DO_TAGGING_SANITY_CHECKS */
 
-    if(NULL == (thing = H5C_protect(f, dxpl_id, type, addr, udata, flags)))
+    if(NULL == (thing = H5C_protect(f, type, addr, udata, flags)))
         HGOTO_ERROR(H5E_CACHE, H5E_CANTPROTECT, NULL, "H5C_protect() failed")
 
 #if H5AC__TRACE_FILE_ENABLED
@@ -2016,7 +1878,7 @@ done:
  *		from the cache, clear it, and free it without writing it to
  *		disk.
  *
- *		This verion of the function is a complete re-write to
+ *		This version of the function is a complete re-write to
  *		use the new metadata cache.  While there isn't all that
  *		much difference between the old and new Purpose sections,
  *		the original version is given below.
@@ -2039,8 +1901,8 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5AC_unprotect(H5F_t *f, hid_t dxpl_id, const H5AC_class_t *type, haddr_t addr,
-    void *thing, unsigned flags)
+H5AC_unprotect(H5F_t *f, const H5AC_class_t *type, haddr_t addr, void *thing,
+    unsigned flags)
 {
 #if H5AC__TRACE_FILE_ENABLED
     char                trace[128] = "";
@@ -2111,13 +1973,13 @@ H5AC_unprotect(H5F_t *f, hid_t dxpl_id, const H5AC_class_t *type, haddr_t addr,
     } /* end if */
 #endif /* H5_HAVE_PARALLEL */
 
-    if(H5C_unprotect(f, dxpl_id, addr, thing, flags) < 0)
+    if(H5C_unprotect(f, addr, thing, flags) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTUNPROTECT, FAIL, "H5C_unprotect() failed")
 
 #ifdef H5_HAVE_PARALLEL
     /* Check if we should try to flush */
     if((aux_ptr != NULL) && (aux_ptr->dirty_bytes >= aux_ptr->dirty_bytes_threshold))
-        if(H5AC__run_sync_point(f, dxpl_id, H5AC_SYNC_POINT_OP__FLUSH_TO_MIN_CLEAN) < 0)
+        if(H5AC__run_sync_point(f, H5AC_SYNC_POINT_OP__FLUSH_TO_MIN_CLEAN) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "Can't run sync point")
 #endif /* H5_HAVE_PARALLEL */
 
@@ -2765,33 +2627,19 @@ done:
  *
  *------------------------------------------------------------------------------
  */
-herr_t
-H5AC_tag(hid_t dxpl_id, haddr_t metadata_tag, haddr_t *prev_tag)
+void
+H5AC_tag(haddr_t metadata_tag, haddr_t *prev_tag)
 {
-    H5P_genplist_t *dxpl;           /* Dataset transfer property list */
-    herr_t ret_value = SUCCEED;     /* Return value */
-
-    FUNC_ENTER_NOAPI(FAIL)
-
-    /* Check Arguments */
-    if(NULL == (dxpl = (H5P_genplist_t *)H5I_object_verify(dxpl_id, H5I_GENPROP_LST)))
-        HGOTO_ERROR(H5E_CACHE, H5E_BADTYPE, FAIL, "not a property list")
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Get the current tag value and return that (if prev_tag is NOT null) */
-    if(prev_tag) {
-        haddr_t tag;                    /* Tag value */
+    if(prev_tag)
+        *prev_tag = H5CX_get_tag();
 
-        if((H5P_get(dxpl, H5AC_TAG_NAME, &tag)) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "unable to query dxpl")
-        *prev_tag = tag;
-    } /* end if */
+    /* Set the provided tag */
+    H5CX_set_tag(metadata_tag);
 
-    /* Set the provided tag in the dxpl_id. */
-    if(H5P_set(dxpl, H5AC_TAG_NAME, &metadata_tag) < 0)
-        HGOTO_ERROR(H5E_CACHE, H5E_CANTSET, FAIL, "can't set tag in dxpl")
-
-done:
-    FUNC_LEAVE_NOAPI(ret_value)
+    FUNC_LEAVE_NOAPI_VOID
 } /* H5AC_tag */
 
 
@@ -2843,7 +2691,7 @@ done:
  *------------------------------------------------------------------------------
  */
 herr_t
-H5AC_flush_tagged_metadata(H5F_t * f, haddr_t metadata_tag, hid_t dxpl_id)
+H5AC_flush_tagged_metadata(H5F_t *f, haddr_t metadata_tag)
 {
     /* Variable Declarations */
     herr_t ret_value = SUCCEED;
@@ -2856,7 +2704,7 @@ H5AC_flush_tagged_metadata(H5F_t * f, haddr_t metadata_tag, hid_t dxpl_id)
     HDassert(f->shared);
 
     /* Call cache level function to flush metadata entries with specified tag */
-    if(H5C_flush_tagged_entries(f, dxpl_id, metadata_tag) < 0)
+    if(H5C_flush_tagged_entries(f, metadata_tag) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "Cannot flush metadata")
 
 done:
@@ -2878,7 +2726,7 @@ done:
  *------------------------------------------------------------------------------
  */
 herr_t
-H5AC_evict_tagged_metadata(H5F_t * f, haddr_t metadata_tag, hbool_t match_global, hid_t dxpl_id)
+H5AC_evict_tagged_metadata(H5F_t *f, haddr_t metadata_tag, hbool_t match_global)
 {
     /* Variable Declarations */
     herr_t ret_value = SUCCEED;
@@ -2891,7 +2739,7 @@ H5AC_evict_tagged_metadata(H5F_t * f, haddr_t metadata_tag, hbool_t match_global
     HDassert(f->shared);
 
     /* Call cache level function to evict metadata entries with specified tag */
-    if(H5C_evict_tagged_entries(f, dxpl_id, metadata_tag, match_global) < 0)
+    if(H5C_evict_tagged_entries(f, metadata_tag, match_global) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "Cannot evict metadata")
 
 done:
@@ -2912,7 +2760,7 @@ done:
  *------------------------------------------------------------------------------
  */
 herr_t
-H5AC_expunge_tag_type_metadata(H5F_t *f, hid_t dxpl_id, haddr_t tag, int type_id, unsigned flags)
+H5AC_expunge_tag_type_metadata(H5F_t *f, haddr_t tag, int type_id, unsigned flags)
 {
     /* Variable Declarations */
     herr_t ret_value = SUCCEED;
@@ -2925,7 +2773,7 @@ H5AC_expunge_tag_type_metadata(H5F_t *f, hid_t dxpl_id, haddr_t tag, int type_id
     HDassert(f->shared);
 
     /* Call cache level function to expunge entries with specified tag and type id */
-    if(H5C_expunge_tag_type_metadata(f, dxpl_id, tag, type_id, flags)<0)
+    if(H5C_expunge_tag_type_metadata(f, tag, type_id, flags)<0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "Cannot expunge tagged type entries")
 
 done:
@@ -3019,21 +2867,15 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5AC__verify_tag(hid_t dxpl_id, const H5AC_class_t *type)
+H5AC__verify_tag(const H5AC_class_t *type)
 {
-    H5P_genplist_t *dxpl;               /* DXPL for operation */
     haddr_t tag;                        /* Entry tag to validate */
     herr_t ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_STATIC
 
-    /* Get the dataset transfer property list */
-    if(NULL == (dxpl = (H5P_genplist_t *)H5I_object_verify(dxpl_id, H5I_GENPROP_LST)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a property list")
-
-    /* Get the tag from the DXPL */
-    if((H5P_get(dxpl, H5AC_TAG_NAME, &tag)) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "unable to query property value")
+    /* Get the current tag */
+    tag = H5CX_get_tag();
 
     /* Verify legal tag value */
     if(H5C_verify_tag(type->id, tag) < 0)
@@ -3095,64 +2937,20 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-herr_t
-H5AC_set_ring(hid_t dxpl_id, H5AC_ring_t ring, H5P_genplist_t **dxpl,
-    H5AC_ring_t *orig_ring)
+void
+H5AC_set_ring(H5AC_ring_t ring, H5AC_ring_t *orig_ring)
 {
-    herr_t ret_value = SUCCEED;   /* return value */
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    FUNC_ENTER_NOAPI(FAIL)
+    /* Get the current ring value and return that (if orig_ring is NOT null) */
+    if(orig_ring)
+        *orig_ring = H5CX_get_ring();
 
-    /* Sanity checks */
-    HDassert(dxpl);
-    HDassert(orig_ring);
+    /* Set the provided ring */
+    H5CX_set_ring(ring);
 
-    /* Set the ring type in the DXPL */
-    if(NULL == ((*dxpl) = (H5P_genplist_t *)H5I_object_verify(dxpl_id, H5I_GENPROP_LST)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a property list")
-    if((H5P_get((*dxpl), H5AC_RING_NAME, orig_ring)) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "unable to get original ring value")
-    if((H5P_set((*dxpl), H5AC_RING_NAME, &ring)) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "unable to set ring value")
-
-done:
-    FUNC_LEAVE_NOAPI(ret_value)
+    FUNC_LEAVE_NOAPI_VOID
 } /* end H5AC_set_ring() */
-
-
-/*-------------------------------------------------------------------------
- * Function:       H5AC_reset_ring
- *
- * Purpose:        Routine to reset the original ring on a DXPL (after passing
- *                 through to the metadata cache).
- *
- * Return:	   Success:	Non-negative
- *		   Failure:	Negative
- *
- * Programmer:     Quincey Koziol
- *                 Tuesday, September 8, 2015
- *
- *-------------------------------------------------------------------------
- */
-herr_t
-H5AC_reset_ring(H5P_genplist_t *dxpl, H5AC_ring_t orig_ring)
-{
-    herr_t ret_value = SUCCEED;   /* return value */
-
-    FUNC_ENTER_NOAPI(FAIL)
-
-    /* Reset the ring in the DXPL, if it's been changed */
-    if(orig_ring) {
-        /* Sanity check */
-        HDassert(dxpl);
-
-        if((H5P_set(dxpl, H5AC_RING_NAME, &orig_ring)) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "unable to set property value")
-    } /* end if */
-
-done:
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5AC_reset_ring() */
 
 
 /*-------------------------------------------------------------------------

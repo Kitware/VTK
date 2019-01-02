@@ -33,36 +33,36 @@
 
 /* PRIVATE PROTOTYPES */
 static herr_t H5O_pline_encode(H5F_t *f, uint8_t *p, const void *mesg);
-static void *H5O_pline_decode(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh,
-    unsigned mesg_flags, unsigned *ioflags, const uint8_t *p);
+static void *H5O__pline_decode(H5F_t *f, H5O_t *open_oh, unsigned mesg_flags,
+    unsigned *ioflags, size_t p_size, const uint8_t *p);
 static void *H5O_pline_copy(const void *_mesg, void *_dest);
 static size_t H5O_pline_size(const H5F_t *f, const void *_mesg);
-static herr_t H5O_pline_reset(void *_mesg);
-static herr_t H5O_pline_free(void *_mesg);
+static herr_t H5O__pline_reset(void *_mesg);
+static herr_t H5O__pline_free(void *_mesg);
 static herr_t H5O_pline_pre_copy_file(H5F_t *file_src,
     const void *mesg_src, hbool_t *deleted, const H5O_copy_t *cpy_info, void *_udata);
-static herr_t H5O_pline_debug(H5F_t *f, hid_t dxpl_id, const void *_mesg,
-    FILE * stream, int indent, int fwidth);
+static herr_t H5O__pline_debug(H5F_t *f, const void *_mesg, FILE * stream,
+    int indent, int fwidth);
 
 /* Set up & include shared message "interface" info */
 #define H5O_SHARED_TYPE			H5O_MSG_PLINE
 #define H5O_SHARED_DECODE		H5O_pline_shared_decode
-#define H5O_SHARED_DECODE_REAL		H5O_pline_decode
+#define H5O_SHARED_DECODE_REAL		H5O__pline_decode
 #define H5O_SHARED_ENCODE		H5O_pline_shared_encode
 #define H5O_SHARED_ENCODE_REAL		H5O_pline_encode
 #define H5O_SHARED_SIZE			H5O_pline_shared_size
 #define H5O_SHARED_SIZE_REAL		H5O_pline_size
-#define H5O_SHARED_DELETE		H5O_pline_shared_delete
+#define H5O_SHARED_DELETE		H5O__pline_shared_delete
 #undef H5O_SHARED_DELETE_REAL
-#define H5O_SHARED_LINK			H5O_pline_shared_link
+#define H5O_SHARED_LINK			H5O__pline_shared_link
 #undef H5O_SHARED_LINK_REAL
-#define H5O_SHARED_COPY_FILE		H5O_pline_shared_copy_file
+#define H5O_SHARED_COPY_FILE		H5O__pline_shared_copy_file
 #undef H5O_SHARED_COPY_FILE_REAL
 #define H5O_SHARED_POST_COPY_FILE	H5O_pline_shared_post_copy_file
 #undef H5O_SHARED_POST_COPY_FILE_REAL
 #undef  H5O_SHARED_POST_COPY_FILE_UPD
 #define H5O_SHARED_DEBUG		H5O_pline_shared_debug
-#define H5O_SHARED_DEBUG_REAL		H5O_pline_debug
+#define H5O_SHARED_DEBUG_REAL		H5O__pline_debug
 #include "H5Oshared.h"			/* Shared Object Header Message Callbacks */
 
 /* This message derives from H5O message class */
@@ -75,27 +75,33 @@ const H5O_msg_class_t H5O_MSG_PLINE[1] = {{
     H5O_pline_shared_encode,	/* encode message		*/
     H5O_pline_copy,		/* copy the native value	*/
     H5O_pline_shared_size,	/* size of raw message		*/
-    H5O_pline_reset,		/* reset method			*/
-    H5O_pline_free,		/* free method			*/
-    H5O_pline_shared_delete,    /* file delete method		*/
-    H5O_pline_shared_link,	/* link method			*/
+    H5O__pline_reset,		/* reset method			*/
+    H5O__pline_free,		/* free method			*/
+    H5O__pline_shared_delete,   /* file delete method		*/
+    H5O__pline_shared_link,	/* link method			*/
     NULL,			/* set share method		*/
     NULL,		    	/*can share method		*/
     H5O_pline_pre_copy_file,	/* pre copy native value to file */
-    H5O_pline_shared_copy_file,	/* copy native value to file    */
+    H5O__pline_shared_copy_file,	/* copy native value to file    */
     H5O_pline_shared_post_copy_file,	/* post copy native value to file    */
     NULL,			/* get creation index		*/
     NULL,			/* set creation index		*/
     H5O_pline_shared_debug	/* debug the message		*/
 }};
 
+/* Format version bounds for filter pipleline */
+const unsigned H5O_pline_ver_bounds[] = {
+    H5O_PLINE_VERSION_1,        /* H5F_LIBVER_EARLIEST */
+    H5O_PLINE_VERSION_2,        /* H5F_LIBVER_V18 */
+    H5O_PLINE_VERSION_LATEST    /* H5F_LIBVER_LATEST */
+};
 
 /* Declare a free list to manage the H5O_pline_t struct */
 H5FL_DEFINE(H5O_pline_t);
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_pline_decode
+ * Function:	H5O__pline_decode
  *
  * Purpose:	Decodes a filter pipeline message.
  *
@@ -108,33 +114,42 @@ H5FL_DEFINE(H5O_pline_t);
  *-------------------------------------------------------------------------
  */
 static void *
-H5O_pline_decode(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, H5O_t H5_ATTR_UNUSED *open_oh,
-    unsigned H5_ATTR_UNUSED mesg_flags, unsigned H5_ATTR_UNUSED *ioflags, const uint8_t *p)
+H5O__pline_decode(H5F_t H5_ATTR_UNUSED *f, H5O_t H5_ATTR_UNUSED *open_oh,
+    unsigned H5_ATTR_UNUSED mesg_flags, unsigned H5_ATTR_UNUSED *ioflags,
+    size_t p_size, const uint8_t *p)
 {
     H5O_pline_t		*pline = NULL;          /* Pipeline message */
     H5Z_filter_info_t   *filter;                /* Filter to decode */
     size_t		name_length;            /* Length of filter name */
     size_t		i;                      /* Local index variable */
+    const uint8_t *p_end = p + p_size - 1;  /* End of the p buffer */
     void		*ret_value = NULL;      /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(p);
 
     /* Allocate space for I/O pipeline message */
     if(NULL == (pline = H5FL_CALLOC(H5O_pline_t)))
-	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
 
     /* Version */
     pline->version = *p++;
     if(pline->version < H5O_PLINE_VERSION_1 || pline->version > H5O_PLINE_VERSION_LATEST)
-	HGOTO_ERROR(H5E_PLINE, H5E_CANTLOAD, NULL, "bad version number for filter pipeline message")
+        HGOTO_ERROR(H5E_PLINE, H5E_CANTLOAD, NULL, "bad version number for filter pipeline message")
 
     /* Number of filters */
     pline->nused = *p++;
-    if(pline->nused > H5Z_MAX_NFILTERS)
-	HGOTO_ERROR(H5E_PLINE, H5E_CANTLOAD, NULL, "filter pipeline message has too many filters")
+    if(pline->nused > H5Z_MAX_NFILTERS) {
+
+        /* Reset the number of filters used to avoid array traversal in error
+         * handling code.
+         */
+        pline->nused = 0;
+
+        HGOTO_ERROR(H5E_PLINE, H5E_CANTLOAD, NULL, "filter pipeline message has too many filters")
+    }
 
     /* Reserved */
     if(pline->version == H5O_PLINE_VERSION_1)
@@ -143,12 +158,12 @@ H5O_pline_decode(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, H5O_t H5
     /* Allocate array for filters */
     pline->nalloc = pline->nused;
     if(NULL == (pline->filter = (H5Z_filter_info_t *)H5MM_calloc(pline->nalloc * sizeof(pline->filter[0]))))
-	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
 
     /* Decode filters */
     for(i = 0, filter = &pline->filter[0]; i < pline->nused; i++, filter++) {
         /* Filter ID */
-	UINT16DECODE(p, filter->id);
+        UINT16DECODE(p, filter->id);
 
         /* Length of filter name */
         if(pline->version > H5O_PLINE_VERSION_1 && filter->id < H5Z_FILTER_RESERVED)
@@ -160,18 +175,18 @@ H5O_pline_decode(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, H5O_t H5
         } /* end if */
 
         /* Filter flags */
-	UINT16DECODE(p, filter->flags);
+        UINT16DECODE(p, filter->flags);
 
         /* Number of filter parameters ("client data elements") */
-	UINT16DECODE(p, filter->cd_nelmts);
+        UINT16DECODE(p, filter->cd_nelmts);
 
         /* Filter name, if there is one */
-	if(name_length) {
+        if(name_length) {
             size_t actual_name_length;          /* Actual length of name */
 
             /* Determine actual name length (without padding, but with null terminator) */
-	    actual_name_length = HDstrlen((const char *)p) + 1;
-	    HDassert(actual_name_length <= name_length);
+            actual_name_length = HDstrlen((const char *)p) + 1;
+            HDassert(actual_name_length <= name_length);
 
             /* Allocate space for the filter name, or use the internal buffer */
             if(actual_name_length > H5Z_COMMON_NAME_LEN) {
@@ -182,12 +197,12 @@ H5O_pline_decode(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, H5O_t H5
             else
                 filter->name = filter->_name;
 
-	    HDstrncpy(filter->name, (const char *)p, actual_name_length);
-	    p += name_length;
-	} /* end if */
+            HDstrncpy(filter->name, (const char *)p, actual_name_length);
+            p += name_length;
+        } /* end if */
 
         /* Filter parameters */
-	if(filter->cd_nelmts) {
+        if(filter->cd_nelmts) {
             size_t	j;              /* Local index variable */
 
             /* Allocate space for the client data elements, or use the internal buffer */
@@ -199,15 +214,20 @@ H5O_pline_decode(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, H5O_t H5
             else
                 filter->cd_values = filter->_cd_values;
 
-	    /*
-	     * Read the client data values and the padding
-	     */
-	    for(j = 0; j < filter->cd_nelmts; j++)
-		UINT32DECODE(p, filter->cd_values[j]);
+            /*
+             * Read the client data values and the padding
+             */
+            for (j = 0; j < filter->cd_nelmts; j++) {
+                if (p + 4 - 1 <= p_end)
+                    UINT32DECODE(p, filter->cd_values[j])
+                else
+                    HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "ran off the end of the buffer: current p = %p, p_size = %zu, p_end = %p", p, p_size, p_end)
+            }
+
             if(pline->version == H5O_PLINE_VERSION_1)
                 if(filter->cd_nelmts % 2)
                     p += 4; /*padding*/
-	} /* end if */
+        } /* end if */
     } /* end for */
 
     /* Set return value */
@@ -215,12 +235,12 @@ H5O_pline_decode(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, H5O_t H5
 
 done:
     if(NULL == ret_value && pline) {
-        H5O_pline_reset(pline);
-        H5O_pline_free(pline);
+        H5O__pline_reset(pline);
+        H5O__pline_free(pline);
     } /* end if */
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_pline_decode() */
+} /* end H5O__pline_decode() */
 
 
 /*-------------------------------------------------------------------------
@@ -405,9 +425,9 @@ H5O_pline_copy(const void *_src, void *_dst/*out*/)
 
 done:
     if(!ret_value && dst) {
-        H5O_pline_reset(dst);
+        H5O__pline_reset(dst);
 	if(!_dst)
-            H5O_pline_free(dst);
+            H5O__pline_free(dst);
     } /* end if */
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -476,7 +496,7 @@ H5O_pline_size(const H5F_t H5_ATTR_UNUSED *f, const void *mesg)
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_pline_reset
+ * Function:	H5O__pline_reset
  *
  * Purpose:	Resets a filter pipeline message by clearing all filters.
  *		The MESG buffer is not freed.
@@ -489,30 +509,37 @@ H5O_pline_size(const H5F_t H5_ATTR_UNUSED *f, const void *mesg)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_pline_reset(void *mesg)
+H5O__pline_reset(void *mesg)
 {
     H5O_pline_t	*pline = (H5O_pline_t*)mesg;    /* Pipeline message */
     size_t	i;                              /* Local index variable */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
+
+    /* NOTE: This function can be called during error processing from
+     *       other API calls so DO NOT ASSUME THAT ANY VALUES ARE SANE.
+     */
 
     HDassert(pline);
 
-    /* Free information for each filter */
-    for(i = 0; i < pline->nused; i++) {
-        if(pline->filter[i].name && pline->filter[i].name != pline->filter[i]._name)
-            HDassert((HDstrlen(pline->filter[i].name) + 1) > H5Z_COMMON_NAME_LEN);
-        if(pline->filter[i].name != pline->filter[i]._name)
-            pline->filter[i].name = (char *)H5MM_xfree(pline->filter[i].name);
-        if(pline->filter[i].cd_values && pline->filter[i].cd_values != pline->filter[i]._cd_values)
-            HDassert(pline->filter[i].cd_nelmts > H5Z_COMMON_CD_VALUES);
-        if(pline->filter[i].cd_values != pline->filter[i]._cd_values)
-            pline->filter[i].cd_values = (unsigned *)H5MM_xfree(pline->filter[i].cd_values);
-    } /* end for */
+    /* Free the filter information and array */
+    if (pline->filter) {
 
-    /* Free filter array */
-    if(pline->filter)
+        /* Free information for each filter */
+        for(i = 0; i < pline->nused; i++) {
+            if(pline->filter[i].name && pline->filter[i].name != pline->filter[i]._name)
+                HDassert((HDstrlen(pline->filter[i].name) + 1) > H5Z_COMMON_NAME_LEN);
+            if(pline->filter[i].name != pline->filter[i]._name)
+                pline->filter[i].name = (char *)H5MM_xfree(pline->filter[i].name);
+            if(pline->filter[i].cd_values && pline->filter[i].cd_values != pline->filter[i]._cd_values)
+                HDassert(pline->filter[i].cd_nelmts > H5Z_COMMON_CD_VALUES);
+            if(pline->filter[i].cd_values != pline->filter[i]._cd_values)
+                pline->filter[i].cd_values = (unsigned *)H5MM_xfree(pline->filter[i].cd_values);
+        } /* end for */
+
+        /* Free filter array */
         pline->filter = (H5Z_filter_info_t *)H5MM_xfree(pline->filter);
+    }
 
     /* Reset # of filters */
     pline->nused = pline->nalloc = 0;
@@ -521,13 +548,13 @@ H5O_pline_reset(void *mesg)
     pline->version = H5O_PLINE_VERSION_1;
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5O_pline_reset() */
+} /* end H5O__pline_reset() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_pline_free
+ * Function:	H5O__pline_free
  *
- * Purpose:	Free's the message
+ * Purpose:	Frees the message
  *
  * Return:	Non-negative on success/Negative on failure
  *
@@ -537,16 +564,16 @@ H5O_pline_reset(void *mesg)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_pline_free(void *mesg)
+H5O__pline_free(void *mesg)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     HDassert(mesg);
 
     mesg = H5FL_FREE(H5O_pline_t, mesg);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5O_pline_free() */
+} /* end H5O__pline_free() */
 
 
 /*-------------------------------------------------------------------------
@@ -566,16 +593,23 @@ H5O_pline_free(void *mesg)
  */
 static herr_t
 H5O_pline_pre_copy_file(H5F_t H5_ATTR_UNUSED *file_src, const void *mesg_src,
-    hbool_t H5_ATTR_UNUSED *deleted, const H5O_copy_t H5_ATTR_UNUSED *cpy_info, void *_udata)
+    hbool_t H5_ATTR_UNUSED *deleted, const H5O_copy_t *cpy_info, void *_udata)
 {
-    const H5O_pline_t *pline_src = (const H5O_pline_t *)mesg_src;    /* Source datatype */
+    const H5O_pline_t *pline_src = (const H5O_pline_t *)mesg_src;    /* Source pline */
     H5O_copy_file_ud_common_t *udata = (H5O_copy_file_ud_common_t *)_udata; /* Object copying user data */
-    herr_t             ret_value = SUCCEED;                     /* Return value */
+    herr_t ret_value = SUCCEED;                                     /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
     /* check args */
     HDassert(pline_src);
+    HDassert(cpy_info);
+    HDassert(cpy_info->file_dst);
+
+    /* Check to ensure that the version of the message to be copied does not exceed
+       the message version allowed by the destination file's high bound */
+    if(pline_src->version > H5O_pline_ver_bounds[H5F_HIGH_BOUND(cpy_info->file_dst)])
+        HGOTO_ERROR(H5E_OHDR, H5E_BADRANGE, FAIL, "pline message version out of bounds")
 
     /* If the user data is non-NULL, assume we are copying a dataset or group
      * and make a copy of the filter pipeline for later in
@@ -591,7 +625,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_pline_debug
+ * Function:	H5O__pline_debug
  *
  * Purpose:	Prints debugging information for filter pipeline message MESG
  *		on output stream STREAM.  Each line is indented INDENT
@@ -605,13 +639,13 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_pline_debug(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, const void *mesg, FILE *stream,
-		int indent, int fwidth)
+H5O__pline_debug(H5F_t H5_ATTR_UNUSED *f, const void *mesg, FILE *stream,
+    int indent, int fwidth)
 {
     const H5O_pline_t	*pline = (const H5O_pline_t *)mesg;
     size_t		i, j;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* check args */
     HDassert(f);
@@ -660,32 +694,42 @@ H5O_pline_debug(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, const voi
     } /* end for */
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5O_pline_debug() */
+} /* end H5O__pline_debug() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_pline_set_latest_version
+ * Function:    H5O_pline_set_version
  *
- * Purpose:     Set the encoding for a I/O filter pipeline to the latest version.
+ * Purpose:     Set the version to encode an I/O filter pipeline with.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:  Quincey Koziol
- *              Tuesday, July 24, 2007
+ * Programmer:  Vailin Choi; December 2017
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5O_pline_set_latest_version(H5O_pline_t *pline)
+H5O_pline_set_version(H5F_t *f, H5O_pline_t *pline)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    unsigned version;           /* Message version */
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
+    HDassert(f);
     HDassert(pline);
 
-    /* Set encoding of I/O pipeline to latest version */
-    pline->version = H5O_PLINE_VERSION_LATEST;
+    /* Upgrade to the version indicated by the file's low bound if higher */
+    version = MAX(pline->version, H5O_pline_ver_bounds[H5F_LOW_BOUND(f)]);
 
-    FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5O_pline_set_latest_version() */
+    /* Version bounds check */
+    if(version > H5O_pline_ver_bounds[H5F_HIGH_BOUND(f)])
+        HGOTO_ERROR(H5E_PLINE, H5E_BADRANGE, FAIL, "Filter pipeline version out of bounds")
 
+    /* Set the message version */
+    pline->version = version;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5O_pline_set_version() */

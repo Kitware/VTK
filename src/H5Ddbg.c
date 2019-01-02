@@ -22,6 +22,7 @@
 /* Headers */
 /***********/
 #include "H5private.h"		/* Generic Functions			*/
+#include "H5CXprivate.h"        /* API Contexts                         */
 #include "H5Dpkg.h"		/* Datasets 				*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5Iprivate.h"		/* IDs			  		*/
@@ -88,7 +89,7 @@ H5Ddebug(hid_t dset_id)
 
     /* Print B-tree information */
     if(H5D_CHUNKED == dset->shared->layout.type)
-	(void)H5D__chunk_dump_index(dset, H5AC_ind_read_dxpl_id, stdout);
+	(void)H5D__chunk_dump_index(dset, stdout);
     else if(H5D_CONTIGUOUS == dset->shared->layout.type)
 	HDfprintf(stdout, "    %-10s %a\n", "Address:", dset->shared->layout.storage.u.contig.addr);
 

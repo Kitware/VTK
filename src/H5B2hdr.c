@@ -282,8 +282,7 @@ done:
  *-------------------------------------------------------------------------
  */
 haddr_t
-H5B2__hdr_create(H5F_t *f, hid_t dxpl_id, const H5B2_create_t *cparam,
-    void *ctx_udata)
+H5B2__hdr_create(H5F_t *f, const H5B2_create_t *cparam, void *ctx_udata)
 {
     H5B2_hdr_t *hdr = NULL;             /* The new v2 B-tree header information */
     hbool_t inserted = FALSE;           /* Whether the header was inserted into cache */
@@ -306,7 +305,7 @@ H5B2__hdr_create(H5F_t *f, hid_t dxpl_id, const H5B2_create_t *cparam,
         HGOTO_ERROR(H5E_BTREE, H5E_CANTINIT, HADDR_UNDEF, "can't create shared B-tree info")
 
     /* Allocate space for the header on disk */
-    if(HADDR_UNDEF == (hdr->addr = H5MF_alloc(f, H5FD_MEM_BTREE, dxpl_id, (hsize_t)hdr->hdr_size)))
+    if(HADDR_UNDEF == (hdr->addr = H5MF_alloc(f, H5FD_MEM_BTREE, (hsize_t)hdr->hdr_size)))
         HGOTO_ERROR(H5E_BTREE, H5E_CANTALLOC, HADDR_UNDEF, "file allocation failed for B-tree header")
 
     /* Create 'top' proxy for extensible array entries */
@@ -315,13 +314,13 @@ H5B2__hdr_create(H5F_t *f, hid_t dxpl_id, const H5B2_create_t *cparam,
             HGOTO_ERROR(H5E_BTREE, H5E_CANTCREATE, HADDR_UNDEF, "can't create v2 B-tree proxy")
 
     /* Cache the new B-tree node */
-    if(H5AC_insert_entry(f, dxpl_id, H5AC_BT2_HDR, hdr->addr, hdr, H5AC__NO_FLAGS_SET) < 0)
+    if(H5AC_insert_entry(f, H5AC_BT2_HDR, hdr->addr, hdr, H5AC__NO_FLAGS_SET) < 0)
         HGOTO_ERROR(H5E_BTREE, H5E_CANTINSERT, HADDR_UNDEF, "can't add B-tree header to cache")
     inserted = TRUE;
 
     /* Add header as child of 'top' proxy */
     if(hdr->top_proxy)
-        if(H5AC_proxy_entry_add_child(hdr->top_proxy, f, dxpl_id, hdr) < 0)
+        if(H5AC_proxy_entry_add_child(hdr->top_proxy, f, hdr) < 0)
             HGOTO_ERROR(H5E_BTREE, H5E_CANTSET, HADDR_UNDEF, "unable to add v2 B-tree header as child of array proxy")
 
     /* Set address of v2 B-tree header to return */
@@ -336,7 +335,7 @@ done:
                     HDONE_ERROR(H5E_BTREE, H5E_CANTREMOVE, HADDR_UNDEF, "unable to remove v2 B-tree header from cache")
 
             /* Release header's disk space */
-            if(H5F_addr_defined(hdr->addr) && H5MF_xfree(f, H5FD_MEM_BTREE, dxpl_id, hdr->addr, (hsize_t)hdr->hdr_size) < 0)
+            if(H5F_addr_defined(hdr->addr) && H5MF_xfree(f, H5FD_MEM_BTREE, hdr->addr, (hsize_t)hdr->hdr_size) < 0)
                 HDONE_ERROR(H5E_BTREE, H5E_CANTFREE, HADDR_UNDEF, "unable to free v2 B-tree header")
 
             /* Destroy header */
@@ -524,7 +523,7 @@ done:
  *-------------------------------------------------------------------------
  */
 H5B2_hdr_t *
-H5B2__hdr_protect(H5F_t *f, hid_t dxpl_id, haddr_t hdr_addr, void *ctx_udata,
+H5B2__hdr_protect(H5F_t *f, haddr_t hdr_addr, void *ctx_udata,
     unsigned flags)
 {
     H5B2_hdr_cache_ud_t udata;          /* User data for cache callbacks */
@@ -546,7 +545,7 @@ H5B2__hdr_protect(H5F_t *f, hid_t dxpl_id, haddr_t hdr_addr, void *ctx_udata,
     udata.ctx_udata = ctx_udata;
 
     /* Protect the header */
-    if(NULL == (hdr = (H5B2_hdr_t *)H5AC_protect(f, dxpl_id, H5AC_BT2_HDR, hdr_addr, &udata, flags)))
+    if(NULL == (hdr = (H5B2_hdr_t *)H5AC_protect(f, H5AC_BT2_HDR, hdr_addr, &udata, flags)))
         HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, NULL, "unable to load v2 B-tree header, address = %llu", (unsigned long long)hdr_addr)
     hdr->f = f;   /* (Must be set again here, in case the header was already in the cache -QAK) */
 
@@ -557,7 +556,7 @@ H5B2__hdr_protect(H5F_t *f, hid_t dxpl_id, haddr_t hdr_addr, void *ctx_udata,
             HGOTO_ERROR(H5E_BTREE, H5E_CANTCREATE, NULL, "can't create v2 B-tree proxy")
 
         /* Add header as child of 'top' proxy */
-        if(H5AC_proxy_entry_add_child(hdr->top_proxy, f, dxpl_id, hdr) < 0)
+        if(H5AC_proxy_entry_add_child(hdr->top_proxy, f, hdr) < 0)
             HGOTO_ERROR(H5E_BTREE, H5E_CANTSET, NULL, "unable to add v2 B-tree header as child of proxy")
     } /* end if */
 
@@ -568,7 +567,7 @@ done:
     /* Clean up on error */
     if(!ret_value) {
         /* Release the header, if it was protected */
-        if(hdr && H5AC_unprotect(hdr->f, dxpl_id, H5AC_BT2_HDR, hdr_addr, hdr, H5AC__NO_FLAGS_SET) < 0)
+        if(hdr && H5AC_unprotect(hdr->f, H5AC_BT2_HDR, hdr_addr, hdr, H5AC__NO_FLAGS_SET) < 0)
             HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, NULL, "unable to unprotect v2 B-tree header, address = %llu", (unsigned long long)hdr_addr)
     } /* end if */
 
@@ -590,7 +589,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5B2__hdr_unprotect(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned cache_flags)
+H5B2__hdr_unprotect(H5B2_hdr_t *hdr, unsigned cache_flags)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
@@ -600,7 +599,7 @@ H5B2__hdr_unprotect(H5B2_hdr_t *hdr, hid_t dxpl_id, unsigned cache_flags)
     HDassert(hdr);
 
     /* Unprotect the header */
-    if(H5AC_unprotect(hdr->f, dxpl_id, H5AC_BT2_HDR, hdr->addr, hdr, cache_flags) < 0)
+    if(H5AC_unprotect(hdr->f, H5AC_BT2_HDR, hdr->addr, hdr, cache_flags) < 0)
         HGOTO_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to unprotect v2 B-tree header, address = %llu", (unsigned long long)hdr->addr)
 
 done:
@@ -699,7 +698,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5B2__hdr_delete(H5B2_hdr_t *hdr, hid_t dxpl_id)
+H5B2__hdr_delete(H5B2_hdr_t *hdr)
 {
     unsigned cache_flags = H5AC__NO_FLAGS_SET;  /* Flags for unprotecting v2 B-tree header */
     herr_t ret_value = SUCCEED;         /* Return value */
@@ -725,7 +724,7 @@ H5B2__hdr_delete(H5B2_hdr_t *hdr, hid_t dxpl_id)
 
     /* Delete all nodes in B-tree */
     if(H5F_addr_defined(hdr->root.addr))
-        if(H5B2__delete_node(hdr, dxpl_id, hdr->depth, &hdr->root, hdr, hdr->remove_op, hdr->remove_op_data) < 0)
+        if(H5B2__delete_node(hdr, hdr->depth, &hdr->root, hdr, hdr->remove_op, hdr->remove_op_data) < 0)
             HGOTO_ERROR(H5E_BTREE, H5E_CANTDELETE, FAIL, "unable to delete B-tree nodes")
 
     /* Indicate that the heap header should be deleted & file space freed */
@@ -733,7 +732,7 @@ H5B2__hdr_delete(H5B2_hdr_t *hdr, hid_t dxpl_id)
 
 done:
     /* Unprotect the header with appropriate flags */
-    if(H5B2__hdr_unprotect(hdr, dxpl_id, cache_flags) < 0)
+    if(H5B2__hdr_unprotect(hdr, cache_flags) < 0)
         HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release v2 B-tree header")
 
     FUNC_LEAVE_NOAPI(ret_value)

@@ -10,8 +10,8 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* Programmer:  Raymond Lu <songyulu@hdfgroup.org>
- *              13 February 2013
+/*
+ * This file contains private information about the H5PL module
  */
 
 #ifndef _H5PLprivate_H
@@ -33,6 +33,11 @@
 /* Library Private Typedefs */
 /****************************/
 
+/* The key that will be used to find the plugin */
+typedef union H5PL_key_t {
+    int         id;         /* filters      */
+} H5PL_key_t;
+
 
 /*****************************/
 /* Library-private Variables */
@@ -44,7 +49,7 @@
 /***************************************/
 
 /* Internal API routines */
-H5_DLL const void *H5PL_load(H5PL_type_t plugin_type, int type_id);
+H5_DLL const void *H5PL_load(H5PL_type_t plugin_type, H5PL_key_t key);
 
 #endif /* _H5PLprivate_H */
 

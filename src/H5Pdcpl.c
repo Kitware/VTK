@@ -34,6 +34,7 @@
 /* Headers */
 /***********/
 #include "H5private.h"		/* Generic Functions			*/
+#include "H5CXprivate.h"        /* API Contexts                         */
 #include "H5Dpkg.h"		/* Datasets 				*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5FLprivate.h"	/* Free Lists                           */
@@ -146,7 +147,7 @@ static herr_t H5P__dcrt_reg_prop(H5P_genclass_t *pclass);
 /* Property callbacks */
 static herr_t H5P__dcrt_layout_set(hid_t prop_id, const char *name, size_t size, void *value);
 static herr_t H5P__dcrt_layout_get(hid_t prop_id, const char *name, size_t size, void *value);
-static herr_t H5P__dcrt_layout_enc(const void *value, void **pp, size_t *size);
+static herr_t H5P__dcrt_layout_enc(const void *value, void **pp, size_t *size, void *udata);
 static herr_t H5P__dcrt_layout_dec(const void **pp, void *value);
 static herr_t H5P__dcrt_layout_del(hid_t prop_id, const char *name, size_t size, void *value);
 static herr_t H5P__dcrt_layout_copy(const char *name, size_t size, void *value);
@@ -154,14 +155,14 @@ static int H5P__dcrt_layout_cmp(const void *value1, const void *value2, size_t s
 static herr_t H5P__dcrt_layout_close(const char *name, size_t size, void *value);
 static herr_t H5P__dcrt_fill_value_set(hid_t prop_id, const char *name, size_t size, void *value);
 static herr_t H5P__dcrt_fill_value_get(hid_t prop_id, const char *name, size_t size, void *value);
-static herr_t H5P__dcrt_fill_value_enc(const void *value, void **pp, size_t *size);
+static herr_t H5P__dcrt_fill_value_enc(const void *value, void **pp, size_t *size, void *udata);
 static herr_t H5P__dcrt_fill_value_dec(const void **pp, void *value);
 static herr_t H5P__dcrt_fill_value_del(hid_t prop_id, const char *name, size_t size, void *value);
 static herr_t H5P__dcrt_fill_value_copy(const char *name, size_t size, void *value);
 static herr_t H5P__dcrt_fill_value_close(const char *name, size_t size, void *value);
 static herr_t H5P__dcrt_ext_file_list_set(hid_t prop_id, const char *name, size_t size, void *value);
 static herr_t H5P__dcrt_ext_file_list_get(hid_t prop_id, const char *name, size_t size, void *value);
-static herr_t H5P__dcrt_ext_file_list_enc(const void *value, void **pp, size_t *size);
+static herr_t H5P__dcrt_ext_file_list_enc(const void *value, void **pp, size_t *size, void *udata);
 static herr_t H5P__dcrt_ext_file_list_dec(const void **pp, void *value);
 static herr_t H5P__dcrt_ext_file_list_del(hid_t prop_id, const char *name, size_t size, void *value);
 static herr_t H5P__dcrt_ext_file_list_copy(const char *name, size_t size, void *value);
@@ -366,20 +367,40 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__dcrt_layout_enc(const void *value, void **_pp, size_t *size)
+H5P__dcrt_layout_enc(const void *value, void **_pp, size_t *size, void *_udata)
 {
     const H5O_layout_t *layout = (const H5O_layout_t *)value; /* Create local aliases for values */
+    H5P_enc_cb_info_t *udata = (H5P_enc_cb_info_t *)_udata;       /* User data for encode callback */
     uint8_t **pp = (uint8_t **)_pp;
     uint8_t *tmp_p;
     size_t tmp_size;
     size_t u;                           /* Local index variable */
+    H5P_genplist_t *fapl_plist;         /* The file access property list */
+    hid_t new_fapl_id;                  /* The file access property list ID */
+    H5F_libver_t low_bound = H5F_LIBVER_V110;   /* Set the low bound in fapl to latest */
+    H5F_libver_t high_bound = H5F_LIBVER_V110;  /* Set the high bound in fapl to latest */
     herr_t ret_value = SUCCEED;         /* Return value */
+
 
     FUNC_ENTER_STATIC
 
     /* Sanity check */
     HDassert(layout);
     HDassert(size);
+
+    /* Make a copy of the default file access property list */
+    if(NULL == (fapl_plist = (H5P_genplist_t *)H5I_object(H5P_LST_FILE_ACCESS_ID_g)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a property list")
+
+    /* Set latest format in fapl_plist */
+    /* This will eventually be used by VDS to encode datasets via H5S_encode() */
+    if(H5P_set(fapl_plist, H5F_ACS_LIBVER_LOW_BOUND_NAME, &low_bound) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set 'low' bound for library format versions")
+    if(H5P_set(fapl_plist, H5F_ACS_LIBVER_HIGH_BOUND_NAME, &high_bound) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set 'high' bound for library format versions")
+
+    if((new_fapl_id = H5P_copy_plist(fapl_plist, FALSE)) < 0)
+        HGOTO_ERROR(H5E_INTERNAL, H5E_CANTINIT, FAIL, "can't copy file access property list")
 
     if(NULL != *pp) {
         /* Encode layout type */
@@ -426,14 +447,15 @@ H5P__dcrt_layout_enc(const void *value, void **_pp, size_t *size)
                  * list before we get here. */
                 tmp_size = (size_t)-1;
                 tmp_p = *pp;
-                if(H5S_encode(layout->storage.u.virt.list[u].source_select, pp, &tmp_size) < 0)
+
+                if(H5S_encode(layout->storage.u.virt.list[u].source_select, pp, &tmp_size, new_fapl_id) < 0)
                     HGOTO_ERROR(H5E_PLIST, H5E_CANTENCODE, FAIL, "unable to serialize source selection")
                 *size += (size_t)(*pp - tmp_p);
 
                 /* Virtual dataset selection.  Same notes as above apply. */
                 tmp_size = (size_t)-1;
                 tmp_p = *pp;
-                if(H5S_encode(layout->storage.u.virt.list[u].source_dset.virtual_select, pp, &tmp_size) < 0)
+                if(H5S_encode(layout->storage.u.virt.list[u].source_dset.virtual_select, pp, &tmp_size, new_fapl_id) < 0)
                     HGOTO_ERROR(H5E_PLIST, H5E_CANTENCODE, FAIL, "unable to serialize virtual selection")
                 *size += (size_t)(*pp - tmp_p);
             } /* end for */
@@ -466,14 +488,14 @@ H5P__dcrt_layout_enc(const void *value, void **_pp, size_t *size)
                 /* Source selection */
                 tmp_size = (size_t)0;
                 tmp_p = NULL;
-                if(H5S_encode(layout->storage.u.virt.list[u].source_select, &tmp_p, &tmp_size) < 0)
+                if(H5S_encode(layout->storage.u.virt.list[u].source_select, &tmp_p, &tmp_size, new_fapl_id) < 0)
                     HGOTO_ERROR(H5E_PLIST, H5E_CANTENCODE, FAIL, "unable to serialize source selection")
                 *size += tmp_size;
 
                 /* Virtual dataset selection */
                 tmp_size = (size_t)0;
                 tmp_p = NULL;
-                if(H5S_encode(layout->storage.u.virt.list[u].source_dset.virtual_select, &tmp_p, &tmp_size) < 0)
+                if(H5S_encode(layout->storage.u.virt.list[u].source_dset.virtual_select, &tmp_p, &tmp_size, new_fapl_id) < 0)
                     HGOTO_ERROR(H5E_PLIST, H5E_CANTENCODE, FAIL, "unable to serialize virtual selection")
                 *size += tmp_size;
             } /* end for */
@@ -979,7 +1001,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__dcrt_fill_value_enc(const void *value, void **_pp, size_t *size)
+H5P__dcrt_fill_value_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
 {
     const H5O_fill_t *fill = (const H5O_fill_t *)value; /* Create local aliases for values */
     size_t   dt_size = 0;                 /* Size of encoded datatype */
@@ -1115,7 +1137,7 @@ H5P__dcrt_fill_value_dec(const void **_pp, void *_value)
         dt_size = (size_t)enc_value;
 
         /* Decode type */
-        if(NULL == (fill->type = H5T_decode(*pp)))
+        if(NULL == (fill->type = H5T_decode(dt_size, *pp)))
             HGOTO_ERROR(H5E_PLIST, H5E_CANTDECODE, FAIL, "can't decode fill value datatype")
         *pp += dt_size;
     } /* end if */
@@ -1331,7 +1353,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:    H5P__dcrt_ext_file_list_get
  *
- * Purpose:     Copies an external file lsit property when it's retrieved from a property list
+ * Purpose:     Copies an external file list property when it's retrieved from a property list
  *
  * Return:      Success:        Non-negative
  *              Failure:        Negative
@@ -1382,7 +1404,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__dcrt_ext_file_list_enc(const void *value, void **_pp, size_t *size)
+H5P__dcrt_ext_file_list_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
 {
     const H5O_efl_t *efl = (const H5O_efl_t *)value; /* Create local aliases for values */
     size_t len = 0;                     /* String length of slot name */
@@ -2244,7 +2266,7 @@ H5Pset_virtual(hid_t dcpl_id, hid_t vspace_id, const char *src_file_name,
 
 done:
     /* Set VDS layout information in property list */
-    /* (Even on faliure, so there's not a mangled layout struct in the list) */
+    /* (Even on failure, so there's not a mangled layout struct in the list) */
     if(retrieved_layout) {
         if(H5P_poke(plist, H5D_CRT_LAYOUT_NAME, &virtual_layout) < 0) {
             HDONE_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set layout")
@@ -2371,7 +2393,7 @@ H5Pget_virtual_vspace(hid_t dcpl_id, size_t index)
 
     /* Register ID */
     if((ret_value = H5I_register(H5I_DATASPACE, space, TRUE)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, FAIL, "unable to register data space")
+        HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, FAIL, "unable to register dataspace")
 
 done:
     /* Free space on failure */
@@ -2462,7 +2484,7 @@ H5Pget_virtual_srcspace(hid_t dcpl_id, size_t index)
 
     /* Register ID */
     if((ret_value = H5I_register(H5I_DATASPACE, space, TRUE)) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, FAIL, "unable to register data space")
+        HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, FAIL, "unable to register dataspace")
 
 done:
     /* Free space on failure */
@@ -3217,7 +3239,7 @@ H5Pset_fill_value(hid_t plist_id, hid_t type_id, const void *value)
         HDmemcpy(fill.buf, value, (size_t)fill.size);
 
         /* Set up type conversion function */
-        if(NULL == (tpath = H5T_path_find(type, type, NULL, NULL, H5AC_ind_read_dxpl_id, FALSE)))
+        if(NULL == (tpath = H5T_path_find(type, type)))
             HGOTO_ERROR(H5E_DATASET, H5E_UNSUPPORTED, FAIL, "unable to convert between src and dest data types")
 
         /* If necessary, convert fill value datatypes (which copies VL components, etc.) */
@@ -3229,7 +3251,7 @@ H5Pset_fill_value(hid_t plist_id, hid_t type_id, const void *value)
                 HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
 
             /* Convert the fill value */
-            if(H5T_convert(tpath, type_id, type_id, (size_t)1, (size_t)0, (size_t)0, fill.buf, bkg_buf, H5AC_ind_read_dxpl_id) < 0) {
+            if(H5T_convert(tpath, type_id, type_id, (size_t)1, (size_t)0, (size_t)0, fill.buf, bkg_buf) < 0) {
                 if(bkg_buf)
                     bkg_buf = H5FL_BLK_FREE(type_conv, bkg_buf);
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTCONVERT, FAIL, "datatype conversion failed")
@@ -3269,8 +3291,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5P_get_fill_value(H5P_genplist_t *plist, const H5T_t *type, void *value/*out*/,
-    hid_t dxpl_id)
+H5P_get_fill_value(H5P_genplist_t *plist, H5T_t *type, void *value/*out*/)
 {
     H5O_fill_t          fill;                   /* Fill value to retrieve */
     H5T_path_t		*tpath;		        /*type conversion info	*/
@@ -3302,7 +3323,7 @@ H5P_get_fill_value(H5P_genplist_t *plist, const H5T_t *type, void *value/*out*/,
      /*
       * Can we convert between the source and destination datatypes?
       */
-    if(NULL == (tpath = H5T_path_find(fill.type, type, NULL, NULL, dxpl_id, FALSE)))
+    if(NULL == (tpath = H5T_path_find(fill.type, type)))
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINIT, FAIL, "unable to convert between src and dst datatypes")
     if((src_id = H5I_register(H5I_DATATYPE, H5T_copy(fill.type, H5T_COPY_TRANSIENT), FALSE)) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINIT, FAIL, "unable to copy/register datatype")
@@ -3328,7 +3349,7 @@ H5P_get_fill_value(H5P_genplist_t *plist, const H5T_t *type, void *value/*out*/,
     /* Do the conversion */
     if((dst_id = H5I_register(H5I_DATATYPE, H5T_copy(type, H5T_COPY_TRANSIENT), FALSE)) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINIT, FAIL, "unable to copy/register datatype")
-    if(H5T_convert(tpath, src_id, dst_id, (size_t)1, (size_t)0, (size_t)0, buf, bkg, dxpl_id) < 0)
+    if(H5T_convert(tpath, src_id, dst_id, (size_t)1, (size_t)0, (size_t)0, buf, bkg) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINIT, FAIL, "datatype conversion failed")
     if(buf != value)
         HDmemcpy(value, buf, H5T_get_size(type));
@@ -3384,7 +3405,7 @@ H5Pget_fill_value(hid_t plist_id, hid_t type_id, void *value/*out*/)
         HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
 
     /* Get the fill value */
-    if(H5P_get_fill_value(plist, type, value, H5AC_ind_read_dxpl_id) < 0)
+    if(H5P_get_fill_value(plist, type, value) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get fill value")
 
 done:

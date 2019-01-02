@@ -1,19 +1,11 @@
-# XXX(kitware): cmake versions are handled by VTK.
-if (FALSE)
-cmake_minimum_required (VERSION 3.2.2)
+if (FALSE) # XXX(kitware): cmake versions are handled by VTK.
+cmake_minimum_required (VERSION 3.10)
 endif ()
-PROJECT (HDF5_HL C CXX)
-
-#-----------------------------------------------------------------------------
-# Apply Definitions to compiler in this directory and below
-#-----------------------------------------------------------------------------
-add_definitions (${HDF_EXTRA_C_FLAGS})
-
+project (HDF5_HL C)
 
 #-----------------------------------------------------------------------------
 # List Source files
 #-----------------------------------------------------------------------------
-INCLUDE_DIRECTORIES (${HDF5_HL_SOURCE_DIR}/src )
 
 add_subdirectory (src)
 

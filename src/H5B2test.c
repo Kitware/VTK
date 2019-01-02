@@ -469,12 +469,11 @@ H5B2__test2_debug(FILE *stream, int indent, int fwidth, const void *record,
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B2_get_root_addr_test
+ * Function:    H5B2__get_root_addr_test
  *
- * Purpose:	Retrieve the root node's address
+ * Purpose:     Retrieve the root node's address
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:      SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
  *              Saturday, February 26, 2005
@@ -482,7 +481,7 @@ H5B2__test2_debug(FILE *stream, int indent, int fwidth, const void *record,
  *-------------------------------------------------------------------------
  */
 herr_t
-H5B2_get_root_addr_test(H5B2_t *bt2, haddr_t *root_addr)
+H5B2__get_root_addr_test(H5B2_t *bt2, haddr_t *root_addr)
 {
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -494,16 +493,15 @@ H5B2_get_root_addr_test(H5B2_t *bt2, haddr_t *root_addr)
     *root_addr = bt2->hdr->root.addr;
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* H5B2_get_root_addr_test() */
+} /* H5B2__get_root_addr_test() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B2_get_node_info_test
+ * Function:    H5B2__get_node_info_test
  *
- * Purpose:	Determine information about a node holding a record in the B-tree
+ * Purpose:     Determine information about a node holding a record in the B-tree
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:      SUCCEED/FAIL
  *
  * Programmer:	Quincey Koziol
  *              Thursday, August 31, 2006
@@ -511,8 +509,7 @@ H5B2_get_root_addr_test(H5B2_t *bt2, haddr_t *root_addr)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5B2_get_node_info_test(H5B2_t *bt2, hid_t dxpl_id, void *udata,
-    H5B2_node_info_test_t *ninfo)
+H5B2__get_node_info_test(H5B2_t *bt2, void *udata, H5B2_node_info_test_t *ninfo)
 {
     H5B2_hdr_t	*hdr;                   /* Pointer to the B-tree header */
     H5B2_node_ptr_t curr_node_ptr;      /* Node pointer info for current node */
@@ -522,7 +519,7 @@ H5B2_get_node_info_test(H5B2_t *bt2, hid_t dxpl_id, void *udata,
     unsigned    idx;                    /* Location of record which matches key */
     herr_t	ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Check arguments. */
     HDassert(bt2);
@@ -554,7 +551,7 @@ H5B2_get_node_info_test(H5B2_t *bt2, hid_t dxpl_id, void *udata,
         H5B2_node_ptr_t next_node_ptr;      /* Node pointer info for next node */
 
         /* Lock B-tree current node */
-        if(NULL == (internal = H5B2__protect_internal(hdr, dxpl_id, parent, &curr_node_ptr, depth, FALSE, H5AC__READ_ONLY_FLAG)))
+        if(NULL == (internal = H5B2__protect_internal(hdr, parent, &curr_node_ptr, depth, FALSE, H5AC__READ_ONLY_FLAG)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to load B-tree internal node")
 
         /* Unpin parent if necessary */
@@ -577,7 +574,7 @@ H5B2_get_node_info_test(H5B2_t *bt2, hid_t dxpl_id, void *udata,
             next_node_ptr = internal->node_ptrs[idx];
 
             /* Unlock current node */
-            if(H5AC_unprotect(hdr->f, dxpl_id, H5AC_BT2_INT, curr_node_ptr.addr, internal, (unsigned)(hdr->swmr_write ? H5AC__PIN_ENTRY_FLAG : H5AC__NO_FLAGS_SET)) < 0)
+            if(H5AC_unprotect(hdr->f, H5AC_BT2_INT, curr_node_ptr.addr, internal, (unsigned)(hdr->swmr_write ? H5AC__PIN_ENTRY_FLAG : H5AC__NO_FLAGS_SET)) < 0)
                 HGOTO_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree node")
 
             /* Keep track of parent if necessary */
@@ -589,7 +586,7 @@ H5B2_get_node_info_test(H5B2_t *bt2, hid_t dxpl_id, void *udata,
         } /* end if */
         else {
             /* Unlock current node */
-            if(H5AC_unprotect(hdr->f, dxpl_id, H5AC_BT2_INT, curr_node_ptr.addr, internal, H5AC__NO_FLAGS_SET) < 0)
+            if(H5AC_unprotect(hdr->f, H5AC_BT2_INT, curr_node_ptr.addr, internal, H5AC__NO_FLAGS_SET) < 0)
                 HGOTO_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree node")
 
             /* Fill in information about the node */
@@ -608,7 +605,7 @@ H5B2_get_node_info_test(H5B2_t *bt2, hid_t dxpl_id, void *udata,
         H5B2_leaf_t *leaf;          /* Pointer to leaf node in B-tree */
 
         /* Lock B-tree leaf node */
-        if(NULL == (leaf = H5B2__protect_leaf(hdr, dxpl_id, parent, &curr_node_ptr, FALSE, H5AC__READ_ONLY_FLAG)))
+        if(NULL == (leaf = H5B2__protect_leaf(hdr, parent, &curr_node_ptr, FALSE, H5AC__READ_ONLY_FLAG)))
             HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
 
         /* Unpin parent if necessary */
@@ -624,7 +621,7 @@ H5B2_get_node_info_test(H5B2_t *bt2, hid_t dxpl_id, void *udata,
             HGOTO_ERROR(H5E_BTREE, H5E_CANTCOMPARE, FAIL, "can't compare btree2 records")
 
         /* Unlock current node */
-        if(H5AC_unprotect(hdr->f, dxpl_id, H5AC_BT2_LEAF, curr_node_ptr.addr, leaf, H5AC__NO_FLAGS_SET) < 0)
+        if(H5AC_unprotect(hdr->f, H5AC_BT2_LEAF, curr_node_ptr.addr, leaf, H5AC__NO_FLAGS_SET) < 0)
             HGOTO_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree node")
 
         /* Indicate the depth that the record was found */
@@ -644,19 +641,20 @@ done:
     } /* end if */
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5B2_get_node_info_test() */
+} /* H5B2__get_node_info_test() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B2_get_node_depth_test
+ * Function:    H5B2__get_node_depth_test
  *
- * Purpose:	Determine the depth of a node holding a record in the B-tree
+ * Purpose:     Determine the depth of a node holding a record in the B-tree
  *
- * Note:	Just a simple wrapper around the H5B2__get_node_info_test() routine
+ * Note:        Just a simple wrapper around the H5B2__get_node_info_test() routine
  *
- * Return:	Success:	non-negative depth of the node where the record
- *                              was found
- *		Failure:	negative
+ * Return:      Success:    Non-negative depth of the node where the record
+ *                          was found
+ *
+ *              Failure:    -1
  *
  * Programmer:	Quincey Koziol
  *              Saturday, August 26, 2006
@@ -664,24 +662,24 @@ done:
  *-------------------------------------------------------------------------
  */
 int
-H5B2_get_node_depth_test(H5B2_t *bt2, hid_t dxpl_id, void *udata)
+H5B2__get_node_depth_test(H5B2_t *bt2, void *udata)
 {
     H5B2_node_info_test_t ninfo;        /* Node information */
     int		ret_value = -1;         /* Return information */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Check arguments. */
     HDassert(bt2);
 
     /* Get information abou the node */
-    if(H5B2_get_node_info_test(bt2, dxpl_id, udata, &ninfo) < 0)
-        HGOTO_ERROR(H5E_BTREE, H5E_NOTFOUND, FAIL, "error looking up node info")
+    if(H5B2__get_node_info_test(bt2, udata, &ninfo) < 0)
+        HGOTO_ERROR(H5E_BTREE, H5E_NOTFOUND, (-1), "error looking up node info")
 
     /* Set return value */
     ret_value = (int)ninfo.depth;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5B2_get_node_depth_test() */
+} /* H5B2__get_node_depth_test() */
 

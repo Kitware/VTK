@@ -125,34 +125,31 @@ typedef struct H5B2_t H5B2_t;
 /***************************************/
 /* Library-private Function Prototypes */
 /***************************************/
-H5_DLL H5B2_t *H5B2_create(H5F_t *f, hid_t dxpl_id, const H5B2_create_t *cparam,
+H5_DLL H5B2_t *H5B2_create(H5F_t *f, const H5B2_create_t *cparam,
     void *ctx_udata);
-H5_DLL H5B2_t *H5B2_open(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *ctx_udata);
+H5_DLL H5B2_t *H5B2_open(H5F_t *f, haddr_t addr, void *ctx_udata);
 H5_DLL herr_t H5B2_get_addr(const H5B2_t *bt2, haddr_t *addr/*out*/);
-H5_DLL herr_t H5B2_insert(H5B2_t *bt2, hid_t dxpl_id, void *udata);
-H5_DLL herr_t H5B2_iterate(H5B2_t *bt2, hid_t dxpl_id, H5B2_operator_t op,
-    void *op_data);
-H5_DLL htri_t H5B2_find(H5B2_t *bt2, hid_t dxpl_id, void *udata,
+H5_DLL herr_t H5B2_insert(H5B2_t *bt2, void *udata);
+H5_DLL herr_t H5B2_iterate(H5B2_t *bt2, H5B2_operator_t op, void *op_data);
+H5_DLL htri_t H5B2_find(H5B2_t *bt2, void *udata, H5B2_found_t op, void *op_data);
+H5_DLL herr_t H5B2_index(H5B2_t *bt2, H5_iter_order_t order, hsize_t idx,
     H5B2_found_t op, void *op_data);
-H5_DLL herr_t H5B2_index(H5B2_t *bt2, hid_t dxpl_id, H5_iter_order_t order,
-    hsize_t idx, H5B2_found_t op, void *op_data);
-H5_DLL herr_t H5B2_neighbor(H5B2_t *bt2, hid_t dxpl_id, H5B2_compare_t range,
-    void *udata, H5B2_found_t op, void *op_data);
-H5_DLL herr_t H5B2_modify(H5B2_t *bt2, hid_t dxpl_id, void *udata,
-    H5B2_modify_t op, void *op_data);
-H5_DLL herr_t H5B2_update(H5B2_t *bt2, hid_t dxpl_id, void *udata,
-    H5B2_modify_t op, void *op_data);
-H5_DLL herr_t H5B2_remove(H5B2_t *b2, hid_t dxpl_id, void *udata,
-    H5B2_remove_t op, void *op_data);
-H5_DLL herr_t H5B2_remove_by_idx(H5B2_t *bt2, hid_t dxpl_id,
-    H5_iter_order_t order, hsize_t idx, H5B2_remove_t op, void *op_data);
+H5_DLL herr_t H5B2_neighbor(H5B2_t *bt2, H5B2_compare_t range, void *udata,
+    H5B2_found_t op, void *op_data);
+H5_DLL herr_t H5B2_modify(H5B2_t *bt2, void *udata, H5B2_modify_t op,
+    void *op_data);
+H5_DLL herr_t H5B2_update(H5B2_t *bt2, void *udata, H5B2_modify_t op,
+    void *op_data);
+H5_DLL herr_t H5B2_remove(H5B2_t *b2, void *udata, H5B2_remove_t op,
+    void *op_data);
+H5_DLL herr_t H5B2_remove_by_idx(H5B2_t *bt2, H5_iter_order_t order,
+    hsize_t idx, H5B2_remove_t op, void *op_data);
 H5_DLL herr_t H5B2_get_nrec(const H5B2_t *bt2, hsize_t *nrec);
-H5_DLL herr_t H5B2_size(H5B2_t *bt2, hid_t dxpl_id,
-    hsize_t *btree_size);
-H5_DLL herr_t H5B2_close(H5B2_t *bt2, hid_t dxpl_id);
-H5_DLL herr_t H5B2_delete(H5F_t *f, hid_t dxpl_id, haddr_t addr,
-    void *ctx_udata, H5B2_remove_t op, void *op_data);
-H5_DLL herr_t H5B2_depend(H5B2_t *bt2, hid_t dxpl_id, H5AC_proxy_entry_t *parent);
+H5_DLL herr_t H5B2_size(H5B2_t *bt2, hsize_t *btree_size);
+H5_DLL herr_t H5B2_close(H5B2_t *bt2);
+H5_DLL herr_t H5B2_delete(H5F_t *f, haddr_t addr, void *ctx_udata,
+    H5B2_remove_t op, void *op_data);
+H5_DLL herr_t H5B2_depend(H5B2_t *bt2, H5AC_proxy_entry_t *parent);
 H5_DLL herr_t H5B2_patch_file(H5B2_t *fa, H5F_t *f);
 
 /* Statistics routines */

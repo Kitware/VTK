@@ -114,7 +114,7 @@ static herr_t H5P__lacc_reg_prop(H5P_genclass_t *pclass);
 /* Property list callbacks */
 static herr_t H5P__lacc_elink_pref_set(hid_t prop_id, const char* name, size_t size, void* value);
 static herr_t H5P__lacc_elink_pref_get(hid_t prop_id, const char* name, size_t size, void* value);
-static herr_t H5P__lacc_elink_pref_enc(const void *value, void **_pp, size_t *size);
+static herr_t H5P__lacc_elink_pref_enc(const void *value, void **_pp, size_t *size, void *udata);
 static herr_t H5P__lacc_elink_pref_dec(const void **_pp, void *value);
 static herr_t H5P__lacc_elink_pref_del(hid_t prop_id, const char* name, size_t size, void* value);
 static herr_t H5P__lacc_elink_pref_copy(const char* name, size_t size, void* value);
@@ -122,7 +122,7 @@ static int H5P__lacc_elink_pref_cmp(const void *value1, const void *value2, size
 static herr_t H5P__lacc_elink_pref_close(const char* name, size_t size, void* value);
 static herr_t H5P__lacc_elink_fapl_set(hid_t prop_id, const char* name, size_t size, void* value);
 static herr_t H5P__lacc_elink_fapl_get(hid_t prop_id, const char* name, size_t size, void* value);
-static herr_t H5P__lacc_elink_fapl_enc(const void *value, void **_pp, size_t *size);
+static herr_t H5P__lacc_elink_fapl_enc(const void *value, void **_pp, size_t *size, void *udata);
 static herr_t H5P__lacc_elink_fapl_dec(const void **_pp, void *value);
 static herr_t H5P__lacc_elink_fapl_del(hid_t prop_id, const char* name, size_t size, void* value);
 static herr_t H5P__lacc_elink_fapl_copy(const char* name, size_t size, void* value);
@@ -338,13 +338,14 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__lacc_elink_fapl_enc(const void *value, void **_pp, size_t *size)
+H5P__lacc_elink_fapl_enc(const void *value, void **_pp, size_t *size, void *_udata)
 {
-    const hid_t *elink_fapl = (const hid_t *)value;     /* Property to encode */
+    const hid_t *elink_fapl = (const hid_t *)value;         /* Property to encode */
     uint8_t **pp = (uint8_t **)_pp;
+    H5P_enc_cb_info_t *udata = (H5P_enc_cb_info_t *)_udata; /* User data for encode callback */
     H5P_genplist_t *fapl_plist;         /* Pointer to property list */
     hbool_t non_default_fapl = FALSE;   /* Whether the FAPL is non-default */
-    size_t fapl_size = 0;                /* FAPL's encoded size */
+    size_t fapl_size = 0;               /* FAPL's encoded size */
     herr_t ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_STATIC
@@ -364,7 +365,7 @@ H5P__lacc_elink_fapl_enc(const void *value, void **_pp, size_t *size)
     /* Encode the property list, if non-default */
     /* (if *pp == NULL, will only compute the size) */
     if(non_default_fapl) {
-        if(H5P__encode(fapl_plist, TRUE, NULL, &fapl_size) < 0)
+        if(H5P__encode(fapl_plist, TRUE, NULL, &fapl_size, udata->fapl_id) < 0)
             HGOTO_ERROR(H5E_PLIST, H5E_CANTENCODE, FAIL, "can't encode property list")
 
         if(*pp) {
@@ -379,7 +380,7 @@ H5P__lacc_elink_fapl_enc(const void *value, void **_pp, size_t *size)
             UINT64ENCODE_VAR(*pp, enc_value, enc_size);
 
             /* encode the plist */
-            if(H5P__encode(fapl_plist, TRUE, *pp, &fapl_size) < 0)
+            if(H5P__encode(fapl_plist, TRUE, *pp, &fapl_size, udata->fapl_id) < 0)
                 HGOTO_ERROR(H5E_PLIST, H5E_CANTENCODE, FAIL, "can't encode property list")
 
             *pp += fapl_size;
@@ -688,7 +689,7 @@ H5P__lacc_elink_pref_get(hid_t H5_ATTR_UNUSED prop_id, const char H5_ATTR_UNUSED
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__lacc_elink_pref_enc(const void *value, void **_pp, size_t *size)
+H5P__lacc_elink_pref_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
 {
     const char *elink_pref = *(const char * const *)value;
     uint8_t **pp = (uint8_t **)_pp;
@@ -1059,9 +1060,8 @@ H5Pget_elink_prefix(hid_t plist_id, char *prefix, size_t size)
         /* Copy to user's buffer, if given */
         len = HDstrlen(my_prefix);
         if(prefix) {
-            HDstrncpy(prefix, my_prefix, MIN(len + 1, size));
-            if(len >= size)
-                prefix[size - 1] = '\0';
+            HDstrncpy(prefix, my_prefix, size);
+            prefix[size - 1] = '\0';
         } /* end if */
     } /* end if */
     else

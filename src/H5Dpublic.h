@@ -35,12 +35,6 @@
 /* Bit flags for the H5Pset_chunk_opts() and H5Pget_chunk_opts() */
 #define H5D_CHUNK_DONT_FILTER_PARTIAL_CHUNKS      (0x0002u)
 
-/* Property names for H5LTDdirect_chunk_write */   
-#define H5D_XFER_DIRECT_CHUNK_WRITE_FLAG_NAME	        "direct_chunk_flag"
-#define H5D_XFER_DIRECT_CHUNK_WRITE_FILTERS_NAME	"direct_chunk_filters"
-#define H5D_XFER_DIRECT_CHUNK_WRITE_OFFSET_NAME		"direct_chunk_offset"
-#define H5D_XFER_DIRECT_CHUNK_WRITE_DATASIZE_NAME	"direct_chunk_datasize"
- 
 /*******************/
 /* Public Typedefs */
 /*******************/
@@ -146,11 +140,16 @@ H5_DLL hid_t H5Dget_type(hid_t dset_id);
 H5_DLL hid_t H5Dget_create_plist(hid_t dset_id);
 H5_DLL hid_t H5Dget_access_plist(hid_t dset_id);
 H5_DLL hsize_t H5Dget_storage_size(hid_t dset_id);
+H5_DLL herr_t H5Dget_chunk_storage_size(hid_t dset_id, const hsize_t *offset, hsize_t *chunk_bytes);
 H5_DLL haddr_t H5Dget_offset(hid_t dset_id);
 H5_DLL herr_t H5Dread(hid_t dset_id, hid_t mem_type_id, hid_t mem_space_id,
 			hid_t file_space_id, hid_t plist_id, void *buf/*out*/);
 H5_DLL herr_t H5Dwrite(hid_t dset_id, hid_t mem_type_id, hid_t mem_space_id,
 			 hid_t file_space_id, hid_t plist_id, const void *buf);
+H5_DLL herr_t H5Dwrite_chunk(hid_t dset_id, hid_t dxpl_id, uint32_t filters, 
+            const hsize_t *offset, size_t data_size, const void *buf);
+H5_DLL herr_t H5Dread_chunk(hid_t dset_id, hid_t dxpl_id,
+            const hsize_t *offset, uint32_t *filters, void *buf);
 H5_DLL herr_t H5Diterate(void *buf, hid_t type_id, hid_t space_id,
             H5D_operator_t op, void *operator_data);
 H5_DLL herr_t H5Dvlen_reclaim(hid_t type_id, hid_t space_id, hid_t plist_id, void *buf);
@@ -179,7 +178,19 @@ H5_DLL herr_t H5Dget_chunk_index_type(hid_t did, H5D_chunk_index_t *idx_type);
 /* Macros */
 #define H5D_CHUNK_BTREE H5D_CHUNK_IDX_BTREE
 
-
+/* Formerly used to support the H5DOread/write_chunk() API calls.
+ * These symbols are no longer used in the library.
+ */
+/* Property names for H5DOwrite_chunk */
+#define H5D_XFER_DIRECT_CHUNK_WRITE_FLAG_NAME       "direct_chunk_flag"
+#define H5D_XFER_DIRECT_CHUNK_WRITE_FILTERS_NAME    "direct_chunk_filters"
+#define H5D_XFER_DIRECT_CHUNK_WRITE_OFFSET_NAME     "direct_chunk_offset"
+#define H5D_XFER_DIRECT_CHUNK_WRITE_DATASIZE_NAME   "direct_chunk_datasize"
+/* Property names for H5DOread_chunk */
+#define H5D_XFER_DIRECT_CHUNK_READ_FLAG_NAME        "direct_chunk_read_flag"
+#define H5D_XFER_DIRECT_CHUNK_READ_OFFSET_NAME      "direct_chunk_read_offset"
+#define H5D_XFER_DIRECT_CHUNK_READ_FILTERS_NAME     "direct_chunk_read_filters"
+ 
 /* Typedefs */
 
 

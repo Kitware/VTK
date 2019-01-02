@@ -239,12 +239,10 @@ H5O_assert(const H5O_t *oh)
  *		koziol@ncsa.uiuc.edu
  *		Feb 13 2003
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5O_debug_id(unsigned type_id, H5F_t *f, hid_t dxpl_id, const void *mesg, FILE *stream, int indent, int fwidth)
+H5O_debug_id(unsigned type_id, H5F_t *f, const void *mesg, FILE *stream, int indent, int fwidth)
 {
     const H5O_msg_class_t *type;        /* Actual H5O class type for the ID */
     herr_t      ret_value = FAIL;       /* Return value */
@@ -263,7 +261,7 @@ H5O_debug_id(unsigned type_id, H5F_t *f, hid_t dxpl_id, const void *mesg, FILE *
     HDassert(fwidth >= 0);
 
     /* Call the debug method in the class */
-    if((ret_value = (type->debug)(f, dxpl_id, mesg, stream, indent, fwidth)) < 0)
+    if((ret_value = (type->debug)(f, mesg, stream, indent, fwidth)) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_BADTYPE, FAIL, "unable to debug message")
 
 done:
@@ -289,7 +287,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5O_debug_real(H5F_t *f, hid_t dxpl_id, H5O_t *oh, haddr_t addr, FILE *stream, int indent, int fwidth)
+H5O_debug_real(H5F_t *f, H5O_t *oh, haddr_t addr, FILE *stream, int indent, int fwidth)
 {
     size_t	mesg_total = 0, chunk_total = 0, gap_total = 0;
     unsigned	*sequence = NULL;
@@ -519,13 +517,13 @@ H5O_debug_real(H5F_t *f, hid_t dxpl_id, H5O_t *oh, haddr_t addr, FILE *stream, i
 	/* decode the message */
 	debug_type = oh->mesg[i].type;
 	if(NULL == oh->mesg[i].native && debug_type->decode)
-            H5O_LOAD_NATIVE(f, dxpl_id, H5O_DECODEIO_NOCHANGE, oh, &oh->mesg[i], FAIL)
+            H5O_LOAD_NATIVE(f, H5O_DECODEIO_NOCHANGE, oh, &oh->mesg[i], FAIL)
 
 	/* print the message */
 	HDfprintf(stream, "%*s%-*s\n", indent + 3, "", MAX(0, fwidth - 3),
 		  "Message Information:");
 	if(debug_type->debug && oh->mesg[i].native != NULL)
-	    (debug_type->debug)(f, dxpl_id, oh->mesg[i].native, stream, indent + 6, MAX(0, fwidth - 6));
+	    (debug_type->debug)(f, oh->mesg[i].native, stream, indent + 6, MAX(0, fwidth - 6));
 	else
 	    HDfprintf(stream, "%*s<No info for this message>\n", indent + 6, "");
     } /* end for */
@@ -556,7 +554,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5O_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent, int fwidth)
+H5O_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth)
 {
     H5O_t	*oh = NULL;             /* Object header to display */
     H5O_loc_t   loc;                    /* Object location for object to delete */
@@ -576,14 +574,14 @@ H5O_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent, int f
     loc.addr = addr;
     loc.holding_file = FALSE;
 
-    if(NULL == (oh = H5O_protect(&loc, dxpl_id, H5AC__READ_ONLY_FLAG, FALSE)))
+    if(NULL == (oh = H5O_protect(&loc, H5AC__READ_ONLY_FLAG, FALSE)))
 	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header")
 
     /* debug */
-    H5O_debug_real(f, dxpl_id, oh, addr, stream, indent, fwidth);
+    H5O_debug_real(f, oh, addr, stream, indent, fwidth);
 
 done:
-    if(oh && H5O_unprotect(&loc, dxpl_id, oh, H5AC__NO_FLAGS_SET) < 0)
+    if(oh && H5O_unprotect(&loc, oh, H5AC__NO_FLAGS_SET) < 0)
 	HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
 
     FUNC_LEAVE_NOAPI(ret_value)

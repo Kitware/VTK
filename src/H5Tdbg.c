@@ -32,9 +32,9 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5Tpkg.h"		/* Datatypes         			*/
+#include "H5private.h"          /* Generic Functions                        */
+#include "H5Eprivate.h"         /* Error handling                           */
+#include "H5Tpkg.h"             /* Datatypes                                */
 
 
 /****************/
@@ -74,28 +74,21 @@
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5T__print_stats
+ * Function:    H5T__print_stats
  *
- * Purpose:	Print statistics about a conversion path.  Statistics are
- *		printed only if all the following conditions are true:
+ * Purpose:     Print statistics about a conversion path.  Statistics are
+ *              printed only if all the following conditions are true:
  *
- * 		1. The library was compiled with H5T_DEBUG defined.
- *		2. Data type debugging is turned on at run time.
- *		3. The path was called at least one time.
+ *              1. The library was compiled with H5T_DEBUG defined.
+ *              2. Data type debugging is turned on at run time.
+ *              3. The path was called at least one time.
  *
- *		The optional NPRINT argument keeps track of the number of
- *		conversions paths for which statistics have been shown. If
- *		its value is zero then table headers are printed before the
- *		first line of output.
+ *              The optional NPRINT argument keeps track of the number of
+ *              conversions paths for which statistics have been shown. If
+ *              its value is zero then table headers are printed before the
+ *              first line of output.
  *
- * Return:	Success:	non-negative
- *
- *		Failure:	negative
- *
- * Programmer:	Robb Matzke
- *              Monday, December 14, 1998
- *
- * Modifications:
+ * Return:      SUCCEED/FAIL
  *
  *-------------------------------------------------------------------------
  */
@@ -110,34 +103,34 @@ H5T__print_stats(H5T_path_t H5_ATTR_UNUSED * path, int H5_ATTR_UNUSED * nprint/*
     FUNC_ENTER_PACKAGE_NOERR
 
 #ifdef H5T_DEBUG
-    if(H5DEBUG(T) && path->stats.ncalls > 0) {
-	if(nprint && 0 == (*nprint)++) {
-	    HDfprintf(H5DEBUG(T), "H5T: type conversion statistics:\n");
-	    HDfprintf(H5DEBUG(T), "   %-16s %10s %10s %8s %8s %8s %10s\n",
-		       "Conversion", "Elmts", "Calls", "User",
-		       "System", "Elapsed", "Bandwidth");
-	    HDfprintf(H5DEBUG(T), "   %-16s %10s %10s %8s %8s %8s %10s\n",
-		       "----------", "-----", "-----", "----",
-		       "------", "-------", "---------");
-	}
-        if(path->src && path->dst)
+    if (H5DEBUG(T) && path->stats.ncalls > 0) {
+        if (nprint && 0 == (*nprint)++) {
+            HDfprintf(H5DEBUG(T), "H5T: type conversion statistics:\n");
+            HDfprintf(H5DEBUG(T), "   %-16s %10s %10s %8s %8s %8s %10s\n",
+                "Conversion", "Elmts", "Calls", "User",
+                "System", "Elapsed", "Bandwidth");
+            HDfprintf(H5DEBUG(T), "   %-16s %10s %10s %8s %8s %8s %10s\n",
+                "----------", "-----", "-----", "----",
+                "------", "-------", "---------");
+        }
+        if (path->src && path->dst)
             nbytes = MAX(H5T_get_size(path->src), H5T_get_size(path->dst));
-        else if(path->src)
+        else if (path->src)
             nbytes = H5T_get_size(path->src);
-        else if(path->dst)
+        else if (path->dst)
             nbytes = H5T_get_size(path->dst);
         else
             nbytes = 0;
-	nbytes *= path->stats.nelmts;
-	H5_bandwidth(bandwidth, (double)nbytes, path->stats.timer.etime);
-	HDfprintf(H5DEBUG(T), "   %-16s %10Hd %10d %8.2f %8.2f %8.2f %10s\n",
-		   path->name,
-		   path->stats.nelmts,
-		   path->stats.ncalls,
-		   path->stats.timer.utime,
-		   path->stats.timer.stime,
-		   path->stats.timer.etime,
-		   bandwidth);
+        nbytes *= path->stats.nelmts;
+        H5_bandwidth(bandwidth, (double)nbytes, path->stats.timer.etime);
+        HDfprintf(H5DEBUG(T), "   %-16s %10Hd %10d %8.2f %8.2f %8.2f %10s\n",
+            path->name,
+            path->stats.nelmts,
+            path->stats.ncalls,
+            path->stats.timer.utime,
+            path->stats.timer.stime,
+            path->stats.timer.etime,
+            bandwidth);
     }
 #endif
     FUNC_LEAVE_NOAPI(SUCCEED)
@@ -145,24 +138,20 @@ H5T__print_stats(H5T_path_t H5_ATTR_UNUSED * path, int H5_ATTR_UNUSED * nprint/*
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5T_debug
+ * Function:    H5T_debug
  *
- * Purpose:	Prints information about a data type.
+ * Purpose:     Prints information about a data type.
  *
- * Return:	Non-negative on success/Negative on failure
- *
- * Programmer:	Robb Matzke
- *		Wednesday, January  7, 1998
- *
- * Modifications:
+ * Return:      SUCCEED/FAIL
  *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5T_debug(const H5T_t *dt, FILE *stream)
 {
-    const char	*s1 = "", *s2 = "";
-    unsigned	i;
+    const char  *s1 = "";
+    const char  *s2 = "";
+    unsigned    i;
     herr_t      ret_value = SUCCEED;       /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
@@ -171,7 +160,7 @@ H5T_debug(const H5T_t *dt, FILE *stream)
     HDassert(dt);
     HDassert(stream);
 
-    switch(dt->shared->type) {
+    switch (dt->shared->type) {
         case H5T_NO_CLASS:
             HGOTO_ERROR(H5E_DATATYPE, H5E_BADTYPE, FAIL, "no class");
             break;
@@ -221,9 +210,9 @@ H5T_debug(const H5T_t *dt, FILE *stream)
         default:
             s1 = "";
             break;
-    } /* end switch */
+    }  /* end switch */
 
-    switch(dt->shared->state) {
+    switch (dt->shared->state) {
         case H5T_STATE_TRANSIENT:
             s2 = "[transient]";
             break;
@@ -245,14 +234,14 @@ H5T_debug(const H5T_t *dt, FILE *stream)
             break;
         default:
             HDassert(0 && "This Should never be executed!");
-    } /* end switch */
+    }  /* end switch */
 
-    fprintf(stream, "%s%s {nbytes=%lu", s1, s2, (unsigned long)(dt->shared->size));
+    HDfprintf(stream, "%s%s {nbytes=%lu", s1, s2, (unsigned long)(dt->shared->size));
 
-    if(H5T_IS_ATOMIC(dt->shared)) {
-        uint64_t	tmp;
+    if (H5T_IS_ATOMIC(dt->shared)) {
+        uint64_t    tmp;
 
-	switch(dt->shared->u.atomic.order) {
+        switch (dt->shared->u.atomic.order) {
             case H5T_ORDER_ERROR:
                 HGOTO_ERROR(H5E_DATATYPE, H5E_BADTYPE, FAIL, "order error");
                 break;
@@ -277,17 +266,16 @@ H5T_debug(const H5T_t *dt, FILE *stream)
             default:
                 s1 = "order?";
                 break;
-	} /* end switch */
+        } /* end switch */
 
-	fprintf(stream, ", %s", s1);
+        HDfprintf(stream, ", %s", s1);
 
-	if(dt->shared->u.atomic.offset)
-	    fprintf(stream, ", offset=%lu",
-		    (unsigned long) (dt->shared->u.atomic.offset));
-	if(dt->shared->u.atomic.prec != 8 * dt->shared->size)
-	    fprintf(stream, ", prec=%lu",
-		    (unsigned long) (dt->shared->u.atomic.prec));
-	switch(dt->shared->type) {
+        if (dt->shared->u.atomic.offset)
+            HDfprintf(stream, ", offset=%lu", (unsigned long) (dt->shared->u.atomic.offset));
+        if (dt->shared->u.atomic.prec != 8 * dt->shared->size)
+            HDfprintf(stream, ", prec=%lu", (unsigned long) (dt->shared->u.atomic.prec));
+
+        switch (dt->shared->type) {
             case H5T_NO_CLASS:
                 HGOTO_ERROR(H5E_DATATYPE, H5E_BADTYPE, FAIL, "no class");
                 break;
@@ -313,7 +301,7 @@ H5T_debug(const H5T_t *dt, FILE *stream)
 
                 } /* end switch */
                 if(s1)
-                    fprintf(stream, ", %s", s1);
+                    HDfprintf(stream, ", %s", s1);
                 break;
 
             case H5T_FLOAT:
@@ -339,23 +327,24 @@ H5T_debug(const H5T_t *dt, FILE *stream)
                         break;
                 } /* end switch */
 
-                fprintf(stream, ", sign=%lu+1",
+                HDfprintf(stream, ", sign=%lu+1",
                         (unsigned long)(dt->shared->u.atomic.u.f.sign));
-                fprintf(stream, ", mant=%lu+%lu (%s)",
+                HDfprintf(stream, ", mant=%lu+%lu (%s)",
                         (unsigned long)(dt->shared->u.atomic.u.f.mpos),
                         (unsigned long)(dt->shared->u.atomic.u.f.msize), s1);
-                fprintf(stream, ", exp=%lu+%lu",
+                HDfprintf(stream, ", exp=%lu+%lu",
                         (unsigned long)(dt->shared->u.atomic.u.f.epos),
                         (unsigned long)(dt->shared->u.atomic.u.f.esize));
                 tmp = dt->shared->u.atomic.u.f.ebias >> 32;
-                if(tmp) {
+                if (tmp) {
                     size_t hi = (size_t)tmp;
                     size_t lo = (size_t)(dt->shared->u.atomic.u.f.ebias & 0xffffffff);
-                    fprintf(stream, " bias=0x%08lx%08lx",
+                    HDfprintf(stream, " bias=0x%08lx%08lx",
                             (unsigned long)hi, (unsigned long)lo);
-                } else {
+                }
+                else {
                     size_t lo = (size_t)(dt->shared->u.atomic.u.f.ebias & 0xffffffff);
-                    fprintf(stream, " bias=0x%08lx", (unsigned long)lo);
+                    HDfprintf(stream, " bias=0x%08lx", (unsigned long)lo);
                 }
                 break;
 
@@ -372,69 +361,73 @@ H5T_debug(const H5T_t *dt, FILE *stream)
             default:
                 /* No additional info */
                 break;
-	} /* end switch */
-    } else if(H5T_COMPOUND == dt->shared->type) {
-	/* Compound data type */
-	for(i = 0; i < dt->shared->u.compnd.nmembs; i++) {
-	    fprintf(stream, "\n\"%s\" @%lu",
-		    dt->shared->u.compnd.memb[i].name,
-		    (unsigned long)(dt->shared->u.compnd.memb[i].offset));
-	    fprintf(stream, " ");
-	    H5T_debug(dt->shared->u.compnd.memb[i].type, stream);
-	} /* end for */
-	fprintf(stream, "\n");
-    } else if(H5T_VLEN == dt->shared->type) {
-        switch(dt->shared->u.vlen.loc) {
+        } /* end switch */
+    }
+    else if (H5T_COMPOUND == dt->shared->type) {
+        /* Compound data type */
+        for (i = 0; i < dt->shared->u.compnd.nmembs; i++) {
+            HDfprintf(stream, "\n\"%s\" @%lu",
+                    dt->shared->u.compnd.memb[i].name,
+                    (unsigned long)(dt->shared->u.compnd.memb[i].offset));
+            HDfprintf(stream, " ");
+            H5T_debug(dt->shared->u.compnd.memb[i].type, stream);
+        } /* end for */
+        HDfprintf(stream, "\n");
+    }
+    else if (H5T_VLEN == dt->shared->type) {
+        switch (dt->shared->u.vlen.loc) {
             case H5T_LOC_BADLOC:
                 HGOTO_ERROR(H5E_DATATYPE, H5E_BADTYPE, FAIL, "invalid datatype location");
                 break;
 
             case H5T_LOC_MEMORY:
-                fprintf(stream, ", loc=memory");
+                HDfprintf(stream, ", loc=memory");
                 break;
 
             case H5T_LOC_DISK:
-                fprintf(stream, ", loc=disk");
+                HDfprintf(stream, ", loc=disk");
                 break;
 
             case H5T_LOC_MAXLOC:
             default:
-                fprintf(stream, ", loc=UNKNOWN");
+                HDfprintf(stream, ", loc=UNKNOWN");
                 break;
         } /* end switch */
 
-        if(H5T_IS_VL_STRING(dt->shared))
+        if (H5T_IS_VL_STRING(dt->shared))
             /* Variable length string datatype */
-            fprintf(stream, ", variable-length");
+            HDfprintf(stream, ", variable-length");
         else {
             /* Variable length sequence datatype */
-            fprintf(stream, " VLEN ");
+            HDfprintf(stream, " VLEN ");
             H5T_debug(dt->shared->parent, stream);
-            fprintf(stream, "\n");
+            HDfprintf(stream, "\n");
         } /* end else */
-    } else if(H5T_ENUM == dt->shared->type) {
+    }
+    else if (H5T_ENUM == dt->shared->type) {
         size_t	base_size;
 
-	/* Enumeration data type */
-	fprintf(stream, " ");
-	H5T_debug(dt->shared->parent, stream);
-	base_size = dt->shared->parent->shared->size;
-	for(i = 0; i < dt->shared->u.enumer.nmembs; i++) {
+        /* Enumeration data type */
+        HDfprintf(stream, " ");
+        H5T_debug(dt->shared->parent, stream);
+        base_size = dt->shared->parent->shared->size;
+        for (i = 0; i < dt->shared->u.enumer.nmembs; i++) {
             size_t	k;
 
-	    fprintf(stream, "\n\"%s\" = 0x", dt->shared->u.enumer.name[i]);
-	    for(k = 0; k < base_size; k++)
-		fprintf(stream, "%02lx",
-			(unsigned long)(dt->shared->u.enumer.value + (i * base_size) + k));
-	} /* end for */
-	fprintf(stream, "\n");
-    } else if(H5T_OPAQUE == dt->shared->type) {
-	fprintf(stream, ", tag=\"%s\"", dt->shared->u.opaque.tag);
-    } else {
-	/* Unknown */
-	fprintf(stream, "unknown class %d\n", (int)(dt->shared->type));
+            HDfprintf(stream, "\n\"%s\" = 0x", dt->shared->u.enumer.name[i]);
+            for (k = 0; k < base_size; k++)
+                HDfprintf(stream, "%02lx", (unsigned long)(dt->shared->u.enumer.value + (i * base_size) + k));
+        } /* end for */
+        HDfprintf(stream, "\n");
     }
-    fprintf(stream, "}");
+    else if (H5T_OPAQUE == dt->shared->type) {
+        HDfprintf(stream, ", tag=\"%s\"", dt->shared->u.opaque.tag);
+    }
+    else {
+        /* Unknown */
+        HDfprintf(stream, "unknown class %d\n", (int)(dt->shared->type));
+    }
+    HDfprintf(stream, "}");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)

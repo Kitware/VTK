@@ -11,13 +11,11 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	Quincey Koziol <koziol@hdfgroup.org>
- *		Saturday, September 12, 2015
- *
- * Purpose:	This file contains declarations which define macros for the
- *		H5PL package.  Including this header means that the source file
- *		is part of the H5PL package.
+ * Purpose: This file contains declarations which define macros for the
+ *          H5PL package.  Including this header means that the source file
+ *          is part of the H5PL package.
  */
+
 #ifndef _H5PLmodule_H
 #define _H5PLmodule_H
 

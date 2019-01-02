@@ -12,14 +12,11 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:  Robb Matzke <matzke@llnl.gov>
- *              Monday, July 26, 1999
- *
- * Purpose:	The Virtual File Layer as described in documentation.
- *              This is the greatest common denominator for all types of
- *              storage access whether a file, memory, network, etc. This
- *              layer usually just dispatches the request to an actual
- *              file driver layer.
+ * Purpose: The Virtual File Layer as described in documentation.
+ *          This is the greatest common denominator for all types of
+ *          storage access whether a file, memory, network, etc. This
+ *          layer usually just dispatches the request to an actual
+ *          file driver layer.
  */
 
 /****************/
@@ -34,6 +31,7 @@
 /* Headers */
 /***********/
 #include "H5private.h"		/* Generic Functions			*/
+#include "H5CXprivate.h"        /* API Contexts                         */
 #include "H5Dprivate.h"		/* Datasets				*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5Fpkg.h"             /* File access				*/
@@ -62,7 +60,6 @@
 /********************/
 static herr_t H5FD_free_cls(H5FD_class_t *cls);
 static int H5FD_query(const H5FD_t *f, unsigned long *flags/*out*/);
-static int H5FD_driver_query(const H5FD_class_t *driver, unsigned long *flags/*out*/);
 
 /*********************/
 /* Package Variables */
@@ -113,9 +110,6 @@ static const H5I_class_t H5I_VFL_CLS[1] = {{
  * Return:	Success:	Non-negative
  *		Failure:	Negative
  *
- * Programmer:	Robb Matzke
- *              Monday, July 26, 1999
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -126,7 +120,7 @@ H5FD__init_package(void)
     FUNC_ENTER_PACKAGE
 
     if(H5I_register_type(H5I_VFL_CLS) < 0)
-	HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "unable to initialize interface")
+        HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "unable to initialize interface")
 
     /* Reset the file serial numbers */
     H5FD_file_serial_no_g = 0;
@@ -148,9 +142,6 @@ done:
  *				otherwise.
  *		Failure:        Never fails.
  *
- * Programmer:	Robb Matzke
- *              Friday, February 19, 1999
- *
  *-------------------------------------------------------------------------
  */
 int
@@ -161,18 +152,18 @@ H5FD_term_package(void)
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     if(H5_PKG_INIT_VAR) {
-	if(H5I_nmembers(H5I_VFL) > 0) {
-	    (void)H5I_clear_type(H5I_VFL, FALSE, FALSE);
+        if(H5I_nmembers(H5I_VFL) > 0) {
+            (void)H5I_clear_type(H5I_VFL, FALSE, FALSE);
             n++; /*H5I*/
-	} /* end if */
+        } /* end if */
         else {
-            /* Destroy the VFL driver id group */
-	    n += (H5I_dec_type_ref(H5I_VFL) > 0);
+            /* Destroy the VFL driver ID group */
+            n += (H5I_dec_type_ref(H5I_VFL) > 0);
 
-	    /* Mark closed */
+            /* Mark closed */
             if(0 == n)
                 H5_PKG_INIT_VAR = FALSE;
-	} /* end else */
+        } /* end else */
     } /* end if */
 
     FUNC_LEAVE_NOAPI(n)
@@ -189,11 +180,6 @@ H5FD_term_package(void)
  * Return:	Success:	Non-negative
  *
  *		Failure:	Negative
- *
- * Programmer:	Robb Matzke
- *              Monday, July 26, 1999
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -222,26 +208,18 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5FDregister
+ * Function:    H5FDregister
  *
- * Purpose:	Registers a new file driver as a member of the virtual file
- *		driver class.  Certain fields of the class struct are
- *		required and that is checked here so it doesn't have to be
- *		checked every time the field is accessed.
+ * Purpose:     Registers a new file driver as a member of the virtual file
+ *              driver class.  Certain fields of the class struct are
+ *              required and that is checked here so it doesn't have to be
+ *              checked every time the field is accessed.
  *
- * Return:	Success:	A file driver ID which is good until the
- *				library is closed or the driver is
- *				unregistered.
+ * Return:      Success:    A file driver ID which is good until the
+ *                          library is closed or the driver is
+ *                          unregistered.
  *
- *		Failure:	A negative value.
- *
- * Programmer:	Robb Matzke
- *              Monday, July 26, 1999
- *
- * Modifications:
- *              Copied guts of function into H5FD_register
- *              Quincey Koziol
- *              Friday, January 30, 2004
+ *              Failure:    A negative value.
  *
  *-------------------------------------------------------------------------
  */
@@ -256,21 +234,21 @@ H5FDregister(const H5FD_class_t *cls)
 
     /* Check arguments */
     if(!cls)
-	HGOTO_ERROR(H5E_ARGS, H5E_UNINITIALIZED, FAIL, "null class pointer is disallowed")
+        HGOTO_ERROR(H5E_ARGS, H5E_UNINITIALIZED, FAIL, "null class pointer is disallowed")
     if(!cls->open || !cls->close)
-	HGOTO_ERROR(H5E_ARGS, H5E_UNINITIALIZED, FAIL, "`open' and/or `close' methods are not defined")
+        HGOTO_ERROR(H5E_ARGS, H5E_UNINITIALIZED, FAIL, "`open' and/or `close' methods are not defined")
     if(!cls->get_eoa || !cls->set_eoa)
-	HGOTO_ERROR(H5E_ARGS, H5E_UNINITIALIZED, FAIL, "`get_eoa' and/or `set_eoa' methods are not defined")
+        HGOTO_ERROR(H5E_ARGS, H5E_UNINITIALIZED, FAIL, "`get_eoa' and/or `set_eoa' methods are not defined")
     if(!cls->get_eof)
-	HGOTO_ERROR(H5E_ARGS, H5E_UNINITIALIZED, FAIL, "`get_eof' method is not defined")
+        HGOTO_ERROR(H5E_ARGS, H5E_UNINITIALIZED, FAIL, "`get_eof' method is not defined")
     if(!cls->read || !cls->write)
-	HGOTO_ERROR(H5E_ARGS, H5E_UNINITIALIZED, FAIL, "`read' and/or `write' method is not defined")
-    for (type=H5FD_MEM_DEFAULT; type<H5FD_MEM_NTYPES; H5_INC_ENUM(H5FD_mem_t,type))
-	if(cls->fl_map[type]<H5FD_MEM_NOLIST || cls->fl_map[type]>=H5FD_MEM_NTYPES)
-	    HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid free-list mapping")
+        HGOTO_ERROR(H5E_ARGS, H5E_UNINITIALIZED, FAIL, "`read' and/or `write' method is not defined")
+    for (type = H5FD_MEM_DEFAULT; type < H5FD_MEM_NTYPES; H5_INC_ENUM(H5FD_mem_t,type))
+        if(cls->fl_map[type] < H5FD_MEM_NOLIST || cls->fl_map[type] >= H5FD_MEM_NTYPES)
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid free-list mapping")
 
     /* Create the new class ID */
-    if((ret_value=H5FD_register(cls, sizeof(H5FD_class_t), TRUE)) < 0)
+    if((ret_value = H5FD_register(cls, sizeof(H5FD_class_t), TRUE)) < 0)
         HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, FAIL, "unable to register file driver ID")
 
 done:
@@ -279,29 +257,18 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5FD_register
+ * Function:    H5FD_register
  *
- * Purpose:	Registers a new file driver as a member of the virtual file
- *		driver class.  Certain fields of the class struct are
- *		required and that is checked here so it doesn't have to be
- *		checked every time the field is accessed.
+ * Purpose:     Registers a new file driver as a member of the virtual file
+ *              driver class.  Certain fields of the class struct are
+ *              required and that is checked here so it doesn't have to be
+ *              checked every time the field is accessed.
  *
- * Return:	Success:	A file driver ID which is good until the
- *				library is closed or the driver is
- *				unregistered.
+ * Return:      Success:    A file driver ID which is good until the
+ *                          library is closed or the driver is
+ *                          unregistered.
  *
- *		Failure:	A negative value.
- *
- * Programmer:	Robb Matzke
- *              Monday, July 26, 1999
- *
- * Modifications:
- *              Broke into public and internal routines & added 'size'
- *              parameter to internal routine, which allows us to create
- *              sub-classes of H5FD_class_t for internal support (see the
- *              MPI drivers, etc.)
- *              Quincey Koziol
- *              January 30, 2004
+ *              Failure:    A negative value.
  *
  *-------------------------------------------------------------------------
  */
@@ -326,7 +293,7 @@ H5FD_register(const void *_cls, size_t size, hbool_t app_ref)
 
     /* Copy the class structure so the caller can reuse or free it */
     if(NULL == (saved = (H5FD_class_t *)H5MM_malloc(size)))
-	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed for file driver class struct")
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed for file driver class struct")
     HDmemcpy(saved, cls, size);
 
     /* Create the new class ID */
@@ -343,19 +310,16 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5FDunregister
+ * Function:    H5FDunregister
  *
- * Purpose:	Removes a driver ID from the library. This in no way affects
- *		file access property lists which have been defined to use
- *		this driver or files which are already opened under this
- *		driver.
+ * Purpose:     Removes a driver ID from the library. This in no way affects
+ *              file access property lists which have been defined to use
+ *              this driver or files which are already opened under this
+ *              driver.
  *
- * Return:	Success:	Non-negative
+ * Return:      Success:    Non-negative
  *
- *		Failure:	Negative
- *
- * Programmer:	Robb Matzke
- *              Monday, July 26, 1999
+ *              Failure:    Negative
  *
  *-------------------------------------------------------------------------
  */
@@ -394,9 +358,6 @@ done:
  *				exists which references the driver.
  *
  *		Failure:	NULL
- *
- * Programmer:	Robb Matzke
- *              Friday, August 20, 1999
  *
  *-------------------------------------------------------------------------
  */
@@ -443,11 +404,6 @@ done:
  *		Failure:	0 if an error occurs or if the driver has no
  *				data to store in the superblock.
  *
- * Programmer:	Robb Matzke
- *              Monday, August 16, 1999
- *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 hsize_t
@@ -481,11 +437,6 @@ done:
  *
  *		Failure:	Negative
  *
- * Programmer:	Robb Matzke
- *              Monday, August 16, 1999
- *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -511,9 +462,6 @@ done:
  *
  * Return:	Success:	Non-negative
  *		Failure:	Negative
- *
- * Programmer:	Robb Matzke
- *              Monday, August 16, 1999
  *
  *-------------------------------------------------------------------------
  */
@@ -542,9 +490,6 @@ done:
  *
  * Return:	Success:	Non-negative
  *		Failure:	Negative
- *
- * Programmer:	Quincey Koziol
- *              Friday, July 19, 2013
  *
  *-------------------------------------------------------------------------
  */
@@ -593,9 +538,6 @@ done:
  *		Failure:	NULL, including when the file has no
  *				properties.
  *
- * Programmer:	Robb Matzke
- *              Friday, August 13, 1999
- *
  *-------------------------------------------------------------------------
  */
 void *
@@ -622,9 +564,6 @@ done:
  *
  * Return:	Success:	non-negative
  *		Failure:	negative
- *
- * Programmer:	Robb Matzke
- *              Tuesday, August  3, 1999
  *
  *-------------------------------------------------------------------------
  */
@@ -707,11 +646,6 @@ done:
  *
  *		Failure:	NULL
  *
- * Programmer:	Robb Matzke
- *              Tuesday, July 27, 1999
- *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 H5FD_t *
@@ -745,16 +679,6 @@ done:
  * Return:	Success:	Pointer to a new file driver struct
  *
  *		Failure:	NULL
- *
- * Programmer:	Robb Matzke
- *              Wednesday, August  4, 1999
- *
- * Modifications:
- *
- *		Raymond Lu
- * 		Tuesday, Oct 23, 2001
- *		Changed the file access list to the new generic property
- *		list.
  *
  *-------------------------------------------------------------------------
  */
@@ -790,7 +714,8 @@ H5FD_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxaddr)
 	HGOTO_ERROR(H5E_VFL, H5E_UNSUPPORTED, NULL, "file driver has no `open' method")
 
     /* Query driver flag */
-    H5FD_driver_query(driver, &driver_flags);
+    if(H5FD_driver_query(driver, &driver_flags) < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_BADVALUE, NULL, "can't query VFD flags")
 
     /* Get initial file image info */
     if(H5P_peek(plist, H5F_ACS_FILE_IMAGE_INFO_NAME, &file_image_info) < 0)
@@ -861,9 +786,6 @@ done:
  * Return:	Success:	Non-negative
  *		Failure:	Negative
  *
- * Programmer:	Robb Matzke
- *              Tuesday, July 27, 1999
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -892,9 +814,6 @@ done:
  *
  * Return:	Success:	Non-negative
  *		Failure:	Negative
- *
- * Programmer:	Robb Matzke
- *              Wednesday, August  4, 1999
  *
  *-------------------------------------------------------------------------
  */
@@ -944,11 +863,6 @@ done:
  *				comparison callback then the file pointers
  *				themselves are compared.
  *
- * Programmer:	Robb Matzke
- *              Tuesday, July 27, 1999
- *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 int
@@ -974,11 +888,6 @@ done:
  * Return:	Success:	A value like strcmp()
  *
  *		Failure:	Must never fail.
- *
- * Programmer:	Robb Matzke
- *              Wednesday, August  4, 1999
- *
- * Modifications:
  *
  *-------------------------------------------------------------------------
  */
@@ -1025,11 +934,6 @@ done:
  *
  *		Failure:	negative
  *
- * Programmer:	Quincey Koziol
- *              Friday, August 25, 2000
- *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 int
@@ -1059,9 +963,6 @@ done:
  *
  *		Failure:	negative
  *
- * Programmer:	Quincey Koziol
- *              Friday, August 25, 2000
- *
  *-------------------------------------------------------------------------
  */
 static int
@@ -1082,42 +983,6 @@ H5FD_query(const H5FD_t *f, unsigned long *flags/*out*/)
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD_query() */
-
-
-/*-------------------------------------------------------------------------
-* Function:    H5FD_driver_query
-*
-* Purpose: Similar to H5FD_query(), but intended for cases when we don't
-*          have a file available (e.g. before one is opened). Since we
-*          can't use the file to get the driver, the driver is passed in
-*          as a parameter.
-*
-* Return:  Success:    non-negative
-*          Failure:    negative
-*
-* Programmer:  Jacob Gruber
-*              Wednesday, August 17, 2011
-*
-*-------------------------------------------------------------------------
-*/
-static int
-H5FD_driver_query(const H5FD_class_t *driver, unsigned long *flags/*out*/)
-{
-    int ret_value = 0;          /* Return value */
-
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
-
-    HDassert(driver);
-    HDassert(flags);
-
-    /* Check for the driver to query and then query it */
-    if(driver->query)
-        ret_value = (driver->query)(NULL, flags);
-    else 
-        *flags = 0;
-
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5FD_driver_query() */
 
 
 /*-------------------------------------------------------------------------
@@ -1154,9 +1019,6 @@ H5FD_driver_query(const H5FD_class_t *driver, unsigned long *flags/*out*/)
  *
  *		Failure:	The undefined address HADDR_UNDEF
  *
- * Programmer:	Robb Matzke
- *              Tuesday, July 27, 1999
- *
  *-------------------------------------------------------------------------
  */
 haddr_t
@@ -1180,8 +1042,11 @@ H5FDalloc(H5FD_t *file, H5FD_mem_t type, hid_t dxpl_id, hsize_t size)
         if(TRUE != H5P_isa_class(dxpl_id, H5P_DATASET_XFER))
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, HADDR_UNDEF, "not a data transfer property list")
 
+    /* Set DXPL for operation */
+    H5CX_set_dxpl(dxpl_id);
+
     /* Do the real work */
-    if(HADDR_UNDEF == (ret_value = H5FD_alloc_real(file, dxpl_id, type, size, NULL, NULL)))
+    if(HADDR_UNDEF == (ret_value = H5FD__alloc_real(file, type, size, NULL, NULL)))
 	HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, HADDR_UNDEF, "unable to allocate file memory")
 
     /* (Note compensating for base address subtraction in internal routine) */
@@ -1206,11 +1071,6 @@ done:
  *
  *		Failure:	Negative
  *
- * Programmer:	Robb Matzke
- *              Wednesday, July 28, 1999
- *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1232,9 +1092,12 @@ H5FDfree(H5FD_t *file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr, hsize_t siz
         if(TRUE != H5P_isa_class(dxpl_id, H5P_DATASET_XFER))
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a data transfer property list")
 
+    /* Set DXPL for operation */
+    H5CX_set_dxpl(dxpl_id);
+
     /* Do the real work */
     /* (Note compensating for base address addition in internal routine) */
-    if(H5FD_free_real(file, dxpl_id, type, addr - file->base_addr, size) < 0)
+    if(H5FD_free_real(file, type, addr - file->base_addr, size) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTFREE, FAIL, "file deallocation request failed")
 
 done:
@@ -1243,16 +1106,13 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5FDget_eoa
+ * Function:    H5FDget_eoa
  *
- * Purpose:	Returns the address of the first byte after the last
- *		allocated memory in the file.
+ * Purpose:     Returns the address of the first byte after the last
+ *              allocated memory in the file.
  *
- * Return:	Success:	First byte after allocated memory.
- *		Failure:	HADDR_UNDEF
- *
- * Programmer:	Robb Matzke
- *              Friday, July 30, 1999
+ * Return:      Success:    First byte after allocated memory.
+ *              Failure:    HADDR_UNDEF
  *
  *-------------------------------------------------------------------------
  */
@@ -1266,13 +1126,13 @@ H5FDget_eoa(H5FD_t *file, H5FD_mem_t type)
 
     /* Check args */
     if(!file || !file->cls)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, HADDR_UNDEF, "invalid file pointer")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, HADDR_UNDEF, "invalid file pointer")
     if(type < H5FD_MEM_DEFAULT || type >= H5FD_MEM_NTYPES)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, HADDR_UNDEF, "invalid file type")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, HADDR_UNDEF, "invalid file type")
 
     /* The real work */
     if(HADDR_UNDEF == (ret_value = H5FD_get_eoa(file, type)))
-	HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, HADDR_UNDEF, "file get eoa request failed")
+        HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, HADDR_UNDEF, "file get eoa request failed")
 
     /* (Note compensating for base address subtraction in internal routine) */
     ret_value += file->base_addr;
@@ -1301,9 +1161,6 @@ done:
  * Return:	Success:	Non-negative
  *		Failure:	Negative, no side effect
  *
- * Programmer:	Robb Matzke
- *              Friday, July 30, 1999
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1316,16 +1173,16 @@ H5FDset_eoa(H5FD_t *file, H5FD_mem_t type, haddr_t addr)
 
     /* Check args */
     if(!file || !file->cls)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid file pointer")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid file pointer")
     if(type < H5FD_MEM_DEFAULT || type >= H5FD_MEM_NTYPES)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid file type")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid file type")
     if(!H5F_addr_defined(addr) || addr > file->maxaddr)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid end-of-address value")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid end-of-address value")
 
     /* The real work */
     /* (Note compensating for base address addition in internal routine) */
     if(H5FD_set_eoa(file, type, addr - file->base_addr) < 0)
-	HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "file set eoa request failed")
+        HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "file set eoa request failed")
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -1351,11 +1208,6 @@ done:
  *
  *		Failure:	HADDR_UNDEF
  *
- * Programmer:	Robb Matzke
- *              Thursday, July 29, 1999
- *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 haddr_t
@@ -1368,11 +1220,11 @@ H5FDget_eof(H5FD_t *file, H5FD_mem_t type)
 
     /* Check arguments */
     if(!file || !file->cls)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, HADDR_UNDEF, "invalid file pointer")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, HADDR_UNDEF, "invalid file pointer")
 
     /* The real work */
     if(HADDR_UNDEF == (ret_value = H5FD_get_eof(file, type)))
-	HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, HADDR_UNDEF, "file get eof request failed")
+        HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, HADDR_UNDEF, "file get eof request failed")
 
     /* (Note compensating for base address subtraction in internal routine) */
     ret_value += file->base_addr;
@@ -1389,9 +1241,6 @@ done:
  *
  * Return:	Success:	The maximum address allowed in the file.
  *		Failure:	HADDR_UNDEF
- *
- * Programmer:	Quincey Koziol
- *              Thursday, January  3, 2008
  *
  *-------------------------------------------------------------------------
  */
@@ -1420,9 +1269,6 @@ done:
  * Return:	Success:	Non-negative
  *		Failure:	Negative
  *
- * Programmer:	Quincey Koziol
- *              Tuesday, January  8, 2008
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1448,8 +1294,6 @@ H5FD_get_feature_flags(const H5FD_t *file, unsigned long *feature_flags)
  * Return:	Success:	Non-negative
  *		Failure:	Negative
  *
- * Programmer:	Vailin Choi; Oct 2013
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1473,9 +1317,6 @@ H5FD_set_feature_flags(H5FD_t *file, unsigned long feature_flags)
  *
  * Return:	Success:	Non-negative
  *		Failure:	Negative
- *
- * Programmer:	Quincey Koziol
- *              Thursday, January 17, 2008
  *
  *-------------------------------------------------------------------------
  */
@@ -1519,16 +1360,12 @@ done:
  *
  *		Failure:	Negative. The contents of BUF is undefined.
  *
- * Programmer:	Robb Matzke
- *              Thursday, July 29, 1999
- *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5FDread(H5FD_t *file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr, size_t size,
 	 void *buf/*out*/)
 {
-    H5FD_io_info_t fdio_info;           /* File driver I/O object */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_API(FAIL)
@@ -1547,24 +1384,12 @@ H5FDread(H5FD_t *file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr, size_t size
     if(!buf)
 	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "null result buffer")
 
-    /* Set up the file driver I/O info object */
-    fdio_info.file = file;
-    if(H5FD_MEM_DRAW == type) {
-        if(NULL == (fdio_info.meta_dxpl = (H5P_genplist_t *)H5I_object(H5AC_ind_read_dxpl_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get property list")
-        if(NULL == (fdio_info.raw_dxpl = (H5P_genplist_t *)H5I_object(dxpl_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get property list")
-    } /* end if */
-    else {
-        if(NULL == (fdio_info.meta_dxpl = (H5P_genplist_t *)H5I_object(dxpl_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get property list")
-        if(NULL == (fdio_info.raw_dxpl = (H5P_genplist_t *)H5I_object(H5AC_rawdata_dxpl_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get property list")
-    } /* end else */
+    /* Set DXPL for operation */
+    H5CX_set_dxpl(dxpl_id);
 
     /* Do the real work */
     /* (Note compensating for base address addition in internal routine) */
-    if(H5FD_read(&fdio_info, type, addr - file->base_addr, size, buf) < 0)
+    if(H5FD_read(file, type, addr - file->base_addr, size, buf) < 0)
 	HGOTO_ERROR(H5E_VFL, H5E_READERROR, FAIL, "file read request failed")
 
 done:
@@ -1584,16 +1409,12 @@ done:
  *
  *		Failure:	Negative
  *
- * Programmer:	Robb Matzke
- *              Thursday, July 29, 1999
- *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5FDwrite(H5FD_t *file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr, size_t size,
 	  const void *buf)
 {
-    H5FD_io_info_t fdio_info;           /* File driver I/O object */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_API(FAIL)
@@ -1611,24 +1432,12 @@ H5FDwrite(H5FD_t *file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr, size_t siz
     if(!buf)
 	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "null buffer")
 
-    /* Set up the file driver I/O info object */
-    fdio_info.file = file;
-    if(H5FD_MEM_DRAW == type) {
-        if(NULL == (fdio_info.meta_dxpl = (H5P_genplist_t *)H5I_object(H5AC_ind_read_dxpl_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get property list")
-        if(NULL == (fdio_info.raw_dxpl = (H5P_genplist_t *)H5I_object(dxpl_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get property list")
-    } /* end if */
-    else {
-        if(NULL == (fdio_info.meta_dxpl = (H5P_genplist_t *)H5I_object(dxpl_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get property list")
-        if(NULL == (fdio_info.raw_dxpl = (H5P_genplist_t *)H5I_object(H5AC_rawdata_dxpl_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get property list")
-    } /* end else */
+    /* Set DXPL for operation */
+    H5CX_set_dxpl(dxpl_id);
 
     /* The real work */
     /* (Note compensating for base address addition in internal routine) */
-    if(H5FD_write(&fdio_info, type, addr - file->base_addr, size, buf) < 0)
+    if(H5FD_write(file, type, addr - file->base_addr, size, buf) < 0)
 	HGOTO_ERROR(H5E_VFL, H5E_WRITEERROR, FAIL, "file write request failed")
 
 done:
@@ -1649,10 +1458,6 @@ done:
  * Programmer:	Robb Matzke
  *              Thursday, July 29, 1999
  *
- * Modifications:
- *              Quincey Koziol, May 20, 2002
- *              Added 'closing' parameter
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1672,13 +1477,16 @@ H5FDflush(H5FD_t *file, hid_t dxpl_id, hbool_t closing)
         if(TRUE != H5P_isa_class(dxpl_id, H5P_DATASET_XFER))
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a data transfer property list")
 
+    /* Set DXPL for operation */
+    H5CX_set_dxpl(dxpl_id);
+
     /* Do the real work */
-    if(H5FD_flush(file, dxpl_id, closing) < 0)
+    if(H5FD_flush(file, closing) < 0)
 	HGOTO_ERROR(H5E_VFL, H5E_CANTFLUSH, FAIL, "file flush request failed")
 
 done:
     FUNC_LEAVE_API(ret_value)
-}
+} /* end H5FDflush() */
 
 
 /*-------------------------------------------------------------------------
@@ -1689,21 +1497,19 @@ done:
  * Return:	Success:	Non-negative
  *		Failure:	Negative
  *
- * Programmer:	Robb Matzke
- *              Wednesday, August  4, 1999
- *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FD_flush(H5FD_t *file, hid_t dxpl_id, hbool_t closing)
+H5FD_flush(H5FD_t *file, hbool_t closing)
 {
     herr_t      ret_value = SUCCEED;       /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
+    /* Sanity checks */
     HDassert(file && file->cls);
 
-    if(file->cls->flush && (file->cls->flush)(file, dxpl_id, closing) < 0)
+    if(file->cls->flush && (file->cls->flush)(file, H5CX_get_dxpl(), closing) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "driver flush request failed")
 
 done:
@@ -1718,9 +1524,6 @@ done:
  *
  * Return:	Success:	Non-negative
  *		Failure:	Negative
- *
- * Programmer:	Quincey Koziol
- *              Thursday, January 31, 2008
  *
  *-------------------------------------------------------------------------
  */
@@ -1741,13 +1544,16 @@ H5FDtruncate(H5FD_t *file, hid_t dxpl_id, hbool_t closing)
         if(TRUE != H5P_isa_class(dxpl_id, H5P_DATASET_XFER))
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a data transfer property list")
 
+    /* Set DXPL for operation */
+    H5CX_set_dxpl(dxpl_id);
+
     /* Do the real work */
-    if(H5FD_truncate(file, dxpl_id, closing) < 0)
+    if(H5FD_truncate(file, closing) < 0)
 	HGOTO_ERROR(H5E_VFL, H5E_CANTUPDATE, FAIL, "file flush request failed")
 
 done:
     FUNC_LEAVE_API(ret_value)
-}
+} /* end H5FDtruncate() */
 
 
 /*-------------------------------------------------------------------------
@@ -1758,21 +1564,20 @@ done:
  * Return:	Success:	Non-negative
  *		Failure:	Negative
  *
- * Programmer:	Quincey Koziol
- *              Thursday, January 31, 2008
- *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FD_truncate(H5FD_t *file, hid_t dxpl_id, hbool_t closing)
+H5FD_truncate(H5FD_t *file, hbool_t closing)
 {
-    herr_t      ret_value = SUCCEED;       /* Return value */
+    herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
+    /* Sanity checks */
     HDassert(file && file->cls);
 
-    if(file->cls->truncate && (file->cls->truncate)(file, dxpl_id, closing) < 0)
+    /* Dispatch to driver */
+    if(file->cls->truncate && (file->cls->truncate)(file, H5CX_get_dxpl(), closing) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTUPDATE, FAIL, "driver truncate request failed")
 
 done:
@@ -1787,8 +1592,6 @@ done:
  *
  * Return:	Success:	Non-negative
  *		Failure:	Negative
- *
- * Programmer:	Vailin Choi; March 2015
  *
  *-------------------------------------------------------------------------
  */
@@ -1822,8 +1625,6 @@ done:
  * Return:	Success:	Non-negative
  *		Failure:	Negative
  *
- * Programmer:	Vailin Choi; May 2013
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1850,8 +1651,6 @@ done:
  *
  * Return:	Success:	Non-negative
  *		Failure:	Negative
- *
- * Programmer:	Vailin Choi; March 2015
  *
  *-------------------------------------------------------------------------
  */
@@ -1884,8 +1683,6 @@ done:
  * Return:	Success:	Non-negative
  *		Failure:	Negative
  *
- * Programmer:	Vailin Choi; May 2013
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1914,9 +1711,6 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol <koziol@ncsa.uiuc.edu>
- *		March 27, 2002
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1944,8 +1738,6 @@ H5FD_get_fileno(const H5FD_t *file, unsigned long *filenum)
  *
  * Programmer:  Raymond Lu
  *              Sep. 16, 2002
- *
- * Modifications:
  *
  *--------------------------------------------------------------------------
  */
@@ -2008,9 +1800,6 @@ done:
  *
  * Return:      Non-negative if succeed; negative if fails.
  *
- * Programmer:  Quincey Koziol
- *              Jan. 17, 2008
- *
  *--------------------------------------------------------------------------
  */
 herr_t
@@ -2036,9 +1825,6 @@ H5FD_set_base_addr(H5FD_t *file, haddr_t base_addr)
  * Return:	Success:	The absolute base address of the file
  *		Failure:	The undefined address (HADDR_UNDEF)
  *
- * Programmer:  Quincey Koziol
- *              Sept. 10, 2009
- *
  *--------------------------------------------------------------------------
  */
 haddr_t
@@ -2060,8 +1846,6 @@ H5FD_get_base_addr(const H5FD_t *file)
  *
  * Return:      Non-negative if succeed; negative if fails.
  *
- * Programmer:  Vailin Choi; April 2013
- *
  *--------------------------------------------------------------------------
  */
 herr_t
@@ -2076,3 +1860,39 @@ H5FD_set_paged_aggr(H5FD_t *file, hbool_t paged)
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5FD_set_paged_aggr() */
+
+
+/*-------------------------------------------------------------------------
+* Function: H5FDdriver_query
+*
+* Purpose:  Similar to H5FD_query(), but intended for cases when we don't
+*           have a file available (e.g. before one is opened). Since we
+*           can't use the file to get the driver, the driver ID is passed
+*           in as a parameter.
+*
+* Return:   SUCCEED/FAIL
+*
+*-------------------------------------------------------------------------
+*/
+herr_t
+H5FDdriver_query(hid_t driver_id, unsigned long *flags/*out*/)
+{
+    H5FD_class_t *driver = NULL;            /* Pointer to VFD class struct  */
+    herr_t ret_value = SUCCEED;             /* Return value                 */
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE2("e", "ix", driver_id, flags);
+
+    if(NULL == flags)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "flags parameter cannot be NULL")
+
+    /* Check for the driver to query and then query it */
+    if (NULL == (driver = (H5FD_class_t *)H5I_object_verify(driver_id, H5I_VFL)))
+        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "not a VFL ID")
+    if (H5FD_driver_query(driver, flags) < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_BADVALUE, FAIL, "driver flag query failed")
+
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* end H5FDdriver_query() */
+

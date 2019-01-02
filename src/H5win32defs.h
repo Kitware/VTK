@@ -48,9 +48,13 @@ typedef __int64             h5_stat_size_t;
 #define HDnanosleep(N, O)   Wnanosleep(N, O)
 #define HDoff_t             __int64
 /* _O_BINARY must be set in Windows to avoid CR-LF <-> LF EOL
- * transformations when performing I/O.
+ * transformations when performing I/O. Note that this will
+ * produce Unix-style text files, though.
+ *
+ * Also note that the variadic macro is using a VC++ extension
+ * where the comma is dropped if nothing is passed to the ellipsis.
  */
-#define HDopen(S,F,M)       _open(S,F|_O_BINARY,M)
+#define HDopen(S,F,...)       _open(S, F | _O_BINARY, __VA_ARGS__)
 #define HDread(F,M,Z)       _read(F,M,Z)
 #define HDrmdir(S)          _rmdir(S)
 #define HDsetvbuf(F,S,M,Z)  setvbuf(F,S,M,(Z>1?Z:2))
@@ -115,6 +119,7 @@ extern "C" {
     H5_DLL int c99_snprintf(char* str, size_t size, const char* format, ...);
     H5_DLL int c99_vsnprintf(char* str, size_t size, const char* format, va_list ap);
     H5_DLL int Wnanosleep(const struct timespec *req, struct timespec *rem);
+    H5_DLL herr_t H5_expand_windows_env_vars(char **env_var);
 
     /* Round functions only needed for VS2012 and earlier.
      * They are always built to ensure they don't go stale and

@@ -300,7 +300,7 @@ H5HG__cache_heap_deserialize(const void *_image, size_t len, void *_udata,
             image += heap->obj[0].size;
         } /* end if */
         else {
-            size_t need;
+            size_t need = 0;
             unsigned idx;
             uint8_t *begin = image;
 
@@ -420,7 +420,7 @@ H5HG__cache_heap_image_len(const void *_thing, size_t *image_len)
  *
  * Purpose:	Given an appropriately sized buffer and an instance of 
  *		H5HG_heap_t, serialize the global heap for writing to file,
- *		and copy the serialized verion into the buffer.
+ *		and copy the serialized version into the buffer.
  *
  *
  * Return:      Success:        SUCCEED

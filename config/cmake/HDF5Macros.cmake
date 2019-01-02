@@ -10,25 +10,21 @@
 # help@hdfgroup.org.
 #
 #-------------------------------------------------------------------------------
-macro (H5_SET_LIB_OPTIONS libtarget libname libtype)
+macro (H5_SET_LIB_OPTIONS libtarget libname libtype libpackage)
   set (LIB_OUT_NAME "${libname}")
   # SOVERSION passed in ARGN when shared
   if (${libtype} MATCHES "SHARED")
-    if (ARGN)
-      set (PACKAGE_SOVERSION ${ARGN})
-    else ()
-      set (PACKAGE_SOVERSION ${HDF5_PACKAGE_SOVERSION})
-    endif ()
+    set (PACKAGE_SOVERSION ${HDF5_${libpackage}_PACKAGE_SOVERSION})
     if (WIN32)
       set (LIBHDF_VERSION ${HDF5_PACKAGE_VERSION_MAJOR})
     else ()
-      set (LIBHDF_VERSION ${HDF5_PACKAGE_VERSION})
+      set (LIBHDF_VERSION ${HDF5_${libpackage}_PACKAGE_SOVERSION_MAJOR})
     endif ()
-    set_target_properties (${libtarget} PROPERTIES VERSION ${LIBHDF_VERSION})
+    set_target_properties (${libtarget} PROPERTIES VERSION ${PACKAGE_SOVERSION})
     if (WIN32)
-        set (${LIB_OUT_NAME} "${LIB_OUT_NAME}-${PACKAGE_SOVERSION}")
+        set (${LIB_OUT_NAME} "${LIB_OUT_NAME}-${LIBHDF_VERSION}")
     else ()
-        set_target_properties (${libtarget} PROPERTIES SOVERSION ${PACKAGE_SOVERSION})
+        set_target_properties (${libtarget} PROPERTIES SOVERSION ${LIBHDF_VERSION})
     endif ()
   endif ()
   HDF_SET_LIB_OPTIONS (${libtarget} ${LIB_OUT_NAME} ${libtype})
@@ -37,8 +33,10 @@ macro (H5_SET_LIB_OPTIONS libtarget libname libtype)
   if (APPLE)
     option (HDF5_BUILD_WITH_INSTALL_NAME "Build with library install_name set to the installation path" OFF)
     if (HDF5_BUILD_WITH_INSTALL_NAME)
-      set_target_properties (${libtarget} PROPERTIES
+      set_property(TARGET ${libtarget} APPEND PROPERTY
           LINK_FLAGS "-current_version ${HDF5_PACKAGE_VERSION} -compatibility_version ${HDF5_PACKAGE_VERSION}"
+      )
+      set_target_properties (${libtarget} PROPERTIES
           INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib"
           BUILD_WITH_INSTALL_RPATH ${HDF5_BUILD_WITH_INSTALL_NAME}
       )

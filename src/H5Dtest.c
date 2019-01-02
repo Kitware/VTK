@@ -142,6 +142,47 @@ done:
 
 /*--------------------------------------------------------------------------
  NAME
+    H5D__layout_compact_dirty_test
+ PURPOSE
+    Determine the "dirty" flag of a compact layout for a dataset's layout information
+ USAGE
+    herr_t H5D__layout_compact_dirty_test(did, dirty)
+        hid_t did;              IN: Dataset to query
+        hbool_t *dirty;         OUT: Pointer to location to place "dirty" info
+ RETURNS
+    Non-negative on success, negative on failure
+ DESCRIPTION
+    Checks the "dirty" flag of a compact dataset.
+ GLOBAL VARIABLES
+ COMMENTS, BUGS, ASSUMPTIONS
+    DO NOT USE THIS FUNCTION FOR ANYTHING EXCEPT TESTING
+ EXAMPLES
+ REVISION LOG
+--------------------------------------------------------------------------*/
+herr_t
+H5D__layout_compact_dirty_test(hid_t did, hbool_t *dirty)
+{
+    H5D_t *dset;                /* Pointer to dataset to query */
+    herr_t ret_value = SUCCEED; /* return value */
+
+    FUNC_ENTER_PACKAGE
+
+    /* Check args */
+    if(NULL == (dset = (H5D_t *)H5I_object_verify(did, H5I_DATASET)))
+        HGOTO_ERROR(H5E_DATASET, H5E_BADTYPE, FAIL, "not a dataset")
+
+    if(dirty) {
+        HDassert(dset->shared->layout.type == H5D_COMPACT);
+        *dirty = dset->shared->layout.storage.u.compact.dirty;
+    } /* end if */
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+}   /* H5D__layout_compact_dirty_test() */
+
+
+/*--------------------------------------------------------------------------
+ NAME
     H5D__layout_type_test
  PURPOSE
     Determine the storage layout type for a dataset

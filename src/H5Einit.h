@@ -172,6 +172,11 @@ if((msg = H5E_create_msg(cls, H5E_MAJOR, "Invalid arguments to routine"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_ARGS_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_CONTEXT_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MAJOR, "API Context"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CONTEXT_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 assert(H5E_EARRAY_g==(-1));
 if((msg = H5E_create_msg(cls, H5E_MAJOR, "Extensible Array"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
@@ -750,6 +755,16 @@ assert(H5E_CANTRECV_g==(-1));
 if((msg = H5E_create_msg(cls, H5E_MINOR, "Can't receive data"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_CANTRECV_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_CANTGATHER_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MINOR, "Can't gather data"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CANTGATHER_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_NO_INDEPENDENT_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MINOR, "Can't perform independent IO"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_NO_INDEPENDENT_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 
 /* Dataspace errors */

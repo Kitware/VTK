@@ -250,6 +250,14 @@ typedef enum H5F_mem_t	H5FD_mem_t;
      * This is specifically used for the multi/split driver.
      */
 #define H5FD_FEAT_PAGED_AGGR		0x00004000
+    /*
+     * Defining H5FD_FEAT_DEFAULT_VFD_COMPATIBLE for a VFL driver
+     * that creates a file which is compatible with the default VFD.
+     * Generally, this means that the VFD creates a single file that follows
+     * the canonical HDF5 file format.
+     */
+#define H5FD_FEAT_DEFAULT_VFD_COMPATIBLE        0x00008000
+
 
 /* Forward declaration */
 typedef struct H5FD_t H5FD_t;
@@ -375,6 +383,9 @@ H5_DLL herr_t H5FDflush(H5FD_t *file, hid_t dxpl_id, hbool_t closing);
 H5_DLL herr_t H5FDtruncate(H5FD_t *file, hid_t dxpl_id, hbool_t closing);
 H5_DLL herr_t H5FDlock(H5FD_t *file, hbool_t rw);
 H5_DLL herr_t H5FDunlock(H5FD_t *file);
+
+/* Allows querying a VFD ID for features before the file is opened */
+H5_DLL herr_t H5FDdriver_query(hid_t driver_id, unsigned long *flags/*out*/);
 
 #ifdef __cplusplus
 }

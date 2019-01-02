@@ -1765,9 +1765,9 @@
 #define H5O_get_create_plist vtkhdf5_H5O_get_create_plist
 #define H5O_get_hdr_info vtkhdf5_H5O_get_hdr_info
 #define H5O_get_info vtkhdf5_H5O_get_info
-#define H5Oget_info vtkhdf5_H5Oget_info
-#define H5Oget_info_by_idx vtkhdf5_H5Oget_info_by_idx
-#define H5Oget_info_by_name vtkhdf5_H5Oget_info_by_name
+#define H5Oget_info1 vtkhdf5_H5Oget_info1
+#define H5Oget_info_by_idx1 vtkhdf5_H5Oget_info_by_idx1
+#define H5Oget_info_by_name1 vtkhdf5_H5Oget_info_by_name1
 #define H5O_get_loc vtkhdf5_H5O_get_loc
 #define H5O_get_nlinks vtkhdf5_H5O_get_nlinks
 #define H5O_get_oh_addr vtkhdf5_H5O_get_oh_addr
@@ -1890,8 +1890,8 @@
 #define H5O_touch_oh vtkhdf5_H5O_touch_oh
 #define H5O_unpin vtkhdf5_H5O_unpin
 #define H5O_unprotect vtkhdf5_H5O_unprotect
-#define H5Ovisit vtkhdf5_H5Ovisit
-#define H5Ovisit_by_name vtkhdf5_H5Ovisit_by_name
+#define H5Ovisit1 vtkhdf5_H5Ovisit1
+#define H5Ovisit_by_name1 vtkhdf5_H5Ovisit_by_name1
 #define H5P_access_class vtkhdf5_H5P_access_class
 #define H5Padd_merge_committed_dtype_path vtkhdf5_H5Padd_merge_committed_dtype_path
 #define H5P_add_prop vtkhdf5_H5P_add_prop
