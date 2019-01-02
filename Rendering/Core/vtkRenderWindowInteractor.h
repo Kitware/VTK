@@ -139,6 +139,9 @@ public:
   /**
    * Event loop notification member for window size change.
    * Window size is measured in pixels.
+   *
+   * If the size has changed, this method will fire
+   * vtkCommand::WindowResizeEvent.
    */
   virtual void UpdateSize(int x,int y);
 
