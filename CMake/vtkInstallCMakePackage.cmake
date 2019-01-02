@@ -12,10 +12,27 @@ else ()
   set(vtk_has_vtkm OFF)
 endif ()
 
+_vtk_module_write_import_prefix("${vtk_cmake_build_dir}/vtk-prefix.cmake" "${vtk_cmake_destination}")
+
+# TODO: Build up a list of prefix paths to add.
+set(vtk_prefix_paths)
+
 configure_file(
   "${vtk_cmake_dir}/vtk-config.cmake.in"
   "${vtk_cmake_build_dir}/vtk-config.cmake"
   @ONLY)
+
+option(VTK_RELOCATABLE_INSTALL "Do not embed hard-coded paths into the install" ON)
+mark_as_advanced(VTK_RELOCATABLE_INSTALL)
+if (VTK_RELOCATABLE_INSTALL)
+  set(vtk_prefix_paths)
+endif ()
+
+configure_file(
+  "${vtk_cmake_dir}/vtk-config.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/vtk-config.cmake"
+  @ONLY)
+
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file("${vtk_cmake_build_dir}/vtk-config-version.cmake"
   VERSION "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}"
@@ -106,8 +123,9 @@ foreach (vtk_cmake_file IN LISTS vtk_cmake_files_to_install)
 endforeach ()
 
 install(
-  FILES       "${vtk_cmake_build_dir}/vtk-config.cmake"
+  FILES       "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/vtk-config.cmake"
               "${vtk_cmake_build_dir}/vtk-config-version.cmake"
+              "${vtk_cmake_build_dir}/vtk-prefix.cmake"
   DESTINATION "${vtk_cmake_destination}"
   COMPONENT   "development")
 
