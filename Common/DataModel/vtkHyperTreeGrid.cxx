@@ -178,10 +178,9 @@ void vtkHyperTreeGrid::Squeeze()
     vtkHyperTreeGridIterator itIn;
     InitializeTreeIterator( itIn );
     vtkIdType indexIn;
-    vtkHyperTree *ht = vtkHyperTree::SafeDownCast( itIn.GetNextTree( indexIn  ) );
-    while ( ht )
+    while ( vtkHyperTree *ht = itIn.GetNextTree( indexIn  ) )
     {
-      vtkHyperTree *htfrozen = ht->Frozen();
+      vtkHyperTree *htfrozen = ht->Freeze();
       if ( htfrozen != ht )
       {
         this->SetTree( indexIn, htfrozen );
