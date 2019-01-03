@@ -179,10 +179,10 @@ def DoDataObjectsDiffer(dobj1, dobj2):
       if (g1.GetVertexData().GetNumberOfArrays() !=\
           g2.GetVertexData().GetNumberOfArrays()) or\
           (g1.GetEdgeData().GetNumberOfArrays() !=\
-          (g2.GetEdgeData().GetNumberOfArrays()-1)): #xdmf added edge weights
+          (g2.GetEdgeData().GetNumberOfArrays())):
         message = "Number of data arrays test Failed."
         message += " ED1 = " + str(g1.GetEdgeData().GetNumberOfArrays())
-        message += " ED2 = " + str(g2.GetEdgeData().GetNumberOfArrays()-1)
+        message += " ED2 = " + str(g2.GetEdgeData().GetNumberOfArrays())
         message += " VD1 = " + str(g1.GetVertexData().GetNumberOfArrays())
         message += " VD2 = " + str(g2.GetVertexData().GetNumberOfArrays())
         raiseErrorAndExit(message)
@@ -272,6 +272,8 @@ def RunTest():
   xReader.SetFileName(gFileName)
   xReader.Update()
   rOutput = xReader.GetOutputDataObject(0)
+  rOutput.GetEdgeData().RemoveArray("Edge Weights") #xdmf added edge weights
+
   fail = DoDataObjectsDiffer(gsrc.GetOutputDataObject(0), xReader.GetOutputDataObject(0))
   if fail:
     raiseErrorAndExit("Failed graph conversion test")
