@@ -265,6 +265,14 @@ if(VTK_DATA_EXCLUDE_FROM_ALL)
 endif()
 
 if (VTK_WRAP_PYTHON)
+  get_property(vtk_required_python_modules GLOBAL
+    PROPERTY  vtk_required_python_modules)
+  if (vtk_required_python_modules)
+    list(REMOVE_DUPLICATES vtk_required_python_modules)
+  endif ()
+  string(REPLACE ";" "\n" vtk_required_python_modules "${vtk_required_python_modules}")
+  file(WRITE "${CMAKE_BINARY_DIR}/requirements.txt"
+    "${vtk_required_python_modules}\n")
   vtk_module_wrap_python(
     MODULES         ${vtk_modules}
     INSTALL_EXPORT  VTK
