@@ -65,7 +65,6 @@ set(vtk_cmake_module_files
   FindOptiX.cmake
   FindOSMesa.cmake
   FindPostgreSQL.cmake
-  FindPythonModules.cmake
   FindTBB.cmake
   FindTHEORA.cmake
 
