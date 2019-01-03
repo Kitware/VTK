@@ -1,7 +1,7 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkHttpSceneExporter.cxx
+  Program:   VisualizationJSONlkit
+  Module:    vtkJSONSceneExporter.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkHttpSceneExporter.h"
+#include "vtkJSONSceneExporter.h"
 
 #include "vtkCamera.h"
 #include "vtkCompositeDataIterator.h"
@@ -21,16 +21,16 @@
 #include "vtkDataSet.h"
 #include "vtkDiscretizableColorTransferFunction.h"
 #include "vtkExporter.h"
-#include "vtkHttpDataSetWriter.h"
+#include "vtkJSONDataSetWriter.h"
 #include "vtkMapper.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkProp.h"
 #include "vtkPropCollection.h"
 #include "vtkProperty.h"
-#include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
+#include "vtkRenderWindow.h"
 #include "vtkScalarsToColors.h"
 #include "vtkSmartPointer.h"
 #include "vtksys/SystemTools.hxx"
@@ -39,25 +39,25 @@
 #include <sstream>
 #include <string>
 
-vtkStandardNewMacro(vtkHttpSceneExporter);
+vtkStandardNewMacro(vtkJSONSceneExporter);
 
 // ----------------------------------------------------------------------------
 
-vtkHttpSceneExporter::vtkHttpSceneExporter()
+vtkJSONSceneExporter::vtkJSONSceneExporter()
 {
   this->FileName = nullptr;
 }
 
 // ----------------------------------------------------------------------------
 
-vtkHttpSceneExporter::~vtkHttpSceneExporter()
+vtkJSONSceneExporter::~vtkJSONSceneExporter()
 {
   delete[] this->FileName;
 }
 
 // ----------------------------------------------------------------------------
 
-void vtkHttpSceneExporter::WriteDataObject(ostream& os, vtkDataObject* dataObject, vtkActor* actor)
+void vtkJSONSceneExporter::WriteDataObject(ostream& os, vtkDataObject* dataObject, vtkActor* actor)
 {
   // Skip if nothing to process
   if (dataObject == nullptr)
@@ -95,7 +95,7 @@ void vtkHttpSceneExporter::WriteDataObject(ostream& os, vtkDataObject* dataObjec
 
 // ----------------------------------------------------------------------------
 
-std::string vtkHttpSceneExporter::ExtractRenderingSetup(vtkActor* actor)
+std::string vtkJSONSceneExporter::ExtractRenderingSetup(vtkActor* actor)
 {
   vtkMapper* mapper = actor->GetMapper();
   // int scalarVisibility = mapper->GetScalarVisibility();
@@ -163,7 +163,7 @@ std::string vtkHttpSceneExporter::ExtractRenderingSetup(vtkActor* actor)
 
 // ----------------------------------------------------------------------------
 
-std::string vtkHttpSceneExporter::WriteDataSet(vtkDataSet* dataset, const char* addOnMeta = nullptr)
+std::string vtkJSONSceneExporter::WriteDataSet(vtkDataSet* dataset, const char* addOnMeta = nullptr)
 {
   if (!dataset)
   {
@@ -173,7 +173,7 @@ std::string vtkHttpSceneExporter::WriteDataSet(vtkDataSet* dataset, const char* 
   std::stringstream dsPath;
   dsPath << this->FileName << "/" << (++this->DatasetCount);
 
-  vtkNew<vtkHttpDataSetWriter> dsWriter;
+  vtkNew<vtkJSONDataSetWriter> dsWriter;
   dsWriter->SetInputData(dataset);
   dsWriter->SetFileName(dsPath.str().c_str());
   dsWriter->Write();
@@ -211,7 +211,7 @@ std::string vtkHttpSceneExporter::WriteDataSet(vtkDataSet* dataset, const char* 
 
 // ----------------------------------------------------------------------------
 
-void vtkHttpSceneExporter::WriteLookupTable(const char* name, vtkScalarsToColors* lookupTable)
+void vtkJSONSceneExporter::WriteLookupTable(const char* name, vtkScalarsToColors* lookupTable)
 {
   if (lookupTable == nullptr)
   {
@@ -266,7 +266,7 @@ void vtkHttpSceneExporter::WriteLookupTable(const char* name, vtkScalarsToColors
 
 // ----------------------------------------------------------------------------
 
-void vtkHttpSceneExporter::WriteData()
+void vtkJSONSceneExporter::WriteData()
 {
   this->DatasetCount = 0;
 
@@ -318,6 +318,7 @@ void vtkHttpSceneExporter::WriteData()
 
   std::stringstream sceneJsonFile;
   sceneJsonFile << "{\n"
+                << "  \"version\": 1.0,\n"
                 << "  \"background\": [" << renderer->GetBackground()[0] << ", "
                 << renderer->GetBackground()[1] << ", " << renderer->GetBackground()[2] << "],\n"
                 << "  \"camera\": {\n"
@@ -357,7 +358,7 @@ void vtkHttpSceneExporter::WriteData()
 
 // ----------------------------------------------------------------------------
 
-void vtkHttpSceneExporter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkJSONSceneExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

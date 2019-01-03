@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkHttpSceneExporter.h
+  Module:    vtkJSONSceneExporter.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,7 +13,7 @@
 
 =========================================================================*/
 /**
- * @class   vtkHttpSceneExporter
+ * @class   vtkJSONSceneExporter
  * @brief   Export the content of a vtkRenderWindow into a directory with
  *          a JSON meta file describing the scene along with the http datasets
  *
@@ -22,11 +22,11 @@
  * handle endianness.
  */
 
-#ifndef vtkHttpSceneExporter_h
-#define vtkHttpSceneExporter_h
+#ifndef vtkJSONSceneExporter_h
+#define vtkJSONSceneExporter_h
 
 #include "vtkExporter.h"
-#include "vtkIOWebModule.h" // For export macro
+#include "vtkIOExportModule.h" // For export macro
 
 #include <map>    // For string parameter
 #include <string> // For string parameter
@@ -36,11 +36,11 @@ class vtkDataObject;
 class vtkDataSet;
 class vtkScalarsToColors;
 
-class VTKIOWEB_EXPORT vtkHttpSceneExporter : public vtkExporter
+class VTKIOEXPORT_EXPORT vtkJSONSceneExporter : public vtkExporter
 {
 public:
-  static vtkHttpSceneExporter* New();
-  vtkTypeMacro(vtkHttpSceneExporter, vtkExporter);
+  static vtkJSONSceneExporter* New();
+  vtkTypeMacro(vtkJSONSceneExporter, vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -53,8 +53,8 @@ public:
   //@}
 
 protected:
-  vtkHttpSceneExporter();
-  ~vtkHttpSceneExporter() override;
+  vtkJSONSceneExporter();
+  ~vtkJSONSceneExporter() override;
 
   void WriteDataObject(ostream& os, vtkDataObject* dataObject, vtkActor* actor);
   std::string ExtractRenderingSetup(vtkActor* actor);
@@ -68,8 +68,8 @@ protected:
   std::map<std::string, std::string> LookupTables;
 
 private:
-  vtkHttpSceneExporter(const vtkHttpSceneExporter&) = delete;
-  void operator=(const vtkHttpSceneExporter&) = delete;
+  vtkJSONSceneExporter(const vtkJSONSceneExporter&) = delete;
+  void operator=(const vtkJSONSceneExporter&) = delete;
 };
 
 #endif
