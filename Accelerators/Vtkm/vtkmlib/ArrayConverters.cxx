@@ -88,8 +88,8 @@ vtkm::cont::Field ConvertPointField(DataArrayType* input)
     typedef vtkm::cont::internal::Storage<VType, TagType> StorageType;
     StorageType storage(input);
     vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
-    vtkm::cont::DynamicArrayHandle dhandle(handle);
-    return vtkm::cont::Field(name, vtkm::cont::Field::Association::POINTS, dhandle);
+    vtkm::cont::VariantArrayHandle vhandle(handle);
+    return vtkm::cont::Field(name, vtkm::cont::Field::Association::POINTS, vhandle);
   }
   case 2:
   {
@@ -97,8 +97,8 @@ vtkm::cont::Field ConvertPointField(DataArrayType* input)
     typedef vtkm::cont::internal::Storage<VType, TagType> StorageType;
     StorageType storage(input);
     vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
-    vtkm::cont::DynamicArrayHandle dhandle(handle);
-    return vtkm::cont::Field(name, vtkm::cont::Field::Association::POINTS, dhandle);
+    vtkm::cont::VariantArrayHandle vhandle(handle);
+    return vtkm::cont::Field(name, vtkm::cont::Field::Association::POINTS, vhandle);
   }
   case 3:
   {
@@ -106,8 +106,8 @@ vtkm::cont::Field ConvertPointField(DataArrayType* input)
     typedef vtkm::cont::internal::Storage<VType, TagType> StorageType;
     StorageType storage(input);
     vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
-    vtkm::cont::DynamicArrayHandle dhandle(handle);
-    return vtkm::cont::Field(name, vtkm::cont::Field::Association::POINTS, dhandle);
+    vtkm::cont::VariantArrayHandle vhandle(handle);
+    return vtkm::cont::Field(name, vtkm::cont::Field::Association::POINTS, vhandle);
   }
   case 4:
   {
@@ -115,8 +115,8 @@ vtkm::cont::Field ConvertPointField(DataArrayType* input)
     typedef vtkm::cont::internal::Storage<VType, TagType> StorageType;
     StorageType storage(input);
     vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
-    vtkm::cont::DynamicArrayHandle dhandle(handle);
-    return vtkm::cont::Field(name, vtkm::cont::Field::Association::POINTS, dhandle);
+    vtkm::cont::VariantArrayHandle vhandle(handle);
+    return vtkm::cont::Field(name, vtkm::cont::Field::Association::POINTS, vhandle);
   }
   default:
     break;
@@ -148,9 +148,9 @@ vtkm::cont::Field ConvertCellField(DataArrayType* input)
     typedef vtkm::cont::internal::Storage<VType, TagType> StorageType;
     StorageType storage(input);
     vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
-    vtkm::cont::DynamicArrayHandle dhandle(handle);
+    vtkm::cont::VariantArrayHandle vhandle(handle);
     return vtkm::cont::Field(name, vtkm::cont::Field::Association::CELL_SET, cname,
-                             dhandle);
+                             vhandle);
   }
   case 2:
   {
@@ -158,9 +158,9 @@ vtkm::cont::Field ConvertCellField(DataArrayType* input)
     typedef vtkm::cont::internal::Storage<VType, TagType> StorageType;
     StorageType storage(input);
     vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
-    vtkm::cont::DynamicArrayHandle dhandle(handle);
+    vtkm::cont::VariantArrayHandle vhandle(handle);
     return vtkm::cont::Field(name, vtkm::cont::Field::Association::CELL_SET, cname,
-                             dhandle);
+                             vhandle);
   }
   case 3:
   {
@@ -168,9 +168,9 @@ vtkm::cont::Field ConvertCellField(DataArrayType* input)
     typedef vtkm::cont::internal::Storage<VType, TagType> StorageType;
     StorageType storage(input);
     vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
-    vtkm::cont::DynamicArrayHandle dhandle(handle);
+    vtkm::cont::VariantArrayHandle vhandle(handle);
     return vtkm::cont::Field(name, vtkm::cont::Field::Association::CELL_SET, cname,
-                             dhandle);
+                             vhandle);
   }
   case 4:
   {
@@ -178,9 +178,9 @@ vtkm::cont::Field ConvertCellField(DataArrayType* input)
     typedef vtkm::cont::internal::Storage<VType, TagType> StorageType;
     StorageType storage(input);
     vtkm::cont::ArrayHandle<VType, TagType> handle(storage);
-    vtkm::cont::DynamicArrayHandle dhandle(handle);
+    vtkm::cont::VariantArrayHandle vhandle(handle);
     return vtkm::cont::Field(name, vtkm::cont::Field::Association::CELL_SET, cname,
-                             dhandle);
+                             vhandle);
   }
   default:
     break;
@@ -245,57 +245,72 @@ namespace fromvtkm {
 
 namespace {
 
-template <int Components> struct CopyArrayContents
+template <typename T> struct CopyArrayContents {};
+
+template <> struct CopyArrayContents<tovtkm::vtkPortalOfVecOfVecValues>
 {
-  template <typename IteratorType, typename U>
-  void operator()(IteratorType iter, U* array, vtkIdType numValues) const
+  template <typename PortalType, typename U>
+  void operator()(const PortalType& portal, U* array, vtkIdType numValues) const
   {
-    typedef typename IteratorType::value_type T;
-    // slow path for N component arrays, should be optimized once
-    // the vtk soa/aos layouts get merged
+    using Traits = tovtkm::vtkPortalTraits<typename PortalType::ValueType>;
+
+    // slow path for NxM component arrays
     vtkIdType index = 0;
-    for (vtkIdType i = 0; i < numValues; ++i, ++iter)
+    for (vtkIdType i = 0; i < numValues; ++i)
     {
-      T t = *iter;
-      for (vtkm::IdComponent j = 0; j < Components; ++j, ++index)
+      auto v = portal.Get(i);
+      for (vtkm::IdComponent j = 0; j < Traits::NUM_COMPONENTS_OUTER; ++j)
       {
-        array->SetValue(index, t[j]);
+        auto c = v[i];
+        for (vtkm::IdComponent k = 0; k < Traits::NUM_COMPONENTS_INNER; ++k, ++index)
+          {
+          array->SetValue(index, c[k]);
+          }
       }
     }
   }
 };
 
-template <> struct CopyArrayContents<1>
+template <> struct CopyArrayContents<tovtkm::vtkPortalOfVecOfValues>
 {
-  template <typename IteratorType, typename U>
-  void operator()(IteratorType iter, U* array, vtkIdType numValues) const
+  template <typename PortalType, typename U>
+  void operator()(const PortalType& portal, U* array, vtkIdType numValues) const
+  {
+    using Traits = tovtkm::vtkPortalTraits<typename PortalType::ValueType>;
+
+    // slow path for N component arrays
+    vtkIdType index = 0;
+    for (vtkIdType i = 0; i < numValues; ++i)
+    {
+      auto v = portal.Get(i);
+      for (vtkm::IdComponent j = 0; j < Traits::NUM_COMPONENTS; ++j, ++index)
+      {
+        array->SetValue(index, v[j]);
+      }
+    }
+  }
+};
+
+template <> struct CopyArrayContents<tovtkm::vtkPortalOfScalarValues>
+{
+  template <typename PortalType, typename U>
+  void operator()(const PortalType& portal, U* array, vtkIdType numValues) const
   {
     // fast path for single component arrays, can't steal the memory
     // since the storage types isn't one we know
-    for (vtkIdType i = 0; i < numValues; ++i, ++iter)
+    for (vtkIdType i = 0; i < numValues; ++i)
     {
-      array->SetValue(i, *iter);
+      array->SetValue(i, portal.Get(i));
     }
   }
 };
 
 struct ArrayConverter
 {
-  mutable vtkDataArray* Data;
-
-  ArrayConverter() : Data(nullptr) {}
-
-  // CastAndCall always passes a const array handle. Just shallow copy to a
-  // local array handle by taking by value.
-
-  // default version just performs a deep copy.
+private:
   template <typename T, typename S>
-  void operator()(vtkm::cont::ArrayHandle<T, S> handle) const
+  void CopyEachValue(vtkm::cont::ArrayHandle<T, S> &handle) const
   {
-    using vtkm::cont::ArrayHandle;
-    using vtkm::cont::ArrayPortalToIterators;
-    using vtkm::cont::ArrayPortalToIteratorBegin;
-
     // we need to make a copy
     using Traits = tovtkm::vtkPortalTraits<T>;
     using ValueType = typename Traits::ComponentType;
@@ -303,35 +318,67 @@ struct ArrayConverter
 
     const vtkIdType numValues = handle.GetNumberOfValues();
     const vtkIdType numComps = Traits::NUM_COMPONENTS;
-    VTKArrayType* array = VTKArrayType::New();
+    VTKArrayType *array = VTKArrayType::New();
     array->SetNumberOfComponents(numComps);
     array->SetNumberOfTuples(numValues);
 
     // copy directly into the vtkarray
-    typedef vtkm::cont::ArrayHandle<T, S> HandleType;
-    typedef ArrayPortalToIterators<typename HandleType::PortalConstControl>
-        PortalToIter;
-
-    PortalToIter iterators(handle.GetPortalConstControl());
-    typename PortalToIter::IteratorType iter = iterators.GetBegin();
+    auto portal = handle.GetPortalConstControl();
 
     // Need to do a compile time switch for copying a single component
     // array versus a multiple component array
-    CopyArrayContents<Traits::NUM_COMPONENTS> copier;
-    copier(iter, array, numValues);
+    CopyArrayContents<typename Traits::TagType> copier;
+    copier(portal, array, numValues);
     this->Data = array;
   }
+
+public:
+  mutable vtkDataArray* Data;
+
+  ArrayConverter() : Data(nullptr) {}
+
+  // CastAndCall always passes a const array handle. Just shallow copy to a
+  // local array handle by taking by value.
+
+  template <typename T, typename S>
+  void operator()(vtkm::cont::ArrayHandle<T, S> handle) const
+  {
+    this->CopyEachValue(handle);
+  }
+
+  template <typename T>
+  void operator()(vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagVirtual> handle) const
+  {
+    using AOSHandle = vtkm::cont::ArrayHandle<T, tovtkm::vtkAOSArrayContainerTag>;
+    using SOAHandle = vtkm::cont::ArrayHandle<T, tovtkm::vtkSOAArrayContainerTag>;
+    using BasicHandle = vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagBasic>;
+    if (vtkm::cont::IsType<AOSHandle>(handle))
+    {
+      this->operator()( vtkm::cont::Cast<AOSHandle>(handle) );
+    }
+    else if(vtkm::cont::IsType<SOAHandle>(handle))
+    {
+      this->operator()( vtkm::cont::Cast<SOAHandle>(handle) );
+    }
+    else if(vtkm::cont::IsType<BasicHandle>(handle))
+    {
+      this->operator()( vtkm::cont::Cast<BasicHandle>(handle) );
+    }
+    else
+    {
+      this->CopyEachValue( handle );
+    }
+  }
+
 
   template <typename T>
   void operator()(
     vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagBasic> handle) const
   {
     // we can steal this array!
-    using Traits = tovtkm::vtkPortalTraits<T>;
+    using Traits = tovtkm::vtkPortalTraits<T>; //Handles Vec<Vec<T,N,N> properly
     using ValueType = typename Traits::ComponentType;
     using VTKArrayType = vtkAOSDataArrayTemplate<ValueType>;
-
-    const vtkm::Id size = handle.GetNumberOfValues() * Traits::NUM_COMPONENTS;
 
     VTKArrayType* array = VTKArrayType::New();
     array->SetNumberOfComponents(Traits::NUM_COMPONENTS);
@@ -340,6 +387,7 @@ struct ArrayConverter
     ValueType* stolenMemory = reinterpret_cast<ValueType*>(handle.GetStorage().StealArray());
 
     //VTK-m allocations are all aligned
+    const vtkm::Id size = handle.GetNumberOfValues() * Traits::NUM_COMPONENTS;
     array->SetVoidArray(
       stolenMemory, size, 0, vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED);
     array->SetArrayFreeFunction(handle.GetStorage().GetDeleteFunction());
