@@ -1,5 +1,3 @@
-include(vtkQt)
-
 set(classes
   vtkQImageToImageSource
   vtkQtInitialization

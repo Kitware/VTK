@@ -1,5 +1,3 @@
-include(../../../../CMake/vtkQt.cmake)
-
 vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
   NO_VALID
   TestQtDebugLeaksView.cxx

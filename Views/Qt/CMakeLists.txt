@@ -1,5 +1,3 @@
-include(vtkQt)
-
 set(LibSrcs
   vtkQtAnnotationView.cxx
   vtkQtListView.cxx

@@ -1,5 +1,3 @@
-include(vtkQt)
-
 # set up sources to build
 set(classes
   vtkQtSQLDatabase
