@@ -32,7 +32,6 @@
 
 class vtkDataObject;
 class vtkImageData;
-class vtkCompositeDataProbeFilter;
 
 class VTKFILTERSCORE_EXPORT vtkResampleToImage : public vtkAlgorithm
 {
@@ -118,7 +117,6 @@ protected:
   bool UseInputBounds;
   double SamplingBounds[6];
   int SamplingDimensions[3];
-  vtkNew<vtkCompositeDataProbeFilter> Prober;
 
 private:
   vtkResampleToImage(const vtkResampleToImage&) = delete;

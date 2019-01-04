@@ -67,7 +67,6 @@ void vtkResampleToImage::PrintSelf(ostream& os, vtkIndent indent)
      << this->SamplingDimensions[0] << " x "
      << this->SamplingDimensions[1] << " x "
      << this->SamplingDimensions[2] << endl;
-  this->Prober->PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
@@ -156,7 +155,7 @@ int vtkResampleToImage::FillOutputPortInformation(int vtkNotUsed(port),
 //----------------------------------------------------------------------------
 const char* vtkResampleToImage::GetMaskArrayName() const
 {
-  return this->Prober->GetValidPointMaskArrayName();
+  return "vtkValidPointMask";
 }
 
 //----------------------------------------------------------------------------
@@ -235,11 +234,12 @@ void vtkResampleToImage::PerformResampling(vtkDataObject *input,
   structure->SetSpacing(spacing);
   structure->SetExtent(probingExtent);
 
-  this->Prober->SetInputData(structure);
-  this->Prober->SetSourceData(input);
-  this->Prober->Update();
+  vtkNew<vtkCompositeDataProbeFilter> prober;
+  prober->SetInputData(structure);
+  prober->SetSourceData(input);
+  prober->Update();
 
-  output->ShallowCopy(this->Prober->GetOutput());
+  output->ShallowCopy(prober->GetOutput());
   output->GetFieldData()->PassData(input->GetFieldData());
 }
 
