@@ -556,8 +556,6 @@ M_Read(void)
         m_Event->SetCurrentIteration(j+1);
         }
 
-      DTITubePnt* pnt = new DTITubePnt(m_NDims);
-
       for(int k=0; k<pntDim; k++)
         {
         *m_ReadStream >> v[k];
@@ -571,13 +569,16 @@ M_Read(void)
       if( positionOfX < 0 )
         {
         METAIO_STREAM::cerr << "MetaDTITube: M_Read: 'x' not found." << METAIO_STREAM::endl;
+        return false;
         }
 
       if( positionOfY < 0 )
         {
         METAIO_STREAM::cerr << "MetaDTITube: M_Read: 'y' not found." << METAIO_STREAM::endl;
+        return false;
         }
 
+      DTITubePnt* pnt = new DTITubePnt(m_NDims);
       pnt->m_X[0] = v[positionOfX];
       pnt->m_X[1] = v[positionOfY];
 
@@ -588,6 +589,8 @@ M_Read(void)
         if( positionOfZ < 0 )
           {
           METAIO_STREAM::cerr << "MetaDTITube: M_Read: 'z' not found." << METAIO_STREAM::endl;
+          delete pnt;
+          return false;
           }
 
         pnt->m_X[2] = v[positionOfZ];

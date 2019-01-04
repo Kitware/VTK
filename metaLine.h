@@ -89,7 +89,7 @@ class METAIO_EXPORT MetaLine : public MetaObject
 
     //    NPoints(...)
     //       Required Field
-    //       Number of points wich compose the line
+    //       Number of points which compose the line
     void  NPoints(int npnt);
     int   NPoints(void) const;
 

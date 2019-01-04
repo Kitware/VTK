@@ -736,7 +736,7 @@ ReadStream(METAIO_STREAM::ifstream * _stream, bool _readElements,
 
   bool usePath;
   char pathName[255];
-  char fName[255];
+  char fName[1024];
   usePath = MET_GetFilePath(m_FileName, pathName);
 
   if(_readElements)
@@ -772,10 +772,7 @@ ReadStream(METAIO_STREAM::ifstream * _stream, bool _readElements,
         m_ReadStream = NULL;
         return false;
         }
-      if(_readElements)
-        {
-        M_ReadElements(readStreamTemp, m_ElementData, m_Length);
-        }
+      M_ReadElements(readStreamTemp, m_ElementData, m_Length);
       readStreamTemp->close();
       delete readStreamTemp;
       }
@@ -1207,7 +1204,7 @@ M_WriteElements(METAIO_STREAM::ofstream * _fstream, const void * _data,
     localData = false;
     tmpWriteStream = new METAIO_STREAM::ofstream;
 
-    char dataFileName[255];
+    char dataFileName[1024];
     char pathName[255];
     bool usePath = MET_GetFilePath(m_FileName, pathName);
     if(usePath)

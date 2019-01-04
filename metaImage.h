@@ -82,17 +82,24 @@ class METAIO_EXPORT MetaImage : public MetaObject
               int _elementNumberOfChannels=1,
               void *_elementData=NULL);
 
+    MetaImage(int _nDims,
+              const int * _dimSize,
+              const double *_elementSpacing,
+              MET_ValueEnumType _elementType,
+              int _elementNumberOfChannels=1,
+              void *_elementData=NULL);
+
     MetaImage(int _x, int _y,
-              float _elementSpacingX,
-              float _elementSpacingY,
+              double _elementSpacingX,
+              double _elementSpacingY,
               MET_ValueEnumType _elementType,
               int _elementNumberOfChannels=1,
               void *_elementData=NULL);
 
     MetaImage(int _x, int _y, int _z,
-              float _elementSpacingX,
-              float _elementSpacingY,
-              float _elementSpacingZ,
+              double _elementSpacingX,
+              double _elementSpacingY,
+              double _elementSpacingZ,
               MET_ValueEnumType _elementType,
               int _elementNumberOfChannels=1,
               void *_elementData=NULL);
@@ -105,9 +112,18 @@ class METAIO_EXPORT MetaImage : public MetaObject
 
     void Clear(void) MET_OVERRIDE;
 
+    // Legacy for floating point elementSpacing
     bool InitializeEssential(int _nDims,
                                      const int * _dimSize,
                                      const float * _elementSpacing,
+                                     MET_ValueEnumType _elementType,
+                                     int _elementNumberOfChannels=1,
+                                     void *_elementData=NULL,
+                                     bool _allocElementMemory=true);
+
+    bool InitializeEssential(int _nDims,
+                                     const int * _dimSize,
+                                     const double * _elementSpacing,
                                      MET_ValueEnumType _elementType,
                                      int _elementNumberOfChannels=1,
                                      void *_elementData=NULL,
@@ -155,12 +171,13 @@ class METAIO_EXPORT MetaImage : public MetaObject
     //       Optional Field
     //       Physical size (in MM) of each element in the image
     //       (0 = xSize, 1 = ySize, 2 = zSize)
-    bool           ElementSizeValid(void) const;
-    void           ElementSizeValid(bool _elementSizeValid);
-    const float *  ElementSize(void) const;
-    float          ElementSize(int i) const;
-    void           ElementSize(const float * _pointSize);
-    void           ElementSize(int _i, float _value);
+    bool            ElementSizeValid(void) const;
+    void            ElementSizeValid(bool _elementSizeValid);
+    const double *  ElementSize(void) const;
+    double          ElementSize(int i) const;
+    void            ElementSize(const double * _pointSize);
+    void            ElementSize(const float * _pointSize); // legacy
+    void            ElementSize(int _i, double _value);
 
     MET_ValueEnumType ElementType(void) const;
     void              ElementType(MET_ValueEnumType _elementType);
@@ -307,7 +324,7 @@ class METAIO_EXPORT MetaImage : public MetaObject
     float              m_SequenceID[4];
 
     bool               m_ElementSizeValid;
-    float              m_ElementSize[10];
+    double             m_ElementSize[10];
 
     MET_ValueEnumType  m_ElementType;
 
@@ -376,6 +393,19 @@ class METAIO_EXPORT MetaImage : public MetaObject
 
     METAIO_STL::string M_GetTagValue(const METAIO_STL::string & buffer,
                                      const char* tag) const;
+
+  ////
+  //
+  // PRIVATE
+  //
+  ////
+  private:
+    void InitHelper(int _nDims,
+              const int * _dimSize,
+              const double *_elementSpacing,
+              MET_ValueEnumType _elementType,
+              int _elementNumberOfChannels,
+              void *_elementData);
 
   };
 
