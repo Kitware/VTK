@@ -709,22 +709,15 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     vtkDebugMacro(" Mapping the xwindow\n");
     XMapWindow(this->DisplayId, this->WindowId);
     XSync(this->DisplayId,False);
-    // Wait for the MapNotify event
-    while(true)
-    {
-      XEvent e;
-      XNextEvent(this->DisplayId, &e);
-      if (e.type == MapNotify)
-      {
-        break;
-      }
-    }
     XGetWindowAttributes(this->DisplayId,
                          this->WindowId,&winattr);
-    // if the specified window size is bigger than the screen size,
-    // we have to reset the window size to the screen size
-    width = winattr.width;
-    height = winattr.height;
+    // guarantee that the window is mapped before the program continues
+    // on to do the OpenGL rendering.
+    while (winattr.map_state == IsUnmapped)
+    {
+      XGetWindowAttributes(this->DisplayId,
+                           this->WindowId,&winattr);
+    }
     this->Mapped = 1;
   }
   // free the visual info
