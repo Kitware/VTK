@@ -37,7 +37,7 @@
  *
  * @sa
  * vtkSimpleScalarTree vtkSpanSpace
-*/
+ */
 
 #ifndef vtkScalarTree_h
 #define vtkScalarTree_h
@@ -51,11 +51,23 @@ class vtkDataSet;
 class vtkIdList;
 class vtkTimeStamp;
 
+
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkScalarTree : public vtkObject
 {
 public:
+  //@{
+  /**
+   * Standard type related macros and PrintSelf() method.
+   */
   vtkTypeMacro(vtkScalarTree,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
+
+  /**
+   * This method is used to copy data members when cloning an instance of the
+   * class. It does not copy heavy data.
+   */
+  virtual void ShallowCopy(vtkScalarTree *stree);
 
   //@{
   /**
@@ -91,18 +103,18 @@ public:
   virtual void Initialize() = 0;
 
   /**
-   * Begin to traverse the cells based on a scalar value. Returned cells
-   * will have scalar values that span the scalar value specified. Note
-   * that changing the scalarValue does not cause the scalar tree to be
-   * modified, and hence it does not rebuild.
+   * Begin to traverse the cells based on a scalar value (serial
+   * traversal). Returned cells will have scalar values that span the scalar
+   * value specified. Note that changing the scalarValue does not cause the
+   * scalar tree to be modified, and hence it does not rebuild.
    */
   virtual void InitTraversal(double scalarValue) = 0;
 
   /**
    * Return the next cell that may contain scalar value specified to
-   * initialize traversal. The value nullptr is returned if the list is
-   * exhausted. Make sure that InitTraversal() has been invoked first or
-   * you'll get erratic behavior.
+   * InitTraversal() (serial traversal). The value nullptr is returned if the
+   * list is exhausted. Make sure that InitTraversal() has been invoked first
+   * or you'll get erratic behavior.
    */
   virtual vtkCell *GetNextCell(vtkIdType &cellId, vtkIdList* &ptIds,
                                vtkDataArray *cellScalars) = 0;
@@ -114,28 +126,24 @@ public:
   double GetScalarValue()
     {return this->ScalarValue;}
 
-  // The following methods supports parallel (threaded) applications. Basically
+  // The following methods supports parallel (threaded) traversal. Basically
   // batches of cells (which are a portion of the whole dataset) are available for
   // processing in a parallel For() operation.
 
   /**
-   * Get the number of cell batches available for processing. Note
-   * that this methods should be called after InitTraversal(). This is
-   * because the number of batches available is typically a function
-   * of the isocontour value. Note that the cells found in
-   * [0...(NumberOfCellBatches-1)] will contain all the cells
-   * potentially containing the isocontour.
+   * Get the number of cell batches available for processing as a function of
+   * the specified scalar value. Each batch contains a list of candidate
+   * cells that may contain the specified isocontour value.
    */
-  virtual vtkIdType GetNumberOfCellBatches() = 0;
+  virtual vtkIdType GetNumberOfCellBatches(double scalarValue) = 0;
 
   /**
    * Return the array of cell ids in the specified batch. The method
    * also returns the number of cell ids in the array. Make sure to
-   * call InitTraversal() beforehand.
+   * call GetNumberOfCellBatches() beforehand.
    */
   virtual const vtkIdType* GetCellBatch(vtkIdType batchNum,
                                         vtkIdType& numCells) = 0;
-
 
 protected:
   vtkScalarTree();

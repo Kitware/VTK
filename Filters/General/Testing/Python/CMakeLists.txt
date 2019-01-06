@@ -19,6 +19,7 @@ vtk_add_test_python(
   TestRemoveGhostCells.py,NO_OUTPUT,NO_VALID
   TestSplineFilter.py
   TestStaticCellLocator.py
+  TestStaticCellLocatorPlaneIntersection.py
   TestSynchronizeTimeFilter.py,NO_OUTPUT,NO_VALID
   WarpToImage.py
   blankGrid.py

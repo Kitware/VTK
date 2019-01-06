@@ -36,9 +36,14 @@
 class VTKFILTERSSOURCES_EXPORT vtkOutlineSource : public vtkPolyDataAlgorithm
 {
 public:
+  //@{
+  /**
+   * Standard methods for instantiation. type information, and printing.
+   */
   static vtkOutlineSource *New();
   vtkTypeMacro(vtkOutlineSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
   //@{
   /**

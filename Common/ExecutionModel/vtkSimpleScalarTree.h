@@ -41,8 +41,8 @@
  * threads.
  *
  * @sa
- * vtkSpanSpace
-*/
+ * vtkScalarTree vtkSpanSpace
+ */
 
 #ifndef vtkSimpleScalarTree_h
 #define vtkSimpleScalarTree_h
@@ -51,6 +51,7 @@
 #include "vtkScalarTree.h"
 
 class vtkScalarNode;
+class vtkSimpleScalarTree;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkSimpleScalarTree : public vtkScalarTree
 {
@@ -68,6 +69,12 @@ public:
   vtkTypeMacro(vtkSimpleScalarTree,vtkScalarTree);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
+
+  /**
+   * This method is used to copy data members when cloning an instance of the
+   * class. It does not copy heavy data.
+   */
+  void ShallowCopy(vtkScalarTree *stree) override;
 
   //@{
   /**
@@ -122,28 +129,24 @@ public:
   vtkCell *GetNextCell(vtkIdType &cellId, vtkIdList* &ptIds,
                                vtkDataArray *cellScalars) override;
 
-  // The following methods supports parallel (threaded)
-  // applications. Basically batches of cells (which represent a
-  // portion of the whole dataset) are available for processing in a
-  // parallel For() operation.
+  // The following methods supports parallel (threaded) traversal. Basically
+  // batches of cells (which are a portion of the whole dataset) are available for
+  // processing in a parallel For() operation.
 
   /**
-   * Get the number of cell batches available for processing. Note
-   * that this methods should be called after InitTraversal(). This is
-   * because the number of batches available is typically a function
-   * of the isocontour value. Note that the cells found in
-   * [0...(NumberOfCellBatches-1)] will contain all the cells
-   * potentially containing the isocontour.
+   * Get the number of cell batches available for processing as a function of
+   * the specified scalar value. Each batch contains a list of candidate
+   * cells that may contain the specified isocontour value.
    */
-  vtkIdType GetNumberOfCellBatches() override;
+  vtkIdType GetNumberOfCellBatches(double scalarValue) override;
 
   /**
    * Return the array of cell ids in the specified batch. The method
    * also returns the number of cell ids in the array. Make sure to
-   * call InitTraversal() beforehand.
+   * call GetNumberOfCellBatches() beforehand.
    */
   const vtkIdType* GetCellBatch(vtkIdType batchNum,
-                                        vtkIdType& numCells) override;
+                                vtkIdType& numCells) override;
 
 protected:
   vtkSimpleScalarTree();

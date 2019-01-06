@@ -4,8 +4,8 @@ import vtk
 # Test vtkContour3DLinearGrid with vtkScalarTree.
 
 # Control test size
-#res = 300
 res = 50
+#res = 300
 serialProcessing = 0
 mergePoints = 1
 interpolateAttr = 0
@@ -31,10 +31,12 @@ extract.Update()
 # Now contour the cells, using scalar tree or not
 stree = vtk.vtkSpanSpace()
 stree.SetDataSet(extract.GetOutput())
+stree.SetNumberOfCellsPerBucket(1)
 
 contour = vtk.vtkContour3DLinearGrid()
 contour.SetInputConnection(extract.GetOutputPort())
 contour.SetValue(0, 0.5)
+contour.SetValue(1, 0.75)
 contour.SetMergePoints(mergePoints)
 contour.SetSequentialProcessing(serialProcessing)
 contour.SetInterpolateAttributes(interpolateAttr);
@@ -44,6 +46,7 @@ contour.UseScalarTreeOff()
 contourST = vtk.vtkContour3DLinearGrid()
 contourST.SetInputConnection(extract.GetOutputPort())
 contourST.SetValue(0, 0.5)
+contourST.SetValue(1, 0.75)
 contourST.SetMergePoints(mergePoints)
 contourST.SetSequentialProcessing(serialProcessing)
 contourST.SetInterpolateAttributes(interpolateAttr);
@@ -63,6 +66,7 @@ contActor.GetProperty().SetColor(.8,.4,.4)
 contour4 = vtk.vtkContourFilter()
 contour4.SetInputConnection(extract.GetOutputPort())
 contour4.SetValue(0,0.5)
+contour4.SetValue(1, 0.75)
 
 cont4Mapper = vtk.vtkPolyDataMapper()
 cont4Mapper.SetInputConnection(contour4.GetOutputPort())

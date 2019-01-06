@@ -102,9 +102,17 @@ struct vtkSpanTuple
 {
   vtkIdType CellId; //originating cellId
   vtkIdType Index; //i-j index into span space (numCells in length)
-  //Operator< used to support sorting operation.
+  //Operator< used to support sorting operation. Note that the sorting
+  //occurs over both the index and cell id. This arranges cells in
+  //ascending order (within a bin) which often makes a difference
+  //(~10-15%) in large data as it reduces cache misses.
   bool operator< (const vtkSpanTuple& tuple) const
-    {return Index < tuple.Index;}
+  {
+    if ( Index < tuple.Index ) return true;
+    if ( tuple.Index < Index ) return false;
+    if ( CellId < tuple.CellId ) return true;
+    return false;
+  }
 };
 
 } //anonymous
@@ -192,7 +200,7 @@ struct vtkInternalSpanSpace
 vtkInternalSpanSpace::
 vtkInternalSpanSpace(vtkIdType dim, double sMin, double sMax, vtkIdType numCells)
 {
-  this->Dim = (dim > 0 ? dim : 256);
+   this->Dim = dim;
   this->SMin = sMin;
   this->SMax = sMax;
   this->Range = (sMax - sMin);
@@ -263,14 +271,6 @@ Build()
   // offsets and cell ids computed.
   delete [] this->Space;
   this->Space = nullptr;
-
-  // The candidate cell list can be allocated
-  if ( this->CandidateCells )
-  {
-    delete [] this->CandidateCells;
-    this->CandidateCells = nullptr;
-  }
-  this->CandidateCells = new vtkIdType [this->NumCells];
 }
 
 
@@ -344,7 +344,7 @@ struct MapToSpanSpace
   }
 };//MapToSpanSpace
 
-// SPecialized method to map unstructured grid cells to span space. Uses
+// Specialized method to map unstructured grid cells to span space. Uses
 // GetCellPoints() to retrieve points defining the cell.
 template <typename TS>
 struct MapUGridToSpanSpace
@@ -392,24 +392,48 @@ struct MapUGridToSpanSpace
 
 }//anonymous namespace
 
-//---The VTK Class proper------------------------------------------------------
+//---The VTK Classes proper------------------------------------------------------
+
 vtkStandardNewMacro(vtkSpanSpace);
 
 //-----------------------------------------------------------------------------
 // Instantiate empty span space object.
 vtkSpanSpace::vtkSpanSpace()
 {
+  this->ScalarRange[0] = 0.0;
+  this->ScalarRange[1] = 1.0;
+  this->ComputeScalarRange = true;
+  this->Resolution = 100;
+  this->ComputeResolution = true;
+  this->NumberOfCellsPerBucket = 5;
   this->SpanSpace = nullptr;
   this->RMin[0] = this->RMin[1] = 0;
   this->RMax[0] = this->RMax[1] = 0;
-  this->BatchSize = 10;
-  this->Resolution = 100;
+  this->BatchSize = 100;
 }
 
 //-----------------------------------------------------------------------------
 vtkSpanSpace::~vtkSpanSpace()
 {
   this->Initialize();
+}
+
+//-----------------------------------------------------------------------------
+// Shallow copy enough information for a clone to produce the same result on
+// the same data.
+void vtkSpanSpace::ShallowCopy(vtkScalarTree *stree)
+{
+  vtkSpanSpace *ss = vtkSpanSpace::SafeDownCast(stree);
+  if ( ss != nullptr )
+  {
+    this->SetScalarRange(ss->GetScalarRange());
+    this->SetComputeScalarRange(ss->GetComputeScalarRange());
+    this->SetResolution(ss->GetResolution());
+    this->SetComputeResolution(ss->GetComputeResolution());
+    this->SetNumberOfCellsPerBucket(ss->GetNumberOfCellsPerBucket());
+  }
+  // Now do superclass
+  this->Superclass::ShallowCopy(stree);
 }
 
 //-----------------------------------------------------------------------------
@@ -462,12 +486,24 @@ void vtkSpanSpace::BuildTree()
   // boost in performance.
   double range[2];
   void *scalars = this->Scalars->GetVoidPointer(0);
-  switch ( this->Scalars->GetDataType() )
+
+  if ( this->ComputeScalarRange )
   {
-    vtkTemplateMacro(ComputeRange<VTK_TT>::
-                     Execute(this->Scalars->GetNumberOfTuples(),
-                             (VTK_TT*)scalars, range));
+    switch ( this->Scalars->GetDataType() )
+    {
+      vtkTemplateMacro(ComputeRange<VTK_TT>::
+                       Execute(this->Scalars->GetNumberOfTuples(),
+                               (VTK_TT*)scalars, range));
+    }
+    this->ScalarRange[0] = range[0];
+    this->ScalarRange[1] = range[1];
   }
+  else
+  {
+    range[0] = this->ScalarRange[0];
+    range[1] = this->ScalarRange[1];
+  }
+
   double  R = range[1] - range[0];
   if ( R <= 0.0 )
   {
@@ -482,6 +518,13 @@ void vtkSpanSpace::BuildTree()
   // (i.e., an integer id into a gridded span space). Later this id will
   // be used to sort the cells across the span space, so that cells
   // can be processed in order by different threads.
+  if ( this->ComputeResolution )
+  {
+    this->Resolution = static_cast<vtkIdType>(sqrt(static_cast<double>(numCells)/
+                       static_cast<double>(this->NumberOfCellsPerBucket)));
+    this->Resolution = (this->Resolution < 100 ? 100 :
+                        (this->Resolution > 10000 ? 10000 : this->Resolution));
+  }
   this->SpanSpace = new
     vtkInternalSpanSpace(this->Resolution,range[0],range[1],numCells);
 
@@ -570,62 +613,97 @@ vtkCell *vtkSpanSpace::GetNextCell(vtkIdType& cellId, vtkIdList* &cellPts,
 }
 
 //-----------------------------------------------------------------------------
-// Return the number of cell batches. Here we are going to consider a batch the
-// number of span space buckets included in the current span rectangle. Note that
-// InitTraversal() must have been called, which populates the span rectangle.
-vtkIdType vtkSpanSpace::GetNumberOfCellBatches()
+// Note the cell ids are copied into memory (CandidateCells) from
+// which batches are created. This is done for load balancing
+// purposes. The span space can often aggregate many cells in just a
+// few bins; meaning that batches cannot just be span rows if the work
+// is to shared across many threads.
+vtkIdType vtkSpanSpace::
+GetNumberOfCellBatches(double scalarValue)
 {
-  // Basicall just perform a serial traversal and populate candidate list
-  this->SpanSpace->NumCandidates = 0;
+  // Make sure tree is built, modified time will prevent reexecution.
+  this->BuildTree();
+  this->ScalarValue = scalarValue;
 
-  // loop over all rows in span rectangle
+  // Find the rectangle in span space that spans the isovalue
+  vtkInternalSpanSpace *sp = this->SpanSpace;;
+  sp->GetSpanRectangle(scalarValue, this->RMin, this->RMax);
+
+  // Loop over each span row to count total memory allocation required.
+  vtkIdType numCandidates = 0;
   vtkIdType row, *span, idx, numCells;
   for (row=this->RMin[1]; row < this->RMax[1]; ++row)
   {
-    span = this->SpanSpace->
+    sp->GetCellsInSpan(row, this->RMin, this->RMax, numCells);
+    numCandidates += numCells;
+  }//for all rows in span rectangle
+
+  // Allocate list of candidate cells. Cache memory to avoid
+  // reallocation if possible.
+  if ( sp->CandidateCells != nullptr &&
+       numCandidates > sp->NumCandidates )
+  {
+    delete [] sp->CandidateCells;
+    sp->CandidateCells = nullptr;
+  }
+  sp->NumCandidates = numCandidates;
+  if ( numCandidates > 0 && sp->CandidateCells == nullptr )
+  {
+    sp->CandidateCells = new vtkIdType [sp->NumCandidates];
+  }
+
+  // Now copy cells into the allocated memory. This could be done in
+  // parallel (a parallel write - TODO) but probably wouldn't provide
+  // much of a boost.
+  numCandidates = 0;
+  for (row=this->RMin[1]; row < this->RMax[1]; ++row)
+  {
+    span = sp->
       GetCellsInSpan(row, this->RMin, this->RMax, numCells);
     for (idx=0; idx < numCells; ++idx)
     {
-      this->SpanSpace->
-        CandidateCells[this->SpanSpace->NumCandidates++] = span[idx];
+      sp->CandidateCells[numCandidates++] = span[idx];
     }
   }//for all rows in span rectangle
 
-  // Watch for boundary conditions. Return 10 cells to a batch.
-  if ( this->SpanSpace->NumCandidates < 1 )
+  // Watch for boundary conditions. Return BatchSize cells to a batch.
+  if ( sp->NumCandidates < 1 )
   {
     return 0;
   }
   else
   {
-    return ( ((this->SpanSpace->NumCandidates-1)/this->BatchSize) + 1);
+    return ( ((sp->NumCandidates-1)/this->BatchSize) + 1);
   }
 }
 
 //-----------------------------------------------------------------------------
-// Return the next list of cells to process.
+// Call after GetNumberOfCellBatches(isoValue)
 const vtkIdType* vtkSpanSpace::
 GetCellBatch(vtkIdType batchNum, vtkIdType& numCells)
 {
   // Make sure that everything is hunky dory
+  vtkInternalSpanSpace *sp = this->SpanSpace;;
   vtkIdType pos = batchNum * this->BatchSize;
-  if ( this->SpanSpace->NumCells < 1 || ! this->SpanSpace->CandidateCells ||
-       pos > this->SpanSpace->NumCandidates )
+  if ( sp->NumCells < 1 || ! sp->CandidateCells ||
+       pos >= sp->NumCandidates )
   {
     numCells = 0;
     return nullptr;
   }
 
-  if ( (this->SpanSpace->NumCandidates - pos) >= this->BatchSize )
+  // Return a batch, or if near the end of the candidate list,
+  // the remainder batch.
+  if ( (sp->NumCandidates - pos) >= this->BatchSize )
   {
     numCells = this->BatchSize;
   }
   else
   {
-    numCells = this->SpanSpace->NumCandidates % this->BatchSize;
+    numCells = sp->NumCandidates % this->BatchSize;
   }
 
-  return this->SpanSpace->CandidateCells + pos;
+  return sp->CandidateCells + pos;
 }
 
 //-----------------------------------------------------------------------------
@@ -633,6 +711,12 @@ void vtkSpanSpace::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
+  os << indent << "Scalar Range: (" << this->ScalarRange[0] << ","
+     << this->ScalarRange[1] << ")\n" ;
+  os << indent << "Compute Scalar Range: "
+     << (this->ComputeScalarRange ? "On\n" : "Off\n");
   os << indent << "Resolution: " << this->Resolution << "\n" ;
-  os << indent << "Batch Size: " << this->BatchSize << "\n" ;
+  os << indent << "Compute Resolution: "
+     << (this->ComputeResolution ? "On\n" : "Off\n");
+  os << indent << "Number of Cells Per Bucket: " << this->NumberOfCellsPerBucket << "\n";
 }
