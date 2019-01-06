@@ -425,16 +425,16 @@ void vtkXOpenGLRenderWindow::SetShowWindow(bool val)
       vtkDebugMacro(" Mapping the xwindow\n");
       XMapWindow(this->DisplayId, this->WindowId);
       XSync(this->DisplayId,False);
+      XWindowAttributes winattr;
+      XGetWindowAttributes(this->DisplayId,
+                           this->WindowId,&winattr);
       // guarantee that the window is mapped before the program continues
       // on to do the OpenGL rendering.
-      while(true)
+      while (winattr.map_state == IsUnmapped)
       {
-        XEvent e;
-        XNextEvent(this->DisplayId, &e);
-        if (e.type == MapNotify)
-        {
-          break;
-        }
+        XGetWindowAttributes(this->DisplayId,
+                             this->WindowId,&winattr);
+        XSync(this->DisplayId,False);
       }
       this->Mapped = 1;
     }
@@ -443,14 +443,16 @@ void vtkXOpenGLRenderWindow::SetShowWindow(bool val)
       vtkDebugMacro(" UnMapping the xwindow\n");
       XUnmapWindow(this->DisplayId, this->WindowId);
       XSync(this->DisplayId,False);
-      while(true)
+      XWindowAttributes winattr;
+      XGetWindowAttributes(this->DisplayId,
+                           this->WindowId,&winattr);
+      // guarantee that the window is mapped before the program continues
+      // on to do the OpenGL rendering.
+      while (winattr.map_state != IsUnmapped)
       {
-        XEvent e;
-        XNextEvent(this->DisplayId, &e);
-        if (e.type == UnmapNotify)
-        {
-          break;
-        }
+        XGetWindowAttributes(this->DisplayId,
+                             this->WindowId,&winattr);
+        XSync(this->DisplayId,False);
       }
       this->Mapped = 0;
     }
@@ -707,22 +709,15 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     vtkDebugMacro(" Mapping the xwindow\n");
     XMapWindow(this->DisplayId, this->WindowId);
     XSync(this->DisplayId,False);
-    // Wait for the MapNotify event
-    while(true)
-    {
-      XEvent e;
-      XNextEvent(this->DisplayId, &e);
-      if (e.type == MapNotify)
-      {
-        break;
-      }
-    }
     XGetWindowAttributes(this->DisplayId,
                          this->WindowId,&winattr);
-    // if the specified window size is bigger than the screen size,
-    // we have to reset the window size to the screen size
-    width = winattr.width;
-    height = winattr.height;
+    // guarantee that the window is mapped before the program continues
+    // on to do the OpenGL rendering.
+    while (winattr.map_state == IsUnmapped)
+    {
+      XGetWindowAttributes(this->DisplayId,
+                           this->WindowId,&winattr);
+    }
     this->Mapped = 1;
   }
   // free the visual info
@@ -1002,15 +997,23 @@ void vtkXOpenGLRenderWindow::SetSize(int width,int height)
                     static_cast<unsigned int>(width),
                     static_cast<unsigned int>(height));
       // this is an async call so we wait until we
-      // know it has been resized.
-      while(true)
+      // know it has been resized. To avoid infinite
+      // loops we put in a count limit just to be safe
+      XWindowAttributes attribs;
+      int count = 20000;
+      do
       {
-        XEvent e;
-        XNextEvent(this->DisplayId, &e);
-        if (e.type == ConfigureNotify)
-        {
-          break;
-        }
+        XSync(this->DisplayId,False);
+
+        //  Find the current window size
+        XGetWindowAttributes(this->DisplayId,
+                             this->WindowId, &attribs);
+        count--;
+      }
+      while (count && (attribs.width != width || attribs.height != height));
+      if (!count)
+      {
+        vtkWarningMacro("warning window did not resize in the allotted time");
       }
     }
 
