@@ -15,11 +15,15 @@
 #include "vtkCommand.h"
 #include "vtkDebugLeaks.h"
 
+#ifdef VTK_DEBUG_LEAKS
+static const char *leakname = "vtkCommand or subclass";
+#endif
+
 //----------------------------------------------------------------
 vtkCommand::vtkCommand():AbortFlag(0),PassiveObserver(0)
 {
 #ifdef VTK_DEBUG_LEAKS
-  vtkDebugLeaks::ConstructClass("vtkCommand or subclass");
+  vtkDebugLeaks::ConstructClass(leakname);
 #endif
 }
 
@@ -31,7 +35,7 @@ void vtkCommand::UnRegister()
   if (refcount <= 0)
   {
 #ifdef VTK_DEBUG_LEAKS
-    vtkDebugLeaks::DestructClass("vtkCommand or subclass");
+    vtkDebugLeaks::DestructClass(leakname);
 #endif
     delete this;
   }
