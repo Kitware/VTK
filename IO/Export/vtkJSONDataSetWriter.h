@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkHttpDataSetWriter.h
+  Module:    vtkJSONDataSetWriter.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,13 +13,13 @@
 
 =========================================================================*/
 /**
- * @class   vtkHttpDataSetWriter
+ * @class   vtkJSONDataSetWriter
  * @brief   write vtkDataSet into a directory with a JSON meta file along
  *          with all the binary arrays written as standalone binary files.
  *          The generated format can be used by vtk.js using the reader below
  *          https://kitware.github.io/vtk-js/examples/HttpDataSetReader.html
  *
- * vtkHttpDataSetWriter writes vtkImageData / vtkPolyData into a set of files
+ * vtkJSONDataSetWriter writes vtkImageData / vtkPolyData into a set of files
  * representing each arrays that compose the dataset along with a JSON meta file
  * that describe what they are and how they should be assembled into an actual vtkDataSet.
  *
@@ -29,10 +29,10 @@
  * handle endianness.
  */
 
-#ifndef vtkHttpDataSetWriter_h
-#define vtkHttpDataSetWriter_h
+#ifndef vtkJSONDataSetWriter_h
+#define vtkJSONDataSetWriter_h
 
-#include "vtkIOWebModule.h" // For export macro
+#include "vtkIOExportModule.h" // For export macro
 #include "vtkWriter.h"
 
 #include <string> // For string parameter
@@ -41,11 +41,51 @@ class vtkDataSet;
 class vtkDataArray;
 class vtkDataSetAttributes;
 
-class VTKIOWEB_EXPORT vtkHttpDataSetWriter : public vtkWriter
+class VTKIOEXPORT_EXPORT vtkJSONDataSetWriter : public vtkWriter
 {
 public:
-  static vtkHttpDataSetWriter* New();
-  vtkTypeMacro(vtkHttpDataSetWriter, vtkWriter);
+  //@{
+  /**
+   * Compute a MD5 digest of a void/(const unsigned char) pointer to compute a
+   *  string hash
+   */
+  static void ComputeMD5(const unsigned char* content, int size, std::string& hash);
+  //@}
+
+  //@{
+  /**
+   * Compute the target JavaScript typed array name for the given vtkDataArray
+   * (Uin8, Uint16, Uin32, Int8, Int16, Int32, Float32, Float64) or
+   * "xxx" if no match found
+   *
+   * Since Uint64 and Int64 does not exist in JavaScript, the needConversion
+   * argument will be set to true and Uint32/Int32 will be returned instead.
+   */
+  static std::string GetShortType(vtkDataArray* input, bool& needConversion);
+  //@}
+
+  //@{
+  /**
+   * Return a Unique identifier for that array
+   * (i.e.: Float32_356_13f880891af7b77262c49cae09a41e28 )
+   */
+  static std::string GetUID(vtkDataArray*, bool& needConversion);
+  //@}
+
+  //@{
+  /**
+   * Write the content of the vtkDataArray to disk based on the filePath
+   * provided without any extra information. Just the raw data will be
+   * written.
+   *
+   * If vtkDataArray is a Uint64 or Int64, the data will be converted
+   * to Uint32 or Int32 before being written.
+   */
+  static bool WriteArrayAsRAW(vtkDataArray*, const char* filePath);
+  //@}
+
+  static vtkJSONDataSetWriter* New();
+  vtkTypeMacro(vtkJSONDataSetWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -68,8 +108,8 @@ public:
   bool IsDataSetValid() { return this->ValidDataSet; }
 
 protected:
-  vtkHttpDataSetWriter();
-  ~vtkHttpDataSetWriter() override;
+  vtkJSONDataSetWriter();
+  ~vtkJSONDataSetWriter() override;
 
   void WriteData() override;
   std::string WriteArray(vtkDataArray*, const char* className, const char* arrayName = nullptr);
@@ -81,8 +121,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkHttpDataSetWriter(const vtkHttpDataSetWriter&) = delete;
-  void operator=(const vtkHttpDataSetWriter&) = delete;
+  vtkJSONDataSetWriter(const vtkJSONDataSetWriter&) = delete;
+  void operator=(const vtkJSONDataSetWriter&) = delete;
 };
 
 #endif

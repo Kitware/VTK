@@ -3,15 +3,17 @@ set(Module_SRCS
   vtkGL2PSExporter.cxx
   vtkGLTFExporter.cxx
   vtkIVExporter.cxx
+  vtkJSONDataSetWriter.cxx
+  vtkJSONSceneExporter.cxx
   vtkOBJExporter.cxx
   vtkOOGLExporter.cxx
   vtkPOVExporter.cxx
   vtkRIBExporter.cxx
   vtkRIBLight.cxx
   vtkRIBProperty.cxx
+  vtkSingleVTPExporter.cxx
   vtkSVGContextDevice2D.cxx
   vtkSVGExporter.cxx
-  vtkSingleVTPExporter.cxx
   vtkVRMLExporter.cxx
   vtkX3D.cxx
   vtkX3DExporter.cxx
