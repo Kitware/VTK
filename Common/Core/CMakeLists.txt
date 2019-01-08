@@ -470,9 +470,11 @@ vtk_module_add_module(VTK::CommonCore
   SOURCES           ${sources}
   TEMPLATES         ${templates}
   HEADERS           ${headers})
-vtk_module_include(VTK::CommonCore
-  PRIVATE
-    ${vtk_include_dirs})
+if (vtk_include_dirs)
+  vtk_module_include(VTK::CommonCore
+    PRIVATE
+      ${vtk_include_dirs})
+endif ()
 vtk_module_link(VTK::CommonCore
   PUBLIC
     Threads::Threads
