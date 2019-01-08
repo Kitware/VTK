@@ -181,6 +181,13 @@ else()
       /boot/develop/lib/x86)
     set(_OPENGL_INCLUDE_PATH
       /boot/develop/headers/os/opengl)
+  elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # CMake doesn't support arbitrary globs in search paths.
+    file(GLOB _OPENGL_LIB_PATH
+      # The NVidia driver installation tool on Linux installs libraries to a
+      # `nvidia-<version>` subdirectory.
+      "/usr/lib/nvidia-*"
+      "/usr/lib32/nvidia-*")
   endif()
 
   # The first line below is to make sure that the proper headers
