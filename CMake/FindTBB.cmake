@@ -71,7 +71,7 @@
 #===============================================
 # Do the final processing for the package find.
 #===============================================
-macro(findpkg_finish PREFIX)
+macro(findpkg_finish PREFIX TARGET_NAME)
   # skip if already processed during this run
   if (NOT ${PREFIX}_FOUND)
     if (${PREFIX}_INCLUDE_DIR AND ${PREFIX}_LIBRARY)
@@ -84,12 +84,14 @@ macro(findpkg_finish PREFIX)
       endif ()
     endif ()
 
-    add_library(TBB::${TARGET} UNKNOWN IMPORTED)
-    set_target_properties(TBB::${TARGET} PROPERTIES
-      IMPORTED_LOCATION "${${PREFIX}_LIBRARY}"
-      IMPORTED_LOCATION_DEBUG "${${PREFIX}_LIBRARY_DEBUG}"
-      IMPORTED_LOCATION_RELEASE "${${PREFIX}_LIBRARY_RELEASE}"
-      INTERFACE_INCLUDE_DIRECTORIES "${${PREFIX}_INCLUDE_DIR}")
+    if (NOT TARGET "TBB::${TARGET_NAME}")
+      add_library(TBB::${TARGET_NAME} UNKNOWN IMPORTED)
+      set_target_properties(TBB::${TARGET_NAME} PROPERTIES
+        IMPORTED_LOCATION "${${PREFIX}_LIBRARY}"
+        IMPORTED_LOCATION_DEBUG "${${PREFIX}_LIBRARY_DEBUG}"
+        IMPORTED_LOCATION_RELEASE "${${PREFIX}_LIBRARY_RELEASE}"
+        INTERFACE_INCLUDE_DIRECTORIES "${${PREFIX}_INCLUDE_DIR}")
+    endif ()
 
    #mark the following variables as internal variables
    mark_as_advanced(${PREFIX}_INCLUDE_DIR
@@ -294,7 +296,7 @@ find_library(TBB_LIBRARY_DEBUG
              PATHS ${TBB_LIB_SEARCH_PATH})
 make_library_set(TBB_LIBRARY)
 
-findpkg_finish(TBB)
+findpkg_finish(TBB tbb)
 
 #if we haven't found TBB no point on going any further
 if (NOT TBB_FOUND)
@@ -318,7 +320,7 @@ find_library(TBB_MALLOC_LIBRARY_DEBUG
              PATHS ${TBB_LIB_SEARCH_PATH})
 make_library_set(TBB_MALLOC_LIBRARY)
 
-findpkg_finish(TBB_MALLOC)
+findpkg_finish(TBB_MALLOC tbbmalloc)
 
 #=============================================================================
 # Look for TBB's malloc proxy package
@@ -337,7 +339,7 @@ find_library(TBB_MALLOC_PROXY_LIBRARY_DEBUG
              PATHS ${TBB_LIB_SEARCH_PATH})
 make_library_set(TBB_MALLOC_PROXY_LIBRARY)
 
-findpkg_finish(TBB_MALLOC_PROXY)
+findpkg_finish(TBB_MALLOC_PROXY tbbmalloc_proxy)
 
 
 #=============================================================================
