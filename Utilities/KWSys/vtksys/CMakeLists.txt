@@ -35,6 +35,7 @@
 #                            target_link_libraries. Because of how interface
 #                            properties propagate, this target is not suitable
 #                            for use with PUBLIC or INTERFACE linking.
+#  KWSYS_ALIAS_TARGET = The name of an alias target to create to the actual target.
 #
 #    Example:
 #
@@ -89,6 +90,7 @@ FOREACH(p
     CMP0048 # CMake 3.0, Let the project command manage version variables.
     CMP0056 # CMake 3.2, Honor link flags in try_compile() source-file signature.
     CMP0063 # CMake 3.3, Honor visibility properties for all target types.
+    CMP0069 # CMake 3.9, INTERPROCEDURAL_OPTIMIZATION is enforced when enabled.
     )
   IF(POLICY ${p})
     CMAKE_POLICY(SET ${p} NEW)
@@ -887,6 +889,9 @@ IF(KWSYS_C_SRCS OR KWSYS_CXX_SRCS)
     ADD_LIBRARY(${KWSYS_TARGET_INTERFACE} ${KWSYS_LIBRARY_TYPE}
       ${KWSYS_C_SRCS} ${KWSYS_CXX_SRCS})
   ENDIF()
+  if (KWSYS_ALIAS_TARGET)
+    add_library(${KWSYS_ALIAS_TARGET} ALIAS ${KWSYS_TARGET_INTERFACE})
+  endif ()
   SET_TARGET_PROPERTIES(${KWSYS_TARGET_OBJECT} PROPERTIES
     C_CLANG_TIDY ""
     CXX_CLANG_TIDY ""
@@ -1193,13 +1198,17 @@ IF(KWSYS_STANDALONE OR CMake_SOURCE_DIR)
     # Some Apple compilers produce bad optimizations in this source.
     IF(APPLE AND CMAKE_C_COMPILER_ID MATCHES "^(GNU|LLVM)$")
       SET(testProcess_COMPILE_FLAGS "${testProcess_COMPILE_FLAGS} -O0")
-    ELSEIF(CMAKE_C_COMPILER_ID STREQUAL "XL" AND
-           NOT (CMAKE_SYSTEM MATCHES "Linux.*ppc64le" AND
-                NOT CMAKE_C_COMPILER_VERSION VERSION_LESS "13.1.1"))
+    ELSEIF(CMAKE_C_COMPILER_ID STREQUAL "XL")
       # Tell IBM XL not to warn about our test infinite loop
-      # v13.1.1 and newer on Linux ppc64le is clang based and does not accept
-      # the -qsuppress option
-      SET(testProcess_COMPILE_FLAGS "${testProcess_COMPILE_FLAGS} -qsuppress=1500-010")
+      IF(CMAKE_SYSTEM MATCHES "Linux.*ppc64le"
+         AND CMAKE_C_COMPILER_VERSION VERSION_LESS "16.1.0"
+         AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS "13.1.1")
+        # v13.1.[1-6] on Linux ppc64le is clang based and does not accept
+        # the -qsuppress option, so just suppress all warnings.
+        SET(testProcess_COMPILE_FLAGS "${testProcess_COMPILE_FLAGS} -w")
+      ELSE()
+        SET(testProcess_COMPILE_FLAGS "${testProcess_COMPILE_FLAGS} -qsuppress=1500-010")
+      ENDIF()
     ENDIF()
     IF(CMAKE_C_FLAGS MATCHES "-fsanitize=")
       SET(testProcess_COMPILE_FLAGS "${testProcess_COMPILE_FLAGS} -DCRASH_USING_ABORT")
