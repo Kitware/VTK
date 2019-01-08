@@ -1,5 +1,3 @@
-/* $Id: tif_vms.c,v 1.14 2017-01-11 19:02:49 erouault Exp $ */
-
 /*
  * Copyright (c) 1988-1997 Sam Leffler
  * Copyright (c) 1991-1997 Silicon Graphics, Inc.
@@ -28,9 +26,9 @@
  * TIFF Library VMS-specific Routines.
  */
 
+#include "tiffiop.h"
 #include <stdlib.h>
 #include <unixio.h>
-#include "tiffiop.h"
 #if !HAVE_IEEEFP
 #include <math.h>
 #endif

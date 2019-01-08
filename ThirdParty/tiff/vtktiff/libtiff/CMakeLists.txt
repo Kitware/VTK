@@ -101,8 +101,10 @@ set(tiff_SOURCES
   tif_tile.c
   tif_version.c
   tif_warning.c
+  tif_webp.c
   tif_write.c
-  tif_zip.c)
+  tif_zip.c
+  tif_zstd.c)
 
 set(tiffxx_HEADERS
   tiffio.hxx)
@@ -119,12 +121,14 @@ else()
 endif()
 
 if (FALSE) # XXX(kitware): Use VTK's module system.
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}
-                    ${CMAKE_CURRENT_BINARY_DIR}
-                    ${TIFF_INCLUDES})
-
 add_library(tiff ${tiff_SOURCES} ${tiff_HEADERS} ${nodist_tiff_HEADERS}
             ${tiff_port_SOURCES} libtiff.def)
+target_include_directories(tiff
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+        ${TIFF_INCLUDES}
+)
 target_link_libraries(tiff ${TIFF_LIBRARY_DEPS})
 set_target_properties(tiff PROPERTIES SOVERSION ${SO_COMPATVERSION})
 if(NOT CYGWIN)
@@ -135,17 +139,16 @@ if(NOT CYGWIN)
     set_target_properties(tiff PROPERTIES VERSION ${SO_VERSION})
 endif()
 else ()
-vtk_add_library(vtktiff ${tiff_SOURCES} ${tiff_port_SOURCES} ${tiff_DEFS} ${tiff_HEADERS} ${nodest_tiff_HEADERS})
-target_link_libraries(vtktiff PRIVATE ${vtkjpeg_LIBRARIES} ${vtkzlib_LIBRARIES})
-if (NOT VTK_INSTALL_NO_DEVELOPMENT)
-  install(FILES
-    ${tiff_HEADERS}
-    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtktiff/libtiff"
-    COMPONENT Development)
-endif()
+vtk_module_add_module(VTK::tiff
+  SOURCES ${tiff_SOURCES}
+          ${tiff_port_SOURCES}
+          ${tiff_DEFS}
+  HEADERS ${tiff_HEADERS}
+  HEADERS_SUBDIR "vtktiff/libtiff"
+  PRIVATE_HEADERS ${nodist_tiff_HEADERS})
 endif ()
 if(HAVE_LD_VERSION_SCRIPT)
-  set_target_properties(vtktiff PROPERTIES LINK_FLAGS
+  set_target_properties(tiff PROPERTIES LINK_FLAGS
                         "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libtiff.map")
 endif()
 
@@ -159,7 +162,7 @@ install(FILES ${tiff_HEADERS} ${nodist_tiff_HEADERS}
         DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
 endif ()
 
-if(cxx)
+if(CXX_SUPPORT)
   add_library(tiffxx ${tiffxx_SOURCES} ${tiffxx_HEADERS})
   target_link_libraries(tiffxx tiff)
   set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION})
