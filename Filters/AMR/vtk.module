@@ -23,3 +23,8 @@ TEST_DEPENDS
   VTK::IOAMR
   VTK::ImagingCore
   VTK::TestingCore
+  VTK::RenderingCore
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering
+  VTK::FiltersGeometry
+  VTK::CommonColor

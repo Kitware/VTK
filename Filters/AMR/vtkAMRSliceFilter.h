@@ -121,6 +121,12 @@ protected:
   int GetDonorCellIdx( double x[3], vtkUniformGrid *ug );
 
   /**
+   * Returns the point index w.r.t. the given input grid which contains the
+   * query point x. A -1 is returned if the point is not found.
+   */
+  int GetDonorPointIdx(double x[3], vtkUniformGrid *ug);
+
+  /**
    * Computes the cell center of the cell corresponding to the supplied
    * cell index w.r.t. the input uniform grid.
    */
@@ -137,6 +143,11 @@ protected:
    * Copies the cell data for the cells in the slice from the 3-D grid.
    */
   void GetSliceCellData( vtkUniformGrid *slice, vtkUniformGrid *grid3D );
+
+  /**
+   * Copies the point data for the cells in the slice from the 3-D grid.
+   */
+  void GetSlicePointData(vtkUniformGrid *slice, vtkUniformGrid *grid3D);
 
   /**
    * Determines if a plane intersects with an AMR box
