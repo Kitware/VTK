@@ -120,15 +120,12 @@ set(ZLIB_SRCS
 )
 
 # XXX(kitware): create the third-party library for VTK
-vtk_add_library(vtkzlib ${ZLIB_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
-set_target_properties(vtkzlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
-
-if (NOT VTK_INSTALL_NO_DEVELOPMENT)
-  install(FILES
-    ${ZLIB_PUBLIC_HDRS}
-    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtkzlib"
-    COMPONENT Development)
-endif()
+vtk_module_add_module(VTK::zlib
+    SOURCES ${ZLIB_SRCS}
+    HEADERS ${ZLIB_PUBLIC_HDRS}
+    PRIVATE_HEADERS ${ZLIB_PRIVATE_HDRS}
+    HEADERS_SUBDIR "vtkzlib")
+set_target_properties(zlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
 
 if (FALSE) # XXX(kitware): skip all the original build/install commands
 
