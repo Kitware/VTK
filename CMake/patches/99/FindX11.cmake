@@ -449,34 +449,36 @@ if (UNIX)
     # Build the final list of libraries.
     set(X11_LIBRARIES ${X11_X_PRE_LIBS} ${X11_LIBRARIES} ${X11_X_EXTRA_LIBS})
 
-    add_library(X11::X11 UNKNOWN IMPORTED)
-    set_target_properties(X11::X11 PROPERTIES
-      IMPORTED_LOCATION "${X11_X11_LIB}"
-      INTERFACE_INCLUDE_DIRECTORIES "${X11_X11_INCLUDE_PATH}")
+    if (NOT TARGET X11::X11)
+      add_library(X11::X11 UNKNOWN IMPORTED)
+      set_target_properties(X11::X11 PROPERTIES
+        IMPORTED_LOCATION "${X11_X11_LIB}"
+        INTERFACE_INCLUDE_DIRECTORIES "${X11_X11_INCLUDE_PATH}")
+    endif ()
   endif ()
 
-  if (X11_ICE_FOUND)
+  if (X11_ICE_FOUND AND NOT TARGET X11::ICE)
     add_library(X11::ICE UNKNOWN IMPORTED)
     set_target_properties(X11::ICE PROPERTIES
       IMPORTED_LOCATION "${X11_ICE_LIB}"
       INTERFACE_INCLUDE_DIRECTORIES "${X11_ICE_INCLUDE_PATH}")
   endif ()
 
-  if (X11_SM_FOUND)
+  if (X11_SM_FOUND AND NOT TARGET X11::SM)
     add_library(X11::SM UNKNOWN IMPORTED)
     set_target_properties(X11::SM PROPERTIES
       IMPORTED_LOCATION "${X11_SM_LIB}"
       INTERFACE_INCLUDE_DIRECTORIES "${X11_SM_INCLUDE_PATH}")
   endif ()
 
-  if (X11_Xau_FOUND)
+  if (X11_Xau_FOUND AND NOT TARGET X11::Xau)
     add_library(X11::Xau UNKNOWN IMPORTED)
     set_target_properties(X11::Xau PROPERTIES
       IMPORTED_LOCATION "${X11_Xau_LIB}"
       INTERFACE_INCLUDE_DIRECTORIES "${X11_Xau_INCLUDE_PATH}")
   endif ()
 
-  if (X11_Xcomposite_FOUND)
+  if (X11_Xcomposite_FOUND AND NOT TARGET X11::Xcomposite)
     add_library(X11::Xcomposite UNKNOWN IMPORTED)
     set_target_properties(X11::Xcomposite PROPERTIES
       IMPORTED_LOCATION "${X11_Xcomposite_LIB}"
@@ -484,7 +486,7 @@ if (UNIX)
       INTERFACE_LINK_LIBRARIES "X11::X11")
   endif ()
 
-  if (X11_Xcursor_FOUND)
+  if (X11_Xcursor_FOUND AND NOT TARGET X11::Xcursor)
     add_library(X11::Xcursor UNKNOWN IMPORTED)
     set_target_properties(X11::Xcursor PROPERTIES
       IMPORTED_LOCATION "${X11_Xcursor_LIB}"
@@ -492,7 +494,7 @@ if (UNIX)
       INTERFACE_LINK_LIBRARIES "X11::Xrender;X11::Xfixes;X11::X11")
   endif ()
 
-  if (X11_Xdamage_FOUND)
+  if (X11_Xdamage_FOUND AND NOT TARGET X11::Xdamage)
     add_library(X11::Xdamage UNKNOWN IMPORTED)
     set_target_properties(X11::Xdamage PROPERTIES
       IMPORTED_LOCATION "${X11_Xdamage_LIB}"
@@ -500,14 +502,14 @@ if (UNIX)
       INTERFACE_LINK_LIBRARIES "X11::Xfixes;X11::X11")
   endif ()
 
-  if (X11_Xdmcp_FOUND)
+  if (X11_Xdmcp_FOUND AND NOT TARGET X11::Xdmcp)
     add_library(X11::Xdmcp UNKNOWN IMPORTED)
     set_target_properties(X11::Xdmcp PROPERTIES
       IMPORTED_LOCATION "${X11_Xdmcp_LIB}"
       INTERFACE_INCLUDE_DIRECTORIES "${X11_Xdmcp_INCLUDE_PATH}")
   endif ()
 
-  if (X11_Xext_FOUND)
+  if (X11_Xext_FOUND AND NOT TARGET X11::Xext)
     add_library(X11::Xext UNKNOWN IMPORTED)
     set_target_properties(X11::Xext PROPERTIES
       IMPORTED_LOCATION "${X11_Xext_LIB}"
@@ -515,7 +517,7 @@ if (UNIX)
       INTERFACE_LINK_LIBRARIES "X11::X11")
   endif ()
 
-  if (X11_Xxf86misc_FOUND)
+  if (X11_Xxf86misc_FOUND AND NOT TARGET X11::Xxf86misc)
     add_library(X11::Xxf86misc UNKNOWN IMPORTED)
     set_target_properties(X11::Xxf86misc PROPERTIES
       IMPORTED_LOCATION "${X11_Xxf86misc_LIB}"
@@ -523,7 +525,7 @@ if (UNIX)
       INTERFACE_LINK_LIBRARIES "X11::X11;X11::Xext")
   endif ()
 
-  if (X11_Xxf86vm_FOUND)
+  if (X11_Xxf86vm_FOUND AND NOT TARGET X11::Xxf86vm)
     add_library(X11::Xxf86vm UNKNOWN IMPORTED)
     set_target_properties(X11::Xxf86vm PROPERTIES
       IMPORTED_LOCATION "${X11_Xxf86vm_LIB}"
@@ -531,7 +533,7 @@ if (UNIX)
       INTERFACE_LINK_LIBRARIES "X11::X11;X11::Xext")
   endif ()
 
-  if (X11_Xfixes_FOUND)
+  if (X11_Xfixes_FOUND AND NOT TARGET X11::Xfixes)
     add_library(X11::Xfixes UNKNOWN IMPORTED)
     set_target_properties(X11::Xfixes PROPERTIES
       IMPORTED_LOCATION "${X11_Xfixes_LIB}"
@@ -539,7 +541,7 @@ if (UNIX)
       INTERFACE_LINK_LIBRARIES "X11::X11")
   endif ()
 
-  if (X11_Xft_FOUND)
+  if (X11_Xft_FOUND AND NOT TARGET X11::Xft)
     add_library(X11::Xft UNKNOWN IMPORTED)
     set_target_properties(X11::Xft PROPERTIES
       IMPORTED_LOCATION "${X11_Xft_LIB}"
@@ -547,7 +549,7 @@ if (UNIX)
       INTERFACE_LINK_LIBRARIES "X11::Xrender;X11::X11;Fontconfig::Fontconfig;Freetype::Freetype")
   endif ()
 
-  if (X11_Xi_FOUND)
+  if (X11_Xi_FOUND AND NOT TARGET X11::Xi)
     add_library(X11::Xi UNKNOWN IMPORTED)
     set_target_properties(X11::Xi PROPERTIES
       IMPORTED_LOCATION "${X11_Xi_LIB}"
@@ -555,7 +557,7 @@ if (UNIX)
       INTERFACE_LINK_LIBRARIES "X11::Xext;X11::X11")
   endif ()
 
-  if (X11_Xinerama_FOUND)
+  if (X11_Xinerama_FOUND AND NOT TARGET X11::Xinerama)
     add_library(X11::Xinerama UNKNOWN IMPORTED)
     set_target_properties(X11::Xinerama PROPERTIES
       IMPORTED_LOCATION "${X11_Xinerama_LIB}"
@@ -563,14 +565,14 @@ if (UNIX)
       INTERFACE_LINK_LIBRARIES "X11::Xext;X11::X11")
   endif ()
 
-  if (X11_Xkb_FOUND)
+  if (X11_Xkb_FOUND AND NOT TARGET X11::Xkb)
     add_library(X11::Xkb INTERFACE IMPORTED)
     set_target_properties(X11::Xkb PROPERTIES
       INTERFACE_INCLUDE_DIRECTORIES "${X11_Xkb_INCLUDE_PATH}"
       INTERFACE_LINK_LIBRARIES "X11::X11")
   endif ()
 
-  if (X11_xkbfile_FOUND)
+  if (X11_xkbfile_FOUND AND NOT TARGET X11::xkbfile)
     add_library(X11::xkbfile UNKNOWN IMPORTED)
     set_target_properties(X11::xkbfile PROPERTIES
       IMPORTED_LOCATION "${X11_xkbfile_LIB}"
@@ -578,7 +580,7 @@ if (UNIX)
       INTERFACE_LINK_LIBRARIES "X11::X11")
   endif ()
 
-  if (X11_Xmu_FOUND)
+  if (X11_Xmu_FOUND AND NOT TARGET X11::Xmu)
     add_library(X11::Xmu UNKNOWN IMPORTED)
     set_target_properties(X11::Xmu PROPERTIES
       IMPORTED_LOCATION "${X11_Xmu_LIB}"
@@ -586,7 +588,7 @@ if (UNIX)
       INTERFACE_LINK_LIBRARIES "X11::Xt;X11::Xext;X11::X11")
   endif ()
 
-  if (X11_Xpm_FOUND)
+  if (X11_Xpm_FOUND AND NOT TARGET X11::Xpm)
     add_library(X11::Xpm UNKNOWN IMPORTED)
     set_target_properties(X11::Xpm PROPERTIES
       IMPORTED_LOCATION "${X11_Xpm_LIB}"
@@ -594,7 +596,7 @@ if (UNIX)
       INTERFACE_LINK_LIBRARIES "X11::X11")
   endif ()
 
-  if (X11_Xtst_FOUND)
+  if (X11_Xtst_FOUND AND NOT TARGET X11::Xtst)
     add_library(X11::Xtst UNKNOWN IMPORTED)
     set_target_properties(X11::Xtst PROPERTIES
       IMPORTED_LOCATION "${X11_Xtst_LIB}"
@@ -602,7 +604,7 @@ if (UNIX)
       INTERFACE_LINK_LIBRARIES "X11::Xi;X11::Xext;X11::X11")
   endif ()
 
-  if (X11_Xrandr_FOUND)
+  if (X11_Xrandr_FOUND AND NOT TARGET X11::Xrandr)
     add_library(X11::Xrandr UNKNOWN IMPORTED)
     set_target_properties(X11::Xrandr PROPERTIES
       IMPORTED_LOCATION "${X11_Xrandr_LIB}"
@@ -610,7 +612,7 @@ if (UNIX)
       INTERFACE_LINK_LIBRARIES "X11::Xrender;X11::Xext;X11::X11")
   endif ()
 
-  if (X11_Xrender_FOUND)
+  if (X11_Xrender_FOUND AND NOT TARGET X11::Xrender)
     add_library(X11::Xrender UNKNOWN IMPORTED)
     set_target_properties(X11::Xrender PROPERTIES
       IMPORTED_LOCATION "${X11_Xrender_LIB}"
@@ -618,7 +620,7 @@ if (UNIX)
       INTERFACE_LINK_LIBRARIES "X11::X11")
   endif ()
 
-  if (X11_XRes_FOUND)
+  if (X11_XRes_FOUND AND NOT TARGET X11::XRes)
     add_library(X11::XRes UNKNOWN IMPORTED)
     set_target_properties(X11::XRes PROPERTIES
       IMPORTED_LOCATION "${X11_XRes_LIB}"
@@ -626,7 +628,7 @@ if (UNIX)
       INTERFACE_LINK_LIBRARIES "X11::Xext;X11::X11")
   endif ()
 
-  if (X11_Xss_FOUND)
+  if (X11_Xss_FOUND AND NOT TARGET X11::Xss)
     add_library(X11::Xss UNKNOWN IMPORTED)
     set_target_properties(X11::Xss PROPERTIES
       IMPORTED_LOCATION "${X11_Xss_LIB}"
@@ -634,7 +636,7 @@ if (UNIX)
       INTERFACE_LINK_LIBRARIES "X11::Xext;X11::X11")
   endif ()
 
-  if (X11_Xt_FOUND)
+  if (X11_Xt_FOUND AND NOT TARGET X11::Xt)
     add_library(X11::Xt UNKNOWN IMPORTED)
     set_target_properties(X11::Xt PROPERTIES
       IMPORTED_LOCATION "${X11_Xt_LIB}"
@@ -642,7 +644,7 @@ if (UNIX)
       INTERFACE_LINK_LIBRARIES "X11::ICE;X11::SM;X11::X11")
   endif ()
 
-  if (X11_Xutil_FOUND)
+  if (X11_Xutil_FOUND AND NOT TARGET X11::Xutil)
     add_library(X11::Xutil INTERFACE IMPORTED)
     set_target_properties(X11::Xutil PROPERTIES
       INTERFACE_INCLUDE_DIRECTORIES "${X11_Xutil_INCLUDE_PATH}"
@@ -651,7 +653,7 @@ if (UNIX)
       INTERFACE_LINK_LIBRARIES "X11::X11")
   endif ()
 
-  if (X11_Xv_FOUND)
+  if (X11_Xv_FOUND AND NOT TARGET X11::Xv)
     add_library(X11::Xv UNKNOWN IMPORTED)
     set_target_properties(X11::Xv PROPERTIES
       IMPORTED_LOCATION "${X11_Xv_LIB}"
