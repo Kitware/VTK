@@ -1,0 +1,18 @@
+NAME
+  VTK::WebPython
+LIBRARY_NAME
+  vtkWebPython
+CONDITION
+  VTK_WRAP_PYTHON
+GROUPS
+  Web
+DEPENDS
+  VTK::CommonCore
+PRIVATE_DEPENDS
+  VTK::FiltersGeometry
+  VTK::WebCore
+TEST_DEPENDS
+  VTK::TestingCore
+TEST_LABELS
+  VTK::Web
+EXCLUDE_WRAP

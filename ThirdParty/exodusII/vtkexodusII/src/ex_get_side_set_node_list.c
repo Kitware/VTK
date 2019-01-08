@@ -101,8 +101,8 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
   void_int *elem_blk_ids       = NULL;
   void_int *connect            = NULL;
   void_int *ss_elem_ndx        = NULL;
-  int64_t  *ss_elem_node_ndx   = NULL;
-  int64_t  *ss_parm_ndx        = NULL;
+  int64_t * ss_elem_node_ndx   = NULL;
+  int64_t * ss_parm_ndx        = NULL;
   void_int *side_set_elem_list = NULL;
   void_int *side_set_side_list = NULL;
   size_t    elem_ctr, node_ctr, elem_num_pos;
@@ -508,7 +508,7 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
       err_stat = EX_FATAL;
       goto cleanup;
     }
-    ss_parm_ndx[i]      = j;        /* assign parameter block index */
+    ss_parm_ndx[i]      = j; /* assign parameter block index */
     ss_elem_node_ndx[i] = elem_blk_parms[j].num_nodes_per_side[side - 1];
 
     /* Update node_ctr (which points to next node in chain */
@@ -526,8 +526,8 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
       err_stat = EX_WARN;
     }
   }
-  /* At this point, the `ss_elem_node_ndx` only contains the nodes per face.  We now compute the exclusive scan
-   * to determine where the nodes will be put in the list for each face
+  /* At this point, the `ss_elem_node_ndx` only contains the nodes per face.  We now compute the
+   * exclusive scan to determine where the nodes will be put in the list for each face
    */
   if (ex_int64_status(exoid) & EX_BULK_INT64_API) {
     for (i = 0; i < tot_num_ss_elem; i++) {
@@ -542,7 +542,7 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
 
   int64_t sum = 0;
   for (i = 0; i < tot_num_ss_elem; i++) {
-    int64_t cnt = ss_elem_node_ndx[i];
+    int64_t cnt         = ss_elem_node_ndx[i];
     ss_elem_node_ndx[i] = sum;
     sum += cnt;
   }
@@ -623,7 +623,7 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
     num_nodes_per_elem = elem_blk_parms[parm_ndx].num_nodes_per_elem;
     connect_offset     = num_nodes_per_elem * elem_num_pos;
     side_num           = side - 1;
-    node_pos = ss_elem_node_ndx[elem_ndx];
+    node_pos           = ss_elem_node_ndx[elem_ndx];
 
     switch (elem_blk_parms[parm_ndx].elem_type_val) {
     case EX_EL_CIRCLE:
@@ -650,7 +650,7 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
                   connect_offset + tri_table[side_num][0] - 1);
         get_nodes(exoid, side_set_node_list, node_pos + 1, connect,
                   connect_offset + tri_table[side_num][1] - 1);
-        if (num_nodes_per_elem > 3)                            /* 6-node TRI  */
+        if (num_nodes_per_elem > 3) /* 6-node TRI  */
         {
           get_nodes(exoid, side_set_node_list, node_pos + 2, connect,
                     connect_offset + tri_table[side_num][2] - 1);
@@ -665,7 +665,7 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
                   connect_offset + tri3_table[side_num][0] - 1);
         get_nodes(exoid, side_set_node_list, node_pos + 1, connect,
                   connect_offset + tri3_table[side_num][1] - 1);
-        if (side_num + 1 <= 2)                                 /* 3, 4, 6, 7-node face */
+        if (side_num + 1 <= 2) /* 3, 4, 6, 7-node face */
         {
           if (num_nodes_per_elem == 3) /* 3-node face */
           {
@@ -747,8 +747,8 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
                 connect_offset + shell_table[side_num][0] - 1);
       get_nodes(exoid, side_set_node_list, node_pos + 1, connect,
                 connect_offset + shell_table[side_num][1] - 1);
-      if (num_nodes_per_elem > 2) {                              /*** KLUGE for 2D shells ***/
-        if (side_num + 1 <= 2) {                                 /* 4-node face */
+      if (num_nodes_per_elem > 2) { /*** KLUGE for 2D shells ***/
+        if (side_num + 1 <= 2) {    /* 4-node face */
           get_nodes(exoid, side_set_node_list, node_pos + 2, connect,
                     connect_offset + shell_table[side_num][2] - 1);
           get_nodes(exoid, side_set_node_list, node_pos + 3, connect,
@@ -756,7 +756,7 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
         }
       }
       if (num_nodes_per_elem == 8) {
-        if (side_num + 1 <= 2) {                                 /* 8-node face */
+        if (side_num + 1 <= 2) { /* 8-node face */
           get_nodes(exoid, side_set_node_list, node_pos + 4, connect,
                     connect_offset + shell_table[side_num][4] - 1);
           get_nodes(exoid, side_set_node_list, node_pos + 5, connect,
@@ -772,7 +772,7 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
         }
       }
       if (num_nodes_per_elem == 9) {
-        if (side_num + 1 <= 2) {                                 /* 9-node face */
+        if (side_num + 1 <= 2) { /* 9-node face */
           get_nodes(exoid, side_set_node_list, node_pos + 4, connect,
                     connect_offset + shell_table[side_num][4] - 1);
           get_nodes(exoid, side_set_node_list, node_pos + 5, connect,
@@ -992,7 +992,7 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
       get_nodes(exoid, side_set_node_list, node_pos++, connect,
                 connect_offset + pyramid_table[side_num][2] - 1);
 
-      if (pyramid_table[side_num][3] == 0) {                   /* degenerate side? */
+      if (pyramid_table[side_num][3] == 0) { /* degenerate side? */
       }
       else {
         get_nodes(exoid, side_set_node_list, node_pos++, connect,
@@ -1067,7 +1067,7 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
                   connect_offset + hex_table[side_num][2] - 1);
         get_nodes(exoid, side_set_node_list, node_pos + 3, connect,
                   connect_offset + hex_table[side_num][3] - 1);
-        if (num_nodes_per_elem > 12)                           /* more nodes than HEXSHELL */
+        if (num_nodes_per_elem > 12) /* more nodes than HEXSHELL */
         {
           get_nodes(exoid, side_set_node_list, node_pos + 4, connect,
                     connect_offset + hex_table[side_num][4] - 1);

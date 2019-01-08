@@ -17,7 +17,7 @@ namespace tao
    {
       namespace json
       {
-         // JSON grammar according to RFC 7159 (for UTF-8 encoded JSON only).
+         // JSON grammar according to RFC 8259
 
          // clang-format off
          struct ws : one< ' ', '\t', '\n', '\r' > {};

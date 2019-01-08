@@ -33,15 +33,6 @@
 /* Define to 1 if you have the `memmove' function. */
 #cmakedefine HAVE_MEMMOVE
 
-/* Define to 1 if you have the `getrandom' function. */
-#cmakedefine HAVE_GETRANDOM
-
-/* Define to 1 if you have the `SYS_getrandom' function. */
-#cmakedefine HAVE_SYSCALL_GETRANDOM
-
-/* Define to 1 if you have the `arc4random_buf' function. */
-#cmakedefine HAVE_ARC4RANDOM_BUF
-
 /* XXX(kitware): VTK is fine with low entropy. */
 #define XML_POOR_ENTROPY
 
@@ -105,6 +96,17 @@
 
 /* Define to make XML Namespaces functionality available. */
 #cmakedefine XML_NS
+
+#if ! defined(_WIN32)
+/* Define to extract entropy from /dev/urandom. */
+#cmakedefine XML_DEV_URANDOM
+#endif
+
+/* Define to use UTF-16 chars (two bytes). */
+#cmakedefine XML_UNICODE
+
+/* Define to use wchar_t as UTF-16 char type instead of unsigned short. */
+#cmakedefine XML_UNICODE_WCHAR_T
 
 /* Define to __FUNCTION__ or "" if `__func__' does not conform to ANSI C. */
 #ifdef _MSC_VER

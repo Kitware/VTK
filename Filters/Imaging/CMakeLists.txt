@@ -1,7 +1,7 @@
-set(Module_SRCS
-  vtkPairwiseExtractHistogram2D.cxx
-  vtkExtractHistogram2D.cxx
-  vtkComputeHistogram2DOutliers.cxx
-  )
+set(classes
+  vtkComputeHistogram2DOutliers
+  vtkExtractHistogram2D
+  vtkPairwiseExtractHistogram2D)
 
-vtk_module_library(vtkFiltersImaging ${Module_SRCS})
+vtk_module_add_module(VTK::FiltersImaging
+  CLASSES ${classes})

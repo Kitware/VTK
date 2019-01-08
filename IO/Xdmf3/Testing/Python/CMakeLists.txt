@@ -5,11 +5,13 @@ vtk_add_test_python(
 
 if (VTK_USE_LARGE_DATA)
   set(_ManyFiles_ARGS "--do_big_files")
-  set(_BigFiles "DATA{${VTK_TEST_INPUT_DIR}/XDMF/Big/,REGEX:.*}")
+  set(_BigFiles
+    "Data/XDMF/Big/,REGEX:.*"
+    "Data/XDMF/Iron/,REGEX:.*")
 endif()
-ExternalData_Expand_Arguments(VTKData _
-  "DATA{${VTK_TEST_INPUT_DIR}/XDMF/,REGEX:.*}"
-  "${_BigFiles}"
+vtk_module_test_data(
+  Data/XDMF/,REGEX:.*
+  ${_BigFiles}
   )
 vtk_add_test_python(
   ManyFiles.py NO_OUTPUT NO_VALID NO_RT ${_ManyFiles_ARGS}

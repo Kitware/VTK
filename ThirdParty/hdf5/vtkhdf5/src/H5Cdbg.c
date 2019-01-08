@@ -716,6 +716,7 @@ H5C_stats(H5C_t * cache_ptr,
               (long)(cache_ptr->LRU_list_size),
               (unsigned long)(cache_ptr->LRU_list_len));
 
+#if H5C_MAINTAIN_CLEAN_AND_DIRTY_LRU_LISTS
     HDfprintf(stdout,
               "%s  current clean LRU size / length    = %ld / %lu\n",
               cache_ptr->prefix,
@@ -727,6 +728,7 @@ H5C_stats(H5C_t * cache_ptr,
               cache_ptr->prefix,
               (long)(cache_ptr->dLRU_list_size),
               (unsigned long)(cache_ptr->dLRU_list_len));
+#endif /* H5C_MAINTAIN_CLEAN_AND_DIRTY_LRU_LISTS */
 
     HDfprintf(stdout,
               "%s  Total hits / misses / hit_rate     = %ld / %ld / %f\n",

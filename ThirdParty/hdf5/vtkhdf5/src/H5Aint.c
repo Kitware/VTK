@@ -33,14 +33,15 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5Apkg.h"		/* Attributes	  			*/
-#include "H5Dprivate.h"		/* Datasets				*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5Iprivate.h"		/* IDs			  		*/
-#include "H5MMprivate.h"	/* Memory management			*/
-#include "H5Opkg.h"             /* Object headers			*/
-#include "H5SMprivate.h"	/* Shared Object Header Messages	*/
+#include "H5private.h"          /* Generic Functions                        */
+#include "H5Apkg.h"             /* Attributes                               */
+#include "H5CXprivate.h"        /* API Contexts                             */
+#include "H5Dprivate.h"         /* Datasets                                 */
+#include "H5Eprivate.h"         /* Error handling                           */
+#include "H5Iprivate.h"         /* IDs                                      */
+#include "H5MMprivate.h"        /* Memory management                        */
+#include "H5Opkg.h"             /* Object headers                           */
+#include "H5SMprivate.h"        /* Shared Object Header Messages            */
 
 
 /****************/
@@ -55,7 +56,6 @@
 /* Data exchange structure to use when building table of compact attributes for an object */
 typedef struct {
     H5F_t       *f;             /* Pointer to file that fractal heap is in */
-    hid_t       dxpl_id;        /* DXPL for operation                */
     H5A_attr_table_t *atable;   /* Pointer to attribute table to build */
     size_t curr_attr;           /* Current attribute to operate on */
     hbool_t bogus_crt_idx;      /* Whether bogus creation index values need to be set */
@@ -73,7 +73,6 @@ typedef struct {
     H5F_t *file;                /* file                 */
     hbool_t *recompute_size;    /* Flag to indicate if size changed */
     H5O_copy_t *cpy_info;       /* Information on copying options   */
-    hid_t dxpl_id;              /* DXPL for operation               */
     const H5O_loc_t *oloc_src;
     H5O_loc_t *oloc_dst;
 } H5A_dense_file_cp_ud_t;
@@ -88,6 +87,9 @@ typedef struct {
 /* Local Prototypes */
 /********************/
 
+static H5A_t *H5A__create_common(const H5G_loc_t *loc, const char *name,
+    H5T_t *type, const H5S_t *space, hid_t acpl_id);
+static herr_t H5A__open_common(const H5G_loc_t *loc, H5A_t *attr);
 static herr_t H5A__compact_build_table_cb(H5O_t *oh, H5O_mesg_t *mesg/*in,out*/,
     unsigned sequence, unsigned *oh_flags_ptr, void *_udata/*in,out*/);
 static herr_t H5A__dense_build_table_cb(const H5A_t *attr, void *_udata);
@@ -97,11 +99,19 @@ static int H5A__attr_cmp_corder_inc(const void *attr1, const void *attr2);
 static int H5A__attr_cmp_corder_dec(const void *attr1, const void *attr2);
 static herr_t H5A__attr_sort_table(H5A_attr_table_t *atable, H5_index_t idx_type,
     H5_iter_order_t order);
+static herr_t H5A__iterate_common(hid_t loc_id, H5_index_t idx_type,
+    H5_iter_order_t order, hsize_t *idx, H5A_attr_iter_op_t *attr_op, void *op_data);
 
 /*********************/
 /* Package Variables */
 /*********************/
 
+/* Format version bounds for attribute */
+const unsigned H5O_attr_ver_bounds[] = {
+    H5O_ATTR_VERSION_1,         /* H5F_LIBVER_EARLIEST */
+    H5O_ATTR_VERSION_3,         /* H5F_LIBVER_V18 */
+    H5O_ATTR_VERSION_LATEST     /* H5F_LIBVER_LATEST */
+};
 
 /*****************************/
 /* Library Private Variables */
@@ -117,28 +127,20 @@ H5FL_SEQ_DEFINE(H5A_t_ptr);
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5A_create
+ * Function:	H5A__create_common
  *
- * Purpose:
- *      This is the guts of creating an attribute.
- * Usage:
- *  hid_t H5A_create(ent, name, type, space)
- *      const H5G_entry_t *ent;   IN: Pointer to symbol table entry for object to attribute
- *      const char *name;   IN: Name of attribute
- *      H5T_t *type;        IN: Datatype of attribute
- *      H5S_t *space;       IN: Dataspace of attribute
- *      hid_t acpl_id       IN: Attribute creation property list
+ * Purpose:     This is the guts of creating an attribute.
  *
- * Return: attribute structure on success, NULL on Failure.
+ * Return:      Attribute structure on success, NULL on Failure.
  *
  * Programmer:	Quincey Koziol
  *		April 2, 1998
  *
  *-------------------------------------------------------------------------
  */
-H5A_t *
-H5A_create(const H5G_loc_t *loc, const char *name, const H5T_t *type,
-    const H5S_t *space, hid_t acpl_id, hid_t dxpl_id)
+static H5A_t *
+H5A__create_common(const H5G_loc_t *loc, const char *name, H5T_t *type,
+    const H5S_t *space, hid_t acpl_id)
 {
     H5A_t	*attr = NULL;           /* Attribute created */
     hssize_t	snelmts;	        /* elements in attribute */
@@ -146,9 +148,9 @@ H5A_create(const H5G_loc_t *loc, const char *name, const H5T_t *type,
     htri_t      exists;                 /* Whether attribute exists */
     H5A_t	*ret_value = NULL;      /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_TAG(dxpl_id, loc->oloc->addr, NULL)
+    FUNC_ENTER_STATIC_TAG(loc->oloc->addr)
 
-    /* check args */
+    /* Check args */
     HDassert(loc);
     HDassert(name);
     HDassert(type);
@@ -159,7 +161,7 @@ H5A_create(const H5G_loc_t *loc, const char *name, const H5T_t *type,
      *  name, but it's going to be hard to unwind all the special cases on
      *  failure, so just check first, for now - QAK)
      */
-    if((exists = H5O_attr_exists(loc->oloc, name, dxpl_id)) < 0)
+    if((exists = H5O__attr_exists(loc->oloc, name)) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_NOTFOUND, NULL, "error checking attributes")
     else if(exists > 0)
         HGOTO_ERROR(H5E_ATTR, H5E_ALREADYEXISTS, NULL, "attribute already exists")
@@ -209,18 +211,16 @@ H5A_create(const H5G_loc_t *loc, const char *name, const H5T_t *type,
     if(H5T_set_loc(attr->shared->dt, loc->oloc->file, H5T_LOC_DISK) < 0)
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, NULL, "invalid datatype location")
 
-    /* Set the latest format for datatype, if requested */
-    if(H5F_USE_LATEST_FLAGS(loc->oloc->file, H5F_LATEST_DATATYPE))
-        if(H5T_set_latest_version(attr->shared->dt) < 0)
-            HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, NULL, "can't set latest version of datatype")
+    /* Set the version for datatype */
+    if(H5T_set_version(loc->oloc->file, attr->shared->dt) < 0)
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, NULL, "can't set version of datatype")
 
     /* Copy the dataspace for the attribute */
     attr->shared->ds = H5S_copy(space, FALSE, TRUE);
 
-    /* Set the latest format for dataspace, if requested */
-    if(H5F_USE_LATEST_FLAGS(loc->oloc->file, H5F_LATEST_DATASPACE))
-        if(H5S_set_latest_version(attr->shared->ds) < 0)
-            HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, NULL, "can't set latest version of dataspace")
+    /* Set the version for dataspace */
+    if(H5S_set_version(loc->oloc->file, attr->shared->ds) < 0)
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, NULL, "can't set version of dataspace")
 
     /* Copy the object header information */
     if(H5O_loc_copy(&(attr->oloc), loc->oloc, H5_COPY_DEEP) < 0)
@@ -233,20 +233,19 @@ H5A_create(const H5G_loc_t *loc, const char *name, const H5T_t *type,
     /* Check if any of the pieces should be (or are already) shared in the
      * SOHM table
      */
-    if(H5SM_try_share(attr->oloc.file, dxpl_id, NULL, 0, H5O_DTYPE_ID, attr->shared->dt, NULL) < 0)
+    if(H5SM_try_share(attr->oloc.file, NULL, 0, H5O_DTYPE_ID, attr->shared->dt, NULL) < 0)
 	HGOTO_ERROR(H5E_OHDR, H5E_BADMESG, NULL, "trying to share datatype failed")
-    if(H5SM_try_share(attr->oloc.file, dxpl_id, NULL, 0, H5O_SDSPACE_ID, attr->shared->ds, NULL) < 0)
+    if(H5SM_try_share(attr->oloc.file, NULL, 0, H5O_SDSPACE_ID, attr->shared->ds, NULL) < 0)
 	HGOTO_ERROR(H5E_OHDR, H5E_BADMESG, NULL, "trying to share dataspace failed")
 
     /* Check whether datatype is committed & increment ref count
      * (to maintain ref. count incr/decr similarity with "shared message"
      *      type of datatype sharing)
      */
-    if(H5T_committed(attr->shared->dt)) {
+    if(H5T_committed(attr->shared->dt))
         /* Increment the reference count on the shared datatype */
-        if(H5T_link(attr->shared->dt, 1, dxpl_id) < 0)
+        if(H5T_link(attr->shared->dt, 1) < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_LINKCOUNT, NULL, "unable to adjust shared datatype link count")
-    } /* end if */
 
     /* Compute the size of pieces on disk.  This is either the size of the
      * datatype and dataspace messages themselves, or the size of the "shared"
@@ -270,19 +269,123 @@ H5A_create(const H5G_loc_t *loc, const char *name, const H5T_t *type,
     attr->obj_opened = TRUE;
 
     /* Set the version to encode the attribute with */
-    if(H5A_set_version(attr->oloc.file, attr) < 0)
+    if(H5A__set_version(attr->oloc.file, attr) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTSET, NULL, "unable to update attribute version")
 
     /* Insert the attribute into the object header */
-    if(H5O_attr_create(&(attr->oloc), dxpl_id, attr) < 0)
+    if(H5O__attr_create(&(attr->oloc), attr) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTINSERT, NULL, "unable to create attribute in object header")
 
+    /* Set return value */
     ret_value = attr;
+
 done:
-    if(NULL == ret_value && attr && H5A_close(attr))
+    /* Cleanup on failure */
+    if(NULL == ret_value && attr && H5A__close(attr))
         HDONE_ERROR(H5E_ATTR, H5E_CANTFREE, NULL, "can't close attribute")
-    FUNC_LEAVE_NOAPI_TAG(ret_value, NULL)
-} /* H5A_create() */
+
+    FUNC_LEAVE_NOAPI_TAG(ret_value)
+} /* H5A__create_common() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5A__create
+ *
+ * Purpose:     Entry point for creating attribute on an object
+ *
+ * Note:        This routine is needed so that there's a non-API routine for
+ *              creating attributes that can set up VOL / SWMR info
+ *              (which need a DXPL).
+ *
+ * Return:      Attribute structure on success, NULL on Failure.
+ *
+ * Programmer:	Quincey Koziol
+ *		December 6, 2017
+ *
+ *-------------------------------------------------------------------------
+ */
+H5A_t *
+H5A__create(const H5G_loc_t *loc, const char *name, H5T_t *type,
+    const H5S_t *space, hid_t acpl_id)
+{
+    H5A_t	*ret_value = NULL;      /* Return value */
+
+    FUNC_ENTER_PACKAGE_VOL
+
+    /* Check args */
+    HDassert(loc);
+    HDassert(name);
+    HDassert(type);
+    HDassert(space);
+
+    /* Go do the real work for attaching the attribute to the object */
+    if(NULL == (ret_value = H5A__create_common(loc, name, type, space, acpl_id)))
+	HGOTO_ERROR(H5E_ATTR, H5E_CANTCREATE, NULL, "unable to create attribute")
+
+done:
+    FUNC_LEAVE_NOAPI_VOL(ret_value)
+} /* H5A__create() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5A__create_by_name
+ *
+ * Purpose:	Create an attribute on object, according to it's name
+ *
+ * Return:	Non-negative on success/Negative on failure
+ *
+ * Programmer:	Quincey Koziol
+ *		December 6, 2017
+ *
+ *-------------------------------------------------------------------------
+ */
+H5A_t *
+H5A__create_by_name(const H5G_loc_t *loc, const char *obj_name, const char *attr_name,
+    H5T_t *type, const H5S_t *space, hid_t acpl_id)
+{
+    H5G_loc_t   obj_loc;                /* Location used to open group */
+    H5G_name_t  obj_path;            	/* Opened object group hier. path */
+    H5O_loc_t   obj_oloc;            	/* Opened object object location */
+    hbool_t     loc_found = FALSE;      /* Entry at 'obj_name' found */
+    H5A_t       *attr = NULL;           /* Attribute from object header */
+    H5A_t       *ret_value = NULL;      /* Return value */
+
+    FUNC_ENTER_PACKAGE_VOL
+
+    /* check args */
+    HDassert(loc);
+    HDassert(obj_name);
+    HDassert(attr_name);
+
+    /* Set up opened group location to fill in */
+    obj_loc.oloc = &obj_oloc;
+    obj_loc.path = &obj_path;
+    H5G_loc_reset(&obj_loc);
+
+    /* Find the object's location */
+    if(H5G_loc_find(loc, obj_name, &obj_loc/*out*/) < 0)
+        HGOTO_ERROR(H5E_ATTR, H5E_NOTFOUND, NULL, "object not found")
+    loc_found = TRUE;
+
+    /* Go do the real work for attaching the attribute to the object */
+    if(NULL == (attr = H5A__create_common(&obj_loc, attr_name, type, space, acpl_id)))
+	HGOTO_ERROR(H5E_ATTR, H5E_CANTINIT, NULL, "unable to create attribute")
+
+    /* Set return value */
+    ret_value = attr;
+
+done:
+    /* Release resources */
+    if(loc_found && H5G_loc_free(&obj_loc) < 0)
+        HDONE_ERROR(H5E_ATTR, H5E_CANTRELEASE, NULL, "can't free location")
+
+    /* Cleanup on failure */
+    if(ret_value == NULL)
+        if(attr && H5A__close(attr) < 0)
+            HDONE_ERROR(H5E_ATTR, H5E_CANTFREE, NULL, "can't close attribute")
+
+    FUNC_LEAVE_NOAPI_VOL(ret_value)
+} /* H5A__create_by_name() */
 
 
 /*-------------------------------------------------------------------------
@@ -292,7 +395,7 @@ done:
  *      Finishes initializing an attributes the open
  *
  * Usage:
- *  herr_t H5A__open_common(loc, name, dxpl_id)
+ *  herr_t H5A__open_common(loc, name)
  *      const H5G_loc_t *loc;   IN: Pointer to group location for object
  *      H5A_t *attr;            IN/OUT: Pointer to attribute to initialize
  *
@@ -303,12 +406,12 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-herr_t
+static herr_t
 H5A__open_common(const H5G_loc_t *loc, H5A_t *attr)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_PACKAGE
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(loc);
@@ -343,7 +446,56 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5A_open_by_idx
+ * Function:	H5A__open
+ *
+ * Purpose:	Open an attribute in an object header
+ *
+ * Note:        This routine is needed so that there's a non-API routine for
+ *              creating attributes that can set up VOL / SWMR info
+ *              (which need a DXPL).
+ *
+ * Return:	Non-negative on success/Negative on failure
+ *
+ * Programmer:	Quincey Koziol
+ *		December 9, 2017
+ *
+ *-------------------------------------------------------------------------
+ */
+H5A_t *
+H5A__open(const H5G_loc_t *loc, const char *attr_name)
+{
+    H5A_t       *attr = NULL;           /* Attribute from object header */
+    H5A_t       *ret_value = NULL;      /* Return value */
+
+    FUNC_ENTER_PACKAGE_VOL
+
+    /* check args */
+    HDassert(loc);
+    HDassert(attr_name);
+
+    /* Read in attribute from object header */
+    if(NULL == (attr = H5O__attr_open_by_name(loc->oloc, attr_name)))
+        HGOTO_ERROR(H5E_ATTR, H5E_CANTOPENOBJ, NULL, "unable to load attribute info from object header for attribute: '%s'", attr_name)
+
+    /* Finish initializing attribute */
+    if(H5A__open_common(loc, attr) < 0)
+        HGOTO_ERROR(H5E_ATTR, H5E_CANTINIT, NULL, "unable to initialize attribute")
+
+    /* Set return value */
+    ret_value = attr;
+
+done:
+    /* Cleanup on failure */
+    if(ret_value == NULL)
+        if(attr && H5A__close(attr) < 0)
+            HDONE_ERROR(H5E_ATTR, H5E_CANTFREE, NULL, "can't close attribute")
+
+    FUNC_LEAVE_NOAPI_VOL(ret_value)
+} /* H5A__open() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5A__open_by_idx
  *
  * Purpose: 	Open an attribute according to its index order
  *
@@ -355,8 +507,8 @@ done:
  *-------------------------------------------------------------------------
  */
 H5A_t *
-H5A_open_by_idx(const H5G_loc_t *loc, const char *obj_name, H5_index_t idx_type,
-    H5_iter_order_t order, hsize_t n, hid_t lapl_id, hid_t dxpl_id)
+H5A__open_by_idx(const H5G_loc_t *loc, const char *obj_name, H5_index_t idx_type,
+    H5_iter_order_t order, hsize_t n)
 {
     H5G_loc_t   obj_loc;                /* Location used to open group */
     H5G_name_t  obj_path;            	/* Opened object group hier. path */
@@ -365,7 +517,7 @@ H5A_open_by_idx(const H5G_loc_t *loc, const char *obj_name, H5_index_t idx_type,
     H5A_t       *attr = NULL;           /* Attribute from object header */
     H5A_t       *ret_value = NULL;      /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE_VOL
 
     /* check args */
     HDassert(loc);
@@ -377,12 +529,12 @@ H5A_open_by_idx(const H5G_loc_t *loc, const char *obj_name, H5_index_t idx_type,
     H5G_loc_reset(&obj_loc);
 
     /* Find the object's location */
-    if(H5G_loc_find(loc, obj_name, &obj_loc/*out*/, lapl_id, dxpl_id) < 0)
+    if(H5G_loc_find(loc, obj_name, &obj_loc/*out*/) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_NOTFOUND, NULL, "object not found")
     loc_found = TRUE;
 
     /* Read in attribute from object header */
-    if(NULL == (attr = H5O_attr_open_by_idx(obj_loc.oloc, idx_type, order, n, dxpl_id)))
+    if(NULL == (attr = H5O__attr_open_by_idx(obj_loc.oloc, idx_type, order, n)))
         HGOTO_ERROR(H5E_ATTR, H5E_CANTOPENOBJ, NULL, "unable to load attribute info from object header")
 
     /* Finish initializing attribute */
@@ -399,15 +551,15 @@ done:
 
     /* Cleanup on failure */
     if(ret_value == NULL)
-        if(attr && H5A_close(attr) < 0)
+        if(attr && H5A__close(attr) < 0)
             HDONE_ERROR(H5E_ATTR, H5E_CANTFREE, NULL, "can't close attribute")
 
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* H5A_open_by_idx() */
+    FUNC_LEAVE_NOAPI_VOL(ret_value)
+} /* H5A__open_by_idx() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5A_open_by_name
+ * Function:	H5A__open_by_name
  *
  * Purpose:	Open an attribute in an object header, according to it's name
  *
@@ -419,8 +571,7 @@ done:
  *-------------------------------------------------------------------------
  */
 H5A_t *
-H5A_open_by_name(const H5G_loc_t *loc, const char *obj_name, const char *attr_name,
-    hid_t lapl_id, hid_t dxpl_id)
+H5A__open_by_name(const H5G_loc_t *loc, const char *obj_name, const char *attr_name)
 {
     H5G_loc_t   obj_loc;                /* Location used to open group */
     H5G_name_t  obj_path;            	/* Opened object group hier. path */
@@ -429,7 +580,7 @@ H5A_open_by_name(const H5G_loc_t *loc, const char *obj_name, const char *attr_na
     H5A_t       *attr = NULL;           /* Attribute from object header */
     H5A_t       *ret_value = NULL;      /* Return value */
 
-    FUNC_ENTER_NOAPI(NULL)
+    FUNC_ENTER_PACKAGE_VOL
 
     /* check args */
     HDassert(loc);
@@ -442,12 +593,12 @@ H5A_open_by_name(const H5G_loc_t *loc, const char *obj_name, const char *attr_na
     H5G_loc_reset(&obj_loc);
 
     /* Find the object's location */
-    if(H5G_loc_find(loc, obj_name, &obj_loc/*out*/, lapl_id, dxpl_id) < 0)
+    if(H5G_loc_find(loc, obj_name, &obj_loc/*out*/) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_NOTFOUND, NULL, "object not found")
     loc_found = TRUE;
 
     /* Read in attribute from object header */
-    if(NULL == (attr = H5O_attr_open_by_name(obj_loc.oloc, attr_name, dxpl_id)))
+    if(NULL == (attr = H5O__attr_open_by_name(obj_loc.oloc, attr_name)))
         HGOTO_ERROR(H5E_ATTR, H5E_CANTINIT, NULL, "unable to load attribute info from object header")
 
     /* Finish initializing attribute */
@@ -464,11 +615,11 @@ done:
 
     /* Cleanup on failure */
     if(ret_value == NULL)
-        if(attr && H5A_close(attr) < 0)
+        if(attr && H5A__close(attr) < 0)
             HDONE_ERROR(H5E_ATTR, H5E_CANTFREE, NULL, "can't close attribute")
 
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* H5A_open_by_name() */
+    FUNC_LEAVE_NOAPI_VOL(ret_value)
+} /* H5A__open_by_name() */
 
 
 /*--------------------------------------------------------------------------
@@ -479,7 +630,7 @@ done:
  USAGE
     herr_t H5A__read (attr, mem_type, buf)
         H5A_t *attr;         IN: Attribute to read
-        const H5T_t *mem_type;     IN: Memory datatype of buffer
+        H5T_t *mem_type;     IN: Memory datatype of buffer
         void *buf;           IN: Buffer for data to read
  RETURNS
     Non-negative on success/Negative on failure
@@ -488,7 +639,7 @@ done:
     This function reads a complete attribute from disk.
 --------------------------------------------------------------------------*/
 herr_t
-H5A__read(const H5A_t *attr, const H5T_t *mem_type, void *buf, hid_t dxpl_id)
+H5A__read(const H5A_t *attr, H5T_t *mem_type, void *buf)
 {
     uint8_t		*tconv_buf = NULL;	/* datatype conv buffer*/
     uint8_t		*bkg_buf = NULL;	/* background buffer */
@@ -501,7 +652,7 @@ H5A__read(const H5A_t *attr, const H5T_t *mem_type, void *buf, hid_t dxpl_id)
     size_t		buf_size;		/* desired buffer size	*/
     herr_t		ret_value = SUCCEED;
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE_VOL_TAG(attr->oloc.addr)
 
     HDassert(attr);
     HDassert(mem_type);
@@ -523,7 +674,7 @@ H5A__read(const H5A_t *attr, const H5T_t *mem_type, void *buf, hid_t dxpl_id)
         else {  /* Attribute exists and has a value */
             /* Convert memory buffer into disk buffer */
             /* Set up type conversion function */
-            if(NULL == (tpath = H5T_path_find(attr->shared->dt, mem_type, NULL, NULL, dxpl_id, FALSE)))
+            if(NULL == (tpath = H5T_path_find(attr->shared->dt, mem_type)))
                 HGOTO_ERROR(H5E_ATTR, H5E_UNSUPPORTED, FAIL, "unable to convert between src and dst datatypes")
 
             /* Check for type conversion required */
@@ -543,7 +694,7 @@ H5A__read(const H5A_t *attr, const H5T_t *mem_type, void *buf, hid_t dxpl_id)
                 HDmemcpy(tconv_buf, attr->shared->data, (src_type_size * nelmts));
 
                 /* Perform datatype conversion.  */
-                if(H5T_convert(tpath, src_id, dst_id, nelmts, (size_t)0, (size_t)0, tconv_buf, bkg_buf, dxpl_id) < 0)
+                if(H5T_convert(tpath, src_id, dst_id, nelmts, (size_t)0, (size_t)0, tconv_buf, bkg_buf) < 0)
                     HGOTO_ERROR(H5E_ATTR, H5E_CANTENCODE, FAIL, "datatype conversion failed")
 
                 /* Copy the converted data into the user's buffer */
@@ -570,7 +721,7 @@ done:
     if(bkg_buf)
 	bkg_buf = H5FL_BLK_FREE(attr_buf, bkg_buf);
 
-    FUNC_LEAVE_NOAPI(ret_value)
+    FUNC_LEAVE_NOAPI_VOL_TAG(ret_value)
 } /* H5A__read() */
 
 
@@ -582,7 +733,7 @@ done:
  USAGE
     herr_t H5A__write (attr, mem_type, buf)
         H5A_t *attr;         IN: Attribute to write
-        const H5T_t *mem_type;     IN: Memory datatype of buffer
+        H5T_t *mem_type;     IN: Memory datatype of buffer
         const void *buf;           IN: Buffer of data to write
  RETURNS
     Non-negative on success/Negative on failure
@@ -591,7 +742,7 @@ done:
     This function writes a complete attribute to disk.
 --------------------------------------------------------------------------*/
 herr_t
-H5A__write(H5A_t *attr, const H5T_t *mem_type, const void *buf, hid_t dxpl_id)
+H5A__write(H5A_t *attr, H5T_t *mem_type, const void *buf)
 {
     uint8_t		*tconv_buf = NULL;	/* datatype conv buffer */
     hbool_t             tconv_owned = FALSE;    /* Whether the datatype conv buffer is owned by attribute */
@@ -605,7 +756,7 @@ H5A__write(H5A_t *attr, const H5T_t *mem_type, const void *buf, hid_t dxpl_id)
     size_t		buf_size;		/* desired buffer size	*/
     herr_t		ret_value = SUCCEED;
 
-    FUNC_ENTER_NOAPI_NOINIT_TAG(dxpl_id, attr->oloc.addr, FAIL)
+    FUNC_ENTER_PACKAGE_VOL_TAG(attr->oloc.addr)
 
     HDassert(attr);
     HDassert(mem_type);
@@ -624,7 +775,7 @@ H5A__write(H5A_t *attr, const H5T_t *mem_type, const void *buf, hid_t dxpl_id)
 
         /* Convert memory buffer into disk buffer */
         /* Set up type conversion function */
-        if(NULL == (tpath = H5T_path_find(mem_type, attr->shared->dt, NULL, NULL, dxpl_id, FALSE)))
+        if(NULL == (tpath = H5T_path_find(mem_type, attr->shared->dt)))
             HGOTO_ERROR(H5E_ATTR, H5E_UNSUPPORTED, FAIL, "unable to convert between src and dst datatypes")
 
         /* Check for type conversion required */
@@ -644,7 +795,7 @@ H5A__write(H5A_t *attr, const H5T_t *mem_type, const void *buf, hid_t dxpl_id)
             HDmemcpy(tconv_buf, buf, (src_type_size * nelmts));
 
             /* Perform datatype conversion */
-            if(H5T_convert(tpath, src_id, dst_id, nelmts, (size_t)0, (size_t)0, tconv_buf, bkg_buf, dxpl_id) < 0)
+            if(H5T_convert(tpath, src_id, dst_id, nelmts, (size_t)0, (size_t)0, tconv_buf, bkg_buf) < 0)
                 HGOTO_ERROR(H5E_ATTR, H5E_CANTENCODE, FAIL, "datatype conversion failed")
 
             /* Free the previous attribute data buffer, if there is one */
@@ -669,7 +820,7 @@ H5A__write(H5A_t *attr, const H5T_t *mem_type, const void *buf, hid_t dxpl_id)
         } /* end else */
 
         /* Modify the attribute in the object header */
-        if(H5O_attr_write(&(attr->oloc), dxpl_id, attr) < 0)
+        if(H5O__attr_write(&(attr->oloc), attr) < 0)
             HGOTO_ERROR(H5E_ATTR, H5E_CANTINIT, FAIL, "unable to modify attribute")
     } /* end if */
 
@@ -684,7 +835,7 @@ done:
     if(bkg_buf)
         bkg_buf = H5FL_BLK_FREE(attr_buf, bkg_buf);
 
-    FUNC_LEAVE_NOAPI_TAG(ret_value, FAIL)
+    FUNC_LEAVE_NOAPI_VOL_TAG(ret_value)
 } /* H5A__write() */
 
 
@@ -710,7 +861,7 @@ H5A__get_name(H5A_t *attr, size_t buf_size, char *buf)
     size_t              copy_len, nbytes;
     ssize_t		ret_value = -1;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* get the real attribute length */
     nbytes = HDstrlen(attr->shared->name);
@@ -735,94 +886,97 @@ H5A__get_name(H5A_t *attr, size_t buf_size, char *buf)
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5A_get_space
+ * Function:    H5A_get_space
  *
- * Purpose:	Returns dataspace of the attribute.
+ * Purpose:     Returns dataspace of the attribute.
  *
- * Return:	Success:	dataspace
+ * Return:      Success:    A valid ID for the dataspace of an attribute
  *
- *		Failure:	NULL
- *
- * Programmer:	Mohamad Chaarawi
- *		March, 2012
+ *              Failure:    H5I_INVALID_ID
  *
  *-------------------------------------------------------------------------
  */
-H5S_t *
+hid_t
 H5A_get_space(H5A_t *attr)
 {
-    H5S_t *ret_value = NULL;
+    H5S_t      *ds = NULL;
+    hid_t       ret_value = H5I_INVALID_HID;
 
     FUNC_ENTER_NOAPI_NOINIT
 
     HDassert(attr);
 
     /* Copy the attribute's dataspace */
-    if(NULL == (ret_value = H5S_copy(attr->shared->ds, FALSE, TRUE)))
-        HGOTO_ERROR(H5E_ATTR, H5E_CANTINIT, NULL, "unable to copy dataspace")
+    if (NULL == (ds = H5S_copy(attr->shared->ds, FALSE, TRUE)))
+        HGOTO_ERROR(H5E_ATTR, H5E_CANTINIT, H5I_INVALID_HID, "unable to copy dataspace")
+
+    /* Atomize */
+    if ((ret_value = H5I_register(H5I_DATASPACE, ds, TRUE)) < 0)
+        HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register dataspace atom")
 
 done:
+    if (H5I_INVALID_HID == ret_value && ds && H5S_close(ds) < 0)
+        HDONE_ERROR(H5E_ATTR, H5E_CLOSEERROR, H5I_INVALID_HID, "unable to release dataspace")
+
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5A_get_space() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5A_get_type
+ * Function:    H5A__get_type
  *
- * Purpose:	Returns datatype of the dataset.
+ * Purpose:     Returns an ID for the datatype of an attribute
  *
- * Return:	Success:	datatype
+ * Return:      Success:    A valid ID for the datatype of an attribute
  *
- *		Failure:	NULL
- *
- * Programmer:	Mohamad Chaarawi
- *		March, 2012
+ *              Failure:	H5I_INVALID_HID
  *
  *-------------------------------------------------------------------------
  */
-H5T_t *
-H5A_get_type(H5A_t *attr)
+hid_t
+H5A__get_type(H5A_t *attr)
 {
     H5T_t *dt = NULL;
-    H5T_t *ret_value = NULL;
+    hid_t ret_value = H5I_INVALID_HID;
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE_VOL
 
     HDassert(attr);
 
     /* Patch the datatype's "top level" file pointer */
-    if(H5T_patch_file(attr->shared->dt, attr->oloc.file) < 0)
-        HGOTO_ERROR(H5E_ATTR, H5E_CANTINIT, NULL, "unable to patch datatype's file pointer")
+    if (H5T_patch_file(attr->shared->dt, attr->oloc.file) < 0)
+        HGOTO_ERROR(H5E_ATTR, H5E_CANTINIT, H5I_INVALID_HID, "unable to patch datatype's file pointer")
 
-    /*
-     * Copy the attribute's datatype.  If the type is a named type then
+    /* Copy the attribute's datatype.  If the type is a named type then
      * reopen the type before returning it to the user. Make the type
      * read-only.
      */
-    if(NULL == (dt = H5T_copy(attr->shared->dt, H5T_COPY_REOPEN)))
-        HGOTO_ERROR(H5E_ATTR, H5E_CANTINIT, NULL, "unable to copy datatype")
+    if (NULL == (dt = H5T_copy(attr->shared->dt, H5T_COPY_REOPEN)))
+        HGOTO_ERROR(H5E_ATTR, H5E_CANTINIT, H5I_INVALID_HID, "unable to copy datatype")
 
     /* Mark any datatypes as being in memory now */
-    if(H5T_set_loc(dt, NULL, H5T_LOC_MEMORY) < 0)
-        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, NULL, "invalid datatype location")
+    if (H5T_set_loc(dt, NULL, H5T_LOC_MEMORY) < 0)
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, H5I_INVALID_HID, "invalid datatype location")
 
     /* Lock copied type */
-    if(H5T_lock(dt, FALSE) < 0)
-        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, NULL, "unable to lock transient datatype")
+    if (H5T_lock(dt, FALSE) < 0)
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, H5I_INVALID_HID, "unable to lock transient datatype")
 
-    ret_value = dt;
+    /* Atomize */
+    if ((ret_value = H5I_register(H5I_DATATYPE, dt, TRUE)) < 0)
+        HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register datatype")
 
 done:
-    if(!ret_value && dt && (H5T_close(dt) < 0))
-        HDONE_ERROR(H5E_DATASET, H5E_CLOSEERROR, NULL, "unable to release datatype")
+    if(H5I_INVALID_HID == ret_value && dt && (H5T_close(dt) < 0))
+        HDONE_ERROR(H5E_ATTR, H5E_CLOSEERROR, H5I_INVALID_HID, "unable to release datatype")
 
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5A_get_type() */
+    FUNC_LEAVE_NOAPI_VOL(ret_value)
+} /* end H5A__get_type() */
 
 
 /*--------------------------------------------------------------------------
  NAME
-    H5A_get_create_plist
+    H5A__get_create_plist
  PURPOSE
     private version of H5Aget_create_plist
  RETURNS
@@ -837,14 +991,14 @@ done:
     resource leaks will occur.
 --------------------------------------------------------------------------*/
 hid_t
-H5A_get_create_plist(H5A_t* attr)
+H5A__get_create_plist(H5A_t* attr)
 {
     H5P_genplist_t      *plist;              /* Default property list */
     hid_t               new_plist_id;        /* ID of ACPL to return */
     H5P_genplist_t      *new_plist;          /* ACPL to return */
     hid_t               ret_value = H5I_INVALID_HID;    /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     if(NULL == (plist = (H5P_genplist_t *)H5I_object(H5P_LST_ATTRIBUTE_CREATE_ID_g)))
         HGOTO_ERROR(H5E_PLIST, H5E_BADTYPE, FAIL, "can't get default ACPL")
@@ -863,7 +1017,7 @@ H5A_get_create_plist(H5A_t* attr)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5Aget_create_plist() */
+} /* end H5A__get_create_plist() */
 
 
 /*-------------------------------------------------------------------------
@@ -908,7 +1062,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5A_copy
+ * Function:	H5A__copy
  *
  * Purpose:	Copies attribute OLD_ATTR.
  *
@@ -926,13 +1080,13 @@ done:
  *-------------------------------------------------------------------------
  */
 H5A_t *
-H5A_copy(H5A_t *_new_attr, const H5A_t *old_attr)
+H5A__copy(H5A_t *_new_attr, const H5A_t *old_attr)
 {
     H5A_t	*new_attr = NULL;
     hbool_t     allocated_attr = FALSE;   /* Whether the attribute was allocated */
     H5A_t	*ret_value = NULL;        /* Return value */
 
-    FUNC_ENTER_NOAPI(NULL)
+    FUNC_ENTER_PACKAGE
 
     /* check args */
     HDassert(old_attr);
@@ -967,15 +1121,15 @@ H5A_copy(H5A_t *_new_attr, const H5A_t *old_attr)
 
 done:
     if(ret_value == NULL)
-        if(allocated_attr && new_attr && H5A_close(new_attr) < 0)
+        if(allocated_attr && new_attr && H5A__close(new_attr) < 0)
             HDONE_ERROR(H5E_ATTR, H5E_CANTFREE, NULL, "can't close attribute")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5A_copy() */
+} /* end H5A__copy() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5A_free
+ * Function:	H5A__free
  *
  * Purpose:	Frees all memory associated with an attribute, but does not
  *              free the H5A_t structure (which should be done in H5T_close).
@@ -990,21 +1144,21 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5A_free(H5A_t *attr)
+H5A__free(H5A_t *attr)
 {
     herr_t ret_value = SUCCEED;           /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     HDassert(attr);
 
-    /* Free dynamicly allocated items */
+    /* Free dynamically allocated items */
     if(attr->shared->name) {
         H5MM_xfree(attr->shared->name);
         attr->shared->name = NULL;
     }
     if(attr->shared->dt) {
-        if(H5T_close(attr->shared->dt) < 0)
+        if(H5T_close_real(attr->shared->dt) < 0)
 	    HGOTO_ERROR(H5E_ATTR, H5E_CANTRELEASE, FAIL, "can't release datatype info")
         attr->shared->dt = NULL;
     }
@@ -1018,11 +1172,43 @@ H5A_free(H5A_t *attr)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5A_free() */
+} /* end H5A__free() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5A_close
+ * Function:	H5A__close_cb
+ *
+ * Purpose:	Frees an attribute and all associated memory.
+ *
+ * Return:	Non-negative on success/Negative on failure
+ *
+ * Programmer:	Quincey Koziol
+ *		Sunday, February 18, 1997
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5A__close_cb(H5A_t *attr)
+{
+    herr_t ret_value = SUCCEED;                 /* Return value */
+
+    FUNC_ENTER_PACKAGE_VOL
+
+    /* Sanity check */
+    HDassert(attr);
+    HDassert(attr->shared);
+
+    /* Call the actual close routine */
+    if(H5A__close(attr) < 0)
+        HGOTO_ERROR(H5E_ATTR, H5E_CANTCLOSEOBJ, FAIL, "problem closing attribute")
+
+done:
+    FUNC_LEAVE_NOAPI_VOL(ret_value)
+} /* end H5A__close_cb() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5A__close
  *
  * Purpose:	Frees an attribute and all associated memory.
  *
@@ -1031,18 +1217,14 @@ done:
  * Programmer:	Robb Matzke
  *		Monday, December  8, 1997
  *
- * Modifications:
- *              Raymond Lu
- *              4 June 2008
- *              Changed some attribute object information to be shared.
  *-------------------------------------------------------------------------
  */
 herr_t
-H5A_close(H5A_t *attr)
+H5A__close(H5A_t *attr)
 {
     herr_t ret_value = SUCCEED;           /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     HDassert(attr);
     HDassert(attr->shared);
@@ -1051,10 +1233,10 @@ H5A_close(H5A_t *attr)
     if(attr->obj_opened && (H5O_close(&(attr->oloc), NULL) < 0))
         HGOTO_ERROR(H5E_ATTR, H5E_CANTRELEASE, FAIL, "can't release object header info")
 
-    /* Reference count can be 0.  It only happens when H5A_create fails. */
+    /* Reference count can be 0.  It only happens when H5A__create fails. */
     if(attr->shared->nrefs <= 1) {
-        /* Free dynamicly allocated items */
-        if(H5A_free(attr) < 0)
+        /* Free dynamically allocated items */
+        if(H5A__free(attr) < 0)
             HGOTO_ERROR(H5E_ATTR, H5E_CANTRELEASE, FAIL, "can't release attribute info")
 
         /* Destroy shared attribute struct */
@@ -1075,7 +1257,7 @@ H5A_close(H5A_t *attr)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5A_close() */
+} /* end H5A__close() */
 
 
 /*-------------------------------------------------------------------------
@@ -1173,7 +1355,40 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5A_exists_by_name
+ * Function:	H5A__exists
+ *
+ * Purpose:     Private version of H5Aexists
+ *
+ * Note:        This routine is needed so that there's a non-API routine for
+ *              detecting attributes that can set up VOL / SWMR info
+ *              (which need a DXPL).
+ *
+ * Return:	Success:	TRUE/FALSE
+ *		Failure:        Negative
+ *
+ * Programmer:	Quincey Koziol
+ *              December 6, 2017
+ *
+ *-------------------------------------------------------------------------
+ */
+htri_t
+H5A__exists(const H5G_loc_t *loc, const char *name)
+{
+    htri_t ret_value = FAIL;    /* Return value */
+
+    FUNC_ENTER_PACKAGE_VOL
+
+    /* Check if the attribute exists */
+    if((ret_value = H5O__attr_exists(loc->oloc, name)) < 0)
+        HGOTO_ERROR(H5E_ATTR, H5E_CANTGET, FAIL, "unable to determine if attribute exists")
+
+done:
+    FUNC_LEAVE_NOAPI_VOL(ret_value)
+} /* H5A__exists() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5A__exists_by_name
  *
  * Purpose:	Private version of H5Aexists_by_name
  *
@@ -1186,8 +1401,7 @@ done:
  *-------------------------------------------------------------------------
  */
 htri_t
-H5A_exists_by_name(H5G_loc_t loc, const char *obj_name, const char *attr_name,
-                   hid_t lapl_id, hid_t dxpl_id)
+H5A__exists_by_name(H5G_loc_t loc, const char *obj_name, const char *attr_name)
 {
     H5G_loc_t   obj_loc;                /* Location used to open group */
     H5G_name_t  obj_path;            	/* Opened object group hier. path */
@@ -1195,7 +1409,7 @@ H5A_exists_by_name(H5G_loc_t loc, const char *obj_name, const char *attr_name,
     hbool_t     loc_found = FALSE;      /* Entry at 'obj_name' found */
     htri_t	ret_value = FAIL;       /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE_VOL
 
     /* Set up opened group location to fill in */
     obj_loc.oloc = &obj_oloc;
@@ -1203,12 +1417,12 @@ H5A_exists_by_name(H5G_loc_t loc, const char *obj_name, const char *attr_name,
     H5G_loc_reset(&obj_loc);
 
     /* Find the object's location */
-    if(H5G_loc_find(&loc, obj_name, &obj_loc/*out*/, lapl_id, dxpl_id) < 0)
+    if(H5G_loc_find(&loc, obj_name, &obj_loc/*out*/) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_NOTFOUND, FAIL, "object not found")
     loc_found = TRUE;
 
     /* Check if the attribute exists */
-    if((ret_value = H5O_attr_exists(obj_loc.oloc, attr_name, dxpl_id)) < 0)
+    if((ret_value = H5O__attr_exists(obj_loc.oloc, attr_name)) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTGET, FAIL, "unable to determine if attribute exists")
 
 done:
@@ -1216,8 +1430,8 @@ done:
     if(loc_found && H5G_loc_free(&obj_loc) < 0)
         HDONE_ERROR(H5E_ATTR, H5E_CANTRELEASE, FAIL, "can't free location")
 
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* H5A_exists_by_name() */
+    FUNC_LEAVE_NOAPI_VOL(ret_value)
+} /* H5A__exists_by_name() */
 
 
 /*-------------------------------------------------------------------------
@@ -1266,7 +1480,7 @@ H5A__compact_build_table_cb(H5O_t H5_ATTR_UNUSED *oh, H5O_mesg_t *mesg/*in,out*/
     } /* end if */
 
     /* Copy attribute into table */
-    if(NULL == (udata->atable->attrs[udata->curr_attr] = H5A_copy(NULL, (const H5A_t *)mesg->native)))
+    if(NULL == (udata->atable->attrs[udata->curr_attr] = H5A__copy(NULL, (const H5A_t *)mesg->native)))
         HGOTO_ERROR(H5E_ATTR, H5E_CANTCOPY, H5_ITER_ERROR, "can't copy attribute")
 
     /* Assign [somewhat arbitrary] creation order value, if requested */
@@ -1282,7 +1496,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5A_compact_build_table
+ * Function:	H5A__compact_build_table
  *
  * Purpose:     Builds a table containing a sorted list of attributes for
  *              an object
@@ -1299,14 +1513,14 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5A_compact_build_table(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5_index_t idx_type,
+H5A__compact_build_table(H5F_t *f, H5O_t *oh, H5_index_t idx_type,
     H5_iter_order_t order, H5A_attr_table_t *atable)
 {
     H5A_compact_bt_ud_t udata;                  /* User data for iteration callback */
     H5O_mesg_operator_t op;             /* Wrapper for operator */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     HDassert(f);
@@ -1319,7 +1533,6 @@ H5A_compact_build_table(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5_index_t idx_type,
 
     /* Set up user data for iteration */
     udata.f = f;
-    udata.dxpl_id = dxpl_id;
     udata.atable = atable;
     udata.curr_attr = 0;
     udata.bogus_crt_idx = (hbool_t)((oh->version == H5O_VERSION_1 ||
@@ -1328,7 +1541,7 @@ H5A_compact_build_table(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5_index_t idx_type,
     /* Iterate over existing attributes, checking for attribute with same name */
     op.op_type = H5O_MESG_OP_LIB;
     op.u.lib_op = H5A__compact_build_table_cb;
-    if(H5O_msg_iterate_real(f, oh, H5O_MSG_ATTR, &op, &udata, dxpl_id) < 0)
+    if(H5O__msg_iterate_real(f, oh, H5O_MSG_ATTR, &op, &udata) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_BADITER, FAIL, "error building attribute table")
 
     /* Correct # of attributes in table */
@@ -1343,7 +1556,7 @@ H5A_compact_build_table(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5_index_t idx_type,
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5A_compact_build_table() */
+} /* end H5A__compact_build_table() */
 
 
 /*-------------------------------------------------------------------------
@@ -1379,7 +1592,7 @@ H5A__dense_build_table_cb(const H5A_t *attr, void *_udata)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTALLOC, H5_ITER_ERROR, "can't allocate attribute")
 
     /* Copy attribute information.  Share the attribute object in copying. */
-    if(NULL == H5A_copy(udata->atable->attrs[udata->curr_attr], attr))
+    if(NULL == H5A__copy(udata->atable->attrs[udata->curr_attr], attr))
         HGOTO_ERROR(H5E_ATTR, H5E_CANTCOPY, H5_ITER_ERROR, "can't copy attribute")
 
     /* Increment number of attributes stored */
@@ -1391,7 +1604,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5A_dense_build_table
+ * Function:	H5A__dense_build_table
  *
  * Purpose:     Builds a table containing a sorted list of attributes for
  *              an object
@@ -1409,14 +1622,14 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5A_dense_build_table(H5F_t *f, hid_t dxpl_id, const H5O_ainfo_t *ainfo,
+H5A__dense_build_table(H5F_t *f, const H5O_ainfo_t *ainfo,
     H5_index_t idx_type, H5_iter_order_t order, H5A_attr_table_t *atable)
 {
     H5B2_t *bt2_name = NULL;            /* v2 B-tree handle for name index */
     hsize_t nrec;                       /* # of records in v2 B-tree */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     HDassert(f);
@@ -1426,7 +1639,7 @@ H5A_dense_build_table(H5F_t *f, hid_t dxpl_id, const H5O_ainfo_t *ainfo,
     HDassert(atable);
 
     /* Open the name index v2 B-tree */
-    if(NULL == (bt2_name = H5B2_open(f, dxpl_id, ainfo->name_bt2_addr, NULL)))
+    if(NULL == (bt2_name = H5B2_open(f, ainfo->name_bt2_addr, NULL)))
         HGOTO_ERROR(H5E_ATTR, H5E_CANTOPENOBJ, FAIL, "unable to open v2 B-tree for name index")
 
     /* Retrieve # of records in "name" B-tree */
@@ -1456,8 +1669,8 @@ H5A_dense_build_table(H5F_t *f, hid_t dxpl_id, const H5O_ainfo_t *ainfo,
         attr_op.u.lib_op = H5A__dense_build_table_cb;
 
         /* Iterate over the links in the group, building a table of the link messages */
-        if(H5A_dense_iterate(f, dxpl_id, (hid_t)0, ainfo, H5_INDEX_NAME,
-                H5_ITER_NATIVE, (hsize_t)0, NULL, &attr_op, &udata) < 0)
+        if(H5A__dense_iterate(f, (hid_t)0, ainfo, H5_INDEX_NAME, H5_ITER_NATIVE,
+                (hsize_t)0, NULL, &attr_op, &udata) < 0)
             HGOTO_ERROR(H5E_ATTR, H5E_CANTINIT, FAIL, "error building attribute table")
 
         /* Sort attribute table in correct iteration order */
@@ -1469,11 +1682,11 @@ H5A_dense_build_table(H5F_t *f, hid_t dxpl_id, const H5O_ainfo_t *ainfo,
 
 done:
     /* Release resources */
-    if(bt2_name && H5B2_close(bt2_name, dxpl_id) < 0)
+    if(bt2_name && H5B2_close(bt2_name) < 0)
         HDONE_ERROR(H5E_ATTR, H5E_CLOSEERROR, FAIL, "can't close v2 B-tree for name index")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5A_dense_build_table() */
+} /* end H5A__dense_build_table() */
 
 
 /*-------------------------------------------------------------------------
@@ -1648,7 +1861,7 @@ H5A__attr_sort_table(H5A_attr_table_t *atable, H5_index_t idx_type,
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5A_attr_iterate_table
+ * Function:	H5A__attr_iterate_table
  *
  * Purpose:     Iterate over table containing a list of attributes for an object,
  *              making appropriate callbacks
@@ -1662,14 +1875,14 @@ H5A__attr_sort_table(H5A_attr_table_t *atable, H5_index_t idx_type,
  *-------------------------------------------------------------------------
  */
 herr_t
-H5A_attr_iterate_table(const H5A_attr_table_t *atable, hsize_t skip,
+H5A__attr_iterate_table(const H5A_attr_table_t *atable, hsize_t skip,
     hsize_t *last_attr, hid_t loc_id, const H5A_attr_iter_op_t *attr_op,
     void *op_data)
 {
     size_t u;                           /* Local index variable */
     herr_t ret_value = H5_ITER_CONT;   /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     HDassert(atable);
@@ -1727,11 +1940,11 @@ H5A_attr_iterate_table(const H5A_attr_table_t *atable, hsize_t skip,
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5A_attr_iterate_table() */
+} /* end H5A__attr_iterate_table() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	  H5A_attr_release_table
+ * Function:	  H5A__attr_release_table
  *
  * Purpose:       Release table containing a list of attributes for an object
  *
@@ -1744,11 +1957,11 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5A_attr_release_table(H5A_attr_table_t *atable)
+H5A__attr_release_table(H5A_attr_table_t *atable)
 {
     herr_t	ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
     HDassert(atable);
@@ -1759,7 +1972,7 @@ H5A_attr_release_table(H5A_attr_table_t *atable)
 
         /* Free attribute message information */
         for(u = 0; u < atable->nattrs; u++)
-            if(atable->attrs[u] && H5A_close(atable->attrs[u]) < 0)
+            if(atable->attrs[u] && H5A__close(atable->attrs[u]) < 0)
                 HGOTO_ERROR(H5E_ATTR, H5E_CANTFREE, FAIL, "unable to release attribute")
     } /* end if */
     else
@@ -1769,11 +1982,11 @@ H5A_attr_release_table(H5A_attr_table_t *atable)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5A_attr_release_table() */
+} /* end H5A__attr_release_table() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5A_get_ainfo
+ * Function:    H5A__get_ainfo
  *
  * Purpose:     Retrieves the "attribute info" message for an object.  Also
  *              sets the number of attributes correctly, if it isn't set up yet.
@@ -1788,12 +2001,12 @@ done:
  *-------------------------------------------------------------------------
  */
 htri_t
-H5A_get_ainfo(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5O_ainfo_t *ainfo)
+H5A__get_ainfo(H5F_t *f, H5O_t *oh, H5O_ainfo_t *ainfo)
 {
     H5B2_t *bt2_name = NULL;    /* v2 B-tree handle for name index */
     htri_t ret_value = FAIL;    /* Return value */
 
-    FUNC_ENTER_NOAPI_TAG(dxpl_id, oh->cache_info.addr, FAIL)
+    FUNC_ENTER_NOAPI_TAG(oh->cache_info.addr, FAIL)
 
     /* check arguments */
     HDassert(f);
@@ -1805,7 +2018,7 @@ H5A_get_ainfo(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5O_ainfo_t *ainfo)
 	HGOTO_ERROR(H5E_ATTR, H5E_NOTFOUND, FAIL, "unable to check object header")
     if(ret_value > 0) {
         /* Retrieve the "attribute info" structure */
-        if(NULL == H5O_msg_read_oh(f, dxpl_id, oh, H5O_AINFO_ID, ainfo))
+        if(NULL == H5O_msg_read_oh(f, oh, H5O_AINFO_ID, ainfo))
 	    HGOTO_ERROR(H5E_ATTR, H5E_CANTGET, FAIL, "can't read AINFO message")
 
         /* Check if we don't know how many attributes there are */
@@ -1813,7 +2026,7 @@ H5A_get_ainfo(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5O_ainfo_t *ainfo)
             /* Check if we are using "dense" attribute storage */
             if(H5F_addr_defined(ainfo->fheap_addr)) {
                 /* Open the name index v2 B-tree */
-                if(NULL == (bt2_name = H5B2_open(f, dxpl_id, ainfo->name_bt2_addr, NULL)))
+                if(NULL == (bt2_name = H5B2_open(f, ainfo->name_bt2_addr, NULL)))
                     HGOTO_ERROR(H5E_ATTR, H5E_CANTOPENOBJ, FAIL, "unable to open v2 B-tree for name index")
 
                 /* Retrieve # of records in "name" B-tree */
@@ -1829,22 +2042,22 @@ H5A_get_ainfo(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5O_ainfo_t *ainfo)
 
 done:
     /* Release resources */
-    if(bt2_name && H5B2_close(bt2_name, dxpl_id) < 0)
+    if(bt2_name && H5B2_close(bt2_name) < 0)
         HDONE_ERROR(H5E_ATTR, H5E_CLOSEERROR, FAIL, "can't close v2 B-tree for name index")
 
-    FUNC_LEAVE_NOAPI_TAG(ret_value, FAIL)
-} /* end H5A_get_ainfo() */
+    FUNC_LEAVE_NOAPI_TAG(ret_value)
+} /* end H5A__get_ainfo() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5A_set_version
+ * Function:    H5A__set_version
  *
  * Purpose:     Sets the correct version to encode attribute with.
- *              Chooses the oldest version possible, unless the "use the
- *              latest format" flag is set.
+ *              Chooses the oldest version possible, unless the
+ *              file's low bound indicates otherwise.
  *
- * Return:	Success:        Non-negative
- *		Failure:	Negative
+ * Return:	Success:    Non-negative
+ *          Failure:    Negative
  *
  * Programmer:  Quincey Koziol
  *              koziol@hdfgroup.org
@@ -1853,20 +2066,17 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5A_set_version(const H5F_t *f, H5A_t *attr)
+H5A__set_version(const H5F_t *f, H5A_t *attr)
 {
     hbool_t type_shared, space_shared;  /* Flags to indicate that shared messages are used for this attribute */
-    hbool_t use_latest_format;          /* Flag indicating the latest attribute version support is enabled */
-    herr_t ret_value = SUCCEED;   /* Return value */
+    uint8_t version;                    /* Message version */
+    herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* check arguments */
     HDassert(f);
     HDassert(attr);
-
-    /* Get the file's 'use the latest attribute version support' flag */
-    use_latest_format = H5F_USE_LATEST_FLAGS(f, H5F_LATEST_ATTRIBUTE);
 
     /* Check whether datatype and dataspace are shared */
     if(H5O_msg_is_shared(H5O_DTYPE_ID, attr->shared->dt) > 0)
@@ -1880,22 +2090,30 @@ H5A_set_version(const H5F_t *f, H5A_t *attr)
         space_shared = FALSE;
 
     /* Check which version to encode attribute with */
-    if(use_latest_format)
-        attr->shared->version = H5O_ATTR_VERSION_LATEST;      /* Write out latest attribute version */
-    else if(attr->shared->encoding != H5T_CSET_ASCII)
-        attr->shared->version = H5O_ATTR_VERSION_3;   /* Write version which includes the character encoding */
+    if(attr->shared->encoding != H5T_CSET_ASCII)
+        version = H5O_ATTR_VERSION_3;   /* Write version which includes the character encoding */
     else if(type_shared || space_shared)
-        attr->shared->version = H5O_ATTR_VERSION_2;   /* Write out version with flag for indicating shared datatype or dataspace */
+        version = H5O_ATTR_VERSION_2;   /* Write out version with flag for indicating shared datatype or dataspace */
     else
-        attr->shared->version = H5O_ATTR_VERSION_1;   /* Write out basic version */
+        version = H5O_ATTR_VERSION_1;   /* Write out basic version */
+
+    /* Upgrade to the version indicated by the file's low bound if higher */
+    version = MAX(version, (uint8_t)H5O_attr_ver_bounds[H5F_LOW_BOUND(f)]);
+
+    /* Version bounds check */
+    if(version > H5O_attr_ver_bounds[H5F_HIGH_BOUND(f)])
+        HGOTO_ERROR(H5E_ATTR, H5E_BADRANGE, FAIL, "attribute version out of bounds")
+
+    /* Set the message version */
+    attr->shared->version = version;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5A_set_version() */
+} /* end H5A__set_version() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5A_attr_copy_file
+ * Function:    H5A__attr_copy_file
  *
  * Purpose:     Copies a message from _MESG to _DEST in file
  *
@@ -1915,8 +2133,8 @@ done:
  *-------------------------------------------------------------------------
  */
 H5A_t *
-H5A_attr_copy_file(const H5A_t *attr_src, H5F_t *file_dst, hbool_t *recompute_size,
-    H5O_copy_t *cpy_info, hid_t dxpl_id)
+H5A__attr_copy_file(const H5A_t *attr_src, H5F_t *file_dst, hbool_t *recompute_size,
+    H5O_copy_t *cpy_info)
 {
     H5A_t      *attr_dst = NULL;        /* Destination attribute */
     hid_t       tid_src = -1;           /* Datatype ID for source datatype */
@@ -1931,7 +2149,7 @@ H5A_attr_copy_file(const H5A_t *attr_src, H5F_t *file_dst, hbool_t *recompute_si
     size_t	dst_dt_size;		/* Size of destination attribute datatype */
     H5A_t      *ret_value = NULL;       /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     /* check args */
     HDassert(attr_src);
@@ -1996,9 +2214,9 @@ H5A_attr_copy_file(const H5A_t *attr_src, H5F_t *file_dst, hbool_t *recompute_si
      * final size of the messages.  This does nothing if the datatype is
      * committed or sharing is disabled.
      */
-    if(H5SM_try_share(file_dst, dxpl_id, NULL, H5SM_DEFER, H5O_DTYPE_ID, attr_dst->shared->dt, NULL) < 0)
+    if(H5SM_try_share(file_dst, NULL, H5SM_DEFER, H5O_DTYPE_ID, attr_dst->shared->dt, NULL) < 0)
 	HGOTO_ERROR(H5E_OHDR, H5E_WRITEERROR, NULL, "can't share attribute datatype")
-    if(H5SM_try_share(file_dst, dxpl_id, NULL, H5SM_DEFER, H5O_SDSPACE_ID, attr_dst->shared->ds, NULL) < 0)
+    if(H5SM_try_share(file_dst, NULL, H5SM_DEFER, H5O_SDSPACE_ID, attr_dst->shared->ds, NULL) < 0)
 	HGOTO_ERROR(H5E_OHDR, H5E_WRITEERROR, NULL, "can't share attribute dataspace")
 
     /* Compute the sizes of the datatype and dataspace. This is their raw
@@ -2058,9 +2276,9 @@ H5A_attr_copy_file(const H5A_t *attr_src, H5F_t *file_dst, hbool_t *recompute_si
                 HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, NULL, "unable to register destination file datatype")
 
             /* Set up the conversion functions */
-            if(NULL == (tpath_src_mem = H5T_path_find(attr_src->shared->dt, dt_mem, NULL, NULL, dxpl_id, FALSE)))
+            if(NULL == (tpath_src_mem = H5T_path_find(attr_src->shared->dt, dt_mem)))
                 HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, NULL, "unable to convert between src and mem datatypes")
-            if(NULL == (tpath_mem_dst = H5T_path_find(dt_mem, attr_dst->shared->dt, NULL, NULL, dxpl_id, FALSE)))
+            if(NULL == (tpath_mem_dst = H5T_path_find(dt_mem, attr_dst->shared->dt)))
                 HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, NULL, "unable to convert between mem and dst datatypes")
 
             /* Determine largest datatype size */
@@ -2109,7 +2327,7 @@ H5A_attr_copy_file(const H5A_t *attr_src, H5F_t *file_dst, hbool_t *recompute_si
 		    HGOTO_ERROR(H5E_ATTR, H5E_CANTALLOC, NULL, "memory allocation failed")
 
             /* Convert from source file to memory */
-            if(H5T_convert(tpath_src_mem, tid_src, tid_mem, nelmts, (size_t)0, (size_t)0, buf, bkg_buf, dxpl_id) < 0)
+            if(H5T_convert(tpath_src_mem, tid_src, tid_mem, nelmts, (size_t)0, (size_t)0, buf, bkg_buf) < 0)
                 HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, NULL, "datatype conversion NULLed")
 
             HDmemcpy(reclaim_buf, buf, buf_size);
@@ -2119,12 +2337,12 @@ H5A_attr_copy_file(const H5A_t *attr_src, H5F_t *file_dst, hbool_t *recompute_si
 		HDmemset(bkg_buf, 0, buf_size);
 
             /* Convert from memory to destination file */
-            if(H5T_convert(tpath_mem_dst, tid_mem, tid_dst, nelmts, (size_t)0, (size_t)0, buf, bkg_buf, dxpl_id) < 0)
+            if(H5T_convert(tpath_mem_dst, tid_mem, tid_dst, nelmts, (size_t)0, (size_t)0, buf, bkg_buf) < 0)
                 HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, NULL, "datatype conversion NULLed")
 
             HDmemcpy(attr_dst->shared->data, buf, attr_dst->shared->data_size);
 
-            if(H5D_vlen_reclaim(tid_mem, buf_space, dxpl_id, reclaim_buf) < 0)
+            if(H5D_vlen_reclaim(tid_mem, buf_space, reclaim_buf) < 0)
                 HGOTO_ERROR(H5E_DATASET, H5E_BADITER, NULL, "unable to reclaim variable-length data")
         }  /* end if */
         else {
@@ -2137,7 +2355,7 @@ H5A_attr_copy_file(const H5A_t *attr_src, H5F_t *file_dst, hbool_t *recompute_si
     attr_dst->shared->crt_idx = attr_src->shared->crt_idx;
 
     /* Recompute the version to encode the destination attribute */
-    if(H5A_set_version(file_dst, attr_dst) < 0)
+    if(H5A__set_version(file_dst, attr_dst) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTSET, NULL, "unable to update attribute version")
 
     /* Recompute the destination attribute's size, if it's a different version */
@@ -2170,15 +2388,15 @@ done:
         bkg_buf = H5FL_BLK_FREE(attr_buf, bkg_buf);
 
     /* Release destination attribute information on failure */
-    if(!ret_value && attr_dst && H5A_close(attr_dst) < 0)
+    if(!ret_value && attr_dst && H5A__close(attr_dst) < 0)
         HDONE_ERROR(H5E_ATTR, H5E_CANTFREE, NULL, "can't close attribute")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5A_attr_copy_file() */
+} /* H5A__attr_copy_file() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5A_attr_post_copy_file
+ * Function:    H5A__attr_post_copy_file
  *
  * Purpose:     Finish copying a message from between files.
  *              We have to copy the values of a reference attribute in the
@@ -2194,13 +2412,13 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5A_attr_post_copy_file(const H5O_loc_t *src_oloc, const H5A_t *attr_src,
-    H5O_loc_t *dst_oloc, const H5A_t *attr_dst, hid_t dxpl_id, H5O_copy_t *cpy_info)
+H5A__attr_post_copy_file(const H5O_loc_t *src_oloc, const H5A_t *attr_src,
+    H5O_loc_t *dst_oloc, const H5A_t *attr_dst, H5O_copy_t *cpy_info)
 {
     H5F_t  *file_src, *file_dst;
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     /* check args */
     HDassert(src_oloc);
@@ -2229,7 +2447,7 @@ H5A_attr_post_copy_file(const H5O_loc_t *src_oloc, const H5A_t *attr_src,
         dst_oloc_dt->file = file_dst;
 
         /* Copy the shared object from source to destination */
-        if(H5O_copy_header_map(src_oloc_dt, dst_oloc_dt, dxpl_id, cpy_info, FALSE, NULL, NULL) < 0)
+        if(H5O_copy_header_map(src_oloc_dt, dst_oloc_dt, cpy_info, FALSE, NULL, NULL) < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTCOPY, FAIL, "unable to copy object")
 
         /* Update shared message info from named datatype info */
@@ -2239,9 +2457,9 @@ H5A_attr_post_copy_file(const H5O_loc_t *src_oloc, const H5A_t *attr_src,
     /* Try to share both the datatype and dataset.  This does nothing if the
      * datatype is committed or sharing is disabled.
      */
-    if(H5SM_try_share(file_dst, dxpl_id, NULL, H5SM_WAS_DEFERRED, H5O_DTYPE_ID, attr_dst->shared->dt, NULL) < 0)
+    if(H5SM_try_share(file_dst, NULL, H5SM_WAS_DEFERRED, H5O_DTYPE_ID, attr_dst->shared->dt, NULL) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_WRITEERROR, FAIL, "can't share attribute datatype")
-    if(H5SM_try_share(file_dst, dxpl_id, NULL, H5SM_WAS_DEFERRED, H5O_SDSPACE_ID, attr_dst->shared->ds, NULL) < 0)
+    if(H5SM_try_share(file_dst, NULL, H5SM_WAS_DEFERRED, H5O_SDSPACE_ID, attr_dst->shared->ds, NULL) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_WRITEERROR, FAIL, "can't share attribute dataspace")
 
     /* Only need to fix reference attribute with real data being copied to
@@ -2261,8 +2479,7 @@ H5A_attr_post_copy_file(const H5O_loc_t *src_oloc, const H5A_t *attr_src,
             ref_count = attr_dst->shared->data_size / H5T_get_size(attr_dst->shared->dt);
 
             /* Copy objects referenced in source buffer to destination file and set destination elements */
-            if(H5O_copy_expand_ref(file_src, attr_dst->shared->data, dxpl_id,
-                    file_dst, attr_dst->shared->data, ref_count, H5T_get_ref_type(attr_dst->shared->dt), cpy_info) < 0)
+            if(H5O_copy_expand_ref(file_src, attr_dst->shared->data, file_dst, attr_dst->shared->data, ref_count, H5T_get_ref_type(attr_dst->shared->dt), cpy_info) < 0)
                 HGOTO_ERROR(H5E_ATTR, H5E_CANTCOPY, FAIL, "unable to copy reference attribute")
         } /* end if */
         else
@@ -2272,7 +2489,7 @@ H5A_attr_post_copy_file(const H5O_loc_t *src_oloc, const H5A_t *attr_src,
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5A_attr_post_copy_file() */
+} /* H5A__attr_post_copy_file() */
 
 
 /*-------------------------------------------------------------------------
@@ -2305,12 +2522,10 @@ H5A__dense_post_copy_file_cb(const H5A_t *attr_src, void *_udata)
     HDassert(udata->file);
     HDassert(udata->cpy_info);
 
-    if(NULL == (attr_dst = H5A_attr_copy_file(attr_src, udata->file,
-            udata->recompute_size, udata->cpy_info,  udata->dxpl_id)))
+    if(NULL == (attr_dst = H5A__attr_copy_file(attr_src, udata->file, udata->recompute_size, udata->cpy_info)))
         HGOTO_ERROR(H5E_ATTR, H5E_CANTCOPY, H5_ITER_ERROR, "can't copy attribute")
 
-    if(H5A_attr_post_copy_file(udata->oloc_src, attr_src, udata->oloc_dst, attr_dst,
-            udata->dxpl_id, udata->cpy_info) < 0)
+    if(H5A__attr_post_copy_file(udata->oloc_src, attr_src, udata->oloc_dst, attr_dst, udata->cpy_info) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTCOPY, H5_ITER_ERROR, "can't copy attribute")
 
     /* Reset shared location information */
@@ -2318,17 +2533,17 @@ H5A__dense_post_copy_file_cb(const H5A_t *attr_src, void *_udata)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTINIT, FAIL, "unable to reset attribute sharing")
 
     /* Set COPIED tag for destination object's metadata */
-    H5_BEGIN_TAG(udata->dxpl_id, H5AC__COPIED_TAG, H5_ITER_ERROR);
+    H5_BEGIN_TAG(H5AC__COPIED_TAG);
 
     /* Insert attribute into dense storage */
-    if(H5A_dense_insert(udata->file, udata->dxpl_id, udata->ainfo, attr_dst) < 0)
+    if(H5A__dense_insert(udata->file, udata->ainfo, attr_dst) < 0)
         HGOTO_ERROR_TAG(H5E_OHDR, H5E_CANTINSERT, H5_ITER_ERROR, "unable to add to dense storage")
 
     /* Reset metadata tag */
-    H5_END_TAG(H5_ITER_ERROR);
+    H5_END_TAG
 
 done:
-    if(attr_dst && H5A_close(attr_dst) < 0)
+    if(attr_dst && H5A__close(attr_dst) < 0)
         HDONE_ERROR(H5E_ATTR, H5E_CLOSEERROR, FAIL, "can't close destination attribute")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -2336,7 +2551,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5A_dense_post_copy_file_all
+ * Function:    H5A__dense_post_copy_file_all
  *
  * Purpose:     Copy all dense attributes from SRC to DST.
  *
@@ -2350,15 +2565,15 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5A_dense_post_copy_file_all(const H5O_loc_t *src_oloc, const H5O_ainfo_t *ainfo_src,
-    H5O_loc_t *dst_oloc, H5O_ainfo_t *ainfo_dst, hid_t dxpl_id, H5O_copy_t *cpy_info)
+H5A__dense_post_copy_file_all(const H5O_loc_t *src_oloc, const H5O_ainfo_t *ainfo_src,
+    H5O_loc_t *dst_oloc, H5O_ainfo_t *ainfo_dst, H5O_copy_t *cpy_info)
 {
     H5A_dense_file_cp_ud_t udata;       /* User data for iteration callback */
     H5A_attr_iter_op_t attr_op;         /* Attribute operator */
     hbool_t recompute_size = FALSE;     /* recompute the size */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     /* check arguments */
     HDassert(ainfo_src);
@@ -2368,24 +2583,56 @@ H5A_dense_post_copy_file_all(const H5O_loc_t *src_oloc, const H5O_ainfo_t *ainfo
     udata.file = dst_oloc->file;              /* Destination file                 */
     udata.recompute_size = &recompute_size;   /* Flag to indicate if size changed */
     udata.cpy_info = cpy_info;                /* Information on copying options   */
-    udata.dxpl_id = dxpl_id;                  /* DXPL for operation               */
     udata.oloc_src = src_oloc;
     udata.oloc_dst = dst_oloc;
 
     attr_op.op_type = H5A_ATTR_OP_LIB;
     attr_op.u.lib_op = H5A__dense_post_copy_file_cb;
 
-    if(H5A_dense_iterate(src_oloc->file, dxpl_id, (hid_t)0, ainfo_src, H5_INDEX_NAME,
+    if(H5A__dense_iterate(src_oloc->file, (hid_t)0, ainfo_src, H5_INDEX_NAME,
             H5_ITER_NATIVE, (hsize_t)0, NULL, &attr_op, &udata) < 0)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTINIT, FAIL, "error building attribute table")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5A_dense_post_copy_file_all */
+} /* end H5A__dense_post_copy_file_all */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5A_rename_by_name
+ * Function:	H5A__rename
+ *
+ * Purpose:     Private version of H5Arename
+ *
+ * Note:        This routine is needed so that there's a non-API routine for
+ *              renaming attributes that can set up VOL / SWMR info
+ *              (which need a DXPL).
+ *
+ * Return:	Success:             Non-negative
+ *		Failure:             Negative
+ *
+ * Programmer:	Quincey Koziol
+ *              December 6, 2017
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5A__rename(const H5G_loc_t *loc, const char *old_name, const char *new_name)
+{
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_PACKAGE_VOL
+
+    /* Call object header attribute rename routine */
+    if(H5O__attr_rename(loc->oloc, old_name, new_name) < 0)
+        HGOTO_ERROR(H5E_ATTR, H5E_CANTRENAME, FAIL, "can't rename attribute")
+
+done:
+    FUNC_LEAVE_NOAPI_VOL(ret_value)
+} /* H5A__rename() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5A__rename_by_name
  *
  * Purpose:     Private version of H5Arename_by_name
  *
@@ -2398,8 +2645,8 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5A_rename_by_name(H5G_loc_t loc, const char *obj_name, const char *old_attr_name,
-                   const char *new_attr_name, hid_t lapl_id, hid_t dxpl_id)
+H5A__rename_by_name(H5G_loc_t loc, const char *obj_name, const char *old_attr_name,
+    const char *new_attr_name)
 {
     H5G_loc_t   obj_loc;                /* Location used to open group */
     H5G_name_t  obj_path;            	/* Opened object group hier. path */
@@ -2407,29 +2654,376 @@ H5A_rename_by_name(H5G_loc_t loc, const char *obj_name, const char *old_attr_nam
     hbool_t     loc_found = FALSE;      /* Entry at 'obj_name' found */
     herr_t	ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE_VOL
 
-    /* Avoid thrashing things if the names are the same */
-    if(HDstrcmp(old_attr_name, new_attr_name)) {
-        /* Set up opened group location to fill in */
-        obj_loc.oloc = &obj_oloc;
-        obj_loc.path = &obj_path;
-        H5G_loc_reset(&obj_loc);
+    /* Set up opened group location to fill in */
+    obj_loc.oloc = &obj_oloc;
+    obj_loc.path = &obj_path;
+    H5G_loc_reset(&obj_loc);
 
-        /* Find the object's location */
-        if(H5G_loc_find(&loc, obj_name, &obj_loc/*out*/, lapl_id, dxpl_id) < 0)
-            HGOTO_ERROR(H5E_ATTR, H5E_NOTFOUND, FAIL, "object not found")
-        loc_found = TRUE;
+    /* Find the object's location */
+    if(H5G_loc_find(&loc, obj_name, &obj_loc/*out*/) < 0)
+        HGOTO_ERROR(H5E_ATTR, H5E_NOTFOUND, FAIL, "object not found")
+    loc_found = TRUE;
 
-        /* Call attribute rename routine */
-        if(H5O_attr_rename(obj_loc.oloc, dxpl_id, old_attr_name, new_attr_name) < 0)
-            HGOTO_ERROR(H5E_ATTR, H5E_CANTRENAME, FAIL, "can't rename attribute")
-    } /* end if */
+    /* Call attribute rename routine */
+    if(H5O__attr_rename(obj_loc.oloc, old_attr_name, new_attr_name) < 0)
+        HGOTO_ERROR(H5E_ATTR, H5E_CANTRENAME, FAIL, "can't rename attribute")
 
 done:
     /* Release resources */
     if(loc_found && H5G_loc_free(&obj_loc) < 0)
         HDONE_ERROR(H5E_ATTR, H5E_CANTRELEASE, FAIL, "can't free location")
 
+    FUNC_LEAVE_NOAPI_VOL(ret_value)
+} /* H5A__rename_by_name() */
+
+#ifndef H5_NO_DEPRECATED_SYMBOLS
+
+/*-------------------------------------------------------------------------
+ * Function:	H5A__get_num_attrs
+ *
+ * Purpose:     Private version of deprecated H5Aget_num_attrs
+ *
+ * Note:        This routine is needed so that there's a non-API routine for
+ *              querying the attribute count that can set up VOL / SWMR info
+ *              (which need a DXPL).
+ *
+ * Return:	Success:             Non-negative
+ *		Failure:             Negative
+ *
+ * Programmer:	Quincey Koziol
+ *              December 6, 2017
+ *
+ *-------------------------------------------------------------------------
+ */
+int
+H5A__get_num_attrs(const H5O_loc_t *loc)
+{
+    int ret_value = FAIL;       /* Return value */
+
+    FUNC_ENTER_PACKAGE_VOL
+
+    /* Look up the # of attributes for the object */
+    if((ret_value = H5O__attr_count(loc)) < 0)
+        HGOTO_ERROR(H5E_ATTR, H5E_CANTCOUNT, FAIL, "can't get attribute count for object")
+
+done:
+    FUNC_LEAVE_NOAPI_VOL(ret_value)
+} /* H5A__get_num_attrs() */
+#endif /* H5_NO_DEPRECATED_SYMBOLS */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5A__iterate_common
+ *
+ * Purpose:     Internal common version of H5Aiterate
+ *
+ * Return:	Success:             Non-negative
+ *		Failure:             Negative
+ *
+ * Programmer:	Quincey Koziol
+ *              December 6, 2017
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5A__iterate_common(hid_t loc_id, H5_index_t idx_type, H5_iter_order_t order,
+    hsize_t *idx, H5A_attr_iter_op_t *attr_op, void *op_data)
+{
+    hsize_t start_idx;          /* Index of attribute to start iterating at */
+    hsize_t last_attr;          /* Index of last attribute examined */
+    herr_t ret_value = SUCCEED; /* Return value */
+
+    FUNC_ENTER_STATIC_NOERR
+
+    /* Call attribute iteration routine */
+    last_attr = start_idx = (idx ? *idx : 0);
+    if((ret_value = H5O__attr_iterate(loc_id, idx_type, order, start_idx, &last_attr, attr_op, op_data)) < 0)
+        HERROR(H5E_ATTR, H5E_BADITER, "error iterating over attributes");
+
+    /* Set the last attribute information */
+    if(idx)
+        *idx = last_attr;
+
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5A_rename_by_name() */
+} /* H5A__iterate_common() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5A__iterate
+ *
+ * Purpose:     Private version of H5Aiterate2
+ *
+ * Note:        This routine is needed so that there's a non-API routine for
+ *              iterating over attributes that can set up VOL / SWMR info
+ *              (which need a DXPL).
+ *
+ * Return:	Success:             Non-negative
+ *		Failure:             Negative
+ *
+ * Programmer:	Quincey Koziol
+ *              December 6, 2017
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5A__iterate(hid_t loc_id, H5_index_t idx_type, H5_iter_order_t order,
+    hsize_t *idx, H5A_operator2_t op, void *op_data)
+{
+    H5A_attr_iter_op_t  attr_op;        /* Attribute operator */
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_PACKAGE_VOL
+
+    /* Build attribute operator info */
+    attr_op.op_type = H5A_ATTR_OP_APP2;
+    attr_op.u.app_op2 = op;
+
+    /* Call internal attribute iteration routine */
+    if((ret_value = H5A__iterate_common(loc_id, idx_type, order, idx, &attr_op, op_data)) < 0)
+        HGOTO_ERROR(H5E_ATTR, H5E_BADITER, FAIL, "error iterating over attributes")
+
+done:
+    FUNC_LEAVE_NOAPI_VOL(ret_value)
+} /* H5A__iterate() */
+
+#ifndef H5_NO_DEPRECATED_SYMBOLS
+
+/*-------------------------------------------------------------------------
+ * Function:	H5A__iterate_old
+ *
+ * Purpose:     Private version of H5Aiterate1
+ *
+ * Return:	Success:             Non-negative
+ *		Failure:             Negative
+ *
+ * Programmer:	Quincey Koziol
+ *              December 6, 2017
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5A__iterate_old(hid_t loc_id, unsigned *attr_num, H5A_operator1_t op,
+    void *op_data)
+{
+    H5A_attr_iter_op_t  attr_op;        /* Attribute operator */
+    hsize_t idx;                        /* Index of attribute to start iterating at */
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_PACKAGE_VOL
+
+    /* Build attribute operator info */
+    attr_op.op_type = H5A_ATTR_OP_APP;
+    attr_op.u.app_op = op;
+
+    /* Set up index */
+    idx = (hsize_t)(attr_num ? *attr_num : 0);
+
+    /* Call internal attribute iteration routine */
+    if((ret_value = H5A__iterate_common(loc_id, H5_INDEX_CRT_ORDER, H5_ITER_INC, &idx, &attr_op, op_data)) < 0)
+        HGOTO_ERROR(H5E_ATTR, H5E_BADITER, FAIL, "error iterating over attributes")
+
+    /* Translate hsize_t index value to legacy unsigned index value*/
+    if(attr_num)
+        *attr_num = (unsigned)idx;
+
+done:
+    FUNC_LEAVE_NOAPI_VOL(ret_value)
+} /* H5A__iterate_old() */
+#endif /* H5_NO_DEPRECATED_SYMBOLS */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5A__iterate_by_name
+ *
+ * Purpose:     Private version of H5Aiterate_by_name
+ *
+ * Note:        This routine is needed so that there's a non-API routine for
+ *              iterating over attributes that can set up VOL / SWMR info
+ *              (which need a DXPL).
+ *
+ * Return:	Success:             Non-negative
+ *		Failure:             Negative
+ *
+ * Programmer:	Quincey Koziol
+ *              December 6, 2017
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5A__iterate_by_name(const H5G_loc_t *loc, const char *obj_name, H5_index_t idx_type, H5_iter_order_t order, hsize_t *idx, H5A_operator2_t op,
+    void *op_data)
+{
+    H5G_loc_t   obj_loc;                /* Location used to open group */
+    H5G_name_t  obj_path;               /* Opened object group hier. path */
+    H5O_loc_t   obj_oloc;               /* Opened object object location */
+    hbool_t     loc_found = FALSE;      /* Entry at 'obj_name' found */
+    hid_t       obj_loc_id = (-1);      /* ID for object located */
+    H5A_attr_iter_op_t  attr_op;        /* Attribute operator */
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_PACKAGE_VOL
+
+    /* Set up opened group location to fill in */
+    obj_loc.oloc = &obj_oloc;
+    obj_loc.path = &obj_path;
+    H5G_loc_reset(&obj_loc);
+
+    /* Find the object's location */
+    if(H5G_loc_find(loc, obj_name, &obj_loc/*out*/) < 0)
+        HGOTO_ERROR(H5E_ATTR, H5E_NOTFOUND, FAIL, "object not found")
+    loc_found = TRUE;
+
+    /* Open the object */
+    if((obj_loc_id = H5O__open_by_loc(&obj_loc, TRUE)) < 0)
+        HGOTO_ERROR(H5E_ATTR, H5E_CANTOPENOBJ, FAIL, "unable to open object")
+
+    /* Build attribute operator info */
+    attr_op.op_type = H5A_ATTR_OP_APP2;
+    attr_op.u.app_op2 = op;
+
+    /* Call attribute iteration routine */
+    if((ret_value = H5A__iterate_common(obj_loc_id, idx_type, order, idx, &attr_op, op_data)) < 0)
+        HGOTO_ERROR(H5E_ATTR, H5E_BADITER, FAIL, "error iterating over attributes")
+
+done:
+    /* Release resources */
+    if(obj_loc_id > 0) {
+        if(H5I_dec_app_ref(obj_loc_id) < 0)
+            HDONE_ERROR(H5E_ATTR, H5E_CANTDEC, FAIL, "unable to close temporary object")
+    } /* end if */
+    else if(loc_found && H5G_loc_free(&obj_loc) < 0)
+        HDONE_ERROR(H5E_ATTR, H5E_CANTRELEASE, FAIL, "can't free location")
+
+    FUNC_LEAVE_NOAPI_VOL(ret_value)
+} /* H5A__iterate_by_name() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5A__delete
+ *
+ * Purpose:     Private version of H5Adelete
+ *
+ * Note:        This routine is needed so that there's a non-API routine for
+ *              deleting attributes that can set up VOL / SWMR info
+ *              (which need a DXPL).
+ *
+ * Return:	Success:             Non-negative
+ *		Failure:             Negative
+ *
+ * Programmer:	Quincey Koziol
+ *              December 6, 2017
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5A__delete(const H5G_loc_t *loc, const char *name)
+{
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_PACKAGE_VOL
+
+    /* Call object header attribute delete attribute routine */
+    if(H5O__attr_remove(loc->oloc, name) < 0)
+        HGOTO_ERROR(H5E_ATTR, H5E_CANTDELETE, FAIL, "unable to delete attribute")
+
+done:
+    FUNC_LEAVE_NOAPI_VOL(ret_value)
+} /* H5A__delete() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5A__delete_by_name
+ *
+ * Purpose:     Private version of H5Adelete_by_name
+ *
+ * Return:	Success:             Non-negative
+ *		Failure:             Negative
+ *
+ * Programmer:	Quincey Koziol
+ *              December 6, 2017
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5A__delete_by_name(const H5G_loc_t *loc, const char *obj_name, const char *attr_name)
+{
+    H5G_loc_t   obj_loc;                /* Location used to open group */
+    H5G_name_t  obj_path;            	/* Opened object group hier. path */
+    H5O_loc_t   obj_oloc;            	/* Opened object object location */
+    hbool_t     loc_found = FALSE;      /* Entry at 'obj_name' found */
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_PACKAGE_VOL
+
+    /* Set up opened group location to fill in */
+    obj_loc.oloc = &obj_oloc;
+    obj_loc.path = &obj_path;
+    H5G_loc_reset(&obj_loc);
+
+    /* Find the object's location */
+    if(H5G_loc_find(loc, obj_name, &obj_loc/*out*/) < 0)
+        HGOTO_ERROR(H5E_ATTR, H5E_NOTFOUND, FAIL, "object not found")
+    loc_found = TRUE;
+
+    /* Delete the attribute from the location */
+    if(H5O__attr_remove(obj_loc.oloc, attr_name) < 0)
+        HGOTO_ERROR(H5E_ATTR, H5E_CANTDELETE, FAIL, "unable to delete attribute")
+
+done:
+    /* Release resources */
+    if(loc_found && H5G_loc_free(&obj_loc) < 0)
+        HDONE_ERROR(H5E_ATTR, H5E_CANTRELEASE, FAIL, "can't free location")
+
+    FUNC_LEAVE_NOAPI_VOL(ret_value)
+} /* H5A__delete_by_name() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5A__delete_by_idx
+ *
+ * Purpose:     Private version of H5Adelete_by_idx
+ *
+ * Return:	Success:             Non-negative
+ *		Failure:             Negative
+ *
+ * Programmer:	Quincey Koziol
+ *              December 6, 2017
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5A__delete_by_idx(const H5G_loc_t *loc, const char *obj_name, H5_index_t idx_type,
+    H5_iter_order_t order, hsize_t n)
+{
+    H5G_loc_t   obj_loc;                /* Location used to open group */
+    H5G_name_t  obj_path;            	/* Opened object group hier. path */
+    H5O_loc_t   obj_oloc;            	/* Opened object object location */
+    hbool_t     loc_found = FALSE;      /* Entry at 'obj_name' found */
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_PACKAGE_VOL
+
+    /* Set up opened group location to fill in */
+    obj_loc.oloc = &obj_oloc;
+    obj_loc.path = &obj_path;
+    H5G_loc_reset(&obj_loc);
+
+    /* Find the object's location */
+    if(H5G_loc_find(loc, obj_name, &obj_loc/*out*/) < 0)
+        HGOTO_ERROR(H5E_ATTR, H5E_NOTFOUND, FAIL, "object not found")
+    loc_found = TRUE;
+
+    /* Delete the attribute from the location */
+    if(H5O__attr_remove_by_idx(obj_loc.oloc, idx_type, order, n) < 0)
+        HGOTO_ERROR(H5E_ATTR, H5E_CANTDELETE, FAIL, "unable to delete attribute")
+
+done:
+    /* Release resources */
+    if(loc_found && H5G_loc_free(&obj_loc) < 0)
+        HDONE_ERROR(H5E_ATTR, H5E_CANTRELEASE, FAIL, "can't free location")
+
+    FUNC_LEAVE_NOAPI_VOL(ret_value)
+} /* H5A__delete_by_idx() */
+

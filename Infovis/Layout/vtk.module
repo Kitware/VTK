@@ -1,0 +1,27 @@
+NAME
+  VTK::InfovisLayout
+LIBRARY_NAME
+  vtkInfovisLayout
+GROUPS
+  StandAlone
+TEST_DEPENDS
+  VTK::IOInfovis
+  VTK::InfovisCore
+  VTK::InteractionStyle
+  VTK::RenderingLabel
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonComputationalGeometry
+  VTK::CommonSystem
+  VTK::CommonTransforms
+  VTK::FiltersCore
+  VTK::FiltersGeneral
+  VTK::FiltersModeling
+  VTK::FiltersSources
+  VTK::ImagingHybrid
+  VTK::InfovisCore

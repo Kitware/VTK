@@ -1,107 +1,60 @@
-# - try to find the OpenVR SDK - currently designed for the version on GitHub.
-#
-# Cache Variables: (probably not for direct use in your scripts)
-#  OPENVR_INCLUDE_DIR
-#
-# Non-cache variables you might use in your CMakeLists.txt:
-#  OPENVR_FOUND
-#  OPENVR_INCLUDE_DIRS
-#  OPENVR_PLATFORM - something like Win32, Win64, etc.
-#
-# Requires these CMake modules:
-#  FindPackageHandleStandardArgs (known included with CMake >=2.6.2)
-#
-# Original Author:
-# 2015 Ryan A. Pavlik <ryan@sensics.com>
-#
-# Distributed under the Boost Software License, Version 1.0.
-# (See accompanying file LICENSE_1_0.txt or copy at
-# http://www.boost.org/LICENSE_1_0.txt)
+# Note that OpenVR lacks a useful install tree. This should work if
+# `OpenVR_ROOT` is set to the source directory of OpenVR.
 
-set(OPENVR_ROOT_DIR
-  "${OPENVR_ROOT_DIR}"
-  CACHE
-  PATH
-  "Directory to search for OpenVR SDK")
+# TODO: fails for universal builds
+if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+  set(_openvr_bitness 64)
+else ()
+  set(_openvr_bitness 32)
+endif ()
 
-set(OPENVR_HEADERS_ROOT_DIR
-  "${OPENVR_HEADERS_ROOT_DIR}"
-  CACHE
-  PATH
-  "Directory to search for private OpenVR headers")
-
-set(_root_dirs)
-if(OPENVR_ROOT_DIR)
-  set(_root_dirs "${OPENVR_ROOT_DIR}" "${OPENVR_HEADERS_ROOT_DIR}" "${OPENVR_ROOT_DIR}/public")
-endif()
-
-# todo fails for universal builds
-set(_dll_suffix)
-if(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
-  set(_bitness 64)
-  if(WIN32)
-    set(_dll_suffix _x64)
-  endif()
-else()
-  set(_bitness 32)
-endif()
-
-# Test platform
-
-set(_platform)
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(_platform_base osx)
+set(_openvr_platform_base)
+if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+  set(_openvr_platform_base osx)
   # SteamVR only supports 32-bit on OS X
-  set(OPENVR_PLATFORM osx32)
-else()
-  if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(_platform_base linux)
-    # TODO Massive hack!
-    add_definitions(-DGNUC -DPOSIX -DCOMPILER_GCC -D_LINUX -DLINUX -DPOSIX -D_POSIX)
-  elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set(_platform_base win)
-  endif()
-  set(OPENVR_PLATFORM ${_platform_base}${_bitness})
-  set(_libpath lib/${OPENVR_PLATFORM})
-endif()
+  set(OpenVR_PLATFORM osx32)
+else ()
+  if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+    set(_openvr_platform_base linux)
+  elseif (WIN32)
+    set(_openvr_platform_base win)
+  endif ()
+  set(OpenVR_PLATFORM ${_openvr_platform_base}${_openvr_bitness})
+endif ()
 
-find_path(OPENVR_INCLUDE_DIR
+find_path(OpenVR_INCLUDE_DIR
   NAMES
-  openvr_driver.h
-  HINTS
-  "${_libdir}"
-  "${_libdir}/.."
-  "${_libdir}/../.."
-  PATHS
-  ${_root_dirs}
+    openvr_driver.h
   PATH_SUFFIXES
-  headers
-  public/headers
-  steam
-  public/steam)
+    headers
+    public/headers
+    steam
+    public/steam
+  DOC "OpenVR include directory")
+mark_as_advanced(OpenVR_INCLUDE_DIR)
 
-FIND_LIBRARY(OPENVR_LIBRARY_TEMP
+find_library(OpenVR_LIBRARY
   NAMES openvr_api
-  HINTS
-  PATH_SUFFIXES ${_libpath}
-  PATHS ${OPENVR_ROOT_DIR}
-)
-
-IF (OPENVR_LIBRARY_TEMP)
-  # Set the final string here so the GUI reflects the final state.
-  SET(OPENVR_LIBRARY ${OPENVR_LIBRARY_TEMP} CACHE STRING "Where the openvr Library can be found")
-  # Set the temp variable to INTERNAL so it is not seen in the CMake GUI
-  SET(OPENVR_LIBRARY_TEMP "${OPENVR_LIBRARY_TEMP}" CACHE INTERNAL "")
-ENDIF(OPENVR_LIBRARY_TEMP)
+  PATH_SUFFIXES
+    "${OpenVR_PLATFORM}"
+    "bin/${OpenVR_PLATFORM}"
+  DOC "OpenVR API library")
+mark_as_advanced(OpenVR_LIBRARY)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(OpenVR
-  DEFAULT_MSG
-  OPENVR_INCLUDE_DIR OPENVR_LIBRARY)
+  REQUIRED_VARS OpenVR_LIBRARY OpenVR_INCLUDE_DIR)
 
-if(OPENVR_FOUND)
-  list(APPEND OPENVR_INCLUDE_DIRS ${OPENVR_INCLUDE_DIR})
-  mark_as_advanced(OPENVR_ROOT_DIR)
-endif()
+if (OpenVR_FOUND)
+  set(OpenVR_INCLUDE_DIRS "${OpenVR_INCLUDE_DIR}")
+  set(OpenVR_LIBRARIES "${OpenVR_LIBRARY}")
+  if (NOT TARGET OpenVR::OpenVR)
+    add_library(OpenVR::OpenVR UNKNOWN IMPORTED)
+    set_target_properties(OpenVR::OpenVR PROPERTIES
+      IMPORTED_LOCATION "${OpenVR_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${OpenVR_INCLUDE_DIR}")
+  endif ()
+endif ()
 
-mark_as_advanced(OPENVR_INCLUDE_DIR)
+unset(_openvr_bitness)
+unset(_openvr_platform_base)

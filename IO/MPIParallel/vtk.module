@@ -1,0 +1,32 @@
+NAME
+  VTK::IOMPIParallel
+LIBRARY_NAME
+  vtkIOMPIParallel
+# We don't build the parallel readers on windows because there are problems
+# with the MPI_File_open() function when there are paths in the filenames.
+CONDITION
+  NOT WIN32
+KIT
+  VTK::Parallel
+GROUPS
+  MPI
+IMPLEMENTS
+  VTK::IOGeometry
+  VTK::IOParallel
+DEPENDS
+  VTK::IOGeometry
+  VTK::IOParallel
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::CommonMisc
+  VTK::ParallelMPI
+  VTK::mpi
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::FiltersGeometry
+  VTK::InteractionStyle
+  VTK::ParallelMPI
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering

@@ -216,7 +216,7 @@ H5Epush1(const char *file, const char *func, unsigned line,
     H5TRACE6("e", "*s*sIuii*s", file, func, line, maj, min, str);
 
     /* Push the error on the default error stack */
-    if(H5E_push_stack(NULL, file, func, line, H5E_ERR_CLS_g, maj, min, str) < 0)
+    if(H5E__push_stack(NULL, file, func, line, H5E_ERR_CLS_g, maj, min, str) < 0)
         HGOTO_ERROR(H5E_ERROR, H5E_CANTSET, FAIL, "can't push error on stack")
 
 done:
@@ -227,7 +227,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:	H5Eclear1
  *
- * Purpose:	This function is for backward compatbility.
+ * Purpose:	This function is for backward compatibility.
  *              Clears the error stack for the specified error stack.
  *
  * Return:	Non-negative on success/Negative on failure
@@ -258,7 +258,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:	H5Eprint1
  *
- * Purpose:	This function is for backward compatbility.
+ * Purpose:	This function is for backward compatibility.
  *              Prints the error stack in some default way.  This is just a
  *		convenience function for H5Ewalk() with a function that
  *		prints error messages.  Users are encouraged to write there
@@ -296,7 +296,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:	H5Ewalk1
  *
- * Purpose:	This function is for backward compatbility.
+ * Purpose:	This function is for backward compatibility.
  *              Walks the error stack for the current thread and calls some
  *		function for each error along the way.
  *
@@ -335,7 +335,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:	H5Eget_auto1
  *
- * Purpose:	This function is for backward compatbility.
+ * Purpose:	This function is for backward compatibility.
  *              Returns the current settings for the automatic error stack
  *		traversal function and its data for specific error stack.
  *		Either (or both) arguments may be null in which case the
@@ -386,7 +386,7 @@ done:
 /*-------------------------------------------------------------------------
  * Function:	H5Eset_auto1
  *
- * Purpose:	This function is for backward compatbility.
+ * Purpose:	This function is for backward compatibility.
  *              Turns on or off automatic printing of errors for certain
  *              error stack.  When turned on (non-null FUNC pointer) any
  *              API function which returns an error indication will first

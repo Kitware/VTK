@@ -1849,7 +1849,7 @@
 
 	* libtiff/tif_jpeg.c: in JPEGFixupTags(), recognize SOF2, SOF9 and SOF10
 	markers to avoid emitting a warning (even if, according to the TechNote,
-	there are admitedly unusual/not recommended or even forbidden variants, but
+	there are admittedly unusual/not recommended or even forbidden variants, but
 	they do work well with libjpeg for SOF2, and with libjpeg-turbo for SOF2,
 	SOF9 and SOF10).
 	Define in_color_space and input_components to the right values in
@@ -2432,7 +2432,7 @@
 2012-05-19  Bob Friesenhahn  <bfriesen@simple.dallas.tx.us>
 
 	* man/TIFFGetField.3tiff: Correct the 'count' field type in the
-	example for how to retreive the value of unsupported tags.
+	example for how to retrieve the value of unsupported tags.
 
 2012-03-30  Frank Warmerdam  <warmerdam@google.com>
 
@@ -3039,7 +3039,7 @@
 
 2010-04-21  Frank Warmerdam  <warmerdam@pobox.com>
 
-	* libtiff/tif_jpeg.c: avoid preparing jpeg tables everytime
+	* libtiff/tif_jpeg.c: avoid preparing jpeg tables every time
 	JPEGSetupEncode() is called if the tables already seem to be
 	established.  This prevents spurious updates and rewriting of
 	directories with jpegtables when doing updates to existing images.
@@ -3371,7 +3371,7 @@
 
 	* test/common.sh - start verbose mode after common settings.
 
-	* libtiff/tif_dirinfo.c: Replace lfind() with local equivelent to
+	* libtiff/tif_dirinfo.c: Replace lfind() with local equivalent to
 	avoid type mismatches on different platforms.
 	http://bugzilla.maptools.org/show_bug.cgi?id=1889
 
@@ -3518,7 +3518,7 @@
 
 	* tools/tiffdump.c: When compiling for Microsoft Windows, apply
 	consistent (__int64) casting when testing if _lseeki64 has
-	successfully seeked as requested.  This is necessary for large
+	successfully sought as requested.  This is necessary for large
 	file support to work since off_t is only 32-bit.
 
 2008-07-29  Frank Warmerdam  <warmerdam@pobox.com>
@@ -4316,7 +4316,7 @@ btiff/tif_win32.c: Replace custom Win32 memory api with generic
 	* libtiff/tif_getimage.c: replaced usage of TIFFScanlineSize in
 	gtStripContig with TIFFNewScanlineSize so as to fix buggy behaviour
 	on subsampled images - this ought to get sorted when we feel brave
-	enough to replace TIFFScanlineSize alltogether
+	enough to replace TIFFScanlineSize altogether
 
 	* libtiff/tif_ojpeg.c: fixed bug in OJPEGReadSkip
 
@@ -4974,7 +4974,7 @@ btiff/tif_win32.c: Replace custom Win32 memory api with generic
 
 2005-06-03  Andrey Kiselev  <dron@ak4719.spb.edu>
 
-	* libtiff/tif_open.c: Replace runtime endianess check with the compile
+	* libtiff/tif_open.c: Replace runtime endianness check with the compile
 	time one.
 
 	* libtiff/tif_predict.c: Floating point predictor now works on
@@ -6316,7 +6316,7 @@ btiff/tif_win32.c: Replace custom Win32 memory api with generic
 2003-11-16  Andrey Kiselev  <dron@ak4719.spb.edu>
 
 	* libtiff/{tiff.h, tif_dirinfo.c}: Added support for IFD (13)
-	datatype, intruduced in "Adobe PageMaker TIFF Tech. Notes".
+	datatype, introduced in "Adobe PageMaker TIFF Tech. Notes".
 
 2003-11-15  Frank Warmerdam  <warmerdam@pobox.com>
 
@@ -6627,7 +6627,7 @@ btiff/tif_win32.c: Replace custom Win32 memory api with generic
 
 	* contrib/ojpeg/{Makefile.in, jdhuff.h, jinclude.h, ojpeg.c, README},
 	configure, Makefile.in:	Improved libtiff compilation with OJPEG
-	support. Now no need for patching IJG JPEG library, hack requred by
+	support. Now no need for patching IJG JPEG library, hack required by
 	libtiff will be compiled and used in-place. Implemented with
 	suggestion and help from Bill Allombert, Debian's libjpeg maintainer.
 
@@ -7485,7 +7485,7 @@ btiff/tif_win32.c: Replace custom Win32 memory api with generic
 	sizes. It fixes two problems:
 
 	Without	scaling (-S) the fax is now centered on the page size specified
-	with -H	and/or -W. Before, fax2ps was using an obscure and practially
+	with -H	and/or -W. Before, fax2ps was using an obscure and practically
 	useless algorithm to allocate the image relative to Letter sized paper
 	which sometime sled to useless whitespace on the paper, while at the
 	same time cutting of the faxes printable area at the opposite border.

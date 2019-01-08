@@ -61,8 +61,7 @@ ex_put_prop().
 Although it is not necessary to invoke ex_put_prop_names(), since
 ex_put_prop_array() will allocate space within the data file if it
 hasn't been previously allocated, it is more efficient to use
-ex_put_prop_names() if there is more than one property to store. \see
-See Efficiency for a discussion of efficiency issues.
+ex_put_prop_names() if there is more than one property to store.
 
 \return In case of an error, ex_put_prop_array() returns a negative
 number; a warning will return a positive number. Possible causes of

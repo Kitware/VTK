@@ -1,17 +1,21 @@
-set(module_SRCS
-  vtkBridgeAttribute.cxx
-  vtkBridgeCell.cxx
-  vtkBridgeCellIterator.cxx
-  vtkBridgeCellIteratorOnCellBoundaries.cxx
-  vtkBridgeCellIteratorOnCellList.cxx
-  vtkBridgeCellIteratorOnDataSet.cxx
-  vtkBridgeCellIteratorOne.cxx
-  vtkBridgeCellIteratorStrategy.cxx
-  vtkBridgeDataSet.cxx
-  vtkBridgeExport.h
-  vtkBridgePointIterator.cxx
-  vtkBridgePointIteratorOnCell.cxx
-  vtkBridgePointIteratorOnDataSet.cxx
-  vtkBridgePointIteratorOne.cxx)
+set(classes
+  vtkBridgeAttribute
+  vtkBridgeCell
+  vtkBridgeCellIterator
+  vtkBridgeCellIteratorOnCellBoundaries
+  vtkBridgeCellIteratorOnCellList
+  vtkBridgeCellIteratorOnDataSet
+  vtkBridgeCellIteratorOne
+  vtkBridgeCellIteratorStrategy
+  vtkBridgeDataSet
+  vtkBridgePointIterator
+  vtkBridgePointIteratorOnCell
+  vtkBridgePointIteratorOnDataSet
+  vtkBridgePointIteratorOne)
 
-vtk_module_library(vtkTestingGenericBridge ${module_SRCS})
+set(headers
+  vtkBridgeExport.h)
+
+vtk_module_add_module(VTK::TestingGenericBridge
+  CLASSES ${classes}
+  HEADERS ${headers})

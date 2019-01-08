@@ -1,13 +1,17 @@
-include(vtkObjectFactory)
+set(classes
+  vtkPExodusIIReader
+  vtkPExodusIIWriter)
 
-set(Module_SRCS
-  vtkPExodusIIReader.cxx
-  vtkPExodusIIWriter.cxx
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
-  )
+vtk_object_factory_declare(
+  BASE      vtkExodusIIWriter
+  OVERRIDE  vtkPExodusIIWriter)
 
-# Now to generate our object factory.
-vtk_add_override(vtkExodusIIWriter vtkPExodusIIWriter)
-vtk_object_factory_configure("${vtk_module_overrides}")
+vtk_object_factory_configure(
+  SOURCE_FILE vtk_object_factory_source
+  HEADER_FILE vtk_object_factory_header
+  EXPORT_MACRO "VTKIOPARALLELEXODUS_EXPORT")
 
-vtk_module_library(vtkIOParallelExodus ${Module_SRCS})
+vtk_module_add_module(VTK::IOParallelExodus
+  CLASSES ${classes}
+  SOURCES ${vtk_object_factory_source}
+  PRIVATE_HEADERS ${vtk_object_factory_header})

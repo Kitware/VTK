@@ -48,8 +48,7 @@ a single element block, node set, or side set. Although it is not
 necessary to invoke ex_put_prop_names(), since ex_put_prop() will
 allocate space within the data file if it hasn't been previously
 allocated, it is more efficient to use ex_put_prop_names() if there is
-more than one property to store. \see Efficiency for a discussion of
-efficiency issues.
+more than one property to store.
 
 It should be noted that the interpretation of the values of the
 integers stored as properties is left to the application code. In

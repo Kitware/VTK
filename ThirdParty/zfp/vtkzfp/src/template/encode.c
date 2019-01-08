@@ -103,6 +103,38 @@ _t1(encode_ints, UInt)(bitstream* restrict_ stream, uint maxbits, uint maxprec, 
   return maxbits - bits;
 }
 
+/* compress sequence of size > 64 unsigned integers */
+static uint
+_t1(encode_many_ints, UInt)(bitstream* restrict_ stream, uint maxbits, uint maxprec, const UInt* restrict_ data, uint size)
+{
+  /* make a copy of bit stream to avoid aliasing */
+  bitstream s = *stream;
+  uint intprec = CHAR_BIT * (uint)sizeof(UInt);
+  uint kmin = intprec > maxprec ? intprec - maxprec : 0;
+  uint bits = maxbits;
+  uint i, k, m, n, c;
+
+  /* encode one bit plane at a time from MSB to LSB */
+  for (k = intprec, n = 0; bits && k-- > kmin;) {
+    /* step 1: encode first n bits of bit plane #k */
+    m = MIN(n, bits);
+    bits -= m;
+    for (i = 0; i < m; i++)
+      stream_write_bit(&s, (data[i] >> k) & 1u);
+    /* step 2: count remaining one-bits in bit plane */
+    c = 0;
+    for (i = m; i < size; i++)
+      c += (data[i] >> k) & 1u;
+    /* step 3: unary run-length encode remainder of bit plane */
+    for (; n < size && bits && (--bits, stream_write_bit(&s, !!c)); c--, n++)
+      for (; n < size - 1 && bits && (--bits, !stream_write_bit(&s, (data[n] >> k) & 1u)); n++)
+        ;
+  }
+
+  *stream = s;
+  return maxbits - bits;
+}
+
 /* encode block of integers */
 static uint
 _t2(encode_block, Int, DIMS)(bitstream* stream, int minbits, int maxbits, int maxprec, Int* iblock)
@@ -114,7 +146,10 @@ _t2(encode_block, Int, DIMS)(bitstream* stream, int minbits, int maxbits, int ma
   /* reorder signed coefficients and convert to unsigned integer */
   _t1(fwd_order, Int)(ublock, iblock, PERM, BLOCK_SIZE);
   /* encode integer coefficients */
-  bits = _t1(encode_ints, UInt)(stream, maxbits, maxprec, ublock, BLOCK_SIZE);
+  if (BLOCK_SIZE <= 64)
+    bits = _t1(encode_ints, UInt)(stream, maxbits, maxprec, ublock, BLOCK_SIZE);
+  else
+    bits = _t1(encode_many_ints, UInt)(stream, maxbits, maxprec, ublock, BLOCK_SIZE);
   /* write at least minbits bits by padding with zeros */
   if (bits < minbits) {
     stream_pad(stream, minbits - bits);

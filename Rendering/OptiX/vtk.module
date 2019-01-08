@@ -1,0 +1,20 @@
+NAME
+  VTK::RenderingOptiX
+LIBRARY_NAME
+  vtkRenderingOptiX
+DEPENDS
+  VTK::RenderingSceneGraph
+  VTK::RenderingOpenGL2
+PRIVATE_DEPENDS
+  VTK::CommonSystem
+TEST_DEPENDS
+  VTK::FiltersTexture
+  VTK::IOGeometry
+  VTK::IOPLY
+  VTK::IOXML
+  VTK::InteractionStyle
+  #VTK::ParallelMPI
+  VTK::RenderingAnnotation
+  #VTK::RenderingParallel
+  VTK::TestingCore
+  VTK::TestingRendering

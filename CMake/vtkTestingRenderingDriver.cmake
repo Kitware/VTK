@@ -3,7 +3,7 @@ SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
     // Set defaults
     vtkTestingInteractor::ValidBaseline = \"Use_-V_for_Baseline\";
     vtkTestingInteractor::TempDirectory =
-      std::string(\"${VTK_TEST_OUTPUT_DIR}\");
+      std::string(\"${_vtk_build_TEST_OUTPUT_DIRECTORY}\");
     vtkTestingInteractor::DataDirectory = std::string(\"Use_-D_for_Data\");
 
     int interactive = 0;

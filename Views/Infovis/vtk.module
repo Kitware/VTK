@@ -1,0 +1,44 @@
+NAME
+  VTK::ViewsInfovis
+LIBRARY_NAME
+  vtkViewsInfovis
+GROUPS
+  Rendering
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::InteractionStyle
+  VTK::RenderingContext2D
+  VTK::ViewsCore
+PRIVATE_DEPENDS
+  VTK::ChartsCore
+  VTK::CommonColor
+  VTK::CommonTransforms
+  VTK::FiltersCore
+  VTK::FiltersExtraction
+  VTK::FiltersGeneral
+  VTK::FiltersGeometry
+  VTK::FiltersImaging
+  VTK::FiltersModeling
+  VTK::FiltersSources
+  VTK::FiltersStatistics
+  VTK::ImagingGeneral
+  VTK::InfovisCore
+  VTK::InfovisLayout
+  VTK::InteractionWidgets
+  VTK::RenderingAnnotation
+  VTK::RenderingCore
+  VTK::RenderingLabel
+TEST_DEPENDS
+  VTK::FiltersGeometry
+  VTK::InfovisCore
+  VTK::InfovisLayout
+  VTK::IOImage
+  VTK::IOInfovis
+  VTK::IOSQL
+  VTK::IOXML
+  VTK::RenderingAnnotation
+  VTK::RenderingContextOpenGL2
+  VTK::TestingRendering
+  VTK::ViewsContext2D

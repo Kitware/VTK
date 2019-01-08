@@ -1,0 +1,37 @@
+NAME
+  VTK::IOImage
+LIBRARY_NAME
+  vtkIOImage
+IMPLEMENTABLE
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonMath
+  VTK::CommonMisc
+  VTK::CommonSystem
+  VTK::CommonTransforms
+  VTK::DICOMParser
+  VTK::jpeg
+  VTK::metaio
+  VTK::png
+  VTK::tiff
+  VTK::vtksys
+  VTK::zlib
+TEST_DEPENDS
+  VTK::FiltersGeometry
+  VTK::ImagingCore
+  VTK::ImagingMath
+  VTK::ImagingSources
+  VTK::InteractionImage
+  VTK::InteractionStyle
+  VTK::IOLegacy
+  VTK::RenderingContextOpenGL2
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

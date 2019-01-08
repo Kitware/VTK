@@ -1,0 +1,15 @@
+NAME
+  VTK::IOTecplotTable
+LIBRARY_NAME
+  vtkIOTecplotTable
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::IOCore
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::TestingCore

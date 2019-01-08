@@ -143,7 +143,7 @@ H5G_rootof(H5F_t *f)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G_mkroot(H5F_t *f, hid_t dxpl_id, hbool_t create_root)
+H5G_mkroot(H5F_t *f, hbool_t create_root)
 {
     H5G_loc_t   root_loc;               /* Root location information */
     H5G_obj_create_t gcrt_info;         /* Root group object creation info */
@@ -192,13 +192,13 @@ H5G_mkroot(H5F_t *f, hid_t dxpl_id, hbool_t create_root)
         /* (Pass the FCPL which is a sub-class of the group creation property class) */
         gcrt_info.gcpl_id = f->shared->fcpl_id;
         gcrt_info.cache_type = H5G_NOTHING_CACHED;
-	if(H5G__obj_create(f, dxpl_id, &gcrt_info, root_loc.oloc/*out*/) < 0)
+	if(H5G__obj_create(f, &gcrt_info, root_loc.oloc/*out*/) < 0)
 	    HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to create group entry")
-	if(1 != H5O_link(root_loc.oloc, 1, dxpl_id))
+	if(1 != H5O_link(root_loc.oloc, 1))
 	    HGOTO_ERROR(H5E_SYM, H5E_LINKCOUNT, FAIL, "internal error (wrong link count)")
 
         /* Decrement refcount on root group's object header in memory */
-        if(H5O_dec_rc_by_loc(root_loc.oloc, dxpl_id) < 0)
+        if(H5O_dec_rc_by_loc(root_loc.oloc) < 0)
            HGOTO_ERROR(H5E_SYM, H5E_CANTDEC, FAIL, "unable to decrement refcount on root group's object header")
 
         /* Mark superblock dirty, so root group info is flushed */
@@ -235,7 +235,7 @@ H5G_mkroot(H5F_t *f, hid_t dxpl_id, hbool_t create_root)
             /* Check for the situation where the symbol table is cached but does
              * not exist.  This can happen if, for example, an external link is
              * added to the root group. */
-            if((stab_exists = H5O_msg_exists(root_loc.oloc, H5O_STAB_ID, dxpl_id)) < 0)
+            if((stab_exists = H5O_msg_exists(root_loc.oloc, H5O_STAB_ID)) < 0)
                 HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't check if symbol table message exists")
 
             /* Remove the cache if the stab does not exist */
@@ -253,7 +253,7 @@ H5G_mkroot(H5F_t *f, hid_t dxpl_id, hbool_t create_root)
 
                 /* Check if the symbol table message is valid, and replace with the
                 * cached symbol table if necessary */
-                if(H5G__stab_valid(root_loc.oloc, dxpl_id, &cached_stab) < 0)
+                if(H5G__stab_valid(root_loc.oloc, &cached_stab) < 0)
                     HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to verify symbol table")
             } /* end if */
 #endif /* H5_STRICT_FORMAT_CHECKS */
@@ -272,12 +272,12 @@ H5G_mkroot(H5F_t *f, hid_t dxpl_id, hbool_t create_root)
         /* Check if the stab message exists.  It's possible for the root group
          * to use the latest version while the superblock is an old version.
          * If stab_exists is not -1 then we have already checked. */
-        if(stab_exists == -1 && (stab_exists = H5O_msg_exists(root_loc.oloc, H5O_STAB_ID, dxpl_id)) < 0)
+        if(stab_exists == -1 && (stab_exists = H5O_msg_exists(root_loc.oloc, H5O_STAB_ID)) < 0)
             HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't check if symbol table message exists")
 
         if(stab_exists) {
             /* Read the root group's symbol table message */
-            if(NULL == H5O_msg_read(root_loc.oloc, H5O_STAB_ID, &stab, dxpl_id))
+            if(NULL == H5O_msg_read(root_loc.oloc, H5O_STAB_ID, &stab))
                 HGOTO_ERROR(H5E_SYM, H5E_BADMESG, FAIL, "unable to read symbol table message")
 
             /* Update the root group symbol table entry */

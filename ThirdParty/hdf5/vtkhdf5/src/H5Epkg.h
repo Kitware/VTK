@@ -134,6 +134,8 @@ H5_DLL herr_t H5E__term_deprec_interface(void);
 #ifdef H5_HAVE_THREADSAFE
 H5_DLL H5E_t *H5E_get_stack(void);
 #endif /* H5_HAVE_THREADSAFE */
+H5_DLL herr_t H5E__push_stack(H5E_t *estack, const char *file, const char *func,
+    unsigned line, hid_t cls_id, hid_t maj_id, hid_t min_id, const char *desc);
 H5_DLL ssize_t H5E_get_msg(const H5E_msg_t *msg_ptr, H5E_type_t *type,
     char *msg, size_t size);
 H5_DLL herr_t H5E_print(const H5E_t *estack, FILE *stream, hbool_t bk_compat);

@@ -48,7 +48,7 @@ namespace tao
                   switch( const auto c = in.peek_char( i ) ) {
                      case Open:
                         marker_size = i + 1;
-                        in.bump( marker_size );
+                        in.bump_in_this_line( marker_size );
                         eol::match( in );
                         return true;
                      case Marker:
@@ -69,7 +69,7 @@ namespace tao
          template< char Marker, char Close >
          struct at_raw_string_close
          {
-            using analyze_t = analysis::generic< analysis::rule_type::ANY >;
+            using analyze_t = analysis::generic< analysis::rule_type::OPT >;
 
             template< apply_mode A,
                       rewind_mode,
@@ -189,14 +189,14 @@ namespace tao
       template< char Open, char Marker, char Close, typename... Contents >
       struct raw_string
       {
-         using analyze_t = analysis::generic< analysis::rule_type::ANY >;
-
          // This is used for binding the apply()-method and for error-reporting
          // when a raw string is not closed properly or has invalid content.
          struct content
             : internal::raw_string_until< internal::at_raw_string_close< Marker, Close >, Contents... >
          {
          };
+
+         using analyze_t = typename internal::seq< internal::bytes< 1 >, content, internal::bytes< 1 > >::analyze_t;
 
          template< apply_mode A,
                    rewind_mode M,
@@ -208,10 +208,9 @@ namespace tao
          {
             std::size_t marker_size;
             if( internal::raw_string_open< Open, Marker >::template match< A, M, Action, Control >( in, marker_size ) ) {
-               if( internal::must< content >::template match< A, M, Action, Control >( in, marker_size, st... ) ) {
-                  in.bump_in_this_line( marker_size );
-                  return true;
-               }
+               internal::must< content >::template match< A, M, Action, Control >( in, marker_size, st... );
+               in.bump_in_this_line( marker_size );
+               return true;
             }
             return false;
          }

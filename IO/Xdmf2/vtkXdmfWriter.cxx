@@ -43,16 +43,17 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtksys/SystemTools.hxx"
 
-#include "XdmfArray.h"
-#include "XdmfAttribute.h"
-#include "XdmfDataDesc.h"
-#include "XdmfDOM.h"
-#include "XdmfDomain.h"
-#include "XdmfGeometry.h"
-#include "XdmfGrid.h"
-#include "XdmfRoot.h"
-#include "XdmfTime.h"
-#include "XdmfTopology.h"
+#include "vtk_xdmf2.h"
+#include VTKXDMF2_HEADER(XdmfArray.h)
+#include VTKXDMF2_HEADER(XdmfAttribute.h)
+#include VTKXDMF2_HEADER(XdmfDataDesc.h)
+#include VTKXDMF2_HEADER(XdmfDOM.h)
+#include VTKXDMF2_HEADER(XdmfDomain.h)
+#include VTKXDMF2_HEADER(XdmfGeometry.h)
+#include VTKXDMF2_HEADER(XdmfGrid.h)
+#include VTKXDMF2_HEADER(XdmfRoot.h)
+#include VTKXDMF2_HEADER(XdmfTime.h)
+#include VTKXDMF2_HEADER(XdmfTopology.h)
 
 #include <algorithm>
 #include <map>
@@ -60,7 +61,8 @@
 #include <sstream>
 #include <vector>
 
-#include <libxml/tree.h> // always after std::blah stuff
+#include "vtk_libxml2.h"
+#include VTKLIBXML2_HEADER(tree.h) // always after std::blah stuff
 
 #ifdef VTK_USE_64BIT_IDS
 typedef XdmfInt64 vtkXdmfIdType;

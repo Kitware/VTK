@@ -103,19 +103,6 @@ int ex_get_time(int exoid, int time_step, void *time_value)
     file->time_varid = varid;
   }
 
-  /* Verify that time_step is within bounds */
-  {
-    int num_time_steps = ex_inquire_int(exoid, EX_INQ_TIME);
-    if (time_step <= 0 || time_step > num_time_steps) {
-      snprintf(errmsg, MAX_ERR_LENGTH,
-               "ERROR: time_step is out-of-range. Value = %d, valid "
-               "range is 1 to %d in file id %d",
-               time_step, num_time_steps, exoid);
-      ex_err(__func__, errmsg, EX_BADPARAM);
-      EX_FUNC_LEAVE(EX_FATAL);
-    }
-  }
-
   /* read time value */
   start[0] = --time_step;
 

@@ -1,37 +1,43 @@
 cmake_minimum_required(VERSION 3.3...3.12 FATAL_ERROR)
+project(AMR)
 
-
-PROJECT (AMR)
-
-if(NOT VTK_SOURCE_DIR)
-  message(ERROR " Cannot build AMR examples without VTK_SOURCE_DIR")
-endif()
-
-find_package(VTK COMPONENTS
-  vtkCommonCore
-  vtkFiltersAMR
-  vtkFiltersExtraction
-  vtkFiltersGeometry
-  vtkFiltersSources
-  vtkIOLegacy
-  vtkIOXML
-  vtkInteractionStyle
-  vtkRenderingOpenGL2
-  vtkTestingCore
-)
-include(${VTK_USE_FILE})
-
-include_directories(
-  ${VTK_SOURCE_DIR}/Testing/Core
-)
+find_package(VTK
+  COMPONENTS
+    CommonDataModel
+    FiltersExtraction
+    FiltersGeometry
+    FiltersSources
+    IOLegacy
+    IOXML
+    RenderingCore
+    TestingCore)
+if (NOT VTK_FOUND)
+  message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")
+  return ()
+endif ()
 
 ## Add HierarchicalBoxPipeline executable
-add_executable(HierarchicalBoxPipeline MACOSX_BUNDLE HierarchicalBoxPipeline.cxx)
-target_link_libraries(HierarchicalBoxPipeline ${VTK_LIBRARIES})
+add_executable(HierarchicalBoxPipeline MACOSX_BUNDLE
+  HierarchicalBoxPipeline.cxx)
+target_link_libraries(HierarchicalBoxPipeline
+  PRIVATE
+    ${VTK_LIBRARIES})
 
 ## Add AMR examples
-add_executable( Generate3DAMRDataSetWithPulse MACOSX_BUNDLE Generate3DAMRDataSetWithPulse.cxx)
-target_link_libraries( Generate3DAMRDataSetWithPulse ${VTK_LIBRARIES})
+add_executable(Generate3DAMRDataSetWithPulse MACOSX_BUNDLE
+  Generate3DAMRDataSetWithPulse.cxx)
+target_link_libraries(Generate3DAMRDataSetWithPulse
+  PRIVATE
+    ${VTK_LIBRARIES})
 
-add_executable( Generate2DAMRDataSetWithPulse MACOSX_BUNDLE Generate2DAMRDataSetWithPulse.cxx)
-target_link_libraries(Generate2DAMRDataSetWithPulse ${VTK_LIBRARIES})
+add_executable(Generate2DAMRDataSetWithPulse MACOSX_BUNDLE
+  Generate2DAMRDataSetWithPulse.cxx)
+target_link_libraries(Generate2DAMRDataSetWithPulse
+  PRIVATE
+    ${VTK_LIBRARIES})
+
+vtk_module_autoinit(
+  TARGETS HierarchicalBoxPipeline
+          Generate3DAMRDataSetWithPulse
+          Generate2DAMRDataSetWithPulse
+  MODULES ${VTK_LIBRARIES})

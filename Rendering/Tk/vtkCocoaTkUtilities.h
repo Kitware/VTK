@@ -61,3 +61,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkCocoaTkUtilities.h

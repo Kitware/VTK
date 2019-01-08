@@ -6,6 +6,48 @@ CHANGES: MPI for Python
 :Contact: dalcinl@gmail.com
 
 
+Release 3.0.0 [2017-11-08]
+==========================
+
+* New features:
+
+  + `mpi4py.futures`: Execute computations asynchronously using a pool
+    of MPI processes. This package is based on ``concurrent.futures``
+    from the Python standard library.
+  + `mpi4py.run`: Run Python code and abort execution in case of
+    unhandled exceptions to prevent deadlocks.
+  + `mpi4py.bench`: Run basic MPI benchmarks and tests.
+
+* Enhancements:
+
+  + Lowercase, pickle-based collective communication calls are now
+    thread-safe through the use of fine-grained locking.
+  + The ``MPI`` module now exposes a ``memory`` type which is a
+    lightweight variant of the builtin ``memoryview`` type, but
+    exposes both the legacy Python 2 and the modern Python 3 buffer
+    interface under a Python 2 runtime.
+  + The ``MPI.Comm.Alltoallw()`` method now uses ``count=1`` and
+    ``displ=0`` as defaults, assuming that messages are specified
+    through user-defined datatypes.
+  + The ``Request.Wait[all]()`` methods now return ``True`` to match
+    the interface of ``Request.Test[all]()``.
+  + The ``Win`` class now implements the Python buffer interface.
+
+* Backward-incompatible changes:
+
+  + The ``buf`` argument of the ``MPI.Comm.recv()`` method is
+    deprecated, passing anything but ``None`` emits a warning.
+  + The ``MPI.Win.memory`` property was removed, use the
+    ``MPI.Win.tomemory()`` method instead.
+  + Executing ``python -m mpi4py`` in the command line is now
+    equivalent to ``python -m mpi4py.run``. For the former behavior,
+    use ``python -m mpi4py.bench``.
+  + Python 2.6 and 3.2 are no longer supported. The ``mpi4py.MPI``
+    module may still build and partially work, but other pure-Python
+    modules under the ``mpi4py`` namespace will not.
+  + Windows: Remove support for legacy MPICH2, Open MPI, and DeinoMPI.
+
+
 Release 2.0.0 [2015-10-18]
 ==========================
 

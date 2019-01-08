@@ -1,0 +1,37 @@
+NAME
+  VTK::GeovisCore
+LIBRARY_NAME
+  vtkGeovisCore
+GROUPS
+  Rendering
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::CommonTransforms
+  VTK::InfovisCore
+  VTK::InteractionStyle
+  VTK::InteractionWidgets
+  VTK::RenderingCore
+  VTK::ViewsCore
+  VTK::libproj
+PRIVATE_DEPENDS
+  VTK::CommonSystem
+  VTK::FiltersCore
+  VTK::FiltersGeneral
+  VTK::IOImage
+  VTK::IOXML
+  VTK::ImagingCore
+  VTK::ImagingSources
+  VTK::InfovisLayout
+TEST_DEPENDS
+  VTK::IOImage
+  VTK::IOXML
+  VTK::InteractionStyle
+  VTK::RenderingCore
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering
+  VTK::ViewsInfovis
+TEST_OPTIONAL_DEPENDS
+  # XXX(VTK_LEGACY_REMOVE): This is only required by legacy-using tests.
+  VTK::ViewsGeovis

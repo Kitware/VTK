@@ -1,70 +1,103 @@
-#
-# Find the MySQL client includes and library
-#
+#[==[
+Provides the following variables:
 
-# This module defines
-# MYSQL_INCLUDE_DIRECTORIES, where to find mysql.h
-# MYSQL_LIBRARIES, the libraries to link against to connect to MySQL
-# MYSQL_FOUND, If false, you cannot build anything that requires MySQL.
+  * `MySQL_INCLUDE_DIRS`: Include directories necessary to use MySQL.
+  * `MySQL_LIBRARIES`: Libraries necessary to use MySQL.
+  * A `MySQL::MySQL` imported target.
+#]==]
 
-# also defined, but not for general use are
-# MYSQL_LIBRARY, where to find the MySQL library.
+# No .pc files are shipped with MySQL on Windows.
+set(_MySQL_use_pkgconfig 0)
+if (NOT WIN32)
+  find_package(PkgConfig)
+  if (PkgConfig_FOUND)
+    set(_MySQL_use_pkgconfig 1)
+  endif ()
+endif ()
 
-#
-# XXX NOTE: This is not yet for general use.  I'm pretty sure there
-# are other libraries I have to link against at the same time.
-#
+if (_MySQL_use_pkgconfig)
+  pkg_check_modules(_mariadb "mariadb" QUIET IMPORTED_TARGET)
+  unset(_mysql_target)
+  if (NOT _mariadb_FOUND)
+    pkg_check_modules(_mysql "mysql" QUIET IMPORTED_TARGET)
+    if (_mysql_FOUND)
+      set(_mysql_target "_mysql")
+    endif ()
+  else ()
+    set(_mysql_target "_mariadb")
+    if (_mariadb_VERSION VERSION_LESS 10.4)
+      get_property(_include_dirs
+        TARGET    "PkgConfig::_mariadb"
+        PROPERTY  "INTERFACE_INCLUDE_DIRECTORIES")
+      # Remove "${prefix}/mariadb/.." from the interface since it breaks other
+      # projects.
+      list(FILTER _include_dirs EXCLUDE REGEX "\\.\\.")
+      set_property(TARGET "PkgConfig::_mariadb"
+        PROPERTY
+          "INTERFACE_INCLUDE_DIRECTORIES" "${_include_dirs}")
+      unset(_include_dirs)
+    endif ()
+  endif ()
 
-SET( MYSQL_FOUND 0 )
+  set(MySQL_FOUND 0)
+  if (_mysql_target)
+    set(MySQL_FOUND 1)
+    add_library(MySQL::MySQL INTERFACE IMPORTED)
+    target_link_libraries(MySQL::MySQL
+      INTERFACE "PkgConfig::${_mysql_target}")
+    set(MySQL_INCLUDE_DIRS ${${_mysql_target}_INCLUDE_DIRS})
+    set(MySQL_LIBRARIES ${${_mysql_target}_LINK_LIBRARIES})
+  endif ()
+  unset(_mysql_target)
+else ()
+  set(_MySQL_mariadb_versions 10.2 10.3)
+  set(_MySQL_versions 5.0)
+  set(_MySQL_paths)
+  foreach (_MySQL_version IN LISTS _MySQL_mariadb_versions)
+    list(APPEND _MySQL_paths
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB ${_MySQL_version};INSTALLDIR]"
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MariaDB ${_MySQL_version} (x64);INSTALLDIR]")
+  endforeach ()
+  foreach (_MySQL_version IN LISTS _MySQL_versions)
+    list(APPEND _MySQL_paths
+      "C:/Program Files/MySQL/MySQL Server ${_MySQL_version}/lib/opt"
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server ${_MySQL_version};Location]"
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server ${_MySQL_version};Location]")
+  endforeach ()
+  unset(_MySQL_version)
+  unset(_MySQL_versions)
+  unset(_MySQL_mariadb_versions)
 
-FIND_PATH(MYSQL_INCLUDE_DIRECTORIES mysql.h
-  /usr/include
-  /usr/include/mysql
-  /usr/local/include
-  /usr/local/include/mysql
-  /usr/local/mysql/include
-  "C:/Program Files/MySQL/include"
-  "C:/Program Files/MySQL/MySQL Server 5.0/include"
-  "C:/MySQL/include"
-  "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.0;Location]/include"
-  "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.0;Location]/include"
-  PATH_SUFFIXES mysql
-  DOC "Specify the directory containing mysql.h."
-)
+  find_path(MySQL_INCLUDE_DIR
+    NAMES mysql.h
+    PATHS
+      "C:/Program Files/MySQL/include"
+      "C:/MySQL/include"
+      ${_MySQL_paths}
+    PATH_SUFFIXES include include/mysql
+    DOC "Location of mysql.h")
+  mark_as_advanced(MySQL_INCLUDE_DIR)
+  find_library(MySQL_LIBRARY
+    NAMES libmariadb mysql libmysql mysqlclient
+    PATHS
+      "C:/Program Files/MySQL/lib"
+      "C:/MySQL/lib/debug"
+      ${_MySQL_paths}
+    PATH_SUFFIXES lib lib/opt
+    DOC "Location of the mysql library")
+  mark_as_advanced(MySQL_LIBRARY)
 
-FIND_LIBRARY( MYSQL_LIBRARY
-  NAMES mysql libmysql mysqlclient
-  PATHS
-  /usr/lib
-  /usr/lib/mysql
-  /usr/local/lib
-  /usr/local/lib/mysql
-  /usr/local/mysql/lib
-  "C:/Program Files/MySQL/lib"
-  "C:/Program Files/MySQL/MySQL Server 5.0/lib/opt"
-  "C:/MySQL/lib/debug"
-  "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.0;Location]/lib/opt"
-  "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.0;Location]/lib/opt"
-  DOC "Specify the mysql library here."
-)
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args(MySQL
+    REQUIRED_VARS MySQL_INCLUDE_DIR MySQL_LIBRARY)
 
-# On Windows you typically don't need to include any extra libraries
-# to build MYSQL stuff.
-
-IF (NOT WIN32)
-  FIND_LIBRARY( MYSQL_EXTRA_LIBRARIES
-                NAMES z zlib
-                PATHS /usr/lib /usr/local/lib
-                DOC "If more libraries are necessary to link in a MySQL client (typically zlib), specify them here.")
-ELSE ()
-  SET( MYSQL_EXTRA_LIBRARIES "" )
-ENDIF ()
-
-
-IF (MYSQL_LIBRARY)
-  IF (MYSQL_INCLUDE_DIRECTORIES)
-    SET( MYSQL_FOUND 1 )
-  ENDIF ()
-ENDIF ()
-
-MARK_AS_ADVANCED( MYSQL_FOUND MYSQL_LIBRARY MYSQL_EXTRA_LIBRARIES MYSQL_INCLUDE_DIRECTORIES )
+  if (MySQL_FOUND)
+    add_library(MySQL::MySQL UNKNOWN IMPORTED)
+    set_target_properties(MySQL::MySQL PROPERTIES
+      IMPORTED_LOCATION "${MySQL_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${MySQL_INCLUDE_DIR}")
+    set(MySQL_INCLUDE_DIRS "${MySQL_INCLUDE_DIR}")
+    set(MySQL_LIBRARIES "${MySQL_LIBRARY}")
+  endif ()
+endif ()
+unset(_MySQL_use_pkgconfig)

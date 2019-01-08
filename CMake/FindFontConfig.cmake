@@ -29,6 +29,12 @@ find_package_handle_standard_args(FontConfig DEFAULT_MSG
   FONTCONFIG_LIBRARY  FONTCONFIG_INCLUDE_DIR)
 
 if(FONTCONFIG_FOUND)
+  if (NOT TARGET FontConfig::FontConfig)
+    add_library(FontConfig::FontConfig UNKNOWN IMPORTED)
+    set_target_properties(FontConfig::FontConfig PROPERTIES
+      IMPORTED_LOCATION "${FONTCONFIG_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${FONTCONFIG_INCLUDE_DIR}")
+  endif ()
   set( FONTCONFIG_LIBRARIES ${FONTCONFIG_LIBRARY} )
 endif()
 

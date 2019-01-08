@@ -1,5 +1,3 @@
-include(vtkMPI)
-
 vtk_add_test_mpi(vtkFiltersParallelStatisticsCxxTests-MPI tests
   TestRandomPContingencyStatisticsMPI.cxx
   TestRandomPKMeansStatisticsMPI.cxx
@@ -9,4 +7,4 @@ vtk_add_test_mpi(vtkFiltersParallelStatisticsCxxTests-MPI tests
   # # vtk. Why is that so?
   # TestRealDataPDescriptiveStatisticsMPI.cxx
   )
-vtk_test_mpi_executable(vtkFiltersParallelStatisticsCxxTests-MPI tests)
+vtk_test_cxx_executable(vtkFiltersParallelStatisticsCxxTests-MPI tests)

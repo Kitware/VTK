@@ -18,7 +18,7 @@
 // All satellite processes send the result to the first process which
 // collects and renders them.
 
-#include <mpi.h>
+#include <vtkMPI.h>
 
 #include "vtkActor.h"
 #include "vtkAppendPolyData.h"

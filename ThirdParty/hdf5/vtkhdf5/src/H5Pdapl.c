@@ -13,11 +13,11 @@
 
 /*-------------------------------------------------------------------------
  *
- * Created:		H5Pdapl.c
+ * Created:        H5Pdapl.c
  *              October 27, 2008
  *              Neil Fortner <nfortne2@hdfgroup.org>
  *
- * Purpose:		Dataset access property list class routines
+ * Purpose:        Dataset access property list class routines
  *
  *-------------------------------------------------------------------------
  */
@@ -32,13 +32,13 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions */
-#include "H5Dprivate.h"		/* Datasets */
-#include "H5Eprivate.h"		/* Error handling */
-#include "H5Fprivate.h"		/* Files */
-#include "H5Iprivate.h"		/* IDs */
-#include "H5Ppkg.h"         /* Property lists */
-#include "H5MMprivate.h"	/* Memory management */
+#include "H5private.h"        /* Generic Functions */
+#include "H5Dprivate.h"       /* Datasets */
+#include "H5Eprivate.h"       /* Error handling */
+#include "H5Fprivate.h"       /* Files */
+#include "H5Iprivate.h"       /* IDs */
+#include "H5Ppkg.h"           /* Property lists */
+#include "H5MMprivate.h"      /* Memory management */
 
 
 /****************/
@@ -71,9 +71,20 @@
 #define H5D_ACS_VDS_PRINTF_GAP_DEF              (hsize_t)0
 #define H5D_ACS_VDS_PRINTF_GAP_ENC              H5P__encode_hsize_t
 #define H5D_ACS_VDS_PRINTF_GAP_DEC              H5P__decode_hsize_t
+/* Definitions for VDS file prefix */
+#define H5D_ACS_VDS_PREFIX_SIZE                 sizeof(char *)
+#define H5D_ACS_VDS_PREFIX_DEF                  NULL /*default is no prefix */
+#define H5D_ACS_VDS_PREFIX_SET                  H5P__dapl_vds_file_pref_set
+#define H5D_ACS_VDS_PREFIX_GET                  H5P__dapl_vds_file_pref_get
+#define H5D_ACS_VDS_PREFIX_ENC                  H5P__dapl_vds_file_pref_enc
+#define H5D_ACS_VDS_PREFIX_DEC                  H5P__dapl_vds_file_pref_dec
+#define H5D_ACS_VDS_PREFIX_DEL                  H5P__dapl_vds_file_pref_del
+#define H5D_ACS_VDS_PREFIX_COPY                 H5P__dapl_vds_file_pref_copy
+#define H5D_ACS_VDS_PREFIX_CMP                  H5P__dapl_vds_file_pref_cmp
+#define H5D_ACS_VDS_PREFIX_CLOSE                H5P__dapl_vds_file_pref_close
 /* Definition for append flush */
-#define H5D_ACS_APPEND_FLUSH_SIZE            	sizeof(H5D_append_flush_t)
-#define H5D_ACS_APPEND_FLUSH_DEF             	{0,{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},NULL,NULL}
+#define H5D_ACS_APPEND_FLUSH_SIZE               sizeof(H5D_append_flush_t)
+#define H5D_ACS_APPEND_FLUSH_DEF                {0,{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},NULL,NULL}
 /* Definitions for external file prefix */
 #define H5D_ACS_EFILE_PREFIX_SIZE               sizeof(char *)
 #define H5D_ACS_EFILE_PREFIX_DEF                NULL /*default is no prefix */
@@ -103,20 +114,28 @@
 /* Property class callbacks */
 static herr_t H5P__dacc_reg_prop(H5P_genclass_t *pclass);
 static herr_t H5P__encode_chunk_cache_nslots(const void *value, void **_pp,
-    size_t *size);
+    size_t *size, void*);
 static herr_t H5P__decode_chunk_cache_nslots(const void **_pp, void *_value);
 static herr_t H5P__encode_chunk_cache_nbytes(const void *value, void **_pp,
-    size_t *size);
+    size_t *size, void*);
 static herr_t H5P__decode_chunk_cache_nbytes(const void **_pp, void *_value);
 
 /* Property list callbacks */
-static herr_t H5P__dacc_vds_view_enc(const void *value, void **pp, size_t *size);
+static herr_t H5P__dacc_vds_view_enc(const void *value, void **pp, size_t *size, void *udata);
 static herr_t H5P__dacc_vds_view_dec(const void **pp, void *value);
+static herr_t H5P__dapl_vds_file_pref_set(hid_t prop_id, const char* name, size_t size, void* value);
+static herr_t H5P__dapl_vds_file_pref_get(hid_t prop_id, const char* name, size_t size, void* value);
+static herr_t H5P__dapl_vds_file_pref_enc(const void *value, void **_pp, size_t *size, void*);
+static herr_t H5P__dapl_vds_file_pref_dec(const void **_pp, void *value);
+static herr_t H5P__dapl_vds_file_pref_del(hid_t prop_id, const char* name, size_t size, void* value);
+static herr_t H5P__dapl_vds_file_pref_copy(const char* name, size_t size, void* value);
+static int H5P__dapl_vds_file_pref_cmp(const void *value1, const void *value2, size_t size);
+static herr_t H5P__dapl_vds_file_pref_close(const char* name, size_t size, void* value);
 
 /* Property list callbacks */
 static herr_t H5P__dapl_efile_pref_set(hid_t prop_id, const char* name, size_t size, void* value);
 static herr_t H5P__dapl_efile_pref_get(hid_t prop_id, const char* name, size_t size, void* value);
-static herr_t H5P__dapl_efile_pref_enc(const void *value, void **_pp, size_t *size);
+static herr_t H5P__dapl_efile_pref_enc(const void *value, void **_pp, size_t *size, void *udata);
 static herr_t H5P__dapl_efile_pref_dec(const void **_pp, void *value);
 static herr_t H5P__dapl_efile_pref_del(hid_t prop_id, const char* name, size_t size, void* value);
 static herr_t H5P__dapl_efile_pref_copy(const char* name, size_t size, void* value);
@@ -130,21 +149,21 @@ static herr_t H5P__dapl_efile_pref_close(const char* name, size_t size, void* va
 
 /* Dataset access property list class library initialization object */
 const H5P_libclass_t H5P_CLS_DACC[1] = {{
-    "dataset access",		/* Class name for debugging     */
+    "dataset access",           /* Class name for debugging     */
     H5P_TYPE_DATASET_ACCESS,    /* Class type                   */
 
-    &H5P_CLS_LINK_ACCESS_g,	/* Parent class                 */
-    &H5P_CLS_DATASET_ACCESS_g,	/* Pointer to class             */
-    &H5P_CLS_DATASET_ACCESS_ID_g,	/* Pointer to class ID          */
-    &H5P_LST_DATASET_ACCESS_ID_g,	/* Pointer to default property list ID */
-    H5P__dacc_reg_prop,		/* Default property registration routine */
+    &H5P_CLS_LINK_ACCESS_g,          /* Parent class                 */
+    &H5P_CLS_DATASET_ACCESS_g,       /* Pointer to class             */
+    &H5P_CLS_DATASET_ACCESS_ID_g,    /* Pointer to class ID          */
+    &H5P_LST_DATASET_ACCESS_ID_g,    /* Pointer to default property list ID */
+    H5P__dacc_reg_prop,         /* Default property registration routine */
 
-    NULL,		        /* Class creation callback      */
-    NULL,		        /* Class creation callback info */
-    NULL,		        /* Class copy callback          */
-    NULL,		        /* Class copy callback info     */
-    NULL,		        /* Class close callback         */
-    NULL 		        /* Class close callback info    */
+    NULL,                /* Class creation callback      */
+    NULL,                /* Class creation callback info */
+    NULL,                /* Class copy callback          */
+    NULL,                /* Class copy callback info     */
+    NULL,                /* Class close callback         */
+    NULL                 /* Class close callback info    */
 }};
 
 
@@ -158,8 +177,9 @@ const H5P_libclass_t H5P_CLS_DACC[1] = {{
 /*******************/
 
 /* Property value defaults */
-static const H5D_append_flush_t H5D_def_append_flush_g = H5D_ACS_APPEND_FLUSH_DEF;       /* Default setting for append flush */
-static const char *H5D_def_efile_prefix_g = H5D_ACS_EFILE_PREFIX_DEF; /* Default external file prefix string */
+static const H5D_append_flush_t H5D_def_append_flush_g = H5D_ACS_APPEND_FLUSH_DEF;   /* Default setting for append flush */
+static const char *H5D_def_efile_prefix_g = H5D_ACS_EFILE_PREFIX_DEF;                /* Default external file prefix string */
+static const char *H5D_def_vds_prefix_g = H5D_ACS_VDS_PREFIX_DEF;                    /* Default vds prefix string */
 
 
 /*-------------------------------------------------------------------------
@@ -169,9 +189,6 @@ static const char *H5D_def_efile_prefix_g = H5D_ACS_EFILE_PREFIX_DEF; /* Default
  *              properties
  *
  * Return:      Non-negative on success/Negative on failure
- *
- * Programmer:  Neil Fortner
- *              October 27, 2008
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -187,17 +204,17 @@ H5P__dacc_reg_prop(H5P_genclass_t *pclass)
     FUNC_ENTER_STATIC
 
     /* Register the size of raw data chunk cache (elements) */
-    if(H5P_register_real(pclass, H5D_ACS_DATA_CACHE_NUM_SLOTS_NAME, H5D_ACS_DATA_CACHE_NUM_SLOTS_SIZE, &rdcc_nslots, 
+    if(H5P_register_real(pclass, H5D_ACS_DATA_CACHE_NUM_SLOTS_NAME, H5D_ACS_DATA_CACHE_NUM_SLOTS_SIZE, &rdcc_nslots,
              NULL, NULL, NULL, H5D_ACS_DATA_CACHE_NUM_SLOTS_ENC, H5D_ACS_DATA_CACHE_NUM_SLOTS_DEC, NULL, NULL, NULL, NULL) < 0)
          HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the size of raw data chunk cache(bytes) */
-    if(H5P_register_real(pclass, H5D_ACS_DATA_CACHE_BYTE_SIZE_NAME, H5D_ACS_DATA_CACHE_BYTE_SIZE_SIZE, &rdcc_nbytes, 
+    if(H5P_register_real(pclass, H5D_ACS_DATA_CACHE_BYTE_SIZE_NAME, H5D_ACS_DATA_CACHE_BYTE_SIZE_SIZE, &rdcc_nbytes,
              NULL, NULL, NULL, H5D_ACS_DATA_CACHE_BYTE_SIZE_ENC, H5D_ACS_DATA_CACHE_BYTE_SIZE_DEC, NULL, NULL, NULL, NULL) < 0)
          HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the preemption for reading chunks */
-    if(H5P_register_real(pclass, H5D_ACS_PREEMPT_READ_CHUNKS_NAME, H5D_ACS_PREEMPT_READ_CHUNKS_SIZE, &rdcc_w0, 
+    if(H5P_register_real(pclass, H5D_ACS_PREEMPT_READ_CHUNKS_NAME, H5D_ACS_PREEMPT_READ_CHUNKS_SIZE, &rdcc_w0,
              NULL, NULL, NULL, H5D_ACS_PREEMPT_READ_CHUNKS_ENC, H5D_ACS_PREEMPT_READ_CHUNKS_DEC, NULL, NULL, NULL, NULL) < 0)
          HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
@@ -213,14 +230,20 @@ H5P__dacc_reg_prop(H5P_genclass_t *pclass)
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
+    /* Register property for vds prefix */
+    if(H5P_register_real(pclass, H5D_ACS_VDS_PREFIX_NAME, H5D_ACS_VDS_PREFIX_SIZE, &H5D_def_vds_prefix_g,
+            NULL, H5D_ACS_VDS_PREFIX_SET, H5D_ACS_VDS_PREFIX_GET, H5D_ACS_VDS_PREFIX_ENC, H5D_ACS_VDS_PREFIX_DEC,
+            H5D_ACS_VDS_PREFIX_DEL, H5D_ACS_VDS_PREFIX_COPY, H5D_ACS_VDS_PREFIX_CMP, H5D_ACS_VDS_PREFIX_CLOSE) < 0)
+         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
+
     /* Register info for append flush */
     /* (Note: this property should not have an encode/decode callback -QAK) */
-    if(H5P_register_real(pclass, H5D_ACS_APPEND_FLUSH_NAME, H5D_ACS_APPEND_FLUSH_SIZE, &H5D_def_append_flush_g, 
+    if(H5P_register_real(pclass, H5D_ACS_APPEND_FLUSH_NAME, H5D_ACS_APPEND_FLUSH_SIZE, &H5D_def_append_flush_g,
              NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) < 0)
          HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register property for external file prefix */
-    if(H5P_register_real(pclass, H5D_ACS_EFILE_PREFIX_NAME, H5D_ACS_EFILE_PREFIX_SIZE, &H5D_def_efile_prefix_g, 
+    if(H5P_register_real(pclass, H5D_ACS_EFILE_PREFIX_NAME, H5D_ACS_EFILE_PREFIX_SIZE, &H5D_def_efile_prefix_g,
             NULL, H5D_ACS_EFILE_PREFIX_SET, H5D_ACS_EFILE_PREFIX_GET, H5D_ACS_EFILE_PREFIX_ENC, H5D_ACS_EFILE_PREFIX_DEC,
             H5D_ACS_EFILE_PREFIX_DEL, H5D_ACS_EFILE_PREFIX_COPY, H5D_ACS_EFILE_PREFIX_CMP, H5D_ACS_EFILE_PREFIX_CLOSE) < 0)
          HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
@@ -228,6 +251,255 @@ H5P__dacc_reg_prop(H5P_genclass_t *pclass)
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__dacc_reg_prop() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5P__dapl_vds_file_pref_set
+ *
+ * Purpose:     Copies a vds file prefix property when it's set
+ *              for a property list
+ *
+ * Return:      SUCCEED/FAIL
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5P__dapl_vds_file_pref_set(hid_t H5_ATTR_UNUSED prop_id, const char H5_ATTR_UNUSED *name,
+    size_t H5_ATTR_UNUSED size, void *value)
+{
+    FUNC_ENTER_STATIC_NOERR
+
+    /* Sanity check */
+    HDassert(value);
+
+    /* Copy the prefix */
+    *(char **)value = H5MM_xstrdup(*(const char **)value);
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5P__dapl_vds_file_pref_set() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5P__dapl_vds_file_pref_get
+ *
+ * Purpose:     Copies a vds file prefix property when it's retrieved
+ *              from a property list
+ *
+ * Return:      SUCCEED/FAIL
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5P__dapl_vds_file_pref_get(hid_t H5_ATTR_UNUSED prop_id, const char H5_ATTR_UNUSED *name,
+    size_t H5_ATTR_UNUSED size, void *value)
+{
+    FUNC_ENTER_STATIC_NOERR
+
+    /* Sanity check */
+    HDassert(value);
+
+    /* Copy the prefix */
+    *(char **)value = H5MM_xstrdup(*(const char **)value);
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5P__dapl_vds_file_pref_get() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5P__dapl_vds_file_pref_enc
+ *
+ * Purpose:     Callback routine which is called whenever the vds file flags
+ *              property in the dataset access property list is
+ *              encoded.
+ *
+ * Return:      SUCCEED/FAIL
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5P__dapl_vds_file_pref_enc(const void *value, void **_pp, size_t *size, void* udata)
+{
+    const char *vds_file_pref = *(const char * const *)value;
+    uint8_t **pp = (uint8_t **)_pp;
+    size_t len = 0;
+    uint64_t enc_value;
+    unsigned enc_size;
+    (void)udata;
+
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    HDcompile_assert(sizeof(size_t) <= sizeof(uint64_t));
+
+    /* calculate prefix length */
+    if(NULL != vds_file_pref)
+        len = HDstrlen(vds_file_pref);
+
+    enc_value = (uint64_t)len;
+    enc_size = H5VM_limit_enc_size(enc_value);
+    HDassert(enc_size < 256);
+
+    if(NULL != *pp) {
+        /* encode the length of the prefix */
+        *(*pp)++ = (uint8_t)enc_size;
+        UINT64ENCODE_VAR(*pp, enc_value, enc_size);
+
+        /* encode the prefix */
+        if(NULL != vds_file_pref) {
+            HDmemcpy(*(char **)pp, vds_file_pref, len);
+            *pp += len;
+        } /* end if */
+    } /* end if */
+
+    *size += (1 + enc_size);
+    if(NULL != vds_file_pref)
+        *size += len;
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5P__dapl_vds_file_pref_enc() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5P__dapl_vds_file_pref_dec
+ *
+ * Purpose:     Callback routine which is called whenever the vds file prefix
+ *              property in the dataset access property list is
+ *              decoded.
+ *
+ * Return:      SUCCEED/FAIL
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5P__dapl_vds_file_pref_dec(const void **_pp, void *_value)
+{
+    char **vds_file_pref = (char **)_value;
+    const uint8_t **pp = (const uint8_t **)_pp;
+    size_t len;
+    uint64_t enc_value;                 /* Decoded property value */
+    unsigned enc_size;                  /* Size of encoded property */
+    herr_t ret_value = SUCCEED;
+
+    FUNC_ENTER_NOAPI_NOINIT
+
+    HDassert(pp);
+    HDassert(*pp);
+    HDassert(vds_file_pref);
+    HDcompile_assert(sizeof(size_t) <= sizeof(uint64_t));
+
+    /* Decode the size */
+    enc_size = *(*pp)++;
+    HDassert(enc_size < 256);
+
+    /* Decode the value */
+    UINT64DECODE_VAR(*pp, enc_value, enc_size);
+    len = (size_t)enc_value;
+
+    if(0 != len) {
+        /* Make a copy of the user's prefix string */
+        if(NULL == (*vds_file_pref = (char *)H5MM_malloc(len + 1)))
+            HGOTO_ERROR(H5E_RESOURCE, H5E_CANTINIT, FAIL, "memory allocation failed for prefix")
+        HDstrncpy(*vds_file_pref, *(const char **)pp, len);
+        (*vds_file_pref)[len] = '\0';
+
+        *pp += len;
+    } /* end if */
+    else
+        *vds_file_pref = NULL;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5P__dapl_vds_file_pref_dec() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5P__dapl_vds_file_pref_del
+ *
+ * Purpose:     Frees memory used to store the vds file prefix string
+ *
+ * Return:      SUCCEED (Can't fail)
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5P__dapl_vds_file_pref_del(hid_t H5_ATTR_UNUSED prop_id, const char H5_ATTR_UNUSED *name,
+    size_t H5_ATTR_UNUSED size, void *value)
+{
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    HDassert(value);
+
+    H5MM_xfree(*(void **)value);
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5P__dapl_vds_file_pref_del() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5P__dapl_vds_file_pref_copy
+ *
+ * Purpose:     Creates a copy of the vds file prefix string
+ *
+ * Return:      SUCCEED/FAIL
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5P__dapl_vds_file_pref_copy(const char H5_ATTR_UNUSED *name, size_t H5_ATTR_UNUSED size, void *value)
+{
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    HDassert(value);
+
+    *(char **)value = H5MM_xstrdup(*(const char **)value);
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5P__dapl_vds_file_pref_copy() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:       H5P__dapl_vds_file_pref_cmp
+ *
+ * Purpose:        Callback routine which is called whenever the vds file prefix
+ *                 property in the dataset creation property list is
+ *                 compared.
+ *
+ * Return:         zero if VALUE1 and VALUE2 are equal, non zero otherwise.
+ *-------------------------------------------------------------------------
+ */
+static int
+H5P__dapl_vds_file_pref_cmp(const void *value1, const void *value2, size_t H5_ATTR_UNUSED size)
+{
+    const char *pref1 = *(const char * const *)value1;
+    const char *pref2 = *(const char * const *)value2;
+    int ret_value = 0;
+
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    if(NULL == pref1 && NULL != pref2)
+        HGOTO_DONE(1);
+    if(NULL != pref1 && NULL == pref2)
+        HGOTO_DONE(-1);
+    if(NULL != pref1 && NULL != pref2)
+        ret_value = HDstrcmp(pref1, pref2);
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5P__dapl_vds_file_pref_cmp() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5P__dapl_vds_file_pref_close
+ *
+ * Purpose:     Frees memory used to store the vds file prefix string
+ *
+ * Return:      SUCCEED/FAIL
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5P__dapl_vds_file_pref_close(const char H5_ATTR_UNUSED *name, size_t H5_ATTR_UNUSED size, void *value)
+{
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    HDassert(value);
+
+    H5MM_xfree(*(void **)value);
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5P__dapl_vds_file_pref_close() */
 
 
 /*-------------------------------------------------------------------------
@@ -237,7 +509,6 @@ done:
  *              for a property list
  *
  * Return:      SUCCEED/FAIL
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -263,7 +534,6 @@ H5P__dapl_efile_pref_set(hid_t H5_ATTR_UNUSED prop_id, const char H5_ATTR_UNUSED
  *              from a property list
  *
  * Return:      SUCCEED/FAIL
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -290,11 +560,10 @@ H5P__dapl_efile_pref_get(hid_t H5_ATTR_UNUSED prop_id, const char H5_ATTR_UNUSED
  *              encoded.
  *
  * Return:      SUCCEED/FAIL
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__dapl_efile_pref_enc(const void *value, void **_pp, size_t *size)
+H5P__dapl_efile_pref_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
 {
     const char *efile_pref = *(const char * const *)value;
     uint8_t **pp = (uint8_t **)_pp;
@@ -341,8 +610,7 @@ H5P__dapl_efile_pref_enc(const void *value, void **_pp, size_t *size)
  *              property in the dataset access property list is
  *              decoded.
  *
- * Return:	    SUCCEED/FAIL
- *
+ * Return:        SUCCEED/FAIL
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -393,7 +661,6 @@ done:
  * Purpose:     Frees memory used to store the external file prefix string
  *
  * Return:      SUCCEED (Can't fail)
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -416,7 +683,6 @@ H5P__dapl_efile_pref_del(hid_t H5_ATTR_UNUSED prop_id, const char H5_ATTR_UNUSED
  * Purpose:     Creates a copy of the external file prefix string
  *
  * Return:      SUCCEED/FAIL
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -440,7 +706,6 @@ H5P__dapl_efile_pref_copy(const char H5_ATTR_UNUSED *name, size_t H5_ATTR_UNUSED
  *                 compared.
  *
  * Return:         zero if VALUE1 and VALUE2 are equal, non zero otherwise.
- *
  *-------------------------------------------------------------------------
  */
 static int
@@ -470,7 +735,6 @@ done:
  * Purpose:     Frees memory used to store the external file prefix string
  *
  * Return:      SUCCEED/FAIL
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -487,33 +751,27 @@ H5P__dapl_efile_pref_close(const char H5_ATTR_UNUSED *name, size_t H5_ATTR_UNUSE
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_chunk_cache
+ * Function:    H5Pset_chunk_cache
  *
- * Purpose:	Set the number of objects in the meta data cache and the
- *		maximum number of chunks and bytes in the raw data chunk cache.
- *      Once set, these values will override the values in the file access
- *      property list.  Each of thhese values can be individually unset
- *      (or not set at all) by passing the macros:
- *      H5D_CHUNK_CACHE_NCHUNKS_DEFAULT,
- *      H5D_CHUNK_CACHE_NSLOTS_DEFAULT, and/or
- *      H5D_CHUNK_CACHE_W0_DEFAULT
- *      as appropriate.
+ * Purpose:    Set the number of objects in the meta data cache and the
+ *        maximum number of chunks and bytes in the raw data chunk cache.
+ *        Once set, these values will override the values in the file access
+ *        property list.  Each of thhese values can be individually unset
+ *        (or not set at all) by passing the macros:
+ *        H5D_CHUNK_CACHE_NCHUNKS_DEFAULT,
+ *        H5D_CHUNK_CACHE_NSLOTS_DEFAULT, and/or
+ *        H5D_CHUNK_CACHE_W0_DEFAULT
+ *        as appropriate.
  *
- * 		The RDCC_W0 value should be between 0 and 1 inclusive and
- *		indicates how much chunks that have been fully read or fully
- *		written are favored for preemption.  A value of zero means
- *		fully read or written chunks are treated no differently than
- *		other chunks (the preemption is strictly LRU) while a value
- *		of one means fully read chunks are always preempted before
- *		other chunks.
+ *        The RDCC_W0 value should be between 0 and 1 inclusive and
+ *        indicates how much chunks that have been fully read or fully
+ *        written are favored for preemption.  A value of zero means
+ *        fully read or written chunks are treated no differently than
+ *        other chunks (the preemption is strictly LRU) while a value
+ *        of one means fully read chunks are always preempted before
+ *        other chunks.
  *
- * Return:	Non-negative on success/Negative on failure
- *
- * Programmer:	Neil Fortner
- *              Monday, October 27, 2008
- *
- * Modifications:
- *
+ * Return:    Non-negative on success/Negative on failure
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -548,23 +806,17 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_chunk_cache
+ * Function: H5Pget_chunk_cache
  *
- * Purpose:	Retrieves the maximum possible number of elements in the meta
- *		data cache and the maximum possible number of elements and
- *		bytes and the RDCC_W0 value in the raw data chunk cache.  Any
- *		(or all) arguments may be null pointers in which case the
- *		corresponding datum is not returned.  If these properties have
- *      not been set on this property list, the default values for a
- *      file access property list are returned.
+ * Purpose:  Retrieves the maximum possible number of elements in the meta
+ *        data cache and the maximum possible number of elements and
+ *        bytes and the RDCC_W0 value in the raw data chunk cache.  Any
+ *        (or all) arguments may be null pointers in which case the
+ *        corresponding datum is not returned.  If these properties have
+ *        not been set on this property list, the default values for a
+ *        file access property list are returned.
  *
- * Return:	Non-negative on success/Negative on failure
- *
- * Programmer:	Neil Fortner
- *              Monday, October 27, 2008
- *
- * Modifications:
- *
+ * Return:  Non-negative on success/Negative on failure
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -625,18 +877,15 @@ done:
  *
  * Return:         Success:     Non-negative
  *                 Failure:     Negative
- *
- * Programmer:     Neil Fortner
- *                 Wednesday, January 23, 2013
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__encode_chunk_cache_nslots(const void *value, void **_pp, size_t *size)
+H5P__encode_chunk_cache_nslots(const void *value, void **_pp, size_t *size, void *udata)
 {
     uint64_t enc_value;     /* Property value to encode */
     uint8_t **pp = (uint8_t **)_pp;
     unsigned enc_size;      /* Size of encoded property */
+    (void)udata;
 
     FUNC_ENTER_PACKAGE_NOERR
 
@@ -684,10 +933,6 @@ H5P__encode_chunk_cache_nslots(const void *value, void **_pp, size_t *size)
  *
  * Return:         Success:     Non-negative
  *                 Failure:     Negative
- *
- * Programmer:     Neil Fortner
- *                 Wednesday, January 23, 2013
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -735,18 +980,15 @@ H5P__decode_chunk_cache_nslots(const void **_pp, void *_value)
  *
  * Return:         Success:     Non-negative
  *                 Failure:     Negative
- *
- * Programmer:     Neil Fortner
- *                 Wednesday, January 23, 2013
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__encode_chunk_cache_nbytes(const void *value, void **_pp, size_t *size)
+H5P__encode_chunk_cache_nbytes(const void *value, void **_pp, size_t *size, void* udata)
 {
     uint64_t enc_value;     /* Property value to encode */
     uint8_t **pp = (uint8_t **)_pp;
     unsigned enc_size;      /* Size of encoded property */
+    (void)udata;
 
     FUNC_ENTER_PACKAGE_NOERR
 
@@ -794,10 +1036,6 @@ H5P__encode_chunk_cache_nbytes(const void *value, void **_pp, size_t *size)
  *
  * Return:         Success:     Non-negative
  *                 Failure:     Negative
- *
- * Programmer:     Neil Fortner
- *                 Wednesday, January 23, 2013
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -849,10 +1087,6 @@ H5P__decode_chunk_cache_nbytes(const void **_pp, void *_value)
  *              view defines the extent.
  *
  * Return:      Non-negative on success/Negative on failure
- *
- * Programmer:  Neil Fortner
- *              May 4, 2015
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -887,13 +1121,9 @@ done:
  * Purpose:     Takes the access property list for the virtual dataset,
  *              dapl_id, and gets the flag, view, set by the
  *              H5Pset_virtual_view call.  The possible values of view are
- *              H5D_VDS_FIRST_MISSING or H5D_VDS_LAST_AVAIALBLE. 
+ *              H5D_VDS_FIRST_MISSING or H5D_VDS_LAST_AVAIALBLE.
  *
  * Return:      Non-negative on success/Negative on failure
- *
- * Programmer:  Neil Fortner
- *              May 4, 2015
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -927,14 +1157,10 @@ done:
  *
  * Return:      Success:        Non-negative
  *              Failure:        Negative
- *
- * Programmer:  Neil Fortner
- *              Tuesday, May 5, 2015
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__dacc_vds_view_enc(const void *value, void **_pp, size_t *size)
+H5P__dacc_vds_view_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
 {
     const H5D_vds_view_t *view = (const H5D_vds_view_t *)value; /* Create local alias for values */
     uint8_t **pp = (uint8_t **)_pp;
@@ -964,10 +1190,6 @@ H5P__dacc_vds_view_enc(const void *value, void **_pp, size_t *size)
  *
  * Return:      Success:        Non-negative
  *              Failure:        Negative
- *
- * Programmer:  Neil Fortner
- *              Tuesday, May 5, 2015
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -1011,10 +1233,6 @@ H5P__dacc_vds_view_dec(const void **_pp, void *_value)
  *              the VDS fill value setting.
  *
  * Return:      Non-negative on success/Negative on failure
- *
- * Programmer:  Neil Fortner
- *              May 21, 2015
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1053,10 +1271,6 @@ done:
  *              value for gap_size is 0.
  *
  * Return:      Non-negative on success/Negative on failure
- *
- * Programmer:  Neil Fortner
- *              May 21, 2015
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1083,30 +1297,27 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_append_flush
+ * Function: H5Pset_append_flush
  *
- * Purpose:	Sets the boundary, callback function, and user data in the
- *		property list.
- *		"ndims": number of array elements for boundary
- *		"boundary": used to determine whether the current dimension hits 
- *			  a boundary; if so, invoke the callback function and
- *			  flush the dataset.
- *		"func": the callback function to invoke when the boundary is hit
- *		"udata": the user data to pass as parameter with the callback function
- *	
- * Return:	Non-negative on success/Negative on failure
+ * Purpose:  Sets the boundary, callback function, and user data in the
+ *           property list.
+ *           "ndims": number of array elements for boundary
+ *           "boundary": used to determine whether the current dimension hits
+ *              a boundary; if so, invoke the callback function and
+ *              flush the dataset.
+ *           "func": the callback function to invoke when the boundary is hit
+ *           "udata": the user data to pass as parameter with the callback function
  *
- * Programmer:	Vailin Choi; Dec 2013
- *
+ * Return:   Non-negative on success/Negative on failure
  *-------------------------------------------------------------------------
  */
 herr_t
 H5Pset_append_flush(hid_t plist_id, unsigned ndims, const hsize_t *boundary, H5D_append_cb_t func, void *udata)
 {
-    H5P_genplist_t *plist;      	/* Property list pointer */
-    H5D_append_flush_t info;            /* Property for append flush parameters */
-    unsigned u;				/* Local index variable */
-    herr_t ret_value = SUCCEED;   	/* Return value */
+    H5P_genplist_t *plist;          /* Property list pointer */
+    H5D_append_flush_t info;        /* Property for append flush parameters */
+    unsigned u;                     /* Local index variable */
+    herr_t ret_value = SUCCEED;     /* Return value */
 
     FUNC_ENTER_API(FAIL)
     H5TRACE5("e", "iIu*hx*x", plist_id, ndims, boundary, func, udata);
@@ -1123,7 +1334,7 @@ H5Pset_append_flush(hid_t plist_id, unsigned ndims, const hsize_t *boundary, H5D
      * This is almost certainly an error as the user data will not be used. */
     if(!func && udata)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "callback is NULL while user data is not")
- 
+
     /* Get the plist structure */
     if(NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS)))
         HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
@@ -1151,18 +1362,15 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_append_flush()
+ * Function: H5Pget_append_flush()
  *
- * Purpose:	Retrieves the boundary, callback function and user data set in 
- *		property list.
- *		Note that the # of boundary sizes to retrieve will not exceed
- *		the parameter "ndims" and the ndims set previously via 
- *		H5Pset_append_flush().
- *	
- * Return:	Non-negative on success/Negative on failure
+ * Purpose:  Retrieves the boundary, callback function and user data set in
+ *           property list.
+ *           Note that the # of boundary sizes to retrieve will not exceed
+ *           the parameter "ndims" and the ndims set previously via
+ *           H5Pset_append_flush().
  *
- * Programmer:	Vailin Choi; Dec 2013
- *
+ * Return:   Non-negative on success/Negative on failure
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1170,7 +1378,7 @@ H5Pget_append_flush(hid_t plist_id, unsigned ndims, hsize_t boundary[], H5D_appe
 {
     H5P_genplist_t *plist;      /* property list pointer */
     H5D_append_flush_t  info;
-    unsigned u;			/* local index variable */
+    unsigned u;                 /* local index variable */
     herr_t ret_value = SUCCEED; /* return value */
 
     FUNC_ENTER_API(FAIL)
@@ -1186,15 +1394,15 @@ H5Pget_append_flush(hid_t plist_id, unsigned ndims, hsize_t boundary[], H5D_appe
 
     /* Assign return values */
     if(boundary) {
-	HDmemset(boundary, 0, ndims * sizeof(hsize_t));
-	if(info.ndims > 0)
-	    for(u = 0; u < info.ndims && u < ndims; u++)
-		boundary[u] = info.boundary[u];
+        HDmemset(boundary, 0, ndims * sizeof(hsize_t));
+        if(info.ndims > 0)
+            for(u = 0; u < info.ndims && u < ndims; u++)
+                boundary[u] = info.boundary[u];
     } /* end if */
     if(func)
-	*func = info.func;
+        *func = info.func;
     if(udata)
-	*udata = info.udata;
+        *udata = info.udata;
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -1215,8 +1423,7 @@ done:
  *              This property can be overwritten by the environment variable
  *              HDF5_EXTFILE_PREFIX.
  *
- * Return:	Non-negative on success/Negative on failure
- *
+ * Return:      Non-negative on success/Negative on failure
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1242,24 +1449,22 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5Pget_efile_prefix
+ * Function: H5Pget_efile_prefix
  *
- * Purpose:	Gets the prefix to be used for any external files.
+ * Purpose:  Gets the prefix to be used for any external files.
+ *           If the pointer is not NULL, it points to a user-allocated
+ *           buffer.
  *
- *              If the pointer is not NULL, it points to a user-allocated
- *              buffer.
- *
- * Return:	Non-negative on success/Negative on failure
- *
+ * Return:   Non-negative on success/Negative on failure
  *-------------------------------------------------------------------------
  */
 ssize_t
 H5Pget_efile_prefix(hid_t plist_id, char *prefix, size_t size)
 {
     H5P_genplist_t *plist;              /* Property list pointer */
-    char *my_prefix;                    /* Library's copy of the prefix */
-    size_t	len;                    /* Length of prefix string */
-    ssize_t 	ret_value;              /* Return value */
+    char           *my_prefix;          /* Library's copy of the prefix */
+    size_t          len;                /* Length of prefix string */
+    ssize_t         ret_value;          /* Return value */
 
     FUNC_ENTER_API(FAIL)
     H5TRACE3("Zs", "i*sz", plist_id, prefix, size);
@@ -1277,9 +1482,8 @@ H5Pget_efile_prefix(hid_t plist_id, char *prefix, size_t size)
         /* Copy to user's buffer, if given */
         len = HDstrlen(my_prefix);
         if(prefix) {
-            HDstrncpy(prefix, my_prefix, MIN(len + 1, size));
-            if(len >= size)
-                prefix[size - 1] = '\0';
+            HDstrncpy(prefix, my_prefix, size);
+            prefix[size - 1] = '\0';
         } /* end if */
     } /* end if */
     else
@@ -1291,4 +1495,95 @@ H5Pget_efile_prefix(hid_t plist_id, char *prefix, size_t size)
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_efile_prefix() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5Pset_virtual_prefix
+ *
+ * Purpose:     Set a prefix to be applied to the path of any vds files
+ *              traversed.
+  *
+ *              If the prefix starts with ${ORIGIN}, this will be replaced by
+ *              the absolute path of the directory of the HDF5 file containing
+ *              the dataset.
+ *
+ *              If the prefix is ".", no prefix will be applied.
+ *
+ *              This property can be overwritten by the environment variable
+ *              HDF5_VDS_PREFIX.
+ *
+ * Return:    Non-negative on success/Negative on failure
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5Pset_virtual_prefix(hid_t plist_id, const char *prefix)
+{
+    H5P_genplist_t *plist;              /* Property list pointer */
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE2("e", "i*s", plist_id, prefix);
+
+    /* Get the plist structure */
+    if(NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS)))
+        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+
+    /* Set prefix */
+    if(H5P_set(plist, H5D_ACS_VDS_PREFIX_NAME, &prefix) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set prefix info")
+
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* end H5Pset_virtual_prefix() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5Pget_virtual_prefix
+ *
+ * Purpose:    Gets the prefix to be applied to any vds file
+ *              traversals made using this property list.
+ *
+ *              If the pointer is not NULL, it points to a user-allocated
+ *              buffer.
+ *
+ * Return:    Non-negative on success/Negative on failure
+ *-------------------------------------------------------------------------
+ */
+ssize_t
+H5Pget_virtual_prefix(hid_t plist_id, char *prefix, size_t size)
+{
+    H5P_genplist_t *plist;              /* Property list pointer */
+    char           *my_prefix;          /* Library's copy of the prefix */
+    size_t          len;                /* Length of prefix string */
+    ssize_t         ret_value;          /* Return value */
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE3("Zs", "i*sz", plist_id, prefix, size);
+
+    /* Get the plist structure */
+    if(NULL == (plist = H5P_object_verify(plist_id, H5P_DATASET_ACCESS)))
+        HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
+
+    /* Get the current prefix */
+    if(H5P_peek(plist, H5D_ACS_VDS_PREFIX_NAME, &my_prefix) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get vds file prefix")
+
+    /* Check for prefix being set */
+    if(my_prefix) {
+        /* Copy to user's buffer, if given */
+        len = HDstrlen(my_prefix);
+        if(prefix) {
+            HDstrncpy(prefix, my_prefix, size);
+            prefix[size - 1] = '\0';
+        } /* end if */
+    } /* end if */
+    else
+        len = 0;
+
+    /* Set return value */
+    ret_value = (ssize_t)len;
+
+done:
+    FUNC_LEAVE_API(ret_value)
+} /* end H5Pget_virtual_prefix() */
 

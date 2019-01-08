@@ -1,0 +1,19 @@
+NAME
+  VTK::FiltersImaging
+LIBRARY_NAME
+  vtkFiltersImaging
+DESCRIPTION
+  Filters and algorithms for images
+KIT
+  VTK::Filters
+GROUPS
+  Imaging
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::FiltersStatistics
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonSystem
+  VTK::ImagingGeneral

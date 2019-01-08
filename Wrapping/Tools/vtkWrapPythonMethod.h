@@ -39,3 +39,4 @@ void vtkWrapPython_ReturnValue(
   FILE *fp, ClassInfo *data, ValueInfo *val, int static_call);
 
 #endif /* vtkWrapPythonMethod_h */
+/* VTK-HeaderTest-Exclude: vtkWrapPythonMethod.h */

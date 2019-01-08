@@ -1,15 +1,15 @@
-set(Module_SRCS
-  vtkImageConnector.cxx
-  vtkImageConnectivityFilter.cxx
-  vtkImageContinuousDilate3D.cxx
-  vtkImageContinuousErode3D.cxx
-  vtkImageDilateErode3D.cxx
-  vtkImageIslandRemoval2D.cxx
-  vtkImageNonMaximumSuppression.cxx
-  vtkImageOpenClose3D.cxx
-  vtkImageSeedConnectivity.cxx
-  vtkImageSkeleton2D.cxx
-  vtkImageThresholdConnectivity.cxx
-  )
+set(classes
+  vtkImageConnector
+  vtkImageConnectivityFilter
+  vtkImageContinuousDilate3D
+  vtkImageContinuousErode3D
+  vtkImageDilateErode3D
+  vtkImageIslandRemoval2D
+  vtkImageNonMaximumSuppression
+  vtkImageOpenClose3D
+  vtkImageSeedConnectivity
+  vtkImageSkeleton2D
+  vtkImageThresholdConnectivity)
 
-vtk_module_library(${vtk-module} ${Module_SRCS})
+vtk_module_add_module(VTK::ImagingMorphological
+  CLASSES ${classes})

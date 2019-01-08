@@ -16,8 +16,9 @@
 #define vtk_zlib_h
 
 /* Use the zlib library configured for VTK.  */
-#cmakedefine VTK_USE_SYSTEM_ZLIB
-#ifdef VTK_USE_SYSTEM_ZLIB
+#cmakedefine01 VTK_MODULE_USE_EXTERNAL_vtkzlib
+
+#if VTK_MODULE_USE_EXTERNAL_vtkzlib
 # include <zlib.h>
 #else
 # include <vtkzlib/zlib.h>

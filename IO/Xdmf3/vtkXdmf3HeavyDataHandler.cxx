@@ -30,17 +30,18 @@
 #include "vtkXdmf3ArraySelection.h"
 #include "vtkXdmf3DataSet.h"
 
-#include "XdmfCurvilinearGrid.hpp"
-#include "XdmfDomain.hpp"
-#include "XdmfGraph.hpp"
-#include "XdmfGrid.hpp"
-#include "XdmfGridCollection.hpp"
-#include "XdmfGridCollectionType.hpp"
-#include "XdmfItem.hpp"
-#include "XdmfRectilinearGrid.hpp"
-#include "XdmfRegularGrid.hpp"
-#include "XdmfSet.hpp"
-#include "XdmfUnstructuredGrid.hpp"
+#include "vtk_xdmf3.h"
+#include VTKXDMF3_HEADER(XdmfCurvilinearGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfDomain.hpp)
+#include VTKXDMF3_HEADER(XdmfGraph.hpp)
+#include VTKXDMF3_HEADER(XdmfGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfGridCollection.hpp)
+#include VTKXDMF3_HEADER(XdmfGridCollectionType.hpp)
+#include VTKXDMF3_HEADER(core/XdmfItem.hpp)
+#include VTKXDMF3_HEADER(XdmfRectilinearGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfRegularGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfSet.hpp)
+#include VTKXDMF3_HEADER(XdmfUnstructuredGrid.hpp)
 
 #include <cassert>
 

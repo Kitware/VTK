@@ -1,0 +1,30 @@
+#ifndef __octree
+#define __octree
+
+#include <cfloat>
+#include <stdexcept>
+#include <vector>
+
+#if defined(_MSC_VER)
+/* What bit-brained bug generating embrace-and-extinguisher thought of this?!??!! */
+#  pragma warning (disable: 4181) /* qualifier applied to reference type ignored */
+#endif
+
+// The following headers should not be included directly.
+#define __octree_interior
+
+#include <octree/octree_node.h>
+#include <octree/octree_path.h>
+#include <octree/octree_cursor.h>
+#include <octree/octree_iterator.h>
+#include <octree/octree.h>
+
+#include <octree/octree_node.txx>
+#include <octree/octree_path.txx>
+#include <octree/octree_cursor.txx>
+#include <octree/octree_iterator.txx>
+#include <octree/octree.txx>
+
+#undef __octree_interior
+
+#endif // __octree_h

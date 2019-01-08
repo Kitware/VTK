@@ -24,7 +24,6 @@
 
 #ifndef vtkAMREnzoReaderInternal_h
 #define vtkAMREnzoReaderInternal_h
-#ifndef __VTK_WRAP__
 
 #include "vtksys/SystemTools.hxx"
 
@@ -164,6 +163,5 @@ public:
 //                     Class  vtkEnzoReaderInternal ( end )
 // ----------------------------------------------------------------------------
 
-#endif
 #endif /* vtkAMREnzoReaderInternal_h */
 // VTK-HeaderTest-Exclude: vtkAMREnzoReaderInternal.h

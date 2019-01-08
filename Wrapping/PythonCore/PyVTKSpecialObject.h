@@ -64,7 +64,7 @@ struct PyVTKSpecialObject {
 extern "C"
 {
 VTKWRAPPINGPYTHONCORE_EXPORT
-PyVTKSpecialType *PyVTKSpecialType_Add(PyTypeObject *pytype,
+PyTypeObject *PyVTKSpecialType_Add(PyTypeObject *pytype,
   PyMethodDef *methods, PyMethodDef *constructors, vtkcopyfunc copyfunc);
 
 VTKWRAPPINGPYTHONCORE_EXPORT

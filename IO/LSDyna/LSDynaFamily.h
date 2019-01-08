@@ -29,7 +29,6 @@
 #define __LSDynaFamily_h
 
 #include "vtkType.h"
-#include "LSDynaExport.h"
 
 #include <string.h>
 #include <stdio.h>

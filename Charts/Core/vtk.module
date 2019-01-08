@@ -1,0 +1,31 @@
+NAME
+  VTK::ChartsCore
+LIBRARY_NAME
+  vtkChartsCore
+DESCRIPTION
+  Charts and plots
+IMPLEMENTABLE
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::FiltersGeneral
+  VTK::RenderingContext2D
+  VTK::RenderingCore
+  VTK::vtksys
+PRIVATE_DEPENDS
+  VTK::CommonColor
+  VTK::CommonExecutionModel
+  VTK::CommonTransforms
+  VTK::InfovisCore
+TEST_DEPENDS
+  VTK::CommonColor
+  VTK::FiltersGeometry
+  VTK::FiltersStatistics
+  VTK::IOImage
+  VTK::IOInfovis
+  VTK::RenderingContextOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering
+  VTK::ViewsContext2D

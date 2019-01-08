@@ -137,7 +137,7 @@ done:
  REVISION LOG
 --------------------------------------------------------------------------*/
 H5RS_str_t *
-H5RS_wrap(char *s)
+H5RS_wrap(const char *s)
 {
     H5RS_str_t *ret_value;   /* Return value */
 
@@ -148,7 +148,7 @@ H5RS_wrap(char *s)
         HGOTO_ERROR(H5E_RS, H5E_NOSPACE, NULL, "memory allocation failed")
 
     /* Set the internal fields */
-    ret_value->s = s;
+    ret_value->s = (char *)s;
     ret_value->wrapped = 1;
     ret_value->n = 1;
 
@@ -164,7 +164,7 @@ done:
     Transfer ownership of a regular string to a reference counted string
  USAGE
     H5RS_str_t *H5RS_own(s)
-        const char *s;          IN: String to transfer ownership of
+        char *s;          IN: String to transfer ownership of
 
  RETURNS
     Returns a pointer to a new ref-counted string on success, NULL on failure.

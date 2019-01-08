@@ -129,3 +129,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkQtTreeModelAdapter.h

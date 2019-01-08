@@ -1,11 +1,11 @@
 /*=========================================================================
 
-  Program:   ParaView
-  Module:    vtk_lzma.h.in
+  Program:   Visualization Toolkit
+  Module:    vtk_lzma.h
 
-  Copyright (c) Kitware, Inc.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
-  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
@@ -20,8 +20,10 @@
 #define LZMA_API_STATIC
 #endif
 
-#cmakedefine VTK_USE_SYSTEM_LZMA
-#ifdef VTK_USE_SYSTEM_LZMA
+/* Use the lzma library configured for VTK.  */
+#cmakedefine01 VTK_MODULE_USE_EXTERNAL_vtklzma
+
+#if VTK_MODULE_USE_EXTERNAL_vtklzma
 # include <lzma.h>
 #else
 # include <vtklzma/src/liblzma/api/lzma.h>

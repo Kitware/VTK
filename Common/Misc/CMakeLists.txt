@@ -1,10 +1,10 @@
-set(Module_SRCS
-  vtkContourValues.cxx
-  vtkErrorCode.cxx
-  vtkFunctionParser.cxx
-  vtkHeap.cxx
-  vtkPolygonBuilder.cxx
-  vtkResourceFileLocator.cxx
-  )
+set(classes
+  vtkContourValues
+  vtkErrorCode
+  vtkFunctionParser
+  vtkHeap
+  vtkPolygonBuilder
+  vtkResourceFileLocator)
 
-vtk_module_library(vtkCommonMisc ${Module_SRCS})
+vtk_module_add_module(VTK::CommonMisc
+  CLASSES ${classes})

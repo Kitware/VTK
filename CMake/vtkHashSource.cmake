@@ -92,7 +92,7 @@ function (vtk_hash_source)
   endif ()
 endfunction()
 
-if (_vtk_hash_source_run)
+if (_vtk_hash_source_run AND CMAKE_SCRIPT_MODE_FILE)
   file(${algorithm} "${input_file}" file_hash)
   file(WRITE "${output_file}"
     "#ifndef ${output_name}\n #define ${output_name} \"${file_hash}\"\n#endif\n")

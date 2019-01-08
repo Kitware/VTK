@@ -8,13 +8,13 @@ readonly name="tiff"
 readonly ownership="Tiff Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/tiff.git"
-readonly tag="for/vtk-old"
+readonly tag="for/vtk-20181231-4.0.9-g183102bc"
 readonly paths="
 .gitattributes
 CMakeLists.txt
 ChangeLog
 COPYRIGHT
-README
+README.md
 README.kitware.md
 
 libtiff/CMakeLists.txt
@@ -34,7 +34,7 @@ port/snprintf.c
 extract_source () {
     git_archive
     pushd "$extractdir/$name-reduced"
-    rm -v libtiff/*.vc.h libtiff/*.wince.h
+    rm -vf libtiff/*.vc.h libtiff/*.wince.h
     popd
 }
 

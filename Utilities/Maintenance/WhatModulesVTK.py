@@ -14,14 +14,14 @@ Usage: WhatModulesVTK.py vtkSourceTree applicationFile|applicationFolder
       Produces
         All modules referenced in the files:
         find_package(VTK COMPONENTS
-          vtkCommonCore
-          vtkFiltersCore
-          vtkFiltersModeling
-          vtkFiltersSources
-          vtkRenderingCore
-          vtkRenderingOpenGL2
-          vtkTestingCore
-          vtkTestingRendering
+          CommonCore
+          FiltersCore
+          FiltersModeling
+          FiltersSources
+          RenderingCore
+          RenderingOpenGL2
+          TestingCore
+          TestingRendering
         )
         Your application code includes 8 of 170 vtk modules.
 
@@ -46,17 +46,18 @@ def FindModules(path):
     Build a dict that maps paths to modules.
     '''
     pathToModule = dict()
-    fileProg = re.compile(r"module.cmake")
-    moduleProg = re.compile(r".*module[^(]*\(\s*(\w*)",re.S)
+    fileProg = re.compile(r"vtk\.module$")
     for root, dirs, files in os.walk(path):
         for f in files:
             if fileProg.match(f):
                 with open(os.path.join(root, f), "r") as fid:
                     contents = fid.read()
-                m = moduleProg.match(contents)
-                if m:
-                    moduleName = m.group(1)
-                    pathToModule[root] = moduleName
+                args = contents.split()
+                try:
+                    idx = args.index('NAME')
+                except ValueError:
+                    raise RuntimeError('%s is missing a NAME field' % os.path.join(root, f))
+                pathToModule[root] = args[idx + 1]
     return pathToModule
 
 def FindIncludes(path):
@@ -78,7 +79,7 @@ def FindModuleFiles(path):
     moduleFiles = [os.path.join(root, name)
                  for root, dirs, files in os.walk(path)
                  for name in files
-                 if name == ("module.cmake")]
+                 if name == ("vtk.module")]
     return moduleFiles
 
 def MakeFindPackage(modules):
@@ -88,7 +89,7 @@ def MakeFindPackage(modules):
     # Print a useful cmake command
     res = "find_package(VTK COMPONENTS\n"
     for module in sorted(modules):
-        res +=  "  " + module + "\n"
+        res +=  "  " + module.replace('VTK::', '') + "\n"
     res +=  ")"
     return res
 
@@ -105,7 +106,7 @@ def main(vtkSourceDir, sourceFiles):
     # Test to see if VTK source is provided
     if len(pathsToModules) == 0:
         raise IOError, vtkSourceDir +\
-        " is not a VTK source directory. It does not contain any module.cmake files."
+        " is not a VTK source directory. It does not contain any vtk.module files."
 
     # Parse the module files making a dictionary of each module and its
     # dependencies or what it implements.

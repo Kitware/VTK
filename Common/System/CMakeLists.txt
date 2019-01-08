@@ -1,12 +1,14 @@
-set(Module_SRCS
-  vtkClientSocket.cxx
-  vtkDirectory.cxx
-  vtkServerSocket.cxx
-  vtkSocket.cxx
-  vtkSocketCollection.cxx
-  vtkThreadMessager.cxx
-  vtkTimerLog.cxx
-  )
+vtk_module_find_package(
+  PACKAGE Threads)
+
+set(classes
+  vtkClientSocket
+  vtkDirectory
+  vtkServerSocket
+  vtkSocket
+  vtkSocketCollection
+  vtkThreadMessager
+  vtkTimerLog)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkTestSocketFeatures.cmake")
 
@@ -25,10 +27,9 @@ set_source_files_properties(vtkSocket.cxx
   PROPERTIES
     COMPILE_DEFINITIONS "${vtkSocket_defines}")
 
-if(WIN32 AND NOT BORLAND)
-  set(KIT_LIBS ${KIT_LIBS} wsock32)
-endif()
-
-vtk_module_library(vtkCommonSystem ${Module_SRCS})
-
-vtk_module_link_libraries(vtkCommonSystem LINK_PRIVATE ${CMAKE_THREAD_LIBS})
+vtk_module_add_module(VTK::CommonSystem
+  CLASSES ${classes})
+vtk_module_link(VTK::CommonSystem
+  PRIVATE
+    $<$<PLATFORM_ID:WIN32>:wsock32>
+    Threads::Threads)

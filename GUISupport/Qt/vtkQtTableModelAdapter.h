@@ -157,3 +157,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkQtTableModelAdapter.h

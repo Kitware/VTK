@@ -1,26 +1,26 @@
 find_path(OGG_INCLUDE_DIR
   NAMES
-    ogg/ogg.h)
-
-get_filename_component(computed_ogg_root "${OGG_INCLUDE_DIR}" DIRECTORY)
+    ogg/ogg.h
+  DOC "ogg include directory")
+mark_as_advanced(OGG_INCLUDE_DIR)
 
 find_library(OGG_LIBRARY
   NAMES
     ogg
-  HINTS
-    ${computed_ogg_root}/lib
-    ${computed_ogg_root}/lib64
-    )
-
-set(OGG_LIBRARIES ${OGG_LIBRARY})
-
-add_library(ogg::ogg UNKNOWN IMPORTED)
-set_target_properties(ogg::ogg
-  PROPERTIES
-  IMPORTED_LOCATION ${OGG_LIBRARY}
-  INTERFACE_INCLUDE_DIRECTORIES ${OGG_INCLUDE_DIR})
+  DOC "ogg library")
+mark_as_advanced(OGG_LIBRARY)
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(ogg DEFAULT_MSG OGG_LIBRARY OGG_INCLUDE_DIR)
+find_package_handle_standard_args(OGG REQUIRED_VARS OGG_LIBRARY OGG_INCLUDE_DIR)
 
-mark_as_advanced(OGG_LIBRARY OGG_INCLUDE_DIR)
+if (OGG_FOUND)
+  set(OGG_LIBRARIES "${OGG_LIBRRAY}")
+  set(OGG_INCLUDE_DIRS "${OGG_INCLUDE_DIR}")
+
+  if (NOT TARGET OGG::OGG)
+    add_library(OGG::OGG UNKNOWN IMPORTED)
+    set_target_properties(OGG::OGG PROPERTIES
+      IMPORTED_LOCATION "${OGG_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${OGG_INCLUDE_DIR}")
+  endif ()
+endif ()

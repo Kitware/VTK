@@ -1,0 +1,21 @@
+NAME
+  VTK::FiltersParallelImaging
+LIBRARY_NAME
+  vtkFiltersParallelImaging
+KIT
+  VTK::Parallel
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonExecutionModel
+  VTK::FiltersImaging
+  VTK::FiltersParallel
+  VTK::ImagingCore
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonSystem
+  VTK::FiltersExtraction
+  VTK::FiltersStatistics
+  VTK::ImagingGeneral
+  VTK::ParallelCore

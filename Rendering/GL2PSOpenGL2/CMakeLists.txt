@@ -1,13 +1,15 @@
-include(vtkObjectFactory)
-vtk_add_override(vtkOpenGLGL2PSHelper vtkOpenGLGL2PSHelperImpl)
-vtk_object_factory_configure("${vtk_module_overrides}")
+vtk_object_factory_declare(
+  BASE vtkOpenGLGL2PSHelper
+  OVERRIDE vtkOpenGLGL2PSHelperImpl)
+vtk_object_factory_configure(
+  SOURCE_FILE vtk_object_factory_source
+  HEADER_FILE vtk_object_factory_header
+  EXPORT_MACRO "VTKRENDERINGGL2PSOPENGL2_EXPORT")
 
-set(Module_SRCS
-  vtkOpenGLGL2PSHelperImpl.cxx
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
-)
+set(classes
+  vtkOpenGLGL2PSHelperImpl)
 
-vtk_module_library(${vtk-module} ${Module_SRCS})
-
-include(vtkOpenGL)
-vtk_opengl_link(${vtk-module})
+vtk_module_add_module(VTK::RenderingGL2PSOpenGL2
+  CLASSES ${classes}
+  SOURCES ${vtk_object_factory_source}
+  PRIVATE_HEADERS ${vtk_object_factory_header})

@@ -15,39 +15,38 @@
 #define H5T_FRIEND		/*prevent warning from including H5Tpkg   */
 
 
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5Dprivate.h"		/* Datasets				*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5Fprivate.h"		/* Files				*/
-#include "H5FLprivate.h"	/* Free Lists				*/
-#include "H5Gprivate.h"		/* Groups				*/
-#include "H5MMprivate.h"	/* Memory management			*/
-#include "H5Opkg.h"             /* Object headers			*/
-#include "H5Tpkg.h"		/* Datatypes				*/
-#include "H5VMprivate.h"		/* Vectors and arrays 			*/
+#include "H5private.h"		/* Generic Functions    */
+#include "H5Dprivate.h"		/* Datasets	            */
+#include "H5Eprivate.h"		/* Error handling       */
+#include "H5Fprivate.h"		/* Files                */
+#include "H5FLprivate.h"	/* Free Lists           */
+#include "H5Gprivate.h"		/* Groups               */
+#include "H5MMprivate.h"	/* Memory management    */
+#include "H5Opkg.h"         /* Object headers       */
+#include "H5Tpkg.h"         /* Datatypes            */
+#include "H5VMprivate.h"    /* Vectors and arrays   */
 
 
 /* PRIVATE PROTOTYPES */
 static herr_t H5O_dtype_encode(H5F_t *f, uint8_t *p, const void *mesg);
-static void *H5O_dtype_decode(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh,
-    unsigned mesg_flags, unsigned *ioflags, const uint8_t *p);
+static void *H5O_dtype_decode(H5F_t *f, H5O_t *open_oh, unsigned mesg_flags,
+    unsigned *ioflags, size_t p_size, const uint8_t *p);
 static void *H5O_dtype_copy(const void *_mesg, void *_dest);
 static size_t H5O_dtype_size(const H5F_t *f, const void *_mesg);
-static herr_t H5O_dtype_reset(void *_mesg);
+static herr_t H5O__dtype_reset(void *_mesg);
 static herr_t H5O__dtype_free(void *_mesg);
 static herr_t H5O_dtype_set_share(void *_mesg, const H5O_shared_t *sh);
 static htri_t H5O_dtype_can_share(const void *_mesg);
 static herr_t H5O_dtype_pre_copy_file(H5F_t *file_src, const void *mesg_src,
     hbool_t *deleted, const H5O_copy_t *cpy_info, void *_udata);
-static void *H5O_dtype_copy_file(H5F_t *file_src, const H5O_msg_class_t *mesg_type,
+static void *H5O__dtype_copy_file(H5F_t *file_src, const H5O_msg_class_t *mesg_type,
     void *native_src, H5F_t *file_dst, hbool_t *recompute_size,
-    H5O_copy_t *cpy_info, void *udata, hid_t dxpl_id);
-static herr_t H5O_dtype_shared_post_copy_upd(const H5O_loc_t *src_oloc,
-    const void *mesg_src, H5O_loc_t *dst_oloc, void *mesg_dst, hid_t dxpl_id,
+    H5O_copy_t *cpy_info, void *udata);
+static herr_t H5O__dtype_shared_post_copy_upd(const H5O_loc_t *src_oloc,
+    const void *mesg_src, H5O_loc_t *dst_oloc, void *mesg_dst, 
     H5O_copy_t *cpy_info);
-
-static herr_t H5O_dtype_debug(H5F_t *f, hid_t dxpl_id, const void *_mesg,
-    FILE * stream, int indent, int fwidth);
+static herr_t H5O__dtype_debug(H5F_t *f, const void *_mesg, FILE * stream,
+    int indent, int fwidth);
 
 /* Set up & include shared message "interface" info */
 #define H5O_SHARED_TYPE			H5O_MSG_DTYPE
@@ -57,17 +56,17 @@ static herr_t H5O_dtype_debug(H5F_t *f, hid_t dxpl_id, const void *_mesg,
 #define H5O_SHARED_ENCODE_REAL		H5O_dtype_encode
 #define H5O_SHARED_SIZE			H5O_dtype_shared_size
 #define H5O_SHARED_SIZE_REAL		H5O_dtype_size
-#define H5O_SHARED_DELETE		H5O_dtype_shared_delete
+#define H5O_SHARED_DELETE		H5O__dtype_shared_delete
 #undef H5O_SHARED_DELETE_REAL
-#define H5O_SHARED_LINK			H5O_dtype_shared_link
+#define H5O_SHARED_LINK			H5O__dtype_shared_link
 #undef H5O_SHARED_LINK_REAL
-#define H5O_SHARED_COPY_FILE		H5O_dtype_shared_copy_file
-#define H5O_SHARED_COPY_FILE_REAL	H5O_dtype_copy_file
+#define H5O_SHARED_COPY_FILE		H5O__dtype_shared_copy_file
+#define H5O_SHARED_COPY_FILE_REAL	H5O__dtype_copy_file
 #define H5O_SHARED_POST_COPY_FILE	H5O_dtype_shared_post_copy_file
 #undef  H5O_SHARED_POST_COPY_FILE_REAL
-#define H5O_SHARED_POST_COPY_FILE_UPD   H5O_dtype_shared_post_copy_upd
+#define H5O_SHARED_POST_COPY_FILE_UPD   H5O__dtype_shared_post_copy_upd
 #define H5O_SHARED_DEBUG		H5O_dtype_shared_debug
-#define H5O_SHARED_DEBUG_REAL		H5O_dtype_debug
+#define H5O_SHARED_DEBUG_REAL		H5O__dtype_debug
 #include "H5Oshared.h"			/* Shared Object Header Message Callbacks */
 
 /* Macros to check for the proper version of a datatype */
@@ -99,14 +98,14 @@ const H5O_msg_class_t H5O_MSG_DTYPE[1] = {{
     H5O_dtype_shared_encode,	/* encode message		*/
     H5O_dtype_copy,		/* copy the native value	*/
     H5O_dtype_shared_size,	/* size of raw message		*/
-    H5O_dtype_reset,		/* reset method			*/
+    H5O__dtype_reset,		/* reset method			*/
     H5O__dtype_free,		/* free method			*/
-    H5O_dtype_shared_delete,	/* file delete method		*/
-    H5O_dtype_shared_link,	/* link method			*/
+    H5O__dtype_shared_delete,	/* file delete method		*/
+    H5O__dtype_shared_link,	/* link method			*/
     H5O_dtype_set_share,	/* set share method		*/
     H5O_dtype_can_share,	/* can share method		*/
     H5O_dtype_pre_copy_file,	/* pre copy native value to file */
-    H5O_dtype_shared_copy_file,	/* copy native value to file    */
+    H5O__dtype_shared_copy_file,	/* copy native value to file    */
     H5O_dtype_shared_post_copy_file,	/* post copy native value to file */
     NULL,			/* get creation index		*/
     NULL,			/* set creation index		*/
@@ -360,7 +359,7 @@ H5O_dtype_decode_helper(H5F_t *f, unsigned *ioflags/*in,out*/, const uint8_t **p
                             } /* end if */
 
                             /* Close the base type for the array */
-                            H5T_close(temp_type);
+                            (void)H5T_close_real(temp_type);
 
                             /* Make the array type the type that is set for the field */
                             temp_type = array_dt;
@@ -1080,9 +1079,8 @@ done:
     Decode a message and return a pointer to a memory struct
 	with the decoded information
  USAGE
-    void *H5O_dtype_decode(f, dxpl_id, mesg_flags, p)
+    void *H5O_dtype_decode(f, mesg_flags, p)
 	H5F_t *f;		IN: pointer to the HDF5 file struct
-        hid_t dxpl_id;          IN: DXPL for any I/O
         unsigned mesg_flags;    IN: Message flags to influence decoding
 	const uint8 *p;		IN: the raw information buffer
  RETURNS
@@ -1093,8 +1091,8 @@ done:
     function using malloc() and is returned to the caller.
 --------------------------------------------------------------------------*/
 static void *
-H5O_dtype_decode(H5F_t *f, hid_t H5_ATTR_UNUSED dxpl_id, H5O_t H5_ATTR_UNUSED *open_oh, unsigned H5_ATTR_UNUSED mesg_flags,
-    unsigned *ioflags/*in,out*/, const uint8_t *p)
+H5O_dtype_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh, unsigned H5_ATTR_UNUSED mesg_flags,
+    unsigned *ioflags/*in,out*/, size_t H5_ATTR_UNUSED p_size, const uint8_t *p)
 {
     H5T_t	*dt = NULL;
     void        *ret_value = NULL;     /* Return value */
@@ -1179,7 +1177,8 @@ done:
 static void *
 H5O_dtype_copy(const void *_src, void *_dst)
 {
-    const H5T_t	*src = (const H5T_t *) _src;
+    /* const_cast */
+    H5T_t	*src = (H5T_t *) _src;
     H5T_t	*dst;
     void        *ret_value = NULL;      /* Return value */
 
@@ -1344,7 +1343,7 @@ H5O_dtype_size(const H5F_t *f, const void *_mesg)
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_dtype_reset
+ * Function:	H5O__dtype_reset
  *
  * Purpose:	Frees resources within a message, but doesn't free
  *		the message itself.
@@ -1354,22 +1353,20 @@ H5O_dtype_size(const H5F_t *f, const void *_mesg)
  * Programmer:	Robb Matzke
  *		Tuesday, December  9, 1997
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_dtype_reset(void *_mesg)
+H5O__dtype_reset(void *_mesg)
 {
     H5T_t		   *dt = (H5T_t *) _mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     if(dt)
         H5T__free(dt);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5O_dtype_reset() */
+} /* end H5O__dtype_reset() */
 
 
 /*-------------------------------------------------------------------------
@@ -1395,7 +1392,7 @@ H5O__dtype_free(void *mesg)
     HDassert(mesg);
 
     /* Release the datatype */
-    if(H5T_close((H5T_t *)mesg) < 0)
+    if(H5T_close_real((H5T_t *)mesg) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTFREE, FAIL, "unable to free datatype")
 
 done:
@@ -1516,10 +1513,11 @@ done:
  */
 static herr_t
 H5O_dtype_pre_copy_file(H5F_t *file_src, const void *mesg_src,
-    hbool_t H5_ATTR_UNUSED *deleted, const H5O_copy_t H5_ATTR_UNUSED *cpy_info,
+    hbool_t H5_ATTR_UNUSED *deleted, const H5O_copy_t *cpy_info,
     void *_udata)
 {
-    const H5T_t	*dt_src = (const H5T_t *)mesg_src;  /* Source datatype */
+    /* const_cast */
+    H5T_t	*dt_src = (H5T_t *)mesg_src;  /* Source datatype */
     H5D_copy_file_ud_t *udata = (H5D_copy_file_ud_t *)_udata;   /* Dataset copying user data */
     herr_t ret_value = SUCCEED;          /* Return value */
 
@@ -1528,6 +1526,13 @@ H5O_dtype_pre_copy_file(H5F_t *file_src, const void *mesg_src,
     /* check args */
     HDassert(file_src);
     HDassert(dt_src);
+    HDassert(cpy_info);
+    HDassert(cpy_info->file_dst);
+
+    /* Check to ensure that the version of the message to be copied does not exceed
+       the message version as indicated by the destination file's high bound */
+    if(dt_src->shared->version > H5O_dtype_ver_bounds[H5F_HIGH_BOUND(cpy_info->file_dst)])
+        HGOTO_ERROR(H5E_OHDR, H5E_BADRANGE, FAIL, "datatype message version out of bounds")
 
     /* If the user data is non-NULL, assume we are copying a dataset
      * and check if we need to make a copy of the datatype for later in
@@ -1552,7 +1557,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_dtype_copy_file
+ * Function:    H5O__dtype_copy_file
  *
  * Purpose:     Copy a native datatype message from one file to another.
  *
@@ -1565,14 +1570,14 @@ done:
  *-------------------------------------------------------------------------
  */
 static void *
-H5O_dtype_copy_file(H5F_t H5_ATTR_UNUSED *file_src, const H5O_msg_class_t *mesg_type,
+H5O__dtype_copy_file(H5F_t H5_ATTR_UNUSED *file_src, const H5O_msg_class_t *mesg_type,
     void *native_src, H5F_t *file_dst, hbool_t H5_ATTR_UNUSED *recompute_size,
-    H5O_copy_t H5_ATTR_UNUSED *cpy_info, void H5_ATTR_UNUSED *udata, hid_t H5_ATTR_UNUSED dxpl_id)
+    H5O_copy_t H5_ATTR_UNUSED *cpy_info, void H5_ATTR_UNUSED *udata)
 {
     H5T_t *dst_mesg;            /* Destination datatype */
     void *ret_value = NULL;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* Perform a normal copy of the object header message */
     if(NULL == (dst_mesg = (H5T_t *)H5O_dtype_copy(native_src, NULL)))
@@ -1587,12 +1592,13 @@ H5O_dtype_copy_file(H5F_t H5_ATTR_UNUSED *file_src, const H5O_msg_class_t *mesg_
 done:
     if(NULL == ret_value)
         H5O_msg_free(mesg_type->id, dst_mesg);
+
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_dtype_copy_file() */
+} /* end H5O__dtype_copy_file() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_dtype_shared_post_copy_upd
+ * Function:    H5O__dtype_shared_post_copy_upd
  *
  * Purpose:     Update a message after the shared message operations
  *              during the post-copy loop
@@ -1605,14 +1611,14 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_dtype_shared_post_copy_upd(const H5O_loc_t H5_ATTR_UNUSED *src_oloc,
+H5O__dtype_shared_post_copy_upd(const H5O_loc_t H5_ATTR_UNUSED *src_oloc,
     const void H5_ATTR_UNUSED *mesg_src, H5O_loc_t H5_ATTR_UNUSED *dst_oloc, void *mesg_dst,
-    hid_t H5_ATTR_UNUSED dxpl_id, H5O_copy_t H5_ATTR_UNUSED *cpy_info)
+    H5O_copy_t H5_ATTR_UNUSED *cpy_info)
 {
     H5T_t       *dt_dst = (H5T_t *)mesg_dst;    /* Destination datatype */
     herr_t ret_value = SUCCEED;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     if(dt_dst->sh_loc.type == H5O_SHARE_TYPE_COMMITTED) {
         HDassert(H5T_committed(dt_dst));
@@ -1626,16 +1632,16 @@ H5O_dtype_shared_post_copy_upd(const H5O_loc_t H5_ATTR_UNUSED *src_oloc,
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_dtype_shared_post_copy_upd */
+} /* end H5O__dtype_shared_post_copy_upd */
 
 
 /*--------------------------------------------------------------------------
  NAME
-    H5O_dtype_debug
+    H5O__dtype_debug
  PURPOSE
     Prints debugging information for a message
  USAGE
-    void *H5O_dtype_debug(f, mesg, stream, indent, fwidth)
+    void *H5O__dtype_debug(f, mesg, stream, indent, fwidth)
 	H5F_t *f;		IN: pointer to the HDF5 file struct
 	const void *mesg;	IN: Pointer to the source simple datatype
 				    struct
@@ -1649,8 +1655,8 @@ done:
     parameter.
 --------------------------------------------------------------------------*/
 static herr_t
-H5O_dtype_debug(H5F_t *f, hid_t dxpl_id, const void *mesg, FILE *stream,
-		int indent, int fwidth)
+H5O__dtype_debug(H5F_t *f, const void *mesg, FILE *stream, int indent,
+    int fwidth)
 {
     const H5T_t		*dt = (const H5T_t*)mesg;
     const char		*s;
@@ -1658,7 +1664,7 @@ H5O_dtype_debug(H5F_t *f, hid_t dxpl_id, const void *mesg, FILE *stream,
     unsigned		i;
     size_t		k;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* check args */
     HDassert(f);
@@ -1742,13 +1748,13 @@ H5O_dtype_debug(H5F_t *f, hid_t dxpl_id, const void *mesg, FILE *stream,
             HDfprintf(stream, "%*s%-*s %lu\n", indent+3, "", MAX(0, fwidth-3),
                 "Byte offset:",
                 (unsigned long)(dt->shared->u.compnd.memb[i].offset));
-            H5O_dtype_debug(f, dxpl_id, dt->shared->u.compnd.memb[i].type, stream,
+            H5O__dtype_debug(f, dt->shared->u.compnd.memb[i].type, stream,
                     indent + 3, MAX(0, fwidth - 3));
         } /* end for */
     } /* end if */
     else if(H5T_ENUM == dt->shared->type) {
         HDfprintf(stream, "%*s%s\n", indent, "", "Base type:");
-        H5O_dtype_debug(f, dxpl_id, dt->shared->parent, stream, indent+3, MAX(0, fwidth-3));
+        H5O__dtype_debug(f, dt->shared->parent, stream, indent+3, MAX(0, fwidth-3));
         HDfprintf(stream, "%*s%-*s %u\n", indent, "", fwidth,
             "Number of members:",
             dt->shared->u.enumer.nmembs);
@@ -1978,7 +1984,7 @@ H5O_dtype_debug(H5F_t *f, hid_t dxpl_id, const void *mesg, FILE *stream,
             HDfprintf(stream, "%s%u", (i ? ", " : ""), (unsigned)dt->shared->u.array.dim[i]);
         HDfprintf(stream, "}\n");
         HDfprintf(stream, "%*s%s\n", indent, "", "Base type:");
-        H5O_dtype_debug(f, dxpl_id, dt->shared->parent, stream, indent + 3, MAX(0, fwidth - 3));
+        H5O__dtype_debug(f, dt->shared->parent, stream, indent + 3, MAX(0, fwidth - 3));
     } /* end else if */
     else {
         switch (dt->shared->u.atomic.order) {
@@ -2162,5 +2168,5 @@ H5O_dtype_debug(H5F_t *f, hid_t dxpl_id, const void *mesg, FILE *stream,
     } /* end else */
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5O_dtype_debug() */
+} /* end H5O__dtype_debug() */
 

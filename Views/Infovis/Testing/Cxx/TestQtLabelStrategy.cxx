@@ -64,9 +64,7 @@ int TestQtLabelStrategy(int argc, char* argv[])
   VTK_CREATE(vtkTesting, testHelper);
   testHelper->AddArguments(argc, const_cast<const char **>(argv));
   QString fontFileName = testHelper->GetDataRoot();
-//  fontFileName.append("/Data/Infovis/PintassilgoPrints_-_Talvez_Assim.ttf");
   fontFileName.append("/Data/Infovis/martyb_-_Ridiculous.ttf");
-//  fontFileName.append("/Data/Infovis/DaveDS_-_Sketchy.ttf");
 
   QApplication app(argc, argv);
 

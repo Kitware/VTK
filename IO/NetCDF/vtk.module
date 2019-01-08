@@ -1,0 +1,21 @@
+NAME
+  VTK::IONetCDF
+LIBRARY_NAME
+  vtkIONetCDF
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::netcdf
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::CommonExecutionModel
+  VTK::FiltersGeometry
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering

@@ -1,54 +1,64 @@
 cmake_minimum_required(VERSION 3.3...3.12 FATAL_ERROR)
+project(IO)
 
+find_package(VTK
+  OPTIONAL_COMPONENTS
+    IOExport
+    IOImport
+    TestingRendering)
+find_package(VTK
+  COMPONENTS
+    CommonCore
+    IOGeometry
+    IOLegacy
+    IOXML
+    InteractionStyle)
+if (NOT VTK_FOUND)
+  message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")
+  return ()
+endif ()
 
-PROJECT (IO)
+add_executable(DumpXMLFile MACOSX_BUNDLE
+  DumpXMLFile.cxx)
+target_link_libraries(DumpXMLFile
+  PRIVATE
+    ${VTK_LIBRARIES})
 
-find_package(VTK REQUIRED)
-if (vtkIOExport_LOADED AND vtkIOImport_LOADED)
-vtk_module_config(VTK
-  vtkCommonCore
-  vtkIOLegacy
-  vtkIOXML
-  vtkIOGeometry
-  vtkTestingRendering
-  vtkInteractionStyle
-  vtkIOImport
-  vtkIOExport
-  vtksys
-)
-else()
-vtk_module_config(VTK
-  vtkCommonCore
-  vtkIOLegacy
-  vtkIOXML
-  vtkIOGeometry
-  vtkTestingRendering
-  vtkInteractionStyle
-  vtkIOImport
-  vtksys
-)
-endif()
-include(${VTK_USE_FILE})
+add_executable(ParticleReader MACOSX_BUNDLE
+  ParticleReader.cxx)
+target_link_libraries(ParticleReader
+  PRIVATE
+    ${VTK_LIBRARIES})
 
-add_executable(DumpXMLFile MACOSX_BUNDLE DumpXMLFile.cxx)
-target_link_libraries(DumpXMLFile ${VTK_LIBRARIES})
+vtk_module_autoinit(
+  TARGETS DumpXMLFile
+          ParticleReader
+  MODULES ${VTK_LIBRARIES})
 
-add_executable(ParticleReader MACOSX_BUNDLE ParticleReader.cxx)
-target_link_libraries(ParticleReader ${VTK_LIBRARIES})
+if (TARGET VTK::IOExport AND TARGET VTK::IOImport)
+  add_executable(objtovtp
+    objtovtp.cxx)
+  target_link_libraries(objtovtp
+    PRIVATE
+      ${VTK_LIBRARIES}
+      VTK::IOExport
+      VTK::IOImport)
 
-if (vtkIOExport_LOADED AND vtkIOImport_LOADED)
-  add_executable(objtovtp objtovtp.cxx)
-  target_link_libraries(objtovtp ${VTK_LIBRARIES})
-endif()
+  vtk_module_autoinit(
+    TARGETS objtovtp
+    MODULES ${VTK_LIBRARIES}
+            VTK::IOExport
+            VTK::IOImport)
+endif ()
 
-if(BUILD_TESTING)
-  if(vtkTestingRendering_LOADED)
+if (BUILD_TESTING)
+  if (TARGET VTK::TestingRendering)
     ######## Regression Testing ########
     set(vtk-example IOExamples)
     set(TestDumpXMLFile_ARGS "DATA{${VTK_TEST_INPUT_DIR}/cow.vtp}")
     set(TestParticleReader_ARGS
-      "${VTK_TEST_DATA_DIR}/Data/golf.csv"
-      ${VTK_TEST_OUTPUT_DIR}/TestParticleReader.vtp)
+      "${_vtk_build_TEST_DATA_DIRECTORY}/Data/golf.csv"
+      ${_vtk_build_TEST_OUTPUT_DIRECTORY}/TestParticleReader.vtp)
     vtk_add_test_cxx(${vtk-example}CxxTests tests
       NO_DATA NO_VALID NO_OUTPUT
       TestParticleReader.cxx
@@ -57,5 +67,5 @@ if(BUILD_TESTING)
     vtk_test_cxx_executable(${vtk-example}CxxTests tests
       RENDERING_FACTORY
       )
-  endif()
-endif()
+  endif ()
+endif ()

@@ -1,5 +1,3 @@
-include(vtkMPI)
-
 set(vtkFiltersParallelGeometryCxxTests-MPI_NUMPROCS 4)
 set(Tests_SRCS
   TestPStructuredGridConnectivity.cxx
@@ -25,5 +23,5 @@ set(all_tests
   ${data_tests_4_procs}
 )
 
-vtk_test_mpi_executable(vtkFiltersParallelGeometryCxxTests-MPI all_tests
+vtk_test_cxx_executable(vtkFiltersParallelGeometryCxxTests-MPI all_tests
   UnstructuredGhostZonesCommon.cxx)

@@ -1,31 +1,31 @@
-SET(Module_SRCS
-  vtkAVSucdReader.cxx
-  vtkBYUReader.cxx
-  vtkBYUWriter.cxx
-  #vtkCGMWriter.cxx # Needs vtkViewport.
-  vtkChacoReader.cxx
-  vtkFacetWriter.cxx
-  vtkFLUENTReader.cxx
-  vtkGAMBITReader.cxx
-  vtkGaussianCubeReader.cxx
-  vtkHoudiniPolyDataWriter.cxx
-  vtkIVWriter.cxx
-  vtkMCubesReader.cxx
-  vtkMCubesWriter.cxx
-  vtkMFIXReader.cxx
-  vtkMoleculeReaderBase.cxx
-  vtkOBJReader.cxx
-  vtkOBJWriter.cxx
-  vtkOpenFOAMReader.cxx
-  vtkParticleReader.cxx
-  vtkPDBReader.cxx
-  vtkProStarReader.cxx
-  vtkPTSReader.cxx
-  vtkSTLReader.cxx
-  vtkSTLWriter.cxx
-  vtkTecplotReader.cxx
-  vtkWindBladeReader.cxx
-  vtkXYZMolReader.cxx
-  )
+set(classes
+  vtkAVSucdReader
+  vtkBYUReader
+  vtkBYUWriter
+  #vtkCGMWriter # Needs vtkViewport.
+  vtkChacoReader
+  vtkFacetWriter
+  vtkFLUENTReader
+  vtkGAMBITReader
+  vtkGaussianCubeReader
+  vtkHoudiniPolyDataWriter
+  vtkIVWriter
+  vtkMCubesReader
+  vtkMCubesWriter
+  vtkMFIXReader
+  vtkMoleculeReaderBase
+  vtkOBJReader
+  vtkOBJWriter
+  vtkOpenFOAMReader
+  vtkParticleReader
+  vtkPDBReader
+  vtkProStarReader
+  vtkPTSReader
+  vtkSTLReader
+  vtkSTLWriter
+  vtkTecplotReader
+  vtkWindBladeReader
+  vtkXYZMolReader)
 
-vtk_module_library(vtkIOGeometry ${Module_SRCS})
+vtk_module_add_module(VTK::IOGeometry
+  CLASSES ${classes})

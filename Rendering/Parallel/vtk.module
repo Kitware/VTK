@@ -1,0 +1,34 @@
+NAME
+  VTK::RenderingParallel
+LIBRARY_NAME
+  vtkRenderingParallel
+KIT
+  VTK::Parallel
+DEPENDS
+  VTK::CommonCore
+  VTK::RenderingCore
+  VTK::RenderingOpenGL2
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonMath
+  VTK::CommonSystem
+  VTK::FiltersParallel
+  VTK::IOImage
+  VTK::ImagingCore
+  VTK::ParallelCore
+  VTK::glew
+  VTK::opengl
+TEST_DEPENDS
+  VTK::FiltersGeometry
+  VTK::FiltersParallel
+  VTK::FiltersParallelMPI
+  VTK::FiltersSources
+  VTK::IOImage
+  VTK::IOImport
+  VTK::IOLegacy
+  VTK::ImagingSources
+  VTK::InteractionStyle
+  VTK::ParallelMPI
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

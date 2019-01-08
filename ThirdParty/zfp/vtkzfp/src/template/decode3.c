@@ -16,8 +16,8 @@ static void
 _t2(scatter_partial, Scalar, 3)(const Scalar* q, Scalar* p, uint nx, uint ny, uint nz, int sx, int sy, int sz)
 {
   uint x, y, z;
-  for (z = 0; z < nz; z++, p += sz - ny * sy, q += 4 * (4 - ny))
-    for (y = 0; y < ny; y++, p += sy - nx * sx, q += 4 - nx)
+  for (z = 0; z < nz; z++, p += sz - (ptrdiff_t)ny * sy, q += 4 * (4 - ny))
+    for (y = 0; y < ny; y++, p += sy - (ptrdiff_t)nx * sx, q += 1 * (4 - nx))
       for (x = 0; x < nx; x++, p += sx, q++)
         *p = *q;
 }

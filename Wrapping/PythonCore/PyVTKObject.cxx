@@ -58,20 +58,14 @@ PyVTKClass::PyVTKClass(
 //--------------------------------------------------------------------
 // Add a class, add methods and members to its type object.  A return
 // value of nullptr signifies that the class was already added.
-PyVTKClass *PyVTKClass_Add(
+PyTypeObject *PyVTKClass_Add(
   PyTypeObject *pytype, PyMethodDef *methods,
   const char *classname, vtknewfunc constructor)
 {
-  // Add this type to the vtk class map
-  PyVTKClass *info =
-    vtkPythonUtil::AddClassToMap(
+  // Check whether the type is already in the map (use classname as key),
+  // and return it if so.  If not, then add it to the map.
+  pytype = vtkPythonUtil::AddClassToMap(
       pytype, methods, classname, constructor);
-
-  if (info == nullptr)
-  {
-    // The class was already in the map, so do nothing
-    return info;
-  }
 
   // Cache the type object for vtkObjectBase for quick access
   if (PyVTKObject_Type == nullptr && strcmp(classname, "vtkObjectBase") == 0)
@@ -79,11 +73,14 @@ PyVTKClass *PyVTKClass_Add(
     PyVTKObject_Type = pytype;
   }
 
-  // Create the dict
-  if (pytype->tp_dict == nullptr)
+  // If type object already has a dict, we're done
+  if (pytype->tp_dict)
   {
-    pytype->tp_dict = PyDict_New();
+    return pytype;
   }
+
+  // Create the dict
+  pytype->tp_dict = PyDict_New();
 
   // Add special attribute __vtkname__
   PyObject *s = PyString_FromString(classname);
@@ -98,7 +95,7 @@ PyVTKClass *PyVTKClass_Add(
     Py_DECREF(func);
   }
 
-  return info;
+  return pytype;
 }
 
 //--------------------------------------------------------------------

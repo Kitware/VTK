@@ -155,7 +155,7 @@ SIMPLE_TEST(struct tm tm; tm.tm_gmtoff=0);
 #include <time.h>
 SIMPLE_TEST(struct tm tm; tm.__tm_gmtoff=0);
 
-#endif /* HAVE_TM_GMTOFF */
+#endif /* HAVE_TM___GMTOFF */
 
 #ifdef HAVE_TIMEZONE
 
@@ -214,9 +214,9 @@ int main(void)
   char *s = malloc(128);
   char **currentArg = NULL;
   LL_TYPE x = (LL_TYPE)1048576 * (LL_TYPE)1048576;
-#if defined(_MSC_VER) && defined(_DEBUG)
-  _CrtSetReportHook(DebugReport);
-#endif
+  #if defined(_MSC_VER) && defined(_DEBUG)
+    _CrtSetReportHook(DebugReport);
+  #endif
   for (currentArg = llwidthArgs; *currentArg != NULL; currentArg++)
     {
     char formatString[64];
@@ -260,9 +260,6 @@ int main(void)
 #endif
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
-#endif
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
 #endif
 
 SIMPLE_TEST(socklen_t foo);
@@ -411,13 +408,13 @@ int main ()
 
 SIMPLE_TEST(struct videoconfig w; w.numtextcols=0);
 
-#endif /* HAVE_TM_GMTOFF */
+#endif /* HAVE_STRUCT_VIDEOCONFIG */
 
 #ifdef HAVE_STRUCT_TEXT_INFO
 
 SIMPLE_TEST(struct text_info w; w.screenwidth=0);
 
-#endif /* HAVE_TM_GMTOFF */
+#endif /* HAVE_STRUCT_TEXT_INFO */
 
 #if defined( HAVE_INLINE ) || defined( HAVE___INLINE__ ) || defined( HAVE___INLINE )
 #ifndef __cplusplus

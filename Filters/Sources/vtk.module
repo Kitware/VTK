@@ -1,0 +1,31 @@
+NAME
+  VTK::FiltersSources
+LIBRARY_NAME
+  vtkFiltersSources
+KIT
+  VTK::Filters
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonComputationalGeometry
+  VTK::CommonCore
+  VTK::CommonTransforms
+  VTK::FiltersCore
+  VTK::FiltersGeneral
+TEST_DEPENDS
+  VTK::CommonComputationalGeometry
+  VTK::FiltersExtraction
+  VTK::FiltersGeometry
+  VTK::FiltersHyperTree
+  VTK::FiltersModeling
+  VTK::FiltersVerdict
+  VTK::IOParallel
+  VTK::IOXML
+  VTK::InteractionStyle
+  VTK::RenderingFreeType
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

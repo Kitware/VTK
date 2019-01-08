@@ -75,3 +75,4 @@ void vtkParse_Free(FileInfo *data);
 #endif
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkParse.h */

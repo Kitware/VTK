@@ -1,5 +1,3 @@
-include(vtkMPI)
-
 set (vtkFiltersParallelDIY2CxxTests-MPI_NUMPROCS 2)
 vtk_add_test_mpi(vtkFiltersParallelDIY2CxxTests-MPI tests
   TESTING_DATA
@@ -21,4 +19,4 @@ set(all_tests
   ${no_data_tests_4_procs}
   )
 
-vtk_test_mpi_executable(vtkFiltersParallelDIY2CxxTests-MPI all_tests)
+vtk_test_cxx_executable(vtkFiltersParallelDIY2CxxTests-MPI all_tests)

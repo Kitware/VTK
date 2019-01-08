@@ -1,0 +1,19 @@
+NAME
+  VTK::FiltersStatistics
+LIBRARY_NAME
+  vtkFiltersStatistics
+KIT
+  VTK::Filters
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonMisc
+  VTK::ImagingFourier
+  VTK::eigen
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::TestingCore

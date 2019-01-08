@@ -1,31 +1,40 @@
-INCLUDE_REGULAR_EXPRESSION("^(lex|vtk|png|j|Task|Pipe).*$")
+cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+project(ParallelProcessingGeneric)
 
-include(vtkMPI)
+find_package(VTK
+  COMPONENTS
+    IOImage
+    ImagingCore
+    ImagingGeneral
+    FiltersSources
+    ParallelMPI
+    RenderingCore
+    RenderingParallel
+    TestingCore
+    TestingRendering
+    mpi)
+if (NOT VTK_FOUND)
+  message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")
+  return ()
+endif ()
 
-find_package(VTK COMPONENTS
-  vtkImagingCore
-  vtkImagingGeneral
-  vtkFiltersCore
-  vtkFiltersSources
-  vtkParallelMPI
-  vtkRenderingCore
-  vtkRenderingParallel
-  vtkTestingCore
-  vtkTestingRendering
-)
-include(${VTK_USE_FILE})
+add_executable(ParallelIso ParallelIso.cxx)
+target_link_libraries(ParallelIso
+  PRIVATE
+    ${VTK_LIBRARIES})
 
-# Needed for mpich 2
-ADD_DEFINITIONS("-DMPICH_IGNORE_CXX_SEEK")
+set(TaskPara_SRCS
+  TaskParallelism.cxx
+  task1.cxx
+  task2.cxx)
 
-ADD_EXECUTABLE(ParallelIso ParallelIso.cxx)
-TARGET_LINK_LIBRARIES(ParallelIso LINK_PRIVATE ${VTK_LIBRARIES})
-VTK_MPI_LINK(ParallelIso)
+add_executable(TaskParallelism
+  ${TaskPara_SRCS})
+target_link_libraries(TaskParallelism
+  PRIVATE
+    ${VTK_LIBRARIES})
 
-SET(TaskPara_SRCS TaskParallelism.cxx task1.cxx task2.cxx)
-
-ADD_EXECUTABLE(TaskParallelism          ${TaskPara_SRCS})
-TARGET_LINK_LIBRARIES (TaskParallelism ${VTK_LIBRARIES})
-
-#  ADD_EXECUTABLE(SimpleBenchmark SimpleBenchmark.cxx)
-#  TARGET_LINK_LIBRARIES(SimpleBenchmark vtkParallel ${MPI_LIBRARIES} )
+vtk_module_autoinit(
+  TARGETS ParallelIso
+          TaskParallelism
+  MODULES ${VTK_LIBRARIES})

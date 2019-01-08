@@ -9,6 +9,7 @@
 #  TBB_INCLUDE_DIRS - the TBB include directories
 #  TBB_LIBRARIES - TBB libraries to be lined, doesn't include malloc or
 #                  malloc proxy
+#  TBB::tbb - imported target for the TBB library
 #
 #  TBB_VERSION_MAJOR - Major Product Version Number
 #  TBB_VERSION_MINOR - Minor Product Version Number
@@ -20,10 +21,12 @@
 #  TBB_MALLOC_FOUND - system has TBB malloc library
 #  TBB_MALLOC_INCLUDE_DIRS - the TBB malloc include directories
 #  TBB_MALLOC_LIBRARIES - The TBB malloc libraries to be lined
+#  TBB::malloc - imported target for the TBB malloc library
 #
 #  TBB_MALLOC_PROXY_FOUND - system has TBB malloc proxy library
 #  TBB_MALLOC_PROXY_INCLUDE_DIRS = the TBB malloc proxy include directories
 #  TBB_MALLOC_PROXY_LIBRARIES - The TBB malloc proxy libraries to be lined
+#  TBB::malloc_proxy - imported target for the TBB malloc proxy library
 #
 #
 # This module reads hints about search locations from variables:
@@ -80,6 +83,13 @@ macro(findpkg_finish PREFIX)
         message(FATAL_ERROR "Required library ${PREFIX} not found.")
       endif ()
     endif ()
+
+    add_library(TBB::${TARGET} UNKNOWN IMPORTED)
+    set_target_propertes(TBB::${TARGET} PROPERTIES
+      IMPORTED_LOCATION "${${PREFIX}_LIBRARY}"
+      IMPORTED_LOCATION_DEBUG "${${PREFIX}_LIBRARY_DEBUG}"
+      IMPORTED_LOCATION_RELEASE "${${PREFIX}_LIBRARY_RELEASE}")
+    target_include_directories(TBB::${TARGET} INTERFACE "${${PREFIX}_INCLUDE_DIR}")
 
    #mark the following variables as internal variables
    mark_as_advanced(${PREFIX}_INCLUDE_DIR

@@ -1,13 +1,13 @@
-set(Module_SRCS
-  vtkImageButterworthHighPass.cxx
-  vtkImageButterworthLowPass.cxx
-  vtkImageFFT.cxx
-  vtkImageFourierCenter.cxx
-  vtkImageFourierFilter.cxx
-  vtkImageIdealHighPass.cxx
-  vtkImageIdealLowPass.cxx
-  vtkImageRFFT.cxx
-  vtkTableFFT.cxx
-  )
+set(classes
+  vtkImageButterworthHighPass
+  vtkImageButterworthLowPass
+  vtkImageFFT
+  vtkImageFourierCenter
+  vtkImageFourierFilter
+  vtkImageIdealHighPass
+  vtkImageIdealLowPass
+  vtkImageRFFT
+  vtkTableFFT)
 
-vtk_module_library(${vtk-module} ${Module_SRCS})
+vtk_module_add_module(VTK::ImagingFourier
+  CLASSES ${classes})

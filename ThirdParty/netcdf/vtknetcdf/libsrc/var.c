@@ -16,6 +16,7 @@
 #include "ncx.h"
 #include "rnd.h"
 #include "ncutf8.h"
+#include "nc3dispatch.h"
 
 #ifndef OFF_T_MAX
 #if 0
@@ -484,29 +485,21 @@ NC_var_shape(NC_var *varp, const NC_dimarray *dims)
 
 
 out :
-    if( varp->xsz <= (X_UINT_MAX - 1) / product ) /* if integer multiply will not overflow */
-	{
-	        varp->len = product * varp->xsz;
-		switch(varp->type) {
-		case NC_BYTE :
-		case NC_CHAR :
-		case NC_UBYTE :
-		case NC_SHORT :
-		case NC_USHORT :
-		        if( varp->len%4 != 0 )
-			{
-			        varp->len += 4 - varp->len%4; /* round up */
-		/*		*dsp += 4 - *dsp%4; */
-		    }
-		    break;
-		default:
-			/* already aligned */
-			break;
-		}
-        } else
-	{	/* OK for last var to be "too big", indicated by this special len */
-	        varp->len = X_UINT_MAX;
-        }
+
+    /* No variable size can be > X_INT64_MAX - 3 */
+    if (0 == NC_check_vlen(varp, X_INT64_MAX-3)) return NC_EVARSIZE;
+
+    /*
+     * For CDF-1 and CDF-2 formats, the total number of array elements
+     * cannot exceed 2^32, unless this variable is the last fixed-size
+     * variable, there is no record variable, and the file starting
+     * offset of this variable is less than 2GiB.
+     * This will be checked in NC_check_vlens() during NC_endef()
+     */
+    varp->len = product * varp->xsz;
+    if (varp->len % 4 > 0)
+        varp->len += 4 - varp->len % 4; /* round up */
+
 #if 0
 	arrayp("\tshape", varp->ndims, varp->shape);
 	arrayp("\tdsizes", varp->ndims, varp->dsizes);
@@ -603,15 +596,12 @@ NC3_def_var( int ncid, const char *name, nc_type type,
 	if(status != NC_NOERR)
 		return status;
 
+        if (ndims > NC_MAX_VAR_DIMS) return NC_EMAXDIMS;
+
 		/* cast needed for braindead systems with signed size_t */
 	if((unsigned long) ndims > X_INT_MAX) /* Backward compat */
 	{
 		return NC_EINVAL;
-	}
-
-	if(ncp->vars.nelems >= NC_MAX_VARS)
-	{
-		return NC_EMAXVARS;
 	}
 
 	varid = NC_findvar(&ncp->vars, name, &varp);
@@ -640,6 +630,13 @@ NC3_def_var( int ncid, const char *name, nc_type type,
 
 	if(varidp != NULL)
 		*varidp = (int)ncp->vars.nelems -1; /* varid */
+
+	/* set the variable's fill mode */
+	if (NC_dofill(ncp))
+		varp->no_fill = 0;
+	else
+		varp->no_fill = 1;
+
 	return NC_NOERR;
 }
 
@@ -676,7 +673,9 @@ NC3_inq_var(int ncid,
 	nc_type *typep,
 	int *ndimsp,
 	int *dimids,
-	int *nattsp)
+	int *nattsp,
+	int *no_fillp,
+	void *fill_valuep)
 {
 	int status;
 	NC *nc;
@@ -715,6 +714,18 @@ NC3_inq_var(int ncid,
 	if(nattsp != 0)
 	{
 		*nattsp = (int) varp->attrs.nelems;
+	}
+
+	if (no_fillp != NULL) *no_fillp = varp->no_fill;
+
+	if (fill_valuep != NULL) {
+		status = nc_get_att(ncid, varid, _FillValue, fill_valuep);
+		if (status != NC_NOERR && status != NC_ENOTATT)
+			return status;
+		if (status == NC_ENOTATT) {
+			status = NC3_inq_default_fill_value(varp->type, fill_valuep);
+			if (status != NC_NOERR) return status;
+		}
 	}
 
 	return NC_NOERR;
@@ -798,6 +809,57 @@ NC3_rename_var(int ncid, int varid, const char *unewname)
 		status = NC_sync(ncp);
 		if(status != NC_NOERR)
 			return status;
+	}
+
+	return NC_NOERR;
+}
+
+int
+NC3_def_var_fill(int ncid,
+	int varid,
+	int no_fill,
+	const void *fill_value)
+{
+	int status;
+	NC *nc;
+	NC3_INFO* ncp;
+	NC_var *varp;
+
+	status = NC_check_id(ncid, &nc);
+	if(status != NC_NOERR)
+		return status;
+	ncp = NC3_DATA(nc);
+
+	if(NC_readonly(ncp))
+	{
+		return NC_EPERM;
+	}
+
+	if(!NC_indef(ncp))
+	{
+		return NC_ENOTINDEFINE;
+	}
+
+	varp = elem_NC_vararray(&ncp->vars, (size_t)varid);
+	if(varp == NULL)
+		return NC_ENOTVAR;
+
+	if (no_fill)
+		varp->no_fill = 1;
+	else
+		varp->no_fill = 0;
+
+	/* Are we setting a fill value? */
+	if (fill_value != NULL && !varp->no_fill) {
+
+		/* If there's a _FillValue attribute, delete it. */
+		status = NC3_del_att(ncid, varid, _FillValue);
+		if (status != NC_NOERR && status != NC_ENOTATT)
+			return status;
+
+		/* Create/overwrite attribute _FillValue */
+		status = NC3_put_att(ncid, varid, _FillValue, varp->type, 1, fill_value, varp->type);
+		if (status != NC_NOERR) return status;
 	}
 
 	return NC_NOERR;

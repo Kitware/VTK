@@ -16,8 +16,9 @@
 #define vtk_tiff_h
 
 /* Use the tiff library configured for VTK.  */
-#cmakedefine VTK_USE_SYSTEM_TIFF
-#ifdef VTK_USE_SYSTEM_TIFF
+#cmakedefine01 VTK_MODULE_USE_EXTERNAL_vtktiff
+
+#if VTK_MODULE_USE_EXTERNAL_vtktiff
 # include <tiffio.h>
 #else
 # include <vtktiff/libtiff/tiffio.h>

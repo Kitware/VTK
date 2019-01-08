@@ -1,0 +1,16 @@
+NAME
+  VTK::ImagingStencil
+LIBRARY_NAME
+  vtkImagingStencil
+KIT
+  VTK::Imaging
+GROUPS
+  Imaging
+  StandAlone
+DEPENDS
+  VTK::CommonExecutionModel
+  VTK::ImagingCore
+PRIVATE_DEPENDS
+  VTK::CommonComputationalGeometry
+  VTK::CommonCore
+  VTK::CommonDataModel

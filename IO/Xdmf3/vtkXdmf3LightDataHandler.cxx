@@ -20,21 +20,22 @@
 #include "vtkXdmf3ArraySelection.h"
 #include "vtksys/SystemTools.hxx"
 
-#include "XdmfAttribute.hpp"
-#include "XdmfAttributeCenter.hpp"
-#include "XdmfCurvilinearGrid.hpp"
-#include "XdmfDomain.hpp"
-#include "XdmfGraph.hpp"
-#include "XdmfGridCollection.hpp"
-#include "XdmfGridCollectionType.hpp"
-#include "XdmfGridController.hpp"
-#include "XdmfReader.hpp"
-#include "XdmfRectilinearGrid.hpp"
-#include "XdmfRegularGrid.hpp"
-#include "XdmfSet.hpp"
-#include "XdmfTime.hpp"
-#include "XdmfUnstructuredGrid.hpp"
-#include "XdmfVisitor.hpp"
+#include "vtk_xdmf3.h"
+#include VTKXDMF3_HEADER(XdmfAttribute.hpp)
+#include VTKXDMF3_HEADER(XdmfAttributeCenter.hpp)
+#include VTKXDMF3_HEADER(XdmfCurvilinearGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfDomain.hpp)
+#include VTKXDMF3_HEADER(XdmfGraph.hpp)
+#include VTKXDMF3_HEADER(XdmfGridCollection.hpp)
+#include VTKXDMF3_HEADER(XdmfGridCollectionType.hpp)
+#include VTKXDMF3_HEADER(XdmfGridController.hpp)
+#include VTKXDMF3_HEADER(XdmfReader.hpp)
+#include VTKXDMF3_HEADER(XdmfRectilinearGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfRegularGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfSet.hpp)
+#include VTKXDMF3_HEADER(XdmfTime.hpp)
+#include VTKXDMF3_HEADER(XdmfUnstructuredGrid.hpp)
+#include VTKXDMF3_HEADER(core/XdmfVisitor.hpp)
 
 #include <iostream>
 #include <cassert>

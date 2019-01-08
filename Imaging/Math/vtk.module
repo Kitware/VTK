@@ -1,0 +1,14 @@
+NAME
+  VTK::ImagingMath
+LIBRARY_NAME
+  vtkImagingMath
+KIT
+  VTK::Imaging
+GROUPS
+  Imaging
+  StandAlone
+DEPENDS
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel

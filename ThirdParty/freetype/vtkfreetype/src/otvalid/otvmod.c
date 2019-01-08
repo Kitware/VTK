@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType's OpenType validation module implementation (body).         */
 /*                                                                         */
-/*  Copyright 2004, 2005, 2006, 2007, 2008 by                              */
+/*  Copyright 2004-2018 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -49,8 +49,8 @@
 
 
     error = FT_Load_Sfnt_Table( face, tag, 0, NULL, table_len );
-    if ( error == OTV_Err_Table_Missing )
-      return OTV_Err_Ok;
+    if ( FT_ERR_EQ( error, Table_Missing ) )
+      return FT_Err_Ok;
     if ( error )
       goto Exit;
 
@@ -73,7 +73,7 @@
                 FT_Bytes          *ot_gsub,
                 FT_Bytes          *ot_jstf )
   {
-    FT_Error                  error = OTV_Err_Ok;
+    FT_Error                  error = FT_Err_Ok;
     FT_Byte* volatile         base;
     FT_Byte* volatile         gdef;
     FT_Byte* volatile         gpos;
@@ -240,7 +240,7 @@
   static
   const FT_Service_OTvalidateRec  otvalid_interface =
   {
-    otv_validate
+    otv_validate        /* validate */
   };
 
 
@@ -266,16 +266,16 @@
   const FT_Module_Class  otv_module_class =
   {
     0,
-    sizeof( FT_ModuleRec ),
+    sizeof ( FT_ModuleRec ),
     "otvalid",
     0x10000L,
     0x20000L,
 
-    0,              /* module-specific interface */
+    NULL,              /* module-specific interface */
 
-    (FT_Module_Constructor)0,
-    (FT_Module_Destructor) 0,
-    (FT_Module_Requester)  otvalid_get_service
+    (FT_Module_Constructor)NULL,                /* module_init   */
+    (FT_Module_Destructor) NULL,                /* module_done   */
+    (FT_Module_Requester)  otvalid_get_service  /* get_interface */
   };
 
 

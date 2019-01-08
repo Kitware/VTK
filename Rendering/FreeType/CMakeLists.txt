@@ -1,15 +1,22 @@
-include(vtkObjectFactory)
+vtk_object_factory_declare(
+  BASE      vtkTextRenderer
+  OVERRIDE  vtkMathTextFreeTypeTextRenderer)
+vtk_object_factory_configure(
+  SOURCE_FILE vtk_object_factory_source
+  HEADER_FILE vtk_object_factory_header
+  EXPORT_MACRO "VTKRENDERINGFREETYPE_EXPORT")
 
-set(Module_SRCS
-  vtkFreeTypeStringToImage.cxx
-  vtkFreeTypeTools.cxx
-  vtkMathTextFreeTypeTextRenderer.cxx
-  vtkMathTextUtilities.cxx
-  vtkTextRendererStringToImage.cxx
-  vtkScaledTextActor.cxx
-  vtkVectorText.cxx
+set(classes
+  vtkFreeTypeStringToImage
+  vtkFreeTypeTools
+  vtkMathTextFreeTypeTextRenderer
+  vtkMathTextUtilities
+  vtkScaledTextActor
+  vtkTextRendererStringToImage
+  vtkVectorText)
 
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
+set(sources
+  ${vtk_object_factory_source}
 
   fonts/face_arial_bold.cxx
   fonts/face_arial_bold_italic.cxx
@@ -22,12 +29,12 @@ set(Module_SRCS
   fonts/face_times_bold.cxx
   fonts/face_times_bold_italic.cxx
   fonts/face_times.cxx
-  fonts/face_times_italic.cxx
-  )
+  fonts/face_times_italic.cxx)
 
-# Override some rendering classes. Create object factory:
-list(APPEND vtk_module_overrides "vtkTextRenderer")
-set(vtk_module_vtkTextRenderer_override "vtkMathTextFreeTypeTextRenderer")
-vtk_object_factory_configure("${vtk_module_overrides}")
+set(private_headers
+  ${vtk_object_factory_header})
 
-vtk_module_library(${vtk-module} ${Module_SRCS})
+vtk_module_add_module(VTK::RenderingFreeType
+  CLASSES         ${classes}
+  SOURCES         ${sources}
+  PRIVATE_HEADERS ${private_headers})

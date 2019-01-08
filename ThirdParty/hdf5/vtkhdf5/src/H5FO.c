@@ -208,7 +208,7 @@ done:
  REVISION LOG
 --------------------------------------------------------------------------*/
 herr_t
-H5FO_delete(H5F_t *f, hid_t dxpl_id, haddr_t addr)
+H5FO_delete(H5F_t *f, haddr_t addr)
 {
     H5FO_open_obj_t *open_obj;  /* Information about open object */
     herr_t ret_value=SUCCEED;   /* Return value */
@@ -227,7 +227,7 @@ H5FO_delete(H5F_t *f, hid_t dxpl_id, haddr_t addr)
 
     /* Check if the object was deleted from the file */
     if(open_obj->deleted) {
-        if(H5O_delete(f, dxpl_id, addr) < 0)
+        if(H5O_delete(f, addr) < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTDELETE, FAIL, "can't delete object from file")
     } /* end if */
 

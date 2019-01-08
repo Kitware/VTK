@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Auxiliary functions for PostScript fonts (specification).            */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002, 2003 by                                     */
+/*  Copyright 1996-2018 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -16,12 +16,13 @@
 /***************************************************************************/
 
 
-#ifndef __PSOBJS_H__
-#define __PSOBJS_H__
+#ifndef PSOBJS_H_
+#define PSOBJS_H_
 
 
 #include <ft2build.h>
 #include FT_INTERNAL_POSTSCRIPT_AUX_H
+#include FT_INTERNAL_CFF_OBJECTS_TYPES_H
 
 
 FT_BEGIN_HEADER
@@ -52,10 +53,10 @@ FT_BEGIN_HEADER
                 FT_Memory  memory );
 
   FT_LOCAL( FT_Error )
-  ps_table_add( PS_Table    table,
-                FT_Int      idx,
-                void*       object,
-                FT_PtrDist  length );
+  ps_table_add( PS_Table  table,
+                FT_Int    idx,
+                void*     object,
+                FT_UInt   length );
 
   FT_LOCAL( void )
   ps_table_done( PS_Table  table );
@@ -112,7 +113,7 @@ FT_BEGIN_HEADER
   ps_parser_to_bytes( PS_Parser  parser,
                       FT_Byte*   bytes,
                       FT_Offset  max_bytes,
-                      FT_Long*   pnum_bytes,
+                      FT_ULong*  pnum_bytes,
                       FT_Bool    delimiters );
 
 
@@ -193,10 +194,106 @@ FT_BEGIN_HEADER
   /*************************************************************************/
   /*************************************************************************/
   /*****                                                               *****/
+  /*****                           CFF BUILDER                         *****/
+  /*****                                                               *****/
+  /*************************************************************************/
+  /*************************************************************************/
+
+  FT_LOCAL( void )
+  cff_builder_init( CFF_Builder*   builder,
+                    TT_Face        face,
+                    CFF_Size       size,
+                    CFF_GlyphSlot  glyph,
+                    FT_Bool        hinting );
+
+  FT_LOCAL( void )
+  cff_builder_done( CFF_Builder*  builder );
+
+  FT_LOCAL( FT_Error )
+  cff_check_points( CFF_Builder*  builder,
+                    FT_Int        count );
+
+  FT_LOCAL( void )
+  cff_builder_add_point( CFF_Builder*  builder,
+                         FT_Pos        x,
+                         FT_Pos        y,
+                         FT_Byte       flag );
+  FT_LOCAL( FT_Error )
+  cff_builder_add_point1( CFF_Builder*  builder,
+                          FT_Pos        x,
+                          FT_Pos        y );
+  FT_LOCAL( FT_Error )
+  cff_builder_start_point( CFF_Builder*  builder,
+                           FT_Pos        x,
+                           FT_Pos        y );
+  FT_LOCAL( void )
+  cff_builder_close_contour( CFF_Builder*  builder );
+
+  FT_LOCAL( FT_Error )
+  cff_builder_add_contour( CFF_Builder*  builder );
+
+
+  /*************************************************************************/
+  /*************************************************************************/
+  /*****                                                               *****/
+  /*****                            PS BUILDER                         *****/
+  /*****                                                               *****/
+  /*************************************************************************/
+  /*************************************************************************/
+
+  FT_LOCAL( void )
+  ps_builder_init( PS_Builder*  ps_builder,
+                   void*        builder,
+                   FT_Bool      is_t1 );
+
+
+  FT_LOCAL( void )
+  ps_builder_done( PS_Builder*  builder );
+
+  FT_LOCAL( FT_Error )
+  ps_builder_check_points( PS_Builder*  builder,
+                           FT_Int       count );
+
+  FT_LOCAL( void )
+  ps_builder_add_point( PS_Builder*  builder,
+                        FT_Pos       x,
+                        FT_Pos       y,
+                        FT_Byte      flag );
+
+  FT_LOCAL( FT_Error )
+  ps_builder_add_point1( PS_Builder*  builder,
+                         FT_Pos       x,
+                         FT_Pos       y );
+
+  FT_LOCAL( FT_Error )
+  ps_builder_add_contour( PS_Builder*  builder );
+
+  FT_LOCAL( FT_Error )
+  ps_builder_start_point( PS_Builder*  builder,
+                          FT_Pos       x,
+                          FT_Pos       y );
+
+  FT_LOCAL( void )
+  ps_builder_close_contour( PS_Builder*  builder );
+
+
+  /*************************************************************************/
+  /*************************************************************************/
+  /*****                                                               *****/
   /*****                            OTHER                              *****/
   /*****                                                               *****/
   /*************************************************************************/
   /*************************************************************************/
+
+  FT_LOCAL( void )
+  ps_decoder_init( PS_Decoder*  ps_decoder,
+                   void*        decoder,
+                   FT_Bool      is_t1 );
+
+  FT_LOCAL( void )
+  t1_make_subfont( FT_Face      face,
+                   PS_Private   priv,
+                   CFF_SubFont  subfont );
 
   FT_LOCAL( void )
   t1_decrypt( FT_Byte*   buffer,
@@ -204,9 +301,13 @@ FT_BEGIN_HEADER
               FT_UShort  seed );
 
 
+  FT_LOCAL( FT_UInt32 )
+  cff_random( FT_UInt32  r );
+
+
 FT_END_HEADER
 
-#endif /* __PSOBJS_H__ */
+#endif /* PSOBJS_H_ */
 
 
 /* END */

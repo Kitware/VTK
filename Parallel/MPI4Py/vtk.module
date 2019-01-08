@@ -1,0 +1,15 @@
+NAME
+  VTK::ParallelMPI4Py
+LIBRARY_NAME
+  vtkParallelMPI4Py
+CONDITION
+  VTK_WRAP_PYTHON
+GROUPS
+  MPI
+DEPENDS
+  VTK::CommonCore
+  VTK::Python
+PRIVATE_DEPENDS
+  VTK::ParallelMPI
+  VTK::mpi
+  VTK::mpi4py

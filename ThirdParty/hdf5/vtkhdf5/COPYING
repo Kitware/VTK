@@ -3,7 +3,7 @@ HDF5 (Hierarchical Data Format 5) Software Library and Utilities
 -----------------------------------------------------------------------------
 
 HDF5 (Hierarchical Data Format 5) Software Library and Utilities
-Copyright (c) 2006, The HDF Group. 
+Copyright (c) 2006-2018, The HDF Group. 
 
 NCSA HDF5 (Hierarchical Data Format 5) Software Library and Utilities
 Copyright (c) 1998-2006, The Board of Trustees of the University of Illinois. 
@@ -21,27 +21,16 @@ provided that the following conditions are met:
    this list of conditions, and the following disclaimer in the documentation 
    and/or materials provided with the distribution.
 
-3. In addition, redistributions of modified forms of the source or binary 
-   code must carry prominent notices stating that the original code was 
-   changed and the date of the change.
-
-4. All publications or advertising materials mentioning features or use of 
-   this software are asked, but not required, to acknowledge that it was 
-   developed by The HDF Group and by the National Center for Supercomputing 
-   Applications at the University of Illinois at Urbana-Champaign and 
-   credit the contributors.
-
-5. Neither the name of The HDF Group, the name of the University, nor the 
+3. Neither the name of The HDF Group, the name of the University, nor the 
    name of any Contributor may be used to endorse or promote products derived 
    from this software without specific prior written permission from 
    The HDF Group, the University, or the Contributor, respectively.
 
 DISCLAIMER: 
 THIS SOFTWARE IS PROVIDED BY THE HDF GROUP AND THE CONTRIBUTORS 
-"AS IS" WITH NO WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED.  In no 
-event shall The HDF Group or the Contributors be liable for any damages 
-suffered by the users arising out of the use of this software, even if 
-advised of the possibility of such damage. 
+"AS IS" WITH NO WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED. IN NO EVENT SHALL THE HDF GROUP OR THE CONTRIBUTORS BE LIABLE FOR ANY DAMAGES SUFFERED BY THE USERS ARISING OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+You are under no obligation whatsoever to provide any bug fixes, patches, or upgrades to the features, functionality or performance of the source code ("Enhancements") to anyone; however, if you choose to make your Enhancements available either publicly, or directly to The HDF Group, without imposing a separate written license agreement for such Enhancements, then you hereby grant the following license: a non-exclusive, royalty-free perpetual license to install, use, modify, prepare derivative works, incorporate into other computer software, distribute, and sublicense such enhancements or derivative works thereof, in binary and source code form.
 
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
@@ -49,15 +38,13 @@ advised of the possibility of such damage.
 Limited portions of HDF5 were developed by Lawrence Berkeley National 
 Laboratory (LBNL). LBNL's Copyright Notice and Licensing Terms can be
 found here: COPYING_LBNL_HDF5 file in this directory or at 
-https://support.hdfgroup.org/ftp/HDF5/releases/COPYING_LBNL_HDF5. 
+http://support.hdfgroup.org/ftp/HDF5/releases/COPYING_LBNL_HDF5. 
 
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 
 Contributors:   National Center for Supercomputing Applications (NCSA) at 
-the University of Illinois, Fortner Software, Unidata Program Center (netCDF), 
-The Independent JPEG Group (JPEG), Jean-loup Gailly and Mark Adler (gzip), 
-and Digital Equipment Corporation (DEC).
+the University of Illinois, Fortner Software, Unidata Program Center (netCDF), The Independent JPEG Group (JPEG), Jean-loup Gailly and Mark Adler (gzip), and Digital Equipment Corporation (DEC).
 
 -----------------------------------------------------------------------------
  
@@ -98,9 +85,8 @@ and/or accompanying materials:
 -----------------------------------------------------------------------------
 
 HDF5 is available with the SZIP compression library but SZIP is not part 
-of HDF5 and has separate copyright and license terms. See “Szip Compression 
-in HDF Products” (https://support.hdfgroup.org/doc_resource/SZIP/) for 
-further details.
+of HDF5 and has separate copyright and license terms. See SZIP Compression 
+in HDF Products (www.hdfgroup.org/doc_resource/SZIP/) for further details.
 
 -----------------------------------------------------------------------------
 

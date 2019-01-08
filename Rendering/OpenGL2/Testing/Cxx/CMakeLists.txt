@@ -51,10 +51,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestVBOPointsLines.cxx
   TestValuePass.cxx
   TestValuePass2.cxx
-  )
-
-vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestCubeMap2.cxx
-    "DATA{${VTK_TEST_INPUT_DIR}/skybox/,REGEX:.*}")
+  )
 
 vtk_test_cxx_executable(vtkRenderingOpenGL2CxxTests tests RENDERING_FACTORY)

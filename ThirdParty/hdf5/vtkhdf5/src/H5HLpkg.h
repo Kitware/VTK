@@ -147,6 +147,6 @@ H5_DLL herr_t H5HL__prfx_dest(H5HL_prfx_t *prfx);
 /* Heap data block routines */
 H5_DLL H5HL_dblk_t *H5HL__dblk_new(H5HL_t *heap);
 H5_DLL herr_t H5HL__dblk_dest(H5HL_dblk_t *dblk);
-H5_DLL herr_t H5HL__dblk_realloc(H5F_t *f, hid_t dxpl_id, H5HL_t *heap, size_t new_heap_size);
+H5_DLL herr_t H5HL__dblk_realloc(H5F_t *f, H5HL_t *heap, size_t new_heap_size);
 
 #endif /* _H5HLpkg_H */

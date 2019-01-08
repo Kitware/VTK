@@ -1,0 +1,27 @@
+NAME
+  VTK::IOImport
+LIBRARY_NAME
+  vtkIOImport
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::CommonMisc
+  VTK::RenderingCore
+  VTK::vtksys
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonTransforms
+  VTK::FiltersCore
+  VTK::FiltersSources
+  VTK::IOImage
+TEST_DEPENDS
+  VTK::IOImage
+  VTK::IOXML
+  VTK::ImagingCore
+  VTK::ImagingSources
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering
+  VTK::opengl

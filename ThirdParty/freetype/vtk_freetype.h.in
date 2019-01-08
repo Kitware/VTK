@@ -16,9 +16,14 @@
 #define vtk_freetype_h
 
 /* Use the freetype library configured for VTK.  */
-#cmakedefine VTK_USE_SYSTEM_FREETYPE
+#cmakedefine01 VTK_MODULE_USE_EXTERNAL_vtkfreetype
 
-#ifdef VTK_USE_SYSTEM_FREETYPE
+#cmakedefine01 VTK_FREETYPE_SHARED
+#if VTK_FREETYPE_SHARED && defined(_WIN32)
+#define FT2_DLLIMPORT
+#endif
+
+#if VTK_MODULE_USE_EXTERNAL_vtkfreetype
 # include <ft2build.h>
 #else
 # include <vtkfreetype/include/ft2build.h>

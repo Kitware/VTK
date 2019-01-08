@@ -1,0 +1,23 @@
+NAME
+  VTK::IOParallelNetCDF
+LIBRARY_NAME
+  vtkIOParallelNetCDF
+KIT
+  VTK::Parallel
+GROUPS
+  MPI
+DEPENDS
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::ParallelMPI
+  VTK::mpi
+  VTK::netcdf
+TEST_DEPENDS
+  VTK::CommonExecutionModel
+  VTK::FiltersGeometry
+  VTK::InteractionStyle
+  VTK::ParallelMPI
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering

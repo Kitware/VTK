@@ -16,7 +16,7 @@ import java.io.File;
  */
 public enum vtkNativeLibrary {
 
-@VTK_JAVA_NATIVE_LIBRARIES@
+@vtk_java_native_libraries@
 
   /**
    * Try to load all library
@@ -27,9 +27,7 @@ public enum vtkNativeLibrary {
     boolean isEveryThingLoaded = true;
     for (vtkNativeLibrary lib : values()) {
       try {
-        if(lib.IsBuilt()) {
-          lib.LoadLibrary();
-        }
+        lib.LoadLibrary();
       } catch (UnsatisfiedLinkError e) {
         isEveryThingLoaded = false;
         e.printStackTrace();
@@ -67,10 +65,9 @@ public enum vtkNativeLibrary {
     outputError.SetInstance(outputError);
   }
 
-  private vtkNativeLibrary(String nativeLibraryName, boolean built) {
+  private vtkNativeLibrary(String nativeLibraryName) {
     this.nativeLibraryName = nativeLibraryName;
     this.loaded = false;
-    this.built = built;
   }
 
   /**
@@ -106,13 +103,6 @@ public enum vtkNativeLibrary {
   }
 
   /**
-   * @return true if the module was enabled and therefore build
-   */
-  public boolean IsBuilt() {
-    return built;
-  }
-
-  /**
    * @return the library name
    */
   public String GetLibraryName() {
@@ -132,5 +122,4 @@ public enum vtkNativeLibrary {
 
   private String nativeLibraryName;
   private boolean loaded;
-  private boolean built;
 }

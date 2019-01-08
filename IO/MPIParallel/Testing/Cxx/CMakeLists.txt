@@ -5,20 +5,11 @@ if (DEFINED VTK_WORDS_BIGENDIAN)
   endif()
 endif()
 
-if (VTK_USE_LARGE_DATA AND _known_little_endian AND NOT WIN32)
-  include(vtkMPI)
-
-  # Tell ExternalData to fetch test input at build time.
-  ExternalData_Expand_Arguments(VTKData _
-    "DATA{${VTK_TEST_INPUT_DIR}/WindBladeReader/,REGEX:.*}"
-    "DATA{${VTK_TEST_INPUT_DIR}/WindBladeReader/field/,REGEX:.*}"
-    "DATA{${VTK_TEST_INPUT_DIR}/WindBladeReader/turbine/,REGEX:.*}"
-    )
-
+if (enable_large_data_tests)
   set(TestPWindBladeReader_NUMPROCS 1)
   vtk_add_test_mpi(vtkIOMPIParallelCxxTests-MPI tests
     TESTING_DATA
     TestPWindBladeReader.cxx
     )
-  vtk_test_mpi_executable(vtkIOMPIParallelCxxTests-MPI tests)
+  vtk_test_cxx_executable(vtkIOMPIParallelCxxTests-MPI tests)
 endif()

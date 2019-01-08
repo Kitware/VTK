@@ -31,12 +31,6 @@
 int TestDICOMImageReaderFileCollection(int argc, char *argv[])
 {
 
-  if ( argc <= 1 )
-  {
-    cout << "Usage: " << argv[0] << " <dicom folder>" << endl;
-    return 1;
-  }
-
   char* dirName = vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/dicom/collection" );
   std::string directoryName = dirName;
   delete [] dirName;

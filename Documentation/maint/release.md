@@ -197,7 +197,7 @@ endings.
 ### Documentation
 
 On a machine with `doxygen` installed, configure a build with
-`BUILD_DOCUMENTATION=ON` and run the `DoxygenDoc` target. To create the
+`VTK_BUILD_DOCUMENTATION=ON` and run the `DoxygenDoc` target. To create the
 documentation tarball, run:
 
 ```sh

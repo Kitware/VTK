@@ -31,3 +31,4 @@ void vtkWrapPython_GenerateMethods(
   int is_vtkobject, int do_constructors);
 
 #endif /* vtkWrapPythonMethodDef_h */
+/* VTK-HeaderTest-Exclude: vtkWrapPythonMethodDef.h */

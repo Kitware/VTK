@@ -39,9 +39,14 @@ type). Read attributes of the new type with nc_get_att (see
 /** \{ */
 
 
-/** \internal
+/** 
 \ingroup user_types
-Learn if two types are equal
+Learn if two types are equal.
+
+\note User-defined types in netCDF-4/HDF5 files must be committed to
+the file before nc_inq_type_equal() will work on the type. For
+uncommitted user-defined types, nc_inq_type_equal() will return
+::NC_EHDFERR. Commit types to the file with a call to nc_enddef().
 
 \param ncid1 \ref ncid of first typeid.
 \param typeid1 First typeid.
@@ -54,7 +59,11 @@ the two types are equal, a zero if they are not equal.
 \returns ::NC_EBADID Bad \ref ncid.
 \returns ::NC_EBADTYPE Bad type id.
 \returns ::NC_ENOTNC4 Not an netCDF-4 file, or classic model enabled.
-\returns ::NC_EHDFERR An error was reported by the HDF5 layer.
+\returns ::NC_EHDFERR An error was reported by the HDF5 layer. This
+will occur if either of the types have not been committed to the file
+(with an nc_enddef()).
+
+\author Dennis Heimbigner, Ward Fisher, Ed Hartnett
  */
 int
 nc_inq_type_equal(int ncid1, nc_type typeid1, int ncid2,
@@ -87,6 +96,7 @@ found.
 \returns ::NC_EBADTYPE Bad type id.
 \returns ::NC_ENOTNC4 Not an netCDF-4 file, or classic model enabled.
 \returns ::NC_EHDFERR An error was reported by the HDF5 layer.
+\author Ed Hartnett, Dennis Heimbigner
  */
 int
 nc_inq_typeid(int ncid, const char *name, nc_type *typeidp)
@@ -130,6 +140,7 @@ compound types. \ref ignored_if_null.
 \returns ::NC_EBADTYPE Bad type id.
 \returns ::NC_ENOTNC4 Not an netCDF-4 file, or classic model enabled.
 \returns ::NC_EHDFERR An error was reported by the HDF5 layer.
+\author Ed Hartnett, Dennis Heimbigner
  */
 int
 nc_inq_user_type(int ncid, nc_type xtype, char *name, size_t *size,

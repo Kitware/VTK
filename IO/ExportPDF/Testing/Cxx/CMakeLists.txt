@@ -1,3 +1,5 @@
+include(../../../../CMake/vtkGhostscript.cmake)
+
 if(VTK_GHOSTSCRIPT_EXECUTABLE)
   set(PDFTests
     TestPDFContextExport.cxx,NO_DATA
@@ -13,6 +15,6 @@ if(VTK_GHOSTSCRIPT_EXECUTABLE)
     RENDERING_FACTORY
     )
 
-  include(vtkTestingGL2PS)
+  include(../../../../CMake/vtkTestingPDF.cmake)
   vtk_add_pdf_test_cxx(${PDFTests})
 endif()

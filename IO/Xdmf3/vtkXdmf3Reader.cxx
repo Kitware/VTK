@@ -38,14 +38,15 @@
 #include "vtkXdmf3LightDataHandler.h"
 #include "vtkXdmf3SILBuilder.h"
 
-#include "XdmfCurvilinearGrid.hpp"
-#include "XdmfDomain.hpp"
-#include "XdmfGridCollection.hpp"
-#include "XdmfGridCollectionType.hpp"
-#include "XdmfReader.hpp"
-#include "XdmfRectilinearGrid.hpp"
-#include "XdmfRegularGrid.hpp"
-#include "XdmfUnstructuredGrid.hpp"
+#include "vtk_xdmf3.h"
+#include VTKXDMF3_HEADER(XdmfCurvilinearGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfDomain.hpp)
+#include VTKXDMF3_HEADER(XdmfGridCollection.hpp)
+#include VTKXDMF3_HEADER(XdmfGridCollectionType.hpp)
+#include VTKXDMF3_HEADER(XdmfReader.hpp)
+#include VTKXDMF3_HEADER(XdmfRectilinearGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfRegularGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfUnstructuredGrid.hpp)
 
 #include <algorithm>
 

@@ -109,7 +109,7 @@ H5HF_tiny_init(H5HF_hdr_t *hdr)
     /* Check if tiny objects need an extra byte for their length */
     /* (account for boundary condition when length of an object would need an
      *  extra byte, but using that byte means that the extra length byte is
-     *  unneccessary)
+     *  unnecessary)
      */
     if((hdr->id_len - 1) <= H5HF_TINY_LEN_SHORT) {
         hdr->tiny_max_len = hdr->id_len - 1;

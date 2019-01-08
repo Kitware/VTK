@@ -8,7 +8,7 @@ readonly name="png"
 readonly ownership="Libpng Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/png.git"
-readonly tag="for/vtk-old"
+readonly tag="for/vtk-20181015-1.6.35"
 readonly paths="
 .gitattributes
 CMakeLists.vtk.txt
@@ -47,13 +47,17 @@ pnginfo.h
 pngpriv.h
 pngstruct.h
 vtk_png_mangle.h
-vtkpngConfig.h.in
 "
 
 extract_source () {
     git_archive
     pushd "$extractdir/$name-reduced"
-    CPPFLAGS="-I${BASH_SOURCE%/*}/../zlib/vtkzlib" make -f scripts/pnglibconf.mak
+    mkdir -p "vtkzlib"
+    sed -e 's/#cmakedefine/#undef/' \
+        "${BASH_SOURCE%/*}/../zlib/vtkzlib/zconf.h.cmakein" \
+        > vtkzlib/zconf.h
+    CPPFLAGS="-I${BASH_SOURCE%/*}/../zlib/vtkzlib -I$PWD -DZ_PREFIX -DZ_HAVE_UNISTD_H" make -f scripts/pnglibconf.mak
+    rm -rvf "vtkzlib"
     sed -i -e '/PNG_ZLIB_VERNUM/s/0x.*/0/' pnglibconf.h
     rm -rvf scripts pngusr.dfa pnglibconf.dfn pnglibconf.pre
     mv -v CMakeLists.vtk.txt CMakeLists.txt

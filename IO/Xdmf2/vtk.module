@@ -1,0 +1,20 @@
+NAME
+  VTK::IOXdmf2
+LIBRARY_NAME
+  vtkIOXdmf2
+KIT
+  VTK::IO
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::IOLegacy
+PRIVATE_DEPENDS
+  VTK::FiltersExtraction
+  VTK::IOXMLParser
+  VTK::libxml2
+  VTK::vtksys
+  VTK::xdmf2
+TEST_DEPENDS
+  VTK::FiltersGeneral
+  VTK::TestingCore

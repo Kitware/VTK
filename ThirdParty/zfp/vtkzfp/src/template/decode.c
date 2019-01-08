@@ -84,6 +84,39 @@ _t1(decode_ints, UInt)(bitstream* restrict_ stream, uint maxbits, uint maxprec, 
   return maxbits - bits;
 }
 
+/* decompress sequence of size > 64 unsigned integers */
+static uint
+_t1(decode_many_ints, UInt)(bitstream* restrict_ stream, uint maxbits, uint maxprec, UInt* restrict_ data, uint size)
+{
+  /* make a copy of bit stream to avoid aliasing */
+  bitstream s = *stream;
+  uint intprec = CHAR_BIT * (uint)sizeof(UInt);
+  uint kmin = intprec > maxprec ? intprec - maxprec : 0;
+  uint bits = maxbits;
+  uint i, k, m, n;
+
+  /* initialize data array to all zeros */
+  for (i = 0; i < size; i++)
+    data[i] = 0;
+
+  /* decode one bit plane at a time from MSB to LSB */
+  for (k = intprec, n = 0; bits && k-- > kmin;) {
+    /* decode first n bits of bit plane #k */
+    m = MIN(n, bits);
+    bits -= m;
+    for (i = 0; i < m; i++)
+      if (stream_read_bit(&s))
+        data[i] += (UInt)1 << k;
+    /* unary run-length decode remainder of bit plane */
+    for (; n < size && bits && (--bits, stream_read_bit(&s)); data[n] += (UInt)1 << k, n++)
+      for (; n < size - 1 && bits && (--bits, !stream_read_bit(&s)); n++)
+        ;
+  }
+
+  *stream = s;
+  return maxbits - bits;
+}
+
 /* decode block of integers */
 static uint
 _t2(decode_block, Int, DIMS)(bitstream* stream, int minbits, int maxbits, int maxprec, Int* iblock)
@@ -91,7 +124,10 @@ _t2(decode_block, Int, DIMS)(bitstream* stream, int minbits, int maxbits, int ma
   int bits;
   cache_align_(UInt ublock[BLOCK_SIZE]);
   /* decode integer coefficients */
-  bits = _t1(decode_ints, UInt)(stream, maxbits, maxprec, ublock, BLOCK_SIZE);
+  if (BLOCK_SIZE <= 64)
+    bits = _t1(decode_ints, UInt)(stream, maxbits, maxprec, ublock, BLOCK_SIZE);
+  else
+    bits = _t1(decode_many_ints, UInt)(stream, maxbits, maxprec, ublock, BLOCK_SIZE);
   /* read at least minbits bits */
   if (bits < minbits) {
     stream_skip(stream, minbits - bits);

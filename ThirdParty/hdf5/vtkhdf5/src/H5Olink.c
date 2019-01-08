@@ -38,23 +38,23 @@
 
 
 /* PRIVATE PROTOTYPES */
-static void *H5O_link_decode(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh,
-    unsigned mesg_flags, unsigned *ioflags, const uint8_t *p);
+static void *H5O__link_decode(H5F_t *f, H5O_t *open_oh, unsigned mesg_flags,
+    unsigned *ioflags, size_t p_size, const uint8_t *p);
 static herr_t H5O_link_encode(H5F_t *f, hbool_t disable_shared, uint8_t *p, const void *_mesg);
 static void *H5O_link_copy(const void *_mesg, void *_dest);
 static size_t H5O_link_size(const H5F_t *f, hbool_t disable_shared, const void *_mesg);
-static herr_t H5O_link_reset(void *_mesg);
-static herr_t H5O_link_free(void *_mesg);
+static herr_t H5O__link_reset(void *_mesg);
+static herr_t H5O__link_free(void *_mesg);
 static herr_t H5O_link_pre_copy_file(H5F_t *file_src, const void *mesg_src,
     hbool_t *deleted, const H5O_copy_t *cpy_info, void *udata);
-static void *H5O_link_copy_file(H5F_t *file_src, void *native_src,
+static void *H5O__link_copy_file(H5F_t *file_src, void *native_src,
     H5F_t *file_dst, hbool_t *recompute_size, unsigned *mesg_flags,
-    H5O_copy_t *cpy_info, void *udata, hid_t dxpl_id);
-static herr_t H5O_link_post_copy_file(const H5O_loc_t *src_oloc,
+    H5O_copy_t *cpy_info, void *udata);
+static herr_t H5O__link_post_copy_file(const H5O_loc_t *src_oloc,
     const void *mesg_src, H5O_loc_t *dst_oloc, void *mesg_dst,
-    unsigned *mesg_flags, hid_t dxpl_id, H5O_copy_t *cpy_info);
-static herr_t H5O_link_debug(H5F_t *f, hid_t dxpl_id, const void *_mesg,
-    FILE * stream, int indent, int fwidth);
+    unsigned *mesg_flags, H5O_copy_t *cpy_info);
+static herr_t H5O__link_debug(H5F_t *f, const void *_mesg, FILE *stream,
+    int indent, int fwidth);
 
 /* This message derives from H5O message class */
 const H5O_msg_class_t H5O_MSG_LINK[1] = {{
@@ -62,22 +62,22 @@ const H5O_msg_class_t H5O_MSG_LINK[1] = {{
     "link",                 	/*message name for debugging    */
     sizeof(H5O_link_t),     	/*native message size           */
     0,				/* messages are sharable?       */
-    H5O_link_decode,        	/*decode message                */
+    H5O__link_decode,        	/*decode message                */
     H5O_link_encode,        	/*encode message                */
     H5O_link_copy,          	/*copy the native value         */
     H5O_link_size,          	/*size of symbol table entry    */
-    H5O_link_reset,		/* reset method			*/
-    H5O_link_free,	        /* free method			*/
+    H5O__link_reset,		/* reset method			*/
+    H5O__link_free,	        /* free method			*/
     H5O_link_delete,	       	/* file delete method		*/
     NULL,			/* link method			*/
     NULL, 			/*set share method		*/
     NULL,		    	/*can share method		*/
     H5O_link_pre_copy_file,	/* pre copy native value to file */
-    H5O_link_copy_file,		/* copy native value to file    */
-    H5O_link_post_copy_file,	/* post copy native value to file    */
+    H5O__link_copy_file,	/* copy native value to file    */
+    H5O__link_post_copy_file,	/* post copy native value to file    */
     NULL,			/* get creation index		*/
     NULL,			/* set creation index		*/
-    H5O_link_debug          	/*debug the message             */
+    H5O__link_debug          	/*debug the message             */
 }};
 
 /* Current version of link information */
@@ -101,7 +101,7 @@ H5FL_DEFINE_STATIC(H5O_link_t);
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_link_decode
+ * Function:    H5O__link_decode
  *
  * Purpose:     Decode a message and return a pointer to
  *              a newly allocated one.
@@ -117,15 +117,16 @@ H5FL_DEFINE_STATIC(H5O_link_t);
  *-------------------------------------------------------------------------
  */
 static void *
-H5O_link_decode(H5F_t *f, hid_t H5_ATTR_UNUSED dxpl_id, H5O_t H5_ATTR_UNUSED *open_oh,
-    unsigned H5_ATTR_UNUSED mesg_flags, unsigned H5_ATTR_UNUSED *ioflags, const uint8_t *p)
+H5O__link_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh,
+    unsigned H5_ATTR_UNUSED mesg_flags, unsigned H5_ATTR_UNUSED *ioflags,
+    size_t H5_ATTR_UNUSED p_size, const uint8_t *p)
 {
     H5O_link_t          *lnk = NULL;    /* Pointer to link message */
     size_t              len = 0;        /* Length of a string in the message */
     unsigned char       link_flags;     /* Flags for encoding link info */
     void                *ret_value = NULL;      /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(f);
@@ -262,7 +263,7 @@ done:
         } /* end if */
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_link_decode() */
+} /* end H5O__link_decode() */
 
 
 /*-------------------------------------------------------------------------
@@ -534,7 +535,7 @@ H5O_link_size(const H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, const void 
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_link_reset
+ * Function:	H5O__link_reset
  *
  * Purpose:	Frees resources within a message, but doesn't free
  *		the message itself.
@@ -547,11 +548,11 @@ H5O_link_size(const H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, const void 
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_link_reset(void *_mesg)
+H5O__link_reset(void *_mesg)
 {
     H5O_link_t *lnk = (H5O_link_t *)_mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     if(lnk) {
         /* Free information for link (but don't free link pointer) */
@@ -565,13 +566,13 @@ H5O_link_reset(void *_mesg)
     } /* end if */
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5O_link_reset() */
+} /* end H5O__link_reset() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_link_free
+ * Function:	H5O__link_free
  *
- * Purpose:	Free's the message contents and the message itself
+ * Purpose:	Frees the message contents and the message itself
  *
  * Return:	Non-negative on success/Negative on failure
  *
@@ -581,20 +582,18 @@ H5O_link_reset(void *_mesg)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_link_free(void *_mesg)
+H5O__link_free(void *_mesg)
 {
     H5O_link_t *lnk = (H5O_link_t *)_mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     HDassert(lnk);
 
-    /* Free information for link */
-    H5O_link_reset(lnk);
     lnk = H5FL_FREE(H5O_link_t, lnk);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5O_link_free() */
+} /* end H5O__link_free() */
 
 
 /*-------------------------------------------------------------------------
@@ -610,7 +609,7 @@ H5O_link_free(void *_mesg)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5O_link_delete(H5F_t *f, hid_t dxpl_id, H5O_t H5_ATTR_UNUSED *open_oh, void *_mesg)
+H5O_link_delete(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh, void *_mesg)
 {
     H5O_link_t *lnk = (H5O_link_t *)_mesg;
     herr_t ret_value = SUCCEED;   /* Return value */
@@ -633,7 +632,7 @@ H5O_link_delete(H5F_t *f, hid_t dxpl_id, H5O_t H5_ATTR_UNUSED *open_oh, void *_m
         oloc.addr = lnk->u.hard.addr;
 
         /* Decrement the ref count for the object */
-        if(H5O_link(&oloc, -1, dxpl_id) < 0)
+        if(H5O_link(&oloc, -1) < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTFREE, FAIL, "unable to decrement object link count")
     } /* end if */
     /* Perform the "delete" callback when a user-defined link is removed */
@@ -707,7 +706,7 @@ H5O_link_pre_copy_file(H5F_t H5_ATTR_UNUSED *file_src, const void H5_ATTR_UNUSED
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_link_copy_file
+ * Function:    H5O__link_copy_file
  *
  * Purpose:     Copies a message from _MESG to _DEST in file
  *
@@ -721,14 +720,14 @@ H5O_link_pre_copy_file(H5F_t H5_ATTR_UNUSED *file_src, const void H5_ATTR_UNUSED
  *-------------------------------------------------------------------------
  */
 static void *
-H5O_link_copy_file(H5F_t H5_ATTR_UNUSED *file_src, void *native_src, H5F_t H5_ATTR_UNUSED *file_dst,
+H5O__link_copy_file(H5F_t H5_ATTR_UNUSED *file_src, void *native_src, H5F_t H5_ATTR_UNUSED *file_dst,
     hbool_t H5_ATTR_UNUSED *recompute_size, unsigned H5_ATTR_UNUSED *mesg_flags,
-    H5O_copy_t H5_ATTR_UNUSED *cpy_info, void H5_ATTR_UNUSED *udata, hid_t H5_ATTR_UNUSED dxpl_id)
+    H5O_copy_t H5_ATTR_UNUSED *cpy_info, void H5_ATTR_UNUSED *udata)
 {
     H5O_link_t  *link_src = (H5O_link_t *)native_src;
     void *ret_value = NULL;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(link_src);
@@ -746,11 +745,11 @@ H5O_link_copy_file(H5F_t H5_ATTR_UNUSED *file_src, void *native_src, H5F_t H5_AT
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5O_link_copy_file() */
+} /* H5O__link_copy_file() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_link_post_copy_file
+ * Function:    H5O__link_post_copy_file
  *
  * Purpose:     Finish copying a message from between files
  *
@@ -762,15 +761,15 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_link_post_copy_file(const H5O_loc_t *src_oloc, const void *mesg_src,
+H5O__link_post_copy_file(const H5O_loc_t *src_oloc, const void *mesg_src,
     H5O_loc_t *dst_oloc, void *mesg_dst, unsigned H5_ATTR_UNUSED *mesg_flags,
-    hid_t dxpl_id, H5O_copy_t *cpy_info)
+    H5O_copy_t *cpy_info)
 {
     const H5O_link_t    *link_src = (const H5O_link_t *)mesg_src;
     H5O_link_t          *link_dst = (H5O_link_t *)mesg_dst;
     herr_t              ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(link_src);
@@ -782,17 +781,16 @@ H5O_link_post_copy_file(const H5O_loc_t *src_oloc, const void *mesg_src,
     HDassert(cpy_info->max_depth < 0 || cpy_info->curr_depth < cpy_info->max_depth);
 
     /* Copy the link (and the object it points to) */
-    if(H5L_link_copy_file(dst_oloc->file, dxpl_id, link_src, src_oloc, link_dst,
-            cpy_info) < 0)
+    if(H5L__link_copy_file(dst_oloc->file, link_src, src_oloc, link_dst, cpy_info) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTCOPY, FAIL, "unable to copy link")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5O_link_post_copy_file() */
+} /* H5O__link_post_copy_file() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_link_debug
+ * Function:    H5O__link_debug
  *
  * Purpose:     Prints debugging info for a message.
  *
@@ -805,8 +803,8 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_link_debug(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, const void *_mesg, FILE * stream,
-	       int indent, int fwidth)
+H5O__link_debug(H5F_t H5_ATTR_UNUSED *f, const void *_mesg, FILE *stream,
+    int indent, int fwidth)
 {
     const H5O_link_t    *lnk = (const H5O_link_t *) _mesg;
     herr_t               ret_value = SUCCEED;          /* Return value */
@@ -873,5 +871,5 @@ H5O_link_debug(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, const void
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_link_debug() */
+} /* end H5O__link_debug() */
 

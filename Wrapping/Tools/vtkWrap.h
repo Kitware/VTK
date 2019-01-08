@@ -283,3 +283,4 @@ char *vtkWrap_SafeSuperclassName(const char *name);
 #endif
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkWrap.h */

@@ -40,23 +40,24 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVertexListIterator.h"
 
-#include "XdmfArrayType.hpp"
-#include "XdmfAttribute.hpp"
-#include "XdmfAttributeCenter.hpp"
-#include "XdmfAttributeType.hpp"
-#include "XdmfCurvilinearGrid.hpp"
-#include "XdmfDomain.hpp"
-#include "XdmfGeometry.hpp"
-#include "XdmfGeometryType.hpp"
-#include "XdmfGraph.hpp"
-#include "XdmfRectilinearGrid.hpp"
-#include "XdmfRegularGrid.hpp"
-#include "XdmfSet.hpp"
-#include "XdmfSetType.hpp"
-#include "XdmfUnstructuredGrid.hpp"
-#include "XdmfTime.hpp"
-#include "XdmfTopology.hpp"
-#include "XdmfTopologyType.hpp"
+#include "vtk_xdmf3.h"
+#include VTKXDMF3_HEADER(core/XdmfArrayType.hpp)
+#include VTKXDMF3_HEADER(XdmfAttribute.hpp)
+#include VTKXDMF3_HEADER(XdmfAttributeCenter.hpp)
+#include VTKXDMF3_HEADER(XdmfAttributeType.hpp)
+#include VTKXDMF3_HEADER(XdmfCurvilinearGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfDomain.hpp)
+#include VTKXDMF3_HEADER(XdmfGeometry.hpp)
+#include VTKXDMF3_HEADER(XdmfGeometryType.hpp)
+#include VTKXDMF3_HEADER(XdmfGraph.hpp)
+#include VTKXDMF3_HEADER(XdmfRectilinearGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfRegularGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfSet.hpp)
+#include VTKXDMF3_HEADER(XdmfSetType.hpp)
+#include VTKXDMF3_HEADER(XdmfUnstructuredGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfTime.hpp)
+#include VTKXDMF3_HEADER(XdmfTopology.hpp)
+#include VTKXDMF3_HEADER(XdmfTopologyType.hpp)
 
 //==============================================================================
 bool vtkXdmf3DataSet_ReadIfNeeded(XdmfArray *array, bool dbg=false)

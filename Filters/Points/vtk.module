@@ -1,0 +1,26 @@
+NAME
+  VTK::FiltersPoints
+LIBRARY_NAME
+  vtkFiltersPoints
+KIT
+  VTK::Filters
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::CommonMisc
+  VTK::FiltersModeling
+TEST_DEPENDS
+  VTK::ChartsCore
+  VTK::FiltersGeneral
+  VTK::IOLegacy
+  VTK::IOXML
+  VTK::ImagingCore
+  VTK::InteractionStyle
+  VTK::RenderingContext2D
+  VTK::RenderingContextOpenGL2
+  VTK::RenderingOpenGL2
+  VTK::RenderingVolumeOpenGL2
+  VTK::TestingRendering
+  VTK::ViewsContext2D

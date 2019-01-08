@@ -1,0 +1,7 @@
+NAME
+  VTK::Python
+LIBRARY_NAME
+  vtkPython
+DEPENDS
+  VTK::CommonCore
+EXCLUDE_WRAP

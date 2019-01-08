@@ -1,0 +1,8 @@
+NAME
+  VTK::freetype
+LIBRARY_NAME
+  vtkfreetype
+DEPENDS
+  VTK::kwiml
+  VTK::zlib
+THIRD_PARTY

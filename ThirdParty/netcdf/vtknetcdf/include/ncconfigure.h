@@ -10,6 +10,10 @@
 #ifndef NCCONFIGURE_H
 #define NCCONFIGURE_H 1
 
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+
 /*
 This is included in bottom
 of config.h. It is where,
@@ -42,6 +46,14 @@ char *nulldup(const char* s);
 #endif
 #endif
 
+#ifndef HAVE_STRLCAT
+#ifdef _MSC_VER
+/* Windows strlcat_s is equivalent to strlcat, but different arg order */
+#define strlcat(d,s,n) strcat_s((d),(n),(s))
+#else
+extern size_t strlcat(char* dst, const char* src, size_t dsize);
+#endif
+#endif
 
 #ifndef nulldup
 #define nulldup(s) ((s)==NULL?NULL:strdup(s))

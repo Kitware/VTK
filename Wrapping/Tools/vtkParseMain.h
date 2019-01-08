@@ -87,3 +87,4 @@ StringCache *vtkParse_MainMulti(int argc, char *argv[]);
 #endif
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkParseMain.h */

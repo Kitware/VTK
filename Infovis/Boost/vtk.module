@@ -1,0 +1,9 @@
+NAME
+  VTK::InfovisBoost
+LIBRARY_NAME
+  vtkInfovisBoost
+DEPENDS
+  VTK::CommonCore
+TEST_DEPENDS
+  VTK::TestingCore
+EXCLUDE_WRAP

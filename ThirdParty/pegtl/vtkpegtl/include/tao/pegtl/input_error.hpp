@@ -40,4 +40,12 @@ namespace tao
       throw tao::TAO_PEGTL_NAMESPACE::input_error( oss.str(), errorno );                \
    } while( false )
 
+#define TAO_PEGTL_THROW_INPUT_WIN32_ERROR( MESSAGE )                                             \
+   do {                                                                                          \
+      const int errorno = GetLastError();                                                        \
+      std::ostringstream oss;                                                                    \
+      oss << "pegtl: " << TAO_PEGTL_INTERNAL_UNWRAP( MESSAGE ) << " GetLastError() " << errorno; \
+      throw tao::TAO_PEGTL_NAMESPACE::input_error( oss.str(), errorno );                         \
+   } while( false )
+
 #endif

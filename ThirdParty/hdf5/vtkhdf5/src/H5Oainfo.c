@@ -34,24 +34,23 @@
 
 
 /* PRIVATE PROTOTYPES */
-static void *H5O_ainfo_decode(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh,
-    unsigned mesg_flags, unsigned *ioflags, const uint8_t *p);
+static void *H5O__ainfo_decode(H5F_t *f, H5O_t *open_oh, unsigned mesg_flags,
+    unsigned *ioflags, size_t p_size, const uint8_t *p);
 static herr_t H5O_ainfo_encode(H5F_t *f, hbool_t disable_shared, uint8_t *p, const void *_mesg);
 static void *H5O_ainfo_copy(const void *_mesg, void *_dest);
 static size_t H5O_ainfo_size(const H5F_t *f, hbool_t disable_shared, const void *_mesg);
-static herr_t H5O_ainfo_free(void *_mesg);
-static herr_t H5O_ainfo_delete(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh,
-    void *_mesg);
+static herr_t H5O__ainfo_free(void *_mesg);
+static herr_t H5O__ainfo_delete(H5F_t *f, H5O_t *open_oh, void *_mesg);
 static herr_t H5O_ainfo_pre_copy_file(H5F_t *file_src, const void *mesg_src,
     hbool_t *deleted, const H5O_copy_t *cpy_info, void *udata);
-static void *H5O_ainfo_copy_file(H5F_t *file_src, void *mesg_src,
+static void *H5O__ainfo_copy_file(H5F_t *file_src, void *mesg_src,
     H5F_t *file_dst, hbool_t *recompute_size, unsigned *mesg_flags,
-    H5O_copy_t *cpy_info, void *udata, hid_t dxpl_id);
-static herr_t H5O_ainfo_post_copy_file(const H5O_loc_t *src_oloc,
+    H5O_copy_t *cpy_info, void *udata);
+static herr_t H5O__ainfo_post_copy_file(const H5O_loc_t *src_oloc,
     const void *mesg_src, H5O_loc_t *dst_oloc, void *mesg_dst,
-    unsigned *mesg_flags, hid_t dxpl_id, H5O_copy_t *cpy_info);
-static herr_t H5O_ainfo_debug(H5F_t *f, hid_t dxpl_id, const void *_mesg,
-			     FILE * stream, int indent, int fwidth);
+    unsigned *mesg_flags, H5O_copy_t *cpy_info);
+static herr_t H5O__ainfo_debug(H5F_t *f, const void *_mesg, FILE * stream,
+    int indent, int fwidth);
 
 /* This message derives from H5O message class */
 const H5O_msg_class_t H5O_MSG_AINFO[1] = {{
@@ -59,22 +58,22 @@ const H5O_msg_class_t H5O_MSG_AINFO[1] = {{
     "ainfo",                 	/*message name for debugging    */
     sizeof(H5O_ainfo_t),     	/*native message size           */
     0,				/* messages are sharable?       */
-    H5O_ainfo_decode,        	/*decode message                */
+    H5O__ainfo_decode,        	/*decode message                */
     H5O_ainfo_encode,        	/*encode message                */
     H5O_ainfo_copy,          	/*copy the native value         */
     H5O_ainfo_size,          	/*size of symbol table entry    */
     NULL,                   	/*default reset method          */
-    H5O_ainfo_free,	        /* free method			*/
-    H5O_ainfo_delete,	        /* file delete method		*/
+    H5O__ainfo_free,	        /* free method			*/
+    H5O__ainfo_delete,	        /* file delete method		*/
     NULL,			/* link method			*/
     NULL,			/*set share method		*/
     NULL,		    	/*can share method		*/
     H5O_ainfo_pre_copy_file,	/* pre copy native value to file */
-    H5O_ainfo_copy_file,	/* copy native value to file    */
-    H5O_ainfo_post_copy_file,   /* post copy native value to file */
+    H5O__ainfo_copy_file,	/* copy native value to file    */
+    H5O__ainfo_post_copy_file,  /* post copy native value to file */
     NULL,			/* get creation index		*/
     NULL,			/* set creation index		*/
-    H5O_ainfo_debug          	/*debug the message             */
+    H5O__ainfo_debug          	/*debug the message             */
 }};
 
 /* Current version of attribute info information */
@@ -90,7 +89,7 @@ H5FL_DEFINE_STATIC(H5O_ainfo_t);
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_ainfo_decode
+ * Function:    H5O__ainfo_decode
  *
  * Purpose:     Decode a message and return a pointer to a newly allocated one.
  *
@@ -104,14 +103,15 @@ H5FL_DEFINE_STATIC(H5O_ainfo_t);
  *-------------------------------------------------------------------------
  */
 static void *
-H5O_ainfo_decode(H5F_t *f, hid_t H5_ATTR_UNUSED dxpl_id, H5O_t H5_ATTR_UNUSED *open_oh,
-    unsigned H5_ATTR_UNUSED mesg_flags, unsigned H5_ATTR_UNUSED *ioflags, const uint8_t *p)
+H5O__ainfo_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh,
+    unsigned H5_ATTR_UNUSED mesg_flags, unsigned H5_ATTR_UNUSED *ioflags,
+    size_t H5_ATTR_UNUSED p_size, const uint8_t *p)
 {
     H5O_ainfo_t	*ainfo = NULL;  /* Attribute info */
     unsigned char flags;        /* Flags for encoding attribute info */
     void *ret_value = NULL;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(f);
@@ -161,7 +161,7 @@ done:
         ainfo = H5FL_FREE(H5O_ainfo_t, ainfo);
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_ainfo_decode() */
+} /* end H5O__ainfo_decode() */
 
 
 /*-------------------------------------------------------------------------
@@ -295,9 +295,9 @@ H5O_ainfo_size(const H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, const void
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_ainfo_free
+ * Function:	H5O__ainfo_free
  *
- * Purpose:	Free's the message
+ * Purpose:	Frees the message
  *
  * Return:	Non-negative on success/Negative on failure
  *
@@ -307,20 +307,20 @@ H5O_ainfo_size(const H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, const void
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_ainfo_free(void *mesg)
+H5O__ainfo_free(void *mesg)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     HDassert(mesg);
 
     mesg = H5FL_FREE(H5O_ainfo_t, mesg);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5O_ainfo_free() */
+} /* end H5O__ainfo_free() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_ainfo_delete
+ * Function:    H5O__ainfo_delete
  *
  * Purpose:     Free file space referenced by message.  Note that open_oh
  *              *must* be non-NULL - this means that calls to
@@ -334,12 +334,12 @@ H5O_ainfo_free(void *mesg)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_ainfo_delete(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh, void *_mesg)
+H5O__ainfo_delete(H5F_t *f, H5O_t *open_oh, void *_mesg)
 {
     H5O_ainfo_t *ainfo = (H5O_ainfo_t *)_mesg;
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(f);
@@ -347,15 +347,14 @@ H5O_ainfo_delete(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh, void *_mesg)
     HDassert(open_oh);
 
     /* If the object is using "dense" attribute storage, delete it */
-    if(H5F_addr_defined(ainfo->fheap_addr)) {
+    if(H5F_addr_defined(ainfo->fheap_addr))
         /* Delete the attribute */
-        if(H5A_dense_delete(f, dxpl_id, ainfo) < 0)
+        if(H5A__dense_delete(f, ainfo) < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTFREE, FAIL, "unable to free dense attribute storage")
-    } /* end if */
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_ainfo_delete() */
+} /* end H5O__ainfo_delete() */
 
 
 /*-------------------------------------------------------------------------
@@ -393,7 +392,7 @@ H5O_ainfo_pre_copy_file(H5F_t H5_ATTR_UNUSED *file_src, const void H5_ATTR_UNUSE
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_ainfo_copy_file
+ * Function:    H5O__ainfo_copy_file
  *
  * Purpose:     Copies a message from _MESG to _DEST in file
  *
@@ -406,15 +405,15 @@ H5O_ainfo_pre_copy_file(H5F_t H5_ATTR_UNUSED *file_src, const void H5_ATTR_UNUSE
  *-------------------------------------------------------------------------
  */
 static void *
-H5O_ainfo_copy_file(H5F_t *file_src, void *mesg_src, H5F_t *file_dst,
+H5O__ainfo_copy_file(H5F_t *file_src, void *mesg_src, H5F_t *file_dst,
     hbool_t H5_ATTR_UNUSED *recompute_size, unsigned H5_ATTR_UNUSED *mesg_flags,
-    H5O_copy_t *cpy_info, void H5_ATTR_UNUSED *udata, hid_t dxpl_id)
+    H5O_copy_t *cpy_info, void H5_ATTR_UNUSED *udata)
 {
     H5O_ainfo_t *ainfo_src = (H5O_ainfo_t *)mesg_src;
     H5O_ainfo_t *ainfo_dst = NULL;
     void *ret_value = NULL;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(file_src);
@@ -434,13 +433,13 @@ H5O_ainfo_copy_file(H5F_t *file_src, void *mesg_src, H5F_t *file_dst,
         /* Prepare to copy dense attributes - actual copy in post_copy */
 
         /* Set copied metadata tag */
-        H5_BEGIN_TAG(dxpl_id, H5AC__COPIED_TAG, NULL);
+        H5_BEGIN_TAG(H5AC__COPIED_TAG);
 
-        if(H5A_dense_create(file_dst, dxpl_id, ainfo_dst) < 0)
+        if(H5A__dense_create(file_dst, ainfo_dst) < 0)
             HGOTO_ERROR_TAG(H5E_OHDR, H5E_CANTINIT, NULL, "unable to create dense storage for attributes")
 
         /* Reset metadata tag */
-        H5_END_TAG(NULL);
+        H5_END_TAG
     } /* end if */
 
     /* Set return value */
@@ -452,11 +451,11 @@ done:
         ainfo_dst = H5FL_FREE(H5O_ainfo_t, ainfo_dst);
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5O_ainfo_copy_file() */
+} /* H5O__ainfo_copy_file() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_ainfo_post_copy_file
+ * Function:    H5O__ainfo_post_copy_file
  *
  * Purpose:     Finish copying a message from between files.
  *              We have to copy the values of a reference attribute in the
@@ -472,30 +471,28 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_ainfo_post_copy_file(const H5O_loc_t *src_oloc, const void *mesg_src,
+H5O__ainfo_post_copy_file(const H5O_loc_t *src_oloc, const void *mesg_src,
     H5O_loc_t *dst_oloc, void *mesg_dst, unsigned H5_ATTR_UNUSED *mesg_flags,
-    hid_t dxpl_id, H5O_copy_t *cpy_info)
+    H5O_copy_t *cpy_info)
 {
     const H5O_ainfo_t *ainfo_src = (const H5O_ainfo_t *)mesg_src;
     herr_t ret_value = SUCCEED;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     HDassert(ainfo_src);
 
-    if(H5F_addr_defined(ainfo_src->fheap_addr)) {
-        if(H5A_dense_post_copy_file_all(src_oloc, ainfo_src, dst_oloc,
-                (H5O_ainfo_t *)mesg_dst, dxpl_id, cpy_info) < 0)
-        HGOTO_ERROR(H5E_ATTR, H5E_CANTCOPY, FAIL, "can't copy attribute")
-    } /* end if */
+    if(H5F_addr_defined(ainfo_src->fheap_addr))
+        if(H5A__dense_post_copy_file_all(src_oloc, ainfo_src, dst_oloc, (H5O_ainfo_t *)mesg_dst, cpy_info) < 0)
+            HGOTO_ERROR(H5E_ATTR, H5E_CANTCOPY, FAIL, "can't copy attribute")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5O_ainfo_post_copy_file() */
+} /* H5O__ainfo_post_copy_file() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_ainfo_debug
+ * Function:    H5O__ainfo_debug
  *
  * Purpose:     Prints debugging info for a message.
  *
@@ -508,12 +505,12 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_ainfo_debug(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, const void *_mesg, FILE * stream,
-	       int indent, int fwidth)
+H5O__ainfo_debug(H5F_t H5_ATTR_UNUSED *f, const void *_mesg, FILE * stream,
+    int indent, int fwidth)
 {
     const H5O_ainfo_t       *ainfo = (const H5O_ainfo_t *) _mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* check args */
     HDassert(f);
@@ -539,5 +536,5 @@ H5O_ainfo_debug(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, const voi
 
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5O_ainfo_debug() */
+} /* end H5O__ainfo_debug() */
 

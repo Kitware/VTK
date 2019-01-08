@@ -1,8 +1,6 @@
-if(NOT VTK_LEGACY_REMOVE)
-  set(Module_SRCS
-    vtkGeoView.cxx
-    vtkGeoView2D.cxx
-    )
+set(classes
+  vtkGeoView
+  vtkGeoView2D)
 
-  vtk_module_library(vtkViewsGeovis ${Module_SRCS})
-endif()
+vtk_module_add_module(VTK::ViewsGeovis
+  CLASSES ${classes})

@@ -160,19 +160,10 @@ template<typename Derived> class MatrixBase
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
     Derived& operator-=(const MatrixBase<OtherDerived>& other);
 
-#ifdef __CUDACC__
     template<typename OtherDerived>
     EIGEN_DEVICE_FUNC
-    const Product<Derived,OtherDerived,LazyProduct>
-    operator*(const MatrixBase<OtherDerived> &other) const
-    { return this->lazyProduct(other); }
-#else
-
-    template<typename OtherDerived>
     const Product<Derived,OtherDerived>
     operator*(const MatrixBase<OtherDerived> &other) const;
-
-#endif
 
     template<typename OtherDerived>
     EIGEN_DEVICE_FUNC

@@ -1,0 +1,33 @@
+NAME
+  VTK::FiltersFlowPaths
+LIBRARY_NAME
+  vtkFiltersFlowPaths
+DESCRIPTION
+  Filters and algorithms for streamlines
+IMPLEMENTABLE
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::CommonMath
+PRIVATE_DEPENDS
+  VTK::FiltersCore
+  VTK::FiltersGeometry
+  VTK::FiltersSources
+  VTK::IOCore
+TEST_DEPENDS
+  VTK::FiltersAMR
+  VTK::FiltersExtraction
+  VTK::FiltersGeneral
+  VTK::FiltersGeometry
+  VTK::FiltersImaging
+  VTK::FiltersSources
+  VTK::IOXML
+  VTK::ImagingCore
+  VTK::ImagingGeneral
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

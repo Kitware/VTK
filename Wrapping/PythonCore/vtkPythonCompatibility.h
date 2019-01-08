@@ -134,3 +134,4 @@ typedef struct bufferinfo { PyObject *obj; } Py_buffer;
 
 #endif
 #endif
+// VTK-HeaderTest-Exclude: vtkPythonCompatibility.h

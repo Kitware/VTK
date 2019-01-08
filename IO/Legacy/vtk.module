@@ -1,0 +1,23 @@
+NAME
+  VTK::IOLegacy
+LIBRARY_NAME
+  vtkIOLegacy
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::IOCore
+PRIVATE_DEPENDS
+  VTK::CommonMisc
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::FiltersAMR
+  VTK::FiltersGeometry
+  VTK::ImagingCore
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering

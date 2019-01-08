@@ -59,3 +59,4 @@ struct vtkTkRenderWidget
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkTkRenderWidget.h

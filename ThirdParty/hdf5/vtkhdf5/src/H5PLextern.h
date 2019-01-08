@@ -11,9 +11,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:  Raymond Lu <songyulu@hdfgroup.org>
- *              13 February 2013
+ * Purpose:     Header file for writing external HDF5 plugins.
  */
+
 #ifndef _H5PLextern_H
 #define _H5PLextern_H
 

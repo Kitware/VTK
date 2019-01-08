@@ -252,3 +252,4 @@ void vtkParse_FreeStringCache(StringCache *cache);
 #endif
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkParseString.h */

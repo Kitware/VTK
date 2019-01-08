@@ -110,3 +110,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkQtAnnotationLayersModelAdapter.h

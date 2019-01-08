@@ -1,16 +1,21 @@
-include(vtkMPI)
-include(vtkObjectFactory)
-
-set(Module_SRCS
-  vtkPNrrdReader.cxx
-  vtkMPIImageReader.cxx
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
-  )
+set(classes
+  vtkPNrrdReader
+  vtkMPIImageReader)
 
 # Now to generate our object factory.
-vtk_add_override(vtkNrrdReader vtkPNrrdReader)
-vtk_add_override(vtkMPIImageReader vtkImageReader)
-vtk_object_factory_configure("${vtk_module_overrides}")
+vtk_object_factory_declare(
+  BASE      vtkNrrdReader
+  OVERRIDE  vtkPNrrdReader)
+vtk_object_factory_declare(
+  BASE      vtkImageReader
+  OVERRIDE  vtkMPIImageReader)
 
-vtk_module_library(vtkIOMPIImage ${Module_SRCS})
-vtk_mpi_link(${vtk-module})
+vtk_object_factory_configure(
+  SOURCE_FILE vtk_object_factory_source
+  HEADER_FILE vtk_object_factory_header
+  EXPORT_MACRO "VTKIOMPIIMAGE_EXPORT")
+
+vtk_module_add_module(VTK::IOMPIImage
+  CLASSES ${classes}
+  SOURCES ${vtk_object_factory_source}
+  PRIVATE_HEADERS ${vtk_object_factory_header})

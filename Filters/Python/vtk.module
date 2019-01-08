@@ -1,0 +1,15 @@
+NAME
+  VTK::FiltersPython
+LIBRARY_NAME
+  vtkFiltersPython
+CONDITION
+  VTK_WRAP_PYTHON
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::WrappingPythonCore
+TEST_DEPENDS
+  VTK::TestingCore

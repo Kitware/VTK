@@ -3,7 +3,7 @@
  *
  * Reference: Your favorite introductory book on algorithms
  *
- * Copyright (C) 2000 Bjorn Reese and Daniel Veillard.
+ * Copyright (C) 2000,2012 Bjorn Reese and Daniel Veillard.
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -21,6 +21,22 @@
 #include "libxml.h"
 
 #include <string.h>
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+#ifdef HAVE_TIME_H
+#include <time.h>
+#endif
+
+/*
+ * Following http://www.ocert.org/advisories/ocert-2011-003.html
+ * it seems that having hash randomization might be a good idea
+ * when using XML with untrusted data
+ */
+#if defined(HAVE_RAND) && defined(HAVE_SRAND) && defined(HAVE_TIME)
+#define HASH_RANDOMIZATION
+#endif
+
 #include <libxml/parser.h>
 #include <libxml/hash.h>
 #include <libxml/xmlmemory.h>
@@ -53,6 +69,9 @@ struct _xmlHashTable {
     int size;
     int nbElems;
     xmlDictPtr dict;
+#ifdef HASH_RANDOMIZATION
+    int random_seed;
+#endif
 };
 
 /*
@@ -61,74 +80,84 @@ struct _xmlHashTable {
  */
 static unsigned long
 xmlHashComputeKey(xmlHashTablePtr table, const xmlChar *name,
-                  const xmlChar *name2, const xmlChar *name3) {
+	          const xmlChar *name2, const xmlChar *name3) {
     unsigned long value = 0L;
     char ch;
-    
+
+#ifdef HASH_RANDOMIZATION
+    value = table->random_seed;
+#endif
     if (name != NULL) {
-        value += 30 * (*name);
-        while ((ch = *name++) != 0) {
-            value = value ^ ((value << 5) + (value >> 3) + (unsigned long)ch);
-        }
+	value += 30 * (*name);
+	while ((ch = *name++) != 0) {
+	    value = value ^ ((value << 5) + (value >> 3) + (unsigned long)ch);
+	}
     }
+    value = value ^ ((value << 5) + (value >> 3));
     if (name2 != NULL) {
-        while ((ch = *name2++) != 0) {
-            value = value ^ ((value << 5) + (value >> 3) + (unsigned long)ch);
-        }
+	while ((ch = *name2++) != 0) {
+	    value = value ^ ((value << 5) + (value >> 3) + (unsigned long)ch);
+	}
     }
+    value = value ^ ((value << 5) + (value >> 3));
     if (name3 != NULL) {
-        while ((ch = *name3++) != 0) {
-            value = value ^ ((value << 5) + (value >> 3) + (unsigned long)ch);
-        }
+	while ((ch = *name3++) != 0) {
+	    value = value ^ ((value << 5) + (value >> 3) + (unsigned long)ch);
+	}
     }
     return (value % table->size);
 }
 
 static unsigned long
 xmlHashComputeQKey(xmlHashTablePtr table,
-                   const xmlChar *prefix, const xmlChar *name,
-                   const xmlChar *prefix2, const xmlChar *name2,
-                   const xmlChar *prefix3, const xmlChar *name3) {
+		   const xmlChar *prefix, const xmlChar *name,
+		   const xmlChar *prefix2, const xmlChar *name2,
+		   const xmlChar *prefix3, const xmlChar *name3) {
     unsigned long value = 0L;
     char ch;
-    
+
+#ifdef HASH_RANDOMIZATION
+    value = table->random_seed;
+#endif
     if (prefix != NULL)
-        value += 30 * (*prefix);
+	value += 30 * (*prefix);
     else
-        value += 30 * (*name);
+	value += 30 * (*name);
 
     if (prefix != NULL) {
-        while ((ch = *prefix++) != 0) {
-            value = value ^ ((value << 5) + (value >> 3) + (unsigned long)ch);
-        }
-        value = value ^ ((value << 5) + (value >> 3) + (unsigned long)':');
+	while ((ch = *prefix++) != 0) {
+	    value = value ^ ((value << 5) + (value >> 3) + (unsigned long)ch);
+	}
+	value = value ^ ((value << 5) + (value >> 3) + (unsigned long)':');
     }
     if (name != NULL) {
-        while ((ch = *name++) != 0) {
-            value = value ^ ((value << 5) + (value >> 3) + (unsigned long)ch);
-        }
+	while ((ch = *name++) != 0) {
+	    value = value ^ ((value << 5) + (value >> 3) + (unsigned long)ch);
+	}
     }
+    value = value ^ ((value << 5) + (value >> 3));
     if (prefix2 != NULL) {
-        while ((ch = *prefix2++) != 0) {
-            value = value ^ ((value << 5) + (value >> 3) + (unsigned long)ch);
-        }
-        value = value ^ ((value << 5) + (value >> 3) + (unsigned long)':');
+	while ((ch = *prefix2++) != 0) {
+	    value = value ^ ((value << 5) + (value >> 3) + (unsigned long)ch);
+	}
+	value = value ^ ((value << 5) + (value >> 3) + (unsigned long)':');
     }
     if (name2 != NULL) {
-        while ((ch = *name2++) != 0) {
-            value = value ^ ((value << 5) + (value >> 3) + (unsigned long)ch);
-        }
+	while ((ch = *name2++) != 0) {
+	    value = value ^ ((value << 5) + (value >> 3) + (unsigned long)ch);
+	}
     }
+    value = value ^ ((value << 5) + (value >> 3));
     if (prefix3 != NULL) {
-        while ((ch = *prefix3++) != 0) {
-            value = value ^ ((value << 5) + (value >> 3) + (unsigned long)ch);
-        }
-        value = value ^ ((value << 5) + (value >> 3) + (unsigned long)':');
+	while ((ch = *prefix3++) != 0) {
+	    value = value ^ ((value << 5) + (value >> 3) + (unsigned long)ch);
+	}
+	value = value ^ ((value << 5) + (value >> 3) + (unsigned long)':');
     }
     if (name3 != NULL) {
-        while ((ch = *name3++) != 0) {
-            value = value ^ ((value << 5) + (value >> 3) + (unsigned long)ch);
-        }
+	while ((ch = *name3++) != 0) {
+	    value = value ^ ((value << 5) + (value >> 3) + (unsigned long)ch);
+	}
     }
     return (value % table->size);
 }
@@ -139,24 +168,27 @@ xmlHashComputeQKey(xmlHashTablePtr table,
  *
  * Create a new xmlHashTablePtr.
  *
- * Returns the newly created object, or NULL if an error occured.
+ * Returns the newly created object, or NULL if an error occurred.
  */
 xmlHashTablePtr
 xmlHashCreate(int size) {
     xmlHashTablePtr table;
-  
+
     if (size <= 0)
         size = 256;
-  
+
     table = xmlMalloc(sizeof(xmlHashTable));
     if (table) {
         table->dict = NULL;
         table->size = size;
-        table->nbElems = 0;
+	table->nbElems = 0;
         table->table = xmlMalloc(size * sizeof(xmlHashEntry));
         if (table->table) {
-            memset(table->table, 0, size * sizeof(xmlHashEntry));
-            return(table);
+	    memset(table->table, 0, size * sizeof(xmlHashEntry));
+#ifdef HASH_RANDOMIZATION
+            table->random_seed = __xmlRandom();
+#endif
+	    return(table);
         }
         xmlFree(table);
     }
@@ -170,7 +202,7 @@ xmlHashCreate(int size) {
  *
  * Create a new xmlHashTablePtr which will use @dict as the internal dictionary
  *
- * Returns the newly created object, or NULL if an error occured.
+ * Returns the newly created object, or NULL if an error occurred.
  */
 xmlHashTablePtr
 xmlHashCreateDict(int size, xmlDictPtr dict) {
@@ -179,7 +211,7 @@ xmlHashCreateDict(int size, xmlDictPtr dict) {
     table = xmlHashCreate(size);
     if (table != NULL) {
         table->dict = dict;
-        xmlDictReference(dict);
+	xmlDictReference(dict);
     }
     return(table);
 }
@@ -202,75 +234,75 @@ xmlHashGrow(xmlHashTablePtr table, int size) {
 #ifdef DEBUG_GROW
     unsigned long nbElem = 0;
 #endif
-  
+
     if (table == NULL)
-        return(-1);
+	return(-1);
     if (size < 8)
         return(-1);
     if (size > 8 * 2048)
-        return(-1);
+	return(-1);
 
     oldsize = table->size;
     oldtable = table->table;
     if (oldtable == NULL)
         return(-1);
-  
+
     table->table = xmlMalloc(size * sizeof(xmlHashEntry));
     if (table->table == NULL) {
-        table->table = oldtable;
-        return(-1);
+	table->table = oldtable;
+	return(-1);
     }
     memset(table->table, 0, size * sizeof(xmlHashEntry));
     table->size = size;
 
-    /*  If the two loops are merged, there would be situations where
-        a new entry needs to allocated and data copied into it from 
-        the main table. So instead, we run through the array twice, first
-        copying all the elements in the main array (where we can't get
-        conflicts) and then the rest, so we only free (and don't allocate)
+    /*	If the two loops are merged, there would be situations where
+	a new entry needs to allocated and data copied into it from
+	the main table. So instead, we run through the array twice, first
+	copying all the elements in the main array (where we can't get
+	conflicts) and then the rest, so we only free (and don't allocate)
     */
     for (i = 0; i < oldsize; i++) {
-        if (oldtable[i].valid == 0) 
-            continue;
-        key = xmlHashComputeKey(table, oldtable[i].name, oldtable[i].name2,
-                                oldtable[i].name3);
-        memcpy(&(table->table[key]), &(oldtable[i]), sizeof(xmlHashEntry));
-        table->table[key].next = NULL;
+	if (oldtable[i].valid == 0)
+	    continue;
+	key = xmlHashComputeKey(table, oldtable[i].name, oldtable[i].name2,
+				oldtable[i].name3);
+	memcpy(&(table->table[key]), &(oldtable[i]), sizeof(xmlHashEntry));
+	table->table[key].next = NULL;
     }
 
     for (i = 0; i < oldsize; i++) {
-        iter = oldtable[i].next;
-        while (iter) {
-            next = iter->next;
+	iter = oldtable[i].next;
+	while (iter) {
+	    next = iter->next;
 
-            /*
-             * put back the entry in the new table
-             */
+	    /*
+	     * put back the entry in the new table
+	     */
 
-            key = xmlHashComputeKey(table, iter->name, iter->name2,
-                                    iter->name3);
-            if (table->table[key].valid == 0) {
-                memcpy(&(table->table[key]), iter, sizeof(xmlHashEntry));
-                table->table[key].next = NULL;
-                xmlFree(iter);
-            } else {
-                iter->next = table->table[key].next;
-                table->table[key].next = iter;
-            }
+	    key = xmlHashComputeKey(table, iter->name, iter->name2,
+		                    iter->name3);
+	    if (table->table[key].valid == 0) {
+		memcpy(&(table->table[key]), iter, sizeof(xmlHashEntry));
+		table->table[key].next = NULL;
+		xmlFree(iter);
+	    } else {
+		iter->next = table->table[key].next;
+		table->table[key].next = iter;
+	    }
 
 #ifdef DEBUG_GROW
-            nbElem++;
+	    nbElem++;
 #endif
 
-            iter = next;
-        }
+	    iter = next;
+	}
     }
 
     xmlFree(oldtable);
 
 #ifdef DEBUG_GROW
     xmlGenericError(xmlGenericErrorContext,
-            "xmlHashGrow : from %d to %d, %d elems\n", oldsize, size, nbElem);
+	    "xmlHashGrow : from %d to %d, %d elems\n", oldsize, size, nbElem);
 #endif
 
     return(0);
@@ -293,40 +325,51 @@ xmlHashFree(xmlHashTablePtr table, xmlHashDeallocator f) {
     int nbElems;
 
     if (table == NULL)
-        return;
+	return;
     if (table->table) {
-        nbElems = table->nbElems;
-        for(i = 0; (i < table->size) && (nbElems > 0); i++) {
-            iter = &(table->table[i]);
-            if (iter->valid == 0)
-                continue;
-            inside_table = 1;
-            while (iter) {
-                next = iter->next;
-                if ((f != NULL) && (iter->payload != NULL))
-                    f(iter->payload, iter->name);
-                if (table->dict == NULL) {
-                    if (iter->name)
-                        xmlFree(iter->name);
-                    if (iter->name2)
-                        xmlFree(iter->name2);
-                    if (iter->name3)
-                        xmlFree(iter->name3);
-                }
-                iter->payload = NULL;
-                if (!inside_table)
-                    xmlFree(iter);
-                nbElems--;
-                inside_table = 0;
-                iter = next;
-            }
-            inside_table = 0;
-        }
-        xmlFree(table->table);
+	nbElems = table->nbElems;
+	for(i = 0; (i < table->size) && (nbElems > 0); i++) {
+	    iter = &(table->table[i]);
+	    if (iter->valid == 0)
+		continue;
+	    inside_table = 1;
+	    while (iter) {
+		next = iter->next;
+		if ((f != NULL) && (iter->payload != NULL))
+		    f(iter->payload, iter->name);
+		if (table->dict == NULL) {
+		    if (iter->name)
+			xmlFree(iter->name);
+		    if (iter->name2)
+			xmlFree(iter->name2);
+		    if (iter->name3)
+			xmlFree(iter->name3);
+		}
+		iter->payload = NULL;
+		if (!inside_table)
+		    xmlFree(iter);
+		nbElems--;
+		inside_table = 0;
+		iter = next;
+	    }
+	}
+	xmlFree(table->table);
     }
     if (table->dict)
         xmlDictFree(table->dict);
     xmlFree(table);
+}
+
+/**
+ * xmlHashDefaultDeallocator:
+ * @entry: the hash table entry
+ * @name: the entry's name
+ *
+ * Free a hash table entry with xmlFree.
+ */
+void
+xmlHashDefaultDeallocator(void *entry, const xmlChar *name ATTRIBUTE_UNUSED) {
+    xmlFree(entry);
 }
 
 /**
@@ -359,7 +402,7 @@ xmlHashAddEntry(xmlHashTablePtr table, const xmlChar *name, void *userdata) {
  */
 int
 xmlHashAddEntry2(xmlHashTablePtr table, const xmlChar *name,
-                const xmlChar *name2, void *userdata) {
+	        const xmlChar *name2, void *userdata) {
     return(xmlHashAddEntry3(table, name, name2, NULL, userdata));
 }
 
@@ -378,7 +421,7 @@ xmlHashAddEntry2(xmlHashTablePtr table, const xmlChar *name,
  */
 int
 xmlHashUpdateEntry(xmlHashTablePtr table, const xmlChar *name,
-                   void *userdata, xmlHashDeallocator f) {
+	           void *userdata, xmlHashDeallocator f) {
     return(xmlHashUpdateEntry3(table, name, NULL, NULL, userdata, f));
 }
 
@@ -398,8 +441,8 @@ xmlHashUpdateEntry(xmlHashTablePtr table, const xmlChar *name,
  */
 int
 xmlHashUpdateEntry2(xmlHashTablePtr table, const xmlChar *name,
-                   const xmlChar *name2, void *userdata,
-                   xmlHashDeallocator f) {
+	           const xmlChar *name2, void *userdata,
+		   xmlHashDeallocator f) {
     return(xmlHashUpdateEntry3(table, name, name2, NULL, userdata, f));
 }
 
@@ -429,7 +472,7 @@ xmlHashLookup(xmlHashTablePtr table, const xmlChar *name) {
  */
 void *
 xmlHashLookup2(xmlHashTablePtr table, const xmlChar *name,
-              const xmlChar *name2) {
+	      const xmlChar *name2) {
     return(xmlHashLookup3(table, name, name2, NULL));
 }
 
@@ -464,7 +507,7 @@ xmlHashQLookup(xmlHashTablePtr table, const xmlChar *prefix,
 void *
 xmlHashQLookup2(xmlHashTablePtr table, const xmlChar *prefix,
                 const xmlChar *name, const xmlChar *prefix2,
-                const xmlChar *name2) {
+	        const xmlChar *name2) {
     return(xmlHashQLookup3(table, prefix, name, prefix2, name2, NULL, NULL));
 }
 
@@ -484,34 +527,34 @@ xmlHashQLookup2(xmlHashTablePtr table, const xmlChar *prefix,
  */
 int
 xmlHashAddEntry3(xmlHashTablePtr table, const xmlChar *name,
-                 const xmlChar *name2, const xmlChar *name3,
-                 void *userdata) {
+	         const xmlChar *name2, const xmlChar *name3,
+		 void *userdata) {
     unsigned long key, len = 0;
     xmlHashEntryPtr entry;
     xmlHashEntryPtr insert;
 
     if ((table == NULL) || (name == NULL))
-        return(-1);
+	return(-1);
 
     /*
      * If using a dict internalize if needed
      */
     if (table->dict) {
         if (!xmlDictOwns(table->dict, name)) {
-            name = xmlDictLookup(table->dict, name, -1);
-            if (name == NULL)
-                return(-1);
-        }
+	    name = xmlDictLookup(table->dict, name, -1);
+	    if (name == NULL)
+	        return(-1);
+	}
         if ((name2 != NULL) && (!xmlDictOwns(table->dict, name2))) {
-            name2 = xmlDictLookup(table->dict, name2, -1);
-            if (name2 == NULL)
-                return(-1);
-        }
+	    name2 = xmlDictLookup(table->dict, name2, -1);
+	    if (name2 == NULL)
+	        return(-1);
+	}
         if ((name3 != NULL) && (!xmlDictOwns(table->dict, name3))) {
-            name3 = xmlDictLookup(table->dict, name3, -1);
-            if (name3 == NULL)
-                return(-1);
-        }
+	    name3 = xmlDictLookup(table->dict, name3, -1);
+	    if (name3 == NULL)
+	        return(-1);
+	}
     }
 
     /*
@@ -519,43 +562,43 @@ xmlHashAddEntry3(xmlHashTablePtr table, const xmlChar *name,
      */
     key = xmlHashComputeKey(table, name, name2, name3);
     if (table->table[key].valid == 0) {
-        insert = NULL;
+	insert = NULL;
     } else {
         if (table->dict) {
-            for (insert = &(table->table[key]); insert->next != NULL;
-                 insert = insert->next) {
-                if ((insert->name == name) &&
-                    (insert->name2 == name2) &&
-                    (insert->name3 == name3))
-                    return(-1);
-                len++;
-            }
-            if ((insert->name == name) &&
-                (insert->name2 == name2) &&
-                (insert->name3 == name3))
-                return(-1);
-        } else {
-            for (insert = &(table->table[key]); insert->next != NULL;
-                 insert = insert->next) {
-                if ((xmlStrEqual(insert->name, name)) &&
-                    (xmlStrEqual(insert->name2, name2)) &&
-                    (xmlStrEqual(insert->name3, name3)))
-                    return(-1);
-                len++;
-            }
-            if ((xmlStrEqual(insert->name, name)) &&
-                (xmlStrEqual(insert->name2, name2)) &&
-                (xmlStrEqual(insert->name3, name3)))
-                return(-1);
-        }
+	    for (insert = &(table->table[key]); insert->next != NULL;
+		 insert = insert->next) {
+		if ((insert->name == name) &&
+		    (insert->name2 == name2) &&
+		    (insert->name3 == name3))
+		    return(-1);
+		len++;
+	    }
+	    if ((insert->name == name) &&
+		(insert->name2 == name2) &&
+		(insert->name3 == name3))
+		return(-1);
+	} else {
+	    for (insert = &(table->table[key]); insert->next != NULL;
+		 insert = insert->next) {
+		if ((xmlStrEqual(insert->name, name)) &&
+		    (xmlStrEqual(insert->name2, name2)) &&
+		    (xmlStrEqual(insert->name3, name3)))
+		    return(-1);
+		len++;
+	    }
+	    if ((xmlStrEqual(insert->name, name)) &&
+		(xmlStrEqual(insert->name2, name2)) &&
+		(xmlStrEqual(insert->name3, name3)))
+		return(-1);
+	}
     }
 
     if (insert == NULL) {
-        entry = &(table->table[key]);
+	entry = &(table->table[key]);
     } else {
-        entry = xmlMalloc(sizeof(xmlHashEntry));
-        if (entry == NULL)
-             return(-1);
+	entry = xmlMalloc(sizeof(xmlHashEntry));
+	if (entry == NULL)
+	     return(-1);
     }
 
     if (table->dict != NULL) {
@@ -563,22 +606,22 @@ xmlHashAddEntry3(xmlHashTablePtr table, const xmlChar *name,
         entry->name2 = (xmlChar *) name2;
         entry->name3 = (xmlChar *) name3;
     } else {
-        entry->name = xmlStrdup(name);
-        entry->name2 = xmlStrdup(name2);
-        entry->name3 = xmlStrdup(name3);
+	entry->name = xmlStrdup(name);
+	entry->name2 = xmlStrdup(name2);
+	entry->name3 = xmlStrdup(name3);
     }
     entry->payload = userdata;
     entry->next = NULL;
     entry->valid = 1;
 
 
-    if (insert != NULL) 
-        insert->next = entry;
+    if (insert != NULL)
+	insert->next = entry;
 
     table->nbElems++;
 
     if (len > MAX_HASH_LEN)
-        xmlHashGrow(table, MAX_HASH_LEN * table->size);
+	xmlHashGrow(table, MAX_HASH_LEN * table->size);
 
     return(0);
 }
@@ -600,34 +643,34 @@ xmlHashAddEntry3(xmlHashTablePtr table, const xmlChar *name,
  */
 int
 xmlHashUpdateEntry3(xmlHashTablePtr table, const xmlChar *name,
-                   const xmlChar *name2, const xmlChar *name3,
-                   void *userdata, xmlHashDeallocator f) {
+	           const xmlChar *name2, const xmlChar *name3,
+		   void *userdata, xmlHashDeallocator f) {
     unsigned long key;
     xmlHashEntryPtr entry;
     xmlHashEntryPtr insert;
 
     if ((table == NULL) || name == NULL)
-        return(-1);
+	return(-1);
 
     /*
      * If using a dict internalize if needed
      */
     if (table->dict) {
         if (!xmlDictOwns(table->dict, name)) {
-            name = xmlDictLookup(table->dict, name, -1);
-            if (name == NULL)
-                return(-1);
-        }
+	    name = xmlDictLookup(table->dict, name, -1);
+	    if (name == NULL)
+	        return(-1);
+	}
         if ((name2 != NULL) && (!xmlDictOwns(table->dict, name2))) {
-            name2 = xmlDictLookup(table->dict, name2, -1);
-            if (name2 == NULL)
-                return(-1);
-        }
+	    name2 = xmlDictLookup(table->dict, name2, -1);
+	    if (name2 == NULL)
+	        return(-1);
+	}
         if ((name3 != NULL) && (!xmlDictOwns(table->dict, name3))) {
-            name3 = xmlDictLookup(table->dict, name3, -1);
-            if (name3 == NULL)
-                return(-1);
-        }
+	    name3 = xmlDictLookup(table->dict, name3, -1);
+	    if (name3 == NULL)
+	        return(-1);
+	}
     }
 
     /*
@@ -635,57 +678,57 @@ xmlHashUpdateEntry3(xmlHashTablePtr table, const xmlChar *name,
      */
     key = xmlHashComputeKey(table, name, name2, name3);
     if (table->table[key].valid == 0) {
-        insert = NULL;
+	insert = NULL;
     } else {
         if (table ->dict) {
-            for (insert = &(table->table[key]); insert->next != NULL;
-                 insert = insert->next) {
-                if ((insert->name == name) &&
-                    (insert->name2 == name2) &&
-                    (insert->name3 == name3)) {
-                    if (f)
-                        f(insert->payload, insert->name);
-                    insert->payload = userdata;
-                    return(0);
-                }
-            }
-            if ((insert->name == name) &&
-                (insert->name2 == name2) &&
-                (insert->name3 == name3)) {
-                if (f)
-                    f(insert->payload, insert->name);
-                insert->payload = userdata;
-                return(0);
-            }
-        } else {
-            for (insert = &(table->table[key]); insert->next != NULL;
-                 insert = insert->next) {
-                if ((xmlStrEqual(insert->name, name)) &&
-                    (xmlStrEqual(insert->name2, name2)) &&
-                    (xmlStrEqual(insert->name3, name3))) {
-                    if (f)
-                        f(insert->payload, insert->name);
-                    insert->payload = userdata;
-                    return(0);
-                }
-            }
-            if ((xmlStrEqual(insert->name, name)) &&
-                (xmlStrEqual(insert->name2, name2)) &&
-                (xmlStrEqual(insert->name3, name3))) {
-                if (f)
-                    f(insert->payload, insert->name);
-                insert->payload = userdata;
-                return(0);
-            }
-        }
+	    for (insert = &(table->table[key]); insert->next != NULL;
+		 insert = insert->next) {
+		if ((insert->name == name) &&
+		    (insert->name2 == name2) &&
+		    (insert->name3 == name3)) {
+		    if (f)
+			f(insert->payload, insert->name);
+		    insert->payload = userdata;
+		    return(0);
+		}
+	    }
+	    if ((insert->name == name) &&
+		(insert->name2 == name2) &&
+		(insert->name3 == name3)) {
+		if (f)
+		    f(insert->payload, insert->name);
+		insert->payload = userdata;
+		return(0);
+	    }
+	} else {
+	    for (insert = &(table->table[key]); insert->next != NULL;
+		 insert = insert->next) {
+		if ((xmlStrEqual(insert->name, name)) &&
+		    (xmlStrEqual(insert->name2, name2)) &&
+		    (xmlStrEqual(insert->name3, name3))) {
+		    if (f)
+			f(insert->payload, insert->name);
+		    insert->payload = userdata;
+		    return(0);
+		}
+	    }
+	    if ((xmlStrEqual(insert->name, name)) &&
+		(xmlStrEqual(insert->name2, name2)) &&
+		(xmlStrEqual(insert->name3, name3))) {
+		if (f)
+		    f(insert->payload, insert->name);
+		insert->payload = userdata;
+		return(0);
+	    }
+	}
     }
 
     if (insert == NULL) {
-        entry =  &(table->table[key]);
+	entry =  &(table->table[key]);
     } else {
-        entry = xmlMalloc(sizeof(xmlHashEntry));
-        if (entry == NULL)
-             return(-1);
+	entry = xmlMalloc(sizeof(xmlHashEntry));
+	if (entry == NULL)
+	     return(-1);
     }
 
     if (table->dict != NULL) {
@@ -693,9 +736,9 @@ xmlHashUpdateEntry3(xmlHashTablePtr table, const xmlChar *name,
         entry->name2 = (xmlChar *) name2;
         entry->name3 = (xmlChar *) name3;
     } else {
-        entry->name = xmlStrdup(name);
-        entry->name2 = xmlStrdup(name2);
-        entry->name3 = xmlStrdup(name3);
+	entry->name = xmlStrdup(name);
+	entry->name2 = xmlStrdup(name2);
+	entry->name3 = xmlStrdup(name3);
     }
     entry->payload = userdata;
     entry->next = NULL;
@@ -704,7 +747,7 @@ xmlHashUpdateEntry3(xmlHashTablePtr table, const xmlChar *name,
 
 
     if (insert != NULL) {
-        insert->next = entry;
+	insert->next = entry;
     }
     return(0);
 }
@@ -721,31 +764,31 @@ xmlHashUpdateEntry3(xmlHashTablePtr table, const xmlChar *name,
  * Returns the a pointer to the userdata
  */
 void *
-xmlHashLookup3(xmlHashTablePtr table, const xmlChar *name, 
-               const xmlChar *name2, const xmlChar *name3) {
+xmlHashLookup3(xmlHashTablePtr table, const xmlChar *name,
+	       const xmlChar *name2, const xmlChar *name3) {
     unsigned long key;
     xmlHashEntryPtr entry;
 
     if (table == NULL)
-        return(NULL);
+	return(NULL);
     if (name == NULL)
-        return(NULL);
+	return(NULL);
     key = xmlHashComputeKey(table, name, name2, name3);
     if (table->table[key].valid == 0)
-        return(NULL);
+	return(NULL);
     if (table->dict) {
-        for (entry = &(table->table[key]); entry != NULL; entry = entry->next) {
-            if ((entry->name == name) &&
-                (entry->name2 == name2) &&
-                (entry->name3 == name3))
-                return(entry->payload);
-        }
+	for (entry = &(table->table[key]); entry != NULL; entry = entry->next) {
+	    if ((entry->name == name) &&
+		(entry->name2 == name2) &&
+		(entry->name3 == name3))
+		return(entry->payload);
+	}
     }
     for (entry = &(table->table[key]); entry != NULL; entry = entry->next) {
-        if ((xmlStrEqual(entry->name, name)) &&
-            (xmlStrEqual(entry->name2, name2)) &&
-            (xmlStrEqual(entry->name3, name3)))
-            return(entry->payload);
+	if ((xmlStrEqual(entry->name, name)) &&
+	    (xmlStrEqual(entry->name2, name2)) &&
+	    (xmlStrEqual(entry->name3, name3)))
+	    return(entry->payload);
     }
     return(NULL);
 }
@@ -767,24 +810,24 @@ xmlHashLookup3(xmlHashTablePtr table, const xmlChar *name,
 void *
 xmlHashQLookup3(xmlHashTablePtr table,
                 const xmlChar *prefix, const xmlChar *name,
-                const xmlChar *prefix2, const xmlChar *name2,
-                const xmlChar *prefix3, const xmlChar *name3) {
+		const xmlChar *prefix2, const xmlChar *name2,
+		const xmlChar *prefix3, const xmlChar *name3) {
     unsigned long key;
     xmlHashEntryPtr entry;
 
     if (table == NULL)
-        return(NULL);
+	return(NULL);
     if (name == NULL)
-        return(NULL);
+	return(NULL);
     key = xmlHashComputeQKey(table, prefix, name, prefix2,
                              name2, prefix3, name3);
     if (table->table[key].valid == 0)
-        return(NULL);
+	return(NULL);
     for (entry = &(table->table[key]); entry != NULL; entry = entry->next) {
-        if ((xmlStrQEqual(prefix, name, entry->name)) &&
-            (xmlStrQEqual(prefix2, name2, entry->name2)) &&
-            (xmlStrQEqual(prefix3, name3, entry->name3)))
-            return(entry->payload);
+	if ((xmlStrQEqual(prefix, name, entry->name)) &&
+	    (xmlStrQEqual(prefix2, name2, entry->name2)) &&
+	    (xmlStrQEqual(prefix3, name3, entry->name3)))
+	    return(entry->payload);
     }
     return(NULL);
 }
@@ -794,14 +837,14 @@ typedef struct {
     void *data;
 } stubData;
 
-static void 
-stubHashScannerFull (void *payload, void *data, const xmlChar *name, 
+static void
+stubHashScannerFull (void *payload, void *data, const xmlChar *name,
                      const xmlChar *name2 ATTRIBUTE_UNUSED,
-                     const xmlChar *name3 ATTRIBUTE_UNUSED) {
+		     const xmlChar *name3 ATTRIBUTE_UNUSED) {
     stubData *stubdata = (stubData *) data;
     stubdata->hashscanner (payload, stubdata->data, (xmlChar *) name);
-}                                  
- 
+}
+
 /**
  * xmlHashScan:
  * @table: the hash table
@@ -814,7 +857,7 @@ void
 xmlHashScan(xmlHashTablePtr table, xmlHashScanner f, void *data) {
     stubData stubdata;
     stubdata.data = data;
-    stubdata.hashscanner = f; 
+    stubdata.hashscanner = f;
     xmlHashScanFull (table, stubHashScannerFull, &stubdata);
 }
 
@@ -828,28 +871,39 @@ xmlHashScan(xmlHashTablePtr table, xmlHashScanner f, void *data) {
  */
 void
 xmlHashScanFull(xmlHashTablePtr table, xmlHashScannerFull f, void *data) {
-    int i;
+    int i, nb;
     xmlHashEntryPtr iter;
     xmlHashEntryPtr next;
 
     if (table == NULL)
-        return;
+	return;
     if (f == NULL)
-        return;
+	return;
 
     if (table->table) {
-        for(i = 0; i < table->size; i++) {
-            if (table->table[i].valid == 0) 
-                continue;
-            iter = &(table->table[i]);
-            while (iter) {
-                next = iter->next;
-                if ((f != NULL) && (iter->payload != NULL))
-                    f(iter->payload, data, iter->name,
-                      iter->name2, iter->name3);
-                iter = next;
-            }
-        }
+	for(i = 0; i < table->size; i++) {
+	    if (table->table[i].valid == 0)
+		continue;
+	    iter = &(table->table[i]);
+	    while (iter) {
+		next = iter->next;
+                nb = table->nbElems;
+		if ((f != NULL) && (iter->payload != NULL))
+		    f(iter->payload, data, iter->name,
+		      iter->name2, iter->name3);
+                if (nb != table->nbElems) {
+                    /* table was modified by the callback, be careful */
+                    if (iter == &(table->table[i])) {
+                        if (table->table[i].valid == 0)
+                            iter = NULL;
+                        if (table->table[i].next != next)
+			    iter = &(table->table[i]);
+                    } else
+		        iter = next;
+                } else
+		    iter = next;
+	    }
+	}
     }
 }
 
@@ -867,11 +921,14 @@ xmlHashScanFull(xmlHashTablePtr table, xmlHashScannerFull f, void *data) {
  * the comparison is considered to match.
  */
 void
-xmlHashScan3(xmlHashTablePtr table, const xmlChar *name, 
-             const xmlChar *name2, const xmlChar *name3,
-             xmlHashScanner f, void *data) {
-    xmlHashScanFull3 (table, name, name2, name3,
-                      (xmlHashScannerFull) f, data);
+xmlHashScan3(xmlHashTablePtr table, const xmlChar *name,
+	     const xmlChar *name2, const xmlChar *name3,
+	     xmlHashScanner f, void *data) {
+    stubData stubdata;
+    stubdata.data = data;
+    stubdata.hashscanner = f;
+    xmlHashScanFull3(table, name, name2, name3, stubHashScannerFull,
+                     &stubdata);
 }
 
 /**
@@ -888,35 +945,35 @@ xmlHashScan3(xmlHashTablePtr table, const xmlChar *name,
  * the comparison is considered to match.
  */
 void
-xmlHashScanFull3(xmlHashTablePtr table, const xmlChar *name, 
-                 const xmlChar *name2, const xmlChar *name3,
-                 xmlHashScannerFull f, void *data) {
+xmlHashScanFull3(xmlHashTablePtr table, const xmlChar *name,
+		 const xmlChar *name2, const xmlChar *name3,
+		 xmlHashScannerFull f, void *data) {
     int i;
     xmlHashEntryPtr iter;
     xmlHashEntryPtr next;
 
     if (table == NULL)
-        return;
+	return;
     if (f == NULL)
-        return;
+	return;
 
     if (table->table) {
-        for(i = 0; i < table->size; i++) {
-            if (table->table[i].valid == 0)
-                continue;
-            iter = &(table->table[i]);
-            while (iter) {
-                next = iter->next;
-                if (((name == NULL) || (xmlStrEqual(name, iter->name))) &&
-                    ((name2 == NULL) || (xmlStrEqual(name2, iter->name2))) &&
-                    ((name3 == NULL) || (xmlStrEqual(name3, iter->name3))) &&
-                    (iter->payload != NULL)) {
-                    f(iter->payload, data, iter->name,
-                      iter->name2, iter->name3);
-                }
-                iter = next;
-            }
-        }
+	for(i = 0; i < table->size; i++) {
+	    if (table->table[i].valid == 0)
+		continue;
+	    iter = &(table->table[i]);
+	    while (iter) {
+		next = iter->next;
+		if (((name == NULL) || (xmlStrEqual(name, iter->name))) &&
+		    ((name2 == NULL) || (xmlStrEqual(name2, iter->name2))) &&
+		    ((name3 == NULL) || (xmlStrEqual(name3, iter->name3))) &&
+		    (iter->payload != NULL)) {
+		    f(iter->payload, data, iter->name,
+		      iter->name2, iter->name3);
+		}
+		iter = next;
+	    }
+	}
     }
 }
 
@@ -937,23 +994,26 @@ xmlHashCopy(xmlHashTablePtr table, xmlHashCopier f) {
     xmlHashTablePtr ret;
 
     if (table == NULL)
-        return(NULL);
+	return(NULL);
     if (f == NULL)
-        return(NULL);
+	return(NULL);
 
     ret = xmlHashCreate(table->size);
+    if (ret == NULL)
+        return(NULL);
+
     if (table->table) {
-        for(i = 0; i < table->size; i++) {
-            if (table->table[i].valid == 0)
-                continue;
-            iter = &(table->table[i]);
-            while (iter) {
-                next = iter->next;
-                xmlHashAddEntry3(ret, iter->name, iter->name2,
-                                 iter->name3, f(iter->payload, iter->name));
-                iter = next;
-            }
-        }
+	for(i = 0; i < table->size; i++) {
+	    if (table->table[i].valid == 0)
+		continue;
+	    iter = &(table->table[i]);
+	    while (iter) {
+		next = iter->next;
+		xmlHashAddEntry3(ret, iter->name, iter->name2,
+			         iter->name3, f(iter->payload, iter->name));
+		iter = next;
+	    }
+	}
     }
     ret->nbElems = table->nbElems;
     return(ret);
@@ -971,7 +1031,7 @@ xmlHashCopy(xmlHashTablePtr table, xmlHashCopier f) {
 int
 xmlHashSize(xmlHashTablePtr table) {
     if (table == NULL)
-        return(-1);
+	return(-1);
     return(table->nbElems);
 }
 
@@ -988,7 +1048,7 @@ xmlHashSize(xmlHashTablePtr table) {
  * Returns 0 if the removal succeeded and -1 in case of error or not found.
  */
 int xmlHashRemoveEntry(xmlHashTablePtr table, const xmlChar *name,
-                       xmlHashDeallocator f) {
+		       xmlHashDeallocator f) {
     return(xmlHashRemoveEntry3(table, name, NULL, NULL, f));
 }
 
@@ -1007,7 +1067,7 @@ int xmlHashRemoveEntry(xmlHashTablePtr table, const xmlChar *name,
  */
 int
 xmlHashRemoveEntry2(xmlHashTablePtr table, const xmlChar *name,
-                        const xmlChar *name2, xmlHashDeallocator f) {
+			const xmlChar *name2, xmlHashDeallocator f) {
     return(xmlHashRemoveEntry3(table, name, name2, NULL, f));
 }
 
@@ -1046,26 +1106,26 @@ xmlHashRemoveEntry3(xmlHashTablePtr table, const xmlChar *name,
                 if ((f != NULL) && (entry->payload != NULL))
                     f(entry->payload, entry->name);
                 entry->payload = NULL;
-                if (table->dict == NULL) {
-                    if(entry->name)
-                        xmlFree(entry->name);
-                    if(entry->name2)
-                        xmlFree(entry->name2);
-                    if(entry->name3)
-                        xmlFree(entry->name3);
-                }
+		if (table->dict == NULL) {
+		    if(entry->name)
+			xmlFree(entry->name);
+		    if(entry->name2)
+			xmlFree(entry->name2);
+		    if(entry->name3)
+			xmlFree(entry->name3);
+		}
                 if(prev) {
                     prev->next = entry->next;
-                    xmlFree(entry);
-                } else {
-                    if (entry->next == NULL) {
-                        entry->valid = 0;
-                    } else {
-                        entry = entry->next;
-                        memcpy(&(table->table[key]), entry, sizeof(xmlHashEntry));
-                        xmlFree(entry);
-                    }
-                }
+		    xmlFree(entry);
+		} else {
+		    if (entry->next == NULL) {
+			entry->valid = 0;
+		    } else {
+			entry = entry->next;
+			memcpy(&(table->table[key]), entry, sizeof(xmlHashEntry));
+			xmlFree(entry);
+		    }
+		}
                 table->nbElems--;
                 return(0);
             }

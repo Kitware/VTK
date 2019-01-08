@@ -186,3 +186,4 @@ char* vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(const char* arg,
 }
 
 #endif // vtkTestUtilities_h
+// VTK-HeaderTest-Exclude: vtkTestUtilities.h

@@ -91,14 +91,14 @@ const char *vtkWrapPython_GetSuperClass(
 
 /* -------------------------------------------------------------------- */
 /* check whether the superclass of the specified class is wrapped */
-int vtkWrapPython_HasWrappedSuperClass(
+const char *vtkWrapPython_HasWrappedSuperClass(
   HierarchyInfo *hinfo, const char *classname, int *is_external)
 {
   HierarchyEntry *entry;
   const char *module;
   const char *name;
   const char *supername;
-  int result = 0;
+  const char *result = NULL;
   int depth = 0;
 
   if (is_external)
@@ -108,14 +108,14 @@ int vtkWrapPython_HasWrappedSuperClass(
 
   if (!hinfo)
   {
-    return 0;
+    return result;
   }
 
   name = classname;
   entry = vtkParseHierarchy_FindEntry(hinfo, name);
   if (!entry)
   {
-    return 0;
+    return result;
   }
 
   module = entry->Module;
@@ -151,7 +151,7 @@ int vtkWrapPython_HasWrappedSuperClass(
     }
     else
     {
-      result = 1;
+      result = entry->Module;
       break;
     }
   }
@@ -378,9 +378,8 @@ static void vtkWrapPython_ExportVTKClass(
 
   /* for vtkObjectBase objects: export New method for use by subclasses */
   fprintf(fp,
-          "extern \"C\" { %s PyObject *Py%s_ClassNew(); }\n"
-          "\n",
-          "VTK_ABI_EXPORT", classname);
+          "extern \"C\" { PyObject *Py%s_ClassNew(); }\n\n",
+          classname);
 
   /* declare the New methods for all the superclasses */
   supername = vtkWrapPython_GetSuperClass(data, hinfo);
@@ -404,6 +403,7 @@ static void vtkWrapPython_GenerateObjectNew(
 {
   char superclassname[1024];
   const char *name;
+  int is_external;
   int has_constants = 0;
   int i;
 
@@ -421,7 +421,7 @@ static void vtkWrapPython_GenerateObjectNew(
   fprintf(fp,
           "PyObject *Py%s_ClassNew()\n"
           "{\n"
-          "  PyVTKClass_Add(\n"
+          "  PyTypeObject *pytype = PyVTKClass_Add(\n"
           "    &Py%s_Type, Py%s_Methods,\n",
           classname, classname, classname);
 
@@ -451,10 +451,6 @@ static void vtkWrapPython_GenerateObjectNew(
             " nullptr);\n\n");
   }
 
-  fprintf(fp,
-          "  PyTypeObject *pytype = &Py%s_Type;\n\n",
-          classname);
-
   /* if type is already ready, then return */
   fprintf(fp,
           "  if ((pytype->tp_flags & Py_TPFLAGS_READY) != 0)\n"
@@ -473,9 +469,19 @@ static void vtkWrapPython_GenerateObjectNew(
   if (name)
   {
     vtkWrapText_PythonName(name, superclassname);
-    fprintf(fp,
-            "  pytype->tp_base = (PyTypeObject *)Py%s_ClassNew();\n\n",
-            superclassname);
+    vtkWrapPython_HasWrappedSuperClass(hinfo, data->Name, &is_external);
+    if (!is_external) /* superclass is in the same module */
+    {
+      fprintf(fp,
+        "  pytype->tp_base = (PyTypeObject *)Py%s_ClassNew();\n\n",
+        superclassname);
+    }
+    else /* superclass is in a different module */
+    {
+      fprintf(fp,
+        "  pytype->tp_base = vtkPythonUtil::FindClassTypeObject(\"%s\");\n\n",
+        superclassname);
+    }
   }
 
   /* check if any constants need to be added to the class dict */

@@ -1,0 +1,25 @@
+NAME
+  VTK::FiltersSMP
+LIBRARY_NAME
+  vtkFiltersSMP
+KIT
+  VTK::Filters
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::CommonMisc
+  VTK::CommonTransforms
+  VTK::FiltersCore
+  VTK::FiltersGeneral
+PRIVATE_DEPENDS
+  VTK::CommonMath
+  VTK::CommonSystem
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::IOXML
+  VTK::ImagingCore
+  VTK::TestingCore
+  VTK::TestingRendering

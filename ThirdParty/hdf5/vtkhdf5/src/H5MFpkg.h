@@ -12,12 +12,12 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	Quincey Koziol <koziol@hdfgroup.org>
- *		Tuesday, January 8, 2008
+ * Programmer:  Quincey Koziol <koziol@hdfgroup.org>
+ *              Tuesday, January 8, 2008
  *
- * Purpose:	This file contains declarations which are visible only within
- *		the H5MF package.  Source files outside the H5MF package should
- *		include H5MFprivate.h instead.
+ * Purpose:     This file contains declarations which are visible only within
+ *              the H5MF package.  Source files outside the H5MF package should
+ *              include H5MFprivate.h instead.
  */
 #if !(defined H5MF_FRIEND || defined H5MF_MODULE)
 #error "Do not include this file outside the H5MF package!"
@@ -146,7 +146,6 @@ typedef enum {
 typedef struct H5MF_sect_ud_t {
     /* Down */
     H5F_t *f;                   /* Pointer to file to operate on */
-    hid_t dxpl_id;              /* DXPL for VFD operations */
     H5FD_mem_t alloc_type;      /* Type of memory being allocated */
     hbool_t allow_sect_absorb;  /* Whether sections are allowed to absorb a block aggregator */
     hbool_t allow_eoa_shrink_only;  /* Whether shrinking eoa is allowed only for the section */
@@ -181,30 +180,30 @@ H5_DLLVAR H5FS_section_class_t H5MF_FSPACE_SECT_CLS_LARGE[1];
 /******************************/
 
 /* Allocator routines */
-H5_DLL herr_t H5MF_open_fstype(H5F_t *f, hid_t dxpl_id, H5F_mem_page_t type);
-H5_DLL herr_t H5MF_start_fstype(H5F_t *f, hid_t dxpl_id, H5F_mem_page_t type);
+H5_DLL herr_t H5MF__open_fstype(H5F_t *f, H5F_mem_page_t type);
+H5_DLL herr_t H5MF__start_fstype(H5F_t *f, H5F_mem_page_t type);
 
-H5_DLL htri_t H5MF_find_sect(H5F_t *f, H5FD_mem_t alloc_type, hid_t dxpl_id, hsize_t size, H5FS_t *fspace, haddr_t *addr);
-H5_DLL herr_t H5MF_add_sect(H5F_t *f, H5FD_mem_t alloc_type, hid_t dxpl_id, H5FS_t *fspace, H5MF_free_section_t *node);
+H5_DLL htri_t H5MF__find_sect(H5F_t *f, H5FD_mem_t alloc_type, hsize_t size, H5FS_t *fspace, haddr_t *addr);
+H5_DLL herr_t H5MF__add_sect(H5F_t *f, H5FD_mem_t alloc_type, H5FS_t *fspace, H5MF_free_section_t *node);
 
-H5_DLL herr_t H5MF_sects_dump(H5F_t *f, hid_t dxpl_id, FILE *stream);
+H5_DLL herr_t H5MF__sects_dump(H5F_t *f, FILE *stream);
 
-H5_DLL void H5MF_alloc_to_fs_type(H5F_t *f, H5FD_mem_t alloc_type, hsize_t size, H5F_mem_page_t *fs_type);
+H5_DLL void H5MF__alloc_to_fs_type(H5F_t *f, H5FD_mem_t alloc_type, hsize_t size, H5F_mem_page_t *fs_type);
 
 /* 'simple/small/large' section routines */
-H5_DLL H5MF_free_section_t *H5MF_sect_new(unsigned ctype, haddr_t sect_off,
+H5_DLL H5MF_free_section_t *H5MF__sect_new(unsigned ctype, haddr_t sect_off,
     hsize_t sect_size);
-H5_DLL herr_t H5MF_sect_free(H5FS_section_info_t *sect);
+H5_DLL herr_t H5MF__sect_free(H5FS_section_info_t *sect);
 
 
 /* Block aggregator routines */
-H5_DLL htri_t H5MF_aggr_try_extend(H5F_t *f, hid_t dxpl_id, H5F_blk_aggr_t *aggr,
+H5_DLL htri_t H5MF__aggr_try_extend(H5F_t *f, H5F_blk_aggr_t *aggr,
     H5FD_mem_t type, haddr_t abs_blk_end, hsize_t extra_requested);
-H5_DLL htri_t H5MF_aggr_can_absorb(const H5F_t *f, const H5F_blk_aggr_t *aggr,
+H5_DLL htri_t H5MF__aggr_can_absorb(const H5F_t *f, const H5F_blk_aggr_t *aggr,
     const H5MF_free_section_t *sect, H5MF_shrink_type_t *shrink);
-H5_DLL herr_t H5MF_aggr_absorb(const H5F_t *f, H5F_blk_aggr_t *aggr,
+H5_DLL herr_t H5MF__aggr_absorb(const H5F_t *f, H5F_blk_aggr_t *aggr,
     H5MF_free_section_t *sect, hbool_t allow_sect_absorb);
-H5_DLL herr_t H5MF_aggr_query(const H5F_t *f, const H5F_blk_aggr_t *aggr,
+H5_DLL herr_t H5MF__aggr_query(const H5F_t *f, const H5F_blk_aggr_t *aggr,
     haddr_t *addr, hsize_t *size);
 
 /* Testing routines */

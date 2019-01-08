@@ -16,8 +16,9 @@
 #define vtk_gl2ps_h
 
 /* Use the gl2ps library configured for VTK.  */
-#cmakedefine VTK_USE_SYSTEM_GL2PS
-#ifdef VTK_USE_SYSTEM_GL2PS
+#cmakedefine01 VTK_MODULE_USE_EXTERNAL_vtkgl2ps
+
+#if VTK_MODULE_USE_EXTERNAL_vtkgl2ps
 # include <gl2ps.h>
 #else
 # include <vtkgl2ps/gl2ps.h>

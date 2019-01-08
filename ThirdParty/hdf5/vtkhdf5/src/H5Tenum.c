@@ -26,9 +26,9 @@
 #include "H5Tpkg.h"		/*data-type functions			  */
 
 /* Static local functions */
-static char *H5T_enum_nameof(const H5T_t *dt, const void *value, char *name/*out*/,
+static char *H5T_enum_nameof(H5T_t *dt, const void *value, char *name/*out*/,
 			      size_t size);
-static herr_t H5T_enum_valueof(const H5T_t *dt, const char *name,
+static herr_t H5T_enum_valueof(H5T_t *dt, const char *name,
 				void *value/*out*/);
 
 
@@ -57,23 +57,24 @@ H5Tenum_create(hid_t parent_id)
     H5T_t	*dt = NULL;		/*new enumeration data type	*/
     hid_t	ret_value;	        /*return value			*/
 
-    FUNC_ENTER_API(FAIL)
+    FUNC_ENTER_API(H5I_INVALID_HID)
     H5TRACE1("i", "i", parent_id);
 
     /* Check args */
     if(NULL == (parent = (H5T_t *)H5I_object_verify(parent_id, H5I_DATATYPE)) || H5T_INTEGER != parent->shared->type)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not an integer data type")
+	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not an integer data type")
 
     /* Build new type */
     if(NULL == (dt = H5T__enum_create(parent)))
-	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "cannot create enum type")
+	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, H5I_INVALID_HID, "cannot create enum type")
+
     /* Atomize the type */
     if ((ret_value=H5I_register(H5I_DATATYPE, dt, TRUE))<0)
-	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, FAIL, "unable to register data type atom")
+	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register data type atom")
 
 done:
     FUNC_LEAVE_API(ret_value)
-}
+} /* end H5Tenum_create() */
 
 
 /*-------------------------------------------------------------------------
@@ -95,7 +96,7 @@ done:
  *-------------------------------------------------------------------------
  */
 H5T_t *
-H5T__enum_create(const H5T_t *parent)
+H5T__enum_create(H5T_t *parent)
 {
     H5T_t	*ret_value = NULL;	/* New enumeration data type	*/
 
@@ -384,7 +385,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static char *
-H5T_enum_nameof(const H5T_t *dt, const void *value, char *name/*out*/, size_t size)
+H5T_enum_nameof(H5T_t *dt, const void *value, char *name/*out*/, size_t size)
 {
     H5T_t       *copied_dt = NULL;      /* Do sorting in copied datatype */
     unsigned	lt, md = 0, rt;		/* Indices for binary search	*/
@@ -446,7 +447,7 @@ H5T_enum_nameof(const H5T_t *dt, const void *value, char *name/*out*/, size_t si
 
 done:
     if(copied_dt)
-        if(H5T_close(copied_dt) < 0)
+        if(H5T_close_real(copied_dt) < 0)
             HDONE_ERROR(H5E_DATATYPE, H5E_CANTCLOSEOBJ, NULL, "unable to close data type");
     if(!ret_value && alloc_name)
         H5MM_free(name);
@@ -527,7 +528,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5T_enum_valueof(const H5T_t *dt, const char *name, void *value/*out*/)
+H5T_enum_valueof(H5T_t *dt, const char *name, void *value/*out*/)
 {
     unsigned	lt, md=0, rt;		/*indices for binary search	*/
     int	        cmp=(-1);		/*comparison result		*/
@@ -574,7 +575,7 @@ H5T_enum_valueof(const H5T_t *dt, const char *name, void *value/*out*/)
 
 done:
     if(copied_dt)
-        if(H5T_close(copied_dt) < 0)
+        if(H5T_close_real(copied_dt) < 0)
             HDONE_ERROR(H5E_DATATYPE, H5E_CANTCLOSEOBJ, FAIL, "unable to close data type")
 
     FUNC_LEAVE_NOAPI(ret_value)

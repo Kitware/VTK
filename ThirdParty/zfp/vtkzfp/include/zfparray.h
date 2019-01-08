@@ -8,53 +8,63 @@
 
 namespace zfp {
 
-// base class for compressed array of scalars
+// abstract base class for compressed array of scalars
 class array {
 protected:
+  // default constructor
+  array() :
+    dims(0), type(zfp_type_none),
+    nx(0), ny(0), nz(0),
+    bx(0), by(0), bz(0),
+    blocks(0), blkbits(0),
+    bytes(0), data(0),
+    zfp(0),
+    shape(0)
+  {}
+
   // generic array with 'dims' dimensions and scalar type 'type'
   array(uint dims, zfp_type type) :
     dims(dims), type(type),
     nx(0), ny(0), nz(0),
     bx(0), by(0), bz(0),
-    blocks(0), blkvals(1u << (2 * dims)), blkbits(0), blksize(0),
+    blocks(0), blkbits(0),
     bytes(0), data(0),
-    stream(zfp_stream_open(0)),
+    zfp(zfp_stream_open(0)),
     shape(0)
   {}
 
   // copy constructor--performs a deep copy
   array(const array& a) :
     data(0),
-    stream(0),
+    zfp(0),
     shape(0)
   {
-    copy(a);
+    deep_copy(a);
   }
 
-  // destructor
+  // protected destructor (cannot delete array through base class pointer)
   ~array()
   {
     free();
-    zfp_stream_close(stream);
+    zfp_stream_close(zfp);
   }
 
   // assignment operator--performs a deep copy
   array& operator=(const array& a)
   {
-    copy(a);
+    deep_copy(a);
     return *this;
   }
  
 public:
   // rate in bits per value
-  double rate() const { return double(blkbits) / blkvals; }
+  double rate() const { return double(blkbits) / block_size(); }
 
   // set compression rate in bits per value
   double set_rate(double rate)
   {
-    rate = zfp_stream_set_rate(stream, rate, type, dims, 1);
-    blkbits = stream->maxbits;
-    blksize = blkbits / CHAR_BIT;
+    rate = zfp_stream_set_rate(zfp, rate, type, dims, 1);
+    blkbits = zfp->maxbits;
     alloc();
     return rate;
   }
@@ -77,15 +87,18 @@ public:
   }
 
 protected:
+  // number of values per block
+  uint block_size() const { return 1u << (2 * dims); }
+
   // allocate memory for compressed data
   void alloc(bool clear = true)
   {
-    bytes = blocks * blksize;
+    bytes = blocks * blkbits / CHAR_BIT;
     reallocate(data, bytes, 0x100u);
     if (clear)
       std::fill(data, data + bytes, 0);
-    stream_close(stream->stream);
-    zfp_stream_set_bit_stream(stream, stream_open(data, bytes));
+    stream_close(zfp->stream);
+    zfp_stream_set_bit_stream(zfp, stream_open(data, bytes));
     clear_cache();
   }
 
@@ -95,8 +108,8 @@ protected:
     nx = ny = nz = 0;
     bx = by = bz = 0;
     blocks = 0;
-    stream_close(stream->stream);
-    zfp_stream_set_bit_stream(stream, 0);
+    stream_close(zfp->stream);
+    zfp_stream_set_bit_stream(zfp, 0);
     bytes = 0;
     deallocate(data);
     data = 0;
@@ -105,17 +118,8 @@ protected:
   }
 
   // perform a deep copy
-  void copy(const array& a)
+  void deep_copy(const array& a)
   {
-    // free any already allocated space
-    deallocate(data);
-    data = 0;
-    if (stream)
-      zfp_stream_close(stream);
-    stream = 0;
-    deallocate(shape);
-    shape = 0;
-
     // copy metadata
     dims = a.dims;
     type = a.type;
@@ -126,19 +130,20 @@ protected:
     by = a.by;
     bz = a.bz;
     blocks = a.blocks;
-    blkvals = a.blkvals;
     blkbits = a.blkbits;
-    blksize = a.blksize;
     bytes = a.bytes;
 
     // copy dynamically allocated data
-    data = (uchar*)allocate(bytes, 0x100u);
-    std::copy(a.data, a.data + bytes, data);
-    stream = zfp_stream_open(stream_open(data, bytes));
-    if (a.shape) {
-      shape = (uchar*)allocate(blocks);
-      std::copy(a.shape, a.shape + blocks, shape);
+    clone(data, a.data, bytes, 0x100u);
+    if (zfp) {
+      if (zfp->stream)
+        stream_close(zfp->stream);
+      zfp_stream_close(zfp);
     }
+    zfp = zfp_stream_open(0);
+    *zfp = *a.zfp;
+    zfp_stream_set_bit_stream(zfp, stream_open(data, bytes));
+    clone(shape, a.shape, blocks);
   }
 
   uint dims;           // array dimensionality (1, 2, or 3)
@@ -146,12 +151,10 @@ protected:
   uint nx, ny, nz;     // array dimensions
   uint bx, by, bz;     // array dimensions in number of blocks
   uint blocks;         // number of blocks
-  uint blkvals;        // number of values per block
   size_t blkbits;      // number of bits per compressed block
-  size_t blksize;      // byte size of single compressed block
   size_t bytes;        // total bytes of compressed data
   mutable uchar* data; // pointer to compressed data
-  zfp_stream* stream;  // compressed stream
+  zfp_stream* zfp;     // compressed stream of blocks
   uchar* shape;        // precomputed block dimensions (or null if uniform)
 };
 

@@ -36,6 +36,7 @@
 
 
 #include "H5private.h"		/* Generic Functions			*/
+#include "H5CXprivate.h"        /* API Contexts                         */
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5Fprivate.h"		/* File access				*/
 #include "H5FDprivate.h"	/* File drivers				*/
@@ -547,7 +548,7 @@ H5FD_family_sb_encode(H5FD_t *_file, char *name/*out*/, unsigned char *buf/*out*
 /*-------------------------------------------------------------------------
  * Function:	H5FD_family_sb_decode
  *
- * Purpose:	This function has 2 seperate purpose.  One is to decodes the
+ * Purpose:	This function has 2 separate purpose.  One is to decodes the
  *              superblock information for this driver. The NAME argument is
  *              the eight-character (plus null termination) name stored in i
  *              the file.  The FILE argument is updated according to the
@@ -1265,7 +1266,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5FD_family_flush(H5FD_t *_file, hid_t dxpl_id, hbool_t closing)
+H5FD_family_flush(H5FD_t *_file, hid_t H5_ATTR_UNUSED dxpl_id, hbool_t closing)
 {
     H5FD_family_t	*file = (H5FD_family_t*)_file;
     unsigned		u, nerrors = 0;
@@ -1274,7 +1275,7 @@ H5FD_family_flush(H5FD_t *_file, hid_t dxpl_id, hbool_t closing)
     FUNC_ENTER_NOAPI_NOINIT
 
     for(u = 0; u < file->nmembs; u++)
-        if(file->memb[u] && H5FD_flush(file->memb[u], dxpl_id, closing) < 0)
+        if(file->memb[u] && H5FD_flush(file->memb[u], closing) < 0)
             nerrors++;
 
     if(nerrors)
@@ -1300,7 +1301,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5FD_family_truncate(H5FD_t *_file, hid_t dxpl_id, hbool_t closing)
+H5FD_family_truncate(H5FD_t *_file, hid_t H5_ATTR_UNUSED dxpl_id, hbool_t closing)
 {
     H5FD_family_t	*file = (H5FD_family_t*)_file;
     unsigned		u, nerrors = 0;
@@ -1309,7 +1310,7 @@ H5FD_family_truncate(H5FD_t *_file, hid_t dxpl_id, hbool_t closing)
     FUNC_ENTER_NOAPI_NOINIT
 
     for(u = 0; u < file->nmembs; u++)
-        if(file->memb[u] && H5FD_truncate(file->memb[u], dxpl_id, closing) < 0)
+        if(file->memb[u] && H5FD_truncate(file->memb[u], closing) < 0)
             nerrors++;
 
     if(nerrors)

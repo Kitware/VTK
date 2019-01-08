@@ -13,11 +13,9 @@
 
 /*-------------------------------------------------------------------------
  *
- * Created:		H5Pfapl.c
- *			February 26 1998
- *			Robb Matzke <matzke@llnl.gov>
+ * Created:        H5Pfapl.c
  *
- * Purpose:		File access property list class routines
+ * Purpose:        File access property list class routines
  *
  *-------------------------------------------------------------------------
  */
@@ -32,21 +30,21 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5ACprivate.h"	/* Metadata cache			*/
-#include "H5Dprivate.h"		/* Datasets				*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5Fprivate.h"		/* Files		  	        */
-#include "H5FDprivate.h"	/* File drivers				*/
-#include "H5Iprivate.h"		/* IDs			  		*/
+#include "H5private.h"          /* Generic Functions                    */
+#include "H5ACprivate.h"        /* Metadata cache                       */
+#include "H5Dprivate.h"         /* Datasets                             */
+#include "H5Eprivate.h"         /* Error handling                       */
+#include "H5Fprivate.h"         /* Files                                */
+#include "H5FDprivate.h"        /* File drivers                         */
+#include "H5Iprivate.h"         /* IDs                                  */
 #include "H5MMprivate.h"        /* Memory Management                    */
-#include "H5Ppkg.h"		/* Property lists		  	*/
+#include "H5Ppkg.h"             /* Property lists                       */
 
 /* Includes needed to set as default file driver */
-#include "H5FDsec2.h"		/* Posix unbuffered I/O	file driver	*/
-#include "H5FDstdio.h"		/* Standard C buffered I/O		*/
+#include "H5FDsec2.h"           /* Posix unbuffered I/O    file driver     */
+#include "H5FDstdio.h"          /* Standard C buffered I/O              */
 #ifdef H5_HAVE_WINDOWS
-#include "H5FDwindows.h"        /* Windows buffered I/O                 */
+#include "H5FDwindows.h"        /* Win32 I/O                            */
 #endif
 
 
@@ -56,10 +54,10 @@
 
 /* ========= File Access properties ============ */
 /* Definitions for the initial metadata cache resize configuration */
-#define H5F_ACS_META_CACHE_INIT_CONFIG_SIZE	sizeof(H5AC_cache_config_t)
-#define H5F_ACS_META_CACHE_INIT_CONFIG_DEF	H5AC__DEFAULT_CACHE_CONFIG
-#define H5F_ACS_META_CACHE_INIT_CONFIG_ENC	H5P__facc_cache_config_enc
-#define H5F_ACS_META_CACHE_INIT_CONFIG_DEC	H5P__facc_cache_config_dec
+#define H5F_ACS_META_CACHE_INIT_CONFIG_SIZE    sizeof(H5AC_cache_config_t)
+#define H5F_ACS_META_CACHE_INIT_CONFIG_DEF    H5AC__DEFAULT_CACHE_CONFIG
+#define H5F_ACS_META_CACHE_INIT_CONFIG_ENC    H5P__facc_cache_config_enc
+#define H5F_ACS_META_CACHE_INIT_CONFIG_DEC    H5P__facc_cache_config_dec
 #define H5F_ACS_META_CACHE_INIT_CONFIG_CMP      H5P__facc_cache_config_cmp
 /* Definitions for size of raw data chunk cache(slots) */
 #define H5F_ACS_DATA_CACHE_NUM_SLOTS_SIZE       sizeof(size_t)
@@ -120,10 +118,10 @@
 #define H5F_ACS_FILE_DRV_CMP                    H5P__facc_file_driver_cmp
 #define H5F_ACS_FILE_DRV_CLOSE                  H5P__facc_file_driver_close
 /* Definition for file close degree */
-#define H5F_CLOSE_DEGREE_SIZE		        sizeof(H5F_close_degree_t)
-#define H5F_CLOSE_DEGREE_DEF		        H5F_CLOSE_DEFAULT
-#define H5F_CLOSE_DEGREE_ENC		        H5P__facc_fclose_degree_enc
-#define H5F_CLOSE_DEGREE_DEC		        H5P__facc_fclose_degree_dec
+#define H5F_CLOSE_DEGREE_SIZE                sizeof(H5F_close_degree_t)
+#define H5F_CLOSE_DEGREE_DEF                H5F_CLOSE_DEFAULT
+#define H5F_CLOSE_DEGREE_ENC                H5P__facc_fclose_degree_enc
+#define H5F_CLOSE_DEGREE_DEC                H5P__facc_fclose_degree_dec
 /* Definition for offset position in file for family file driver */
 #define H5F_ACS_FAMILY_OFFSET_SIZE              sizeof(hsize_t)
 #define H5F_ACS_FAMILY_OFFSET_DEF               0
@@ -142,11 +140,19 @@
 #define H5F_ACS_MULTI_TYPE_DEF                  H5FD_MEM_DEFAULT
 #define H5F_ACS_MULTI_TYPE_ENC                  H5P__facc_multi_type_enc
 #define H5F_ACS_MULTI_TYPE_DEC                  H5P__facc_multi_type_dec
-/* Definition for 'use latest format version' flag */
-#define H5F_ACS_LATEST_FORMAT_SIZE              sizeof(hbool_t)
-#define H5F_ACS_LATEST_FORMAT_DEF               FALSE
-#define H5F_ACS_LATEST_FORMAT_ENC               H5P__encode_hbool_t
-#define H5F_ACS_LATEST_FORMAT_DEC               H5P__decode_hbool_t
+
+/* Definition for "low" bound of library format versions */
+#define H5F_ACS_LIBVER_LOW_BOUND_SIZE       sizeof(H5F_libver_t)
+#define H5F_ACS_LIBVER_LOW_BOUND_DEF        H5F_LIBVER_EARLIEST
+#define H5F_ACS_LIBVER_LOW_BOUND_ENC        H5P__facc_libver_type_enc
+#define H5F_ACS_LIBVER_LOW_BOUND_DEC        H5P__facc_libver_type_dec
+
+/* Definition for "high" bound of library format versions */
+#define H5F_ACS_LIBVER_HIGH_BOUND_SIZE      sizeof(H5F_libver_t)
+#define H5F_ACS_LIBVER_HIGH_BOUND_DEF       H5F_LIBVER_LATEST
+#define H5F_ACS_LIBVER_HIGH_BOUND_ENC       H5P__facc_libver_type_enc
+#define H5F_ACS_LIBVER_HIGH_BOUND_DEC       H5P__facc_libver_type_dec
+
 /* Definition for whether to query the file descriptor from the core VFD
  * instead of the memory address.  (Private to library)
  */
@@ -177,16 +183,24 @@
 #define H5F_ACS_CORE_WRITE_TRACKING_PAGE_SIZE_ENC       H5P__encode_size_t
 #define H5F_ACS_CORE_WRITE_TRACKING_PAGE_SIZE_DEC       H5P__decode_size_t
 /* Definition for # of metadata read attempts */
-#define H5F_ACS_METADATA_READ_ATTEMPTS_SIZE	sizeof(unsigned)
-#define H5F_ACS_METADATA_READ_ATTEMPTS_DEF     	0
-#define H5F_ACS_METADATA_READ_ATTEMPTS_ENC     	H5P__encode_unsigned
-#define H5F_ACS_METADATA_READ_ATTEMPTS_DEC     	H5P__decode_unsigned
+#define H5F_ACS_METADATA_READ_ATTEMPTS_SIZE    sizeof(unsigned)
+#define H5F_ACS_METADATA_READ_ATTEMPTS_DEF         0
+#define H5F_ACS_METADATA_READ_ATTEMPTS_ENC         H5P__encode_unsigned
+#define H5F_ACS_METADATA_READ_ATTEMPTS_DEC         H5P__decode_unsigned
 /* Definition for object flush callback */
-#define H5F_ACS_OBJECT_FLUSH_CB_SIZE		sizeof(H5F_object_flush_t)
+#define H5F_ACS_OBJECT_FLUSH_CB_SIZE        sizeof(H5F_object_flush_t)
 #define H5F_ACS_OBJECT_FLUSH_CB_DEF             {NULL, NULL}
 /* Definition for status_flags in the superblock */
 #define H5F_ACS_CLEAR_STATUS_FLAGS_SIZE         sizeof(hbool_t)
 #define H5F_ACS_CLEAR_STATUS_FLAGS_DEF          FALSE
+
+/* Definition for dropping free-space to the floor when reading in the superblock */
+#define H5F_ACS_NULL_FSM_ADDR_SIZE          sizeof(hbool_t)
+#define H5F_ACS_NULL_FSM_ADDR_DEF           FALSE
+/* Definition for skipping EOF check when reading in the superblock */
+#define H5F_ACS_SKIP_EOF_CHECK_SIZE         sizeof(hbool_t)
+#define H5F_ACS_SKIP_EOF_CHECK_DEF          FALSE
+
 /* Definition for 'use metadata cache logging' flag */
 #define H5F_ACS_USE_MDC_LOGGING_SIZE            sizeof(hbool_t)
 #define H5F_ACS_USE_MDC_LOGGING_DEF             FALSE
@@ -283,16 +297,18 @@ static int H5P__facc_file_image_info_cmp(const void *value1, const void *value2,
 static herr_t H5P__facc_file_image_info_close(const char *name, size_t size, void *value);
 
 /* encode & decode callbacks */
-static herr_t H5P__facc_cache_config_enc(const void *value, void **_pp, size_t *size);
+static herr_t H5P__facc_cache_config_enc(const void *value, void **_pp, size_t *size, void *udata);
 static herr_t H5P__facc_cache_config_dec(const void **_pp, void *value);
 static int H5P__facc_cache_config_cmp(const void *value1, const void *value2, size_t size);
-static herr_t H5P__facc_fclose_degree_enc(const void *value, void **_pp, size_t *size);
+static herr_t H5P__facc_fclose_degree_enc(const void *value, void **_pp, size_t *size, void *udata);
 static herr_t H5P__facc_fclose_degree_dec(const void **pp, void *value);
-static herr_t H5P__facc_multi_type_enc(const void *value, void **_pp, size_t *size);
+static herr_t H5P__facc_multi_type_enc(const void *value, void **_pp, size_t *size, void *udata);
 static herr_t H5P__facc_multi_type_dec(const void **_pp, void *value);
+static herr_t H5P__facc_libver_type_enc(const void *value, void **_pp, size_t *size, void*);
+static herr_t H5P__facc_libver_type_dec(const void **_pp, void *value);
 
 /* Metadata cache log location property callbacks */
-static herr_t H5P_facc_mdc_log_location_enc(const void *value, void **_pp, size_t *size);
+static herr_t H5P_facc_mdc_log_location_enc(const void *value, void **_pp, size_t *size, void *udata);
 static herr_t H5P_facc_mdc_log_location_dec(const void **_pp, void *value);
 static herr_t H5P_facc_mdc_log_location_del(hid_t prop_id, const char *name, size_t size, void *value);
 static herr_t H5P_facc_mdc_log_location_copy(const char *name, size_t size, void *value);
@@ -301,7 +317,7 @@ static herr_t H5P_facc_mdc_log_location_close(const char *name, size_t size, voi
 
 /* Metadata cache image property callbacks */
 static int H5P__facc_cache_image_config_cmp(const void *_config1, const void *_config2, size_t H5_ATTR_UNUSED size);
-static herr_t H5P__facc_cache_image_config_enc(const void *value, void **_pp, size_t *size);
+static herr_t H5P__facc_cache_image_config_enc(const void *value, void **_pp, size_t *size, void *udata);
 static herr_t H5P__facc_cache_image_config_dec(const void **_pp, void *_value);
 
 
@@ -311,21 +327,21 @@ static herr_t H5P__facc_cache_image_config_dec(const void **_pp, void *_value);
 
 /* File access property list class library initialization object */
 const H5P_libclass_t H5P_CLS_FACC[1] = {{
-    "file access",		/* Class name for debugging     */
+    "file access",        /* Class name for debugging     */
     H5P_TYPE_FILE_ACCESS,       /* Class type                   */
 
-    &H5P_CLS_ROOT_g,		/* Parent class                 */
-    &H5P_CLS_FILE_ACCESS_g,	/* Pointer to class             */
-    &H5P_CLS_FILE_ACCESS_ID_g,	/* Pointer to class ID          */
-    &H5P_LST_FILE_ACCESS_ID_g,	/* Pointer to default property list ID */
-    H5P__facc_reg_prop,		/* Default property registration routine */
+    &H5P_CLS_ROOT_g,        /* Parent class                 */
+    &H5P_CLS_FILE_ACCESS_g,    /* Pointer to class             */
+    &H5P_CLS_FILE_ACCESS_ID_g,    /* Pointer to class ID          */
+    &H5P_LST_FILE_ACCESS_ID_g,    /* Pointer to default property list ID */
+    H5P__facc_reg_prop,        /* Default property registration routine */
 
-    NULL,			/* Class creation callback      */
-    NULL,		        /* Class creation callback info */
-    NULL,			/* Class copy callback          */
-    NULL,		        /* Class copy callback info     */
-    NULL,			/* Class close callback         */
-    NULL 		        /* Class close callback info    */
+    NULL,            /* Class creation callback      */
+    NULL,                /* Class creation callback info */
+    NULL,            /* Class copy callback          */
+    NULL,                /* Class copy callback info     */
+    NULL,            /* Class close callback         */
+    NULL                 /* Class close callback info    */
 }};
 
 
@@ -354,7 +370,10 @@ static const hsize_t H5F_def_family_offset_g = H5F_ACS_FAMILY_OFFSET_DEF;       
 static const hsize_t H5F_def_family_newsize_g = H5F_ACS_FAMILY_NEWSIZE_DEF;        /* Default size of new files for family VFD */
 static const hbool_t H5F_def_family_to_sec2_g = H5F_ACS_FAMILY_TO_SEC2_DEF;        /* Default ?? for family VFD */
 static const H5FD_mem_t H5F_def_mem_type_g = H5F_ACS_MULTI_TYPE_DEF;               /* Default file space type for multi VFD */
-static const hbool_t H5F_def_latest_format_g = H5F_ACS_LATEST_FORMAT_DEF;          /* Default setting for "use the latest version of the format" flag */
+
+static const H5F_libver_t H5F_def_libver_low_bound_g = H5F_ACS_LIBVER_LOW_BOUND_DEF;    /* Default setting for "low" bound of format version */
+static const H5F_libver_t H5F_def_libver_high_bound_g = H5F_ACS_LIBVER_HIGH_BOUND_DEF;  /* Default setting for "high" bound of format version */
+
 static const hbool_t H5F_def_want_posix_fd_g = H5F_ACS_WANT_POSIX_FD_DEF;          /* Default setting for retrieving 'handle' from core VFD */
 static const unsigned H5F_def_efc_size_g = H5F_ACS_EFC_SIZE_DEF;                   /* Default external file cache size */
 static const H5FD_file_image_info_t H5F_def_file_image_info_g = H5F_ACS_FILE_IMAGE_INFO_DEF;                 /* Default file image info and callbacks */
@@ -363,6 +382,9 @@ static const size_t H5F_def_core_write_tracking_page_size_g = H5F_ACS_CORE_WRITE
 static const unsigned H5F_def_metadata_read_attempts_g = H5F_ACS_METADATA_READ_ATTEMPTS_DEF;  /* Default setting for the # of metadata read attempts */
 static const H5F_object_flush_t H5F_def_object_flush_cb_g = H5F_ACS_OBJECT_FLUSH_CB_DEF;      /* Default setting for object flush callback */
 static const hbool_t H5F_def_clear_status_flags_g = H5F_ACS_CLEAR_STATUS_FLAGS_DEF;           /* Default to clear the superblock status_flags */
+static const hbool_t H5F_def_skip_eof_check_g = H5F_ACS_SKIP_EOF_CHECK_DEF;    /* Default setting for skipping EOF check */
+static const hbool_t H5F_def_null_fsm_addr_g = H5F_ACS_NULL_FSM_ADDR_DEF;      /* Default setting for dropping free-space to the floor */
+
 static const hbool_t H5F_def_use_mdc_logging_g = H5F_ACS_USE_MDC_LOGGING_DEF;                 /* Default metadata cache logging flag */
 static const char *H5F_def_mdc_log_location_g = H5F_ACS_MDC_LOG_LOCATION_DEF;                 /* Default mdc log location */
 static const hbool_t H5F_def_start_mdc_log_on_access_g = H5F_ACS_START_MDC_LOG_ON_ACCESS_DEF; /* Default mdc log start on access flag */
@@ -374,9 +396,9 @@ static const hbool_t H5F_def_coll_md_write_flag_g = H5F_ACS_COLL_MD_WRITE_FLAG_D
 static const H5AC_cache_image_config_t H5F_def_mdc_initCacheImageCfg_g = H5F_ACS_META_CACHE_INIT_IMAGE_CONFIG_DEF;  /* Default metadata cache image settings */
 static const size_t H5F_def_page_buf_size_g = H5F_ACS_PAGE_BUFFER_SIZE_DEF;      /* Default page buffer size */
 static const unsigned H5F_def_page_buf_min_meta_perc_g = H5F_ACS_PAGE_BUFFER_MIN_META_PERC_DEF;      /* Default page buffer minimum metadata size */
-static const unsigned H5F_def_page_buf_min_raw_perc_g = H5F_ACS_PAGE_BUFFER_MIN_RAW_PERC_DEF;      /* Default page buffer minumum raw data size */
+static const unsigned H5F_def_page_buf_min_raw_perc_g = H5F_ACS_PAGE_BUFFER_MIN_RAW_PERC_DEF;      /* Default page buffer mininum raw data size */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5P__facc_reg_prop
  *
@@ -391,160 +413,176 @@ static const unsigned H5F_def_page_buf_min_raw_perc_g = H5F_ACS_PAGE_BUFFER_MIN_
 static herr_t
 H5P__facc_reg_prop(H5P_genclass_t *pclass)
 {
-    const H5FD_driver_prop_t def_driver_prop = H5F_ACS_FILE_DRV_DEF;           /* Default VFL driver ID & info (initialized from a variable) */
-    herr_t ret_value = SUCCEED;         /* Return value */
+    const H5FD_driver_prop_t def_driver_prop    = H5F_ACS_FILE_DRV_DEF;     /* Default VFL driver ID & info (initialized from a variable) */
+    herr_t ret_value = SUCCEED;                                             /* Return value */
 
     FUNC_ENTER_STATIC
 
     /* Register the initial metadata cache resize configuration */
-    if(H5P_register_real(pclass, H5F_ACS_META_CACHE_INIT_CONFIG_NAME, H5F_ACS_META_CACHE_INIT_CONFIG_SIZE, &H5F_def_mdc_initCacheCfg_g, 
-            NULL, NULL, NULL, H5F_ACS_META_CACHE_INIT_CONFIG_ENC, H5F_ACS_META_CACHE_INIT_CONFIG_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_META_CACHE_INIT_CONFIG_NAME, H5F_ACS_META_CACHE_INIT_CONFIG_SIZE, &H5F_def_mdc_initCacheCfg_g,
+            NULL, NULL, NULL, H5F_ACS_META_CACHE_INIT_CONFIG_ENC, H5F_ACS_META_CACHE_INIT_CONFIG_DEC,
             NULL, NULL, H5F_ACS_META_CACHE_INIT_CONFIG_CMP, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the size of raw data chunk cache (elements) */
-    if(H5P_register_real(pclass, H5F_ACS_DATA_CACHE_NUM_SLOTS_NAME, H5F_ACS_DATA_CACHE_NUM_SLOTS_SIZE, &H5F_def_rdcc_nslots_g, 
-            NULL, NULL, NULL, H5F_ACS_DATA_CACHE_NUM_SLOTS_ENC, H5F_ACS_DATA_CACHE_NUM_SLOTS_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_DATA_CACHE_NUM_SLOTS_NAME, H5F_ACS_DATA_CACHE_NUM_SLOTS_SIZE, &H5F_def_rdcc_nslots_g,
+            NULL, NULL, NULL, H5F_ACS_DATA_CACHE_NUM_SLOTS_ENC, H5F_ACS_DATA_CACHE_NUM_SLOTS_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the size of raw data chunk cache(bytes) */
-    if(H5P_register_real(pclass, H5F_ACS_DATA_CACHE_BYTE_SIZE_NAME, H5F_ACS_DATA_CACHE_BYTE_SIZE_SIZE, &H5F_def_rdcc_nbytes_g, 
-            NULL, NULL, NULL, H5F_ACS_DATA_CACHE_BYTE_SIZE_ENC, H5F_ACS_DATA_CACHE_BYTE_SIZE_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_DATA_CACHE_BYTE_SIZE_NAME, H5F_ACS_DATA_CACHE_BYTE_SIZE_SIZE, &H5F_def_rdcc_nbytes_g,
+            NULL, NULL, NULL, H5F_ACS_DATA_CACHE_BYTE_SIZE_ENC, H5F_ACS_DATA_CACHE_BYTE_SIZE_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the preemption for reading chunks */
-    if(H5P_register_real(pclass, H5F_ACS_PREEMPT_READ_CHUNKS_NAME, H5F_ACS_PREEMPT_READ_CHUNKS_SIZE, &H5F_def_rdcc_w0_g, 
-            NULL, NULL, NULL, H5F_ACS_PREEMPT_READ_CHUNKS_ENC, H5F_ACS_PREEMPT_READ_CHUNKS_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_PREEMPT_READ_CHUNKS_NAME, H5F_ACS_PREEMPT_READ_CHUNKS_SIZE, &H5F_def_rdcc_w0_g,
+            NULL, NULL, NULL, H5F_ACS_PREEMPT_READ_CHUNKS_ENC, H5F_ACS_PREEMPT_READ_CHUNKS_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the threshold for alignment */
-    if(H5P_register_real(pclass, H5F_ACS_ALIGN_THRHD_NAME, H5F_ACS_ALIGN_THRHD_SIZE, &H5F_def_threshold_g, 
-            NULL, NULL, NULL, H5F_ACS_ALIGN_THRHD_ENC, H5F_ACS_ALIGN_THRHD_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_ALIGN_THRHD_NAME, H5F_ACS_ALIGN_THRHD_SIZE, &H5F_def_threshold_g,
+            NULL, NULL, NULL, H5F_ACS_ALIGN_THRHD_ENC, H5F_ACS_ALIGN_THRHD_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the alignment */
-    if(H5P_register_real(pclass, H5F_ACS_ALIGN_NAME, H5F_ACS_ALIGN_SIZE, &H5F_def_alignment_g, 
-            NULL, NULL, NULL, H5F_ACS_ALIGN_ENC, H5F_ACS_ALIGN_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_ALIGN_NAME, H5F_ACS_ALIGN_SIZE, &H5F_def_alignment_g,
+            NULL, NULL, NULL, H5F_ACS_ALIGN_ENC, H5F_ACS_ALIGN_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the minimum metadata allocation block size */
-    if(H5P_register_real(pclass, H5F_ACS_META_BLOCK_SIZE_NAME, H5F_ACS_META_BLOCK_SIZE_SIZE, &H5F_def_meta_block_size_g, 
-            NULL, NULL, NULL, H5F_ACS_META_BLOCK_SIZE_ENC, H5F_ACS_META_BLOCK_SIZE_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_META_BLOCK_SIZE_NAME, H5F_ACS_META_BLOCK_SIZE_SIZE, &H5F_def_meta_block_size_g,
+            NULL, NULL, NULL, H5F_ACS_META_BLOCK_SIZE_ENC, H5F_ACS_META_BLOCK_SIZE_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the maximum sieve buffer size */
-    if(H5P_register_real(pclass, H5F_ACS_SIEVE_BUF_SIZE_NAME, H5F_ACS_SIEVE_BUF_SIZE_SIZE, &H5F_def_sieve_buf_size_g, 
-            NULL, NULL, NULL, H5F_ACS_SIEVE_BUF_SIZE_ENC, H5F_ACS_SIEVE_BUF_SIZE_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_SIEVE_BUF_SIZE_NAME, H5F_ACS_SIEVE_BUF_SIZE_SIZE, &H5F_def_sieve_buf_size_g,
+            NULL, NULL, NULL, H5F_ACS_SIEVE_BUF_SIZE_ENC, H5F_ACS_SIEVE_BUF_SIZE_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the minimum "small data" allocation block size */
-    if(H5P_register_real(pclass, H5F_ACS_SDATA_BLOCK_SIZE_NAME, H5F_ACS_SDATA_BLOCK_SIZE_SIZE, &H5F_def_sdata_block_size_g, 
-            NULL, NULL, NULL, H5F_ACS_SDATA_BLOCK_SIZE_ENC, H5F_ACS_SDATA_BLOCK_SIZE_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_SDATA_BLOCK_SIZE_NAME, H5F_ACS_SDATA_BLOCK_SIZE_SIZE, &H5F_def_sdata_block_size_g,
+            NULL, NULL, NULL, H5F_ACS_SDATA_BLOCK_SIZE_ENC, H5F_ACS_SDATA_BLOCK_SIZE_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the garbage collection reference */
-    if(H5P_register_real(pclass, H5F_ACS_GARBG_COLCT_REF_NAME, H5F_ACS_GARBG_COLCT_REF_SIZE, &H5F_def_gc_ref_g, 
-            NULL, NULL, NULL, H5F_ACS_GARBG_COLCT_REF_ENC, H5F_ACS_GARBG_COLCT_REF_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_GARBG_COLCT_REF_NAME, H5F_ACS_GARBG_COLCT_REF_SIZE, &H5F_def_gc_ref_g,
+            NULL, NULL, NULL, H5F_ACS_GARBG_COLCT_REF_ENC, H5F_ACS_GARBG_COLCT_REF_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the file driver ID & info */
     /* (Note: this property should not have an encode/decode callback -QAK) */
-    if(H5P_register_real(pclass, H5F_ACS_FILE_DRV_NAME, H5F_ACS_FILE_DRV_SIZE, &def_driver_prop, 
+    if(H5P_register_real(pclass, H5F_ACS_FILE_DRV_NAME, H5F_ACS_FILE_DRV_SIZE, &def_driver_prop,
             H5F_ACS_FILE_DRV_CRT, H5F_ACS_FILE_DRV_SET, H5F_ACS_FILE_DRV_GET, NULL, NULL,
             H5F_ACS_FILE_DRV_DEL, H5F_ACS_FILE_DRV_COPY, H5F_ACS_FILE_DRV_CMP, H5F_ACS_FILE_DRV_CLOSE) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the file close degree */
-    if(H5P_register_real(pclass, H5F_ACS_CLOSE_DEGREE_NAME, H5F_CLOSE_DEGREE_SIZE, &H5F_def_close_degree_g, 
-            NULL, NULL, NULL, H5F_CLOSE_DEGREE_ENC, H5F_CLOSE_DEGREE_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_CLOSE_DEGREE_NAME, H5F_CLOSE_DEGREE_SIZE, &H5F_def_close_degree_g,
+            NULL, NULL, NULL, H5F_CLOSE_DEGREE_ENC, H5F_CLOSE_DEGREE_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the offset of family driver info */
-    if(H5P_register_real(pclass, H5F_ACS_FAMILY_OFFSET_NAME, H5F_ACS_FAMILY_OFFSET_SIZE, &H5F_def_family_offset_g, 
-            NULL, NULL, NULL, H5F_ACS_FAMILY_OFFSET_ENC, H5F_ACS_FAMILY_OFFSET_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_FAMILY_OFFSET_NAME, H5F_ACS_FAMILY_OFFSET_SIZE, &H5F_def_family_offset_g,
+            NULL, NULL, NULL, H5F_ACS_FAMILY_OFFSET_ENC, H5F_ACS_FAMILY_OFFSET_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the private property of new family file size. It's used by h5repart only. */
     /* (Note: this property should not have an encode/decode callback -QAK) */
-    if(H5P_register_real(pclass, H5F_ACS_FAMILY_NEWSIZE_NAME, H5F_ACS_FAMILY_NEWSIZE_SIZE, &H5F_def_family_newsize_g, 
+    if(H5P_register_real(pclass, H5F_ACS_FAMILY_NEWSIZE_NAME, H5F_ACS_FAMILY_NEWSIZE_SIZE, &H5F_def_family_newsize_g,
             NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the private property of whether convert family to sec2 driver. It's used by h5repart only. */
     /* (Note: this property should not have an encode/decode callback -QAK) */
-    if(H5P_register_real(pclass, H5F_ACS_FAMILY_TO_SEC2_NAME, H5F_ACS_FAMILY_TO_SEC2_SIZE, &H5F_def_family_to_sec2_g, 
+    if(H5P_register_real(pclass, H5F_ACS_FAMILY_TO_SEC2_NAME, H5F_ACS_FAMILY_TO_SEC2_SIZE, &H5F_def_family_to_sec2_g,
             NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the data type of multi driver info */
-    if(H5P_register_real(pclass, H5F_ACS_MULTI_TYPE_NAME, H5F_ACS_MULTI_TYPE_SIZE, &H5F_def_mem_type_g, 
-            NULL, NULL, NULL, H5F_ACS_MULTI_TYPE_ENC, H5F_ACS_MULTI_TYPE_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_MULTI_TYPE_NAME, H5F_ACS_MULTI_TYPE_SIZE, &H5F_def_mem_type_g,
+            NULL, NULL, NULL, H5F_ACS_MULTI_TYPE_ENC, H5F_ACS_MULTI_TYPE_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
-    /* Register the 'use the latest version of the format' flag */
-    if(H5P_register_real(pclass, H5F_ACS_LATEST_FORMAT_NAME, H5F_ACS_LATEST_FORMAT_SIZE, &H5F_def_latest_format_g, 
-            NULL, NULL, NULL, H5F_ACS_LATEST_FORMAT_ENC, H5F_ACS_LATEST_FORMAT_DEC, 
+    /* Register the 'low' bound of library format versions */
+    if(H5P_register_real(pclass, H5F_ACS_LIBVER_LOW_BOUND_NAME, H5F_ACS_LIBVER_LOW_BOUND_SIZE, &H5F_def_libver_low_bound_g,
+            NULL, NULL, NULL, H5F_ACS_LIBVER_LOW_BOUND_ENC, H5F_ACS_LIBVER_LOW_BOUND_DEC,
+            NULL, NULL, NULL, NULL) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
+
+    /* Register the 'high' bound of library format versions */
+    if(H5P_register_real(pclass, H5F_ACS_LIBVER_HIGH_BOUND_NAME, H5F_ACS_LIBVER_HIGH_BOUND_SIZE, &H5F_def_libver_high_bound_g,
+            NULL, NULL, NULL, H5F_ACS_LIBVER_HIGH_BOUND_ENC, H5F_ACS_LIBVER_HIGH_BOUND_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the private property of whether to retrieve the file descriptor from the core VFD */
     /* (used internally to the library only) */
     /* (Note: this property should not have an encode/decode callback -QAK) */
-    if(H5P_register_real(pclass, H5F_ACS_WANT_POSIX_FD_NAME, H5F_ACS_WANT_POSIX_FD_SIZE, &H5F_def_want_posix_fd_g, 
+    if(H5P_register_real(pclass, H5F_ACS_WANT_POSIX_FD_NAME, H5F_ACS_WANT_POSIX_FD_SIZE, &H5F_def_want_posix_fd_g,
             NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the external file cache size */
-    if(H5P_register_real(pclass, H5F_ACS_EFC_SIZE_NAME, H5F_ACS_EFC_SIZE_SIZE, &H5F_def_efc_size_g, 
-            NULL, NULL, NULL, H5F_ACS_EFC_SIZE_ENC, H5F_ACS_EFC_SIZE_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_EFC_SIZE_NAME, H5F_ACS_EFC_SIZE_SIZE, &H5F_def_efc_size_g,
+            NULL, NULL, NULL, H5F_ACS_EFC_SIZE_ENC, H5F_ACS_EFC_SIZE_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the initial file image info */
     /* (Note: this property should not have an encode/decode callback -QAK) */
-    if(H5P_register_real(pclass, H5F_ACS_FILE_IMAGE_INFO_NAME, H5F_ACS_FILE_IMAGE_INFO_SIZE, &H5F_def_file_image_info_g, 
+    if(H5P_register_real(pclass, H5F_ACS_FILE_IMAGE_INFO_NAME, H5F_ACS_FILE_IMAGE_INFO_SIZE, &H5F_def_file_image_info_g,
             NULL, H5F_ACS_FILE_IMAGE_INFO_SET, H5F_ACS_FILE_IMAGE_INFO_GET, NULL, NULL,
             H5F_ACS_FILE_IMAGE_INFO_DEL, H5F_ACS_FILE_IMAGE_INFO_COPY, H5F_ACS_FILE_IMAGE_INFO_CMP, H5F_ACS_FILE_IMAGE_INFO_CLOSE) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the core VFD backing store write tracking flag */
-    if(H5P_register_real(pclass, H5F_ACS_CORE_WRITE_TRACKING_FLAG_NAME, H5F_ACS_CORE_WRITE_TRACKING_FLAG_SIZE, &H5F_def_core_write_tracking_flag_g, 
-            NULL, NULL, NULL, H5F_ACS_CORE_WRITE_TRACKING_FLAG_ENC, H5F_ACS_CORE_WRITE_TRACKING_FLAG_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_CORE_WRITE_TRACKING_FLAG_NAME, H5F_ACS_CORE_WRITE_TRACKING_FLAG_SIZE, &H5F_def_core_write_tracking_flag_g,
+            NULL, NULL, NULL, H5F_ACS_CORE_WRITE_TRACKING_FLAG_ENC, H5F_ACS_CORE_WRITE_TRACKING_FLAG_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the size of the core VFD backing store page size */
-    if(H5P_register_real(pclass, H5F_ACS_CORE_WRITE_TRACKING_PAGE_SIZE_NAME, H5F_ACS_CORE_WRITE_TRACKING_PAGE_SIZE_SIZE, &H5F_def_core_write_tracking_page_size_g, 
-            NULL, NULL, NULL, H5F_ACS_CORE_WRITE_TRACKING_PAGE_SIZE_ENC, H5F_ACS_CORE_WRITE_TRACKING_PAGE_SIZE_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_CORE_WRITE_TRACKING_PAGE_SIZE_NAME, H5F_ACS_CORE_WRITE_TRACKING_PAGE_SIZE_SIZE, &H5F_def_core_write_tracking_page_size_g,
+            NULL, NULL, NULL, H5F_ACS_CORE_WRITE_TRACKING_PAGE_SIZE_ENC, H5F_ACS_CORE_WRITE_TRACKING_PAGE_SIZE_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the # of read attempts */
-    if(H5P_register_real(pclass, H5F_ACS_METADATA_READ_ATTEMPTS_NAME, H5F_ACS_METADATA_READ_ATTEMPTS_SIZE, &H5F_def_metadata_read_attempts_g, 
-            NULL, NULL, NULL, H5F_ACS_METADATA_READ_ATTEMPTS_ENC, H5F_ACS_METADATA_READ_ATTEMPTS_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_METADATA_READ_ATTEMPTS_NAME, H5F_ACS_METADATA_READ_ATTEMPTS_SIZE, &H5F_def_metadata_read_attempts_g,
+            NULL, NULL, NULL, H5F_ACS_METADATA_READ_ATTEMPTS_ENC, H5F_ACS_METADATA_READ_ATTEMPTS_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register object flush callback */
     /* (Note: this property should not have an encode/decode callback -QAK) */
-    if(H5P_register_real(pclass, H5F_ACS_OBJECT_FLUSH_CB_NAME, H5F_ACS_OBJECT_FLUSH_CB_SIZE, &H5F_def_object_flush_cb_g, 
+    if(H5P_register_real(pclass, H5F_ACS_OBJECT_FLUSH_CB_NAME, H5F_ACS_OBJECT_FLUSH_CB_SIZE, &H5F_def_object_flush_cb_g,
             NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the private property of whether to clear the superblock status_flags. It's used by h5clear only. */
     if(H5P_register_real(pclass, H5F_ACS_CLEAR_STATUS_FLAGS_NAME, H5F_ACS_CLEAR_STATUS_FLAGS_SIZE, &H5F_def_clear_status_flags_g,
+            NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
+
+    /* Register the private property of whether to skip EOF check. It's used by h5clear only. */
+    if(H5P_register_real(pclass, H5F_ACS_SKIP_EOF_CHECK_NAME, H5F_ACS_SKIP_EOF_CHECK_SIZE, &H5F_def_skip_eof_check_g,
+            NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
+
+    /* Register the private property of whether to drop free-space to the floor. It's used by h5clear only. */
+    if(H5P_register_real(pclass, H5F_ACS_NULL_FSM_ADDR_NAME, H5F_ACS_NULL_FSM_ADDR_SIZE, &H5F_def_null_fsm_addr_g,
             NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
@@ -565,44 +603,44 @@ H5P__facc_reg_prop(H5P_genclass_t *pclass)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the evict on close flag */
-    if(H5P_register_real(pclass, H5F_ACS_EVICT_ON_CLOSE_FLAG_NAME, H5F_ACS_EVICT_ON_CLOSE_FLAG_SIZE, &H5F_def_evict_on_close_flag_g, 
-            NULL, NULL, NULL, H5F_ACS_EVICT_ON_CLOSE_FLAG_ENC, H5F_ACS_EVICT_ON_CLOSE_FLAG_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_EVICT_ON_CLOSE_FLAG_NAME, H5F_ACS_EVICT_ON_CLOSE_FLAG_SIZE, &H5F_def_evict_on_close_flag_g,
+            NULL, NULL, NULL, H5F_ACS_EVICT_ON_CLOSE_FLAG_ENC, H5F_ACS_EVICT_ON_CLOSE_FLAG_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
 #ifdef H5_HAVE_PARALLEL
     /* Register the metadata collective read flag */
-    if(H5P_register_real(pclass, H5_COLL_MD_READ_FLAG_NAME, H5F_ACS_COLL_MD_READ_FLAG_SIZE, &H5F_def_coll_md_read_flag_g, 
-            NULL, NULL, NULL, H5F_ACS_COLL_MD_READ_FLAG_ENC, H5F_ACS_COLL_MD_READ_FLAG_DEC, 
+    if(H5P_register_real(pclass, H5_COLL_MD_READ_FLAG_NAME, H5F_ACS_COLL_MD_READ_FLAG_SIZE, &H5F_def_coll_md_read_flag_g,
+            NULL, NULL, NULL, H5F_ACS_COLL_MD_READ_FLAG_ENC, H5F_ACS_COLL_MD_READ_FLAG_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the metadata collective write flag */
-    if(H5P_register_real(pclass, H5F_ACS_COLL_MD_WRITE_FLAG_NAME, H5F_ACS_COLL_MD_WRITE_FLAG_SIZE, &H5F_def_coll_md_write_flag_g, 
-            NULL, NULL, NULL, H5F_ACS_COLL_MD_WRITE_FLAG_ENC, H5F_ACS_COLL_MD_WRITE_FLAG_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_COLL_MD_WRITE_FLAG_NAME, H5F_ACS_COLL_MD_WRITE_FLAG_SIZE, &H5F_def_coll_md_write_flag_g,
+            NULL, NULL, NULL, H5F_ACS_COLL_MD_WRITE_FLAG_ENC, H5F_ACS_COLL_MD_WRITE_FLAG_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 #endif /* H5_HAVE_PARALLEL */
 
     /* Register the initial metadata cache image configuration */
-    if(H5P_register_real(pclass, H5F_ACS_META_CACHE_INIT_IMAGE_CONFIG_NAME, H5F_ACS_META_CACHE_INIT_IMAGE_CONFIG_SIZE, &H5F_def_mdc_initCacheImageCfg_g, 
-            NULL, NULL, NULL, H5F_ACS_META_CACHE_INIT_IMAGE_CONFIG_ENC, H5F_ACS_META_CACHE_INIT_IMAGE_CONFIG_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_META_CACHE_INIT_IMAGE_CONFIG_NAME, H5F_ACS_META_CACHE_INIT_IMAGE_CONFIG_SIZE, &H5F_def_mdc_initCacheImageCfg_g,
+            NULL, NULL, NULL, H5F_ACS_META_CACHE_INIT_IMAGE_CONFIG_ENC, H5F_ACS_META_CACHE_INIT_IMAGE_CONFIG_DEC,
             NULL, NULL, H5F_ACS_META_CACHE_INIT_IMAGE_CONFIG_CMP, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register the size of the page buffer size */
-    if(H5P_register_real(pclass, H5F_ACS_PAGE_BUFFER_SIZE_NAME, H5F_ACS_PAGE_BUFFER_SIZE_SIZE, &H5F_def_page_buf_size_g, 
-            NULL, NULL, NULL, H5F_ACS_PAGE_BUFFER_SIZE_ENC, H5F_ACS_PAGE_BUFFER_SIZE_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_PAGE_BUFFER_SIZE_NAME, H5F_ACS_PAGE_BUFFER_SIZE_SIZE, &H5F_def_page_buf_size_g,
+            NULL, NULL, NULL, H5F_ACS_PAGE_BUFFER_SIZE_ENC, H5F_ACS_PAGE_BUFFER_SIZE_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
     /* Register the size of the page buffer minimum metadata size */
-    if(H5P_register_real(pclass, H5F_ACS_PAGE_BUFFER_MIN_META_PERC_NAME, H5F_ACS_PAGE_BUFFER_MIN_META_PERC_SIZE, &H5F_def_page_buf_min_meta_perc_g, 
-            NULL, NULL, NULL, H5F_ACS_PAGE_BUFFER_MIN_META_PERC_ENC, H5F_ACS_PAGE_BUFFER_MIN_META_PERC_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_PAGE_BUFFER_MIN_META_PERC_NAME, H5F_ACS_PAGE_BUFFER_MIN_META_PERC_SIZE, &H5F_def_page_buf_min_meta_perc_g,
+            NULL, NULL, NULL, H5F_ACS_PAGE_BUFFER_MIN_META_PERC_ENC, H5F_ACS_PAGE_BUFFER_MIN_META_PERC_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
     /* Register the size of the page buffer minimum raw data size */
-    if(H5P_register_real(pclass, H5F_ACS_PAGE_BUFFER_MIN_RAW_PERC_NAME, H5F_ACS_PAGE_BUFFER_MIN_RAW_PERC_SIZE, &H5F_def_page_buf_min_raw_perc_g, 
-            NULL, NULL, NULL, H5F_ACS_PAGE_BUFFER_MIN_RAW_PERC_ENC, H5F_ACS_PAGE_BUFFER_MIN_RAW_PERC_DEC, 
+    if(H5P_register_real(pclass, H5F_ACS_PAGE_BUFFER_MIN_RAW_PERC_NAME, H5F_ACS_PAGE_BUFFER_MIN_RAW_PERC_SIZE, &H5F_def_page_buf_min_raw_perc_g,
+            NULL, NULL, NULL, H5F_ACS_PAGE_BUFFER_MIN_RAW_PERC_ENC, H5F_ACS_PAGE_BUFFER_MIN_RAW_PERC_DEC,
             NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
@@ -610,35 +648,35 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__facc_reg_prop() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_alignment
+ * Function:    H5Pset_alignment
  *
- * Purpose:	Sets the alignment properties of a file access property list
- *		so that any file object >= THRESHOLD bytes will be aligned on
- *		an address which is a multiple of ALIGNMENT.  The addresses
- *		are relative to the end of the user block; the alignment is
- *		calculated by subtracting the user block size from the
- *		absolute file address and then adjusting the address to be a
- *		multiple of ALIGNMENT.
+ * Purpose:    Sets the alignment properties of a file access property list
+ *        so that any file object >= THRESHOLD bytes will be aligned on
+ *        an address which is a multiple of ALIGNMENT.  The addresses
+ *        are relative to the end of the user block; the alignment is
+ *        calculated by subtracting the user block size from the
+ *        absolute file address and then adjusting the address to be a
+ *        multiple of ALIGNMENT.
  *
- *		Default values for THRESHOLD and ALIGNMENT are one, implying
- *		no alignment.  Generally the default values will result in
- *		the best performance for single-process access to the file.
- *		For MPI-IO and other parallel systems, choose an alignment
- *		which is a multiple of the disk block size.
+ *        Default values for THRESHOLD and ALIGNMENT are one, implying
+ *        no alignment.  Generally the default values will result in
+ *        the best performance for single-process access to the file.
+ *        For MPI-IO and other parallel systems, choose an alignment
+ *        which is a multiple of the disk block size.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Tuesday, June  9, 1998
  *
  * Modifications:
  *
- *		Raymond Lu
- *		Tuesday, Oct 23, 2001
- *		Changed file access property list mechanism to the new
- *		generic property list.
+ *        Raymond Lu
+ *        Tuesday, Oct 23, 2001
+ *        Changed file access property list mechanism to the new
+ *        generic property list.
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -668,17 +706,17 @@ done:
     FUNC_LEAVE_API(ret_value)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_alignment
+ * Function:    H5Pget_alignment
  *
- * Purpose:	Returns the current settings for alignment properties from a
- *		file access property list.  The THRESHOLD and/or ALIGNMENT
- *		pointers may be null pointers.
+ * Purpose:    Returns the current settings for alignment properties from a
+ *        file access property list.  The THRESHOLD and/or ALIGNMENT
+ *        pointers may be null pointers.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Tuesday, June  9, 1998
  *
  *-------------------------------------------------------------------------
@@ -709,22 +747,22 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_alignment() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5P_set_driver
+ * Function:    H5P_set_driver
  *
- * Purpose:	Set the file driver (DRIVER_ID) for a file access 
- *		property list (PLIST_ID) and supply an optional
- *		struct containing the driver-specific properites
- *		(DRIVER_INFO).  The driver properties will be copied into the
- *		property list and the reference count on the driver will be
- *		incremented, allowing the caller to close the driver ID but
- *		still use the property list.
+ * Purpose:    Set the file driver (DRIVER_ID) for a file access
+ *        property list (PLIST_ID) and supply an optional
+ *        struct containing the driver-specific properites
+ *        (DRIVER_INFO).  The driver properties will be copied into the
+ *        property list and the reference count on the driver will be
+ *        incremented, allowing the caller to close the driver ID but
+ *        still use the property list.
  *
- * Return:	Success:	Non-negative
- *		Failure:	Negative
+ * Return:    Success:    Non-negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Tuesday, August  3, 1999
  *
  *-------------------------------------------------------------------------
@@ -757,22 +795,22 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P_set_driver() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_driver
+ * Function:    H5Pset_driver
  *
- * Purpose:	Set the file driver (DRIVER_ID) for a file access 
- *		property list (PLIST_ID) and supply an optional
- *		struct containing the driver-specific properites
- *		(DRIVER_INFO).  The driver properties will be copied into the
- *		property list and the reference count on the driver will be
- *		incremented, allowing the caller to close the driver ID but
- *		still use the property list.
+ * Purpose:    Set the file driver (DRIVER_ID) for a file access
+ *        property list (PLIST_ID) and supply an optional
+ *        struct containing the driver-specific properites
+ *        (DRIVER_INFO).  The driver properties will be copied into the
+ *        property list and the reference count on the driver will be
+ *        incremented, allowing the caller to close the driver ID but
+ *        still use the property list.
  *
- * Return:	Success:	Non-negative
- *		Failure:	Negative
+ * Return:    Success:    Non-negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Tuesday, August  3, 1999
  *
  *-------------------------------------------------------------------------
@@ -800,22 +838,22 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pset_driver() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5P_peek_driver
+ * Function:    H5P_peek_driver
  *
- * Purpose:	Return the ID of the low-level file driver.  PLIST_ID should
- *		be a file access property list.
+ * Purpose:    Return the ID of the low-level file driver.  PLIST_ID should
+ *        be a file access property list.
  *
- * Return:	Success:	A low-level driver ID which is the same ID
- *				used when the driver was set for the property
- *				list. The driver ID is only valid as long as
- *				the file driver remains registered.
+ * Return:    Success:    A low-level driver ID which is the same ID
+ *                used when the driver was set for the property
+ *                list. The driver ID is only valid as long as
+ *                the file driver remains registered.
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Thursday, February 26, 1998
+ * Programmer:    Robb Matzke
+ *        Thursday, February 26, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -844,24 +882,24 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P_peek_driver() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_driver
+ * Function:    H5Pget_driver
  *
- * Purpose:	Return the ID of the low-level file driver.  PLIST_ID should
- *		be a file access property list.
+ * Purpose:    Return the ID of the low-level file driver.  PLIST_ID should
+ *        be a file access property list.
  *
- * Note:	The ID returned should not be closed.
+ * Note:    The ID returned should not be closed.
  *
- * Return:	Success:	A low-level driver ID which is the same ID
- *				used when the driver was set for the property
- *				list. The driver ID is only valid as long as
- *				the file driver remains registered.
+ * Return:    Success:    A low-level driver ID which is the same ID
+ *                used when the driver was set for the property
+ *                list. The driver ID is only valid as long as
+ *                the file driver remains registered.
  *
- *		Failure:	Negative
+ *        Failure:    Negative
  *
- * Programmer:	Robb Matzke
- *		Thursday, February 26, 1998
+ * Programmer:    Robb Matzke
+ *        Thursday, February 26, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -869,7 +907,7 @@ hid_t
 H5Pget_driver(hid_t plist_id)
 {
     H5P_genplist_t *plist;      /* Property list pointer */
-    hid_t	ret_value;      /* Return value */
+    hid_t    ret_value;      /* Return value */
 
     FUNC_ENTER_API(FAIL)
     H5TRACE1("i", "i", plist_id);
@@ -885,22 +923,22 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_driver() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5P_peek_driver_info
+ * Function:    H5P_peek_driver_info
  *
- * Purpose:	Returns a pointer directly to the file driver-specific
- *		information of a file access.
+ * Purpose:    Returns a pointer directly to the file driver-specific
+ *        information of a file access.
  *
- * Return:	Success:	Ptr to *uncopied* driver specific data
- *				structure if any.
+ * Return:    Success:    Ptr to *uncopied* driver specific data
+ *                structure if any.
  *
- *		Failure:	NULL. Null is also returned if the driver has
- *				not registered any driver-specific properties
- *				although no error is pushed on the stack in
- *				this case.
+ *        Failure:    NULL. Null is also returned if the driver has
+ *                not registered any driver-specific properties
+ *                although no error is pushed on the stack in
+ *                this case.
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Wednesday, August  4, 1999
  *
  *-------------------------------------------------------------------------
@@ -927,22 +965,22 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P_peek_driver_info() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_driver_info
+ * Function:    H5Pget_driver_info
  *
- * Purpose:	Returns a pointer directly to the file driver-specific
- *		information of a file access.
+ * Purpose:    Returns a pointer directly to the file driver-specific
+ *        information of a file access.
  *
- * Return:	Success:	Ptr to *uncopied* driver specific data
- *				structure if any.
+ * Return:    Success:    Ptr to *uncopied* driver specific data
+ *                structure if any.
  *
- *		Failure:	NULL. Null is also returned if the driver has
- *				not registered any driver-specific properties
- *				although no error is pushed on the stack in
- *				this case.
+ *        Failure:    NULL. Null is also returned if the driver has
+ *                not registered any driver-specific properties
+ *                although no error is pushed on the stack in
+ *                this case.
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Wednesday, August  4, 1999
  *
  *-------------------------------------------------------------------------
@@ -967,7 +1005,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_driver_info() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5P__file_driver_copy
  *
@@ -975,7 +1013,7 @@ done:
  *
  * Note:        This is an "in-place" copy, since this routine gets called
  *              after the top-level copy has been performed and this routine
- *		finishes the "deep" part of the copy.
+ *        finishes the "deep" part of the copy.
  *
  * Return:      Success:        Non-negative
  *              Failure:        Negative
@@ -1033,7 +1071,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__file_driver_copy() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5P__file_driver_free
  *
@@ -1085,7 +1123,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__file_driver_free() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5P__facc_file_driver_create
  *
@@ -1114,7 +1152,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__facc_file_driver_create() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5P__facc_file_driver_set
  *
@@ -1147,7 +1185,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__facc_file_driver_set() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5P__facc_file_driver_get
  *
@@ -1180,7 +1218,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__facc_file_driver_get() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5P__facc_file_driver_del
  *
@@ -1209,7 +1247,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__facc_file_driver_del() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5P__facc_file_driver_copy
  *
@@ -1238,7 +1276,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__facc_file_driver_copy() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:       H5P__facc_file_driver_cmp
  *
@@ -1297,7 +1335,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__facc_file_driver_cmp() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5P__facc_file_driver_close
  *
@@ -1326,7 +1364,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__facc_file_driver_close() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5Pset_family_offset
  *
@@ -1365,7 +1403,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pset_family_offset() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5Pget_family_offset
  *
@@ -1406,7 +1444,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_family_offset() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5Pset_multi_type
  *
@@ -1445,7 +1483,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pset_multi_type() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5Pget_multi_type
  *
@@ -1486,32 +1524,32 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_multi_type() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_cache
+ * Function:    H5Pset_cache
  *
- * Purpose:	Set the number of objects in the meta data cache and the
- *		maximum number of chunks and bytes in the raw data chunk
- *		cache.
+ * Purpose:    Set the number of objects in the meta data cache and the
+ *        maximum number of chunks and bytes in the raw data chunk
+ *        cache.
  *
- * 		The RDCC_W0 value should be between 0 and 1 inclusive and
- *		indicates how much chunks that have been fully read or fully
- *		written are favored for preemption.  A value of zero means
- *		fully read or written chunks are treated no differently than
- *		other chunks (the preemption is strictly LRU) while a value
- *		of one means fully read chunks are always preempted before
- *		other chunks.
+ *         The RDCC_W0 value should be between 0 and 1 inclusive and
+ *        indicates how much chunks that have been fully read or fully
+ *        written are favored for preemption.  A value of zero means
+ *        fully read or written chunks are treated no differently than
+ *        other chunks (the preemption is strictly LRU) while a value
+ *        of one means fully read chunks are always preempted before
+ *        other chunks.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Tuesday, May 19, 1998
  *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5Pset_cache(hid_t plist_id, int H5_ATTR_UNUSED mdc_nelmts,
-	     size_t rdcc_nslots, size_t rdcc_nbytes, double rdcc_w0)
+        size_t rdcc_nslots, size_t rdcc_nbytes, double rdcc_w0)
 {
     H5P_genplist_t *plist;      /* Property list pointer */
     herr_t ret_value = SUCCEED;   /* return value */
@@ -1540,26 +1578,26 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pset_cache() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_cache
+ * Function:    H5Pget_cache
  *
- * Purpose:	Retrieves the maximum possible number of elements in the meta
- *		data cache and the maximum possible number of elements and
- *		bytes and the RDCC_W0 value in the raw data chunk cache.  Any
- *		(or all) arguments may be null pointers in which case the
- *		corresponding datum is not returned.
+ * Purpose:    Retrieves the maximum possible number of elements in the meta
+ *        data cache and the maximum possible number of elements and
+ *        bytes and the RDCC_W0 value in the raw data chunk cache.  Any
+ *        (or all) arguments may be null pointers in which case the
+ *        corresponding datum is not returned.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
+ * Programmer:    Robb Matzke
  *              Tuesday, May 19, 1998
  *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5Pget_cache(hid_t plist_id, int *mdc_nelmts,
-	     size_t *rdcc_nslots, size_t *rdcc_nbytes, double *rdcc_w0)
+        size_t *rdcc_nslots, size_t *rdcc_nbytes, double *rdcc_w0)
 {
     H5P_genplist_t *plist;      /* Property list pointer */
     herr_t ret_value = SUCCEED;   /* return value */
@@ -1592,16 +1630,16 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_cache() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_mdc_image_config
+ * Function:    H5Pset_mdc_image_config
  *
- * Purpose:	Set the initial metadata cache image configuration in the
- *		target FAPL.
+ * Purpose:    Set the initial metadata cache image configuration in the
+ *        target FAPL.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	J. Mainzer
+ * Programmer:    J. Mainzer
  *              Thursday, June 25, 2015
  *
  *-------------------------------------------------------------------------
@@ -1636,20 +1674,20 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* H5Pset_mdc_image_config() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_mdc_image_config
+ * Function:    H5Pget_mdc_image_config
  *
- * Purpose:	Retrieve the metadata cache initial image configuration
- *		from the target FAPL.
+ * Purpose:    Retrieve the metadata cache initial image configuration
+ *        from the target FAPL.
  *
- *		Observe that the function will fail if config_ptr is
- *		NULL, or if config_ptr->version specifies an unknown
- *		version of H5AC_cache_image_config_t.
+ *        Observe that the function will fail if config_ptr is
+ *        NULL, or if config_ptr->version specifies an unknown
+ *        version of H5AC_cache_image_config_t.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	J. Mainzer
+ * Programmer:    J. Mainzer
  *              Friday, June 26, 2015
  *
  *-------------------------------------------------------------------------
@@ -1675,7 +1713,7 @@ H5Pget_mdc_image_config(hid_t plist_id, H5AC_cache_image_config_t *config_ptr)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "Unknown image config version.")
 
     /* If we ever support multiple versions of H5AC_cache_config_t, we
-     * will have to get the cannonical version here, and then translate
+     * will have to get the canonical version here, and then translate
      * to the version of the structure supplied.
      */
 
@@ -1687,16 +1725,16 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* H5Pget_mdc_image_config() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_mdc_config
+ * Function:    H5Pset_mdc_config
  *
- * Purpose:	Set the initial metadata cache resize configuration in the
- *		target FAPL.
+ * Purpose:    Set the initial metadata cache resize configuration in the
+ *        target FAPL.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	J. Mainzer
+ * Programmer:    J. Mainzer
  *              Thursday, April 7, 2005
  *
  *-------------------------------------------------------------------------
@@ -1731,20 +1769,20 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* H5Pset_mdc_config() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_mdc_config
+ * Function:    H5Pget_mdc_config
  *
- * Purpose:	Retrieve the metadata cache initial resize configuration
- *		from the target FAPL.
+ * Purpose:    Retrieve the metadata cache initial resize configuration
+ *        from the target FAPL.
  *
- *		Observe that the function will fail if config_ptr is
- *		NULL, or if config_ptr->version specifies an unknown
- *		version of H5AC_cache_config_t.
+ *        Observe that the function will fail if config_ptr is
+ *        NULL, or if config_ptr->version specifies an unknown
+ *        version of H5AC_cache_config_t.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	J. Mainzer
+ * Programmer:    J. Mainzer
  *              Thursday, April 7, 2005
  *
  *-------------------------------------------------------------------------
@@ -1770,7 +1808,7 @@ H5Pget_mdc_config(hid_t plist_id, H5AC_cache_config_t *config_ptr)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "Unknown config version.")
 
     /* If we ever support multiple versions of H5AC_cache_config_t, we
-     * will have to get the cannonical version here, and then translate
+     * will have to get the canonical version here, and then translate
      * to the version of the structure supplied.
      */
 
@@ -1782,35 +1820,35 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* H5Pget_mdc_config() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_gc_references
+ * Function:    H5Pset_gc_references
  *
- * Purpose:	Sets the flag for garbage collecting references for the file.
- *		Dataset region references (and other reference types
- *		probably) use space in the file heap.  If garbage collection
- *		is on and the user passes in an uninitialized value in a
- *		reference structure, the heap might get corrupted.  When
- *		garbage collection is off however and the user re-uses a
- *		reference, the previous heap block will be orphaned and not
- *		returned to the free heap space.  When garbage collection is
- *		on, the user must initialize the reference structures to 0 or
- *		risk heap corruption.
+ * Purpose:    Sets the flag for garbage collecting references for the file.
+ *        Dataset region references (and other reference types
+ *        probably) use space in the file heap.  If garbage collection
+ *        is on and the user passes in an uninitialized value in a
+ *        reference structure, the heap might get corrupted.  When
+ *        garbage collection is off however and the user re-uses a
+ *        reference, the previous heap block will be orphaned and not
+ *        returned to the free heap space.  When garbage collection is
+ *        on, the user must initialize the reference structures to 0 or
+ *        risk heap corruption.
  *
- *		Default value for garbage collecting references is off, just
- *		to be on the safe side.
+ *        Default value for garbage collecting references is off, just
+ *        to be on the safe side.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *		June, 1999
+ * Programmer:    Quincey Koziol
+ *        June, 1999
  *
  * Modifications:
  *
- *		Raymond Lu
- * 		Tuesday, Oct 23, 2001
- *		Changed the file access list to the new generic property
- *		list.
+ *        Raymond Lu
+ *         Tuesday, Oct 23, 2001
+ *        Changed the file access list to the new generic property
+ *        list.
  *
  *-------------------------------------------------------------------------
  */
@@ -1835,24 +1873,24 @@ done:
     FUNC_LEAVE_API(ret_value)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_gc_references
+ * Function:    H5Pget_gc_references
  *
- * Purpose:	Returns the current setting for the garbage collection
- *		references property from a file access property list.
+ * Purpose:    Returns the current setting for the garbage collection
+ *        references property from a file access property list.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              June, 1999
  *
  * Modifications:
  *
- *		Raymond Lu
- *		Tuesday, Oct 23, 2001
- *		Changed the file access list to the new generic property
- *		list.
+ *        Raymond Lu
+ *        Tuesday, Oct 23, 2001
+ *        Changed the file access list to the new generic property
+ *        list.
  *
  *-------------------------------------------------------------------------
  */
@@ -1878,7 +1916,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 }
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5Pset_fclose_degree
  *
@@ -1914,7 +1952,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pset_fclose_degree() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5Pget_fclose_degree
  *
@@ -1949,33 +1987,33 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_fclose_degree() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_meta_block_size
+ * Function:    H5Pset_meta_block_size
  *
- * Purpose:	Sets the minimum size of metadata block allocations when
+ * Purpose:    Sets the minimum size of metadata block allocations when
  *      the H5FD_FEAT_AGGREGATE_METADATA is set by a VFL driver.
  *      Each "raw" metadata block is allocated to be this size and then
  *      specific pieces of metadata (object headers, local heaps, B-trees, etc)
  *      are sub-allocated from this block.
  *
- *		The default value is set to 2048 (bytes), indicating that metadata
+ *        The default value is set to 2048 (bytes), indicating that metadata
  *      will be attempted to be bunched together in (at least) 2K blocks in
  *      the file.  Setting the value to 0 with this API function will
  *      turn off the metadata aggregation, even if the VFL driver attempts to
  *      use that strategy.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Friday, August 25, 2000
  *
  * Modifications:
  *
- *		Raymond Lu
- *		Tuesday, Oct 23, 2001
- *		Changed the file access list to the new generic property
- *		list.
+ *        Raymond Lu
+ *        Tuesday, Oct 23, 2001
+ *        Changed the file access list to the new generic property
+ *        list.
  *
  *-------------------------------------------------------------------------
  */
@@ -2000,24 +2038,24 @@ done:
     FUNC_LEAVE_API(ret_value)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_meta_block_size
+ * Function:    H5Pget_meta_block_size
  *
- * Purpose:	Returns the current settings for the metadata block allocation
+ * Purpose:    Returns the current settings for the metadata block allocation
  *      property from a file access property list.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Friday, August 29, 2000
  *
  * Modifications:
  *
- *		Raymond Lu
- * 		Tuesday, Oct 23, 2001
- *		Changed the file access list to the new generic property
- *		list.
+ *        Raymond Lu
+ *         Tuesday, Oct 23, 2001
+ *        Changed the file access list to the new generic property
+ *        list.
  *
  *-------------------------------------------------------------------------
  */
@@ -2044,33 +2082,33 @@ done:
     FUNC_LEAVE_API(ret_value)
 }
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_sieve_buf_size
+ * Function:    H5Pset_sieve_buf_size
  *
- * Purpose:	Sets the maximum size of the data seive buffer used for file
+ * Purpose:    Sets the maximum size of the data seive buffer used for file
  *      drivers which are capable of using data sieving.  The data sieve
  *      buffer is used when performing I/O on datasets in the file.  Using a
  *      buffer which is large anough to hold several pieces of the dataset
  *      being read in for hyperslab selections boosts performance by quite a
  *      bit.
  *
- *		The default value is set to 64KB, indicating that file I/O for raw data
+ *        The default value is set to 64KB, indicating that file I/O for raw data
  *      reads and writes will occur in at least 64KB blocks.
  *      Setting the value to 0 with this API function will turn off the
  *      data sieving, even if the VFL driver attempts to use that strategy.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Thursday, September 21, 2000
  *
  * Modifications:
  *
- *		Raymond Lu
- * 		Tuesday, Oct 23, 2001
- *		Changed the file access list to the new generic property
- *		list.
+ *        Raymond Lu
+ *         Tuesday, Oct 23, 2001
+ *        Changed the file access list to the new generic property
+ *        list.
  *
  *-------------------------------------------------------------------------
  */
@@ -2095,24 +2133,24 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pset_sieve_buf_size() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_sieve_buf_size
+ * Function:    H5Pget_sieve_buf_size
  *
- * Purpose:	Returns the current settings for the data sieve buffer size
+ * Purpose:    Returns the current settings for the data sieve buffer size
  *      property from a file access property list.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Thursday, September 21, 2000
  *
  * Modifications:
  *
- *		Raymond Lu
- * 		Tuesday, Oct 23, 2001
- *		Changed the file access list to the new generic property
- *		list.
+ *        Raymond Lu
+ *         Tuesday, Oct 23, 2001
+ *        Changed the file access list to the new generic property
+ *        list.
  *
  *-------------------------------------------------------------------------
  */
@@ -2138,25 +2176,25 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_sieve_buf_size() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_small_data_block_size
+ * Function:    H5Pset_small_data_block_size
  *
- * Purpose:	Sets the minimum size of "small" raw data block allocations
+ * Purpose:    Sets the minimum size of "small" raw data block allocations
  *      when the H5FD_FEAT_AGGREGATE_SMALLDATA is set by a VFL driver.
  *      Each "small" raw data block is allocated to be this size and then
  *      pieces of raw data which are small enough to fit are sub-allocated from
  *      this block.
  *
- *	The default value is set to 2048 (bytes), indicating that raw data
+ *    The default value is set to 2048 (bytes), indicating that raw data
  *      smaller than this value will be attempted to be bunched together in (at
  *      least) 2K blocks in the file.  Setting the value to 0 with this API
  *      function will turn off the "small" raw data aggregation, even if the
  *      VFL driver attempts to use that strategy.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Wednesday, June 5, 2002
  *
  * Modifications:
@@ -2184,16 +2222,16 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pset_small_data_block_size() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_small_data_block_size
+ * Function:    H5Pget_small_data_block_size
  *
- * Purpose:	Returns the current settings for the "small" raw data block
+ * Purpose:    Returns the current settings for the "small" raw data block
  *      allocation property from a file access property list.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Wednesday, June 5, 2002
  *
  * Modifications:
@@ -2223,11 +2261,11 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_small_data_block_size() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_libver_bounds
+ * Function:    H5Pset_libver_bounds
  *
- * Purpose:	Indicates which versions of the file format the library should
+ * Purpose:    Indicates which versions of the file format the library should
  *      use when creating objects.  LOW is the earliest version of the HDF5
  *      library that is guaranteed to be able to access the objects created
  *      (the format of some objects in an HDF5 file may not have changed between
@@ -2284,7 +2322,7 @@ done:
  *              necessary to represent features used.
  *              (This is the "make certain to take advantage of <new feature>
  *              in the file format" use case (maybe <new feature> is smaller
- *              or scales better than an ealier version, which would otherwise
+ *              or scales better than an earlier version, which would otherwise
  *              be used))
  *
  *         LOW = H5F_FORMAT_1_2_0, HIGH = H5F_FORMAT_1_6_0 => creates objects
@@ -2303,54 +2341,78 @@ done:
  *      releases and then map down to the previous actual library release which
  *      had a format change.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Note #3: The enumerated define for H5F_libver_t in 1.10 is:
+ *      typedef enum H5F_libver_t {
+ *          H5F_LIBVER_ERROR = -1,
+ *          H5F_LIBVER_EARLIEST = 0,
+ *          H5F_LIBVER_V18 = 1,
+ *          H5F_LIBVER_V110 = 2,
+ *          H5F_LIBVER_NBOUNDS
+ *      } H5F_libver_t;
+ *      #define H5F_LIBVER_LATEST       H5F_LIBVER_V110
  *
- * Programmer:	Quincey Koziol
+ *      The library supports five pairs of (low, high) combinations via H5Pset_libver_bounds():
+ *      1) H5F_LIBVER_EARLIEST, H5F_LIBVER_V18
+ *      2) H5F_LIBVER_EARLIEST, H5F_LIBVER_LATEST
+ *      4) H5F_LIBVER_V18, H5F_LIBVER_V18
+ *      4) H5F_LIBVER_V18, H5F_LIBVER_LATEST
+ *      5) H5F_LIBVER_LATEST, H5F_LIBVER_LATEST
+ *      See detailed description in the RFC: Setting Bounds for Object Creation in HDF5 1.10.0.
+ *
+ * Return:    Non-negative on success/Negative on failure
+ *
+ * Programmer:    Quincey Koziol
  *              Sunday, December 30, 2007
  *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5Pset_libver_bounds(hid_t plist_id, H5F_libver_t low,
-    H5F_libver_t high)
+H5Pset_libver_bounds(hid_t plist_id, H5F_libver_t low, H5F_libver_t high)
 {
     H5P_genplist_t *plist;      /* Property list pointer */
-    hbool_t latest;             /* Whether to use the latest version or not */
     herr_t ret_value = SUCCEED;   /* return value */
 
     FUNC_ENTER_API(FAIL)
     H5TRACE3("e", "iFvFv", plist_id, low, high);
 
     /* Check args */
-    /* (Note that this is _really_ restricted right now, we'll want to loosen
-     *  this up more as we add features - QAK)
-     */
-    if(high != H5F_LIBVER_LATEST)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid high library version bound")
+    if(low < 0 || low > H5F_LIBVER_LATEST)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "low bound is not valid")
+
+    if(high < 0 || high > H5F_LIBVER_LATEST)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "high bound is not valid")
+
+    /* (earliest, earliest), (latest, earliest), (v18, earliest) are not valid combinations */
+    if(high == H5F_LIBVER_EARLIEST)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "Invalid (low,high) combination of library version bound")
+
+    /* (latest, v18) is not valid combination */
+    if(high < low)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "Invalid (low,high) combination of library version bound")
 
     /* Get the plist structure */
     if(NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_ACCESS)))
         HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
 
     /* Set values */
-    latest = (hbool_t)((low == H5F_LIBVER_LATEST) ? TRUE : FALSE);
-    if(H5P_set(plist, H5F_ACS_LATEST_FORMAT_NAME, &latest) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set library version bounds")
-
+    if(H5P_set(plist, H5F_ACS_LIBVER_LOW_BOUND_NAME, &low) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set low bound for library format versions")
+    if(H5P_set(plist, H5F_ACS_LIBVER_HIGH_BOUND_NAME, &high) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set high bound for library format versions")
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pset_libver_bounds() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_libver_bounds
+ * Function:    H5Pget_libver_bounds
  *
- * Purpose:	Returns the current settings for the library version format bounds
- *      from a file access property list.
+ * Purpose:    Returns the current settings for the library version format bounds
+ *          from a file access property list.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
+ * Programmer:    Quincey Koziol
  *              Thursday, January 3, 2008
  *
  *-------------------------------------------------------------------------
@@ -2360,7 +2422,6 @@ H5Pget_libver_bounds(hid_t plist_id, H5F_libver_t *low/*out*/,
     H5F_libver_t *high/*out*/)
 {
     H5P_genplist_t *plist;      /* Property list pointer */
-    hbool_t latest;             /* Whether to use the latest version or not */
     herr_t ret_value = SUCCEED; /* return value */
 
     FUNC_ENTER_API(FAIL)
@@ -2370,22 +2431,22 @@ H5Pget_libver_bounds(hid_t plist_id, H5F_libver_t *low/*out*/,
     if(NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_ACCESS)))
         HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
 
-    /* Get value */
-    if(H5P_get(plist, H5F_ACS_LATEST_FORMAT_NAME, &latest) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get library version bounds")
+     /* Get values */
+    if(low) {
+        if(H5P_get(plist, H5F_ACS_LIBVER_LOW_BOUND_NAME, low) < 0)
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get low bound for library format versions")
+    }
 
-    /* Check for setting values to return */
-    /* (Again, this is restricted now, we'll need to open it up later -QAK) */
-    if(low)
-        *low = latest ? H5F_LIBVER_LATEST : H5F_LIBVER_EARLIEST;
-    if(high)
-        *high = H5F_LIBVER_LATEST;
+    if(high) {
+        if(H5P_get(plist, H5F_ACS_LIBVER_HIGH_BOUND_NAME, high) < 0)
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get high bound for library format versions")
+    }
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_libver_bounds() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5Pset_elink_file_cache_size
  *
@@ -2423,7 +2484,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pset_elink_file_cache_size() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5Pget_elink_file_cache_size
  *
@@ -2462,13 +2523,13 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_elink_file_cache_size() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function: H5Pset_file_image
  *
- * Purpose:     Sets the initial file image. Some file drivers can initialize 
- *              the starting data in a file from a buffer. 
- *              
+ * Purpose:     Sets the initial file image. Some file drivers can initialize
+ *              the starting data in a file from a buffer.
+ *
  * Return:      Non-negative on success/Negative on failure
  *
  * Programmer:  Jacob Gruber
@@ -2482,22 +2543,22 @@ H5Pset_file_image(hid_t fapl_id, void *buf_ptr, size_t buf_len)
     H5P_genplist_t *fapl;               /* Property list pointer */
     H5FD_file_image_info_t image_info;  /* File image info */
     herr_t ret_value = SUCCEED;         /* Return value */
-    
+
     FUNC_ENTER_API(FAIL)
     H5TRACE3("e", "i*xz", fapl_id, buf_ptr, buf_len);
 
     /* validate parameters */
     if(!(((buf_ptr == NULL) && (buf_len == 0)) || ((buf_ptr != NULL) && (buf_len > 0))))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "inconsistant buf_ptr and buf_len")
-   
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "inconsistent buf_ptr and buf_len")
+
     /* Get the plist structure */
     if(NULL == (fapl = H5P_object_verify(fapl_id, H5P_FILE_ACCESS)))
         HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
-        
+
     /* Get old image info */
     if(H5P_peek(fapl, H5F_ACS_FILE_IMAGE_INFO_NAME, &image_info) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get old file image pointer")
-        
+
     /* Release previous buffer, if it exists */
     if(image_info.buffer != NULL) {
         if(image_info.callbacks.image_free) {
@@ -2506,8 +2567,8 @@ H5Pset_file_image(hid_t fapl_id, void *buf_ptr, size_t buf_len)
         } /* end if */
         else
             H5MM_xfree(image_info.buffer);
-    } /* end if */  
-    
+    } /* end if */
+
     /* Update struct */
     if(buf_ptr) {
         /* Allocate memory */
@@ -2519,15 +2580,15 @@ H5Pset_file_image(hid_t fapl_id, void *buf_ptr, size_t buf_len)
          else
             if(NULL == (image_info.buffer = H5MM_malloc(buf_len)))
                 HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "unable to allocate memory block")
-    
+
         /* Copy data */
         if(image_info.callbacks.image_memcpy) {
-            if(image_info.buffer != image_info.callbacks.image_memcpy(image_info.buffer, 
-                   buf_ptr, buf_len, H5FD_FILE_IMAGE_OP_PROPERTY_LIST_SET, 
+            if(image_info.buffer != image_info.callbacks.image_memcpy(image_info.buffer,
+                   buf_ptr, buf_len, H5FD_FILE_IMAGE_OP_PROPERTY_LIST_SET,
                    image_info.callbacks.udata))
-	        HGOTO_ERROR(H5E_RESOURCE, H5E_CANTCOPY, FAIL, "image_memcpy callback failed")
+            HGOTO_ERROR(H5E_RESOURCE, H5E_CANTCOPY, FAIL, "image_memcpy callback failed")
         } /* end if */
-	else
+    else
             HDmemcpy(image_info.buffer, buf_ptr, buf_len);
     } /* end if */
     else
@@ -2543,28 +2604,28 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pset_file_image() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function: H5Pget_file_image
  *
- * Purpose:     If the file image exists and buf_ptr_ptr is not NULL, 
- *		allocate a buffer of the correct size, copy the image into 
- *		the new buffer, and return the buffer to the caller in 
- *		*buf_ptr_ptr.  Do this using the file image callbacks
- *		if defined.  
+ * Purpose:     If the file image exists and buf_ptr_ptr is not NULL,
+ *        allocate a buffer of the correct size, copy the image into
+ *        the new buffer, and return the buffer to the caller in
+ *        *buf_ptr_ptr.  Do this using the file image callbacks
+ *        if defined.
  *
- *		NB: It is the responsibility of the caller to free the 
- *		buffer whose address is returned in *buf_ptr_ptr.  Do
- *		this using free if the file image callbacks are not 
- *		defined, or with whatever method is appropriate if 
- *		the callbacks are defined.
+ *        NB: It is the responsibility of the caller to free the
+ *        buffer whose address is returned in *buf_ptr_ptr.  Do
+ *        this using free if the file image callbacks are not
+ *        defined, or with whatever method is appropriate if
+ *        the callbacks are defined.
  *
- *              If buf_ptr_ptr is not NULL, and no image exists, set 
- *		*buf_ptr_ptr to NULL.
+ *              If buf_ptr_ptr is not NULL, and no image exists, set
+ *        *buf_ptr_ptr to NULL.
  *
- *		If buf_len_ptr is not NULL, set *buf_len_ptr equal
- *		to the length of the file image if it exists, and 
- *		to 0 if it does not.
+ *        If buf_len_ptr is not NULL, set *buf_len_ptr equal
+ *        to the length of the file image if it exists, and
+ *        to 0 if it does not.
  *
  * Return:      Non-negative on success/Negative on failure
  *
@@ -2591,8 +2652,8 @@ H5Pget_file_image(hid_t fapl_id, void **buf_ptr_ptr, size_t *buf_len_ptr)
     if(H5P_peek(fapl, H5F_ACS_FILE_IMAGE_INFO_NAME, &image_info) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get file image info")
 
-    /* verify file image field consistancy */
-    HDassert(((image_info.buffer != NULL) && (image_info.size > 0)) || 
+    /* verify file image field consistency */
+    HDassert(((image_info.buffer != NULL) && (image_info.size > 0)) ||
              ((image_info.buffer == NULL) && (image_info.size == 0)));
 
     /* Set output size */
@@ -2613,15 +2674,15 @@ H5Pget_file_image(hid_t fapl_id, void **buf_ptr_ptr, size_t *buf_len_ptr)
             else
                 if(NULL == (copy_ptr = H5MM_malloc(image_info.size)))
                     HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "unable to allocate copy")
-    
+
             /* Copy data */
             if(image_info.callbacks.image_memcpy) {
                 if(copy_ptr != image_info.callbacks.image_memcpy(copy_ptr, image_info.buffer,
-                        image_info.size, H5FD_FILE_IMAGE_OP_PROPERTY_LIST_GET, 
+                        image_info.size, H5FD_FILE_IMAGE_OP_PROPERTY_LIST_GET,
                         image_info.callbacks.udata))
                     HGOTO_ERROR(H5E_RESOURCE, H5E_CANTCOPY, FAIL, "image_memcpy callback failed")
             } /* end if */
-	    else
+        else
                 HDmemcpy(copy_ptr, image_info.buffer, image_info.size);
         } /* end if */
 
@@ -2632,13 +2693,13 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_file_image */
 
-
+
 /*-------------------------------------------------------------------------
  * Function: H5Pset_file_image_callbacks
  *
  * Purpose:     Sets the callbacks for file images. Some file drivers allow
  *              the use of user-defined callbacks for allocating, freeing and
- *              copying the drivers internal buffer, potentially allowing a 
+ *              copying the drivers internal buffer, potentially allowing a
  *              clever user to do optimizations such as avoiding large mallocs
  *              and memcpys or to perform detailed logging.
  *
@@ -2667,8 +2728,8 @@ H5Pset_file_image_callbacks(hid_t fapl_id, H5FD_file_image_callbacks_t *callback
     if(H5P_peek(fapl, H5F_ACS_FILE_IMAGE_INFO_NAME, &info) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get old file image info")
 
-    /* verify file image field consistancy */
-    HDassert(((info.buffer != NULL) && (info.size > 0)) || 
+    /* verify file image field consistency */
+    HDassert(((info.buffer != NULL) && (info.size > 0)) ||
              ((info.buffer == NULL) && (info.size == 0)));
 
     /* Make sure a file image hasn't already been set */
@@ -2677,7 +2738,7 @@ H5Pset_file_image_callbacks(hid_t fapl_id, H5FD_file_image_callbacks_t *callback
 
     /* verify that callbacks_ptr is not NULL */
     if(NULL == callbacks_ptr)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL callbacks_ptr")
+    HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL callbacks_ptr")
 
     /* Make sure udata callbacks are going to be set if udata is going to be set */
     if(callbacks_ptr->udata)
@@ -2688,7 +2749,7 @@ H5Pset_file_image_callbacks(hid_t fapl_id, H5FD_file_image_callbacks_t *callback
     if(info.callbacks.udata != NULL) {
         HDassert(info.callbacks.udata_free);
         if(info.callbacks.udata_free(info.callbacks.udata) < 0)
-	    HGOTO_ERROR(H5E_RESOURCE, H5E_CANTFREE, FAIL, "udata_free callback failed")
+        HGOTO_ERROR(H5E_RESOURCE, H5E_CANTFREE, FAIL, "udata_free callback failed")
     } /* end if */
 
     /* Update struct */
@@ -2709,13 +2770,13 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pset_file_image_callbacks() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function: H5Pget_file_image_callbacks
  *
  * Purpose:     Sets the callbacks for file images. Some file drivers allow
  *              the use of user-defined callbacks for allocating, freeing and
- *              copying the drivers internal buffer, potentially allowing a 
+ *              copying the drivers internal buffer, potentially allowing a
  *              clever user to do optimizations such as avoiding large mallocs
  *
  * Return:      Non-negative on success/Negative on failure
@@ -2743,13 +2804,13 @@ H5Pget_file_image_callbacks(hid_t fapl_id, H5FD_file_image_callbacks_t *callback
     if(H5P_peek(fapl, H5F_ACS_FILE_IMAGE_INFO_NAME, &info) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get file image info")
 
-    /* verify file image field consistancy */
-    HDassert(((info.buffer != NULL) && (info.size > 0)) || 
+    /* verify file image field consistency */
+    HDassert(((info.buffer != NULL) && (info.size > 0)) ||
              ((info.buffer == NULL) && (info.size == 0)));
 
     /* verify that callbacks_ptr is not NULL */
     if(NULL == callbacks_ptr)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL callbacks_ptr")
+    HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL callbacks_ptr")
 
     /* Transfer values to parameters */
     *callbacks_ptr = info.callbacks;
@@ -2765,17 +2826,17 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_file_image_callbacks() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5P__file_image_info_copy
  *
  * Purpose:     Copy file image info. The buffer
- *              and udata may need to be copied, possibly using their 
+ *              and udata may need to be copied, possibly using their
  *              respective callbacks so the default copy won't work.
  *
  * Note:        This is an "in-place" copy, since this routine gets called
  *              after the top-level copy has been performed and this routine
- *		finishes the "deep" part of the copy.
+ *        finishes the "deep" part of the copy.
  *
  * Return:      Success:        Non-negative
  *              Failure:        Negative
@@ -2797,8 +2858,8 @@ H5P__file_image_info_copy(void *value)
 
         info = (H5FD_file_image_info_t *)value;
 
-        /* verify file image field consistancy */
-        HDassert(((info->buffer != NULL) && (info->size > 0)) || 
+        /* verify file image field consistency */
+        HDassert(((info->buffer != NULL) && (info->size > 0)) ||
                  ((info->buffer == NULL) && (info->size == 0)));
 
         if(info->buffer && info->size > 0) {
@@ -2817,14 +2878,14 @@ H5P__file_image_info_copy(void *value)
                 if(NULL == (info->buffer = H5MM_malloc(info->size)))
                     HGOTO_ERROR(H5E_PLIST, H5E_CANTALLOC, FAIL, "unable to allocate memory block")
             } /* end else */
-            
+
             /* Copy data to new buffer */
             if(info->callbacks.image_memcpy) {
-                if(info->buffer != info->callbacks.image_memcpy(info->buffer, old_buffer, 
-			info->size, H5FD_FILE_IMAGE_OP_PROPERTY_LIST_COPY, info->callbacks.udata))
-		    HGOTO_ERROR(H5E_PLIST, H5E_CANTCOPY, FAIL, "image_memcpy callback failed")
+                if(info->buffer != info->callbacks.image_memcpy(info->buffer, old_buffer,
+            info->size, H5FD_FILE_IMAGE_OP_PROPERTY_LIST_COPY, info->callbacks.udata))
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTCOPY, FAIL, "image_memcpy callback failed")
             } /* end if */
-	    else
+        else
                 HDmemcpy(info->buffer, old_buffer, info->size);
         } /* end if */
 
@@ -2843,13 +2904,13 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__file_image_info_copy() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5P__file_image_info_free
  *
  * Purpose:     Free file image info.  The buffer and udata may need to be
- *		freed, possibly using their respective callbacks, so the
- *		default free won't work.
+ *        freed, possibly using their respective callbacks, so the
+ *        default free won't work.
  *
  * Return:      Success:        Non-negative
  *              Failure:        Negative
@@ -2870,16 +2931,16 @@ H5P__file_image_info_free(void *value)
         H5FD_file_image_info_t *info;        /* Image info struct */
 
         info = (H5FD_file_image_info_t *)value;
-             
-        /* Verify file image field consistancy */
-        HDassert(((info->buffer != NULL) && (info->size > 0)) || 
+
+        /* Verify file image field consistency */
+        HDassert(((info->buffer != NULL) && (info->size > 0)) ||
                  ((info->buffer == NULL) && (info->size == 0)));
 
         /* Free buffer */
-        if(info->buffer != NULL && info->size > 0) { 
+        if(info->buffer != NULL && info->size > 0) {
             if(info->callbacks.image_free) {
                 if((*info->callbacks.image_free)(info->buffer, H5FD_FILE_IMAGE_OP_PROPERTY_LIST_CLOSE, info->callbacks.udata) < 0)
-		    HGOTO_ERROR(H5E_PLIST, H5E_CANTFREE, FAIL, "image_free callback failed")
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTFREE, FAIL, "image_free callback failed")
             } /* end if */
             else
                 H5MM_xfree(info->buffer);
@@ -2898,14 +2959,14 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__file_image_info_free() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function: H5P__facc_cache_image_config_cmp
  *
  * Purpose: Compare two cache image configurations.
  *
  * Return: positive if VALUE1 is greater than VALUE2, negative if VALUE2 is
- *		greater than VALUE1 and zero if VALUE1 and VALUE2 are equal.
+ *        greater than VALUE1 and zero if VALUE1 and VALUE2 are equal.
  *
  * Programmer:     John Mainzer
  *                 June 26, 2015
@@ -2941,16 +3002,16 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__facc_cache_image_config_cmp() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:       H5P__facc_cache_image_config_enc
  *
  * Purpose:        Callback routine which is called whenever the default
- *                 cache image config property in the file creation 
- *		   property list is encoded.
+ *                 cache image config property in the file creation
+ *           property list is encoded.
  *
- * Return:	   Success:	Non-negative
- *		   Failure:	Negative
+ * Return:       Success:    Non-negative
+ *           Failure:    Negative
  *
  * Programmer:     John Mainzer
  *                 June 26, 2015
@@ -2958,7 +3019,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__facc_cache_image_config_enc(const void *value, void **_pp, size_t *size)
+H5P__facc_cache_image_config_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
 {
     const H5AC_cache_image_config_t *config = (const H5AC_cache_image_config_t *)value; /* Create local aliases for value */
     uint8_t **pp = (uint8_t **)_pp;
@@ -2987,16 +3048,16 @@ H5P__facc_cache_image_config_enc(const void *value, void **_pp, size_t *size)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5P__facc_cache_image_config_enc() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:       H5P__facc_cache_image_config_dec
  *
  * Purpose:        Callback routine which is called whenever the default
- *                 cache image config property in the file creation property 
- *		   list is  decoded.
+ *                 cache image config property in the file creation property
+ *           list is  decoded.
  *
- * Return:	   Success:	Non-negative
- *		   Failure:	Negative
+ * Return:       Success:    Non-negative
+ *           Failure:    Negative
  *
  * Programmer:     John Mainzer
  *                 June 26, 2015
@@ -3039,7 +3100,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__facc_cache_image_config_dec() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5P__facc_file_image_info_set
  *
@@ -3072,7 +3133,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__facc_file_image_info_set() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5P__facc_file_image_info_get
  *
@@ -3105,13 +3166,13 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__facc_file_image_info_get() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5P__facc_file_image_info_del
  *
  * Purpose:     Delete callback for the file image info property, called
  *              when the property is deleted from the plist. The buffer
- *              and udata may need to be freed, possibly using their 
+ *              and udata may need to be freed, possibly using their
  *              respective callbacks so the default free won't work.
  *
  * Return:      Non-negative on success/Negative on failure
@@ -3136,12 +3197,12 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__facc_file_image_info_del() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5P__facc_file_image_info_copy
  *
  * Purpose:     Copy callback for the file image info property. The buffer
- *              and udata may need to be copied, possibly using their 
+ *              and udata may need to be copied, possibly using their
  *              respective callbacks so the default copy won't work.
  *
  * Return:      Non-negative on success/Negative on failure
@@ -3166,7 +3227,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__facc_file_image_info_copy() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:       H5P__facc_file_image_info_cmp
  *
@@ -3225,12 +3286,12 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__facc_file_image_info_cmp() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5P__facc_file_image_info_close
  *
  * Purpose:     Close callback for the file image info property. The buffer
- *              and udata may need to be freed, possibly using their 
+ *              and udata may need to be freed, possibly using their
  *              respective callbacks so the standard free won't work.
  *
  * Return:      Non-negative on success/Negative on failure
@@ -3255,14 +3316,14 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__facc_file_image_info_close() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function: H5P__facc_cache_config_cmp
  *
  * Purpose: Compare two cache configurations.
  *
  * Return: positive if VALUE1 is greater than VALUE2, negative if VALUE2 is
- *		greater than VALUE1 and zero if VALUE1 and VALUE2 are equal.
+ *        greater than VALUE1 and zero if VALUE1 and VALUE2 are equal.
  *
  * Programmer:     Mohamad Chaarawi
  *                 September 24, 2012
@@ -3367,7 +3428,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__facc_cache_config_cmp() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:       H5P__facc_cache_config_enc
  *
@@ -3375,8 +3436,8 @@ done:
  *                 cache config property in the file creation property list is
  *                 encoded.
  *
- * Return:	   Success:	Non-negative
- *		   Failure:	Negative
+ * Return:       Success:    Non-negative
+ *           Failure:    Negative
  *
  * Programmer:     Mohamad Chaarawi
  *                 August 09, 2012
@@ -3384,7 +3445,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__facc_cache_config_enc(const void *value, void **_pp, size_t *size)
+H5P__facc_cache_config_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
 {
     const H5AC_cache_config_t *config = (const H5AC_cache_config_t *)value; /* Create local aliases for values */
     uint8_t **pp = (uint8_t **)_pp;
@@ -3512,7 +3573,7 @@ H5P__facc_cache_config_enc(const void *value, void **_pp, size_t *size)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5P__facc_cache_config_enc() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:       H5P__facc_cache_config_dec
  *
@@ -3520,8 +3581,8 @@ H5P__facc_cache_config_enc(const void *value, void **_pp, size_t *size)
  *                 cache config property in the file creation property list is
  *                 decoded.
  *
- * Return:	   Success:	Non-negative
- *		   Failure:	Negative
+ * Return:       Success:    Non-negative
+ *           Failure:    Negative
  *
  * Programmer:     Mohamad Chaarawi
  *                 August 09, 2012
@@ -3647,7 +3708,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P__facc_cache_config_dec() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:       H5P__facc_fclose_degree_enc
  *
@@ -3655,8 +3716,8 @@ done:
  *                 degree property in the file access property list
  *                 is encoded.
  *
- * Return:	   Success:	Non-negative
- *		   Failure:	Negative
+ * Return:       Success:    Non-negative
+ *           Failure:    Negative
  *
  * Programmer:     Quincey Koziol
  *                 Wednesday, August 15, 2012
@@ -3664,7 +3725,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__facc_fclose_degree_enc(const void *value, void **_pp, size_t *size)
+H5P__facc_fclose_degree_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
 {
     const H5F_close_degree_t *fclose_degree = (const H5F_close_degree_t *)value; /* Create local alias for values */
     uint8_t **pp = (uint8_t **)_pp;
@@ -3685,7 +3746,7 @@ H5P__facc_fclose_degree_enc(const void *value, void **_pp, size_t *size)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5P__facc_fclose_degree_enc() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:       H5P__facc_fclose_degree_dec
  *
@@ -3693,8 +3754,8 @@ H5P__facc_fclose_degree_enc(const void *value, void **_pp, size_t *size)
  *                 degree property in the file access property list
  *                 is decoded.
  *
- * Return:	   Success:	Non-negative
- *		   Failure:	Negative
+ * Return:       Success:    Non-negative
+ *           Failure:    Negative
  *
  * Programmer:     Quincey Koziol
  *                 Wednesday, August 15, 2012
@@ -3720,7 +3781,7 @@ H5P__facc_fclose_degree_dec(const void **_pp, void *_value)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5P__facc_fclose_degree_dec() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:       H5P__facc_multi_type_enc
  *
@@ -3728,8 +3789,8 @@ H5P__facc_fclose_degree_dec(const void **_pp, void *_value)
  *                 memory type property in the file access property list
  *                 is encoded.
  *
- * Return:	   Success:	Non-negative
- *		   Failure:	Negative
+ * Return:       Success:    Non-negative
+ *           Failure:    Negative
  *
  * Programmer:     Quincey Koziol
  *                 Wednesday, August 15, 2012
@@ -3737,7 +3798,7 @@ H5P__facc_fclose_degree_dec(const void **_pp, void *_value)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__facc_multi_type_enc(const void *value, void **_pp, size_t *size)
+H5P__facc_multi_type_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
 {
     const H5FD_mem_t *type = (const H5FD_mem_t *)value; /* Create local alias for values */
     uint8_t **pp = (uint8_t **)_pp;
@@ -3758,7 +3819,7 @@ H5P__facc_multi_type_enc(const void *value, void **_pp, size_t *size)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5P__facc_multi_type_enc() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:       H5P__facc_multi_type_dec
  *
@@ -3766,8 +3827,8 @@ H5P__facc_multi_type_enc(const void *value, void **_pp, size_t *size)
  *                 memory type property in the file access property list
  *                 is decoded.
  *
- * Return:	   Success:	Non-negative
- *		   Failure:	Negative
+ * Return:       Success:    Non-negative
+ *           Failure:    Negative
  *
  * Programmer:     Quincey Koziol
  *                 Wednesday, August 15, 2012
@@ -3793,14 +3854,86 @@ H5P__facc_multi_type_dec(const void **_pp, void *_value)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5P__facc_multi_type_dec() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_core_write_tracking
+ * Function:       H5P__facc_libver_type_enc
  *
- * Purpose:	Enables/disables core VFD write tracking and page
+ * Purpose:        Callback routine which is called whenever the 'low' or
+ *                 'high' bound of library format versions property in the
+ *                 file access property list is encoded.
+ *
+ * Return:       Success:    Non-negative
+ *           Failure:    Negative
+ *
+ * Programmer
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5P__facc_libver_type_enc(const void *value, void **_pp, size_t *size, void* udata)
+{
+    const H5F_libver_t *type = (const H5F_libver_t *)value; /* Create local alias for values */
+    uint8_t **pp = (uint8_t **)_pp;
+    (void)udata;
+
+    FUNC_ENTER_STATIC_NOERR
+
+    /* Sanity check */
+    HDassert(type);
+    HDassert(size);
+
+    /* Encode */
+    if(NULL != *pp)
+        *(*pp)++ = (uint8_t)*type;
+
+    /* Size */
+    (*size)++;
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5P__facc_libver_type_enc() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:       H5P__facc_libver_type_dec
+ *
+ * Purpose:        Callback routine which is called whenever the 'low' or
+ *                 'high' bound of library format versions property in the
+ *                 file access property list is decoded.
+ *
+ * Return:       Success:    Non-negative
+ *           Failure:    Negative
+ *
+ * Programmer:
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5P__facc_libver_type_dec(const void **_pp, void *_value)
+{
+    H5F_libver_t *type = (H5F_libver_t *)_value;
+    const uint8_t **pp = (const uint8_t **)_pp;
+
+    FUNC_ENTER_STATIC_NOERR
+
+    /* Sanity checks */
+    HDassert(pp);
+    HDassert(*pp);
+    HDassert(type);
+
+    /* Decode */
+    *type = (H5F_libver_t)*(*pp)++;
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5P__facc_libver_type_dec() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5Pset_core_write_tracking
+ *
+ * Purpose:    Enables/disables core VFD write tracking and page
  *              aggregation size.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
  * Programmer:  Dana Robinson
  *              Tuesday, April 8, 2014
@@ -3834,14 +3967,14 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pset_core_write_tracking() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_core_write_tracking
+ * Function:    H5Pget_core_write_tracking
  *
- * Purpose:	Gets information about core VFD write tracking and page
+ * Purpose:    Gets information about core VFD write tracking and page
  *              aggregation size.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
  * Programmer:  Dana Robinson
  *              Tuesday, April 8, 2014
@@ -3876,21 +4009,21 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_core_write_tracking() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_metadata_read_attempts
+ * Function:    H5Pset_metadata_read_attempts
  *
- * Purpose:	Sets the # of read attempts in the file access property list
- *		when reading metadata with checksum.
- *		The # of read attempts set via this routine will only apply
- *		when opening a file with SWMR access. 
- *		The # of read attempts set via this routine does not have 
- *		any effect when opening a file with non-SWMR access; for this
- *		case, the # of read attempts will be always be 1.
- *	
- * Return:	Non-negative on success/Negative on failure
+ * Purpose:    Sets the # of read attempts in the file access property list
+ *        when reading metadata with checksum.
+ *        The # of read attempts set via this routine will only apply
+ *        when opening a file with SWMR access.
+ *        The # of read attempts set via this routine does not have
+ *        any effect when opening a file with non-SWMR access; for this
+ *        case, the # of read attempts will be always be 1.
  *
- * Programmer:	Vailin Choi; Sept 2013
+ * Return:    Non-negative on success/Negative on failure
+ *
+ * Programmer:    Vailin Choi; Sept 2013
  *
  *-------------------------------------------------------------------------
  */
@@ -3919,15 +4052,15 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* H5Pset_metadata_read_attempts() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_metadata_read_attempts
+ * Function:    H5Pget_metadata_read_attempts
  *
- * Purpose:	Returns the # of metadata read attempts set in the file access property list. 
+ * Purpose:    Returns the # of metadata read attempts set in the file access property list.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Vailin Choi; Sept 2013
+ * Programmer:    Vailin Choi; Sept 2013
  *
  *-------------------------------------------------------------------------
  */
@@ -3947,29 +4080,29 @@ H5Pget_metadata_read_attempts(hid_t plist_id, unsigned *attempts/*out*/)
         if(NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_ACCESS)))
             HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
 
-	/* Get the # of read attempts set */
+    /* Get the # of read attempts set */
         if(H5P_get(plist, H5F_ACS_METADATA_READ_ATTEMPTS_NAME, attempts) < 0)
             HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get the number of metadata read attempts")
 
-	/* If not set, return the default value */
-	if(*attempts == H5F_ACS_METADATA_READ_ATTEMPTS_DEF)	/* 0 */
-	    *attempts = H5F_METADATA_READ_ATTEMPTS;
+    /* If not set, return the default value */
+    if(*attempts == H5F_ACS_METADATA_READ_ATTEMPTS_DEF)    /* 0 */
+        *attempts = H5F_METADATA_READ_ATTEMPTS;
     } /* end if */
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_metadata_read_attempts() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_obj_flush_cb
+ * Function:    H5Pset_obj_flush_cb
  *
- * Purpose:	Sets the callback function to invoke and the user data when an
- *		object flush occurs in the file.
- *	
- * Return:	Non-negative on success/Negative on failure
+ * Purpose:    Sets the callback function to invoke and the user data when an
+ *        object flush occurs in the file.
  *
- * Programmer:	Vailin Choi; Dec 2013
+ * Return:    Non-negative on success/Negative on failure
+ *
+ * Programmer:    Vailin Choi; Dec 2013
  *
  *-------------------------------------------------------------------------
  */
@@ -4004,16 +4137,16 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* H5Pset_obj_flush_cb() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_obj_flush_cb
+ * Function:    H5Pget_obj_flush_cb
  *
- * Purpose:	Retrieves the callback function and user data set in the
- *		property list for an object flush.
- *	
- * Return:	Non-negative on success/Negative on failure
+ * Purpose:    Retrieves the callback function and user data set in the
+ *        property list for an object flush.
  *
- * Programmer:	Vailin Choi; Dec 2013
+ * Return:    Non-negative on success/Negative on failure
+ *
+ * Programmer:    Vailin Choi; Dec 2013
  *
  *-------------------------------------------------------------------------
  */
@@ -4037,21 +4170,21 @@ H5Pget_object_flush_cb(hid_t plist_id, H5F_flush_cb_t *func, void **udata)
 
     /* Assign return value */
     if(func)
-	*func = flush_info.func;
+    *func = flush_info.func;
     if(udata)
-	*udata = flush_info.udata;
+    *udata = flush_info.udata;
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* H5Pget_obj_flush_cb() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_mdc_log_options
+ * Function:    H5Pset_mdc_log_options
  *
- * Purpose:	Set metadata cache log options.
+ * Purpose:    Set metadata cache log options.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
  *-------------------------------------------------------------------------
  */
@@ -4097,13 +4230,13 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pset_mdc_log_options() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_mdc_log_options
+ * Function:    H5Pget_mdc_log_options
  *
- * Purpose:	Get metadata cache log options. 
+ * Purpose:    Get metadata cache log options.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
  *-------------------------------------------------------------------------
  */
@@ -4152,7 +4285,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_mdc_log_options() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:       H5P_facc_mdc_log_location_enc
  *
@@ -4166,7 +4299,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P_facc_mdc_log_location_enc(const void *value, void **_pp, size_t *size)
+H5P_facc_mdc_log_location_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
 {
     const char *log_location = *(const char * const *)value;
     uint8_t **pp = (uint8_t **)_pp;
@@ -4205,7 +4338,7 @@ H5P_facc_mdc_log_location_enc(const void *value, void **_pp, size_t *size)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5P_facc_mdc_log_location_enc() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:       H5P_facc_mdc_log_location_dec
  *
@@ -4259,7 +4392,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P_facc_mdc_log_location_dec() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5P_facc_mdc_log_location_del
  *
@@ -4282,7 +4415,7 @@ H5P_facc_mdc_log_location_del(hid_t H5_ATTR_UNUSED prop_id, const char H5_ATTR_U
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5P_facc_mdc_log_location_del() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5P_facc_mdc_log_location_copy
  *
@@ -4304,7 +4437,7 @@ H5P_facc_mdc_log_location_copy(const char H5_ATTR_UNUSED *name, size_t H5_ATTR_U
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5P_facc_mdc_log_location_copy() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:       H5P_facc_mdc_log_location_cmp
  *
@@ -4336,7 +4469,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5P_facc_mdc_log_location_cmp() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5P_facc_mdc_log_location_close
  *
@@ -4359,7 +4492,7 @@ H5P_facc_mdc_log_location_close(const char H5_ATTR_UNUSED *name, size_t H5_ATTR_
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5P_facc_mdc_log_location_close() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5Pset_evict_on_close
  *
@@ -4400,14 +4533,14 @@ H5Pset_evict_on_close(hid_t fapl_id, hbool_t evict_on_close)
     if(H5P_set(plist, H5F_ACS_EVICT_ON_CLOSE_FLAG_NAME, &evict_on_close) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set evict on close property")
 #else
-    HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "evict on close is currently not supported in parallel HDF5")
+    HGOTO_ERROR(H5E_PLIST, H5E_UNSUPPORTED, FAIL, "evict on close is currently not supported in parallel HDF5")
 #endif /* H5_HAVE_PARALLEL */
 
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pset_evict_on_close() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5Pget_evict_on_close
  *
@@ -4451,14 +4584,14 @@ done:
 } /* end H5Pget_evict_on_close() */
 
 #ifdef H5_HAVE_PARALLEL
-
+
 /*-------------------------------------------------------------------------
  * Function:       H5P__encode_coll_md_read_flag_t
  *
  * Purpose:        Generic encoding callback routine for 'coll_md_read_flag' properties.
  *
- * Return:	   Success:	Non-negative
- *		   Failure:	Negative
+ * Return:       Success:    Non-negative
+ *           Failure:    Negative
  *
  * Programmer:     Mohamad Chaarawi
  *                 Sunday, June 21, 2015
@@ -4466,7 +4599,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5P__encode_coll_md_read_flag_t(const void *value, void **_pp, size_t *size)
+H5P__encode_coll_md_read_flag_t(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
 {
     const H5P_coll_md_read_flag_t *coll_md_read_flag = (const H5P_coll_md_read_flag_t *)value;
     uint8_t **pp = (uint8_t **)_pp;
@@ -4489,14 +4622,14 @@ H5P__encode_coll_md_read_flag_t(const void *value, void **_pp, size_t *size)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5P__encode_coll_md_read_flag_t() */
 
-
+
 /*-------------------------------------------------------------------------
  * Function:       H5P__decode_coll_md_read_flag_t
  *
  * Purpose:        Generic decoding callback routine for 'coll_md_read_flag' properties.
  *
- * Return:	   Success:	Non-negative
- *		   Failure:	Negative
+ * Return:       Success:    Non-negative
+ *           Failure:    Negative
  *
  * Programmer:     Mohamad Chaarawi
  *                 Sunday, June 21, 2015
@@ -4523,24 +4656,24 @@ H5P__decode_coll_md_read_flag_t(const void **_pp, void *_value)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5P__decode_coll_md_read_flag_t() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_all_coll_metadata_ops
+ * Function:    H5Pset_all_coll_metadata_ops
  *
- * Purpose:	Tell the library whether the metadata read operations will
- *		be done collectively (1) or not (0). Default is independent.
- *		With collective mode, the library will optimize access to
- *		metadata operations on the file.
+ * Purpose:    Tell the library whether the metadata read operations will
+ *        be done collectively (1) or not (0). Default is independent.
+ *        With collective mode, the library will optimize access to
+ *        metadata operations on the file.
  *
- * Note:	This routine accepts file access property lists, link
- *		access property lists, attribute access property lists,
- *		dataset access property lists, group access property lists,
- *		named datatype access property lists,
- *		and dataset transfer property lists.
+ * Note:    This routine accepts file access property lists, link
+ *        access property lists, attribute access property lists,
+ *        dataset access property lists, group access property lists,
+ *        named datatype access property lists,
+ *        and dataset transfer property lists.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Mohamad Chaarawi
+ * Programmer:    Mohamad Chaarawi
  *              Sunday, June 21, 2015
  *
  *-------------------------------------------------------------------------
@@ -4582,21 +4715,21 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pset_all_coll_metadata_ops() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_all_coll_metadata_ops
+ * Function:    H5Pget_all_coll_metadata_ops
  *
- * Purpose:	Gets information about collective metadata read mode.
+ * Purpose:    Gets information about collective metadata read mode.
  *
- * Note:	This routine accepts file access property lists, link
- *		access property lists, attribute access property lists,
- *		dataset access property lists, group access property lists,
- *		named datatype access property lists,
- *		and dataset transfer property lists.
+ * Note:    This routine accepts file access property lists, link
+ *        access property lists, attribute access property lists,
+ *        dataset access property lists, group access property lists,
+ *        named datatype access property lists,
+ *        and dataset transfer property lists.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Mohamad Chaarawi
+ * Programmer:    Mohamad Chaarawi
  *              Sunday, June 21, 2015
  *
  *-------------------------------------------------------------------------
@@ -4640,16 +4773,16 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* H5Pget_all_coll_metadata_ops */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_coll_metadata_write
+ * Function:    H5Pset_coll_metadata_write
  *
- * Purpose:	Tell the library whether the metadata write operations will
- *		be done collectively (1) or not (0). Default is collective.
+ * Purpose:    Tell the library whether the metadata write operations will
+ *        be done collectively (1) or not (0). Default is collective.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Mohamad Chaarawi
+ * Programmer:    Mohamad Chaarawi
  *              Sunday, June 21, 2015
  *
  *-------------------------------------------------------------------------
@@ -4679,15 +4812,15 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pset_coll_metadata_write() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_coll_metadata_write
+ * Function:    H5Pget_coll_metadata_write
  *
- * Purpose:	Gets information about collective metadata write mode.
+ * Purpose:    Gets information about collective metadata write mode.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Mohamad Chaarawi
+ * Programmer:    Mohamad Chaarawi
  *              Sunday, June 21, 2015
  *
  *-------------------------------------------------------------------------
@@ -4717,17 +4850,17 @@ done:
 } /* end H5Pget_coll_metadata_write() */
 #endif /* H5_HAVE_PARALLEL */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pset_page_buffer_size
+ * Function:    H5Pset_page_buffer_size
  *
  * Purpose:     Set the maximum page buffering size. This has to be a
  *              multiple of the page allocation size which must be enabled;
  *              otherwise file create/open will fail.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Mohamad Chaarawi
+ * Programmer:    Mohamad Chaarawi
  *              June 2015
  *
  *-------------------------------------------------------------------------
@@ -4765,15 +4898,15 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pset_page_buffer_size() */
 
-
+
 /*-------------------------------------------------------------------------
- * Function:	H5Pget_page_buffer_size
+ * Function:    H5Pget_page_buffer_size
  *
- * Purpose:	Retrieves the maximum page buffer size.
+ * Purpose:    Retrieves the maximum page buffer size.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:    Non-negative on success/Negative on failure
  *
- * Programmer:	Mohamad Chaarawi
+ * Programmer:    Mohamad Chaarawi
  *              June 2015
  *
  *-------------------------------------------------------------------------

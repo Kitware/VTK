@@ -1,0 +1,7 @@
+NAME
+  VTK::metaio
+LIBRARY_NAME
+  vtkmetaio
+PRIVATE_DEPENDS
+  VTK::zlib
+THIRD_PARTY

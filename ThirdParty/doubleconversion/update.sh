@@ -8,9 +8,10 @@ readonly name="doubleconversion"
 readonly ownership="double-conversion Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/double-conversion.git"
-readonly tag="for/vtk"
+readonly tag="for/vtk-20181025-3.1.1"
 readonly paths="
 AUTHORS
+Changelog
 CMakeLists.vtk.txt
 COPYING
 double-conversion/

@@ -1,0 +1,33 @@
+NAME
+  VTK::RenderingMatplotlib
+LIBRARY_NAME
+  vtkRenderingMatplotlib
+IMPLEMENTS
+  VTK::RenderingFreeType
+DEPENDS
+  VTK::PythonInterpreter
+  VTK::RenderingFreeType
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonTransforms
+  VTK::ImagingCore
+  VTK::Python
+  VTK::RenderingCore
+  VTK::WrappingPythonCore
+TEST_DEPENDS
+  VTK::CommonColor
+  VTK::FiltersGeometry
+  VTK::FiltersModeling
+  VTK::IOExportGL2PS
+  VTK::IOGeometry
+  VTK::IOParallel
+  VTK::InteractionImage
+  VTK::InteractionStyle
+  VTK::InteractionWidgets
+  VTK::RenderingAnnotation
+  VTK::RenderingContextOpenGL2
+  VTK::RenderingGL2PSOpenGL2
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering
+  VTK::ViewsContext2D

@@ -1,0 +1,7 @@
+NAME
+  VTK::glew
+LIBRARY_NAME
+  vtkglew
+DEPENDS
+  VTK::opengl
+THIRD_PARTY

@@ -42,7 +42,7 @@
 int TestOpenQubeMOPACOrbital(int argc, char *argv[])
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/2h2o.out");
+    argc, argv, "Data/2h2o.aux");
 
   vtkNew<vtkOpenQubeMoleculeSource> oq;
   oq->SetFileName(fname);

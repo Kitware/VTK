@@ -338,7 +338,7 @@ HDfprintf(stderr, "%s: end_row = %u, end_col = %u, end_entry = %u\n", "H5HF_sect
 
     /* Check for multi-row span */
     if(start_row != end_row) {
-        /* Accomodate partial starting row */
+        /* Accommodate partial starting row */
         if(start_col > 0) {
             acc_span_size = dtable->row_block_size[start_row] *
                     (dtable->cparam.width - start_col);
@@ -352,7 +352,7 @@ HDfprintf(stderr, "%s: end_row = %u, end_col = %u, end_entry = %u\n", "H5HF_sect
             start_row++;
         } /* end while */
 
-        /* Accomodate partial ending row */
+        /* Accommodate partial ending row */
         acc_span_size += dtable->row_block_size[start_row] *
                 (end_col + 1);
     } /* end if */

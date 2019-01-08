@@ -1,5 +1,3 @@
-include(vtkQt)
-
 vtk_add_test_cxx(vtkGUISupportQtCxxTests tests
   NO_VALID
   TestQtDebugLeaksView.cxx
@@ -28,15 +26,14 @@ if(NOT VTK_LEGACY_REMOVE)
   endif()
 endif()
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
-include_directories(${Qt5Widgets_INCLUDE_DIRS})
-add_definitions(${Qt5Widgets_DEFINITIONS})
+find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
 
 vtk_test_cxx_executable(vtkGUISupportQtCxxTests tests
   QTestApp.cxx)
 
-set_target_properties(vtkGUISupportQtCxxTests PROPERTIES
-  COMPILE_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+target_link_libraries(vtkGUISupportQtCxxTests
+  PRIVATE
+    Qt5::Widgets)
 
-set_tests_properties(vtkGUISupportQtCxx-TestQVTKOpenGLWidgetPicking
+set_tests_properties(VTK::GUISupportQtCxx-TestQVTKOpenGLWidgetPicking
  PROPERTIES RUN_SERIAL ON)

@@ -1,0 +1,22 @@
+NAME
+  VTK::RenderingGL2PSOpenGL2
+LIBRARY_NAME
+  vtkRenderingGL2PSOpenGL2
+CONDITION
+  NOT ANDROID AND NOT APPLE_IOS
+IMPLEMENTS
+  VTK::RenderingOpenGL2
+DEPENDS
+  VTK::RenderingOpenGL2
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonMath
+  VTK::RenderingCore
+  VTK::RenderingOpenGL2
+  VTK::gl2ps
+  VTK::opengl
+TEST_DEPENDS
+  VTK::InteractionStyle
+  VTK::TestingRendering
+  VTK::gl2ps

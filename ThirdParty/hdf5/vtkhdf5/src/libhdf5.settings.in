@@ -28,6 +28,7 @@ Linking Options:
                      AM_LDFLAGS: @AM_LDFLAGS@
                 Extra libraries: @LIBS@
                        Archiver: @AR@
+                       AR_FLAGS: @AR_FLAGS@
                          Ranlib: @RANLIB@
 
 Languages:
@@ -66,20 +67,22 @@ Languages:
 
 Features:
 ---------
-                  Parallel HDF5: @PARALLEL@
-             High-level library: @HDF5_HL@
-                   Threadsafety: @THREADSAFE@
-            Default API mapping: @DEFAULT_API_VERSION@
- With deprecated public symbols: @DEPRECATED_SYMBOLS@
-         I/O filters (external): @EXTERNAL_FILTERS@
-                            MPE: @MPE@
-                     Direct VFD: @DIRECT_VFD@
-                        dmalloc: @HAVE_DMALLOC@
- Packages w/ extra debug output: @INTERNAL_DEBUG_OUTPUT@
-                    API tracing: @TRACE_API@
-           Using memory checker: @USINGMEMCHECKER@
-Memory allocation sanity checks: @MEMORYALLOCSANITYCHECK@
-            Metadata trace file: @METADATATRACEFILE@
-         Function stack tracing: @CODESTACK@
-      Strict file format checks: @STRICT_FORMAT_CHECKS@
-   Optimization instrumentation: @INSTRUMENT_LIBRARY@
+                   Parallel HDF5: @PARALLEL@
+Parallel Filtered Dataset Writes: @PARALLEL_FILTERED_WRITES@
+              Large Parallel I/O: @LARGE_PARALLEL_IO@
+              High-level library: @HDF5_HL@
+                    Threadsafety: @THREADSAFE@
+             Default API mapping: @DEFAULT_API_VERSION@
+  With deprecated public symbols: @DEPRECATED_SYMBOLS@
+          I/O filters (external): @EXTERNAL_FILTERS@
+                             MPE: @MPE@
+                      Direct VFD: @DIRECT_VFD@
+                         dmalloc: @HAVE_DMALLOC@
+  Packages w/ extra debug output: @INTERNAL_DEBUG_OUTPUT@
+                     API tracing: @TRACE_API@
+            Using memory checker: @USINGMEMCHECKER@
+ Memory allocation sanity checks: @MEMORYALLOCSANITYCHECK@
+             Metadata trace file: @METADATATRACEFILE@
+          Function stack tracing: @CODESTACK@
+       Strict file format checks: @STRICT_FORMAT_CHECKS@
+    Optimization instrumentation: @INSTRUMENT_LIBRARY@

@@ -150,7 +150,7 @@ H5HF_op_write(const void *obj, size_t obj_len, void *op_data)
  *-------------------------------------------------------------------------
  */
 H5HF_t *
-H5HF_create(H5F_t *f, hid_t dxpl_id, const H5HF_create_t *cparam)
+H5HF_create(H5F_t *f, const H5HF_create_t *cparam)
 {
     H5HF_t *fh = NULL;          /* Pointer to new fractal heap */
     H5HF_hdr_t *hdr = NULL;     /* The fractal heap header information */
@@ -166,7 +166,7 @@ H5HF_create(H5F_t *f, hid_t dxpl_id, const H5HF_create_t *cparam)
     HDassert(cparam);
 
     /* Create shared fractal heap header */
-    if(HADDR_UNDEF == (fh_addr = H5HF_hdr_create(f, dxpl_id, cparam)))
+    if(HADDR_UNDEF == (fh_addr = H5HF_hdr_create(f, cparam)))
 	HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, NULL, "can't create fractal heap header")
 
     /* Allocate fractal heap wrapper */
@@ -174,7 +174,7 @@ H5HF_create(H5F_t *f, hid_t dxpl_id, const H5HF_create_t *cparam)
         HGOTO_ERROR(H5E_HEAP, H5E_CANTALLOC, NULL, "memory allocation failed for fractal heap info")
 
     /* Lock the heap header into memory */
-    if(NULL == (hdr = H5HF_hdr_protect(f, dxpl_id, fh_addr, H5AC__NO_FLAGS_SET)))
+    if(NULL == (hdr = H5HF__hdr_protect(f, fh_addr, H5AC__NO_FLAGS_SET)))
         HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, NULL, "unable to protect fractal heap header")
 
     /* Point fractal heap wrapper at header and bump it's ref count */
@@ -193,10 +193,10 @@ H5HF_create(H5F_t *f, hid_t dxpl_id, const H5HF_create_t *cparam)
     ret_value = fh;
 
 done:
-    if(hdr && H5AC_unprotect(f, dxpl_id, H5AC_FHEAP_HDR, fh_addr, hdr, H5AC__NO_FLAGS_SET) < 0)
+    if(hdr && H5AC_unprotect(f, H5AC_FHEAP_HDR, fh_addr, hdr, H5AC__NO_FLAGS_SET) < 0)
         HDONE_ERROR(H5E_HEAP, H5E_CANTUNPROTECT, NULL, "unable to release fractal heap header")
     if(!ret_value && fh)
-        if(H5HF_close(fh, dxpl_id) < 0)
+        if(H5HF_close(fh) < 0)
             HDONE_ERROR(H5E_HEAP, H5E_CANTCLOSEOBJ, NULL, "unable to close fractal heap")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -218,7 +218,7 @@ done:
  *-------------------------------------------------------------------------
  */
 H5HF_t *
-H5HF_open(H5F_t *f, hid_t dxpl_id, haddr_t fh_addr)
+H5HF_open(H5F_t *f, haddr_t fh_addr)
 {
     H5HF_t *fh = NULL;          /* Pointer to new fractal heap */
     H5HF_hdr_t *hdr = NULL;     /* The fractal heap header information */
@@ -233,7 +233,7 @@ H5HF_open(H5F_t *f, hid_t dxpl_id, haddr_t fh_addr)
     HDassert(H5F_addr_defined(fh_addr));
 
     /* Load the heap header into memory */
-    if(NULL == (hdr = H5HF_hdr_protect(f, dxpl_id, fh_addr, H5AC__READ_ONLY_FLAG)))
+    if(NULL == (hdr = H5HF__hdr_protect(f, fh_addr, H5AC__READ_ONLY_FLAG)))
         HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, NULL, "unable to protect fractal heap header")
 
     /* Check for pending heap deletion */
@@ -260,10 +260,10 @@ H5HF_open(H5F_t *f, hid_t dxpl_id, haddr_t fh_addr)
     ret_value = fh;
 
 done:
-    if(hdr && H5AC_unprotect(f, dxpl_id, H5AC_FHEAP_HDR, fh_addr, hdr, H5AC__NO_FLAGS_SET) < 0)
+    if(hdr && H5AC_unprotect(f, H5AC_FHEAP_HDR, fh_addr, hdr, H5AC__NO_FLAGS_SET) < 0)
         HDONE_ERROR(H5E_HEAP, H5E_CANTUNPROTECT, NULL, "unable to release fractal heap header")
     if(!ret_value && fh)
-        if(H5HF_close(fh, dxpl_id) < 0)
+        if(H5HF_close(fh) < 0)
             HDONE_ERROR(H5E_HEAP, H5E_CANTCLOSEOBJ, NULL, "unable to close fractal heap")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -347,8 +347,7 @@ H5HF_get_heap_addr(const H5HF_t *fh, haddr_t *heap_addr_p)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5HF_insert(H5HF_t *fh, hid_t dxpl_id, size_t size, const void *obj,
-    void *id/*out*/)
+H5HF_insert(H5HF_t *fh, size_t size, const void *obj, void *id/*out*/)
 {
     H5HF_hdr_t *hdr = NULL;                  /* The fractal heap header information */
     herr_t ret_value = SUCCEED;
@@ -374,7 +373,7 @@ H5HF_insert(H5HF_t *fh, hid_t dxpl_id, size_t size, const void *obj,
     if(size > hdr->max_man_size) {
         /* Store 'huge' object in heap */
         /* (Casting away const OK - QAK) */
-        if(H5HF_huge_insert(hdr, dxpl_id, size, (void *)obj, id) < 0)
+        if(H5HF__huge_insert(hdr, size, (void *)obj, id) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTINSERT, FAIL, "can't store 'huge' object in fractal heap")
     } /* end if */
     /* Check for 'tiny' object */
@@ -390,7 +389,7 @@ HGOTO_ERROR(H5E_HEAP, H5E_UNSUPPORTED, FAIL, "'write once' managed blocks not su
         } /* end if */
         else {
             /* Allocate space for object in 'managed' heap */
-            if(H5HF_man_insert(hdr, dxpl_id, size, obj, id) < 0)
+            if(H5HF__man_insert(hdr, size, obj, id) < 0)
                 HGOTO_ERROR(H5E_HEAP, H5E_CANTINSERT, FAIL, "can't store 'managed' object in fractal heap")
         } /* end else */
     } /* end else */
@@ -414,7 +413,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5HF_get_obj_len(H5HF_t *fh, hid_t dxpl_id, const void *_id, size_t *obj_len_p)
+H5HF_get_obj_len(H5HF_t *fh, const void *_id, size_t *obj_len_p)
 {
     const uint8_t *id = (const uint8_t *)_id;   /* Object ID */
     uint8_t id_flags;                   /* Heap ID flag bits */
@@ -445,7 +444,7 @@ H5HF_get_obj_len(H5HF_t *fh, hid_t dxpl_id, const void *_id, size_t *obj_len_p)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't get 'managed' object's length")
     } /* end if */
     else if((id_flags & H5HF_ID_TYPE_MASK) == H5HF_ID_TYPE_HUGE) {
-        if(H5HF_huge_get_obj_len(fh->hdr, dxpl_id, id, obj_len_p) < 0)
+        if(H5HF__huge_get_obj_len(fh->hdr, id, obj_len_p) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't get 'huge' object's length")
     } /* end if */
     else if((id_flags & H5HF_ID_TYPE_MASK) == H5HF_ID_TYPE_TINY) {
@@ -476,7 +475,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5HF_get_obj_off(H5HF_t *fh, hid_t dxpl_id, const void *_id, hsize_t *obj_off_p)
+H5HF_get_obj_off(H5HF_t *fh, const void *_id, hsize_t *obj_off_p)
 {
     const uint8_t *id = (const uint8_t *)_id;   /* Object ID */
     uint8_t id_flags;                   /* Heap ID flag bits */
@@ -507,7 +506,7 @@ H5HF_get_obj_off(H5HF_t *fh, hid_t dxpl_id, const void *_id, hsize_t *obj_off_p)
     } /* end if */
     else if((id_flags & H5HF_ID_TYPE_MASK) == H5HF_ID_TYPE_HUGE) {
         /* Huge objects are located directly in the file */
-        if(H5HF__huge_get_obj_off(fh->hdr, dxpl_id, id, obj_off_p) < 0)
+        if(H5HF__huge_get_obj_off(fh->hdr, id, obj_off_p) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't get 'huge' object's offset")
     } /* end if */
     else if((id_flags & H5HF_ID_TYPE_MASK) == H5HF_ID_TYPE_TINY) {
@@ -538,7 +537,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5HF_read(H5HF_t *fh, hid_t dxpl_id, const void *_id, void *obj/*out*/)
+H5HF_read(H5HF_t *fh, const void *_id, void *obj/*out*/)
 {
     const uint8_t *id = (const uint8_t *)_id;   /* Object ID */
     uint8_t id_flags;                   /* Heap ID flag bits */
@@ -566,12 +565,12 @@ H5HF_read(H5HF_t *fh, hid_t dxpl_id, const void *_id, void *obj/*out*/)
     /* Check type of object in heap */
     if((id_flags & H5HF_ID_TYPE_MASK) == H5HF_ID_TYPE_MAN) {
         /* Read object from managed heap blocks */
-        if(H5HF_man_read(fh->hdr, dxpl_id, id, obj) < 0)
+        if(H5HF__man_read(fh->hdr, id, obj) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't read object from fractal heap")
     } /* end if */
     else if((id_flags & H5HF_ID_TYPE_MASK) == H5HF_ID_TYPE_HUGE) {
         /* Read 'huge' object from file */
-        if(H5HF_huge_read(fh->hdr, dxpl_id, id, obj) < 0)
+        if(H5HF__huge_read(fh->hdr, id, obj) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't read 'huge' object from fractal heap")
     } /* end if */
     else if((id_flags & H5HF_ID_TYPE_MASK) == H5HF_ID_TYPE_TINY) {
@@ -615,8 +614,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5HF_write(H5HF_t *fh, hid_t dxpl_id, void *_id, hbool_t H5_ATTR_UNUSED *id_changed,
-    const void *obj)
+H5HF_write(H5HF_t *fh, void *_id, hbool_t H5_ATTR_UNUSED *id_changed, const void *obj)
 {
     uint8_t *id = (uint8_t *)_id;       /* Object ID */
     uint8_t id_flags;                   /* Heap ID flag bits */
@@ -645,12 +643,12 @@ H5HF_write(H5HF_t *fh, hid_t dxpl_id, void *_id, hbool_t H5_ATTR_UNUSED *id_chan
     if((id_flags & H5HF_ID_TYPE_MASK) == H5HF_ID_TYPE_MAN) {
         /* Operate on object from managed heap blocks */
         /* (ID can't change and modifying object is "easy" to manage) */
-        if(H5HF_man_write(fh->hdr, dxpl_id, id, obj) < 0)
+        if(H5HF__man_write(fh->hdr, id, obj) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_WRITEERROR, FAIL, "can't write to 'managed' heap object")
     } /* end if */
     else if((id_flags & H5HF_ID_TYPE_MASK) == H5HF_ID_TYPE_HUGE) {
         /* Operate on "huge" object */
-        if(H5HF_huge_write(fh->hdr, dxpl_id, id, obj) < 0)
+        if(H5HF__huge_write(fh->hdr, id, obj) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_WRITEERROR, FAIL, "can't write to 'huge' heap object")
     } /* end if */
     else if((id_flags & H5HF_ID_TYPE_MASK) == H5HF_ID_TYPE_TINY) {
@@ -687,8 +685,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5HF_op(H5HF_t *fh, hid_t dxpl_id, const void *_id, H5HF_operator_t op,
-    void *op_data)
+H5HF_op(H5HF_t *fh, const void *_id, H5HF_operator_t op, void *op_data)
 {
     const uint8_t *id = (const uint8_t *)_id;   /* Object ID */
     uint8_t id_flags;                   /* Heap ID flag bits */
@@ -716,12 +713,12 @@ H5HF_op(H5HF_t *fh, hid_t dxpl_id, const void *_id, H5HF_operator_t op,
     /* Check type of object in heap */
     if((id_flags & H5HF_ID_TYPE_MASK) == H5HF_ID_TYPE_MAN) {
         /* Operate on object from managed heap blocks */
-        if(H5HF_man_op(fh->hdr, dxpl_id, id, op, op_data) < 0)
+        if(H5HF__man_op(fh->hdr, id, op, op_data) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTOPERATE, FAIL, "can't operate on object from fractal heap")
     } /* end if */
     else if((id_flags & H5HF_ID_TYPE_MASK) == H5HF_ID_TYPE_HUGE) {
         /* Operate on 'huge' object from file */
-        if(H5HF_huge_op(fh->hdr, dxpl_id, id, op, op_data) < 0)
+        if(H5HF__huge_op(fh->hdr, id, op, op_data) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTOPERATE, FAIL, "can't operate on 'huge' object from fractal heap")
     } /* end if */
     else if((id_flags & H5HF_ID_TYPE_MASK) == H5HF_ID_TYPE_TINY) {
@@ -753,7 +750,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5HF_remove(H5HF_t *fh, hid_t dxpl_id, const void *_id)
+H5HF_remove(H5HF_t *fh, const void *_id)
 {
     const uint8_t *id = (const uint8_t *)_id;   /* Object ID */
     uint8_t id_flags;                   /* Heap ID flag bits */
@@ -781,12 +778,12 @@ H5HF_remove(H5HF_t *fh, hid_t dxpl_id, const void *_id)
     /* Check type of object in heap */
     if((id_flags & H5HF_ID_TYPE_MASK) == H5HF_ID_TYPE_MAN) {
         /* Remove object from managed heap blocks */
-        if(H5HF_man_remove(fh->hdr, dxpl_id, id) < 0)
+        if(H5HF__man_remove(fh->hdr, id) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTREMOVE, FAIL, "can't remove object from fractal heap")
     } /* end if */
     else if((id_flags & H5HF_ID_TYPE_MASK) == H5HF_ID_TYPE_HUGE) {
         /* Remove 'huge' object from file & v2 B-tree tracker */
-        if(H5HF_huge_remove(fh->hdr, dxpl_id, id) < 0)
+        if(H5HF__huge_remove(fh->hdr, id) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTREMOVE, FAIL, "can't remove 'huge' object from fractal heap")
     } /* end if */
     else if((id_flags & H5HF_ID_TYPE_MASK) == H5HF_ID_TYPE_TINY) {
@@ -818,7 +815,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5HF_close(H5HF_t *fh, hid_t dxpl_id)
+H5HF_close(H5HF_t *fh)
 {
     hbool_t pending_delete = FALSE;     /* Whether the heap is pending deletion */
     haddr_t heap_addr = HADDR_UNDEF;    /* Address of heap (for deletion) */
@@ -842,7 +839,7 @@ H5HF_close(H5HF_t *fh, hid_t dxpl_id)
          *      a reference loop and the objects couldn't be removed from
          *      the metadata cache - QAK)
          */
-        if(H5HF_space_close(fh->hdr, dxpl_id) < 0)
+        if(H5HF__space_close(fh->hdr) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTRELEASE, FAIL, "can't release free space info")
 
         /* Reset the block iterator, if necessary */
@@ -860,7 +857,7 @@ H5HF_close(H5HF_t *fh, hid_t dxpl_id)
          *      has the address of an object in the file, which might be
          *      modified by the shutdown routine - QAK)
          */
-        if(H5HF_huge_term(fh->hdr, dxpl_id) < 0)
+        if(H5HF__huge_term(fh->hdr) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTRELEASE, FAIL, "can't release 'huge' object info")
 
         /* Check for pending heap deletion */
@@ -885,11 +882,11 @@ H5HF_close(H5HF_t *fh, hid_t dxpl_id)
         H5HF_hdr_t *hdr;            /* Another pointer to fractal heap header */
 
         /* Lock the heap header into memory */
-        if(NULL == (hdr = H5HF_hdr_protect(fh->f, dxpl_id, heap_addr, H5AC__NO_FLAGS_SET)))
+        if(NULL == (hdr = H5HF__hdr_protect(fh->f, heap_addr, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap header")
 
         /* Delete heap, starting with header (unprotects header) */
-        if(H5HF_hdr_delete(hdr, dxpl_id) < 0)
+        if(H5HF__hdr_delete(hdr) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTDELETE, FAIL, "unable to delete fractal heap")
     } /* end if */
 
@@ -915,7 +912,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5HF_delete(H5F_t *f, hid_t dxpl_id, haddr_t fh_addr)
+H5HF_delete(H5F_t *f, haddr_t fh_addr)
 {
     H5HF_hdr_t *hdr = NULL;             /* The fractal heap header information */
     herr_t ret_value = SUCCEED;         /* Return value */
@@ -929,7 +926,7 @@ H5HF_delete(H5F_t *f, hid_t dxpl_id, haddr_t fh_addr)
     HDassert(H5F_addr_defined(fh_addr));
 
     /* Lock the heap header into memory */
-    if(NULL == (hdr = H5HF_hdr_protect(f, dxpl_id, fh_addr, H5AC__NO_FLAGS_SET)))
+    if(NULL == (hdr = H5HF__hdr_protect(f, fh_addr, H5AC__NO_FLAGS_SET)))
         HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap header")
 
     /* Check for files using shared heap header */
@@ -937,14 +934,14 @@ H5HF_delete(H5F_t *f, hid_t dxpl_id, haddr_t fh_addr)
         hdr->pending_delete = TRUE;
     else {
         /* Delete heap now, starting with header (unprotects header) */
-        if(H5HF_hdr_delete(hdr, dxpl_id) < 0)
+        if(H5HF__hdr_delete(hdr) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTDELETE, FAIL, "unable to delete fractal heap")
         hdr = NULL;
     } /* end if */
 
 done:
     /* Unprotect the header, if an error occurred */
-    if(hdr && H5AC_unprotect(f, dxpl_id, H5AC_FHEAP_HDR, fh_addr, hdr, H5AC__NO_FLAGS_SET) < 0)
+    if(hdr && H5AC_unprotect(f, H5AC_FHEAP_HDR, fh_addr, hdr, H5AC__NO_FLAGS_SET) < 0)
         HDONE_ERROR(H5E_HEAP, H5E_CANTUNPROTECT, FAIL, "unable to release fractal heap header")
 
     FUNC_LEAVE_NOAPI(ret_value)

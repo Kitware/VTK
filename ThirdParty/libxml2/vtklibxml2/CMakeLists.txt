@@ -1,18 +1,8 @@
-PROJECT(vtklibxml2 C)
-INCLUDE_REGULAR_EXPRESSION("^.*$")
-
 SET(PACKAGE "vtklibxml2")
 SET(VERSION "2.6.27")
 SET(LIBXML_VERSION_NUMBER 20627)
 SET(LIBXML_VERSION_EXTRA "")
 SET(MODULE_EXTENSION ${CMAKE_SHARED_MODULE_SUFFIX})
-
-SET(PACKAGE_TARNAME "")
-SET(PACKAGE_BUGREPORT " ")
-SET(PACKAGE_NAME "")
-SET(PACKAGE_VERSION "")
-SET(PACKAGE_STRING "")
-SET(PACKAGE_BUGREPORT "")
 
 INCLUDE(CheckLibraryExists)
 INCLUDE(CheckIncludeFile)
@@ -36,18 +26,7 @@ MACRO(CHECK_LIBRARY_EXISTS_CONCAT LIBRARY SYMBOL VARIABLE)
   ENDIF()
 ENDMACRO()
 
-CHECK_LIBRARY_EXISTS_CONCAT("dl"       dlopen         HAVE_LIBDL)
 CHECK_LIBRARY_EXISTS_CONCAT("dld"      shl_load       HAVE_SHLLOAD)
-# VTK does not use the read line functionality of libxml2, so don't
-# try and find these libraries.  It creates extra dependencies on 
-# executables and libraries.  This might cause trouble when creating
-# packages or rpm's.
-
-#CHECK_LIBRARY_EXISTS_CONCAT("history"  append_history HAVE_LIBHISTORY)
-#CHECK_LIBRARY_EXISTS_CONCAT("readline" readline       HAVE_LIBREADLINE)
-IF(NOT vtkzlib_LIBRARIES)
-  CHECK_LIBRARY_EXISTS_CONCAT("z"      inflateEnd     HAVE_LIBZ)
-ENDIF()
 
 # Use needed system libraries.
 SET(LIBXML2_LIBS ${LIBXML2_LIBS} ${CMAKE_THREAD_LIBS} ${CMAKE_DL_LIBS})
@@ -63,9 +42,9 @@ SET(CMAKE_REQUIRED_LIBRARIES ${LIBXML2_LIBS})
 SET(CMAKE_REQUIRED_DEFINITIONS "-D_GNU_SOURCE")
 
 # Use VTK's zlib if we are building in the tree.
-IF(vtkzlib_LIBRARIES)
+IF(TARGET VTK::zlib)
   SET(HAVE_LIBZ 1)
-  SET(LIBXML2_LIBS ${vtkzlib_LIBRARIES} ${LIBXML2_LIBS})
+  SET(LIBXML2_LIBS VTK::zlib ${LIBXML2_LIBS})
 ENDIF()
 
 # Check if header file exists and add it to the list.
@@ -76,98 +55,42 @@ MACRO(CHECK_INCLUDE_FILE_CONCAT FILE VARIABLE)
   ENDIF()
 ENDMACRO()
 
-# Check for headers not actually needed for the configured header but
-# that may be needed to include the other headers tested.
-CHECK_INCLUDE_FILE_CONCAT("stdio.h"          HAVE_STDIO_H)
-CHECK_INCLUDE_FILE_CONCAT("stddef.h"         HAVE_STDDEF_H)
-
 CHECK_INCLUDE_FILE_CONCAT("sys/types.h"      HAVE_SYS_TYPES_H)
-CHECK_INCLUDE_FILE_CONCAT("inttypes.h"       HAVE_INTTYPES_H)
 CHECK_INCLUDE_FILE_CONCAT("dlfcn.h"          HAVE_DLFCN_H)
 CHECK_INCLUDE_FILE_CONCAT("fcntl.h"          HAVE_FCNTL_H)
 CHECK_INCLUDE_FILE_CONCAT("malloc.h"         HAVE_MALLOC_H)
-CHECK_INCLUDE_FILE_CONCAT("memory.h"         HAVE_MEMORY_H)
-CHECK_INCLUDE_FILE_CONCAT("netdb.h"          HAVE_NETDB_H)
+CHECK_INCLUDE_FILE_CONCAT("inttypes.h"       HAVE_INTTYPES_H)
 CHECK_INCLUDE_FILE_CONCAT("limits.h"         HAVE_LIMITS_H)
-CHECK_INCLUDE_FILE_CONCAT("sys/socket.h"     HAVE_SYS_SOCKET_H)
-CHECK_INCLUDE_FILE_CONCAT("netinet/in.h"     HAVE_NETINET_IN_H)
-CHECK_INCLUDE_FILE_CONCAT("sys/select.h"     HAVE_SYS_SELECT_H)
 CHECK_INCLUDE_FILE_CONCAT("stdint.h"         HAVE_STDINT_H)
 CHECK_INCLUDE_FILE_CONCAT("stdlib.h"         HAVE_STDLIB_H)
 CHECK_INCLUDE_FILE_CONCAT("string.h"         HAVE_STRING_H)
-CHECK_INCLUDE_FILE_CONCAT("strings.h"        HAVE_STRINGS_H)
 CHECK_INCLUDE_FILE_CONCAT("sys/stat.h"       HAVE_SYS_STAT_H)
-CHECK_INCLUDE_FILE_CONCAT("sys/time.h"       HAVE_SYS_TIME_H)
 CHECK_INCLUDE_FILE_CONCAT("time.h"           HAVE_TIME_H)
 CHECK_INCLUDE_FILE_CONCAT("unistd.h"         HAVE_UNISTD_H)
 CHECK_INCLUDE_FILE_CONCAT("signal.h"         HAVE_SIGNAL_H)
 CHECK_INCLUDE_FILE_CONCAT("errno.h"          HAVE_ERRNO_H)
 CHECK_INCLUDE_FILE_CONCAT("ansidecl.h"       HAVE_ANSIDECL_H)
-CHECK_INCLUDE_FILE_CONCAT("arpa/inet.h"      HAVE_ARPA_INET_H)
-CHECK_INCLUDE_FILE_CONCAT("arpa/nameser.h"   HAVE_ARPA_NAMESER_H)
 CHECK_INCLUDE_FILE_CONCAT("ctype.h"          HAVE_CTYPE_H)
-CHECK_INCLUDE_FILE_CONCAT("dirent.h"         HAVE_DIRENT_H)
 CHECK_INCLUDE_FILE_CONCAT("dl.h"             HAVE_DL_H)
 CHECK_INCLUDE_FILE_CONCAT("float.h"          HAVE_FLOAT_H)
-CHECK_INCLUDE_FILE_CONCAT("fp_class.h"       HAVE_FP_CLASS_H)
-CHECK_INCLUDE_FILE_CONCAT("ieeefp.h"         HAVE_IEEEFP_H)
 CHECK_INCLUDE_FILE_CONCAT("math.h"           HAVE_MATH_H)
-CHECK_INCLUDE_FILE_CONCAT("nan.h"            HAVE_NAN_H)
-CHECK_INCLUDE_FILE_CONCAT("ndir.h"           HAVE_NDIR_H)
 CHECK_INCLUDE_FILE_CONCAT("pthread.h"        HAVE_PTHREAD_H)
-CHECK_INCLUDE_FILE_CONCAT("resolv.h"         HAVE_RESOLV_H)
-CHECK_INCLUDE_FILE_CONCAT("stdarg.h"         HAVE_STDARG_H)
-CHECK_INCLUDE_FILE_CONCAT("sys/mman.h"       HAVE_SYS_MMAN_H)
-CHECK_INCLUDE_FILE_CONCAT("sys/timeb.h"      HAVE_SYS_TIMEB_H)
 
-CHECK_SYMBOL_EXISTS(finite        "${LIBXML2_INCLUDES}" HAVE_FINITE)
-CHECK_SYMBOL_EXISTS(fpclass       "${LIBXML2_INCLUDES}" HAVE_FPCLASS)
-CHECK_SYMBOL_EXISTS(fp_class      "${LIBXML2_INCLUDES}" HAVE_FP_CLASS)
-CHECK_SYMBOL_EXISTS(fprintf       "${LIBXML2_INCLUDES}" HAVE_FPRINTF)
-CHECK_SYMBOL_EXISTS(ftime         "${LIBXML2_INCLUDES}" HAVE_FTIME)
-CHECK_SYMBOL_EXISTS(gettimeofday  "${LIBXML2_INCLUDES}" HAVE_GETTIMEOFDAY)
 CHECK_SYMBOL_EXISTS(localtime     "${LIBXML2_INCLUDES}" HAVE_LOCALTIME)
-CHECK_SYMBOL_EXISTS(printf        "${LIBXML2_INCLUDES}" HAVE_PRINTF)
-CHECK_SYMBOL_EXISTS(sscanf        "${LIBXML2_INCLUDES}" HAVE_SSCANF)
-CHECK_SYMBOL_EXISTS(sprintf       "${LIBXML2_INCLUDES}" HAVE_SPRINTF)
-CHECK_SYMBOL_EXISTS(snprintf      "${LIBXML2_INCLUDES}" HAVE_SNPRINTF)
-CHECK_SYMBOL_EXISTS(signal        "${LIBXML2_INCLUDES}" HAVE_SIGNAL)
-CHECK_SYMBOL_EXISTS(strdup        "${LIBXML2_INCLUDES}" HAVE_STRDUP)
-CHECK_SYMBOL_EXISTS(strndup       "${LIBXML2_INCLUDES}" HAVE_STRNDUP)
-CHECK_SYMBOL_EXISTS(strerror      "${LIBXML2_INCLUDES}" HAVE_STRERROR)
 CHECK_SYMBOL_EXISTS(strftime      "${LIBXML2_INCLUDES}" HAVE_STRFTIME)
+CHECK_SYMBOL_EXISTS(snprintf      "${LIBXML2_INCLUDES}" HAVE_SNPRINTF)
 CHECK_SYMBOL_EXISTS(stat          "${LIBXML2_INCLUDES}" HAVE_STAT)
 CHECK_SYMBOL_EXISTS(_stat         "${LIBXML2_INCLUDES}" HAVE__STAT)
-CHECK_SYMBOL_EXISTS(vfprintf      "${LIBXML2_INCLUDES}" HAVE_VFPRINTF)
 CHECK_SYMBOL_EXISTS(vsnprintf     "${LIBXML2_INCLUDES}" HAVE_VSNPRINTF)
-CHECK_SYMBOL_EXISTS(vsprintf      "${LIBXML2_INCLUDES}" HAVE_VSPRINTF)
 
-LIBXML2_PLATFORM_C_TEST(HAVE_GETADDRINFO "Checking for getaddrinfo." DIRECT)
-LIBXML2_PLATFORM_C_TEST(HAVE_SOCKLEN_T   "Checking for socklen_t" DIRECT)
-LIBXML2_PLATFORM_C_TEST(HAVE_SYS_DIR_H   "Checking for DIR in sys/dir.h" DIRECT)
-LIBXML2_PLATFORM_C_TEST(HAVE_SYS_NDIR_H  "Checking for DIR in sys/ndir.h" DIRECT)
 LIBXML2_PLATFORM_C_TEST(HAVE_VA_COPY     "Checking for va_copy" DIRECT)
 LIBXML2_PLATFORM_C_TEST(HAVE___VA_COPY   "Checking for __va_copy" DIRECT)
-LIBXML2_PLATFORM_C_TEST(SUPPORT_IP6      "Checking for ipv6 support." DIRECT)
 
-# Use VTK's zlib if we are building in the tree.
-IF(vtkzlib_LIBRARIES)
-  SET(HAVE_VTK_ZLIB_H 1)
-  SET(HAVE_ZLIB_H 1)
-ELSE()
-  CHECK_INCLUDE_FILE_CONCAT("zlib.h"           HAVE_ZLIB_H)
-ENDIF()
-
-IF(HAVE_SOCKLEN_T)
-  SET(XML_SOCKLEN_T "socklen_t")
-ELSE()
-  SET(XML_SOCKLEN_T)
-ENDIF()
-SET(_WINSOCKAPI_)
-
+set(HAVE_ZLIB_H 1)
 
 SET(WITH_TRIO 0) # some kind of 3rd party library
 SET(WITH_THREADS 1)
+SET(WITH_THREAD_ALLOC 1)
 SET(WITH_TREE 1)
 SET(WITH_OUTPUT 1)
 SET(WITH_PUSH 1)
@@ -175,11 +98,11 @@ SET(WITH_READER 1)
 SET(WITH_PATTERN 1)
 SET(WITH_WRITER 1)
 SET(WITH_SAX1 1)
-SET(WITH_FTP 0)  # fix socket API
-SET(WITH_HTTP 0) # fix socket API
+SET(WITH_FTP 0)
+SET(WITH_HTTP 0)
 SET(WITH_VALID 1)
 SET(WITH_HTML 1)
-SET(WITH_LEGACY 1)
+SET(WITH_LEGACY 0)
 SET(WITH_C14N 1)
 SET(WITH_CATALOG 1)
 SET(WITH_DOCB 1)
@@ -187,68 +110,30 @@ SET(WITH_XPATH 1)
 SET(WITH_XPTR 1)
 SET(WITH_XINCLUDE 1)
 SET(WITH_ICONV 0)
+SET(WITH_ICU 0)
 SET(WITH_ISO8859X 1)
 SET(WITH_DEBUG 0)
 SET(WITH_MEM_DEBUG 0)
 SET(WITH_RUN_DEBUG 0)
 SET(WITH_REGEXPS 1)
-SET(WITH_REGEXPS 1)
-SET(WITH_REGEXPS 1)
-SET(WITH_SCHEMAS 1)
 SET(WITH_SCHEMAS 1)
 SET(WITH_SCHEMATRON 1)
 SET(WITH_MODULES 1)
-
-IF(HAVE_ZLIB_H AND HAVE_LIBZ)
-  SET(WITH_ZLIB 1)
-ELSE()
-  SET(WITH_ZLIB 0)
-ENDIF()
+SET(WITH_ZLIB 1)
+SET(WITH_LZMA 0)
 
 # not building VTK with pthreads
 IF(NOT VTK_USE_PTHREADS AND HAVE_PTHREAD_H)
   SET(HAVE_PTHREAD_H 0)
 ENDIF()
 
-# Create the platform configuration header.
-CONFIGURE_FILE(${vtklibxml2_SOURCE_DIR}/config_cmake.h.in
-               ${vtklibxml2_BINARY_DIR}/config.h @ONLY)
-
-# Create the build configuration header.
-CONFIGURE_FILE(${vtklibxml2_SOURCE_DIR}/include/libxml/xmlversion.h.in
-               ${vtklibxml2_BINARY_DIR}/libxml/xmlversion.h @ONLY)
-SET(vtklibxml2_HEADER_FILES
-  ${vtklibxml2_BINARY_DIR}/libxml/xmlversion.h)
-
-# Copy all the source headers over to the same directory as the build
-# configuration header so that headers can include each other with
-# double quotes.
-FILE(GLOB vtklibxml2_HEADERS
-  RELATIVE ${vtklibxml2_SOURCE_DIR}/include/libxml
-  include/libxml/*.h)
-FOREACH(f ${vtklibxml2_HEADERS})
-  CONFIGURE_FILE(${vtklibxml2_SOURCE_DIR}/include/libxml/${f}
-                 ${vtklibxml2_BINARY_DIR}/libxml/${f} COPYONLY)
-  SET(vtklibxml2_HEADER_FILES ${vtklibxml2_HEADER_FILES}
-    ${vtklibxml2_BINARY_DIR}/libxml/${f})
-ENDFOREACH()
-
-# Block warnings unless we are instructed to allow them.
-# SET(VTKLIBXML2_WARNINGS_ALLOW 1)
-vtk_third_party_warning_suppress(VTKLIBXML2 C)
-
-ADD_DEFINITIONS(-DHAVE_CONFIG_H -D_GNU_SOURCE -DPIC -D_REENTRANT)
-IF(VTK_USE_WIN32_THREADS)
-  # threads.c looks for this
-  ADD_DEFINITIONS(-DHAVE_WIN32_THREADS)
-ENDIF()
-
-SET(vtklibxml2_la_SOURCES
+set(sources
   DOCBparser.c
   HTMLparser.c
   HTMLtree.c
   SAX.c
   SAX2.c
+  buf.c
   c14n.c
   catalog.c
   chvalid.c
@@ -261,8 +146,6 @@ SET(vtklibxml2_la_SOURCES
   hash.c
   legacy.c
   list.c
-  nanoftp.c
-  nanohttp.c
   parser.c
   parserInternals.c
   pattern.c
@@ -286,20 +169,98 @@ SET(vtklibxml2_la_SOURCES
   xmlunicode.c
   xmlwriter.c
   xpath.c
-  xpointer.c
-  )
+  xpointer.c)
 
-INCLUDE_DIRECTORIES(BEFORE ${vtklibxml2_BINARY_DIR})
+# Create the platform configuration header.
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/config_cmake.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/include/libxml/config.h"
+  @ONLY)
 
-IF(NOT BUILD_SHARED_LIBS)
-  ADD_DEFINITIONS(-DLIBXML_STATIC)
-ENDIF()
-VTK_ADD_LIBRARY(vtklibxml2 ${vtklibxml2_la_SOURCES})
-TARGET_LINK_LIBRARIES(vtklibxml2 ${LIBXML2_LIBS})
+# Create the build configuration header.
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/libxml/xmlversion.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/include/libxml/xmlversion.h"
+  @ONLY)
 
-IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  INSTALL(FILES
-    ${vtklibxml2_HEADER_FILES}
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtklibxml2/libxml
-    COMPONENT Development)
-ENDIF()
+set(headers
+  include/libxml/c14n.h
+  include/libxml/catalog.h
+  include/libxml/chvalid.h
+  include/libxml/debugXML.h
+  include/libxml/dict.h
+  include/libxml/DOCBparser.h
+  include/libxml/encoding.h
+  include/libxml/entities.h
+  include/libxml/globals.h
+  include/libxml/hash.h
+  include/libxml/HTMLparser.h
+  include/libxml/HTMLtree.h
+  include/libxml/list.h
+  include/libxml/nanoftp.h
+  include/libxml/nanohttp.h
+  include/libxml/parser.h
+  include/libxml/parserInternals.h
+  include/libxml/pattern.h
+  include/libxml/relaxng.h
+  include/libxml/SAX.h
+  include/libxml/SAX2.h
+  include/libxml/schemasInternals.h
+  include/libxml/schematron.h
+  include/libxml/threads.h
+  include/libxml/tree.h
+  include/libxml/uri.h
+  include/libxml/valid.h
+  include/libxml/vtk_libxml2_mangle.h
+  include/libxml/xinclude.h
+  include/libxml/xlink.h
+  include/libxml/xmlautomata.h
+  include/libxml/xmlerror.h
+  include/libxml/xmlexports.h
+  include/libxml/xmlIO.h
+  include/libxml/xmlmemory.h
+  include/libxml/xmlmodule.h
+  include/libxml/xmlreader.h
+  include/libxml/xmlregexp.h
+  include/libxml/xmlsave.h
+  include/libxml/xmlschemas.h
+  include/libxml/xmlschemastypes.h
+  include/libxml/xmlstring.h
+  include/libxml/xmlunicode.h
+  include/libxml/xmlwin32version.h
+  include/libxml/xmlwriter.h
+  include/libxml/xpath.h
+  include/libxml/xpathInternals.h
+  include/libxml/xpointer.h
+  "${CMAKE_CURRENT_BINARY_DIR}/include/libxml/xmlversion.h")
+
+if (VTK_USE_WIN32_THREADS)
+  # threads.c looks for this
+  set_source_files_properties(threads.c
+    PROPERTIES
+      COMPILE_DEFINITIONS HAVE_WIN32_THREADS)
+endif ()
+
+vtk_module_add_module(VTK::libxml2
+  SOURCES ${sources}
+  HEADERS ${headers}
+  HEADERS_SUBDIR "vtklibxml2/include/libxml")
+target_compile_definitions(libxml2
+  PRIVATE
+    _GNU_SOURCE
+    _REENTRANT)
+
+if(NOT BUILD_SHARED_LIBS)
+  target_compile_definitions(libxml2
+    PRIVATE
+      LIBXML_STATIC)
+endif()
+
+target_include_directories(libxml2
+  PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/libxml"
+    "${CMAKE_CURRENT_BINARY_DIR}/include/libxml"
+  PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
+    "$<INSTALL_INTERFACE:${_vtk_build_HEADERS_DESTINATION}/vtklibxml2/include>")

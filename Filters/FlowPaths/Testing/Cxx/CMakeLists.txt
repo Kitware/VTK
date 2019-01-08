@@ -12,6 +12,3 @@ vtk_add_test_cxx(vtkFiltersFlowPathsCxxTests tests
 vtk_test_cxx_executable(vtkFiltersFlowPathsCxxTests tests
   RENDERING_FACTORY
   )
-ExternalData_Expand_Arguments(VTKData _
-  "DATA{${VTK_TEST_INPUT_DIR}/clt/,REGEX:.*}"
-  )

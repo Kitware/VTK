@@ -114,14 +114,12 @@ static void H5C__prep_for_file_close__compute_fd_heights_real(
 static herr_t H5C__prep_for_file_close__setup_image_entries_array(H5C_t *cache_ptr);
 static herr_t H5C__prep_for_file_close__scan_entries(const H5F_t *f,
     H5C_t *cache_ptr);
-static herr_t H5C__reconstruct_cache_contents(H5F_t *f, hid_t dxpl_id, 
-    H5C_t *cache_ptr);
+static herr_t H5C__reconstruct_cache_contents(H5F_t *f, H5C_t *cache_ptr);
 static H5C_cache_entry_t *H5C__reconstruct_cache_entry(const H5F_t *f,
     H5C_t *cache_ptr, const uint8_t **buf);
-static herr_t H5C__write_cache_image_superblock_msg(H5F_t *f, hid_t dxpl_id, 
-    hbool_t create);
-static herr_t H5C__read_cache_image(H5F_t * f, hid_t dxpl_id, H5C_t *cache_ptr);
-static herr_t H5C__write_cache_image(H5F_t *f, hid_t dxpl_id, const H5C_t *cache_ptr);
+static herr_t H5C__write_cache_image_superblock_msg(H5F_t *f, hbool_t create);
+static herr_t H5C__read_cache_image(H5F_t * f, H5C_t *cache_ptr);
+static herr_t H5C__write_cache_image(H5F_t *f, const H5C_t *cache_ptr);
 static herr_t H5C__construct_cache_image_buffer(H5F_t *f, H5C_t *cache_ptr);
 static herr_t H5C__free_image_entries_array(H5C_t *cache_ptr);
 
@@ -391,7 +389,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C__generate_cache_image(H5F_t *f, hid_t dxpl_id, H5C_t *cache_ptr)
+H5C__generate_cache_image(H5F_t *f, H5C_t *cache_ptr)
 {
     herr_t 	ret_value = SUCCEED;    /* Return value */
 
@@ -414,7 +412,7 @@ H5C__generate_cache_image(H5F_t *f, hid_t dxpl_id, H5C_t *cache_ptr)
 
     /* Write cache image block if so configured */
     if(cache_ptr->image_ctl.flags & H5C_CI__GEN_MDC_IMAGE_BLK) {
-        if(H5C__write_cache_image(f, dxpl_id, cache_ptr) < 0)
+        if(H5C__write_cache_image(f, cache_ptr) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "Can't write metadata cache image block to file")
 
         H5C__UPDATE_STATS_FOR_CACHE_IMAGE_CREATE(cache_ptr);
@@ -466,7 +464,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C__deserialize_prefetched_entry(H5F_t *f, hid_t dxpl_id, H5C_t *cache_ptr,
+H5C__deserialize_prefetched_entry(H5F_t *f, H5C_t *cache_ptr,
     H5C_cache_entry_t **entry_ptr_ptr, const H5C_class_t *type,
     haddr_t addr, void *udata)
 {
@@ -649,8 +647,10 @@ H5C__deserialize_prefetched_entry(H5F_t *f, hid_t dxpl_id, H5C_t *cache_ptr,
     /* Initialize fields supporting replacement policies: */
     ds_entry_ptr->next                      	= NULL;
     ds_entry_ptr->prev                      	= NULL;
+#if H5C_MAINTAIN_CLEAN_AND_DIRTY_LRU_LISTS
     ds_entry_ptr->aux_next                  	= NULL;
     ds_entry_ptr->aux_prev                  	= NULL;
+#endif /* H5C_MAINTAIN_CLEAN_AND_DIRTY_LRU_LISTS */
 #ifdef H5_HAVE_PARALLEL
     pf_entry_ptr->coll_next                 	= NULL;
     pf_entry_ptr->coll_prev                 	= NULL;
@@ -676,7 +676,7 @@ H5C__deserialize_prefetched_entry(H5F_t *f, hid_t dxpl_id, H5C_t *cache_ptr,
     H5C__RESET_CACHE_ENTRY_STATS(ds_entry_ptr);
 
     /* Apply to to the newly deserialized entry */
-    if(H5C__tag_entry(cache_ptr, ds_entry_ptr, dxpl_id) < 0)
+    if(H5C__tag_entry(cache_ptr, ds_entry_ptr) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTTAG, FAIL, "Cannot tag metadata entry")
 
     /* We have successfully deserialized the prefetched entry.
@@ -705,7 +705,7 @@ H5C__deserialize_prefetched_entry(H5F_t *f, hid_t dxpl_id, H5C_t *cache_ptr,
         flush_flags |= H5C__DEL_FROM_SLIST_ON_DESTROY_FLAG;
     } /* end if */
 
-    if(H5C__flush_single_entry(f, dxpl_id, pf_entry_ptr, flush_flags) < 0)
+    if(H5C__flush_single_entry(f, pf_entry_ptr, flush_flags) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTEXPUNGE, FAIL, "can't expunge prefetched entry")
 
 #ifndef NDEGUG /* verify deletion */
@@ -884,7 +884,7 @@ H5C__free_image_entries_array(H5C_t * cache_ptr)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C_force_cache_image_load(H5F_t *f, hid_t dxpl_id)
+H5C_force_cache_image_load(H5F_t *f)
 {
     H5C_t *cache_ptr;
     herr_t ret_value = SUCCEED;      /* Return value */
@@ -902,7 +902,7 @@ H5C_force_cache_image_load(H5F_t *f, hid_t dxpl_id)
     /* Load the cache image, if requested */
     if(cache_ptr->load_image) {
         cache_ptr->load_image = FALSE;
-        if(H5C__load_cache_image(f, dxpl_id) < 0)
+        if(H5C__load_cache_image(f) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_CANTLOAD, FAIL, "can't load cache image")
     } /* end if */
 
@@ -1032,8 +1032,8 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-herr_t
-H5C__read_cache_image(H5F_t *f, hid_t dxpl_id, H5C_t *cache_ptr)
+static herr_t
+H5C__read_cache_image(H5F_t *f, H5C_t *cache_ptr)
 {
     herr_t              ret_value = SUCCEED;    /* Return value */
 
@@ -1058,12 +1058,9 @@ H5C__read_cache_image(H5F_t *f, hid_t dxpl_id, H5C_t *cache_ptr)
 #endif /* H5_HAVE_PARALLEL */
 
 	/* Read the buffer (if serial access, or rank 0 of parallel access) */
-        if ( H5F_block_read(f, H5FD_MEM_SUPER, cache_ptr->image_addr, 
-                            cache_ptr->image_len, dxpl_id, 
-                            cache_ptr->image_buffer) < 0)
-
-            HGOTO_ERROR(H5E_CACHE, H5E_READERROR, FAIL, \
-                        "Can't read metadata cache image block")
+        if(H5F_block_read(f, H5FD_MEM_SUPER, cache_ptr->image_addr, 
+                cache_ptr->image_len, cache_ptr->image_buffer) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_READERROR, FAIL, "Can't read metadata cache image block")
 
         H5C__UPDATE_STATS_FOR_CACHE_IMAGE_READ(cache_ptr)
 
@@ -1095,9 +1092,7 @@ H5C__read_cache_image(H5F_t *f, hid_t dxpl_id, H5C_t *cache_ptr)
 #endif /* H5_HAVE_PARALLEL */
 
 done:
-
     FUNC_LEAVE_NOAPI(ret_value)
-
 } /* H5C__read_cache_image() */
 
 
@@ -1119,7 +1114,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C__load_cache_image(H5F_t *f, hid_t dxpl_id)
+H5C__load_cache_image(H5F_t *f)
 {
     H5C_t *             cache_ptr;
     herr_t		ret_value = SUCCEED;    /* Return value */
@@ -1152,11 +1147,11 @@ H5C__load_cache_image(H5F_t *f, hid_t dxpl_id)
             HGOTO_ERROR(H5E_CACHE, H5E_CANTALLOC, FAIL, "memory allocation failed for cache image buffer")
 
 	/* Load the image from file */
-	if(H5C__read_cache_image(f, dxpl_id, cache_ptr) < 0)
+	if(H5C__read_cache_image(f, cache_ptr) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_READERROR, FAIL, "Can't read metadata cache image block")
 
 	/* Reconstruct cache contents, from image */
-	if(H5C__reconstruct_cache_contents(f, dxpl_id, cache_ptr) < 0)
+	if(H5C__reconstruct_cache_contents(f, cache_ptr) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_CANTDECODE, FAIL, "Can't reconstruct cache contents from image block")
 
 	/* Free the image buffer */
@@ -1172,7 +1167,7 @@ H5C__load_cache_image(H5F_t *f, hid_t dxpl_id)
 
     /* If directed, free the on disk metadata cache image */
     if(cache_ptr->delete_image) {
-        if(H5F_super_ext_remove_msg(f, dxpl_id, H5O_MDCI_MSG_ID) < 0)
+        if(H5F__super_ext_remove_msg(f, H5O_MDCI_MSG_ID) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_CANTREMOVE, FAIL, "can't remove metadata cache image message from superblock extension")
 
         /* Reset image block values */
@@ -1341,7 +1336,7 @@ H5C__image_entry_cmp(const void *_entry1, const void *_entry2)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C__prep_image_for_file_close(H5F_t *f, hid_t dxpl_id, hbool_t *image_generated)
+H5C__prep_image_for_file_close(H5F_t *f, hbool_t *image_generated)
 {
     H5C_t *     cache_ptr = NULL;
     haddr_t     eoa_frag_addr = HADDR_UNDEF;
@@ -1365,7 +1360,7 @@ H5C__prep_image_for_file_close(H5F_t *f, hid_t dxpl_id, hbool_t *image_generated
      */
     if(cache_ptr->load_image) {
         cache_ptr->load_image = FALSE;
-        if(H5C__load_cache_image(f, dxpl_id) < 0)
+        if(H5C__load_cache_image(f) < 0)
 	    HGOTO_ERROR(H5E_CACHE, H5E_CANTLOAD, FAIL, "can't load cache image")
     } /* end if */
 
@@ -1380,9 +1375,12 @@ H5C__prep_image_for_file_close(H5F_t *f, hid_t dxpl_id, hbool_t *image_generated
      * Note that under some error conditions, the superblock will be 
      * undefined in this case as well -- if so, assume that the 
      * superblock does not support superblock extension messages.
+     * Also verify that the file's high_bound is at least release
+     * 1.10.x, otherwise cancel the request for a cache image
      */
     if((NULL == f->shared->sblock) ||
-         (f->shared->sblock->super_vers < HDF5_SUPERBLOCK_VERSION_2)) {
+         (f->shared->sblock->super_vers < HDF5_SUPERBLOCK_VERSION_2) ||
+         (f->shared->high_bound < H5F_LIBVER_V110)) {
         H5C_cache_image_ctl_t default_image_ctl = H5C__DEFAULT_CACHE_IMAGE_CTL;
 
         cache_ptr->image_ctl = default_image_ctl;
@@ -1406,11 +1404,11 @@ H5C__prep_image_for_file_close(H5F_t *f, hid_t dxpl_id, hbool_t *image_generated
          * cache_ptr->image_ctl.flags.
          */
         if(cache_ptr->image_ctl.flags & H5C_CI__GEN_MDCI_SBE_MESG)
-            if(H5C__write_cache_image_superblock_msg(f, dxpl_id, TRUE) < 0)
+            if(H5C__write_cache_image_superblock_msg(f, TRUE) < 0)
                 HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "creation of cache image SB mesg failed.")
 
         /* Serialize the cache */
-        if(H5C__serialize_cache(f, dxpl_id) < 0)
+        if(H5C__serialize_cache(f) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "serialization of the cache failed")
 
         /* Scan the cache and record data needed to construct the 
@@ -1468,7 +1466,7 @@ H5C__prep_image_for_file_close(H5F_t *f, hid_t dxpl_id, hbool_t *image_generated
              * Note that we allocate the cache image directly from the file 
              * driver so as to avoid unsettling the free space managers.
              */
-            if(HADDR_UNDEF == (cache_ptr->image_addr = H5FD_alloc(f->shared->lf, dxpl_id, H5FD_MEM_SUPER, f,
+            if(HADDR_UNDEF == (cache_ptr->image_addr = H5FD_alloc(f->shared->lf, H5FD_MEM_SUPER, f,
                         (hsize_t)p0_image_len, &eoa_frag_addr, &eoa_frag_size)))
                 HGOTO_ERROR(H5E_CACHE, H5E_NOSPACE, FAIL, "can't allocate file space for metadata cache image")
         } /* end if */
@@ -1478,7 +1476,7 @@ H5C__prep_image_for_file_close(H5F_t *f, hid_t dxpl_id, hbool_t *image_generated
              * this space directly from the file driver so as to avoid 
              * unsettling the free space managers.
              */
-            if(HADDR_UNDEF == (cache_ptr->image_addr = H5FD_alloc(f->shared->lf, dxpl_id, H5FD_MEM_SUPER, f,
+            if(HADDR_UNDEF == (cache_ptr->image_addr = H5FD_alloc(f->shared->lf, H5FD_MEM_SUPER, f,
                         (hsize_t)(cache_ptr->image_data_len), &eoa_frag_addr, &eoa_frag_size)))
                 HGOTO_ERROR(H5E_CACHE, H5E_NOSPACE, FAIL, "can't allocate file space for metadata cache image")
 
@@ -1496,7 +1494,7 @@ H5C__prep_image_for_file_close(H5F_t *f, hid_t dxpl_id, hbool_t *image_generated
          * if the underlying file alignment is greater than 1.
          *
          * Clean this up eventually by extending the size of the cache
-         * image block to the next alignement boundary, and then setting
+         * image block to the next alignment boundary, and then setting
          * the image_data_len to the actual size of the cache_image.
          *
          * On the off chance that there is some other way to get a 
@@ -1521,7 +1519,7 @@ H5C__prep_image_for_file_close(H5F_t *f, hid_t dxpl_id, hbool_t *image_generated
          * cache_ptr->image_ctl.flags.
          */
         if(cache_ptr->image_ctl.flags & H5C_CI__GEN_MDC_IMAGE_BLK)
-            if(H5C__write_cache_image_superblock_msg(f, dxpl_id, FALSE) < 0)
+            if(H5C__write_cache_image_superblock_msg(f, FALSE) < 0)
                 HGOTO_ERROR(H5E_CACHE, H5E_SYSTEM, FAIL, "update of cache image SB mesg failed")
 
         /* At this point:
@@ -1556,7 +1554,7 @@ H5C__prep_image_for_file_close(H5F_t *f, hid_t dxpl_id, hbool_t *image_generated
          * metadata cache image superblock extension message, set 
          * cache_ptr->image_ctl.generate_image to FALSE.  This will
          * allow the file close to continue normally without the 
-         * unecessary generation of the metadata cache image.
+         * unnecessary generation of the metadata cache image.
          */
         if(cache_ptr->num_entries_in_image > 0) {
             if(H5C__prep_for_file_close__setup_image_entries_array(cache_ptr) < 0)
@@ -1575,7 +1573,7 @@ H5C__prep_image_for_file_close(H5F_t *f, hid_t dxpl_id, hbool_t *image_generated
              * cache_ptr->image_ctl.flags.
              */
             if(cache_ptr->image_ctl.flags & H5C_CI__GEN_MDC_IMAGE_BLK)
-                if(H5F_super_ext_remove_msg(f, dxpl_id, H5O_MDCI_MSG_ID) < 0)
+                if(H5F__super_ext_remove_msg(f, H5O_MDCI_MSG_ID) < 0)
                     HGOTO_ERROR(H5E_CACHE, H5E_CANTREMOVE, FAIL, "can't remove MDC image msg from superblock ext")
 
             cache_ptr->image_ctl.generate_image = FALSE;
@@ -3091,7 +3089,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5C__reconstruct_cache_contents(H5F_t *f, hid_t dxpl_id, H5C_t *cache_ptr)
+H5C__reconstruct_cache_contents(H5F_t *f, H5C_t *cache_ptr)
 {
     H5C_cache_entry_t *	pf_entry_ptr;   /* Pointer to prefetched entry */
     H5C_cache_entry_t *	parent_ptr;     /* Pointer to parent of prefetched entry */
@@ -3273,7 +3271,7 @@ H5C__reconstruct_cache_contents(H5F_t *f, hid_t dxpl_id, H5C_t *cache_ptr)
         else
             write_permitted = cache_ptr->write_permitted;
 
-	if(H5C__make_space_in_cache(f, dxpl_id, 0, write_permitted) < 0)
+	if(H5C__make_space_in_cache(f, 0, write_permitted) < 0)
 	    HGOTO_ERROR(H5E_CACHE, H5E_CANTPROTECT, FAIL, "H5C__make_space_in_cache failed")
     } /* end if */
 
@@ -3474,7 +3472,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5C__write_cache_image_superblock_msg(H5F_t *f, hid_t dxpl_id, hbool_t create)
+H5C__write_cache_image_superblock_msg(H5F_t *f, hbool_t create)
 {
     H5C_t *		cache_ptr;
     H5O_mdci_t 	        mdci_msg;	/* metadata cache image message */
@@ -3512,7 +3510,7 @@ H5C__write_cache_image_superblock_msg(H5F_t *f, hid_t dxpl_id, hbool_t create)
         mdci_msg.size = cache_ptr->image_len;
 
     /* Write metadata cache image message to superblock extension */
-    if(H5F_super_ext_write_msg(f, dxpl_id, H5O_MDCI_MSG_ID, &mdci_msg, create, mesg_flags) < 0)
+    if(H5F__super_ext_write_msg(f, H5O_MDCI_MSG_ID, &mdci_msg, create, mesg_flags) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_WRITEERROR, FAIL, "can't write metadata cache image message to superblock extension")
 
 done:
@@ -3534,7 +3532,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5C__write_cache_image(H5F_t *f, hid_t dxpl_id, const H5C_t *cache_ptr)
+H5C__write_cache_image(H5F_t *f, const H5C_t *cache_ptr)
 {
     herr_t              ret_value = SUCCEED;    /* Return value */
 
@@ -3556,7 +3554,7 @@ H5C__write_cache_image(H5F_t *f, hid_t dxpl_id, const H5C_t *cache_ptr)
 #endif /* H5_HAVE_PARALLEL */
 
 	/* Write the buffer (if serial access, or rank 0 for parallel access) */
-	if(H5F_block_write(f, H5FD_MEM_SUPER, cache_ptr->image_addr, cache_ptr->image_len, dxpl_id, cache_ptr->image_buffer) < 0)
+	if(H5F_block_write(f, H5FD_MEM_SUPER, cache_ptr->image_addr, cache_ptr->image_len, cache_ptr->image_buffer) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "can't write metadata cache image block to file")
 #ifdef H5_HAVE_PARALLEL
     } /* end if */

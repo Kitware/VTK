@@ -30,8 +30,8 @@ list(APPEND tests
 
 # Check for vtkErrorMacro calls in these tests (mainly for empty inputs):
 set_tests_properties(
-  vtkRenderingFreeTypeCxx-TestTextActor
-  vtkRenderingFreeTypeCxx-TestTextActor3D
+  VTK::RenderingFreeTypeCxx-TestTextActor
+  VTK::RenderingFreeTypeCxx-TestTextActor3D
   PROPERTIES FAIL_REGULAR_EXPRESSION "ERROR:"
 )
 

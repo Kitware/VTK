@@ -15,14 +15,12 @@
 #ifndef vtk_xdmf3_h
 #define vtk_xdmf3_h
 
-/* Use the xdmf library configured for VTK.  */
-#cmakedefine VTK_USE_SYSTEM_XDMF3
+/* Use the xdmf3 library configured for VTK.  */
+#cmakedefine01 VTK_MODULE_USE_EXTERNAL_vtkxdmf3
 
 #ifdef VTK_USE_SYSTEM_XDMF3
-//TODO:
-//# include <xdmf.h>
 #else
-//#include <vtkxdmf3/xdmf3.h>
+#define VTKXDMF3_HEADER(x)  <vtkxdmf3/x>
 #endif
 
 #endif

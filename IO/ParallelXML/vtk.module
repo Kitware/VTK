@@ -1,0 +1,21 @@
+NAME
+  VTK::IOParallelXML
+LIBRARY_NAME
+  vtkIOParallelXML
+KIT
+  VTK::Parallel
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::IOXML
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::CommonMisc
+  VTK::ParallelCore
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::IOParallelXML
+  VTK::ParallelMPI
+  VTK::TestingCore

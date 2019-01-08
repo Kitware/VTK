@@ -478,7 +478,11 @@ int vtkPythonOverload::CheckArg(
 
     case 'c':
       // penalize chars, they must be converted from strings
+#if PY_VERSION_HEX >= 0x03030000
+      if (PyUnicode_Check(arg) && PyUnicode_GetLength(arg) == 1)
+#else
       if (PyUnicode_Check(arg) && PyUnicode_GetSize(arg) == 1)
+#endif
       {
         penalty = VTK_PYTHON_NEEDS_CONVERSION;
       }

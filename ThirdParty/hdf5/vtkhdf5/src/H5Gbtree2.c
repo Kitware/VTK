@@ -53,7 +53,6 @@
 typedef struct H5G_fh_ud_cmp_t {
     /* downward */
     H5F_t       *f;                     /* Pointer to file that fractal heap is in */
-    hid_t       dxpl_id;                /* DXPL for operation                */
     const char  *name;                  /* Name of link to compare           */
     H5B2_found_t found_op;              /* Callback when correct link is found */
     void        *found_op_data;         /* Callback data when correct link is found */
@@ -155,7 +154,7 @@ const H5B2_class_t H5G_BT2_CORDER[1]={{ /* B-tree class information */
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5G_dense_fh_name_cmp(const void *obj, size_t H5_ATTR_UNUSED obj_len, void *_udata)
+H5G_dense_fh_name_cmp(const void *obj, size_t obj_len, void *_udata)
 {
     H5G_fh_ud_cmp_t *udata = (H5G_fh_ud_cmp_t *)_udata;         /* User data for 'op' callback */
     H5O_link_t *lnk;    /* Pointer to link created from heap object */
@@ -164,7 +163,7 @@ H5G_dense_fh_name_cmp(const void *obj, size_t H5_ATTR_UNUSED obj_len, void *_uda
     FUNC_ENTER_NOAPI_NOINIT
 
     /* Decode link information */
-    if(NULL == (lnk = (H5O_link_t *)H5O_msg_decode(udata->f, udata->dxpl_id, NULL, H5O_LINK_ID, (const unsigned char *)obj)))
+    if(NULL == (lnk = (H5O_link_t *)H5O_msg_decode(udata->f, NULL, H5O_LINK_ID, obj_len, (const unsigned char *)obj)))
         HGOTO_ERROR(H5E_SYM, H5E_CANTDECODE, FAIL, "can't decode link")
 
     /* Compare the string values */
@@ -264,7 +263,6 @@ for(u = 0; u < H5G_DENSE_FHEAP_ID_LEN; u++)
         /* Prepare user data for callback */
         /* down */
         fh_udata.f = bt2_udata->f;
-        fh_udata.dxpl_id = bt2_udata->dxpl_id;
         fh_udata.name = bt2_udata->name;
         fh_udata.found_op = bt2_udata->found_op;
         fh_udata.found_op_data = bt2_udata->found_op_data;
@@ -273,8 +271,7 @@ for(u = 0; u < H5G_DENSE_FHEAP_ID_LEN; u++)
         fh_udata.cmp = 0;
 
         /* Check if the user's link and the B-tree's link have the same name */
-        if(H5HF_op(bt2_udata->fheap, bt2_udata->dxpl_id, bt2_rec->id,
-                   H5G_dense_fh_name_cmp, &fh_udata) < 0)
+        if(H5HF_op(bt2_udata->fheap, bt2_rec->id, H5G_dense_fh_name_cmp, &fh_udata) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTCOMPARE, FAIL, "can't compare btree2 records")
 
         /* Callback will set comparison value */

@@ -1,0 +1,33 @@
+NAME
+  VTK::FiltersGeneric
+LIBRARY_NAME
+  vtkFiltersGeneric
+DESCRIPTION
+  Filters for selecting subsets of data at arbitrary points
+KIT
+  VTK::Filters
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonExecutionModel
+  VTK::CommonMath
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonMisc
+  VTK::CommonSystem
+  VTK::CommonTransforms
+  VTK::FiltersCore
+  VTK::FiltersSources
+TEST_DEPENDS
+  VTK::FiltersExtraction
+  VTK::FiltersGeometry
+  VTK::FiltersModeling
+  VTK::FiltersSources
+  VTK::IOLegacy
+  VTK::IOXML
+  VTK::InteractionStyle
+  VTK::RenderingLabel
+  VTK::RenderingOpenGL2
+  VTK::TestingGenericBridge
+  VTK::TestingRendering

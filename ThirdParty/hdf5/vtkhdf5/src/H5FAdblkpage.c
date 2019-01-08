@@ -147,7 +147,7 @@ END_FUNC(PKG)   /* end H5FA__dblk_page_alloc() */
  */
 BEGIN_FUNC(PKG, ERR,
 herr_t, SUCCEED, FAIL,
-H5FA__dblk_page_create(H5FA_hdr_t *hdr, hid_t dxpl_id, haddr_t addr, size_t nelmts))
+H5FA__dblk_page_create(H5FA_hdr_t *hdr, haddr_t addr, size_t nelmts))
 
     /* Local variables */
     H5FA_dblk_page_t *dblk_page = NULL; /* Fixed array data block page */
@@ -176,13 +176,13 @@ HDfprintf(stderr, "%s: dblk_page->size = %Zu\n", FUNC, dblk_page->size);
         H5E_THROW(H5E_CANTSET, "can't set fixed array data block page elements to class's fill value")
 
     /* Cache the new fixed array data block page */
-    if(H5AC_insert_entry(hdr->f, dxpl_id, H5AC_FARRAY_DBLK_PAGE, dblk_page->addr, dblk_page, H5AC__NO_FLAGS_SET) < 0)
+    if(H5AC_insert_entry(hdr->f, H5AC_FARRAY_DBLK_PAGE, dblk_page->addr, dblk_page, H5AC__NO_FLAGS_SET) < 0)
         H5E_THROW(H5E_CANTINSERT, "can't add fixed array data block page to cache")
     inserted = TRUE;
 
     /* Add data block page as child of 'top' proxy */
     if(hdr->top_proxy) {
-        if(H5AC_proxy_entry_add_child(hdr->top_proxy, hdr->f, dxpl_id, dblk_page) < 0)
+        if(H5AC_proxy_entry_add_child(hdr->top_proxy, hdr->f, dblk_page) < 0)
             H5E_THROW(H5E_CANTSET, "unable to add fixed array entry as child of array proxy")
         dblk_page->top_proxy = hdr->top_proxy;
     } /* end if */
@@ -218,7 +218,7 @@ END_FUNC(PKG)   /* end H5FA__dblk_page_create() */
  */
 BEGIN_FUNC(PKG, ERR,
 H5FA_dblk_page_t *, NULL, NULL,
-H5FA__dblk_page_protect(H5FA_hdr_t *hdr, hid_t dxpl_id, haddr_t dblk_page_addr,
+H5FA__dblk_page_protect(H5FA_hdr_t *hdr, haddr_t dblk_page_addr,
     size_t dblk_page_nelmts, unsigned flags))
 
     /* Local variables */
@@ -242,13 +242,13 @@ HDfprintf(stderr, "%s: Called\n", FUNC);
     udata.dblk_page_addr = dblk_page_addr;
 
     /* Protect the data block page */
-    if(NULL == (dblk_page = (H5FA_dblk_page_t *)H5AC_protect(hdr->f, dxpl_id, H5AC_FARRAY_DBLK_PAGE, dblk_page_addr, &udata, flags)))
+    if(NULL == (dblk_page = (H5FA_dblk_page_t *)H5AC_protect(hdr->f, H5AC_FARRAY_DBLK_PAGE, dblk_page_addr, &udata, flags)))
         H5E_THROW(H5E_CANTPROTECT, "unable to protect fixed array data block page, address = %llu", (unsigned long long)dblk_page_addr)
 
     /* Create top proxy, if it doesn't exist */
     if(hdr->top_proxy && NULL == dblk_page->top_proxy) {
         /* Add data block page as child of 'top' proxy */
-        if(H5AC_proxy_entry_add_child(hdr->top_proxy, hdr->f, dxpl_id, dblk_page) < 0)
+        if(H5AC_proxy_entry_add_child(hdr->top_proxy, hdr->f, dblk_page) < 0)
             H5E_THROW(H5E_CANTSET, "unable to add fixed array entry as child of array proxy")
         dblk_page->top_proxy = hdr->top_proxy;
     } /* end if */
@@ -261,7 +261,7 @@ CATCH
     /* Clean up on error */
     if(!ret_value) {
         /* Release the data block page, if it was protected */
-        if(dblk_page && H5AC_unprotect(hdr->f, dxpl_id, H5AC_FARRAY_DBLK_PAGE, dblk_page->addr, dblk_page, H5AC__NO_FLAGS_SET) < 0)
+        if(dblk_page && H5AC_unprotect(hdr->f, H5AC_FARRAY_DBLK_PAGE, dblk_page->addr, dblk_page, H5AC__NO_FLAGS_SET) < 0)
             H5E_THROW(H5E_CANTUNPROTECT, "unable to unprotect fixed array data block page, address = %llu", (unsigned long long)dblk_page->addr)
     } /* end if */
 
@@ -283,8 +283,7 @@ END_FUNC(PKG)   /* end H5FA__dblk_page_protect() */
  */
 BEGIN_FUNC(PKG, ERR,
 herr_t, SUCCEED, FAIL,
-H5FA__dblk_page_unprotect(H5FA_dblk_page_t *dblk_page, hid_t dxpl_id,
-    unsigned cache_flags))
+H5FA__dblk_page_unprotect(H5FA_dblk_page_t *dblk_page, unsigned cache_flags))
 
     /* Local variables */
 
@@ -296,7 +295,7 @@ HDfprintf(stderr, "%s: Called\n", FUNC);
     HDassert(dblk_page);
 
     /* Unprotect the data block page */
-    if(H5AC_unprotect(dblk_page->hdr->f, dxpl_id, H5AC_FARRAY_DBLK_PAGE, dblk_page->addr, dblk_page, cache_flags) < 0)
+    if(H5AC_unprotect(dblk_page->hdr->f, H5AC_FARRAY_DBLK_PAGE, dblk_page->addr, dblk_page, cache_flags) < 0)
         H5E_THROW(H5E_CANTUNPROTECT, "unable to unprotect fixed array data block page, address = %llu", (unsigned long long)dblk_page->addr)
 
 CATCH

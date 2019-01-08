@@ -436,7 +436,7 @@ METAIO_STL::string MetaOutput::GenerateXML(const char* filename)
       {
       if((*itInput).fields.size() == 1)
         {
-        buffer += "  <Input name=\"" + (*itInput).name +"\"";;
+        buffer += "  <Input name=\"" + (*itInput).name +"\"";
         }
       else
         {

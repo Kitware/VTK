@@ -98,3 +98,4 @@ class vtkQtConnection : public QObject
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkQtConnection.h

@@ -1,0 +1,20 @@
+NAME
+  VTK::IOParallelLSDyna
+LIBRARY_NAME
+  vtkIOParallelLSDyna
+KIT
+  VTK::Parallel
+DEPENDS
+  VTK::IOLSDyna
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::ParallelCore
+TEST_DEPENDS
+  VTK::FiltersGeometry
+  VTK::InteractionStyle
+  VTK::ParallelMPI
+  VTK::RenderingOpenGL2
+  VTK::RenderingParallel
+  VTK::TestingRendering

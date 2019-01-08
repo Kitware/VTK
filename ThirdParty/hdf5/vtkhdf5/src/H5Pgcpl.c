@@ -69,9 +69,9 @@
 static herr_t H5P__gcrt_reg_prop(H5P_genclass_t *pclass);
 
 /* Property callbacks */
-static herr_t H5P__gcrt_group_info_enc(const void *value, void **_pp, size_t *size);
+static herr_t H5P__gcrt_group_info_enc(const void *value, void **_pp, size_t *size, void *udata);
 static herr_t H5P__gcrt_group_info_dec(const void **_pp, void *value);
-static herr_t H5P__gcrt_link_info_enc(const void *value, void **_pp, size_t *size);
+static herr_t H5P__gcrt_link_info_enc(const void *value, void **_pp, size_t *size, void *udata);
 static herr_t H5P__gcrt_link_info_dec(const void **_pp, void *value);
 
 
@@ -546,7 +546,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t 
-H5P__gcrt_group_info_enc(const void *value, void **_pp, size_t *size)
+H5P__gcrt_group_info_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
 {
     const H5O_ginfo_t *ginfo = (const H5O_ginfo_t *)value; /* Create local aliases for values */
     uint8_t **pp = (uint8_t **)_pp;
@@ -634,7 +634,7 @@ H5P__gcrt_group_info_dec(const void **_pp, void *_value)
  *-------------------------------------------------------------------------
  */
 static herr_t 
-H5P__gcrt_link_info_enc(const void *value, void **_pp, size_t *size)
+H5P__gcrt_link_info_enc(const void *value, void **_pp, size_t *size, void H5_ATTR_UNUSED *udata)
 {
     const H5O_linfo_t *linfo = (const H5O_linfo_t *)value; /* Create local aliases for values */
     uint8_t **pp = (uint8_t **)_pp;

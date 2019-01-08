@@ -28,7 +28,8 @@
 #define vtkXdmf3DataSet_h
 
 #include "vtkIOXdmf3Module.h" // For export macro
-#include "XdmfSharedPtr.hpp"
+#include "vtk_xdmf3.h"
+#include VTKXDMF3_HEADER(core/XdmfSharedPtr.hpp)
 #include <string> //Needed only for XdmfArray::getName :(
 
 class vtkXdmf3ArraySelection;

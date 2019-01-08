@@ -76,6 +76,7 @@ MAJOR, H5E_EARRAY, Extensible Array
 MAJOR, H5E_FARRAY, Fixed Array
 MAJOR, H5E_PLUGIN, Plugin for dynamically loaded library
 MAJOR, H5E_PAGEBUF, Page Buffering
+MAJOR, H5E_CONTEXT, API Context
 MAJOR, H5E_NONE_MAJOR, No error
 
 # Sections (for grouping minor errors)
@@ -243,6 +244,8 @@ MINOR, LINK, H5E_CANTSORT, Can't sort objects
 MINOR, MPI, H5E_MPI, Some MPI function failed
 MINOR, MPI, H5E_MPIERRSTR, MPI Error String
 MINOR, MPI, H5E_CANTRECV, Can't receive data
+MINOR, MPI, H5E_CANTGATHER, Can't gather data
+MINOR, MPI, H5E_NO_INDEPENDENT, Can't perform independent IO
 
 # Heap errors
 MINOR, HEAP, H5E_CANTRESTORE, Can't restore condition

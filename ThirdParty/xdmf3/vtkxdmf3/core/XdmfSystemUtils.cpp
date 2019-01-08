@@ -21,7 +21,8 @@
 /*                                                                           */
 /*****************************************************************************/
 
-#include <libxml/uri.h>
+#include "vtk_libxml2.h"
+#include VTKLIBXML2_HEADER(uri.h)
 #include <limits.h>
 #include <stdlib.h>
 #include "XdmfSystemUtils.hpp"

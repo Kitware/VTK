@@ -31,7 +31,7 @@ set(ANDROID_NATIVE_API_LEVEL "21" CACHE STRING "Android Native API Level")
 set(ANDROID_ARCH_ABI "armeabi" CACHE STRING "Target Android architecture/abi")
 
 # find android
-if (BUILD_EXAMPLES)
+if (VTK_BUILD_EXAMPLES)
   find_program(ANDROID_EXECUTABLE
     NAMES android
     DOC   "The android command-line tool")
@@ -95,7 +95,7 @@ set(android_cmake_flags
   -DANT_EXECUTABLE:FILE=${ANT_EXECUTABLE}
   -DBUILD_SHARED_LIBS:BOOL=OFF
   -DBUILD_TESTING:BOOL=OFF
-  -DBUILD_EXAMPLES:BOOL=${BUILD_EXAMPLES}
+  -DVTK_BUILD_EXAMPLES:BOOL=${VTK_BUILD_EXAMPLES}
   -DVTK_RENDERING_BACKEND:STRING=OpenGL2
   -DVTK_Group_Rendering:BOOL=OFF
   -DVTK_Group_StandAlone:BOOL=OFF

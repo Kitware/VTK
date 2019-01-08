@@ -10,7 +10,7 @@ namespace tao
 {
    namespace TAO_PEGTL_NAMESPACE
    {
-      inline namespace alphabet
+      namespace alphabet
       {
          static const int a = 'a';
          static const int b = 'b';

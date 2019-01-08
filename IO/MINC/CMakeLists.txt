@@ -1,17 +1,17 @@
-set(Module_SRCS
-  vtkMINCImageAttributes.cxx
-  vtkMINCImageReader.cxx
-  vtkMINCImageWriter.cxx
-  vtkMNIObjectReader.cxx
-  vtkMNIObjectWriter.cxx
-  vtkMNITagPointReader.cxx
-  vtkMNITagPointWriter.cxx
-  vtkMNITransformReader.cxx
-  vtkMNITransformWriter.cxx
-  )
+set(classes
+  vtkMINCImageAttributes
+  vtkMINCImageReader
+  vtkMINCImageWriter
+  vtkMNIObjectReader
+  vtkMNIObjectWriter
+  vtkMNITagPointReader
+  vtkMNITagPointWriter
+  vtkMNITransformReader
+  vtkMNITransformWriter)
 
-set(${vtk-module}_HDRS
-  vtkMINC.h
-  )
+set(headers
+  vtkMINC.h)
 
-vtk_module_library(vtkIOMINC ${Module_SRCS})
+vtk_module_add_module(VTK::IOMINC
+  CLASSES ${classes}
+  HEADERS ${headers})

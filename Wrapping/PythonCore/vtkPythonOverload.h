@@ -64,3 +64,4 @@ public:
   //@}
 
 #endif
+// VTK-HeaderTest-Exclude: vtkPythonOverload.h

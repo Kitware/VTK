@@ -15,12 +15,6 @@
 #ifndef vtk_utf8_h
 #define vtk_utf8_h
 
-/* Use the utf8 library configured for VTK.  */
-#cmakedefine VTK_USE_SYSTEM_UTF8
-#ifdef VTK_USE_SYSTEM_UTF8
-# include <utf8.h>
-#else
-# include <vtkutf8/utf8.h>
-#endif
+#include <vtkutf8/utf8.h>
 
 #endif

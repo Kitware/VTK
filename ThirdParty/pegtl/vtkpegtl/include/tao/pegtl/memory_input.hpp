@@ -5,6 +5,7 @@
 #define TAO_PEGTL_MEMORY_INPUT_HPP
 
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <string>
 #include <type_traits>
@@ -12,13 +13,18 @@
 
 #include "config.hpp"
 #include "eol.hpp"
+#include "normal.hpp"
+#include "nothing.hpp"
 #include "position.hpp"
 #include "tracking_mode.hpp"
 
 #include "internal/action_input.hpp"
+#include "internal/at.hpp"
 #include "internal/bump_impl.hpp"
+#include "internal/eolf.hpp"
 #include "internal/iterator.hpp"
 #include "internal/marker.hpp"
+#include "internal/until.hpp"
 
 namespace tao
 {
@@ -37,7 +43,8 @@ namespace tao
 
             template< typename T >
             memory_input_base( const iterator_t& in_begin, const char* in_end, T&& in_source ) noexcept( std::is_nothrow_constructible< Source, T&& >::value )
-               : m_current( in_begin ),
+               : m_begin( in_begin.data ),
+                 m_current( in_begin ),
                  m_end( in_end ),
                  m_source( std::forward< T >( in_source ) )
             {
@@ -45,7 +52,8 @@ namespace tao
 
             template< typename T >
             memory_input_base( const char* in_begin, const char* in_end, T&& in_source ) noexcept( std::is_nothrow_constructible< Source, T&& >::value )
-               : m_current( in_begin ),
+               : m_begin( in_begin ),
+                 m_current( in_begin ),
                  m_end( in_end ),
                  m_source( std::forward< T >( in_source ) )
             {
@@ -62,6 +70,11 @@ namespace tao
             const char* current() const noexcept
             {
                return m_current.data;
+            }
+
+            const char* begin() const noexcept
+            {
+               return m_begin;
             }
 
             const char* end( const std::size_t /*unused*/ = 0 ) const noexcept
@@ -104,7 +117,16 @@ namespace tao
                return TAO_PEGTL_NAMESPACE::position( it, m_source );
             }
 
+            void restart( const std::size_t in_byte = 0, const std::size_t in_line = 1, const std::size_t in_byte_in_line = 0 )
+            {
+               m_current.data = m_begin;
+               m_current.byte = in_byte;
+               m_current.line = in_line;
+               m_current.byte_in_line = in_byte_in_line;
+            }
+
          protected:
+            const char* const m_begin;
             iterator_t m_current;
             const char* const m_end;
             const Source m_source;
@@ -147,6 +169,11 @@ namespace tao
                return m_current;
             }
 
+            const char* begin() const noexcept
+            {
+               return m_begin.data;
+            }
+
             const char* end( const std::size_t /*unused*/ = 0 ) const noexcept
             {
                return m_end;
@@ -177,6 +204,11 @@ namespace tao
                internal::iterator c( m_begin );
                internal::bump( c, std::size_t( it - m_begin.data ), Eol::ch );
                return TAO_PEGTL_NAMESPACE::position( c, m_source );
+            }
+
+            void restart()
+            {
+               m_current = m_begin.data;
             }
 
          protected:
@@ -259,9 +291,9 @@ namespace tao
             return this->current()[ offset ];
          }
 
-         unsigned char peek_byte( const std::size_t offset = 0 ) const noexcept
+         std::uint8_t peek_byte( const std::size_t offset = 0 ) const noexcept
          {
-            return static_cast< unsigned char >( peek_char( offset ) );
+            return static_cast< std::uint8_t >( peek_char( offset ) );
          }
 
          iterator_t& iterator() noexcept
@@ -294,7 +326,38 @@ namespace tao
          {
             return internal::marker< iterator_t, M >( iterator() );
          }
+
+         const char* at( const TAO_PEGTL_NAMESPACE::position& p ) const noexcept
+         {
+            return this->begin() + p.byte;
+         }
+
+         const char* begin_of_line( const TAO_PEGTL_NAMESPACE::position& p ) const noexcept
+         {
+            return at( p ) - p.byte_in_line;
+         }
+
+         const char* end_of_line( const TAO_PEGTL_NAMESPACE::position& p ) const noexcept
+         {
+            using input_t = memory_input< tracking_mode::LAZY, Eol, const char* >;
+            input_t in( at( p ), this->end(), "" );
+            using grammar = internal::until< internal::at< internal::eolf > >;
+            normal< grammar >::match< apply_mode::NOTHING, rewind_mode::DONTCARE, nothing, normal >( in );
+            return in.current();
+         }
+
+         std::string line_as_string( const TAO_PEGTL_NAMESPACE::position& p ) const
+         {
+            return std::string( begin_of_line( p ), end_of_line( p ) );
+         }
+
+         void* internal_state = nullptr;
       };
+
+#ifdef __cpp_deduction_guides
+      template< typename... Ts >
+      memory_input( Ts&&... )->memory_input<>;
+#endif
 
    }  // namespace TAO_PEGTL_NAMESPACE
 

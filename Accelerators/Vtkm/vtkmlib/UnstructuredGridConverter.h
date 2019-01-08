@@ -16,7 +16,6 @@
 
 #ifndef vtkmlib_UnstructuredGridConverter_h
 #define vtkmlib_UnstructuredGridConverter_h
-#ifndef __VTK_WRAP__
 
 #include "vtkAcceleratorsVTKmModule.h"
 
@@ -42,5 +41,4 @@ VTKACCELERATORSVTKM_EXPORT
 bool Convert(const vtkm::cont::DataSet& voutput, vtkUnstructuredGrid* output,
              vtkDataSet* input);
 }
-#endif
 #endif // vtkmlib_UnstructuredGridConverter_h

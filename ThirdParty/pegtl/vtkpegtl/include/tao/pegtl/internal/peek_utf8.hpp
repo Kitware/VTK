@@ -50,7 +50,7 @@ namespace tao
                         c0 |= ( c1 & 0x3F );
                         c0 <<= 6;
                         c0 |= ( c2 & 0x3F );
-                        if( c0 >= 0x800 ) {
+                        if( c0 >= 0x800 && !( c0 >= 0xD800 && c0 <= 0xDFFF ) ) {
                            return { c0, 3 };
                         }
                      }

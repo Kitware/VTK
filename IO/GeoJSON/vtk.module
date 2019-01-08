@@ -1,0 +1,16 @@
+NAME
+  VTK::IOGeoJSON
+LIBRARY_NAME
+  vtkIOGeoJSON
+KIT
+  VTK::IO
+DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::IOCore
+  VTK::jsoncpp
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::FiltersCore
+TEST_DEPENDS
+  VTK::TestingCore

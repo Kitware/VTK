@@ -1,40 +1,32 @@
-# Load up the CMake variables we need.
-vtk_module_export_info()
-vtk_module_config(${vtk-module} ${${vtk-module}_DEPENDS})
+set(classes
+  vtkRenderTimings)
 
-# Placeholders
-set(extra_deps)
-set(compile_defs)
+vtk_module_add_module(VTK::UtilitiesBenchmarks
+  CLASSES ${classes})
 
 # Add our test executables.
-add_executable(TimingTests MACOSX_BUNDLE
-  TimingTests.cxx
-  vtkRenderTimings.cxx
-  )
-target_link_libraries(TimingTests ${${vtk-module}_LIBRARIES})
-set_property(TARGET TimingTests APPEND PROPERTY
-  COMPILE_DEFINITIONS "${${vtk-module}_DEFINITIONS}")
+vtk_module_add_executable(TimingTests
+  NO_INSTALL
+  TimingTests.cxx)
+target_link_libraries(TimingTests
+  PRIVATE
+    VTK::UtilitiesBenchmarks)
 
-# Chemistry target
-if(TARGET vtkDomainsChemistry)
-  list(APPEND extra_deps vtkDomainsChemistryOpenGL2)
-  list(APPEND compile_defs HAVE_CHEMISTRY)
-  include_directories(${VTK_SOURCE_DIR}/Domains/Chemistry
-    ${VTK_BINARY_DIR}/Domains/Chemistry)
-endif()
+vtk_module_autoinit(
+  TARGETS TimingTests
+  MODULES vtkUtilitiesBenchmarks)
 
-if(compile_defs)
-  set_source_files_properties(TimingTests.cxx APPEND PROPERTIES
-    COMPILE_DEFINITIONS "${compile_defs}")
-endif()
+vtk_module_add_executable(GLBenchmarking
+  NO_INSTALL
+  GLBenchmarking.cxx)
+target_link_libraries(GLBenchmarking
+  PRIVATE
+    VTK::ChartsCore
+    VTK::UtilitiesBenchmarks
+    VTK::ViewsContext2D)
 
-if (extra_deps)
-  target_link_libraries(TimingTests ${extra_deps})
-endif()
-
-add_executable(GLBenchmarking MACOSX_BUNDLE
-  GLBenchmarking.cxx
-  )
-target_link_libraries(GLBenchmarking ${${vtk-module}_LIBRARIES})
-set_property(TARGET GLBenchmarking APPEND PROPERTY
-  COMPILE_DEFINITIONS "${${vtk-module}_DEFINITIONS}")
+vtk_module_autoinit(
+  TARGETS GLBenchmarking
+  MODULES VTK::ChartsCore
+          VTK::UtilitiesBenchmarks
+          VTK::ViewsContext2D)

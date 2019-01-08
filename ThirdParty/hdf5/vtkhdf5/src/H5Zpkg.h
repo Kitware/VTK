@@ -51,5 +51,8 @@ H5_DLLVAR const H5Z_class2_t H5Z_DEFLATE[1];
 H5_DLLVAR H5Z_class2_t H5Z_SZIP[1];
 #endif /* H5_HAVE_FILTER_SZIP */
 
+/* Package internal routines */
+H5_DLL herr_t H5Z__unregister(H5Z_filter_t filter_id);
+
 #endif /* _H5Zpkg_H */
 

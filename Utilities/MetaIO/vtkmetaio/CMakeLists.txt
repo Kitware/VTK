@@ -12,15 +12,9 @@
 
 if(METAIO_FOR_VTK)
   set(METAIO_NAMESPACE "vtkmetaio")
-  set(METAIO_ZLIB_LIBRARIES ${VTK_ZLIB_LIBRARIES})
-  set(METAIO_INSTALL_EXPORT_NAME ${VTK_INSTALL_EXPORT_NAME})
-  set(METAIO_INSTALL_RUNTIME_DIR ${VTK_INSTALL_RUNTIME_DIR})
-  set(METAIO_INSTALL_LIBRARY_DIR ${VTK_INSTALL_LIBRARY_DIR})
-  set(METAIO_INSTALL_ARCHIVE_DIR ${VTK_INSTALL_ARCHIVE_DIR})
-  set(METAIO_INSTALL_NO_LIBRARIES ${VTK_INSTALL_NO_LIBRARIES})
-  set(METAIO_INSTALL_NO_DEVELOPMENT ${VTK_INSTALL_NO_DEVELOPMENT})
-  set(METAIO_INSTALL_INCLUDE_DIR ${VTK_INSTALL_INCLUDE_DIR}/vtkmetaio)
-  set(METAIO_LIBRARY_PROPERTIES ${VTK_LIBRARY_PROPERTIES})
+  set(METAIO_TARGET "metaio")
+  set(METAIO_INSTALL_NO_LIBRARIES TRUE)
+  set(METAIO_INSTALL_NO_DEVELOPMENT TRUE)
   if(BUILD_SHARED_LIBS)
     add_definitions(-Dvtkmetaio_BUILD_SHARED_LIBS)
   endif()
@@ -28,6 +22,10 @@ elseif("${METAIO_NAMESPACE}" STREQUAL "ITKMetaIO")
   set(METAIO_FOR_ITK 1)
 elseif(NOT METAIO_NAMESPACE)
   set(METAIO_NAMESPACE MetaIO)
+endif()
+
+if(NOT DEFINED METAIO_TARGET)
+  set(METAIO_TARGET "${METAIO_NAMESPACE}")
 endif()
 
 if(NOT DEFINED METAIO_PROJECT_NAME)
@@ -55,14 +53,11 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/metaIOConfig.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/metaIOConfig.h @ONLY)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(${METAIO_NAMESPACE}
-  metaTypes.h
+set(sources
   metaUtils.cxx
   metaArrow.cxx
   metaBlob.cxx
-  metaCommand.h
   metaCommand.cxx
-  metaContour.h
   metaContour.cxx
   metaDTITube.cxx
   metaEllipse.cxx
@@ -73,9 +68,7 @@ add_library(${METAIO_NAMESPACE}
   metaLandmark.cxx
   metaLine.cxx
   metaMesh.cxx
-  metaMesh.h
   metaObject.cxx
-  metaOutput.h
   metaOutput.cxx
   metaScene.cxx
   metaSurface.cxx
@@ -83,36 +76,57 @@ add_library(${METAIO_NAMESPACE}
   metaVesselTube.cxx
   metaTransform.cxx
   metaTubeGraph.cxx
-  metaForm.h
   metaForm.cxx
-  metaArray.h
   metaArray.cxx
-  metaFEMObject.h
   metaFEMObject.cxx
+  )
+
+set(headers
+  metaTypes.h
+  metaCommand.h
+  metaContour.h
+  metaMesh.h
+  metaOutput.h
+  metaForm.h
+  metaArray.h
+  metaFEMObject.h
+  "${CMAKE_CURRENT_BINARY_DIR}/metaIOConfig.h"
 )
+
+if (METAIO_FOR_VTK)
+  vtk_module_add_module(VTK::metaio
+    SOURCES ${sources}
+    HEADERS ${headers}
+    HEADERS_SUBDIR "vtkmetaio")
+else ()
+  add_library(${METAIO_TARGET}
+    ${sources}
+    ${headers}
+  )
+endif ()
 
 INCLUDE_REGULAR_EXPRESSION("^.*$")
 
 # Need nsl to resolve gethostbyname on SunOS-5.8
 # and socket also
 IF(CMAKE_SYSTEM MATCHES "SunOS.*")
-  TARGET_LINK_LIBRARIES(${METAIO_NAMESPACE} socket nsl)
+  TARGET_LINK_LIBRARIES(${METAIO_TARGET} PRIVATE socket nsl)
 ENDIF(CMAKE_SYSTEM MATCHES "SunOS.*")
 
-target_link_libraries(${METAIO_NAMESPACE}
+target_link_libraries(${METAIO_TARGET} PUBLIC
   ${METAIO_LIBXML2_LIBRARIES}
   ${METAIO_ZLIB_LIBRARIES}
   )
 if(METAIO_LIBRARY_PROPERTIES)
-  set_target_properties(${METAIO_NAMESPACE}
+  set_target_properties(${METAIO_TARGET}
                         PROPERTIES ${METAIO_LIBRARY_PROPERTIES})
 endif()
 
 IF(WIN32)
   IF(BORLAND)
-    TARGET_LINK_LIBRARIES(${METAIO_NAMESPACE} import32)
+    TARGET_LINK_LIBRARIES(${METAIO_TARGET} PRIVATE import32)
   ELSE(BORLAND)
-    TARGET_LINK_LIBRARIES(${METAIO_NAMESPACE} comctl32 wsock32)
+    TARGET_LINK_LIBRARIES(${METAIO_TARGET} PRIVATE comctl32 wsock32)
   ENDIF(BORLAND)
 ENDIF(WIN32)
 
@@ -120,7 +134,7 @@ ENDIF(WIN32)
 #ADD_SUBDIRECTORY(tests)
 
 if(NOT METAIO_INSTALL_NO_LIBRARIES)
-  install(TARGETS ${METAIO_NAMESPACE}
+  install(TARGETS ${METAIO_TARGET}
     EXPORT ${METAIO_INSTALL_EXPORT_NAME}
     RUNTIME DESTINATION ${METAIO_INSTALL_RUNTIME_DIR} COMPONENT RuntimeLibraries
     LIBRARY DESTINATION ${METAIO_INSTALL_LIBRARY_DIR} COMPONENT RuntimeLibraries
@@ -129,9 +143,7 @@ if(NOT METAIO_INSTALL_NO_LIBRARIES)
 endif(NOT METAIO_INSTALL_NO_LIBRARIES)
 # TODO: Install Copyright.txt
 if(NOT METAIO_INSTALL_NO_DEVELOPMENT)
-  file(GLOB __files "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
-  install(FILES ${__files}
-                ${CMAKE_CURRENT_BINARY_DIR}/metaIOConfig.h
+  install(FILES ${headers}
     DESTINATION ${METAIO_INSTALL_INCLUDE_DIR} COMPONENT Development
     )
 endif()

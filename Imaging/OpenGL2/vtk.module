@@ -1,0 +1,16 @@
+NAME
+  VTK::ImagingOpenGL2
+LIBRARY_NAME
+  vtkImagingOpenGL2
+DEPENDS
+  VTK::ImagingGeneral
+  VTK::RenderingOpenGL2
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::RenderingOpenGL2
+TEST_DEPENDS
+  VTK::InteractionStyle
+  VTK::IOImage
+  VTK::TestingRendering

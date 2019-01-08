@@ -12,27 +12,27 @@
 #-----------------------------------------------------------------------------
 # Compiler specific flags : Shouldn't there be compiler tests for these
 #-----------------------------------------------------------------------------
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_EXTENSIONS ON)
 if (CMAKE_COMPILER_IS_GNUCC)
-  if (CMAKE_BUILD_TYPE MATCHES Debug)
-    set (CMAKE_C_FLAGS "${CMAKE_ANSI_CFLAGS} ${CMAKE_C_FLAGS} -std=c99")
+  set (CMAKE_C_FLAGS "${CMAKE_ANSI_CFLAGS} ${CMAKE_C_FLAGS}")
+  if (${HDF_CFG_NAME} MATCHES "Debug")
     if (NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 5.0)
       set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Og -ftrapv -fno-common")
     endif ()
-  else (CMAKE_BUILD_TYPE MATCHES Debug)
-    set (CMAKE_C_FLAGS "${CMAKE_ANSI_CFLAGS} ${CMAKE_C_FLAGS} -std=c99")
+  else ()
     if (NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 5.0)
       set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstdarg-opt")
     endif ()
   endif ()
 endif ()
 if (CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_LOADED)
-  if (CMAKE_BUILD_TYPE MATCHES Debug)
-    set (CMAKE_CXX_FLAGS "${CMAKE_ANSI_CFLAGS} ${CMAKE_CXX_FLAGS}")
+  set (CMAKE_CXX_FLAGS "${CMAKE_ANSI_CFLAGS} ${CMAKE_CXX_FLAGS}")
+  if (${HDF_CFG_NAME} MATCHES "Debug")
     if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
       set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Og -ftrapv -fno-common")
     endif ()
   else ()
-    set (CMAKE_CXX_FLAGS "${CMAKE_ANSI_CFLAGS} ${CMAKE_CXX_FLAGS}")
     if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
       set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fstdarg-opt")
     endif ()
@@ -42,8 +42,7 @@ endif ()
 #-----------------------------------------------------------------------------
 # Option to allow the user to disable compiler warnings
 #-----------------------------------------------------------------------------
-# XXX(kitware): Hardcode settings.
-if (FALSE)
+if (FALSE) # XXX(kitware): Hardcode settings.
 option (HDF5_DISABLE_COMPILER_WARNINGS "Disable compiler warnings" OFF)
 else ()
 set(HDF5_DISABLE_COMPILER_WARNINGS OFF)
@@ -55,8 +54,10 @@ if (HDF5_DISABLE_COMPILER_WARNINGS)
     set (HDF5_WARNINGS_BLOCKED 1)
     string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W0")
-    string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W0")
+    if (CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_LOADED)
+      string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+      set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W0")
+    endif ()
   endif ()
   if (WIN32)
     add_definitions (-D_CRT_SECURE_NO_WARNINGS)
@@ -70,7 +71,9 @@ if (HDF5_DISABLE_COMPILER_WARNINGS)
   # Most compilers use -w to suppress warnings.
   if (NOT HDF5_WARNINGS_BLOCKED)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w")
+    if (CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_LOADED)
+      set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w")
+    endif ()
   endif ()
 endif ()
 
@@ -89,8 +92,7 @@ if (NOT MSVC AND CMAKE_COMPILER_IS_GNUCC)
     #-----------------------------------------------------------------------------
     # Option to allow the user to enable developer warnings
     #-----------------------------------------------------------------------------
-    # XXX(kitware): Hardcode settings.
-    if (FALSE)
+    if (FALSE) # XXX(kitware): Hardcode settings.
     option (HDF5_ENABLE_DEV_WARNINGS "Enable HDF5 developer group warnings" OFF)
     else ()
     set(HDF5_ENABLE_DEV_WARNINGS OFF)
@@ -216,8 +218,7 @@ endif ()
 #-----------------------------------------------------------------------------
 # Option to allow the user to enable all warnings
 #-----------------------------------------------------------------------------
-# XXX(kitware): Hardcode settings.
-if (FALSE)
+if (FALSE) # XXX(kitware): Hardcode settings.
 option (HDF5_ENABLE_ALL_WARNINGS "Enable all warnings" OFF)
 else ()
 set(HDF5_ENABLE_ALL_WARNINGS OFF)
@@ -227,13 +228,17 @@ if (HDF5_ENABLE_ALL_WARNINGS)
     if (HDF5_ENABLE_DEV_WARNINGS)
       string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
       set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Wall /wd4668")
-      string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-      set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall /wd4668")
+      if (CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_LOADED)
+        string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall /wd4668")
+      endif ()
     else ()
       string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
       set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W3")
-      string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-      set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3")
+      if (CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_LOADED)
+        string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3")
+      endif ()
     endif ()
   else ()
     if (CMAKE_COMPILER_IS_GNUCC)
@@ -245,8 +250,7 @@ endif ()
 #-----------------------------------------------------------------------------
 # Option to allow the user to enable warnings by groups
 #-----------------------------------------------------------------------------
-# XXX(kitware): Hardcode settings.
-if (FALSE)
+if (FALSE) # XXX(kitware): Hardcode settings.
 option (HDF5_ENABLE_GROUPZERO_WARNINGS "Enable group zero warnings" OFF)
 else ()
 set(HDF5_ENABLE_GROUPZERO_WARNINGS OFF)
@@ -255,8 +259,10 @@ if (HDF5_ENABLE_GROUPZERO_WARNINGS)
   if (MSVC)
     string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W1")
-    string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W1")
+    if (CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_LOADED)
+      string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+      set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W1")
+    endif ()
   else ()
     if (CMAKE_COMPILER_IS_GNUCC)
       set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic")
@@ -267,8 +273,7 @@ endif ()
 #-----------------------------------------------------------------------------
 # Option to allow the user to enable warnings by groups
 #-----------------------------------------------------------------------------
-# XXX(kitware): Hardcode settings.
-if (FALSE)
+if (FALSE) # XXX(kitware): Hardcode settings.
 option (HDF5_ENABLE_GROUPONE_WARNINGS "Enable group one warnings" OFF)
 else ()
 set(HDF5_ENABLE_GROUPONE_WARNINGS OFF)
@@ -277,8 +282,10 @@ if (HDF5_ENABLE_GROUPONE_WARNINGS)
   if (MSVC)
     string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W2")
-    string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W2")
+    if (CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_LOADED)
+      string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+      set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W2")
+    endif ()
   else ()
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${H5_CFLAGS1}")
   endif ()
@@ -287,8 +294,7 @@ endif ()
 #-----------------------------------------------------------------------------
 # Option to allow the user to enable warnings by groups
 #-----------------------------------------------------------------------------
-# XXX(kitware): Hardcode settings.
-if (FALSE)
+if (FALSE) # XXX(kitware): Hardcode settings.
 option (HDF5_ENABLE_GROUPTWO_WARNINGS "Enable group two warnings" OFF)
 else ()
 set(HDF5_ENABLE_GROUPTWO_WARNINGS OFF)
@@ -297,8 +303,10 @@ if (HDF5_ENABLE_GROUPTWO_WARNINGS)
   if (MSVC)
     string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W3")
-    string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3")
+    if (CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_LOADED)
+      string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+      set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3")
+    endif ()
   else ()
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${H5_CFLAGS2}")
   endif ()
@@ -307,8 +315,7 @@ endif ()
 #-----------------------------------------------------------------------------
 # Option to allow the user to enable warnings by groups
 #-----------------------------------------------------------------------------
-# XXX(kitware): Hardcode settings.
-if (FALSE)
+if (FALSE) # XXX(kitware): Hardcode settings.
 option (HDF5_ENABLE_GROUPTHREE_WARNINGS "Enable group three warnings" OFF)
 else ()
 set(HDF5_ENABLE_GROUPTHREE_WARNINGS OFF)
@@ -317,8 +324,10 @@ if (HDF5_ENABLE_GROUPTHREE_WARNINGS)
   if (MSVC)
     string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4")
-    string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+    if (CMAKE_COMPILER_IS_GNUCXX AND CMAKE_CXX_COMPILER_LOADED)
+      string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+      set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+    endif ()
   else ()
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${H5_CFLAGS3}")
   endif ()
@@ -327,8 +336,7 @@ endif ()
 #-----------------------------------------------------------------------------
 # Option to allow the user to enable warnings by groups
 #-----------------------------------------------------------------------------
-# XXX(kitware): Hardcode settings.
-if (FALSE)
+if (FALSE) # XXX(kitware): Hardcode settings.
 option (HDF5_ENABLE_GROUPFOUR_WARNINGS "Enable group four warnings" OFF)
 else ()
 set(HDF5_ENABLE_GROUPFOUR_WARNINGS OFF)

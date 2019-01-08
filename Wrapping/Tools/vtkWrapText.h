@@ -68,3 +68,4 @@ void vtkWrapText_PythonName(const char *name, char *pname);
 #endif
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkWrapText.h */

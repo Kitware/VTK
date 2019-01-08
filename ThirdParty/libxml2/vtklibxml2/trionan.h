@@ -1,6 +1,6 @@
 /*************************************************************************
  *
- * Id: trionan.h 2026 2003-08-06 04:43:55Z wbrack
+ * $Id$
  *
  * Copyright (C) 2001 Bjorn Reese <breese@users.sourceforge.net>
  *
@@ -46,7 +46,7 @@ TRIO_PUBLIC double trio_pinf TRIO_PROTO((void));
  * Return negative infinity.
  */
 TRIO_PUBLIC double trio_ninf TRIO_PROTO((void));
-  
+
 /*
  * Return negative zero.
  */
@@ -67,7 +67,7 @@ TRIO_PUBLIC int trio_isinf TRIO_PROTO((double number));
  * If number is finite return non-zero, otherwise return zero.
  */
 #if 0
-        /* Temporary fix - these 2 routines not used in libxml */
+	/* Temporary fix - these 2 routines not used in libxml */
 TRIO_PUBLIC int trio_isfinite TRIO_PROTO((double number));
 
 TRIO_PUBLIC int trio_fpclassify TRIO_PROTO((double number));

@@ -1,0 +1,21 @@
+NAME
+  VTK::IOMotionFX
+LIBRARY_NAME
+  vtkIOMotionFX
+CONDITION
+  NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" OR CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "18.0.0"
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonMisc
+  VTK::IOGeometry
+  VTK::pegtl
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

@@ -8,7 +8,7 @@ readonly name="jpeg"
 readonly ownership="jpeg-turbo Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/libjpeg-turbo.git"
-readonly tag="for/vtk-old"
+readonly tag="for/vtk-20181231.1-2.0.0"
 readonly paths="
 .gitattributes
 CMakeLists.vtk.txt
@@ -19,7 +19,6 @@ vtk_jpeg_mangle.h
 jconfig.h.in
 jconfigint.h.in
 win/jconfig.h.in
-win/jconfigint.h.in
 
 LICENSE.md
 README.ijg

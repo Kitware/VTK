@@ -1,0 +1,15 @@
+NAME
+  VTK::ImagingFourier
+LIBRARY_NAME
+  vtkImagingFourier
+KIT
+  VTK::Imaging
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::ImagingCore
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::vtksys

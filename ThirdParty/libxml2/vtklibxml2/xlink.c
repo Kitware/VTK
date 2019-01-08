@@ -28,7 +28,9 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#include "vtk_libxml2_zlib.h"
+#ifdef LIBXML_ZLIB_ENABLED
+#include <vtk_zlib.h>
+#endif
 
 #include <libxml/xmlmemory.h>
 #include <libxml/tree.h>
@@ -41,13 +43,13 @@
 #define XHTML_NAMESPACE (BAD_CAST "http://www.w3.org/1999/xhtml/")
 
 /****************************************************************
- *                                                              *
- *           Default setting and related functions              *
- *                                                              *
+ *								*
+ *           Default setting and related functions		*
+ *								*
  ****************************************************************/
- 
+
 static xlinkHandlerPtr xlinkDefaultHandler = NULL;
-static xlinkNodeDetectFunc      xlinkDefaultDetect = NULL;
+static xlinkNodeDetectFunc	xlinkDefaultDetect = NULL;
 
 /**
  * xlinkGetDefaultHandler:
@@ -81,7 +83,7 @@ xlinkSetDefaultHandler(xlinkHandlerPtr handler) {
  * Returns the current function or NULL;
  */
 xlinkNodeDetectFunc
-xlinkGetDefaultDetect   (void) {
+xlinkGetDefaultDetect	(void) {
     return(xlinkDefaultDetect);
 }
 
@@ -91,18 +93,18 @@ xlinkGetDefaultDetect   (void) {
  *
  * Set the default xlink detection routine
  */
-void 
-xlinkSetDefaultDetect   (xlinkNodeDetectFunc func) {
+void
+xlinkSetDefaultDetect	(xlinkNodeDetectFunc func) {
     xlinkDefaultDetect = func;
 }
 
 /****************************************************************
- *                                                              *
- *                  The detection routines                      *
- *                                                              *
+ *								*
+ *                  The detection routines			*
+ *								*
  ****************************************************************/
 
- 
+
 /**
  * xlinkIsLink:
  * @doc:  the document containing the node
@@ -117,8 +119,8 @@ xlinkSetDefaultDetect   (xlinkNodeDetectFunc func) {
  * Returns the xlinkType of the node (XLINK_TYPE_NONE if there is no
  *         link detected.
  */
-xlinkType 
-xlinkIsLink     (xmlDocPtr doc, xmlNodePtr node) {
+xlinkType
+xlinkIsLink	(xmlDocPtr doc, xmlNodePtr node) {
     xmlChar *type = NULL, *role = NULL;
     xlinkType ret = XLINK_TYPE_NONE;
 
@@ -126,18 +128,18 @@ xlinkIsLink     (xmlDocPtr doc, xmlNodePtr node) {
     if (doc == NULL) doc = node->doc;
     if ((doc != NULL) && (doc->type == XML_HTML_DOCUMENT_NODE)) {
         /*
-         * This is an HTML document.
-         */
+	 * This is an HTML document.
+	 */
     } else if ((node->ns != NULL) &&
                (xmlStrEqual(node->ns->href, XHTML_NAMESPACE))) {
+	/*
+	 * !!!! We really need an IS_XHTML_ELEMENT function from HTMLtree.h @@@
+	 */
         /*
-         * !!!! We really need an IS_XHTML_ELEMENT function from HTMLtree.h @@@
-         */
-        /*
-         * This is an XHTML element within an XML document
-         * Check whether it's one of the element able to carry links
-         * and in that case if it holds the attributes.
-         */
+	 * This is an XHTML element within an XML document
+	 * Check whether it's one of the element able to carry links
+	 * and in that case if it holds the attributes.
+	 */
     }
 
     /*
@@ -146,30 +148,30 @@ xlinkIsLink     (xmlDocPtr doc, xmlNodePtr node) {
      */
     type = xmlGetNsProp(node, BAD_CAST"type", XLINK_NAMESPACE);
     if (type != NULL) {
-        if (xmlStrEqual(type, BAD_CAST "simple")) {
+	if (xmlStrEqual(type, BAD_CAST "simple")) {
             ret = XLINK_TYPE_SIMPLE;
-        } if (xmlStrEqual(type, BAD_CAST "extended")) {
-            role = xmlGetNsProp(node, BAD_CAST "role", XLINK_NAMESPACE);
-            if (role != NULL) {
-                xmlNsPtr xlink;
-                xlink = xmlSearchNs(doc, node, XLINK_NAMESPACE);
-                if (xlink == NULL) {
-                    /* Humm, fallback method */
-                    if (xmlStrEqual(role, BAD_CAST"xlink:external-linkset")) 
-                        ret = XLINK_TYPE_EXTENDED_SET;
-                } else {
-                    xmlChar buf[200];
-                    snprintf((char *) buf, sizeof(buf), "%s:external-linkset",
-                             (char *) xlink->prefix);
+	} else if (xmlStrEqual(type, BAD_CAST "extended")) {
+	    role = xmlGetNsProp(node, BAD_CAST "role", XLINK_NAMESPACE);
+	    if (role != NULL) {
+		xmlNsPtr xlink;
+		xlink = xmlSearchNs(doc, node, XLINK_NAMESPACE);
+		if (xlink == NULL) {
+		    /* Humm, fallback method */
+		    if (xmlStrEqual(role, BAD_CAST"xlink:external-linkset"))
+			ret = XLINK_TYPE_EXTENDED_SET;
+		} else {
+		    xmlChar buf[200];
+		    snprintf((char *) buf, sizeof(buf), "%s:external-linkset",
+			     (char *) xlink->prefix);
                     buf[sizeof(buf) - 1] = 0;
-                    if (xmlStrEqual(role, buf))
-                        ret = XLINK_TYPE_EXTENDED_SET;
+		    if (xmlStrEqual(role, buf))
+			ret = XLINK_TYPE_EXTENDED_SET;
 
-                }
+		}
 
-            }
-            ret = XLINK_TYPE_EXTENDED;
-        }
+	    }
+	    ret = XLINK_TYPE_EXTENDED;
+	}
     }
 
     if (type != NULL) xmlFree(type);

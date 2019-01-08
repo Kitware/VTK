@@ -91,7 +91,7 @@ static herr_t H5P__ocpy_reg_prop(H5P_genclass_t *pclass);
 /* Property callbacks */
 static herr_t H5P__ocpy_merge_comm_dt_list_set(hid_t prop_id, const char *name, size_t size, void *value);
 static herr_t H5P__ocpy_merge_comm_dt_list_get(hid_t prop_id, const char *name, size_t size, void *value);
-static herr_t H5P__ocpy_merge_comm_dt_list_enc(const void *value, void **_pp, size_t *size);
+static herr_t H5P__ocpy_merge_comm_dt_list_enc(const void *value, void **_pp, size_t *size, void *udata);
 static herr_t H5P__ocpy_merge_comm_dt_list_dec(const void **_pp, void *value);
 static herr_t H5P__ocpy_merge_comm_dt_list_del(hid_t prop_id, const char *name, size_t size, void *value);
 static herr_t H5P__ocpy_merge_comm_dt_list_copy(const char* name, size_t size, void* value);
@@ -364,12 +364,13 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5P__ocpy_merge_comm_dt_list_enc(const void *value, void **_pp, size_t *size)
+H5P__ocpy_merge_comm_dt_list_enc(const void *value, void **_pp, size_t *size, void* udata)
 {
     const H5O_copy_dtype_merge_list_t * const *dt_list_ptr = (const H5O_copy_dtype_merge_list_t * const *)value;
     uint8_t **pp = (uint8_t **)_pp;
     const H5O_copy_dtype_merge_list_t *dt_list;         /* Pointer to merge named datatype list */
     size_t len;                                 /* Length of path component */
+    (void)udata;
 
     FUNC_ENTER_STATIC_NOERR
 

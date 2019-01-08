@@ -42,6 +42,7 @@
 #endif
 #ifdef H5_STDC_HEADERS
 #   include <limits.h>		/*for H5T_NATIVE_CHAR defn in H5Tpublic.h    */
+#   include <stdarg.h>      /*for variadic functions in H5VLpublic.h     */
 #endif
 #ifndef __cplusplus
 # ifdef H5_HAVE_STDINT_H
@@ -95,10 +96,10 @@ extern "C" {
 /* Version numbers */
 #define H5_VERS_MAJOR	1	/* For major interface/format changes  	     */
 #define H5_VERS_MINOR	10	/* For minor interface/format changes  	     */
-#define H5_VERS_RELEASE	1	/* For tweaks, bug-fixes, or development     */
+#define H5_VERS_RELEASE	3	/* For tweaks, bug-fixes, or development     */
 #define H5_VERS_SUBRELEASE ""	/* For pre-releases like snap0       */
 				/* Empty string for real releases.           */
-#define H5_VERS_INFO    "HDF5 library version: 1.10.1"      /* Full version string */
+#define H5_VERS_INFO    "HDF5 library version: 1.10.3"      /* Full version string */
 
 #define H5check()	H5check_version(H5_VERS_MAJOR,H5_VERS_MINOR,	      \
 				        H5_VERS_RELEASE)
@@ -117,7 +118,7 @@ extern "C" {
 /*
  * Status return values.  Failed integer functions in HDF5 result almost
  * always in a negative value (unsigned failing functions sometimes return
- * zero for failure) while successfull return is non-negative (often zero).
+ * zero for failure) while successful return is non-negative (often zero).
  * The negative failure value is most commonly -1, but don't bet on it.  The
  * proper way to detect failure is something like:
  *
@@ -300,7 +301,7 @@ typedef enum {
 } H5_iter_order_t;
 
 /* Iteration callback values */
-/* (Actually, any postive value will cause the iterator to stop and pass back
+/* (Actually, any positive value will cause the iterator to stop and pass back
  *      that positive value to the function that called the iterator)
  */
 #define H5_ITER_ERROR   (-1)

@@ -6,7 +6,7 @@
 // Work-around CMake dependency scanning limitation.  This must
 // duplicate the above list of headers.
 #if 0
-#include "CommandLineArguments.hxx.in"
+#  include "CommandLineArguments.hxx.in"
 #endif
 
 #include <iostream>
@@ -77,7 +77,7 @@ int testCommandLineArguments(int argc, char* argv[])
   int some_int_variable = 10;
   double some_double_variable = 10.10;
   char* some_string_variable = KWSYS_NULLPTR;
-  std::string some_stl_string_variable = "";
+  std::string some_stl_string_variable;
   bool some_bool_variable = false;
   bool some_bool_variable1 = false;
   bool bool_arg1 = false;
@@ -136,7 +136,7 @@ int testCommandLineArguments(int argc, char* argv[])
   arg.AddCallback("-C", argT::EQUAL_ARGUMENT, argument, random_ptr,
                   "Option -C takes argument after =");
   arg.AddCallback("-D", argT::CONCAT_ARGUMENT, argument, random_ptr,
-                  "This option takes concatinated argument");
+                  "This option takes concatenated argument");
   arg.AddCallback("--long1", argT::NO_ARGUMENT, argument, random_ptr, "-A");
   arg.AddCallback("--long2", argT::SPACE_ARGUMENT, argument, random_ptr, "-B");
   arg.AddCallback("--long3", argT::EQUAL_ARGUMENT, argument, random_ptr,

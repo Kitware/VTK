@@ -16,8 +16,9 @@
 #define vtk_png_h
 
 /* Use the png library configured for VTK.  */
-#cmakedefine VTK_USE_SYSTEM_PNG
-#ifdef VTK_USE_SYSTEM_PNG
+#cmakedefine01 VTK_MODULE_USE_EXTERNAL_vtkpng
+
+#if VTK_MODULE_USE_EXTERNAL_vtkpng
 # include <png.h>
 #else
 # include <vtkpng/png.h>

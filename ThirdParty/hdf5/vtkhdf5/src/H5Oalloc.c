@@ -61,21 +61,20 @@ static herr_t H5O_add_gap(H5F_t *f, H5O_t *oh, unsigned chunkno,
     hbool_t *chk_dirtied, size_t idx, uint8_t *new_gap_loc, size_t new_gap_size);
 static herr_t H5O_eliminate_gap(H5O_t *oh, hbool_t *chk_dirtied,
     H5O_mesg_t *mesg, uint8_t *new_gap_loc, size_t new_gap_size);
-static herr_t H5O_alloc_null(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t null_idx,
+static herr_t H5O__alloc_null(H5F_t *f, H5O_t *oh, size_t null_idx,
     const H5O_msg_class_t *new_type, void *new_native, size_t new_size);
-static htri_t H5O_alloc_extend_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh,
+static htri_t H5O__alloc_extend_chunk(H5F_t *f, H5O_t *oh,
     unsigned chunkno, size_t size, size_t *msg_idx);
 static herr_t H5O__alloc_find_best_nonnull(const H5F_t *f, const H5O_t *oh, size_t *size,
     H5O_msg_alloc_info_t *found_msg);
-static herr_t H5O_alloc_new_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t size,
+static herr_t H5O__alloc_new_chunk(H5F_t *f, H5O_t *oh, size_t size,
     size_t *new_idx);
 static herr_t H5O__alloc_find_best_null(const H5O_t *oh, size_t size, size_t *mesg_idx);
-static htri_t H5O_move_cont(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned cont_u);
-static htri_t H5O_move_msgs_forward(H5F_t *f, hid_t dxpl_id, H5O_t *oh);
-static htri_t H5O_merge_null(H5F_t *f, hid_t dxpl_id, H5O_t *oh);
-static htri_t H5O_remove_empty_chunks(H5F_t *f, hid_t dxpl_id, H5O_t *oh);
-static herr_t H5O_alloc_shrink_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh,
-    unsigned chunkno);
+static htri_t H5O_move_cont(H5F_t *f, H5O_t *oh, unsigned cont_u);
+static htri_t H5O_move_msgs_forward(H5F_t *f, H5O_t *oh);
+static htri_t H5O_merge_null(H5F_t *f, H5O_t *oh);
+static htri_t H5O_remove_empty_chunks(H5F_t *f, H5O_t *oh);
+static herr_t H5O__alloc_shrink_chunk(H5F_t *f, H5O_t *oh, unsigned chunkno);
 
 
 /*********************/
@@ -325,7 +324,7 @@ H5O_eliminate_gap(H5O_t *oh, hbool_t *chk_dirtied, H5O_mesg_t *mesg,
 
 /*-------------------------------------------------------------------------
  *
- * Function:    H5O_alloc_null
+ * Function:    H5O__alloc_null
  *
  * Purpose:     Allocate room for a new message from a null message
  *
@@ -338,7 +337,7 @@ H5O_eliminate_gap(H5O_t *oh, hbool_t *chk_dirtied, H5O_mesg_t *mesg,
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_alloc_null(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t null_idx,
+H5O__alloc_null(H5F_t *f, H5O_t *oh, size_t null_idx,
     const H5O_msg_class_t *new_type, void *new_native, size_t new_size)
 {
     H5O_chunk_proxy_t *chk_proxy = NULL;        /* Chunk that message is in */
@@ -346,7 +345,7 @@ H5O_alloc_null(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t null_idx,
     H5O_mesg_t *alloc_msg;              /* Pointer to null message to allocate out of */
     herr_t ret_value = SUCCEED; 	/* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(oh);
@@ -357,7 +356,7 @@ H5O_alloc_null(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t null_idx,
     alloc_msg = &oh->mesg[null_idx];
 
     /* Protect chunk */
-    if(NULL == (chk_proxy = H5O_chunk_protect(f, dxpl_id, oh, alloc_msg->chunkno)))
+    if(NULL == (chk_proxy = H5O__chunk_protect(f, oh, alloc_msg->chunkno)))
         HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header chunk")
 
     /* Check if there's a need to split the null message */
@@ -424,11 +423,11 @@ H5O_alloc_null(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t null_idx,
 
 done:
     /* Release chunk */
-    if(chk_proxy && H5O_chunk_unprotect(f, dxpl_id, chk_proxy, chk_dirtied) < 0)
+    if(chk_proxy && H5O__chunk_unprotect(f, chk_proxy, chk_dirtied) < 0)
         HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header chunk")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5O_alloc_null() */
+} /* H5O__alloc_null() */
 
 
 /*-------------------------------------------------------------------------
@@ -480,7 +479,7 @@ done:
 
 /*-------------------------------------------------------------------------
  *
- * Function:    H5O_alloc_extend_chunk
+ * Function:    H5O__alloc_extend_chunk
  *
  * Purpose:     Attempt to extend a chunk that is allocated on disk.
  *
@@ -507,8 +506,8 @@ done:
  *-------------------------------------------------------------------------
  */
 static htri_t
-H5O_alloc_extend_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned chunkno,
-    size_t size, size_t *msg_idx)
+H5O__alloc_extend_chunk(H5F_t *f, H5O_t *oh, unsigned chunkno, size_t size,
+    size_t *msg_idx)
 {
     H5O_chunk_proxy_t *chk_proxy = NULL;    /* Chunk that message is in */
     hbool_t     chk_dirtied = FALSE;        /* Flag for unprotecting chunk */
@@ -525,7 +524,7 @@ H5O_alloc_extend_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned chunkno,
     size_t      u;              /* Local index variable */
     htri_t      ret_value = TRUE; 	/* return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(f != NULL);
@@ -590,12 +589,11 @@ H5O_alloc_extend_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned chunkno,
     } /* end if */
 
     /* Protect chunk */
-    if(NULL == (chk_proxy = H5O_chunk_protect(f, dxpl_id, oh, chunkno)))
+    if(NULL == (chk_proxy = H5O__chunk_protect(f, oh, chunkno)))
 	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header chunk")
 
     /* Determine whether the chunk can be extended */
-    was_extended = H5MF_try_extend(f, dxpl_id, H5FD_MEM_OHDR, oh->chunk[chunkno].addr,
-                                 (hsize_t)(oh->chunk[chunkno].size), (hsize_t)(delta + extra_prfx_size));
+    was_extended = H5MF_try_extend(f, H5FD_MEM_OHDR, oh->chunk[chunkno].addr, (hsize_t)(oh->chunk[chunkno].size), (hsize_t)(delta + extra_prfx_size));
     if(was_extended < 0) /* error */
         HGOTO_ERROR(H5E_OHDR, H5E_CANTEXTEND, FAIL, "can't tell if we can extend chunk")
     else if(was_extended == FALSE)     /* can't extend -- we are done */
@@ -674,7 +672,7 @@ H5O_alloc_extend_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned chunkno,
             unsigned cont_chunkno = oh->mesg[u].chunkno;    /* Chunk # for continuation message */
 
             /* Protect chunk containing continuation message */
-            if(NULL == (chk_proxy2 = H5O_chunk_protect(f, dxpl_id, oh, cont_chunkno)))
+            if(NULL == (chk_proxy2 = H5O__chunk_protect(f, oh, cont_chunkno)))
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header chunk")
 
             /* Adjust size in continuation message */
@@ -686,7 +684,7 @@ H5O_alloc_extend_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned chunkno,
             chk_dirtied2 = TRUE;
 
             /* Release chunk containing continuation message */
-            if(H5O_chunk_unprotect(f, dxpl_id, chk_proxy2, chk_dirtied2) < 0)
+            if(H5O__chunk_unprotect(f, chk_proxy2, chk_dirtied2) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header chunk")
         } /* end if */
     } /* end for */
@@ -700,11 +698,11 @@ H5O_alloc_extend_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned chunkno,
 
 done:
     /* Release chunk */
-    if(chk_proxy && H5O_chunk_unprotect(f, dxpl_id, chk_proxy, chk_dirtied) < 0)
+    if(chk_proxy && H5O__chunk_unprotect(f, chk_proxy, chk_dirtied) < 0)
         HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header chunk")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5O_alloc_extend_chunk() */
+} /* H5O__alloc_extend_chunk() */
 
 
 /*-------------------------------------------------------------------------
@@ -885,8 +883,8 @@ H5O__alloc_find_best_nonnull(const H5F_t *f, const H5O_t *oh, size_t *size,
  *-------------------------------------------------------------------------
  */
 herr_t
-H5O__alloc_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t size,
-    size_t found_null, const H5O_msg_alloc_info_t *found_msg, size_t *new_idx)
+H5O__alloc_chunk(H5F_t *f, H5O_t *oh, size_t size, size_t found_null,
+    const H5O_msg_alloc_info_t *found_msg, size_t *new_idx)
 {
     H5O_mesg_t *curr_msg;               /* Pointer to current message to operate on */
     H5O_chunk_proxy_t *chk_proxy;       /* Chunk that message is in */
@@ -923,7 +921,7 @@ H5O__alloc_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t size,
     size +=  H5O_SIZEOF_CHKHDR_OH(oh);
 
     /* Allocate space in file to hold the new chunk */
-    new_chunk_addr = H5MF_alloc(f, H5FD_MEM_OHDR, dxpl_id, (hsize_t)size);
+    new_chunk_addr = H5MF_alloc(f, H5FD_MEM_OHDR, (hsize_t)size);
     if(!H5F_addr_defined(new_chunk_addr))
         HGOTO_ERROR(H5E_OHDR, H5E_CANTALLOC, FAIL, "unable to allocate space for new chunk")
 
@@ -974,7 +972,7 @@ H5O__alloc_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t size,
             H5O_mesg_t *null_msg;       /* Pointer to new null message */
 
             /* Protect last chunk */
-            if(NULL == (chk_proxy = H5O_chunk_protect(f, dxpl_id, oh, chunkno - 1)))
+            if(NULL == (chk_proxy = H5O__chunk_protect(f, oh, chunkno - 1)))
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header chunk")
 
             /* Copy each message to the new location */
@@ -1023,7 +1021,7 @@ H5O__alloc_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t size,
             oh->chunk[chunkno - 1].gap = 0;
 
             /* Release chunk, marking it dirty */
-            if(H5O_chunk_unprotect(f, dxpl_id, chk_proxy, TRUE) < 0)
+            if(H5O__chunk_unprotect(f, chk_proxy, TRUE) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header chunk")
         } /* end if */
         else {
@@ -1033,7 +1031,7 @@ H5O__alloc_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t size,
             H5O_mesg_t *null_msg;       /* Pointer to new null message */
 
             /* Protect chunk */
-            if(NULL == (chk_proxy = H5O_chunk_protect(f, dxpl_id, oh, oh->mesg[found_msg->msgno].chunkno)))
+            if(NULL == (chk_proxy = H5O__chunk_protect(f, oh, oh->mesg[found_msg->msgno].chunkno)))
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header chunk")
 
             /* Create null message for space that message to copy currently occupies */
@@ -1072,7 +1070,7 @@ H5O__alloc_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t size,
                 null_msg->raw_size += found_msg->null_size;
 
                 /* Release any information/memory for message */
-                H5O_msg_free_mesg(old_null_msg);
+                H5O__msg_free_mesg(old_null_msg);
 
                 /* Remove null message from list of messages */
                 if(found_msg->null_msgno < (oh->nmesgs - 1))
@@ -1090,7 +1088,7 @@ H5O__alloc_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t size,
             null_msg->dirty = TRUE;
 
             /* Release chunk, marking it dirty */
-            if(H5O_chunk_unprotect(f, dxpl_id, chk_proxy, TRUE) < 0)
+            if(H5O__chunk_unprotect(f, chk_proxy, TRUE) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header chunk")
         } /* end if */
     } /* end if */
@@ -1106,7 +1104,7 @@ H5O__alloc_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t size,
     oh->mesg[idx].chunkno = chunkno;
 
     /* Insert the new chunk into the cache */
-    if(H5O_chunk_add(f, dxpl_id, oh, chunkno, oh->mesg[found_null].chunkno) < 0)
+    if(H5O__chunk_add(f, oh, chunkno, oh->mesg[found_null].chunkno) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTINSERT, FAIL, "can't add new chunk to cache")
 
     /* Initialize the continuation information */
@@ -1117,7 +1115,7 @@ H5O__alloc_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t size,
     cont->chunkno = chunkno;
 
     /* Split the null message and point at continuation message */
-    if(H5O_alloc_null(f, dxpl_id, oh, found_null, H5O_MSG_CONT, cont, cont_size) < 0)
+    if(H5O__alloc_null(f, oh, found_null, H5O_MSG_CONT, cont, cont_size) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTINSERT, FAIL, "can't split null message")
 
     /* Set new message index value */
@@ -1129,7 +1127,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_alloc_new_chunk
+ * Function:    H5O__alloc_new_chunk
  *
  * Purpose:     Allocates a new chunk for the object header, including
  *		file space.
@@ -1164,14 +1162,14 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_alloc_new_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t size, size_t *new_idx)
+H5O__alloc_new_chunk(H5F_t *f, H5O_t *oh, size_t size, size_t *new_idx)
 {
     size_t      cont_size;              /*continuation message size     */
     size_t      idx;                    /* Message number */
     H5O_msg_alloc_info_t  found_msg;    /* Best fit non-null message */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(oh);
@@ -1192,12 +1190,12 @@ H5O_alloc_new_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t size, size_t *new
     } /* end if */
 
     /* Allocate and initialize new chunk in the file */
-    if(H5O__alloc_chunk(f, dxpl_id, oh, size, idx, &found_msg, new_idx) < 0)
+    if(H5O__alloc_chunk(f, oh, size, idx, &found_msg, new_idx) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTALLOC, FAIL, "can't allocate new object header chunk")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5O_alloc_new_chunk() */
+} /* H5O__alloc_new_chunk() */
 
 
 /*-------------------------------------------------------------------------
@@ -1277,7 +1275,7 @@ H5O__alloc_find_best_null(const H5O_t *oh, size_t size, size_t *mesg_idx)
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_alloc
+ * Function:    H5O__alloc
  *
  * Purpose:     Allocate enough space in the object header for this message.
  *
@@ -1290,7 +1288,7 @@ H5O__alloc_find_best_null(const H5O_t *oh, size_t size, size_t *mesg_idx)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5O_alloc(H5F_t *f, hid_t dxpl_id, H5O_t *oh, const H5O_msg_class_t *type,
+H5O__alloc(H5F_t *f, H5O_t *oh, const H5O_msg_class_t *type,
     const void *mesg, size_t *mesg_idx)
 {
     size_t raw_size;            /* Raw size of message */
@@ -1298,7 +1296,7 @@ H5O_alloc(H5F_t *f, hid_t dxpl_id, H5O_t *oh, const H5O_msg_class_t *type,
     size_t idx;                 /* Index of message which fits allocation */
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* check args */
     HDassert(oh);
@@ -1332,7 +1330,7 @@ H5O_alloc(H5F_t *f, hid_t dxpl_id, H5O_t *oh, const H5O_msg_class_t *type,
         for(chunkno = 0; chunkno < oh->nchunks; chunkno++) {
             htri_t	tri_result;     /* Status from attempting to extend chunk */
 
-            if((tri_result = H5O_alloc_extend_chunk(f, dxpl_id, oh, chunkno, raw_size, &idx)) < 0)
+            if((tri_result = H5O__alloc_extend_chunk(f, oh, chunkno, raw_size, &idx)) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTEXTEND, FAIL, "can't extend existing chunk")
             if(tri_result == TRUE)
 		break;
@@ -1340,13 +1338,13 @@ H5O_alloc(H5F_t *f, hid_t dxpl_id, H5O_t *oh, const H5O_msg_class_t *type,
 
         /* If we were not able to extend a chunk, create a new one */
         if(idx >= oh->nmesgs)
-            if(H5O_alloc_new_chunk(f, dxpl_id, oh, raw_size, &idx) < 0)
+            if(H5O__alloc_new_chunk(f, oh, raw_size, &idx) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_NOSPACE, FAIL, "unable to create a new object header data chunk")
     } /* end if */
     HDassert(idx < oh->nmesgs);
 
     /* Split the null message and point at continuation message */
-    if(H5O_alloc_null(f, dxpl_id, oh, idx, type, NULL, aligned_size) < 0)
+    if(H5O__alloc_null(f, oh, idx, type, NULL, aligned_size) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTINSERT, FAIL, "can't split null message")
 
     /* Mark object header as dirty in cache */
@@ -1358,7 +1356,7 @@ H5O_alloc(H5F_t *f, hid_t dxpl_id, H5O_t *oh, const H5O_msg_class_t *type,
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5O_alloc() */
+} /* H5O__alloc() */
 
 
 /*-------------------------------------------------------------------------
@@ -1376,8 +1374,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5O_release_mesg(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5O_mesg_t *mesg,
-    hbool_t adj_link)
+H5O_release_mesg(H5F_t *f, H5O_t *oh, H5O_mesg_t *mesg, hbool_t adj_link)
 {
     H5O_chunk_proxy_t *chk_proxy = NULL;    /* Chunk that message is in */
     hbool_t chk_dirtied = FALSE;            /* Flag for unprotecting chunk */
@@ -1391,18 +1388,17 @@ H5O_release_mesg(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5O_mesg_t *mesg,
     HDassert(mesg);
 
     /* Check if we should operate on the message */
-    if(adj_link) {
+    if(adj_link)
         /* Free any space referred to in the file from this message */
-        if(H5O_delete_mesg(f, dxpl_id, oh, mesg) < 0)
+        if(H5O__delete_mesg(f, oh, mesg) < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTDELETE, FAIL, "unable to delete file space for object header message")
-    } /* end if */
 
     /* Protect chunk */
-    if(NULL == (chk_proxy = H5O_chunk_protect(f, dxpl_id, oh, mesg->chunkno)))
+    if(NULL == (chk_proxy = H5O__chunk_protect(f, oh, mesg->chunkno)))
 	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to protect object header chunk")
 
     /* Free any native information */
-    H5O_msg_free_mesg(mesg);
+    H5O__msg_free_mesg(mesg);
 
     /* Change message type to nil and zero it */
     mesg->type = H5O_MSG_NULL;
@@ -1427,7 +1423,7 @@ H5O_release_mesg(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5O_mesg_t *mesg,
 
 done:
     /* Release chunk, if not already done */
-    if(chk_proxy && H5O_chunk_unprotect(f, dxpl_id, chk_proxy, chk_dirtied) < 0)
+    if(chk_proxy && H5O__chunk_unprotect(f, chk_proxy, chk_dirtied) < 0)
         HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header chunk")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1448,7 +1444,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static htri_t
-H5O_move_cont(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned cont_u)
+H5O_move_cont(H5F_t *f, H5O_t *oh, unsigned cont_u)
 {
     H5O_chunk_proxy_t *chk_proxy = NULL;        /* Chunk that continuation message is in */
     H5O_mesg_t 	*cont_msg;	/* Pointer to the continuation message */
@@ -1464,7 +1460,7 @@ H5O_move_cont(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned cont_u)
 
     /* Get initial information */
     cont_msg = &oh->mesg[cont_u];
-    H5O_LOAD_NATIVE(f, dxpl_id, 0, oh, cont_msg, FAIL)
+    H5O_LOAD_NATIVE(f, 0, oh, cont_msg, FAIL)
     deleted_chunkno = ((H5O_cont_t *)(cont_msg->native))->chunkno;
 
     /* Check if continuation message is pointing to the last chunk */
@@ -1504,11 +1500,11 @@ H5O_move_cont(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned cont_u)
 
             /* Convert continuation message into a null message.  Do not delete
              * the target chunk yet, so we can still copy messages from it. */
-            if(H5O_release_mesg(f, dxpl_id, oh, cont_msg, FALSE) < 0)
+            if(H5O_release_mesg(f, oh, cont_msg, FALSE) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTDELETE, FAIL, "unable to convert into null message")
 
             /* Protect chunk */
-            if(NULL == (chk_proxy = H5O_chunk_protect(f, dxpl_id, oh, cont_chunkno)))
+            if(NULL == (chk_proxy = H5O__chunk_protect(f, oh, cont_chunkno)))
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to protect object header chunk")
 
             /* Move message(s) forward into continuation message */
@@ -1534,7 +1530,7 @@ H5O_move_cont(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned cont_u)
                 } /* end if */
 
             /* Delete the target chunk */
-            if(H5O_chunk_delete(f, dxpl_id, oh, deleted_chunkno) < 0)
+            if(H5O__chunk_delete(f, oh, deleted_chunkno) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTDELETE, FAIL, "unable to remove chunk from cache")
 
             HDassert(move_start <= (move_end + gap_size));
@@ -1558,7 +1554,7 @@ H5O_move_cont(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned cont_u)
                 } /* end if */
 
                 /* Release any information/memory for continuation message */
-                H5O_msg_free_mesg(cont_msg);
+                H5O__msg_free_mesg(cont_msg);
                 if(cont_u < (oh->nmesgs - 1))
                     HDmemmove(&oh->mesg[cont_u], &oh->mesg[cont_u + 1], ((oh->nmesgs - 1) - cont_u) * sizeof(H5O_mesg_t));
                 oh->nmesgs--;
@@ -1572,7 +1568,7 @@ H5O_move_cont(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned cont_u)
                     /* Remove all null messages in deleted chunk from list of messages */
                     if(curr_msg->type->id == H5O_NULL_ID) {
                         /* Release any information/memory for message */
-                        H5O_msg_free_mesg(curr_msg);
+                        H5O__msg_free_mesg(curr_msg);
                         chk_dirtied = TRUE;
 
                         /* Remove from message list */
@@ -1594,7 +1590,7 @@ H5O_move_cont(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned cont_u)
 
 done:
     /* Release chunk, if not already done */
-    if(chk_proxy && H5O_chunk_unprotect(f, dxpl_id, chk_proxy, chk_dirtied) < 0)
+    if(chk_proxy && H5O__chunk_unprotect(f, chk_proxy, chk_dirtied) < 0)
         HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header chunk")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1616,7 +1612,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static htri_t
-H5O_move_msgs_forward(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
+H5O_move_msgs_forward(H5F_t *f, H5O_t *oh)
 {
     H5O_chunk_proxy_t *null_chk_proxy = NULL;  /* Chunk that null message is in */
     H5O_chunk_proxy_t *curr_chk_proxy = NULL;  /* Chunk that message is in */
@@ -1664,7 +1660,7 @@ H5O_move_msgs_forward(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
                             /* (We'll merge them together later, in another routine) */
                             if(H5O_NULL_ID != nonnull_msg->type->id) {
                                 /* Protect chunk */
-                                if(NULL == (null_chk_proxy = H5O_chunk_protect(f, dxpl_id, oh, curr_msg->chunkno)))
+                                if(NULL == (null_chk_proxy = H5O__chunk_protect(f, oh, curr_msg->chunkno)))
                                     HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header chunk")
 
                                 /* Copy raw data for non-null message to new location */
@@ -1683,7 +1679,7 @@ H5O_move_msgs_forward(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
                                 curr_msg->dirty = TRUE;
 
                                 /* Release chunk, marking it dirty */
-                                if(H5O_chunk_unprotect(f, dxpl_id, null_chk_proxy, TRUE) < 0)
+                                if(H5O__chunk_unprotect(f, null_chk_proxy, TRUE) < 0)
                                     HGOTO_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header chunk")
                                 null_chk_proxy = NULL;
 
@@ -1710,7 +1706,7 @@ H5O_move_msgs_forward(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
                 if(H5O_CONT_ID == curr_msg->type->id) {
                     htri_t status;      /* Status from moving messages */
 
-                    if((status = H5O_move_cont(f, dxpl_id, oh, u)) < 0)
+                    if((status = H5O_move_cont(f, oh, u)) < 0)
                         HGOTO_ERROR(H5E_OHDR, H5E_CANTDELETE, FAIL, "Error in moving messages into cont message")
                     else if(status > 0) { /* Message(s) got moved into "continuation" message */
                         packed_msg = TRUE;
@@ -1730,9 +1726,9 @@ H5O_move_msgs_forward(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
                         old_raw = curr_msg->raw;
 
                         /* Protect chunks */
-                        if(NULL == (null_chk_proxy = H5O_chunk_protect(f, dxpl_id, oh, null_msg->chunkno)))
+                        if(NULL == (null_chk_proxy = H5O__chunk_protect(f, oh, null_msg->chunkno)))
                             HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header chunk")
-                        if(NULL == (curr_chk_proxy = H5O_chunk_protect(f, dxpl_id, oh, curr_msg->chunkno)))
+                        if(NULL == (curr_chk_proxy = H5O__chunk_protect(f, oh, curr_msg->chunkno)))
                             HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header chunk")
 
                         /* If the message being moved is a continuation
@@ -1754,37 +1750,42 @@ H5O_move_msgs_forward(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
                             HDassert(((H5O_cont_t *)(curr_msg->native))->chunkno > 0);
 
                             /* Protect continuation message target chunk */
-                            if(NULL == (cont_targ_chk_proxy = H5O_chunk_protect(f, dxpl_id, oh, ((H5O_cont_t *)(curr_msg->native))->chunkno)))
+                            if(NULL == (cont_targ_chk_proxy = H5O__chunk_protect(f, oh, ((H5O_cont_t *)(curr_msg->native))->chunkno)))
                                 HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header chunk")
 
-                            /* Remove flush dependency on old continuation
-                             * message chunk */
-                            HDassert(cont_targ_chk_proxy);
-                            HDassert(cont_targ_chk_proxy->parent);
-                            HDassert(curr_chk_proxy);
-                            HDassert((void *)curr_chk_proxy == cont_targ_chk_proxy->parent);
+                            /* Check for flush dependency on previous continuation chunk */
+                            /* (As opposed to chunk 0) */
+                            if(cont_targ_chk_proxy->fd_parent) {
+                                /* Remove flush dependency on old continuation
+                                 * message chunk */
+                                HDassert(cont_targ_chk_proxy);
+                                HDassert(curr_chk_proxy);
+                                HDassert((void *)curr_chk_proxy == cont_targ_chk_proxy->fd_parent);
 
-                            if(H5AC_destroy_flush_dependency(curr_chk_proxy, cont_targ_chk_proxy) < 0)
-                                HGOTO_ERROR(H5E_OHDR, H5E_CANTUNDEPEND, FAIL, "unable to destroy flush dependency")
+                                if(H5AC_destroy_flush_dependency(curr_chk_proxy, cont_targ_chk_proxy) < 0)
+                                    HGOTO_ERROR(H5E_OHDR, H5E_CANTUNDEPEND, FAIL, "unable to destroy flush dependency")
 
-                            cont_targ_chk_proxy->parent = NULL;
+                                cont_targ_chk_proxy->fd_parent = NULL;
+                            } /* end if */
 
-                            /* Create flush dependency on new continuation
-                             * message chunk */
-                            if(H5AC_create_flush_dependency(null_chk_mdc_obj, cont_targ_chk_proxy) < 0)
-                                HGOTO_ERROR(H5E_OHDR, H5E_CANTDEPEND, FAIL, "unable to create flush dependency")
+                            /* Avoid (another) flush dependency on chunk 0 */
+                            if(0 != null_msg->chunkno) {
+                                /* Sanity checks */
+                                HDassert(null_chk_mdc_obj);
+                                HDassert(((H5C_cache_entry_t *)null_chk_mdc_obj)->magic == H5C__H5C_CACHE_ENTRY_T_MAGIC);
+                                HDassert(((H5C_cache_entry_t *)null_chk_mdc_obj)->type);
+                                HDassert(((H5C_cache_entry_t *)null_chk_mdc_obj)->type->id == H5AC_OHDR_CHK_ID);
 
-                            HDassert(null_chk_mdc_obj);
-                            HDassert(((H5C_cache_entry_t *)null_chk_mdc_obj)->magic == H5C__H5C_CACHE_ENTRY_T_MAGIC);
-                            HDassert(((H5C_cache_entry_t *)null_chk_mdc_obj)->type);
-                            HDassert((((H5C_cache_entry_t *)null_chk_mdc_obj)->type->id == H5AC_OHDR_ID) ||
-                                     (((H5C_cache_entry_t *)null_chk_mdc_obj)->type->id == H5AC_OHDR_CHK_ID));
+                                /* Create flush dependency on new continuation
+                                 * message chunk */
+                                if(H5AC_create_flush_dependency(null_chk_mdc_obj, cont_targ_chk_proxy) < 0)
+                                    HGOTO_ERROR(H5E_OHDR, H5E_CANTDEPEND, FAIL, "unable to create flush dependency")
 
-                            cont_targ_chk_proxy->parent = null_chk_mdc_obj;
+                                cont_targ_chk_proxy->fd_parent = null_chk_mdc_obj;
+                            } /* end if */
 
-                            /* Unprotect continuation message target chunk
-                             */
-                            if(H5O_chunk_unprotect(f, dxpl_id, cont_targ_chk_proxy, FALSE) < 0)
+                            /* Unprotect continuation message target chunk */
+                            if(H5O__chunk_unprotect(f, cont_targ_chk_proxy, FALSE) < 0)
                                 HGOTO_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header chunk")
                             cont_targ_chk_proxy = NULL;
                         } /* end if */
@@ -1809,7 +1810,7 @@ H5O_move_msgs_forward(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
                             null_chk_dirtied = TRUE;
 
                             /* Release current chunk, marking it dirty */
-                            if(H5O_chunk_unprotect(f, dxpl_id, curr_chk_proxy, curr_chk_dirtied) < 0)
+                            if(H5O__chunk_unprotect(f, curr_chk_proxy, curr_chk_dirtied) < 0)
                                 HGOTO_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header chunk")
                             curr_chk_proxy = NULL;
                             curr_chk_dirtied = FALSE;
@@ -1824,7 +1825,7 @@ H5O_move_msgs_forward(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
                             } /* end if */
 
                             /* Release null chunk, marking it dirty */
-                            if(H5O_chunk_unprotect(f, dxpl_id, null_chk_proxy, null_chk_dirtied) < 0)
+                            if(H5O__chunk_unprotect(f, null_chk_proxy, null_chk_dirtied) < 0)
                                 HGOTO_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header chunk")
                             null_chk_proxy = NULL;
                             null_chk_dirtied = FALSE;
@@ -1873,7 +1874,7 @@ H5O_move_msgs_forward(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
                             } /* end else */
 
                             /* Release null message's chunk, marking it dirty */
-                            if(H5O_chunk_unprotect(f, dxpl_id, null_chk_proxy, null_chk_dirtied) < 0)
+                            if(H5O__chunk_unprotect(f, null_chk_proxy, null_chk_dirtied) < 0)
                                 HGOTO_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header chunk")
                             null_chk_proxy = NULL;
                             null_chk_dirtied = FALSE;
@@ -1899,7 +1900,7 @@ H5O_move_msgs_forward(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
                             } /* end if */
 
                             /* Release new null message's chunk, marking it dirty */
-                            if(H5O_chunk_unprotect(f, dxpl_id, curr_chk_proxy, curr_chk_dirtied) < 0)
+                            if(H5O__chunk_unprotect(f, curr_chk_proxy, curr_chk_dirtied) < 0)
                                 HGOTO_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header chunk")
                             curr_chk_proxy = NULL;
                             curr_chk_dirtied = FALSE;
@@ -1933,11 +1934,11 @@ H5O_move_msgs_forward(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
 
 done:
     if(ret_value < 0) {
-        if(null_chk_proxy && H5O_chunk_unprotect(f, dxpl_id, null_chk_proxy, null_chk_dirtied) < 0)
+        if(null_chk_proxy && H5O__chunk_unprotect(f, null_chk_proxy, null_chk_dirtied) < 0)
             HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect null object header chunk")
-        if(curr_chk_proxy && H5O_chunk_unprotect(f, dxpl_id, curr_chk_proxy, curr_chk_dirtied) < 0)
+        if(curr_chk_proxy && H5O__chunk_unprotect(f, curr_chk_proxy, curr_chk_dirtied) < 0)
             HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect current object header chunk")
-        if(cont_targ_chk_proxy && H5O_chunk_unprotect(f, dxpl_id, cont_targ_chk_proxy, FALSE) < 0)
+        if(cont_targ_chk_proxy && H5O__chunk_unprotect(f, cont_targ_chk_proxy, FALSE) < 0)
             HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect continuation message target object header chunk")
     } /* end if */
     else
@@ -1962,7 +1963,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static htri_t
-H5O_merge_null(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
+H5O_merge_null(H5F_t *f, H5O_t *oh)
 {
     hbool_t merged_msg;                 /* Flag to indicate that messages were merged */
     hbool_t did_merging = FALSE;        /* Whether any messages were merged */
@@ -2024,10 +2025,10 @@ H5O_merge_null(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
                             htri_t result;
 
                             /* Release any information/memory for second message */
-                            H5O_msg_free_mesg(curr_msg2);
+                            H5O__msg_free_mesg(curr_msg2);
 
                             /* Protect chunk */
-                            if(NULL == (curr_chk_proxy = H5O_chunk_protect(f, dxpl_id, oh, curr_msg->chunkno)))
+                            if(NULL == (curr_chk_proxy = H5O__chunk_protect(f, oh, curr_msg->chunkno)))
                                 HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header chunk")
 
                             /* Adjust first message address and extend length to cover second message */
@@ -2038,7 +2039,7 @@ H5O_merge_null(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
                             curr_msg->dirty = TRUE;
 
                             /* Release new null message's chunk, marking it dirty */
-                            if(H5O_chunk_unprotect(f, dxpl_id, curr_chk_proxy, TRUE) < 0)
+                            if(H5O__chunk_unprotect(f, curr_chk_proxy, TRUE) < 0)
                                 HGOTO_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header chunk")
 
                             /* Remove second message from list of messages */
@@ -2050,7 +2051,7 @@ H5O_merge_null(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
                             oh->nmesgs--;
 
                             /* The merge null message might span the entire chunk: scan for empty chunk to remove */
-                            if((result = H5O_remove_empty_chunks(f, dxpl_id, oh)) < 0)
+                            if((result = H5O_remove_empty_chunks(f, oh)) < 0)
                                 HGOTO_ERROR(H5E_OHDR, H5E_CANTPACK, FAIL, "can't remove empty chunk")
                             else if(result > 0)
                                 /* Get out of loop */
@@ -2058,7 +2059,7 @@ H5O_merge_null(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
 
                             /* If the merged message is too large, shrink the chunk */
                             if(curr_msg->raw_size >= H5O_MESG_MAX_SIZE)
-                                if(H5O_alloc_shrink_chunk(f, dxpl_id, oh, curr_msg->chunkno) < 0)
+                                if(H5O__alloc_shrink_chunk(f, oh, curr_msg->chunkno) < 0)
                                     HGOTO_ERROR(H5E_OHDR, H5E_CANTPACK, FAIL, "unable to shrink chunk")
 
                             /* Get out of loop */
@@ -2105,7 +2106,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static htri_t
-H5O_remove_empty_chunks(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
+H5O_remove_empty_chunks(H5F_t *f, H5O_t *oh)
 {
     hbool_t deleted_chunk;              /* Whether to a chunk was deleted */
     hbool_t did_deleting = FALSE;       /* Whether any chunks were deleted */
@@ -2141,7 +2142,7 @@ H5O_remove_empty_chunks(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
                 for(v = 0, cont_msg = &oh->mesg[0]; v < oh->nmesgs; v++, cont_msg++) {
                     if(H5O_CONT_ID == cont_msg->type->id) {
                         /* Decode current continuation message if necessary */
-                        H5O_LOAD_NATIVE(f, dxpl_id, 0, oh, cont_msg, FAIL)
+                        H5O_LOAD_NATIVE(f, 0, oh, cont_msg, FAIL)
 
                         /* Check if the chunkno needs to be set */
                         /* (should only occur when the continuation message is first decoded) */
@@ -2172,7 +2173,7 @@ H5O_remove_empty_chunks(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
                 deleted_chunkno = null_msg->chunkno;
 
                 /* Convert continuation message into a null message */
-                if(H5O_release_mesg(f, dxpl_id, oh, cont_msg, TRUE) < 0)
+                if(H5O_release_mesg(f, oh, cont_msg, TRUE) < 0)
                     HGOTO_ERROR(H5E_OHDR, H5E_CANTDELETE, FAIL, "unable to convert into null message")
 
                 /*
@@ -2196,7 +2197,7 @@ H5O_remove_empty_chunks(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
 
                         /* If the entry is in the cache, update its chunk index */
                         if(chk_proxy_status & H5AC_ES__IN_CACHE) {
-                            if(H5O_chunk_update_idx(f, dxpl_id, oh, u) < 0)
+                            if(H5O__chunk_update_idx(f, oh, u) < 0)
                                 HGOTO_ERROR(H5E_OHDR, H5E_CANTSET, FAIL, "unable to update index for chunk proxy")
                         } /* end if */
                     } /* end for */
@@ -2211,7 +2212,7 @@ H5O_remove_empty_chunks(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
                  */
 
                 /* Release any information/memory for message */
-                H5O_msg_free_mesg(null_msg);
+                H5O__msg_free_mesg(null_msg);
 
                 /* Remove null message from list of messages */
                 if(null_msg_no < (oh->nmesgs - 1))
@@ -2233,7 +2234,7 @@ H5O_remove_empty_chunks(H5F_t *f, hid_t dxpl_id, H5O_t *oh)
                     /* Check for continuation message */
                     if(H5O_CONT_ID == curr_msg->type->id) {
                         /* Decode current continuation message if necessary */
-                        H5O_LOAD_NATIVE(f, dxpl_id, 0, oh, curr_msg, FAIL)
+                        H5O_LOAD_NATIVE(f, 0, oh, curr_msg, FAIL)
 
                         /* Check if the chunkno needs to be set */
                         /* (should only occur when the continuation message is first decoded) */
@@ -2287,15 +2288,10 @@ done:
  *		koziol@ncsa.uiuc.edu
  *		Oct  4 2005
  *
- * Modifications:
- *   Feb. 2009: Vailin Choi
- *      Add 2 more parameters to H5O_move_msgs_forward() for moving
- *	messages forward into "continuation" message
- *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5O_condense_header(H5F_t *f, H5O_t *oh, hid_t dxpl_id)
+H5O_condense_header(H5F_t *f, H5O_t *oh)
 {
     hbool_t rescan_header;              /* Whether to rescan header */
     htri_t result;                      /* Result from packing/merging/etc */
@@ -2312,21 +2308,21 @@ H5O_condense_header(H5F_t *f, H5O_t *oh, hid_t dxpl_id)
         rescan_header = FALSE;
 
         /* Scan for messages that can be moved earlier in chunks */
-        result = H5O_move_msgs_forward(f, dxpl_id, oh);
+        result = H5O_move_msgs_forward(f, oh);
         if(result < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTPACK, FAIL, "can't move header messages forward")
         if(result > 0)
             rescan_header = TRUE;
 
         /* Scan for adjacent null messages & merge them */
-        result = H5O_merge_null(f, dxpl_id, oh);
+        result = H5O_merge_null(f, oh);
         if(result < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTPACK, FAIL, "can't pack null header messages")
         if(result > 0)
             rescan_header = TRUE;
 
         /* Scan for empty chunks to remove */
-        result = H5O_remove_empty_chunks(f, dxpl_id, oh);
+        result = H5O_remove_empty_chunks(f, oh);
         if(result < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTPACK, FAIL, "can't remove empty chunk")
         if(result > 0)
@@ -2343,7 +2339,7 @@ done:
 
 /*-------------------------------------------------------------------------
  *
- * Function:    H5O_alloc_shrink_chunk
+ * Function:    H5O__alloc_shrink_chunk
  *
  * Purpose:     Shrinks a chunk, removing all null messages and any gap.
  *
@@ -2356,7 +2352,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_alloc_shrink_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned chunkno)
+H5O__alloc_shrink_chunk(H5F_t *f, H5O_t *oh, unsigned chunkno)
 {
     H5O_chunk_t *chunk = &oh->chunk[chunkno];   /* Chunk to shrink */
     H5O_chunk_proxy_t *chk_proxy = NULL;        /* Metadata cache proxy for chunk to shrink */
@@ -2374,14 +2370,14 @@ H5O_alloc_shrink_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned chunkno)
     size_t      u;                              /* Index */
     herr_t      ret_value = SUCCEED;            /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(f);
     HDassert(oh);
 
     /* Protect chunk */
-    if(NULL == (chk_proxy = H5O_chunk_protect(f, dxpl_id, oh, chunkno)))
+    if(NULL == (chk_proxy = H5O__chunk_protect(f, oh, chunkno)))
         HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to protect object header chunk")
 
     /* Loop backwards to increase the chance of seeing more null messages at the
@@ -2415,7 +2411,7 @@ H5O_alloc_shrink_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned chunkno)
             new_size -= shrink_size;
 
             /* Release any information/memory for the message */
-            H5O_msg_free_mesg(curr_msg);
+            H5O__msg_free_mesg(curr_msg);
 
             /* Remove the deleted null message from list of messages */
             if(u < (oh->nmesgs - 1))
@@ -2434,16 +2430,17 @@ H5O_alloc_shrink_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned chunkno)
         oh->nmesgs++;
 
         /* Initialize new null message to make the chunk large enough */
-        oh->mesg[oh->nmesgs].type = H5O_MSG_NULL;
-        oh->mesg[oh->nmesgs].dirty = TRUE;
-        oh->mesg[oh->nmesgs].native = NULL;
-        oh->mesg[oh->nmesgs].raw = old_image + new_size + sizeof_msghdr - sizeof_chksum;
-        oh->mesg[oh->nmesgs].raw_size = MAX(H5O_ALIGN_OH(oh, min_chunk_size - total_msg_size),
+        curr_msg = &oh->mesg[oh->nmesgs - 1];
+        curr_msg->type = H5O_MSG_NULL;
+        curr_msg->dirty = TRUE;
+        curr_msg->native = NULL;
+        curr_msg->raw = old_image + new_size + sizeof_msghdr - sizeof_chksum;
+        curr_msg->raw_size = MAX(H5O_ALIGN_OH(oh, min_chunk_size - total_msg_size),
             sizeof_msghdr) - sizeof_msghdr;
-        oh->mesg[oh->nmesgs].chunkno = chunkno;
+        curr_msg->chunkno = chunkno;
 
         /* update the new chunk size */
-        new_size += oh->mesg[oh->nmesgs].raw_size + sizeof_msghdr;
+        new_size += curr_msg->raw_size + sizeof_msghdr;
     } /* end if */
 
     /* Check for changing the chunk #0 data size enough to need adjusting the flags */
@@ -2507,7 +2504,7 @@ H5O_alloc_shrink_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned chunkno)
             H5O_chunk_proxy_t *cont_chk_proxy;        /* Chunk that message is in */
 
             /* Protect chunk */
-            if(NULL == (cont_chk_proxy = H5O_chunk_protect(f, dxpl_id, oh, curr_msg->chunkno)))
+            if(NULL == (cont_chk_proxy = H5O__chunk_protect(f, oh, curr_msg->chunkno)))
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to protect object header chunk")
 
             /* Adjust size of continuation message */
@@ -2518,7 +2515,7 @@ H5O_alloc_shrink_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned chunkno)
             curr_msg->dirty = TRUE;
 
             /* Release chunk, marking it dirty */
-            if(H5O_chunk_unprotect(f, dxpl_id, cont_chk_proxy, TRUE) < 0)
+            if(H5O__chunk_unprotect(f, cont_chk_proxy, TRUE) < 0)
                 HGOTO_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header chunk")
         } /* end if */
     } /* end for */
@@ -2530,14 +2527,14 @@ H5O_alloc_shrink_chunk(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned chunkno)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTRESIZE, FAIL, "unable to resize object header chunk")
 
     /* Free the unused space in the file */
-    if(H5MF_xfree(f, H5FD_MEM_OHDR, dxpl_id, chunk->addr + new_size, (hsize_t)(old_size - new_size)) < 0)
+    if(H5MF_xfree(f, H5FD_MEM_OHDR, chunk->addr + new_size, (hsize_t)(old_size - new_size)) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTFREE, FAIL, "unable to shrink object header chunk")
 
 done:
     /* Release chunk, marking it dirty */
-    if(chk_proxy && H5O_chunk_unprotect(f, dxpl_id, chk_proxy, TRUE) < 0)
+    if(chk_proxy && H5O__chunk_unprotect(f, chk_proxy, TRUE) < 0)
         HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header chunk")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5O_alloc_shrink_chunk() */
+} /* H5O__alloc_shrink_chunk() */
 

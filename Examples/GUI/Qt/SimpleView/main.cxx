@@ -7,8 +7,8 @@
  * statement of authorship are reproduced on all copies.
  */
 // QT includes
-#include <QApplication>
-#include <QSurfaceFormat>
+#include <QtWidgets/QApplication>
+#include <QtGui/QSurfaceFormat>
 
 #include "QVTKOpenGLWidget.h"
 #include "SimpleView.h"

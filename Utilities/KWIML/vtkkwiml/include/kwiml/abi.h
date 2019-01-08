@@ -1,6 +1,6 @@
 /*============================================================================
   Kitware Information Macro Library
-  Copyright 2010-2017 Kitware, Inc.
+  Copyright 2010-2018 Kitware, Inc.
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
@@ -468,7 +468,7 @@ suppression macro KWIML_ABI_NO_VERIFY was defined.
 # define KWIML_ABI_ENDIAN_ID KWIML_ABI_ENDIAN_ID_LITTLE
 
 /* RISC-V */
-#elif defined(__riscv__)
+#elif defined(__riscv) || defined(__riscv__)
 # define KWIML_ABI_ENDIAN_ID KWIML_ABI_ENDIAN_ID_LITTLE
 
 /* Unknown CPU */
@@ -488,7 +488,7 @@ suppression macro KWIML_ABI_NO_VERIFY was defined.
 # pragma warning (disable:4310) /* cast truncates constant value */
 #endif
 
-#ifdef __cplusplus
+#if defined(__cplusplus) && !defined(__BORLANDC__)
 #define KWIML_ABI_private_STATIC_CAST(t,v) static_cast<t>(v)
 #else
 #define KWIML_ABI_private_STATIC_CAST(t,v) (t)(v)

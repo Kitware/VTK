@@ -46,9 +46,9 @@ test with a baseline image.
     using a path relative to the test directory:
 
         $ edit Some/Module/Testing/Cxx/CMakeLists.txt
-        ExternalData_add_test(VTKData
-          NAME ${vtk-module}Cxx-MyTest
-          COMMAND ${vtk-module}CxxTests MyTest
+        ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}"
+          NAME ${_vtk_build_test}Cxx-MyTest
+          COMMAND <VTK_MODULE_NAME>CxxTests MyTest
                   ... -V DATA{../Data/Baseline/MyTest.png,:} ...
           )
 

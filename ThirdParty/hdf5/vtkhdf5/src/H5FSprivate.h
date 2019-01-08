@@ -104,13 +104,13 @@ typedef struct H5FS_section_class_t {
     /* Object methods */
     herr_t (*add)(H5FS_section_info_t **, unsigned *, void *);       /* Routine called when section is about to be added to manager */
     herr_t (*serialize)(const struct H5FS_section_class_t *, const H5FS_section_info_t *, uint8_t *);        /* Routine to serialize a "live" section into a buffer */
-    H5FS_section_info_t *(*deserialize)(const struct H5FS_section_class_t *, hid_t dxpl_id, const uint8_t *, haddr_t, hsize_t, unsigned *);     /* Routine to deserialize a buffer into a "live" section */
+    H5FS_section_info_t *(*deserialize)(const struct H5FS_section_class_t *, const uint8_t *, haddr_t, hsize_t, unsigned *);     /* Routine to deserialize a buffer into a "live" section */
     htri_t (*can_merge)(const H5FS_section_info_t *, const H5FS_section_info_t *, void *);  /* Routine to determine if two nodes are mergable */
     herr_t (*merge)(H5FS_section_info_t **, H5FS_section_info_t *, void *);      /* Routine to merge two nodes */
     htri_t (*can_shrink)(const H5FS_section_info_t *, void *);        /* Routine to determine if node can shrink container */
     herr_t (*shrink)(H5FS_section_info_t **, void *);   /* Routine to shrink container */
     herr_t (*free)(H5FS_section_info_t *);              /* Routine to free node */
-    herr_t (*valid)(const struct H5FS_section_class_t *, const H5FS_section_info_t *, hid_t dxpl_id);   /* Routine to check if a section is valid */
+    herr_t (*valid)(const struct H5FS_section_class_t *, const H5FS_section_info_t *);   /* Routine to check if a section is valid */
     H5FS_section_info_t *(*split)(H5FS_section_info_t *, hsize_t);     /* Routine to create the split section */
     herr_t (*debug)(const H5FS_section_info_t *, FILE *, int , int );   /* Routine to dump debugging information about a section */
 } H5FS_section_class_t;
@@ -175,37 +175,39 @@ H5FL_SEQ_EXTERN(H5FS_section_class_t);
 /* Library-private Function Prototypes */
 /***************************************/
 
+/* Package initialization routine */
+H5_DLL herr_t H5FS_init(void);
+
 /* Free space manager routines */
-H5_DLL H5FS_t *H5FS_create(H5F_t *f, hid_t dxpl_id, haddr_t *fs_addr,
-    const H5FS_create_t *fs_create, uint16_t nclasses,
-    const H5FS_section_class_t *classes[], void *cls_init_udata, hsize_t alignment, hsize_t threshold);
-H5_DLL H5FS_t *H5FS_open(H5F_t *f, hid_t dxpl_id, haddr_t fs_addr,
-    uint16_t nclasses, const H5FS_section_class_t *classes[], void *cls_init_udata, hsize_t alignment, hsize_t threshold);
+H5_DLL H5FS_t *H5FS_create(H5F_t *f, haddr_t *fs_addr, const H5FS_create_t *fs_create,
+    uint16_t nclasses, const H5FS_section_class_t *classes[],
+    void *cls_init_udata, hsize_t alignment, hsize_t threshold);
+H5_DLL H5FS_t *H5FS_open(H5F_t *f, haddr_t fs_addr, uint16_t nclasses,
+    const H5FS_section_class_t *classes[], void *cls_init_udata, hsize_t alignment,
+    hsize_t threshold);
 H5_DLL herr_t H5FS_size(const H5F_t *f, const H5FS_t *fspace, hsize_t *meta_size);
-H5_DLL herr_t H5FS_delete(H5F_t *f, hid_t dxpl_id, haddr_t fs_addr);
-H5_DLL herr_t H5FS_close(H5F_t *f, hid_t dxpl_id, H5FS_t *fspace);
-H5_DLL herr_t H5FS_alloc_hdr(H5F_t *f, H5FS_t *fspace, haddr_t *fs_addr, hid_t dxpl_id);
-H5_DLL herr_t H5FS_alloc_sect(H5F_t *f, H5FS_t *fspace, hid_t dxpl_id);
-H5_DLL herr_t H5FS_free(H5F_t *f, H5FS_t *fspace, hid_t dxpl_id, 
-    hbool_t free_file_space);
+H5_DLL herr_t H5FS_delete(H5F_t *f, haddr_t fs_addr);
+H5_DLL herr_t H5FS_close(H5F_t *f, H5FS_t *fspace);
+H5_DLL herr_t H5FS_alloc_hdr(H5F_t *f, H5FS_t *fspace, haddr_t *fs_addr);
+H5_DLL herr_t H5FS_alloc_sect(H5F_t *f, H5FS_t *fspace);
+H5_DLL herr_t H5FS_free(H5F_t *f, H5FS_t *fspace, hbool_t free_file_space);
 
 /* Free space section routines */
-H5_DLL herr_t H5FS_sect_add(H5F_t *f, hid_t dxpl_id, H5FS_t *fspace,
-    H5FS_section_info_t *node, unsigned flags, void *op_data);
-H5_DLL htri_t H5FS_sect_try_merge(H5F_t *f, hid_t dxpl_id, H5FS_t *fspace,
+H5_DLL herr_t H5FS_sect_add(H5F_t *f, H5FS_t *fspace, H5FS_section_info_t *node,
+    unsigned flags, void *op_data);
+H5_DLL htri_t H5FS_sect_try_merge(H5F_t *f, H5FS_t *fspace,
     H5FS_section_info_t *sect, unsigned flags, void *op_data);
-H5_DLL htri_t H5FS_sect_try_extend(H5F_t *f, hid_t dxpl_id, H5FS_t *fspace,
-    haddr_t addr, hsize_t size, hsize_t extra_requested, unsigned flags, void *op_data);
-H5_DLL herr_t H5FS_sect_remove(H5F_t *f, hid_t dxpl_id, H5FS_t *fspace,
-    H5FS_section_info_t *node);
-H5_DLL htri_t H5FS_sect_find(H5F_t *f, hid_t dxpl_id, H5FS_t *fspace,
-    hsize_t request, H5FS_section_info_t **node);
-H5_DLL herr_t H5FS_sect_iterate(H5F_t *f, hid_t dxpl_id, H5FS_t *fspace, H5FS_operator_t op, void *op_data);
+H5_DLL htri_t H5FS_sect_try_extend(H5F_t *f, H5FS_t *fspace, haddr_t addr,
+    hsize_t size, hsize_t extra_requested, unsigned flags, void *op_data);
+H5_DLL herr_t H5FS_sect_remove(H5F_t *f, H5FS_t *fspace, H5FS_section_info_t *node);
+H5_DLL htri_t H5FS_sect_find(H5F_t *f, H5FS_t *fspace, hsize_t request,
+    H5FS_section_info_t **node);
+H5_DLL herr_t H5FS_sect_iterate(H5F_t *f, H5FS_t *fspace, H5FS_operator_t op, void *op_data);
 H5_DLL herr_t H5FS_sect_stats(const H5FS_t *fspace, hsize_t *tot_space,
     hsize_t *nsects);
-H5_DLL herr_t H5FS_sect_change_class(H5F_t *f, hid_t dxpl_id, H5FS_t *fspace,
+H5_DLL herr_t H5FS_sect_change_class(H5F_t *f, H5FS_t *fspace,
     H5FS_section_info_t *sect, uint16_t new_class);
-H5_DLL htri_t H5FS_sect_try_shrink_eoa(H5F_t *f, hid_t dxpl_id, H5FS_t *fspace,
+H5_DLL htri_t H5FS_sect_try_shrink_eoa(H5F_t *f, H5FS_t *fspace,
     void *op_data);
 
 /* Statistics routine */
@@ -213,16 +215,14 @@ H5_DLL herr_t H5FS_stat_info(const H5F_t *f, const H5FS_t *frsp, H5FS_stat_t *st
 H5_DLL herr_t H5FS_get_sect_count(const H5FS_t *frsp, hsize_t *tot_sect_count);
 
 /* free space manager settling routines */
-H5_DLL herr_t H5FS_vfd_alloc_hdr_and_section_info_if_needed(H5F_t *f,
-                                                          hid_t dxpl_id,
-                                                          H5FS_t *fspace,
-                                                          haddr_t *fs_addr_ptr);
+H5_DLL herr_t H5FS_vfd_alloc_hdr_and_section_info_if_needed(H5F_t *f, H5FS_t *fspace,
+    haddr_t *fs_addr_ptr);
 
 /* Debugging routines for dumping file structures */
-H5_DLL herr_t H5FS_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr,
-    FILE *stream, int indent, int fwidth);
-H5_DLL herr_t H5FS_sects_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr,
-    FILE *stream, int indent, int fwidth, haddr_t fs_addr, haddr_t client_addr);
+H5_DLL herr_t H5FS_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent,
+    int fwidth);
+H5_DLL herr_t H5FS_sects_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent,
+    int fwidth, haddr_t fs_addr, haddr_t client_addr);
 H5_DLL herr_t H5FS_sect_debug(const H5FS_t *fspace, const H5FS_section_info_t *sect,
     FILE *stream, int indent, int fwidth);
 

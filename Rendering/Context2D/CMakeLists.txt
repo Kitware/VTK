@@ -1,28 +1,27 @@
-set(module_SRCS
-  vtkAbstractContextBufferId.cxx
-  vtkAbstractContextItem.cxx
-  vtkBlockItem.cxx
-  vtkBrush.cxx
-  vtkContext2D.cxx
-  vtkContext3D.cxx
-  vtkContextActor.cxx
-  vtkContextClip.cxx
-  vtkContextDevice2D.cxx
-  vtkContextDevice3D.cxx
-  vtkContextItem.cxx
-  vtkContextKeyEvent.cxx
-  vtkContextMapper2D.cxx
-  vtkContextMouseEvent.cxx
-  vtkContextScene.cxx
-  vtkContextTransform.cxx
-  vtkImageItem.cxx
-  vtkMarkerUtilities.cxx
-  vtkLabeledContourPolyDataItem.cxx
-  vtkPen.cxx
-#  vtkPiecewisePointHandleItem.cxx
-  vtkPolyDataItem.cxx
-  vtkPropItem.cxx
-  vtkTooltipItem.cxx
-  )
+set(classes
+  vtkAbstractContextBufferId
+  vtkAbstractContextItem
+  vtkBlockItem
+  vtkBrush
+  vtkContext2D
+  vtkContext3D
+  vtkContextActor
+  vtkContextClip
+  vtkContextDevice2D
+  vtkContextDevice3D
+  vtkContextItem
+  vtkContextKeyEvent
+  vtkContextMapper2D
+  vtkContextMouseEvent
+  vtkContextScene
+  vtkContextTransform
+  vtkImageItem
+  vtkLabeledContourPolyDataItem
+  vtkMarkerUtilities
+  vtkPen
+  vtkPolyDataItem
+  vtkPropItem
+  vtkTooltipItem)
 
-vtk_module_library(vtkRenderingContext2D ${module_SRCS})
+vtk_module_add_module(VTK::RenderingContext2D
+  CLASSES ${classes})

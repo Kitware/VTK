@@ -487,7 +487,7 @@ H5FD_direct_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxadd
     o_flags |= O_DIRECT;
 
     /* Open the file */
-    if ((fd=HDopen(name, o_flags, 0666))<0)
+    if ((fd = HDopen(name, o_flags, H5_POSIX_CREATE_MODE_RW))<0)
         HSYS_GOTO_ERROR(H5E_FILE, H5E_CANTOPENFILE, NULL, "unable to open file")
 
     if (HDfstat(fd, &sb)<0)
@@ -698,6 +698,7 @@ H5FD_direct_query(const H5FD_t H5_ATTR_UNUSED * _f, unsigned long *flags /* out 
         *flags |= H5FD_FEAT_ACCUMULATE_METADATA;    /* OK to accumulate metadata for faster writes                      */
         *flags |= H5FD_FEAT_DATA_SIEVE;             /* OK to perform data sieving for faster raw data reads & writes    */
         *flags |= H5FD_FEAT_AGGREGATE_SMALLDATA;    /* OK to aggregate "small" raw data allocations                     */
+        *flags |= H5FD_FEAT_DEFAULT_VFD_COMPATIBLE; /* VFD creates a file which can be opened with the default VFD      */
     }
 
     FUNC_LEAVE_NOAPI(SUCCEED)
@@ -950,7 +951,7 @@ H5FD_direct_read(H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type, hid_t H5_ATTR_UN
       do {
          /* Read the aligned data in file first.  Not able to handle interrupted
      * system calls and partial results like sec2 driver does because the
-     * data may no longer be aligned. It's expecially true when the data in
+     * data may no longer be aligned. It's especially true when the data in
      * file is smaller than ALLOC_SIZE. */
         HDmemset(copy_buf, 0, alloc_size);
 
@@ -1137,9 +1138,9 @@ H5FD_direct_write(H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type, hid_t H5_ATTR_U
 
         /*
           * Read the aligned data first if the aligned region doesn't fall
-         * entirely in the range to be writen.  Not able to handle interrupted
+         * entirely in the range to be written.  Not able to handle interrupted
      * system calls and partial results like sec2 driver does because the
-     * data may no longer be aligned. It's expecially true when the data in
+     * data may no longer be aligned. It's especially true when the data in
      * file is smaller than ALLOC_SIZE.  Only read the entire section if
                  * both ends are misaligned, otherwise only read the block on the
                  * misaligned end.

@@ -1,3 +1,7 @@
+# Find the GhostScript executable for GL2PS tests.
+find_program(VTK_GHOSTSCRIPT_EXECUTABLE gs gswin32c gsos2)
+mark_as_advanced(VTK_GHOSTSCRIPT_EXECUTABLE)
+
 # vtk_add_gl2ps_test_cxx([pdf] <test> [<another test> <yet another test> ...])
 #
 # Takes a list of test source files as arguments and adds additional tests
@@ -25,22 +29,22 @@ function(vtk_add_gl2ps_test_cxx)
     get_filename_component(TName ${testsrc} NAME_WE)
 
     # Convert ps to png
-    add_test(NAME ${vtk-module}Cxx-${TName}-RasterizePNG
+    add_test(NAME ${_vtk_build_test}Cxx-${TName}-RasterizePNG
       COMMAND ${CMAKE_COMMAND}
-        "-DPSFILE=${VTK_TEST_OUTPUT_DIR}/${TName}.ps"
-        "-DPNGFILE=${VTK_TEST_OUTPUT_DIR}/${TName}-raster.png"
-        "-DPDFPNGFILE=${VTK_TEST_OUTPUT_DIR}/${TName}-raster-pdf.png"
+        "-DPSFILE=${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}.ps"
+        "-DPNGFILE=${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}-raster.png"
+        "-DPDFPNGFILE=${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}-raster-pdf.png"
         "-DGS_EXECUTABLE=${VTK_GHOSTSCRIPT_EXECUTABLE}"
         -DREMOVEPS=1
         -DRASTERIZE_PDF=${RASTERIZE_PDF}
         -P "${vtkTestingGL2PS_SOURCE_DIR}/RasterizePostScript.cmake"
     )
-    set_tests_properties("${vtk-module}Cxx-${TName}-RasterizePNG"
+    set_tests_properties("${_vtk_build_test}Cxx-${TName}-RasterizePNG"
       PROPERTIES
-        DEPENDS "${vtk-module}Cxx-${TName}"
+        DEPENDS "${_vtk_build_test}Cxx-${TName}"
         REQUIRED_FILES
-          "${VTK_TEST_OUTPUT_DIR}/${TName}.ps"
-        LABELS "${${vtk-module}_TEST_LABELS}"
+          "${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}.ps"
+        LABELS "${_vtk_build_test_labels}"
     )
 
     get_filename_component(TName ${test} NAME_WE)
@@ -52,91 +56,39 @@ function(vtk_add_gl2ps_test_cxx)
 
     # Image diff rasterized png produced from a PS with baseline
     ExternalData_add_test(VTKData
-      NAME ${vtk-module}Cxx-${TName}-VerifyRasterizedPNG
+      NAME ${_vtk_build_test}Cxx-${TName}-VerifyRasterizedPNG
       COMMAND "vtkRenderingGL2PSOpenGL2CxxTests" PNGCompare
-        -D "${VTK_TEST_DATA_DIR}"
-        -T "${VTK_TEST_OUTPUT_DIR}"
+        -D "${_vtk_build_TEST_DATA_DIRECTORY}"
+        -T "${_vtk_build_TEST_OUTPUT_DIRECTORY}"
         -E "${_error_threshold}"
         -V "DATA{../Data/Baseline/${TName}-rasterRef.png,:}"
-        --test-file "${VTK_TEST_OUTPUT_DIR}/${TName}-raster.png"
+        --test-file "${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}-raster.png"
     )
-    set_tests_properties("${vtk-module}Cxx-${TName}-VerifyRasterizedPNG"
+    set_tests_properties("${_vtk_build_test}Cxx-${TName}-VerifyRasterizedPNG"
       PROPERTIES
-        DEPENDS "${vtk-module}Cxx-${TName}-RasterizePNG"
+        DEPENDS "${_vtk_build_test}Cxx-${TName}-RasterizePNG"
         REQUIRED_FILES
-          "${VTK_TEST_OUTPUT_DIR}/${TName}-raster.png"
-        LABELS "${${vtk-module}_TEST_LABELS}"
+          "${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}-raster.png"
+        LABELS "${_vtk_build_test_labels}"
         )
     if(${RASTERIZE_PDF})
       ExternalData_add_test(VTKData
-        NAME ${vtk-module}Cxx-${TName}-VerifyRasterizedPDFPNG
+        NAME ${_vtk_build_test}Cxx-${TName}-VerifyRasterizedPDFPNG
         COMMAND "vtkRenderingGL2PSOpenGL2CxxTests" PNGCompare
-        -D "${VTK_TEST_DATA_DIR}"
-        -T "${VTK_TEST_OUTPUT_DIR}"
+        -D "${_vtk_build_TEST_DATA_DIRECTORY}"
+        -T "${_vtk_build_TEST_OUTPUT_DIRECTORY}"
         -E "${_error_threshold}"
         -V "DATA{../Data/Baseline/${TName}-rasterRef.png,:}"
-        --test-file "${VTK_TEST_OUTPUT_DIR}/${TName}-raster-pdf.png"
+        --test-file "${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}-raster-pdf.png"
         )
-      set_tests_properties("${vtk-module}Cxx-${TName}-VerifyRasterizedPDFPNG"
+      set_tests_properties("${_vtk_build_test}Cxx-${TName}-VerifyRasterizedPDFPNG"
         PROPERTIES
-        DEPENDS "${vtk-module}Cxx-${TName}-RasterizePNG"
+        DEPENDS "${_vtk_build_test}Cxx-${TName}-RasterizePNG"
         REQUIRED_FILES
-        "${VTK_TEST_OUTPUT_DIR}/${TName}-raster-pdf.png"
-        LABELS "${${vtk-module}_TEST_LABELS}"
+        "${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}-raster-pdf.png"
+        LABELS "${_vtk_build_test_labels}"
         )
     endif()
-  endforeach()
-endfunction()
-
-# Like the above, but only tests PDF (instead of always PS and maybe PDF).
-function(vtk_add_pdf_test_cxx)
-  set(tests ${ARGN})
-  foreach(test ${tests})
-    string(REGEX REPLACE ",.*" "" testsrc "${test}")
-    get_filename_component(TName ${testsrc} NAME_WE)
-
-    # Convert pdf to png
-    add_test(NAME ${vtk-module}Cxx-${TName}-RasterizePDFToPNG
-      COMMAND ${CMAKE_COMMAND}
-      "-DPDFFILE=${VTK_TEST_OUTPUT_DIR}/${TName}.pdf"
-      "-DPDFPNGFILE=${VTK_TEST_OUTPUT_DIR}/${TName}-rasterPDF.png"
-      "-DGS_EXECUTABLE=${VTK_GHOSTSCRIPT_EXECUTABLE}"
-      -DREMOVEPDF=1
-      -DRASTERIZE_PDF=1
-      -P "${vtkTestingGL2PS_SOURCE_DIR}/RasterizePostScript.cmake"
-      )
-    set_tests_properties("${vtk-module}Cxx-${TName}-RasterizePDFToPNG"
-      PROPERTIES
-      DEPENDS "${vtk-module}Cxx-${TName}"
-      REQUIRED_FILES
-      "${VTK_TEST_OUTPUT_DIR}/${TName}.pdf"
-      LABELS "${${vtk-module}_TEST_LABELS}"
-      )
-
-    get_filename_component(TName ${test} NAME_WE)
-    if(${${TName}Error})
-      set(_error_threshold ${${TName}Error})
-    else()
-      set(_error_threshold 15)
-    endif()
-
-    # Image diff rasterized png produced from a PS with baseline
-    ExternalData_add_test(VTKData
-      NAME ${vtk-module}Cxx-${TName}-VerifyRasterizedPDFPNG
-      COMMAND "vtkRenderingGL2PSOpenGL2CxxTests" PNGCompare
-      -D "${VTK_TEST_DATA_DIR}"
-      -T "${VTK_TEST_OUTPUT_DIR}"
-      -E "${_error_threshold}"
-      -V "DATA{../Data/Baseline/${TName}-rasterPDFRef.png,:}"
-      --test-file "${VTK_TEST_OUTPUT_DIR}/${TName}-rasterPDF.png"
-      )
-    set_tests_properties("${vtk-module}Cxx-${TName}-VerifyRasterizedPDFPNG"
-      PROPERTIES
-      DEPENDS "${vtk-module}Cxx-${TName}-RasterizePDFToPNG"
-      REQUIRED_FILES
-      "${VTK_TEST_OUTPUT_DIR}/${TName}-rasterPDF.png"
-      LABELS "${${vtk-module}_TEST_LABELS}"
-      )
   endforeach()
 endfunction()
 

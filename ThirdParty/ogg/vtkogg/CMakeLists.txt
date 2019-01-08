@@ -134,20 +134,17 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ogg.pc
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
 )
 else ()
-vtk_add_library(vtkogg ${OGG_SOURCES} ${OGG_HEADERS})
-if (NOT VTK_INSTALL_NO_DEVELOPMENT)
-  install(FILES
-    ${OGG_HEADERS}
-    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtkogg/include/ogg"
-    COMPONENT Development)
-endif()
+vtk_module_add_module(VTK::ogg
+    SOURCES ${OGG_SOURCES}
+    HEADERS ${OGG_HEADERS}
+    HEADERS_SUBDIR "vtkogg/include/ogg")
 include(GenerateExportHeader)
-generate_export_header(vtkogg
+generate_export_header(ogg
     EXPORT_MACRO_NAME   vtkogg_EXPORT
     EXPORT_FILE_NAME    include/ogg/vtkogg_export.h)
-target_include_directories(vtkogg
+target_include_directories(ogg
     PUBLIC
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
-        "$<INSTALL_INTERFACE:${VTK_INSTALL_INCLUDE_DIR}/vtkogg/include>")
+        "$<INSTALL_INTERFACE:${_vtk_build_HEADERS_DESTINATION}/vtkogg/include>")
 endif ()

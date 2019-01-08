@@ -157,17 +157,17 @@ void vtkPrintOpenGLErrors(
       unsigned int *errCode,
       const char **errDesc)
 {
-  os << numErrors << " OpenGL errors detected" << endl;
+  os << numErrors << " OpenGL errors detected" << std::endl;
   for (int i=0; (i<numErrors)&&(i<maxErrors); ++i)
   {
-    os << "  " <<  i << " : (" << errCode[i] << ") " << errDesc[i] << endl;
+    os << "  " <<  i << " : (" << errCode[i] << ") " << errDesc[i] << std::endl;
   }
   if (numErrors>maxErrors)
   {
     os
       << "More than " << maxErrors
       << " detected! The remainder are not reported"
-      << endl;
+      << std::endl;
   }
 }
 #else

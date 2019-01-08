@@ -27,7 +27,6 @@
 #ifndef __LSDynaMetaData_h
 #define __LSDynaMetaData_h
 
-#include "LSDynaExport.h"
 #include "LSDynaFamily.h"
 
 #include <string>

@@ -1,11 +1,11 @@
-set(Module_SRCS
-  vtkAMRCutPlane.cxx
-  vtkAMRGaussianPulseSource.cxx
-  vtkAMRResampleFilter.cxx
-  vtkAMRSliceFilter.cxx
-  vtkAMRToMultiBlockFilter.cxx
-  vtkImageToAMR.cxx
-  vtkParallelAMRUtilities.cxx
-  )
+set(classes
+  vtkAMRCutPlane
+  vtkAMRGaussianPulseSource
+  vtkAMRResampleFilter
+  vtkAMRSliceFilter
+  vtkAMRToMultiBlockFilter
+  vtkImageToAMR
+  vtkParallelAMRUtilities)
 
-vtk_module_library(vtkFiltersAMR ${Module_SRCS})
+vtk_module_add_module(VTK::FiltersAMR
+  CLASSES ${classes})

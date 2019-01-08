@@ -1,0 +1,32 @@
+NAME
+  VTK::DomainsChemistry
+LIBRARY_NAME
+  vtkDomainsChemistry
+DESCRIPTION
+  File readers and algorithms used in chemistry
+IMPLEMENTABLE
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::IOLegacy
+  VTK::IOXMLParser
+  VTK::RenderingCore
+PRIVATE_DEPENDS
+  VTK::CommonTransforms
+  VTK::FiltersCore
+  VTK::FiltersGeneral
+  VTK::FiltersSources
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::DomainsChemistryOpenGL2
+  VTK::FiltersGeometry
+  VTK::InteractionStyle
+  VTK::IOGeometry
+  VTK::IOLegacy
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

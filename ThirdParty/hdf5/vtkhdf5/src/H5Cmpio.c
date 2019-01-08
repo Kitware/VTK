@@ -37,14 +37,11 @@
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5ACprivate.h"        /* Metadata cache                       */
 #include "H5Cpkg.h"		/* Cache				*/
-#include "H5Dprivate.h"		/* Datasets     		  	*/
+#include "H5CXprivate.h"        /* API Contexts                         */
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5Fpkg.h"		/* Files				*/
 #include "H5FDprivate.h"	/* File drivers				*/
-#include "H5FLprivate.h"	/* Free Lists                           */
-#include "H5Iprivate.h"		/* IDs			  		*/
 #include "H5MMprivate.h"	/* Memory management			*/
-#include "H5Pprivate.h"         /* Property lists                       */
 
 
 #ifdef H5_HAVE_PARALLEL
@@ -62,12 +59,11 @@
 /********************/
 /* Local Prototypes */
 /********************/
-static herr_t H5C__collective_write(H5F_t *f, hid_t dxpl_id);
-static herr_t H5C__flush_candidate_entries(H5F_t *f, hid_t dxpl_id, 
-    unsigned entries_to_flush[H5C_RING_NTYPES], 
+static herr_t H5C__collective_write(H5F_t *f);
+static herr_t H5C__flush_candidate_entries(H5F_t *f, unsigned entries_to_flush[H5C_RING_NTYPES], 
     unsigned entries_to_clear[H5C_RING_NTYPES]);
-static herr_t H5C__flush_candidates_in_ring(H5F_t *f, hid_t dxpl_id, 
-    H5C_ring_t ring, unsigned  entries_to_flush, unsigned entries_to_clear);
+static herr_t H5C__flush_candidates_in_ring(H5F_t *f, H5C_ring_t ring,
+    unsigned  entries_to_flush, unsigned entries_to_clear);
 
 
 /*********************/
@@ -171,7 +167,6 @@ static herr_t H5C__flush_candidates_in_ring(H5F_t *f, hid_t dxpl_id,
  */
 herr_t
 H5C_apply_candidate_list(H5F_t * f,
-                         hid_t dxpl_id,
                          H5C_t * cache_ptr,
                          unsigned num_candidates,
                          haddr_t * candidates_list_ptr,
@@ -385,9 +380,9 @@ H5C_apply_candidate_list(H5F_t * f,
      * Note that we are doing things in this round about manner so as
      * to preserve the order of the LRU list to the best of our ability.
      * If we don't do this, my experiments indicate that we will have a
-     * noticably poorer hit ratio as a result.
+     * noticeably poorer hit ratio as a result.
      */
-     if(H5C__flush_candidate_entries(f, dxpl_id, entries_to_flush, entries_to_clear) < 0)
+     if(H5C__flush_candidate_entries(f, entries_to_flush, entries_to_clear) < 0)
          HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "flush candidates failed")
 
     /* If we've deferred writing to do it collectively, take care of that now */
@@ -396,7 +391,7 @@ H5C_apply_candidate_list(H5F_t * f,
         HDassert(cache_ptr->coll_write_list);
 
         /* Write collective list */
-        if(H5C__collective_write(f, dxpl_id) < 0)
+        if(H5C__collective_write(f) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_WRITEERROR, FAIL, "can't write metadata collectively")
     } /* end if */
 
@@ -644,7 +639,6 @@ done:
  */
 herr_t
 H5C_mark_entries_as_clean(H5F_t *  f,
-                          hid_t     dxpl_id,
                           unsigned  ce_array_len,
                           haddr_t * ce_array_ptr)
 {
@@ -788,7 +782,7 @@ H5C_mark_entries_as_clean(H5F_t *  f,
             entry_ptr = entry_ptr->prev;
             entries_cleared++;
 
-            if(H5C__flush_single_entry(f, dxpl_id, clear_ptr,
+            if(H5C__flush_single_entry(f, clear_ptr,
                     (H5C__FLUSH_CLEAR_ONLY_FLAG | H5C__GENERATE_IMAGE_FLAG | H5C__UPDATE_PAGE_BUFFER_FLAG)) < 0)
                 HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "can't clear entry")
         } /* end if */
@@ -818,7 +812,7 @@ H5C_mark_entries_as_clean(H5F_t *  f,
                 pinned_entries_cleared++;
                 progress = TRUE;
 
-                if(H5C__flush_single_entry(f, dxpl_id, clear_ptr, 
+                if(H5C__flush_single_entry(f, clear_ptr, 
                         (H5C__FLUSH_CLEAR_ONLY_FLAG | H5C__GENERATE_IMAGE_FLAG | H5C__UPDATE_PAGE_BUFFER_FLAG)) < 0)
                     HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "can't clear entry")
             } /* end if */
@@ -922,10 +916,9 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5C__collective_write(H5F_t *f, hid_t dxpl_id)
+H5C__collective_write(H5F_t *f)
 {
     H5AC_t              *cache_ptr;
-    H5P_genplist_t      *plist = NULL;
     H5FD_mpio_xfer_t    orig_xfer_mode = H5FD_MPIO_COLLECTIVE;
     int                 count;
     int                 *length_array = NULL;
@@ -947,12 +940,8 @@ H5C__collective_write(H5F_t *f, hid_t dxpl_id)
     HDassert(cache_ptr->coll_write_list != NULL);
 
     /* Get original transfer mode */
-    if(NULL == (plist = (H5P_genplist_t *)H5I_object(dxpl_id)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, \
-                    "not a data transfer property list")
-
-    if(H5P_get(plist, H5D_XFER_IO_XFER_MODE_NAME, &orig_xfer_mode) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set MPI-I/O property")
+    if(H5CX_get_io_xfer_mode(&orig_xfer_mode) < 0)
+        HGOTO_ERROR(H5E_CACHE, H5E_CANTGET, FAIL, "can't get MPI-I/O transfer mode")
 
     /* Get number of entries in collective write list */
     count = (int)H5SL_count(cache_ptr->coll_write_list);
@@ -964,35 +953,23 @@ H5C__collective_write(H5F_t *f, hid_t dxpl_id)
         void                *base_buf;
         int                 i;
 
-        if(H5P_set(plist, H5D_XFER_IO_XFER_MODE_NAME, &xfer_mode) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, \
-                        "can't set MPI-I/O property")
+        /* Set new transfer mode */
+        if(H5CX_set_io_xfer_mode(xfer_mode) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_CANTSET, FAIL, "can't set MPI-I/O transfer mode")
 
         /* Allocate arrays */
-        if ( NULL == (length_array = 
-                      (int *)H5MM_malloc((size_t)count * sizeof(int))) )
-
-            HGOTO_ERROR(H5E_RESOURCE, H5E_CANTALLOC, FAIL, \
-            "memory allocation failed for collective write table length array")
-
-        if ( NULL == (buf_array = 
-                 (MPI_Aint *)H5MM_malloc((size_t)count * sizeof(MPI_Aint))) )
-
-            HGOTO_ERROR(H5E_RESOURCE, H5E_CANTALLOC, FAIL, \
-              "memory allocation failed for collective buf table length array")
-
-        if(NULL == (offset_array = 
-                    (MPI_Aint *)H5MM_malloc((size_t)count * sizeof(MPI_Aint))) )
-
-            HGOTO_ERROR(H5E_RESOURCE, H5E_CANTALLOC, FAIL, \
-            "memory allocation failed for collective offset table length array")
+        if(NULL == (length_array = (int *)H5MM_malloc((size_t)count * sizeof(int))) )
+            HGOTO_ERROR(H5E_CACHE, H5E_CANTALLOC, FAIL, "memory allocation failed for collective write table length array")
+        if(NULL == (buf_array = (MPI_Aint *)H5MM_malloc((size_t)count * sizeof(MPI_Aint))) )
+            HGOTO_ERROR(H5E_CACHE, H5E_CANTALLOC, FAIL, "memory allocation failed for collective buf table length array")
+        if(NULL == (offset_array = (MPI_Aint *)H5MM_malloc((size_t)count * sizeof(MPI_Aint))) )
+            HGOTO_ERROR(H5E_CACHE, H5E_CANTALLOC, FAIL, "memory allocation failed for collective offset table length array")
 
         /* Fill arrays */
         node = H5SL_first(cache_ptr->coll_write_list);
         HDassert(node);
         if(NULL == (entry_ptr = (H5C_cache_entry_t *)H5SL_item(node)))
-            HGOTO_ERROR(H5E_CACHE, H5E_NOTFOUND, FAIL, \
-                        "can't retrieve skip list item")
+            HGOTO_ERROR(H5E_CACHE, H5E_NOTFOUND, FAIL, "can't retrieve skip list item")
 
         /* Set up initial array position & buffer base address */
         length_array[0] = (int)entry_ptr->size;
@@ -1005,8 +982,7 @@ H5C__collective_write(H5F_t *f, hid_t dxpl_id)
         while(node) {
 
             if(NULL == (entry_ptr = (H5C_cache_entry_t *)H5SL_item(node)))
-                HGOTO_ERROR(H5E_CACHE, H5E_NOTFOUND, FAIL, \
-                            "can't retrieve skip list item")
+                HGOTO_ERROR(H5E_CACHE, H5E_NOTFOUND, FAIL, "can't retrieve skip list item")
 
             /* Set up array position */
             length_array[i] = (int)entry_ptr->size;
@@ -1019,10 +995,7 @@ H5C__collective_write(H5F_t *f, hid_t dxpl_id)
         } /* end while */
 
         /* Create memory MPI type */
-        if(MPI_SUCCESS != (mpi_code = 
-                           MPI_Type_create_hindexed(count, length_array, 
-                                                    buf_array, MPI_BYTE, 
-                                                    &btype)))
+        if(MPI_SUCCESS != (mpi_code = MPI_Type_create_hindexed(count, length_array, buf_array, MPI_BYTE, &btype)))
             HMPI_GOTO_ERROR(FAIL, "MPI_Type_create_hindexed failed", mpi_code)
 
         btype_created = TRUE;
@@ -1031,10 +1004,7 @@ H5C__collective_write(H5F_t *f, hid_t dxpl_id)
             HMPI_GOTO_ERROR(FAIL, "MPI_Type_commit failed", mpi_code)
 
         /* Create file MPI type */
-        if(MPI_SUCCESS != (mpi_code = 
-                           MPI_Type_create_hindexed(count, length_array, 
-                                                    offset_array, MPI_BYTE, 
-                                                    &ftype)))
+        if(MPI_SUCCESS != (mpi_code = MPI_Type_create_hindexed(count, length_array, offset_array, MPI_BYTE, &ftype)))
             HMPI_GOTO_ERROR(FAIL, "MPI_Type_create_hindexed failed", mpi_code)
 
         ftype_created = TRUE;
@@ -1043,15 +1013,12 @@ H5C__collective_write(H5F_t *f, hid_t dxpl_id)
             HMPI_GOTO_ERROR(FAIL, "MPI_Type_commit failed", mpi_code)
 
         /* Pass buf type, file type to the file driver */
-        if(H5FD_mpi_setup_collective(dxpl_id, &btype, &ftype) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, \
-                        "can't set MPI-I/O properties")
+        if(H5CX_set_mpi_coll_datatypes(btype, ftype) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_CANTSET, FAIL, "can't set MPI-I/O properties")
 
         /* Write data */
-        if(H5F_block_write(f, H5FD_MEM_DEFAULT, (haddr_t)0, 
-                           (size_t)1, dxpl_id, base_buf) < 0)
-            HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, \
-                        "unable to write entries collectively")
+        if(H5F_block_write(f, H5FD_MEM_DEFAULT, (haddr_t)0, (size_t)1, base_buf) < 0)
+            HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "unable to write entries collectively")
 
     } /* end if */
     else {
@@ -1061,43 +1028,35 @@ H5C__collective_write(H5F_t *f, hid_t dxpl_id)
         MPI_Info *info_p;
         MPI_Info info;
 
+/* This should be rewritten to call H5F_block_write, with the correct
+ *      buffer and file datatypes (null ones).  -QAK, 2018/02/21
+ */
         if(H5F_get_mpi_handle(f, (MPI_File **)&mpi_fh_p) < 0)
-            HGOTO_ERROR(H5E_FILE, H5E_CANTGET, FAIL, \
-                        "can't get mpi file handle")
+            HGOTO_ERROR(H5E_CACHE, H5E_CANTGET, FAIL, "can't get mpi file handle")
 
         mpi_fh = *(MPI_File*)mpi_fh_p;
 
-        if (H5F_get_mpi_info(f, &info_p) < 0)
-            HGOTO_ERROR(H5E_FILE, H5E_CANTGET, FAIL, \
-                        "can't get mpi file info")
+        if(H5F_get_mpi_info(f, &info_p) < 0)
+            HGOTO_ERROR(H5E_FILE, H5E_CANTGET, FAIL, "can't get mpi file info")
 
         info = *info_p;
 
         /* just to match up with the 1st MPI_File_set_view from 
          * H5FD_mpio_write() 
          */
-        if(MPI_SUCCESS != (mpi_code = 
-                           MPI_File_set_view(mpi_fh, (MPI_Offset)0, MPI_BYTE, 
-                                             MPI_BYTE, "native", 
-                                             info)))
+        if(MPI_SUCCESS != (mpi_code = MPI_File_set_view(mpi_fh, (MPI_Offset)0, MPI_BYTE, MPI_BYTE, "native", info)))
             HMPI_GOTO_ERROR(FAIL, "MPI_File_set_view failed", mpi_code)
 
         /* just to match up with MPI_File_write_at_all from H5FD_mpio_write() */
         HDmemset(&mpi_stat, 0, sizeof(MPI_Status));
-        if(MPI_SUCCESS != (mpi_code = 
-                           MPI_File_write_at_all(mpi_fh, (MPI_Offset)0, 
-                                                 NULL, 0, MPI_BYTE, &mpi_stat)))
+        if(MPI_SUCCESS != (mpi_code = MPI_File_write_at_all(mpi_fh, (MPI_Offset)0, NULL, 0, MPI_BYTE, &mpi_stat)))
             HMPI_GOTO_ERROR(FAIL, "MPI_File_write_at_all failed", mpi_code)
 
         /* just to match up with the 2nd MPI_File_set_view (reset) in 
          * H5FD_mpio_write() 
          */
-        if(MPI_SUCCESS != (mpi_code = 
-                           MPI_File_set_view(mpi_fh, (MPI_Offset)0, MPI_BYTE, 
-                                             MPI_BYTE, "native", 
-                                             info)))
+        if(MPI_SUCCESS != (mpi_code = MPI_File_set_view(mpi_fh, (MPI_Offset)0, MPI_BYTE, MPI_BYTE, "native", info)))
             HMPI_GOTO_ERROR(FAIL, "MPI_File_set_view failed", mpi_code)
-
     } /* end else */
 
 done:
@@ -1112,13 +1071,10 @@ done:
     if(ftype_created && MPI_SUCCESS != (mpi_code = MPI_Type_free(&ftype)))
         HMPI_DONE_ERROR(FAIL, "MPI_Type_free failed", mpi_code)
 
-    /* Reset dxpl */
-    if(orig_xfer_mode != H5FD_MPIO_COLLECTIVE) {
-        HDassert(plist);
-        if(H5P_set(plist, H5D_XFER_IO_XFER_MODE_NAME, &orig_xfer_mode) < 0)
-            HDONE_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, \
-                        "can't set MPI-I/O property")
-    } /* end if */
+    /* Reset transfer mode in API context, if changed */
+    if(orig_xfer_mode != H5FD_MPIO_COLLECTIVE)
+        if(H5CX_set_io_xfer_mode(orig_xfer_mode) < 0)
+            HDONE_ERROR(H5E_CACHE, H5E_CANTSET, FAIL, "can't set MPI-I/O transfer mode")
 
     FUNC_LEAVE_NOAPI(ret_value);
 } /* end H5C__collective_write() */
@@ -1163,8 +1119,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5C__flush_candidate_entries(H5F_t *f, hid_t dxpl_id,
-    unsigned entries_to_flush[H5C_RING_NTYPES],
+H5C__flush_candidate_entries(H5F_t *f, unsigned entries_to_flush[H5C_RING_NTYPES],
     unsigned entries_to_clear[H5C_RING_NTYPES])
 {
 #if H5C_DO_SANITY_CHECKS
@@ -1234,7 +1189,7 @@ H5C__flush_candidate_entries(H5F_t *f, hid_t dxpl_id,
      */
     ring = H5C_RING_USER;
     while(ring < H5C_RING_NTYPES) {
-        if(H5C__flush_candidates_in_ring(f, dxpl_id, ring, entries_to_flush[ring], entries_to_clear[ring]) < 0)
+        if(H5C__flush_candidates_in_ring(f, ring, entries_to_flush[ring], entries_to_clear[ring]) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "flush candidates in ring failed")
 
         ring++;
@@ -1284,7 +1239,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5C__flush_candidates_in_ring(H5F_t *f, hid_t dxpl_id, H5C_ring_t ring,
+H5C__flush_candidates_in_ring(H5F_t *f, H5C_ring_t ring,
     unsigned  entries_to_flush, unsigned entries_to_clear)
 {
     H5C_t   * cache_ptr;
@@ -1413,7 +1368,7 @@ H5C__flush_candidates_in_ring(H5F_t *f, hid_t dxpl_id, H5C_ring_t ring,
                 cache_ptr->entries_removed_counter = 0;
                 cache_ptr->last_entry_removed_ptr  = NULL;
 
-                if(H5C__flush_single_entry(f, dxpl_id, op_ptr, op_flags) < 0)
+                if(H5C__flush_single_entry(f, op_ptr, op_flags) < 0)
                     HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "can't flush entry")
 
                 if(cache_ptr->entries_removed_counter != 0
@@ -1551,7 +1506,7 @@ H5C__flush_candidates_in_ring(H5F_t *f, hid_t dxpl_id, H5C_ring_t ring,
                      *
                      *                                    JRM -- 2/9/17
                      */
-                    if(H5C__flush_single_entry(f, dxpl_id, op_ptr, op_flags) < 0)
+                    if(H5C__flush_single_entry(f, op_ptr, op_flags) < 0)
                         HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "can't flush entry")
 
                     if(cache_ptr->entries_removed_counter != 0

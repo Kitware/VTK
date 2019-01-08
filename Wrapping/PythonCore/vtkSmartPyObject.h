@@ -100,3 +100,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkSmartPyObject.h

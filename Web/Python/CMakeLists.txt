@@ -1,14 +1,21 @@
-# Make sure VTK_WRAP_PYTHON is ON otherwise vtk-web can not exist/work
-if(NOT VTK_WRAP_PYTHON)
-   message(FATAL_ERROR "Web group can NOT work if VTK_WRAP_PYTHON is not ON.")
-endif()
+set(files
+  vtkmodules/web/__init__.py
+  vtkmodules/web/camera.py
+  vtkmodules/web/dataset_builder.py
+  vtkmodules/web/protocols.py
+  vtkmodules/web/query_data_model.py
+  vtkmodules/web/render_window_serializer.py
+  vtkmodules/web/testing.py
+  vtkmodules/web/vtkjs_helper.py
+  vtkmodules/web/wslink.py)
 
-include(vtkModuleMacrosPython)
-# The RELATIVE make vtk_module_python_package() preserve the vtk/module package
-# structure when building/installing. Otherwise, we'd just get the "web"
-# package.
-vtk_module_python_package(${vtk-module} "vtkmodules/web"
-    RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}")
+vtk_module_add_python_package(VTK::WebPython
+  FILES               ${files}
+  PACKAGE             "vtkmodules.web"
+  MODULE_DESTINATION  "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}")
+
+vtk_module_add_python_module(VTK::WebPython
+  PACKAGES "vtkmodules.web")
 
 set_property(GLOBAL APPEND
   PROPERTY
@@ -19,7 +26,3 @@ set_property(GLOBAL APPEND
 set_property(GLOBAL APPEND
   PROPERTY
     vtk_required_python_modules "autobahn>=17.7.1")
-
-if(BUILD_TESTING)
-  add_subdirectory(Testing)
-endif()

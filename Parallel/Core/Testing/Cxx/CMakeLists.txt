@@ -10,14 +10,14 @@ if (PYTHON_EXECUTABLE)
 
   add_test(NAME vtkParallelCore-TestSocketCommunicator
            COMMAND ${PYTHON_EXECUTABLE}
-                   ${VTK_CMAKE_DIR}/vtkTestDriver.py
+                   ${VTK_SOURCE_DIR}/CMake/vtkTestDriver.py
                    # indicate that the processes are not run sequentially,
                    --process
                      $<TARGET_FILE:vtkParallelCore-TestSocketCommunicator>
-                     -T ${VTK_TEST_OUTPUT_DIR}
+                     -T ${_vtk_build_TEST_OUTPUT_DIRECTORY}
                      --server
                    --process
                      $<TARGET_FILE:vtkParallelCore-TestSocketCommunicator>
-                     -T ${VTK_TEST_OUTPUT_DIR}
+                     -T ${_vtk_build_TEST_OUTPUT_DIRECTORY}
           )
 endif()

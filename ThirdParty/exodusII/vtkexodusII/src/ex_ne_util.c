@@ -112,7 +112,7 @@ int ne_id_lkup(int exoid, const char *ne_var_name, int64_t *idx, ex_entity_id ne
                "in file ID %d",
                ne_var_name, exoid);
       ex_err(__func__, errmsg, status);
-      return (-1);
+      return (EX_FATAL);
     }
 
     /* Get the length of this variable */
@@ -121,7 +121,7 @@ int ne_id_lkup(int exoid, const char *ne_var_name, int64_t *idx, ex_entity_id ne
                "ERROR: failed to find dimension for variable \"%s\" in file ID %d", ne_var_name,
                exoid);
       ex_err(__func__, errmsg, status);
-      return (-1);
+      return (EX_FATAL);
     }
 
     idx[1] = length;
@@ -139,7 +139,7 @@ int ne_id_lkup(int exoid, const char *ne_var_name, int64_t *idx, ex_entity_id ne
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to find variable \"%s\" in file ID %d",
                ne_var_name, exoid);
       ex_err(__func__, errmsg, status);
-      return (-1);
+      return (EX_FATAL);
     }
 
     if (id_val == ne_var_id) {

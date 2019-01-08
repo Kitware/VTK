@@ -85,3 +85,4 @@ void vtkParseMerge_MergeHelper(
 #endif
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkParseMerge.h */

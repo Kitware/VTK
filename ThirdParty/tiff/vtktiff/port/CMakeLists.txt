@@ -28,7 +28,10 @@ set(port_optional_SOURCES
   getopt.c
   lfind.c
   strcasecmp.c
-  strtoul.c)
+  strtol.c
+  strtoll.c
+  strtoul.c
+  strtoull.c)
 
 set(port_USED_FILES ${port_SOURCES} ${port_HEADERS})
 
@@ -45,8 +48,17 @@ endif()
 if(NOT HAVE_STRCASECMP AND FALSE)
   list(APPEND port_USED_FILES strcasecmp.c)
 endif()
+if(NOT HAVE_STRTOL AND FALSE)
+  list(APPEND port_USED_FILES strtol.c)
+endif()
+if(NOT HAVE_STRTOLL AND FALSE)
+  list(APPEND port_USED_FILES strtoll.c)
+endif()
 if(NOT HAVE_STRTOUL AND FALSE)
   list(APPEND port_USED_FILES strtoul.c)
+endif()
+if(NOT HAVE_STRTOULL AND FALSE)
+  list(APPEND port_USED_FILES strtoull.c)
 endif()
 
 if (FALSE) # XXX(kitware): Not building tools for VTK; skip the library.

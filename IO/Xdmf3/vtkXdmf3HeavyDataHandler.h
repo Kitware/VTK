@@ -29,22 +29,24 @@
 
 #include "vtkIOXdmf3Module.h" // For export macro
 
-#include "XdmfInformation.hpp"
+#include "vtk_xdmf3.h"
 
-#include "XdmfItem.hpp"
-#include "XdmfSharedPtr.hpp"
+#include VTKXDMF3_HEADER(core/XdmfInformation.hpp)
+
+#include VTKXDMF3_HEADER(core/XdmfItem.hpp)
+#include VTKXDMF3_HEADER(core/XdmfSharedPtr.hpp)
 
 #include "vtkXdmf3ArrayKeeper.h"
 #include "vtkXdmf3ArraySelection.h"
 
-#include "XdmfCurvilinearGrid.hpp"
-#include "XdmfGraph.hpp"
-#include "XdmfGrid.hpp"
-#include "XdmfRectilinearGrid.hpp"
-#include "XdmfRegularGrid.hpp"
-#include "XdmfSet.hpp"
-#include "XdmfUnstructuredGrid.hpp"
-#include "XdmfDomain.hpp"
+#include VTKXDMF3_HEADER(XdmfCurvilinearGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfGraph.hpp)
+#include VTKXDMF3_HEADER(XdmfGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfRectilinearGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfRegularGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfSet.hpp)
+#include VTKXDMF3_HEADER(XdmfUnstructuredGrid.hpp)
+#include VTKXDMF3_HEADER(XdmfDomain.hpp)
 
 class vtkDataObject;
 class vtkDataSet;

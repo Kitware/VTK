@@ -179,3 +179,4 @@ const char *vtkParseHierarchy_QualifiedEnumName(
 #endif
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkParseHierarchy.h */

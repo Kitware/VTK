@@ -1,12 +1,16 @@
-include(vtkMPI)
-include(vtkObjectFactory)
+set(classes
+  vtkPSimpleBondPerceiver)
 
-set(Module_SRCS vtkPSimpleBondPerceiver.cxx)
+vtk_object_factory_declare(
+  BASE      vtkSimpleBondPerceiver
+  OVERRIDE  vtkPSimpleBondPerceiver)
 
-vtk_add_override(vtkSimpleBondPerceiver vtkPSimpleBondPerceiver)
-vtk_object_factory_configure("${vtk_module_overrides}")
-list(APPEND Module_SRCS
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx)
+vtk_object_factory_configure(
+  SOURCE_FILE vtk_object_factory_source
+  HEADER_FILE vtk_object_factory_header
+  EXPORT_MACRO "VTKDOMAINSPARALLELCHEMISTRY_EXPORT")
 
-vtk_module_library(${vtk-module} ${Module_SRCS})
-vtk_mpi_link(${vtk-module})
+vtk_module_add_module(VTK::DomainsParallelChemistry
+  CLASSES ${classes}
+  SOURCES ${vtk_object_factory_source}
+  PRIVATE_HEADERS ${vtk_object_factory_header})

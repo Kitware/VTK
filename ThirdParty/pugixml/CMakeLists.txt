@@ -1,10 +1,11 @@
-vtk_module_third_party(pugixml
-  LIBRARIES vtkpugixml
-  INCLUDE_DIRS ${vtkpugixml_SOURCE_DIR}/vtkpugixml
-  ${vtkpugixml_BINARY_DIR}/vtkpugixml
-  NO_ADD_SUBDIRECTORY)
+vtk_module_third_party_internal(
+  LICENSE_FILES "vtkpugixml/LICENSE"
+  VERSION       "1.9"
+  STANDARD_INCLUDE_DIRS)
 
-vtk_module_export_info()
-add_subdirectory(vtkpugixml)
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtk_pugixml.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtk_pugixml.h")
 
-vtk_target_export(vtkpugixml)
+vtk_module_install_headers(
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/vtk_pugixml.h")

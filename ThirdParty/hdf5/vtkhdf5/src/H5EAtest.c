@@ -76,7 +76,7 @@ static herr_t H5EA__test_fill(void *nat_blk, size_t nelmts);
 static herr_t H5EA__test_encode(void *raw, const void *elmt, size_t nelmts, void *ctx);
 static herr_t H5EA__test_decode(const void *raw, void *elmt, size_t nelmts, void *ctx);
 static herr_t H5EA__test_debug(FILE *stream, int indent, int fwidth, hsize_t idx, const void *elmt);
-static void *H5EA__test_crt_dbg_context(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, haddr_t H5_ATTR_UNUSED obj_addr);
+static void *H5EA__test_crt_dbg_context(H5F_t H5_ATTR_UNUSED *f, haddr_t H5_ATTR_UNUSED obj_addr);
 static herr_t H5EA__test_dst_dbg_context(void *_ctx);
 
 /*********************/
@@ -356,7 +356,7 @@ END_FUNC(STATIC)  /* end H5EA__test_debug() */
  */
 BEGIN_FUNC(STATIC, ERR,
 void *, NULL, NULL,
-H5EA__test_crt_dbg_context(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, haddr_t H5_ATTR_UNUSED obj_addr))
+H5EA__test_crt_dbg_context(H5F_t H5_ATTR_UNUSED *f, haddr_t H5_ATTR_UNUSED obj_addr))
     
     /* Local variables */
     H5EA__ctx_cb_t *ctx;              /* Context for callbacks */

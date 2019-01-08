@@ -40,6 +40,7 @@ class vtkPythonObjectMap;
 class vtkPythonSpecialTypeMap;
 class vtkPythonNamespaceMap;
 class vtkPythonEnumMap;
+class vtkPythonModuleList;
 class vtkStdString;
 class vtkUnicodeString;
 class vtkVariant;
@@ -65,7 +66,7 @@ public:
    * Add a PyVTKClass to the type lookup table, this allows us to later
    * create object given only the class name.
    */
-  static PyVTKClass *AddClassToMap(
+  static PyTypeObject *AddClassToMap(
     PyTypeObject *pytype, PyMethodDef *methods,
     const char *classname, vtknewfunc constructor);
 
@@ -133,7 +134,7 @@ public:
    * Add a special VTK type to the type lookup table, this allows us to
    * later create object given only the class name.
    */
-  static PyVTKSpecialType *AddSpecialTypeToMap(
+  static PyTypeObject *AddSpecialTypeToMap(
     PyTypeObject *pytype, PyMethodDef *methods, PyMethodDef *constructors,
     vtkcopyfunc copyfunc);
 
@@ -182,6 +183,39 @@ public:
   static PyTypeObject *FindEnum(const char *name);
 
   /**
+   * Find the PyTypeObject for a wrapped VTK class.
+   */
+  static PyTypeObject *FindClassTypeObject(const char *name);
+
+  /**
+   * Find the PyTypeObject for a wrapped VTK type (non-vtkObject class).
+   */
+  static PyTypeObject *FindSpecialTypeObject(const char *name);
+
+  /**
+   * Try to load an extension module, by looking in all the usual places.
+   * The "globals" is the dict of the module that is doing the importing.
+   * First, a relative import is performed, and if that fails, then a
+   * global import is performed.  A return value of "false" indicates
+   * failure, no exception is set.
+   */
+  static bool ImportModule(const char *name, PyObject *globals);
+
+  /**
+   * Modules call this to add themselves to the list of loaded modules.
+   * This is needed because we do not know how the modules are arranged
+   * within their package, so searching sys.modules is unreliable.  It is
+   * best for us to keep our own list.
+   */
+  static void AddModule(const char *name);
+
+  /**
+   * Utility function to build a docstring by concatenating a series
+   * of strings until a null string is found.
+   */
+  static PyObject *BuildDocString(const char *docstring[]);
+
+  /**
    * Utility function for creating SWIG-style mangled pointer string.
    */
   static char *ManglePointer(const void *ptr, const char *type);
@@ -219,6 +253,7 @@ private:
   vtkPythonSpecialTypeMap *SpecialTypeMap;
   vtkPythonNamespaceMap *NamespaceMap;
   vtkPythonEnumMap *EnumMap;
+  vtkPythonModuleList *ModuleList;
   vtkPythonCommandList *PythonCommandList;
 
   friend void vtkPythonUtilDelete();
@@ -230,3 +265,4 @@ extern VTKWRAPPINGPYTHONCORE_EXPORT void vtkPythonVoidFunc(void *);
 extern VTKWRAPPINGPYTHONCORE_EXPORT void vtkPythonVoidFuncArgDelete(void *);
 
 #endif
+// VTK-HeaderTest-Exclude: vtkPythonUtil.h

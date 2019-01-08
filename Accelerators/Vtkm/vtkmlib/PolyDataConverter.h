@@ -16,7 +16,6 @@
 
 #ifndef vtkmlib_PolyDataConverter_h
 #define vtkmlib_PolyDataConverter_h
-#ifndef __VTK_WRAP__
 
 #include "vtkAcceleratorsVTKmModule.h"
 
@@ -41,5 +40,4 @@ VTKACCELERATORSVTKM_EXPORT
 bool Convert(const vtkm::cont::DataSet& voutput, vtkPolyData* output,
              vtkDataSet* input);
 }
-#endif
 #endif // vtkmlib_PolyDataConverter_h

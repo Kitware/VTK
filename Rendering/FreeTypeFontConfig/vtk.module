@@ -1,0 +1,19 @@
+NAME
+  VTK::RenderingFreeTypeFontConfig
+LIBRARY_NAME
+  vtkRenderingFreeTypeFontConfig
+KIT
+  VTK::Rendering
+IMPLEMENTS
+  VTK::RenderingFreeType
+DEPENDS
+  VTK::RenderingFreeType
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::RenderingCore
+TEST_DEPENDS
+  VTK::ChartsCore
+  VTK::RenderingContextOpenGL2
+  VTK::TestingRendering
+  VTK::ViewsContext2D
+EXCLUDE_WRAP

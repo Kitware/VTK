@@ -1,0 +1,23 @@
+NAME
+  VTK::FiltersTexture
+LIBRARY_NAME
+  vtkFiltersTexture
+KIT
+  VTK::Filters
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonTransforms
+  VTK::FiltersGeneral
+TEST_DEPENDS
+  VTK::IOGeometry
+  VTK::IOXML
+  VTK::ImagingCore
+  VTK::RenderingCore
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

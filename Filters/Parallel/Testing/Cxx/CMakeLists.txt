@@ -1,5 +1,3 @@
-include(vtkMPI)
-
 vtk_add_test_cxx(vtkFiltersParallelCxxTests testsStd
   TestAngularPeriodicFilter.cxx
   )
@@ -32,5 +30,5 @@ set(all_tests
   ${no_data_tests}
   ${no_data_tests_4_procs}
   )
-vtk_test_mpi_executable(vtkFiltersParallelCxxTests-MPI all_tests)
+vtk_test_cxx_executable(vtkFiltersParallelCxxTests-MPI all_tests)
 vtk_test_cxx_executable(vtkFiltersParallelCxxTests testsStd)

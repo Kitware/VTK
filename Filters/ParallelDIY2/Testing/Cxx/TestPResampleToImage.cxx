@@ -33,9 +33,7 @@
 #include "vtkSmartPointer.h"
 
 #include "vtk_diy2.h"   // must include this before any diy header
-VTKDIY2_PRE_INCLUDE
-#include VTK_DIY2_HEADER(diy/mpi.hpp)
-VTKDIY2_POST_INCLUDE
+#include VTK_DIY2(diy/mpi.hpp)
 
 
 int TestPResampleToImage(int argc, char *argv[])

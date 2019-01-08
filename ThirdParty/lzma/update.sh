@@ -8,10 +8,10 @@ readonly name="lzma"
 readonly ownership="$name Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/xz.git"
-readonly tag="for/vtk-old-20181129-5.2.3"
-
+readonly tag="for/vtk-20181129-5.2.4"
 readonly paths="
 CMakeLists.txt
+COPYING
 config.h.in
 src/liblzma/api/vtk_lzma_mangle.h
 .gitattributes

@@ -1,0 +1,18 @@
+NAME
+  VTK::IOADIOS
+LIBRARY_NAME
+  vtkIOADIOS
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::ParallelCore
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::ParallelMPI
+  VTK::mpi
+TEST_DEPENDS
+  VTK::FiltersSources
+  VTK::ParallelMPI
+  VTK::TestingCore
+  VTK::TestingRendering
+  VTK::mpi

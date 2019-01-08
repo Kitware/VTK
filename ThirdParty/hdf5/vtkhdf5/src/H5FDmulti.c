@@ -263,7 +263,7 @@ H5FD_multi_term(void)
 /*-------------------------------------------------------------------------
  * Function:	H5Pset_fapl_split
  *
- * Purpose:	Compatability function. Makes the multi driver act like the
+ * Purpose:	Compatibility function. Makes the multi driver act like the
  *		old split driver which stored meta data in one file and raw
  *		data in another file.
  *
@@ -694,7 +694,7 @@ H5FD_multi_sb_encode(H5FD_t *_file, char *name/*out*/,
     p = buf + 8 + nseen*2*8;
     UNIQUE_MEMBERS(file->fa.memb_map, mt) {
         size_t n = strlen(file->fa.memb_name[mt]) + 1;
-        strncpy((char *)p, file->fa.memb_name[mt], n);
+        strcpy((char *)p, file->fa.memb_name[mt]);
         p += n;
         for (i=n; i%8; i++)
             *p++ = '\0';

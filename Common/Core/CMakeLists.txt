@@ -1,7 +1,5 @@
-include(CheckSymbolExists)
-
 # Core configuration options.
-if("${CMAKE_SIZEOF_VOID_P}" GREATER 4)
+if(CMAKE_SIZEOF_VOID_P GREATER 4)
  set(VTK_USE_64BIT_IDS_DEFAULT ON)
 else()
  set(VTK_USE_64BIT_IDS_DEFAULT OFF)
@@ -12,18 +10,20 @@ endif()
 
 option(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids"
   ${VTK_USE_64BIT_IDS_DEFAULT})
+mark_as_advanced(VTK_USE_64BIT_IDS)
 
 option(VTK_DEBUG_LEAKS "Build leak checking support into VTK." OFF)
-
+mark_as_advanced(VTK_DEBUG_LEAKS)
+include(CMakeDependentOption)
 # See vtkDataArrayRange.h docs for more info on these:
 cmake_dependent_option(VTK_DEBUG_RANGE_ITERATORS
   "Detect usage errors with the for-range iterators (SLOW)." OFF
-  "\"${CMAKE_BUILD_TYPE}\" MATCHES \"Debug\"" OFF
-)
+  "CMAKE_BUILD_TYPE STREQUAL \"Debug\"" OFF)
+mark_as_advanced(VTK_DEBUG_RANGE_ITERATORS)
 cmake_dependent_option(VTK_ALWAYS_OPTIMIZE_ARRAY_ITERATORS
   "Enable additional optimizations for array iterators in Debug builds." OFF
-  "NOT VTK_DEBUG_RANGE_ITERATORS" OFF
-)
+  "NOT VTK_DEBUG_RANGE_ITERATORS" OFF)
+mark_as_advanced(VTK_ALWAYS_OPTIMIZE_ARRAY_ITERATORS)
 
 # This option determines the behavior of the New methods of vtkObject derived
 # classes. If this option is off then only classes specifically using the
@@ -32,30 +32,13 @@ cmake_dependent_option(VTK_ALWAYS_OPTIMIZE_ARRAY_ITERATORS
 # vtkObjectFactoryNewMacro's implementation body.
 option(VTK_ALL_NEW_OBJECT_FACTORY
   "Build all vtkObject derived classes with object factory new methods." OFF)
+mark_as_advanced(VTK_ALL_NEW_OBJECT_FACTORY)
 
-mark_as_advanced(
-  VTK_ALWAYS_OPTIMIZE_ARRAY_ITERATORS
-  VTK_DEBUG_LEAKS
-  VTK_DEBUG_RANGE_ITERATORS
-  VTK_USE_64BIT_IDS
-  VTK_ALL_NEW_OBJECT_FACTORY
-  VTK_USE_64BIT_TIMESTAMPS
-  )
-
-set(vtkCommonCore_EXPORT_OPTIONS
-  VTK_DEBUG_LEAKS
-  VTK_USE_64BIT_IDS
-  VTK_ALL_NEW_OBJECT_FACTORY
-  VTK_USE_64BIT_TIMESTAMPS
-  )
 set(vtk_smp_sources)
 set(vtk_smp_headers)
 set(vtk_smp_defines)
-set(vtk_smp_includes)
 set(vtk_smp_libraries)
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkSMPSelection.cmake")
-
-list(APPEND vtkCommonCore_SYSTEM_INCLUDE_DIRS ${vtk_smp_includes})
 
 # Generate the vtkTypeList_Create macros:
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkCreateTypeListMacros.cmake")
@@ -86,106 +69,142 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/vtkArrayDispatchArrayList.h"
   @ONLY)
 
-SET(Module_SRCS
-  vtkAOSDataArrayTemplate.txx
-  vtkAbstractArray.cxx
-  vtkAnimationCue.cxx
-  vtkArray.cxx
-  vtkArrayCoordinates.cxx
-  vtkArrayExtents.cxx
-  vtkArrayExtentsList.cxx
-  vtkArrayIterator.cxx
-  vtkArrayIteratorTemplate.txx
+set(classes
+  vtkAbstractArray
+  vtkAnimationCue
+  vtkArray
+  vtkArrayCoordinates
+  vtkArrayExtents
+  vtkArrayExtentsList
+  vtkArrayIterator
+  vtkArrayRange
+  vtkArraySort
+  vtkArrayWeights
+  vtkBitArray
+  vtkBitArrayIterator
+  vtkBoxMuellerRandomSequence
+  vtkBreakPoint
+  vtkByteSwap
+  vtkCallbackCommand
+  vtkCharArray
+  vtkCollection
+  vtkCollectionIterator
+  vtkCommand
+  vtkCommonInformationKeyManager
+  vtkConditionVariable
+  vtkCriticalSection
+  vtkDataArray
+  vtkDataArrayCollection
+  vtkDataArrayCollectionIterator
+  vtkDataArraySelection
+  vtkDebugLeaks
+  vtkDebugLeaksManager
+  vtkDoubleArray
+  vtkDynamicLoader
+  vtkEventForwarderCommand
+  vtkFileOutputWindow
+  vtkFloatArray
+  vtkFloatingPointExceptions
+  vtkGarbageCollector
+  vtkGarbageCollectorManager
+  vtkGaussianRandomSequence
+  vtkIdList
+  vtkIdListCollection
+  vtkIdTypeArray
+  vtkIndent
+  vtkInformation
+  vtkInformationDataObjectKey
+  vtkInformationDoubleKey
+  vtkInformationDoubleVectorKey
+  vtkInformationIdTypeKey
+  vtkInformationInformationKey
+  vtkInformationInformationVectorKey
+  vtkInformationIntegerKey
+  vtkInformationIntegerPointerKey
+  vtkInformationIntegerVectorKey
+  vtkInformationIterator
+  vtkInformationKey
+  vtkInformationKeyLookup
+  vtkInformationKeyVectorKey
+  vtkInformationObjectBaseKey
+  vtkInformationObjectBaseVectorKey
+  vtkInformationRequestKey
+  vtkInformationStringKey
+  vtkInformationStringVectorKey
+  vtkInformationUnsignedLongKey
+  vtkInformationVariantKey
+  vtkInformationVariantVectorKey
+  vtkInformationVector
+  vtkIntArray
+  vtkLargeInteger
+  vtkLongArray
+  vtkLongLongArray
+  vtkLookupTable
+  vtkMath
+  vtkMersenneTwister
+  vtkMinimalStandardRandomSequence
+  vtkMultiThreader
+  vtkMutexLock
+  vtkOStrStreamWrapper
+  vtkOStreamWrapper
+  vtkObject
+  vtkObjectBase
+  vtkObjectFactory
+  vtkObjectFactoryCollection
+  vtkOldStyleCallbackCommand
+  vtkOutputWindow
+  vtkOverrideInformation
+  vtkOverrideInformationCollection
+  vtkPoints
+  vtkPoints2D
+  vtkPriorityQueue
+  vtkRandomPool
+  vtkRandomSequence
+  vtkReferenceCount
+  vtkScalarsToColors
+  vtkShortArray
+  vtkSignedCharArray
+  vtkSimpleCriticalSection
+  vtkSmartPointerBase
+  vtkSortDataArray
+  vtkStdString
+  vtkStringArray
+  vtkStringOutputWindow
+  vtkTimePointUtility
+  vtkTimeStamp
+  vtkUnicodeString
+  vtkUnicodeStringArray
+  vtkUnsignedCharArray
+  vtkUnsignedIntArray
+  vtkUnsignedLongArray
+  vtkUnsignedLongLongArray
+  vtkUnsignedShortArray
+  vtkVariant
+  vtkVariantArray
+  vtkVersion
+  vtkVoidArray
+  vtkWeakPointerBase
+  vtkWeakReference
+  vtkWindow
+  vtkXMLFileOutputWindow)
+
+set(template_classes
+  vtkAOSDataArrayTemplate
+  vtkArrayDispatch
+  vtkArrayInterpolate
+  vtkArrayIteratorTemplate
+  vtkArrayPrint
+  vtkDenseArray
+  vtkGenericDataArray
+  vtkMappedDataArray
+  vtkSOADataArrayTemplate
+  vtkSparseArray
+  vtkTypedArray
+  vtkTypedDataArray
+  vtkTypeList)
+
+set(sources
   vtkArrayIteratorTemplateInstantiate.cxx
-  vtkArrayRange.cxx
-  vtkArraySort.cxx
-  vtkArrayWeights.cxx
-  vtkBitArray.cxx
-  vtkBitArrayIterator.cxx
-  vtkBoxMuellerRandomSequence.cxx
-  vtkBreakPoint.cxx
-  vtkByteSwap.cxx
-  vtkCallbackCommand.cxx
-  vtkCharArray.cxx
-  vtkCollection.cxx
-  vtkCollectionIterator.cxx
-  vtkCommand.cxx
-  vtkCommonInformationKeyManager.cxx
-  vtkConditionVariable.cxx
-  vtkCriticalSection.cxx
-  vtkDataArray.cxx
-  vtkDataArrayCollection.cxx
-  vtkDataArrayCollectionIterator.cxx
-  vtkDataArrayPrivate.txx
-  vtkDataArraySelection.cxx
-  vtkDebugLeaks.cxx
-  vtkDebugLeaksManager.cxx
-  vtkDenseArray.txx
-  vtkDoubleArray.cxx
-  vtkDynamicLoader.cxx
-  vtkEventForwarderCommand.cxx
-  vtkFileOutputWindow.cxx
-  vtkFloatArray.cxx
-  vtkFloatingPointExceptions.cxx
-  vtkGarbageCollector.cxx
-  vtkGarbageCollectorManager.cxx
-  vtkGaussianRandomSequence.cxx
-  vtkGenericDataArray.txx
-  vtkIdList.cxx
-  vtkIdListCollection.cxx
-  vtkIdTypeArray.cxx
-  vtkIndent.cxx
-  vtkInformation.cxx
-  vtkInformationDataObjectKey.cxx
-  vtkInformationDoubleKey.cxx
-  vtkInformationDoubleVectorKey.cxx
-  vtkInformationIdTypeKey.cxx
-  vtkInformationInformationKey.cxx
-  vtkInformationInformationVectorKey.cxx
-  vtkInformationIntegerKey.cxx
-  vtkInformationIntegerPointerKey.cxx
-  vtkInformationIntegerVectorKey.cxx
-  vtkInformationIterator.cxx
-  vtkInformationKey.cxx
-  vtkInformationKeyLookup.cxx
-  vtkInformationKeyVectorKey.cxx
-  vtkInformationObjectBaseKey.cxx
-  vtkInformationObjectBaseVectorKey.cxx
-  vtkInformationRequestKey.cxx
-  vtkInformationStringKey.cxx
-  vtkInformationStringVectorKey.cxx
-  vtkInformationUnsignedLongKey.cxx
-  vtkInformationVariantKey.cxx
-  vtkInformationVariantVectorKey.cxx
-  vtkInformationVector.cxx
-  vtkIntArray.cxx
-  vtkLargeInteger.cxx
-  vtkLongArray.cxx
-  vtkLongLongArray.cxx
-  vtkLookupTable.cxx
-  vtkMappedDataArray.txx
-  vtkMath.cxx
-  vtkMersenneTwister.cxx
-  vtkMinimalStandardRandomSequence.cxx
-  vtkMultiThreader.cxx
-  vtkMutexLock.cxx
-  vtkOStrStreamWrapper.cxx
-  vtkOStreamWrapper.cxx
-  vtkObject.cxx
-  vtkObjectBase.cxx
-  vtkObjectFactory.cxx
-  vtkObjectFactoryCollection.cxx
-  vtkOldStyleCallbackCommand.cxx
-  vtkOutputWindow.cxx
-  vtkOverrideInformation.cxx
-  vtkOverrideInformationCollection.cxx
-  vtkPoints.cxx
-  vtkPoints2D.cxx
-  vtkPriorityQueue.cxx
-  vtkRandomPool.cxx
-  vtkRandomSequence.cxx
-  vtkReferenceCount.cxx
-  vtkSOADataArrayTemplate.txx
   vtkSOADataArrayTemplateInstantiate.cxx
   vtkScalarsToColors.cxx
   vtkShortArray.cxx
@@ -217,24 +236,16 @@ SET(Module_SRCS
   vtkWeakPointerBase.cxx
   vtkWeakReference.cxx
   vtkWindow.cxx
-  vtkWrappingHints.h
   vtkXMLFileOutputWindow.cxx
   ${vtk_smp_sources}
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h"
   )
 
-set(${vtk-module}_HDRS
+set(headers
   vtkABI.h
-  vtkArrayDispatch.h
-  vtkArrayDispatch.txx
-  vtkArrayInterpolate.h
-  vtkArrayInterpolate.txx
   vtkArrayIteratorIncludes.h
-  vtkArrayIteratorTemplateImplicit.txx
-  vtkArrayPrint.h
-  vtkArrayPrint.txx
   vtkAssume.h
   vtkAtomicTypeConcepts.h
   vtkAtomicTypes.h
@@ -257,13 +268,12 @@ set(${vtk-module}_HDRS
   vtkMathUtilities.h
   vtkMersenneTwister.h
   vtkNew.h
-  vtkSOADataArrayTemplate.txx
   vtkSetGet.h
   vtkSmartPointer.h
+  vtkSystemIncludes.h
   vtkTemplateAliasMacro.h
   vtkTestDataArray.h
-  vtkTypeList.h
-  vtkTypeList.txx
+  vtkType.h
   vtkTypeTraits.h
   vtkTypedDataArray.h
   vtkTypedDataArrayIterator.h
@@ -275,33 +285,82 @@ set(${vtk-module}_HDRS
   vtkWeakReference.h
   vtkWin32Header.h
   vtkWindows.h
+  vtkWrappingHints.h
   ${vtk_smp_headers}
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkArrayDispatchArrayList.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkToolkits.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkTypeListMacros.h
-  )
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkArrayDispatchArrayList.h"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkToolkits.h"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkTypeListMacros.h"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h")
 
-add_definitions(${vtk_smp_defines})
+set(templates
+  vtkArrayIteratorTemplateImplicit.txx)
 
-if(vtkCommonDataModel_ENABLED)
-  include_directories(${VTK_BINARY_DIR}/Common/DataModel)
+set(private_headers
+  vtkDataArrayPrivate.txx)
+
+set(vtk_include_dirs)
+
+vtk_module_find_package(
+  PACKAGE Threads)
+
+set(VTK_MAX_THREADS "64" CACHE STRING
+  "Max number of threads vtkMultiThreader will allocate.")
+mark_as_advanced(VTK_MAX_THREADS)
+
+if (CMAKE_USE_PTHREADS_INIT AND CMAKE_USE_WIN32_THREADS_INIT)
+  if (DEFINED _vtk_thread_impl_output)
+    set(thread_impl_output "${_vtk_thread_impl_output}")
+  else ()
+    execute_process(
+      COMMAND "${CMAKE_C_COMPILER}" -v
+      OUTPUT_VARIABLE thread_impl_output
+      ERROR_VARIABLE  thread_impl_output
+      RESULT_VARIABLE result
+      TIMEOUT         10)
+    if (result)
+      message(FATAL_ERROR
+        "Failed to determine the thread implementation in use by the "
+        "compiler.")
+    endif ()
+  endif ()
+  set(_vtk_thread_impl_output "${thread_impl_output}"
+    CACHE INTERNAL "thread model detection")
+  if (thread_impl_output MATCHES "Thread model: posix")
+    set(VTK_USE_PTHREADS 1)
+  elseif (thread_impl_output MATCHES "Thread model: win32")
+    set(VTK_USE_WIN32_THREADS 1)
+  else ()
+    set(VTK_USE_PTHREADS 1)
+  endif ()
+elseif (CMAKE_USE_PTHREADS_INIT)
+  set(VTK_USE_PTHREADS 1)
+elseif (CMAKE_USE_WIN32_THREADS_INIT)
+  set(VTK_USE_WIN32_THREADS 1)
+endif ()
+
+# We can't check for the target since we're before VTK::CommonDataModel in the
+# dependency graph.
+if (VTK_MODULE_ENABLE_VTK::CommonDataModel)
+  list(APPEND vtk_include_dirs
+    "${CMAKE_CURRENT_BINARY_DIR}/../DataModel")
   set_property(SOURCE vtkInformationDataObjectKey.cxx
-    PROPERTY COMPILE_DEFINITIONS vtkCommonDataModel_ENABLED)
-endif()
+    PROPERTY
+      COMPILE_DEFINITIONS vtkCommonDataModel_ENABLED)
+endif ()
 
 if(WIN32)
-  # TODO: VTK_USE_X was once tested here but is now in another module
-  list(APPEND Module_SRCS
-    vtkWin32OutputWindow.cxx
-    vtkWin32OutputWindowProcessEncoded.c
-    vtkWin32ProcessOutputWindow.cxx
-    )
+  list(APPEND classes
+    vtkWin32OutputWindow
+    vtkWin32ProcessOutputWindow)
+  list(APPEND sources
+    vtkWin32OutputWindowProcessEncoded.c)
 endif()
 
 if(ANDROID)
-  list(APPEND Module_SRCS
-    vtkAndroidOutputWindow.cxx
-    )
+  list(APPEND classes
+    vtkAndroidOutputWindow)
 endif()
 
 # Platform configuration tests.
@@ -315,9 +374,18 @@ else()
   set(VTK_CONFIG_LEGACY_VERSION "#include \"vtkVersionMacros.h\" // removed by VTK_LEGACY_REMOVE")
 endif()
 
-configure_file(vtkVersionMacros.h.in vtkVersionMacros.h @ONLY)
-configure_file(vtkConfigure.h.in vtkConfigure.h @ONLY)
-configure_file(vtkToolkits.h.in vtkToolkits.h @ONLY)
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkVersionMacros.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h"
+  @ONLY)
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkConfigure.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h"
+  @ONLY)
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkToolkits.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkToolkits.h"
+  @ONLY)
 
 add_custom_command(
   DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/CaseFolding.txt"
@@ -370,9 +438,8 @@ if(NOT VTK_HAS_FINITE AND NOT VTK_HAS_ISFINITE AND NOT VTK_HAS_STD_ISFINITE)
 endif()
 
 configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/vtkMathConfigure.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
-  )
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkMathConfigure.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h")
 
 # Figure out if feenableexcept and fedisableexcept functions are present
 include(CheckIncludeFile)
@@ -387,42 +454,36 @@ if(HAVE_FENV_H)
 endif()
 
 configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/vtkFloatingPointExceptionsConfigure.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h
-  )
-
-set_source_files_properties(
-  vtkDataArrayTemplate.h
-  vtkDenseArray.h
-  vtkSparseArray.h
-  vtkTypedArray.h
-  "${VTK_TYPELISTMACROS_HEADER}"
-  HEADER_FILE_ONLY
-  )
-
-set_source_files_properties(
-  vtkArrayIteratorTemplateInstantiate.cxx # Has no header
-  vtkSOADataArrayTemplateInstantiate.cxx # Has no header
-  PROPERTIES SKIP_HEADER_INSTALL 1
-)
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkFloatingPointExceptionsConfigure.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h")
 
 if(MSVC)
   set_source_files_properties(
     vtkDataArray.cxx
-    PROPERTIES COMPILE_FLAGS /bigobj
-    )
+    PROPERTIES
+      COMPILE_FLAGS /bigobj)
 endif()
 
-# Need nsl to resolve gethostbyname on SunOS-5.8
-# and socket also
-if(CMAKE_SYSTEM MATCHES "SunOS.*")
-  set(KIT_LIBS ${KIT_LIBS} socket nsl)
-endif()
-
-vtk_module_library(vtkCommonCore ${Module_SRCS})
-
-vtk_module_link_libraries(vtkCommonCore LINK_PRIVATE ${CMAKE_THREAD_LIBS} LINK_PUBLIC ${vtk_smp_libraries})
-
-if(ANDROID)
-  target_link_libraries(vtkCommonCore LINK_PRIVATE log)
-endif()
+vtk_module_add_module(VTK::CommonCore
+  CLASSES           ${classes}
+  TEMPLATE_CLASSES  ${template_classes}
+  SOURCES           ${sources}
+  TEMPLATES         ${templates}
+  HEADERS           ${headers})
+vtk_module_include(VTK::CommonCore
+  PRIVATE
+    ${vtk_include_dirs})
+vtk_module_link(VTK::CommonCore
+  PUBLIC
+    Threads::Threads
+    ${vtk_smp_libraries}
+  PRIVATE
+    # Need nsl to resolve gethostbyname on SunOS-5.8 and socket also
+    $<$<PLATFORM_ID:SunOS>:socket>
+    $<$<PLATFORM_ID:SunOS>:nsl>
+    $<$<PLATFORM_ID:Android>:log>)
+vtk_module_compile_features(VTK::CommonCore
+  PUBLIC
+    cxx_std_11
+    cxx_nullptr
+    cxx_override)

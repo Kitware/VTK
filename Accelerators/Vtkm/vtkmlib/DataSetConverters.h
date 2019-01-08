@@ -16,7 +16,6 @@
 
 #ifndef vtkmlib_DataSetConverters_h
 #define vtkmlib_DataSetConverters_h
-#ifndef __VTK_WRAP__
 
 #include "vtkAcceleratorsVTKmModule.h"
 
@@ -49,5 +48,4 @@ vtkm::cont::DataSet Convert(vtkDataSet* input,
                             FieldsFlag fields = FieldsFlag::None);
 }
 
-#endif
 #endif // vtkmlib_DataSetConverters_h

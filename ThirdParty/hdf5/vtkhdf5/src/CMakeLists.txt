@@ -1,12 +1,7 @@
-if (FALSE)
-cmake_minimum_required (VERSION 3.2.2)
+if (FALSE) # XXX(kitware): cmake versions are handled by VTK.
+cmake_minimum_required (VERSION 3.10)
 endif ()
-PROJECT (HDF5_SRC C CXX)
-
-#-----------------------------------------------------------------------------
-# Apply Definitions to compiler in this directory and below
-#-----------------------------------------------------------------------------
-add_definitions (${HDF_EXTRA_C_FLAGS})
+project (HDF5_SRC C)
 
 #-----------------------------------------------------------------------------
 # List Source Files
@@ -114,6 +109,14 @@ set (H5CS_SOURCES
 set (H5CS_HDRS
 )
 IDE_GENERATED_PROPERTIES ("H5CS" "${H5CS_HDRS}" "${H5CS_SOURCES}" )
+
+
+set (H5CX_SOURCES
+    ${HDF5_SRC_DIR}/H5CX.c
+)
+set (H5CX_HDRS
+)
+IDE_GENERATED_PROPERTIES ("H5CX" "${H5CX_HDRS}" "${H5CX_SOURCES}" )
 
 
 set (H5D_SOURCES
@@ -450,6 +453,7 @@ set (H5O_SOURCES
     ${HDF5_SRC_DIR}/H5Ocont.c
     ${HDF5_SRC_DIR}/H5Ocopy.c
     ${HDF5_SRC_DIR}/H5Odbg.c
+    ${HDF5_SRC_DIR}/H5Odeprec.c
     ${HDF5_SRC_DIR}/H5Odrvinfo.c
     ${HDF5_SRC_DIR}/H5Odtype.c
     ${HDF5_SRC_DIR}/H5Oefl.c
@@ -457,6 +461,7 @@ set (H5O_SOURCES
     ${HDF5_SRC_DIR}/H5Oflush.c
     ${HDF5_SRC_DIR}/H5Ofsinfo.c
     ${HDF5_SRC_DIR}/H5Oginfo.c
+    ${HDF5_SRC_DIR}/H5Oint.c
     ${HDF5_SRC_DIR}/H5Olayout.c
     ${HDF5_SRC_DIR}/H5Olinfo.c
     ${HDF5_SRC_DIR}/H5Olink.c
@@ -519,6 +524,9 @@ IDE_GENERATED_PROPERTIES ("H5PB" "${H5PB_HDRS}" "${H5PB_SOURCES}" )
 
 set (H5PL_SOURCES
     ${HDF5_SRC_DIR}/H5PL.c
+    ${HDF5_SRC_DIR}/H5PLint.c
+    ${HDF5_SRC_DIR}/H5PLpath.c
+    ${HDF5_SRC_DIR}/H5PLplugin_cache.c
 )
 
 set (H5PL_HDRS
@@ -532,6 +540,7 @@ IDE_GENERATED_PROPERTIES ("H5PL" "${H5PL_HDRS}" "${H5PL_SOURCES}" )
 set (H5R_SOURCES
     ${HDF5_SRC_DIR}/H5R.c
     ${HDF5_SRC_DIR}/H5Rdeprec.c
+    ${HDF5_SRC_DIR}/H5Rint.c
 )
 set (H5R_HDRS
     ${HDF5_SRC_DIR}/H5Rpkg.h
@@ -692,6 +701,7 @@ set (common_SRCS
     ${H5B2_SOURCES}
     ${H5C_SOURCES}
     ${H5CS_SOURCES}
+    ${H5CX_SOURCES}
     ${H5D_SOURCES}
     ${H5E_SOURCES}
     ${H5EA_SOURCES}
@@ -772,6 +782,7 @@ set (H5_PRIVATE_HEADERS
     ${HDF5_SRC_DIR}/H5Bprivate.h
     ${HDF5_SRC_DIR}/H5Cprivate.h
     ${HDF5_SRC_DIR}/H5CSprivate.h
+    ${HDF5_SRC_DIR}/H5CXprivate.h
     ${HDF5_SRC_DIR}/H5Dprivate.h
     ${HDF5_SRC_DIR}/H5Eprivate.h
     ${HDF5_SRC_DIR}/H5EAprivate.h
@@ -820,9 +831,8 @@ set (H5_GENERATED_HEADERS
     ${HDF5_SRC_DIR}/H5overflow.h
 )
 
-# XXX(kitware): Hardcode settings.
-if (FALSE)
-option (HDF5_GENERATE_HEADERS "Rebuild Generated Files" OFF)
+if (FALSE) # XXX(kitware): Hardcode settings.
+option (HDF5_GENERATE_HEADERS "Rebuild Generated Files" ON)
 else ()
 set(HDF5_GENERATE_HEADERS OFF)
 endif ()
@@ -848,22 +858,20 @@ if (HDF5_GENERATE_HEADERS)
 endif ()
 
 #-----------------------------------------------------------------------------
-# Setup the H5Detect utility which generates H5Tinit with platform
+# Setup the H5detect utility which generates H5Tinit with platform
 # specific type checks inside
 #-----------------------------------------------------------------------------
 add_executable (H5detect ${HDF5_SRC_DIR}/H5detect.c)
+target_include_directories(H5detect PRIVATE "${HDF5_BINARY_DIR};$<$<BOOL:${HDF5_ENABLE_PARALLEL}>:${MPI_C_INCLUDE_DIRS}>")
+target_compile_definitions(H5detect PUBLIC ${HDF_EXTRA_C_FLAGS} ${HDF_EXTRA_FLAGS})
+TARGET_C_PROPERTIES (H5detect STATIC)
+target_link_libraries (H5detect
+    PRIVATE "$<$<BOOL:${HDF5_ENABLE_PARALLEL}>:${MPI_C_LIBRARIES}>" $<$<PLATFORM_ID:Windows>:ws2_32.lib>
+    PRIVATE $<$<PLATFORM_ID:Emscripten>:"-O0">
+)
 set_target_properties(H5detect
   PROPERTIES
     OUTPUT_NAME "vtkH5detect")
-TARGET_C_PROPERTIES (H5detect STATIC " " " ")
-if (MSVC OR MINGW)
-  target_link_libraries (H5detect "ws2_32.lib")
-endif ()
-if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  set_property(TARGET H5detect
-    PROPERTY
-      LINK_FLAGS "-O0")
-endif ()
 
 add_custom_command (
     OUTPUT ${HDF5_BINARY_DIR}/H5Tinit.c
@@ -873,18 +881,16 @@ add_custom_command (
 )
 
 add_executable (H5make_libsettings ${HDF5_SRC_DIR}/H5make_libsettings.c)
+target_include_directories(H5make_libsettings PRIVATE "${HDF5_BINARY_DIR};$<$<BOOL:${HDF5_ENABLE_PARALLEL}>:${MPI_C_INCLUDE_DIRS}>")
+target_compile_definitions(H5make_libsettings PUBLIC ${HDF_EXTRA_C_FLAGS} ${HDF_EXTRA_FLAGS})
+TARGET_C_PROPERTIES (H5make_libsettings STATIC)
+target_link_libraries (H5make_libsettings
+    PRIVATE "$<$<BOOL:${HDF5_ENABLE_PARALLEL}>:${MPI_C_LIBRARIES}>" $<$<PLATFORM_ID:Windows>:ws2_32.lib>
+    PRIVATE $<$<PLATFORM_ID:Emscripten>:"-O0">
+)
 set_target_properties(H5make_libsettings
   PROPERTIES
     OUTPUT_NAME "vtkH5make_libsettings")
-TARGET_C_PROPERTIES (H5make_libsettings STATIC " " " ")
-if (MSVC OR MINGW)
-  target_link_libraries (H5make_libsettings "ws2_32.lib")
-endif ()
-if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  set_property(TARGET H5make_libsettings
-    PROPERTY
-      LINK_FLAGS "-O0")
-endif ()
 
 add_custom_command (
     OUTPUT ${HDF5_BINARY_DIR}/H5lib_settings.c
@@ -894,37 +900,52 @@ add_custom_command (
     WORKING_DIRECTORY ${HDF5_BINARY_DIR}
 )
 
+## all_packages="AC,B,B2,D,F,FA,FL,FS,HL,I,O,S,ST,T,Z"
+#all_packages="AC,B2,CX,D,F,HL,I,O,S,ST,T,Z"
+if (FALSE) # XXX(kitware): Hardcode settings.
+option (HDF5_ENABLE_DEBUG_APIS "Turn on extra debug output in all packages" OFF)
+else ()
+set(HDF5_ENABLE_DEBUG_APIS OFF)
+endif ()
+
 #-----------------------------------------------------------------------------
-# Add H5Tinit source to build - generated by H5Detect/CMake at configure time
+# Add H5Tinit source to build - generated by H5detect/CMake at configure time
 #-----------------------------------------------------------------------------
 set (gen_SRCS ${HDF5_BINARY_DIR}/H5Tinit.c ${HDF5_BINARY_DIR}/H5lib_settings.c)
 
-# XXX(kitware): Use VTK's module system.
-if (FALSE)
+if (FALSE) # XXX(kitware): Use VTK's module system.
 add_library (${HDF5_LIB_TARGET} STATIC ${common_SRCS} ${gen_SRCS} ${H5_PUBLIC_HEADERS} ${H5_PRIVATE_HEADERS} ${H5_GENERATED_HEADERS})
-TARGET_C_PROPERTIES (${HDF5_LIB_TARGET} STATIC " " " ")
-target_link_libraries (${HDF5_LIB_TARGET} ${LINK_LIBS})
-if (NOT WIN32)
-  target_link_libraries (${HDF5_LIB_TARGET} dl)
-endif ()
-if (H5_HAVE_PARALLEL AND MPI_C_FOUND)
-  target_link_libraries (${HDF5_LIB_TARGET} ${MPI_C_LIBRARIES})
-endif ()
-set_global_variable (HDF5_LIBRARIES_TO_EXPORT ${HDF5_LIB_TARGET})
-H5_SET_LIB_OPTIONS (${HDF5_LIB_TARGET} ${HDF5_LIB_NAME} STATIC)
-set_target_properties (${HDF5_LIB_TARGET} PROPERTIES
-    FOLDER libraries
-    INTERFACE_INCLUDE_DIRECTORIES "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>"
+target_include_directories(${HDF5_LIB_TARGET}
+    PRIVATE "${HDF5_SRC_DIR};${HDF5_BINARY_DIR};$<$<BOOL:${HDF5_ENABLE_PARALLEL}>:${MPI_C_INCLUDE_DIRS}>"
+    INTERFACE "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>"
 )
+target_compile_definitions(${HDF5_LIB_TARGET}
+    PUBLIC
+        ${HDF_EXTRA_C_FLAGS}
+        ${HDF_EXTRA_FLAGS}
+        $<IF:$<CONFIG:Debug>,DEBUG,NDEBUG>
+    PRIVATE
+        $<$<BOOL:${HDF5_ENABLE_TRACE}>:H5_DEBUG_API>  # Enable tracing of the API
+        $<$<BOOL:${HDF5_ENABLE_DEBUG_APIS}>:H5Z_DEBUG;H5T_DEBUG;H5ST_DEBUG;H5S_DEBUG;H5O_DEBUG;H5I_DEBUG;H5HL_DEBUG;H5F_DEBUG;H5D_DEBUG;H5B2_DEBUG;H5AC_DEBUG>
+)
+TARGET_C_PROPERTIES (${HDF5_LIB_TARGET} STATIC)
+target_link_libraries (${HDF5_LIB_TARGET}
+    PRIVATE ${LINK_LIBS} ${LINK_COMP_LIBS} "$<$<BOOL:${HDF5_ENABLE_PARALLEL}>:${MPI_C_LIBRARIES}>"
+    PUBLIC $<$<NOT:$<PLATFORM_ID:Windows>>:${CMAKE_DL_LIBS}>
+)
+set_global_variable (HDF5_LIBRARIES_TO_EXPORT ${HDF5_LIB_TARGET})
+H5_SET_LIB_OPTIONS (${HDF5_LIB_TARGET} ${HDF5_LIB_NAME} STATIC 0)
+set_target_properties (${HDF5_LIB_TARGET} PROPERTIES FOLDER libraries)
 else ()
-vtk_add_library(vtkhdf5_src ${common_SRCS} ${gen_SRCS} ${H5_PUBLIC_HEADERS} ${H5_PRIVATE_HEADERS} ${H5_GENERATED_HEADERS})
-if (NOT VTK_INSTALL_NO_DEVELOPMENT)
-  install(FILES
-    ${H5_PUBLIC_HEADERS}
-    ${H5_GENERATED_HEADERS}
-    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtkhdf5/src"
-    COMPONENT Development)
-endif()
+add_library(vtkhdf5_src ${common_SRCS} ${gen_SRCS} ${H5_PUBLIC_HEADERS} ${H5_PRIVATE_HEADERS} ${H5_GENERATED_HEADERS})
+target_include_directories(vtkhdf5_src
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${HDF5_BINARY_DIR})
+vtk_module_install_headers(
+  FILES   ${H5_PUBLIC_HEADERS}
+          ${H5_GENERATED_HEADERS}
+  SUBDIR  "vtkhdf5/src")
 if (BUILD_SHARED_LIBS)
   target_compile_definitions(vtkhdf5_src
     PUBLIC
@@ -934,86 +955,68 @@ if (BUILD_SHARED_LIBS)
 endif ()
 target_link_libraries(vtkhdf5_src
   PRIVATE
-    ${vtkzlib_LIBRARIES})
+    VTK::zlib)
+_vtk_module_apply_properties(vtkhdf5_src)
+_vtk_module_install(vtkhdf5_src)
 
-if (DEFINED VTK_CUSTOM_LIBRARY_SUFFIX)
-  set(_lib_suffix "${VTK_CUSTOM_LIBRARY_SUFFIX}")
-else ()
-  set(_lib_suffix "-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
-endif ()
-set_property(TARGET vtkhdf5_src PROPERTY OUTPUT_NAME vtkhdf5${_lib_suffix})
+set(_vtk_add_module_output_name "vtkhdf5")
+if (_vtk_build_LIBRARY_NAME_SUFFIX)
+  string(APPEND _vtk_add_module_output_name "-${_vtk_build_LIBRARY_NAME_SUFFIX}")
 endif ()
 
-# XXX(kitware): Hardcode settings.
-if (FALSE)
-option (HDF5_ENABLE_DEBUG_APIS "Turn on extra debug output in all packages" OFF)
-else ()
-set(HDF5_ENABLE_DEBUG_APIS OFF)
+set_target_properties(vtkhdf5_src
+  PROPERTIES
+    LIBRARY_OUTPUT_NAME "${_vtk_add_module_output_name}")
 endif ()
-if (HDF5_ENABLE_DEBUG_APIS)
-  set_target_properties (${HDF5_LIB_TARGET} PROPERTIES
-      COMPILE_DEFINITIONS
-          "H5Z_DEBUG;H5T_DEBUG;H5ST_DEBUG;H5S_DEBUG;H5O_DEBUG;H5I_DEBUG;H5HL_DEBUG;H5F_DEBUG;H5D_DEBUG;H5B2_DEBUG;H5AC_DEBUG"
-  )
-endif ()
+
 set (install_targets ${HDF5_LIB_TARGET})
 
-# XXX(kitware): VTK handles shared/static flags.
-if (BUILD_SHARED_LIBS AND FALSE)
+if (BUILD_SHARED_LIBS AND FALSE) # XXX(kitware): VTK handles shared/static flags.
   file (MAKE_DIRECTORY "${HDF5_BINARY_DIR}/shared")
-  set (CMD $<TARGET_FILE:H5detect>)
   add_custom_command (
       OUTPUT ${HDF5_BINARY_DIR}/shared/H5Tinit.c
-      COMMAND ${CMD}
+      COMMAND H5detect
       ARGS > ${HDF5_BINARY_DIR}/shared/H5Tinit.c
       DEPENDS H5detect
       WORKING_DIRECTORY ${HDF5_BINARY_DIR}/shared
   )
-  set (CMD $<TARGET_FILE:H5make_libsettings>)
   add_custom_command (
       OUTPUT ${HDF5_BINARY_DIR}/shared/H5lib_settings.c
-      COMMAND ${CMD}
+      COMMAND H5make_libsettings
       ARGS > ${HDF5_BINARY_DIR}/shared/H5lib_settings.c
       DEPENDS H5make_libsettings
       WORKING_DIRECTORY ${HDF5_BINARY_DIR}
   )
   set (shared_gen_SRCS ${HDF5_BINARY_DIR}/shared/H5Tinit.c ${HDF5_BINARY_DIR}/shared/H5lib_settings.c)
   add_library (${HDF5_LIBSH_TARGET} SHARED ${common_SRCS} ${shared_gen_SRCS} ${H5_PUBLIC_HEADERS} ${H5_PRIVATE_HEADERS} ${H5_GENERATED_HEADERS})
-  TARGET_C_PROPERTIES (${HDF5_LIBSH_TARGET} SHARED " " " ")
-  target_link_libraries (${HDF5_LIBSH_TARGET} ${LINK_SHARED_LIBS})
-  if (NOT WIN32)
-    target_link_libraries (${HDF5_LIBSH_TARGET} dl)
-  endif ()
-  if (H5_HAVE_PARALLEL AND MPI_C_FOUND)
-    target_link_libraries (${HDF5_LIBSH_TARGET} ${MPI_C_LIBRARIES})
-  endif ()
-  set_global_variable (HDF5_LIBRARIES_TO_EXPORT "${HDF5_LIBRARIES_TO_EXPORT};${HDF5_LIBSH_TARGET}")
-  H5_SET_LIB_OPTIONS (${HDF5_LIBSH_TARGET} ${HDF5_LIB_NAME} SHARED ${HDF5_PACKAGE_SOVERSION})
-  set_target_properties (${HDF5_LIBSH_TARGET} PROPERTIES
-      FOLDER libraries
-      COMPILE_DEFINITIONS "H5_BUILT_AS_DYNAMIC_LIB"
-      INTERFACE_INCLUDE_DIRECTORIES "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>"
-      INTERFACE_COMPILE_DEFINITIONS H5_BUILT_AS_DYNAMIC_LIB=1
+  target_include_directories(${HDF5_LIBSH_TARGET}
+      PRIVATE "${HDF5_SRC_DIR};${HDF5_BINARY_DIR};$<$<BOOL:${HDF5_ENABLE_PARALLEL}>:${MPI_C_INCLUDE_DIRS}>"
+      INTERFACE "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>"
   )
-  if (HDF5_ENABLE_THREADSAFE)
-    set_property (TARGET ${HDF5_LIBSH_TARGET}
-        APPEND PROPERTY COMPILE_DEFINITIONS
-            "H5_HAVE_THREADSAFE"
-    )
-    target_link_libraries (${HDF5_LIBSH_TARGET} Threads::Threads)
-  endif ()
+  target_compile_definitions(${HDF5_LIBSH_TARGET}
+      PUBLIC
+          "H5_BUILT_AS_DYNAMIC_LIB"
+          ${HDF_EXTRA_C_FLAGS}
+          ${HDF_EXTRA_FLAGS}
+          $<IF:$<CONFIG:Debug>,DEBUG,NDEBUG>
+      PRIVATE
+          $<$<BOOL:${HDF5_ENABLE_THREADSAFE}>:H5_HAVE_THREADSAFE>
+          $<$<BOOL:${HDF5_ENABLE_TRACE}>:H5_DEBUG_API>  # Enable tracing of the API
+          $<$<BOOL:${HDF5_ENABLE_DEBUG_APIS}>:H5Z_DEBUG;H5T_DEBUG;H5ST_DEBUG;H5S_DEBUG;H5O_DEBUG;H5I_DEBUG;H5HL_DEBUG;H5F_DEBUG;H5D_DEBUG;H5B2_DEBUG;H5AC_DEBUG>
+  )
+  TARGET_C_PROPERTIES (${HDF5_LIBSH_TARGET} SHARED)
+  target_link_libraries (${HDF5_LIBSH_TARGET}
+      PRIVATE ${LINK_LIBS} ${LINK_COMP_LIBS} "$<$<BOOL:${HDF5_ENABLE_PARALLEL}>:${MPI_C_LIBRARIES}>"
+      PUBLIC $<$<NOT:$<PLATFORM_ID:Windows>>:${CMAKE_DL_LIBS}> $<$<BOOL:${HDF5_ENABLE_THREADSAFE}>:Threads::Threads>
+  )
+  set_global_variable (HDF5_LIBRARIES_TO_EXPORT "${HDF5_LIBRARIES_TO_EXPORT};${HDF5_LIBSH_TARGET}")
+  H5_SET_LIB_OPTIONS (${HDF5_LIBSH_TARGET} ${HDF5_LIB_NAME} SHARED "LIB")
+  set_target_properties (${HDF5_LIBSH_TARGET} PROPERTIES FOLDER libraries)
 
-  if (HDF5_ENABLE_DEBUG_APIS)
-    set_property (TARGET ${HDF5_LIBSH_TARGET}
-        APPEND PROPERTY COMPILE_DEFINITIONS
-            "H5Z_DEBUG;H5T_DEBUG;H5ST_DEBUG;H5S_DEBUG;H5O_DEBUG;H5I_DEBUG;H5HL_DEBUG;H5F_DEBUG;H5D_DEBUG;H5B2_DEBUG;H5AC_DEBUG"
-    )
-  endif ()
   set (install_targets ${install_targets} ${HDF5_LIBSH_TARGET})
 endif ()
 
-# XXX(kitware): VTK handles installation.
-if (FALSE)
+if (FALSE) # XXX(kitware): VTK handles installation.
 #-----------------------------------------------------------------------------
 # Add file(s) to CMake Install
 #-----------------------------------------------------------------------------
@@ -1022,6 +1025,7 @@ if (NOT HDF5_INSTALL_NO_DEVELOPMENT)
       FILES
           ${H5_PUBLIC_HEADERS}
           ${H5_GENERATED_HEADERS}
+          ${HDF5_BINARY_DIR}/H5pubconf.h
       DESTINATION
           ${HDF5_INSTALL_INCLUDE_DIR}
       COMPONENT
@@ -1048,6 +1052,54 @@ if (HDF5_EXPORTED_TARGETS)
       RUNTIME DESTINATION ${HDF5_INSTALL_BIN_DIR} COMPONENT libraries
       FRAMEWORK DESTINATION ${HDF5_INSTALL_FWRK_DIR} COMPONENT libraries
       INCLUDES DESTINATION include
+  )
+endif ()
+
+#-----------------------------------------------------------------------------
+# Create pkgconfig files
+#-----------------------------------------------------------------------------
+set (_PKG_CONFIG_PREFIX ${CMAKE_INSTALL_PREFIX})
+set (_PKG_CONFIG_EXEC_PREFIX \${prefix})
+set (_PKG_CONFIG_LIBDIR \${exec_prefix}/lib)
+set (_PKG_CONFIG_INCLUDEDIR \${prefix}/include)
+set (_PKG_CONFIG_LIBNAME "${HDF5_LIB_CORENAME}")
+set (_PKG_CONFIG_VERSION "${HDF5_PACKAGE_VERSION}")
+
+foreach (libs ${LINK_LIBS} ${LINK_COMP_LIBS})
+  set (_PKG_CONFIG_LIBS_PRIVATE "${_PKG_CONFIG_LIBS_PRIVATE} -l${libs}")
+endforeach ()
+
+set (_PKG_CONFIG_LIBS "${_PKG_CONFIG_LIBS} -l${HDF5_LIB_CORENAME}")
+if (BUILD_SHARED_LIBS)
+  set (_PKG_CONFIG_SH_LIBS "${_PKG_CONFIG_SH_LIBS} -l${HDF5_LIB_CORENAME}")
+endif ()
+
+set (_PKG_CONFIG_REQUIRES)
+set (_PKG_CONFIG_REQUIRES_PRIVATE)
+
+configure_file (
+    ${HDF_RESOURCES_DIR}/libhdf5.pc.in
+    ${HDF5_BINARY_DIR}/CMakeFiles/${HDF5_LIB_CORENAME}-${HDF5_PACKAGE_VERSION}.pc
+    @ONLY
+)
+install (
+    FILES ${HDF5_BINARY_DIR}/CMakeFiles/${HDF5_LIB_CORENAME}-${HDF5_PACKAGE_VERSION}.pc
+    DESTINATION ${HDF5_INSTALL_LIB_DIR}/pkgconfig
+    COMPONENT libraries
+)
+
+if (NOT WIN32)
+  set (_PKG_CONFIG_COMPILER ${CMAKE_C_COMPILER})
+  configure_file (
+      ${HDF_RESOURCES_DIR}/libh5cc.in
+      ${HDF5_BINARY_DIR}/CMakeFiles/h5cc
+      @ONLY
+  )
+  install (
+      FILES ${HDF5_BINARY_DIR}/CMakeFiles/h5cc
+      DESTINATION ${HDF5_INSTALL_BIN_DIR}
+      PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+      COMPONENT libraries
   )
 endif ()
 endif ()

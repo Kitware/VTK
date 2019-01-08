@@ -1,0 +1,15 @@
+NAME
+  VTK::PythonContext2D
+LIBRARY_NAME
+  vtkPythonContext2D
+CONDITION
+  VTK_WRAP_PYTHON
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::RenderingContext2D
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::WrappingPythonCore
+TEST_DEPENDS
+  VTK::TestingCore

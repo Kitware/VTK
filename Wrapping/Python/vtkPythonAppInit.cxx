@@ -84,7 +84,7 @@ int main(int argc, char **argv)
    * This function is generated and exposed in vtkpythonmodules.h.
    * This registers any Python modules for VTK for static builds.
    */
-  CMakeLoadAllPythonModules();
+  vtkpythonmodules_load();
 
   // Setup the output window to be vtkOutputWindow, rather than platform
   // specific one. This avoids creating vtkWin32OutputWindow on Windows, for

@@ -4,7 +4,7 @@ also allows one to use specific packages inside the vtk directory.."""
 from __future__ import absolute_import
 
 # --------------------------------------
-@VTK_PYTHON_IMPORT_ALL@# --------------------------------------
+@_vtk_python_imports@
 
 # useful macro for getting type names
 from .util.vtkConstants import vtkImageScalarTypeNameMacro

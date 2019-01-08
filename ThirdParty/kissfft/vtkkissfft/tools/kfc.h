@@ -1,3 +1,11 @@
+/*
+ *  Copyright (c) 2003-2004, Mark Borgerding. All rights reserved.
+ *  This file is part of KISS FFT - https://github.com/mborgerding/kissfft
+ *
+ *  SPDX-License-Identifier: BSD-3-Clause
+ *  See COPYING file for more information.
+ */
+
 #ifndef KFC_H
 #define KFC_H
 #include "../kiss_fft.h"

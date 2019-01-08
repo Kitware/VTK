@@ -14,7 +14,6 @@
 =========================================================================*/
 #ifndef vtkMultiBlockPLOT3DReaderInternals_h
 #define vtkMultiBlockPLOT3DReaderInternals_h
-#ifndef __VTK_WRAP__
 
 #include "vtkIOParallelModule.h" // For export macro
 #include "vtkByteSwap.h"
@@ -210,6 +209,5 @@ public:
 
 };
 
-#endif
 #endif
 // VTK-HeaderTest-Exclude: vtkMultiBlockPLOT3DReaderInternals.h

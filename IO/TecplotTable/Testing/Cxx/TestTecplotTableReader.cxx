@@ -20,11 +20,8 @@
 // This tests the ability to read a Tecplot table. The test file contains residuals from a CFD calculation.
 int TestTecplotTableReader(int argc, char *argv[])
 {
-  //------------  test the reader with an input file-----------------
-  if (argc != 3) return 0; // for some reason we get called twice, once with 5 arguments that are not pointing to the file
-
-  char* filename = argv[2];
-  std::cout << filename << std::endl;
+  char* filename = vtkTestUtilities::ExpandDataFileName(
+    argc, argv, "Data/residuals.dat");
   vtkTecplotTableReader *reader = vtkTecplotTableReader::New();
   reader->SetFileName(filename);
   reader->OutputPedigreeIdsOn();

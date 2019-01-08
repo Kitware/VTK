@@ -15,24 +15,33 @@ readonly name="mpi4py"
 readonly ownership="mpi4py Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/mpi4py.git"
-readonly tag="for/vtk"
+readonly tag="for/vtk-20181101-3.0.0"
 readonly paths="
+.gitattributes
 CMakeLists.txt
 LICENSE.rst
 README.rst
 CHANGES.rst
-src
 misc/THANKS.txt
+src/CMakeLists.txt
+src/lib-mpi/
+src/*.h
+src/MPI.c
+src/mpi4py/include/
+src/mpi4py/__init__.py
+src/mpi4py/__init__.pxd
+src/mpi4py/libmpi.pxd
+src/mpi4py/MPI.pxd
 "
 
 extract_source () {
     # Run cython
-    python setup.py build
+    python2 setup.py build_src
     # Copy over the files from Git
     git_archive
     # Copy over the files cython produced
-    cp -v "src/include/mpi4py/mpi4py.MPI_api.h" "$extractdir/$name-reduced/src/include/mpi4py/"
-    cp -v "src/include/mpi4py/mpi4py.MPI.h" "$extractdir/$name-reduced/src/include/mpi4py/"
+    cp -v "src/mpi4py/include/mpi4py/mpi4py.MPI.h" "$extractdir/$name-reduced/src/mpi4py/include/mpi4py/"
+    cp -v "src/mpi4py/include/mpi4py/mpi4py.MPI_api.h" "$extractdir/$name-reduced/src/mpi4py/include/mpi4py/"
     cp -v "src/mpi4py.MPI.c" "$extractdir/$name-reduced/src/"
 }
 

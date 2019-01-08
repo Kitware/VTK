@@ -16,13 +16,9 @@ set(vtk_smp_defines)
 set(vtk_smp_use_default_atomics ON)
 
 if (VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "TBB")
-  find_package(TBB REQUIRED)
+  vtk_module_find_package(PACKAGE TBB)
   list(APPEND vtk_smp_libraries
-    ${TBB_LIBRARIES})
-  # This needs to public because all modules that include <vtkAtomic.h> need
-  # to include <tbb/atomic.h>.
-  list(APPEND vtk_smp_includes
-    ${TBB_INCLUDE_DIRS})
+    TBB::tbb)
 
   set(vtk_smp_use_default_atomics OFF)
   set(vtk_smp_implementation_dir "${CMAKE_CURRENT_SOURCE_DIR}/SMP/TBB")
@@ -34,12 +30,10 @@ if (VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "TBB")
     vtkSMPThreadLocal.h)
 
 elseif (VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "OpenMP")
-  find_package(OpenMP REQUIRED)
+  vtk_module_find_package(PACKAGE OpenMP)
 
-  list(APPEND vtk_smp_defines
-    ${OpenMP_CXX_FLAGS})
   list(APPEND vtk_smp_libraries
-    ${OpenMP_CXX_LIBRARIES})
+    OpenMP::OpenMP_CXX)
 
   set(vtk_smp_implementation_dir "${CMAKE_CURRENT_SOURCE_DIR}/SMP/OpenMP")
   list(APPEND vtk_smp_sources
@@ -56,6 +50,10 @@ elseif (VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "OpenMP")
       "${vtk_smp_implementation_dir}/vtkAtomic.cxx")
     list(APPEND vtk_smp_headers_to_configure
       vtkAtomic.h)
+
+    set_source_files_properties(vtkAtomic.cxx
+      PROPERITES
+        COMPILE_FLAGS "${OpenMP_CXX_FLAGS}")
   else()
     message(WARNING
       "Required OpenMP version (3.1) for atomics not detected. Using default "

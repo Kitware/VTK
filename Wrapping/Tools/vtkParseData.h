@@ -390,3 +390,4 @@ void vtkParse_AddDefaultConstructors(ClassInfo *data, StringCache *cache);
 #endif
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkParseData.h */

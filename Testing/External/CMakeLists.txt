@@ -12,27 +12,16 @@ include(CTest)
 # Find the top of the main VTK source tree.
 get_filename_component(VTK_TOP_DIR ${VTKTestExternal_SOURCE_DIR}/../.. ABSOLUTE)
 set(ExternalData_SOURCE_ROOT ${VTK_TOP_DIR})
-
-# Load module infrastructure macros.
-list(APPEND CMAKE_MODULE_PATH ${VTK_TOP_DIR}/CMake)
-include(vtkModuleMacros)
-include(vtkExternalData)
-include(vtkEncodeString)
-include(vtkTestingMacros)
+set(VTK_SOURCE_DIR "${VTK_TOP_DIR}")
 
 # Find the VTK build or install tree.  Assume the version matches exactly.
 # One should provide VTK_DIR explicitly in our intended use cases.
 find_package(VTK REQUIRED NO_MODULE)
-
-# Use VTK's flags.
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${VTK_REQUIRED_C_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VTK_REQUIRED_CXX_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${VTK_REQUIRED_EXE_LINKER_FLAGS}")
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${VTK_REQUIRED_SHARED_LINKER_FLAGS}")
-set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${VTK_REQUIRED_MODULE_LINKER_FLAGS}")
+# Tests use some macros only stored in VTK's source tree.
+list(APPEND CMAKE_MODULE_PATH "${VTK_TOP_DIR}/cmake")
 
 # This is a cross-platform project so we cannot use the MS _s API.
-if(WIN32 AND "x${CMAKE_C_COMPILER_ID}" STREQUAL "xIntel")
+if(WIN32 AND CMAKE_C_COMPILER_ID STREQUAL "Intel")
   set(_INTEL_WINDOWS 1)
 endif()
 if(MSVC OR _INTEL_WINDOWS)
@@ -43,42 +32,61 @@ if(MSVC OR _INTEL_WINDOWS)
     )
 endif()
 
-# Glob the set of modules in the source tree including test modules.
-vtk_module_glob("${VTK_TOP_DIR}" "${VTKTestExternal_BINARY_DIR}" Cxx)
+# Find the set of modules in the source tree.
+vtk_module_find_kits(discovered_kits "${VTK_TOP_DIR}")
+vtk_module_find_modules(discovered_modules "${VTK_TOP_DIR}")
+vtk_module_scan(
+  MODULE_FILES            ${discovered_modules}
+  KIT_FILES               ${discovered_kits}
+  WANT_BY_DEFAULT         ON
+  ENABLE_TESTS            DEFAULT
+  HIDE_MODULES_FROM_CACHE ON
+  PROVIDES_MODULES        vtk_modules_to_test
+  PROVIDES_KITS           vtk_kits)
 
 # Input information for test build files.
 option(VTK_USE_LARGE_DATA "Enable tests requiring \"large\" data" OFF)
-set(VTK_TEST_DATA_DIR "${ExternalData_BINARY_ROOT}/Testing")
-set(VTK_TEST_INPUT_DIR "${VTK_TOP_DIR}/Testing/Data")
-set(VTK_TEST_OUTPUT_DIR "${VTKTestExternal_BINARY_DIR}/Testing/Temporary")
+set(_vtk_build_TEST_DATA_TARGET "VTKData")
+set(_vtk_build_TEST_INPUT_DATA_DIRECTORY "${VTK_TOP_DIR}/Testing")
+set(_vtk_build_TEST_OUTPUT_DATA_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/ExternalData/Testing")
+set(_vtk_build_TEST_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/Testing/Temporary")
 
-include(vtkLegacyData)
+get_property(vtk_test_modules GLOBAL
+  PROPERTY  _vtk_module_test_modules)
+foreach (_vtk_build_test IN LISTS vtk_test_modules)
+  get_property(_vtk_build_test_depends GLOBAL
+    PROPERTY "_vtk_module_${_vtk_build_test}_test_depends")
+  if (NOT TARGET "${_vtk_build_test}")
+    message(STATUS "Skipping ${_vtk_build_test} because it was not built.")
+    continue ()
+  endif ()
 
-# If vtkParallelMPI is found then look for MPI and bring in
-# vtkTestingMPISupport.
-if(vtkParallelMPI_LOADED)
-  find_package(MPI REQUIRED)
-  include(vtkTestingMPISupport)
-endif()
+  set(_vtk_build_test_has_depends TRUE)
+  set(_vtk_build_test_missing_depends)
+  foreach (_vtk_build_test_depend IN LISTS _vtk_build_test_depends)
+    if (NOT TARGET "${_vtk_build_test_depend}")
+      list(APPEND _vtk_build_test_missing_depends
+        "${_vtk_build_test_depend}")
+      set(_vtk_build_test_has_depends FALSE)
+    endif ()
+  endforeach ()
+  if (NOT _vtk_build_test_has_depends)
+    string(REPLACE ";" "\n  " _vtk_build_test_missing_depends "${_vtk_build_test_missing_depends}")
+    message(STATUS "Skipping ${_vtk_build_test} due to missing dependencies:\n  ${_vtk_build_test_missing_depends}")
+    continue ()
+  endif ()
 
-# Add the test directory for each enabled module that has tests
-# whose dependencies are also enabled.
-foreach(mod ${VTK_MODULES_ALL})
-  if(${mod}_TESTS_FOR AND ${${mod}_TESTS_FOR}_LOADED)
-    set(missing "")
-    foreach(dep IN LISTS ${mod}_DEPENDS)
-      if(NOT ${dep}_LOADED)
-        set(missing "${missing}  ${dep}\n")
-      endif()
-    endforeach()
-    if(NOT missing)
-      set(vtk-module ${${mod}_TESTS_FOR})
-      add_subdirectory(${${mod}_SOURCE_DIR} ${${mod}_BINARY_DIR})
-    else()
-      message(STATUS "Skipping ${mod} due to missing dependencies:\n${missing}")
-    endif()
-  endif()
-endforeach()
+  get_property(_vtk_build_module_file GLOBAL
+    PROPERTY  "_vtk_module_${_vtk_build_test}_file")
+
+  get_filename_component(_vtk_build_module_dir "${_vtk_build_module_file}" DIRECTORY)
+  file(RELATIVE_PATH _vtk_build_module_subdir "${CMAKE_SOURCE_DIR}" "${_vtk_build_module_dir}")
+  if (EXISTS "${CMAKE_SOURCE_DIR}/${_vtk_build_module_subdir}/Testing")
+    add_subdirectory(
+      "${CMAKE_SOURCE_DIR}/${_vtk_build_module_subdir}/Testing"
+      "${CMAKE_BINARY_DIR}/${_vtk_build_module_subdir}/Testing")
+  endif ()
+endforeach ()
 
 # Create target to download data from the VTKData group.  This must come after
 # all tests have been added that reference the group, so we put it last.

@@ -1,36 +1,16 @@
-include(vtkQt)
-
 # set up sources to build
-set(LibSrcs
-  vtkQtSQLDatabase.cxx
-  vtkQtSQLQuery.cxx
-  vtkQtTimePointUtility.cxx
+set(classes
+  vtkQtSQLDatabase
+  vtkQtSQLQuery
+  vtkQtTimePointUtility
   )
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
+vtk_module_add_module(VTK::GUISupportQtSQL
+  CLASSES ${classes})
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
-find_package(Qt5 COMPONENTS Sql REQUIRED QUIET)
-
-set(_qt_include_dirs ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Sql_INCLUDE_DIRS})
-list(REMOVE_DUPLICATES _qt_include_dirs)
-include_directories(${_qt_include_dirs})
-
-set(_qt_definitions ${Qt5Widgets_DEFINITIONS} ${Qt5Sql_DEFINITIONS})
-list(REMOVE_DUPLICATES _qt_definitions)
-add_definitions(${_qt_definitions})
-
-set(QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5Sql_LIBRARIES})
-
-# When this module is loaded by an app, load Qt too.
-vtk_module_export_code_find_package(Qt5 COMPONENTS Sql Widgets)
-
-set(${vtk-module}_NO_HeaderTest 1)
-vtk_module_library(${vtk-module} ${LibSrcs})
-
-# Apply user-defined properties to the library target.
-if(VTK_LIBRARY_PROPERTIES)
-  set_target_properties(${vtk-module} PROPERTIES ${VTK_LIBRARY_PROPERTIES})
-endif()
-
-vtk_module_link_libraries(${vtk-module} LINK_PUBLIC ${QT_LIBRARIES})
+vtk_module_find_package(
+  PACKAGE     Qt5
+  COMPONENTS  Widgets Sql
+  FORWARD_VERSION_REQ MINOR
+  VERSION_VAR         Qt5_VERSION)
+vtk_module_link(VTK::GUISupportQtSQL PUBLIC Qt5::Sql Qt5::Widgets)

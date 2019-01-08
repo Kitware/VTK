@@ -192,12 +192,12 @@ java/examples/testfiles/examples.intro.H5_CreateGroup.txt -text
 java/examples/testfiles/examples.intro.H5_CreateGroupAbsoluteRelative.txt -text
 java/examples/testfiles/examples.intro.H5_CreateGroupDataset.txt -text
 java/examples/testfiles/examples.intro.H5_ReadWrite.txt -text
-java/lib/ext/slf4j-nop-1.7.5.jar -text svneol=unset#application/zip
-java/lib/ext/slf4j-simple-1.7.5.jar -text svneol=unset#application/zip
+java/lib/ext/slf4j-nop-1.7.25.jar -text svneol=unset#application/zip
+java/lib/ext/slf4j-simple-1.7.25.jar -text svneol=unset#application/zip
 java/lib/hamcrest-core.jar -text svneol=unset#application/java-archive
 java/lib/junit.jar -text svneol=unset#application/java-archive
 java/lib/simplelogger.properties -text
-java/lib/slf4j-api-1.7.5.jar -text svneol=unset#application/zip
+java/lib/slf4j-api-1.7.25.jar -text svneol=unset#application/zip
 java/src/CMakeLists.txt -text
 java/src/Makefile.am -text
 java/src/hdf/CMakeLists.txt -text
@@ -321,6 +321,7 @@ java/test/TestH5Dparams.java -text
 java/test/TestH5Dplist.java -text
 java/test/TestH5E.java -text
 java/test/TestH5Edefault.java -text
+java/test/TestH5Eparams.java -text
 java/test/TestH5Eregister.java -text
 java/test/TestH5F.java -text
 java/test/TestH5Fbasic.java -text
@@ -347,6 +348,7 @@ java/test/TestH5Sbasic.java -text
 java/test/TestH5T.java -text
 java/test/TestH5Tbasic.java -text
 java/test/TestH5Tparams.java -text
+java/test/TestUnit.java -text
 java/test/TestH5Z.java -text
 java/test/h5ex_g_iterate.orig -text svneol=unset#application/x-hdf
 java/test/junit.sh.in -text
@@ -726,7 +728,8 @@ tools/testfiles/tattrreg.h5 -text
 tools/testfiles/tbigdims.h5 -text
 tools/testfiles/tbinary.h5 -text
 tools/testfiles/tbitfields.h5 -text
-tools/testfiles/tbitnopaque.ddl -text
+tools/testfiles/tbitnopaque_be.ddl -text
+tools/testfiles/tbitnopaque_le.ddl -text
 tools/testfiles/tbitnopaque.h5 -text svneol=unset#application/x-hdf
 tools/testfiles/tchar.h5 -text
 tools/testfiles/tcmpdattrintsize.h5 -text

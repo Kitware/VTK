@@ -1,46 +1,67 @@
-# Find LibHaru PDF library
-#
-# This module defines
-# - LIBHARU_INCLUDE_DIR, where to find hpdf.h
-# - LIBHARU_LIBRARIES, libraries to link against to use the LibHaru API.
-# - LIBHARU_FOUND, If false, do not try to use LibHaru.
-#=============================================================================
-# Copyright 2017 Kitware, Inc.
-#
-# Distributed under the OSI-approved BSD License (the "License");
-# see accompanying file Copyright.txt for details.
-#
-# This software is distributed WITHOUT ANY WARRANTY; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the License for more information.
-#=============================================================================
-# (To distribute this file outside of VTK, substitute the full
-#  License text for the above reference.)
+find_path(LibHaru_INCLUDE_DIR
+  NAMES hpdf.h
+  DOC "libharu include directory")
+mark_as_advanced(LibHaru_INCLUDE_DIR)
 
-find_path(LIBHARU_INCLUDE_DIR hpdf.h)
+find_library(LibHaru_LIBRARY_RELEASE
+  NAMES hpdf hpdfs libhpdf libhpdfs
+  DOC "libharu release library")
+mark_as_advanced(LibHaru_LIBRARY_RELEASE)
+find_library(LibHaru_LIBRARY_DEBUG
+  NAMES hpdfd hpdfsd libhpdfd libhpdfsd
+  DOC "libharu debug library")
+mark_as_advanced(LibHaru_LIBRARY_DEBUG)
 
-find_library(LIBHARU_LIBRARY_RELEASE NAMES hpdf hpdfs libhpdf libhpdfs)
-find_library(LIBHARU_LIBRARY_DEBUG NAMES hpdfd hpdfsd libhpdfd libhpdfsd)
-
-include(CheckTypeSize)
-set(CMAKE_EXTRA_INCLUDE_FILES "${LIBHARU_INCLUDE_DIR}/hpdf.h")
-check_type_size(HPDF_Shading LIBHARU_HPDF_SHADING)
-set(CMAKE_EXTRA_INCLUDE_FILES)
+if (LibHaru_INCLUDE_DIR)
+  file(STRINGS "${LibHaru_INCLUDE_DIR}/hpdf_version.h" _libharu_version_lines
+    REGEX "#define HPDF_(MAJOR|MINOR|BUGFIX|EXTRA)_VERSION")
+  string(REGEX REPLACE ".*HPDF_MAJOR_VERSION *\([0-9]*\).*" "\\1" _libharu_version_major "${_libharu_version_lines}")
+  string(REGEX REPLACE ".*HPDF_MINOR_VERSION *\([0-9]*\).*" "\\1" _libharu_version_minor "${_libharu_version_lines}")
+  string(REGEX REPLACE ".*HPDF_BUGFIX_VERSION *\([0-9]*\).*" "\\1" _libharu_version_bugfix "${_libharu_version_lines}")
+  string(REGEX REPLACE ".*HPDF_EXTRA_VERSION *\"\([^\"]*\)\".*" "\\1" _libharu_version_extra "${_libharu_version_lines}")
+  set(LibHaru_VERSION "${_libharu_version_major}.${_libharu_version_minor}.${_libharu_version_bugfix}")
+  if (_libharu_version_extra)
+    string(APPEND LibHaru_VERSION
+      "-${_libharu_version_extra}")
+  endif ()
+  unset(_libharu_version_major)
+  unset(_libharu_version_minor)
+  unset(_libharu_version_bugfix)
+  unset(_libharu_version_extra)
+  unset(_libharu_version_lines)
+endif ()
 
 include(SelectLibraryConfigurations)
-select_library_configurations(LIBHARU)
+select_library_configurations(LibHaru)
 
-# handle the QUIETLY and REQUIRED arguments and set LIBHARU_FOUND to TRUE if
-# all listed variables are TRUE
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(LibHaru DEFAULT_MSG
-  LIBHARU_LIBRARY
-  LIBHARU_INCLUDE_DIR
-  LIBHARU_HPDF_SHADING
-)
+find_package_handle_standard_args(LibHaru
+  REQUIRED_VARS LibHaru_LIBRARY LibHaru_INCLUDE_DIR
+  VERSION_VAR LibHaru_VERSION)
 
-if(LIBHARU_FOUND)
-  set(LIBHARU_LIBRARIES "${LIBHARU_LIBRARY}")
-endif()
+if (LibHaru_FOUND)
+  set(LibHaru_INCLUDE_DIRS "${LibHaru_INCLUDE_DIR}")
+  set(LibHaru_LIBRARIES "${LibHaru_LIBRARY}")
 
-mark_as_advanced(LIBHARU_INCLUDE_DIR LIBHARU_LIBRARY LIBHARU_LIBRARIES)
+  if (NOT TARGET LibHaru::LibHaru)
+    include(vtkDetectLibraryType)
+    vtk_detect_library_type(libharu_library_type
+      PATH "${LibHaru_LIBRARY}")
+    add_library(LibHaru::LibHaru "${libharu_library_type}" IMPORTED)
+    unset(libharu_library_type)
+    set_target_properties(LibHaru::LibHaru PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES "${LibHaru_INCLUDE_DIR}")
+    if (LibHaru_LIBRARY_RELEASE)
+      set_property(TARGET LibHaru::LibHaru APPEND PROPERTY
+        IMPORTED_CONFIGURATIONS RELEASE)
+      set_target_properties(LibHaru::LibHaru PROPERTIES
+        IMPORTED_LOCATION_RELEASE "${LibHaru_LIBRARY_RELEASE}")
+    endif ()
+    if (LibHaru_LIBRARY_DEBUG)
+      set_property(TARGET LibHaru::LibHaru APPEND PROPERTY
+        IMPORTED_CONFIGURATIONS DEBUG)
+      set_target_properties(LibHaru::LibHaru PROPERTIES
+        IMPORTED_LOCATION_DEBUG "${LibHaru_LIBRARY_DEBUG}")
+    endif ()
+  endif ()
+endif ()

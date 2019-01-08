@@ -46,6 +46,8 @@ namespace tao
          template< int Eol, typename Char, Char Lo, Char Hi, Char... Cs >
          struct ranges_impl< Eol, Char, Lo, Hi, Cs... >
          {
+            static_assert( Lo <= Hi, "invalid range detected" );
+
             static constexpr bool can_match_eol = ( ( ( Lo <= Eol ) && ( Eol <= Hi ) ) || ranges_impl< Eol, Char, Cs... >::can_match_eol );
 
             static bool match( const Char c ) noexcept

@@ -28,6 +28,7 @@
 #include "vtkWeakPointer.h"
 #include "vtkWindows.h"
 
+#include <cstring>
 #include <sstream>
 #include <map>
 #include <vector>
@@ -157,6 +158,12 @@ class vtkPythonEnumMap
 {
 };
 
+// Keep track of all the VTK-Python extension modules
+class vtkPythonModuleList
+  : public std::vector<std::string>
+{
+};
+
 // Keep track of all vtkPythonCommand instances.
 class vtkPythonCommandList
   : public std::vector<vtkWeakPointer<vtkPythonCommand> >
@@ -211,6 +218,7 @@ vtkPythonUtil::vtkPythonUtil()
   this->SpecialTypeMap = new vtkPythonSpecialTypeMap;
   this->NamespaceMap = new vtkPythonNamespaceMap;
   this->EnumMap = new vtkPythonEnumMap;
+  this->ModuleList = new vtkPythonModuleList;
   this->PythonCommandList = new vtkPythonCommandList;
 }
 
@@ -223,6 +231,7 @@ vtkPythonUtil::~vtkPythonUtil()
   delete this->SpecialTypeMap;
   delete this->NamespaceMap;
   delete this->EnumMap;
+  delete this->ModuleList;
   delete this->PythonCommandList;
 }
 
@@ -246,35 +255,25 @@ void vtkPythonUtil::UnRegisterPythonCommand(vtkPythonCommand* cmd)
 }
 
 //--------------------------------------------------------------------
-PyVTKSpecialType *vtkPythonUtil::AddSpecialTypeToMap(
+PyTypeObject *vtkPythonUtil::AddSpecialTypeToMap(
   PyTypeObject *pytype, PyMethodDef *methods, PyMethodDef *constructors,
   vtkcopyfunc copyfunc)
 {
   const char *classname = vtkPythonUtil::StripModule(pytype->tp_name);
   vtkPythonUtilCreateIfNeeded();
 
-#ifdef VTKPYTHONDEBUG
-  //  vtkGenericWarningMacro("Adding an type " << type << " to map ptr");
-#endif
-
   // lets make sure it isn't already there
   vtkPythonSpecialTypeMap::iterator i =
     vtkPythonMap->SpecialTypeMap->find(classname);
-  if (i != vtkPythonMap->SpecialTypeMap->end())
+  if (i == vtkPythonMap->SpecialTypeMap->end())
   {
-    return nullptr;
+    i = vtkPythonMap->SpecialTypeMap->insert(i,
+      vtkPythonSpecialTypeMap::value_type(
+        classname,
+        PyVTKSpecialType(pytype, methods, constructors, copyfunc)));
   }
 
-  i = vtkPythonMap->SpecialTypeMap->insert(i,
-    vtkPythonSpecialTypeMap::value_type(
-      classname,
-      PyVTKSpecialType(pytype, methods, constructors, copyfunc)));
-
-#ifdef VTKPYTHONDEBUG
-  //  vtkGenericWarningMacro("Added type to map type = " << typeObject);
-#endif
-
-  return &i->second;
+  return i->second.py_type;
 }
 
 //--------------------------------------------------------------------
@@ -469,10 +468,10 @@ const char *vtkPythonUtil::PythonicClassName(const char *classname)
   if (*cp != '\0')
   {
     /* look up class and get its pythonic name */
-    PyVTKClass *o = vtkPythonUtil::FindClass(classname);
-    if (o)
+    PyTypeObject *pytype = vtkPythonUtil::FindClassTypeObject(classname);
+    if (pytype)
     {
-      classname = vtkPythonUtil::StripModule(o->py_type->tp_name);
+      classname = vtkPythonUtil::StripModule(pytype->tp_name);
     }
   }
 
@@ -495,7 +494,7 @@ const char *vtkPythonUtil::StripModule(const char *tpname)
 }
 
 //--------------------------------------------------------------------
-PyVTKClass *vtkPythonUtil::AddClassToMap(
+PyTypeObject *vtkPythonUtil::AddClassToMap(
   PyTypeObject *pytype, PyMethodDef *methods,
   const char *classname, vtknewfunc constructor)
 {
@@ -504,17 +503,15 @@ PyVTKClass *vtkPythonUtil::AddClassToMap(
   // lets make sure it isn't already there
   vtkPythonClassMap::iterator i =
     vtkPythonMap->ClassMap->find(classname);
-  if (i != vtkPythonMap->ClassMap->end())
+  if (i == vtkPythonMap->ClassMap->end())
   {
-    return nullptr;
+    i = vtkPythonMap->ClassMap->insert(i,
+      vtkPythonClassMap::value_type(
+        classname,
+        PyVTKClass(pytype, methods, classname, constructor)));
   }
 
-  i = vtkPythonMap->ClassMap->insert(i,
-    vtkPythonClassMap::value_type(
-      classname,
-      PyVTKClass(pytype, methods, classname, constructor)));
-
-  return &i->second;
+  return i->second.py_type;
 }
 
 //--------------------------------------------------------------------
@@ -898,6 +895,91 @@ PyTypeObject *vtkPythonUtil::FindEnum(const char *name)
   }
 
   return pytype;
+}
+
+//--------------------------------------------------------------------
+PyTypeObject *vtkPythonUtil::FindClassTypeObject(const char *name)
+{
+  PyVTKClass *info = vtkPythonUtil::FindClass(name);
+  if (info)
+  {
+    return info->py_type;
+  }
+
+  return nullptr;
+}
+
+//--------------------------------------------------------------------
+PyTypeObject *vtkPythonUtil::FindSpecialTypeObject(const char *name)
+{
+  PyVTKSpecialType *info = vtkPythonUtil::FindSpecialType(name);
+  if (info)
+  {
+    return info->py_type;
+  }
+
+  return nullptr;
+}
+
+//--------------------------------------------------------------------
+bool vtkPythonUtil::ImportModule(const char *fullname, PyObject *globals)
+{
+  // strip all but the final part of the path
+  const char *name = std::strrchr(fullname, '.');
+  if (name == nullptr)
+  {
+    name = fullname;
+  }
+  else if (name[0] == '.')
+  {
+    name++;
+  }
+
+  // check whether the module is already loaded
+  if (vtkPythonMap)
+  {
+    vtkPythonModuleList *ml = vtkPythonMap->ModuleList;
+    if (std::find(ml->begin(), ml->end(), name) != ml->end())
+    {
+      return true;
+    }
+  }
+
+  PyObject *m = nullptr;
+
+  if (fullname == name || (fullname[0] == '.' && &fullname[1] == name))
+  {
+    // try relative import (const-cast is needed for Python 2.x only)
+    m = PyImport_ImportModuleLevel(const_cast<char *>(name), globals,
+                                   nullptr, nullptr, 1);
+    if (!m)
+    {
+      PyErr_Clear();
+    }
+  }
+
+  if (!m)
+  {
+    // try absolute import
+    m = PyImport_ImportModule(fullname);
+  }
+
+  if (!m)
+  {
+    PyErr_Clear();
+    return false;
+  }
+
+  Py_DECREF(m);
+  return true;
+}
+
+//--------------------------------------------------------------------
+void vtkPythonUtil::AddModule(const char *name)
+{
+  vtkPythonUtilCreateIfNeeded();
+
+  vtkPythonMap->ModuleList->push_back(name);
 }
 
 //--------------------------------------------------------------------

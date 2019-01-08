@@ -371,7 +371,9 @@ int cpy_dimension(int in_exoid, int out_exoid, int mesh_only)
     /* If the dimension isn't one we specifically don't want
      * to copy (ie, number of QA or INFO records) and it
      * hasn't been defined, copy it */
-    if (strcmp(dim_nm, DIM_NUM_QA) == 0 || strcmp(dim_nm, DIM_NUM_INFO) == 0) {
+    if (strcmp(dim_nm, DIM_NUM_QA) == 0 || strcmp(dim_nm, DIM_NUM_INFO) == 0 ||
+        strcmp(dim_nm, DIM_N4) == 0 || strcmp(dim_nm, DIM_STR) == 0 ||
+        strcmp(dim_nm, DIM_LIN) == 0) {
       is_filtered = 1;
     }
     else if (mesh_only == 1 &&

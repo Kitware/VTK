@@ -1,0 +1,15 @@
+NAME
+  VTK::GUISupportQtSQL
+LIBRARY_NAME
+  vtkGUISupportQtSQL
+GROUPS
+  Qt
+DEPENDS
+  VTK::CommonCore
+  VTK::GUISupportQt
+  VTK::IOSQL
+PRIVATE_DEPENDS
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::TestingCore
+EXCLUDE_WRAP

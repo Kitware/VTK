@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    OpenType GDEF table validation (body).                               */
 /*                                                                         */
-/*  Copyright 2004, 2005, 2007 by                                          */
+/*  Copyright 2004-2018 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -45,7 +45,7 @@
 
   static void
   otv_O_x_Ox( FT_Bytes       table,
-              OTV_Validator  valid )
+              OTV_Validator  otvalid )
   {
     FT_Bytes           p = table;
     FT_Bytes           Coverage;
@@ -61,20 +61,20 @@
 
     OTV_TRACE(( " (GlyphCount = %d)\n", GlyphCount ));
 
-    otv_Coverage_validate( Coverage, valid, GlyphCount );
+    otv_Coverage_validate( Coverage, otvalid, (FT_Int)GlyphCount );
     if ( GlyphCount != otv_Coverage_get_count( Coverage ) )
       FT_INVALID_DATA;
 
     OTV_LIMIT_CHECK( GlyphCount * 2 );
 
-    valid->nesting_level++;
-    func          = valid->func[valid->nesting_level];
-    valid->extra1 = 0;
+    otvalid->nesting_level++;
+    func            = otvalid->func[otvalid->nesting_level];
+    otvalid->extra1 = 0;
 
     for ( ; GlyphCount > 0; GlyphCount-- )
-      func( table + FT_NEXT_USHORT( p ), valid );
+      func( table + FT_NEXT_USHORT( p ), otvalid );
 
-    valid->nesting_level--;
+    otvalid->nesting_level--;
 
     OTV_EXIT;
   }
@@ -92,7 +92,7 @@
 
   static void
   otv_CaretValue_validate( FT_Bytes       table,
-                           OTV_Validator  valid )
+                           OTV_Validator  otvalid )
   {
     FT_Bytes  p = table;
     FT_UInt   CaretValueFormat;
@@ -122,7 +122,7 @@
       OTV_LIMIT_CHECK( 2 );
 
       /* DeviceTable */
-      otv_Device_validate( table + FT_NEXT_USHORT( p ), valid );
+      otv_Device_validate( table + FT_NEXT_USHORT( p ), otvalid );
       break;
 
     default:
@@ -136,12 +136,46 @@
   /*************************************************************************/
   /*************************************************************************/
   /*****                                                               *****/
+  /*****                       MARK GLYPH SETS                         *****/
+  /*****                                                               *****/
+  /*************************************************************************/
+  /*************************************************************************/
+
+  static void
+  otv_MarkGlyphSets_validate( FT_Bytes       table,
+                              OTV_Validator  otvalid )
+  {
+    FT_Bytes  p = table;
+    FT_UInt   MarkGlyphSetCount;
+
+
+    OTV_NAME_ENTER( "MarkGlyphSets" );
+
+    p += 2;     /* skip Format */
+
+    OTV_LIMIT_CHECK( 2 );
+    MarkGlyphSetCount = FT_NEXT_USHORT( p );
+
+    OTV_TRACE(( " (MarkGlyphSetCount = %d)\n", MarkGlyphSetCount ));
+
+    OTV_LIMIT_CHECK( MarkGlyphSetCount * 4 );      /* CoverageOffsets */
+
+    for ( ; MarkGlyphSetCount > 0; MarkGlyphSetCount-- )
+      otv_Coverage_validate( table + FT_NEXT_ULONG( p ), otvalid, -1 );
+
+    OTV_EXIT;
+  }
+
+
+  /*************************************************************************/
+  /*************************************************************************/
+  /*****                                                               *****/
   /*****                         GDEF TABLE                            *****/
   /*****                                                               *****/
   /*************************************************************************/
   /*************************************************************************/
 
-  /* sets valid->glyph_count */
+  /* sets otvalid->glyph_count */
 
   FT_LOCAL_DEF( void )
   otv_GDEF_validate( FT_Bytes      table,
@@ -150,55 +184,84 @@
                      FT_UInt       glyph_count,
                      FT_Validator  ftvalid )
   {
-    OTV_ValidatorRec  validrec;
-    OTV_Validator     valid = &validrec;
-    FT_Bytes          p     = table;
+    OTV_ValidatorRec  otvalidrec;
+    OTV_Validator     otvalid = &otvalidrec;
+    FT_Bytes          p       = table;
     FT_UInt           table_size;
-    FT_Bool           need_MarkAttachClassDef;
+    FT_UShort         version;
+    FT_Bool           need_MarkAttachClassDef = 1;
 
     OTV_OPTIONAL_TABLE( GlyphClassDef );
     OTV_OPTIONAL_TABLE( AttachListOffset );
     OTV_OPTIONAL_TABLE( LigCaretListOffset );
     OTV_OPTIONAL_TABLE( MarkAttachClassDef );
+    OTV_OPTIONAL_TABLE( MarkGlyphSetsDef );
+
+    OTV_OPTIONAL_TABLE32( itemVarStore );
 
 
-    valid->root = ftvalid;
+    otvalid->root = ftvalid;
 
     FT_TRACE3(( "validating GDEF table\n" ));
     OTV_INIT;
 
-    OTV_LIMIT_CHECK( 12 );
+    OTV_LIMIT_CHECK( 4 );
 
-    if ( FT_NEXT_ULONG( p ) != 0x10000UL )          /* Version */
+    if ( FT_NEXT_USHORT( p ) != 1 )  /* majorVersion */
       FT_INVALID_FORMAT;
 
-    /* MarkAttachClassDef has been added to the OpenType */
-    /* specification without increasing GDEF's version,  */
-    /* so we use this ugly hack to find out whether the  */
-    /* table is needed actually.                         */
+    version = FT_NEXT_USHORT( p );   /* minorVersion */
 
-    need_MarkAttachClassDef = FT_BOOL(
-      otv_GSUBGPOS_have_MarkAttachmentType_flag( gsub ) ||
-      otv_GSUBGPOS_have_MarkAttachmentType_flag( gpos ) );
+    table_size = 10;
+    switch ( version )
+    {
+    case 0:
+      /* MarkAttachClassDef has been added to the OpenType */
+      /* specification without increasing GDEF's version,  */
+      /* so we use this ugly hack to find out whether the  */
+      /* table is needed actually.                         */
 
-    if ( need_MarkAttachClassDef )
-      table_size = 12;              /* OpenType >= 1.2 */
-    else
-      table_size = 10;              /* OpenType < 1.2  */
+      need_MarkAttachClassDef = FT_BOOL(
+        otv_GSUBGPOS_have_MarkAttachmentType_flag( gsub ) ||
+        otv_GSUBGPOS_have_MarkAttachmentType_flag( gpos ) );
 
-    valid->glyph_count = glyph_count;
+      if ( need_MarkAttachClassDef )
+      {
+        OTV_LIMIT_CHECK( 8 );
+        table_size += 2;
+      }
+      else
+        OTV_LIMIT_CHECK( 6 );  /* OpenType < 1.2 */
+
+      break;
+
+    case 2:
+      OTV_LIMIT_CHECK( 10 );
+      table_size += 4;
+      break;
+
+    case 3:
+      OTV_LIMIT_CHECK( 14 );
+      table_size += 8;
+      break;
+
+    default:
+      FT_INVALID_FORMAT;
+    }
+
+    otvalid->glyph_count = glyph_count;
 
     OTV_OPTIONAL_OFFSET( GlyphClassDef );
     OTV_SIZE_CHECK( GlyphClassDef );
     if ( GlyphClassDef )
-      otv_ClassDef_validate( table + GlyphClassDef, valid );
+      otv_ClassDef_validate( table + GlyphClassDef, otvalid );
 
     OTV_OPTIONAL_OFFSET( AttachListOffset );
     OTV_SIZE_CHECK( AttachListOffset );
     if ( AttachListOffset )
     {
       OTV_NEST2( AttachList, AttachPoint );
-      OTV_RUN( table + AttachListOffset, valid );
+      OTV_RUN( table + AttachListOffset, otvalid );
     }
 
     OTV_OPTIONAL_OFFSET( LigCaretListOffset );
@@ -206,7 +269,7 @@
     if ( LigCaretListOffset )
     {
       OTV_NEST3( LigCaretList, LigGlyph, CaretValue );
-      OTV_RUN( table + LigCaretListOffset, valid );
+      OTV_RUN( table + LigCaretListOffset, otvalid );
     }
 
     if ( need_MarkAttachClassDef )
@@ -214,7 +277,23 @@
       OTV_OPTIONAL_OFFSET( MarkAttachClassDef );
       OTV_SIZE_CHECK( MarkAttachClassDef );
       if ( MarkAttachClassDef )
-        otv_ClassDef_validate( table + MarkAttachClassDef, valid );
+        otv_ClassDef_validate( table + MarkAttachClassDef, otvalid );
+    }
+
+    if ( version > 0 )
+    {
+      OTV_OPTIONAL_OFFSET( MarkGlyphSetsDef );
+      OTV_SIZE_CHECK( MarkGlyphSetsDef );
+      if ( MarkGlyphSetsDef )
+        otv_MarkGlyphSets_validate( table + MarkGlyphSetsDef, otvalid );
+    }
+
+    if ( version > 2 )
+    {
+      OTV_OPTIONAL_OFFSET32( itemVarStore );
+      OTV_SIZE_CHECK32( itemVarStore );
+      if ( itemVarStore )
+        OTV_TRACE(( "  [omitting itemVarStore validation]\n" )); /* XXX */
     }
 
     FT_TRACE4(( "\n" ));

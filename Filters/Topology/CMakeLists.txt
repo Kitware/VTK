@@ -1,5 +1,5 @@
-set(Module_SRCS
-    vtkFiberSurface.cxx
-  )
+set(classes
+  vtkFiberSurface)
 
-vtk_module_library(vtkFiltersTopology ${Module_SRCS})
+vtk_module_add_module(VTK::FiltersTopology
+  CLASSES ${classes})

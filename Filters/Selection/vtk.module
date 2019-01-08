@@ -1,0 +1,21 @@
+NAME
+  VTK::FiltersSelection
+LIBRARY_NAME
+  vtkFiltersSelection
+KIT
+  VTK::Filters
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+TEST_DEPENDS
+  VTK::FiltersExtraction
+  VTK::IOLegacy
+  VTK::IOXML
+  VTK::InteractionStyle
+  VTK::RenderingAnnotation
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering

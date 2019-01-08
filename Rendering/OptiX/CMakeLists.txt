@@ -1,62 +1,53 @@
-cmake_minimum_required(VERSION 3.8...3.12)
+enable_language(CUDA)
 
-find_package( OptiX REQUIRED )
-find_package( CUDA 4.0 REQUIRED )
+vtk_module_find_package(
+  PACKAGE OptiX)
 
-include_directories(
-  "${OptiX_INCLUDE}"
-  "${CUDA_INCLUDE_DIRS}"
-  )
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --use_fast_math")
 
-
-set( PTX_OUTPUT_DIR "${CMAKE_BINARY_DIR}/lib/ptx" CACHE PATH
-  "Fallback path to where OptiX stores generated PTX from CUDA files"
-  )
-mark_as_advanced(PTX_OUTPUT_DIR)
-
-set( CUDA_GENERATED_OUTPUT_DIR "${CMAKE_BINARY_DIR}/lib/ptx" )
-
-# Set up build .cu -> .ptx build
-set( CUDA_NVCC_ARCH "sm_30" CACHE STRING "The architecture for which OptiX source is compiled." )
-set( CUDA_NVCC_FLAGS "-arch ${CUDA_NVCC_ARCH} --use_fast_math" )
-
-set(OPTIX_SRCS
+set(cuda_sources
+  CUDA/Cylinder.cu
   CUDA/PerspectiveCamera.cu
   CUDA/Phong.cu
-  CUDA/TriangleMesh.cu
   CUDA/Sphere.cu
-  CUDA/Cylinder.cu
-  )
+  CUDA/TriangleMesh.cu)
+add_library(vtkRenderingOptiX-ptx OBJECT
+  ${cuda_sources})
+target_link_libraries(vtkRenderingOptiX-ptx
+  PRIVATE
+    optix)
+set_property(TARGET vtkRenderingOptiX-ptx
+  PROPERTY
+    CUDA_PTX_COMPILATION ON)
+_vtk_module_apply_properties(vtkRenderingOptiX-ptx)
+_vtk_module_install(vtkRenderingOptiX-ptx
+  OBJECTS DESTINATION "lib/ptx")
 
-CUDA_COMPILE_PTX( ptx_files ${OPTIX_SRCS} )
+set(classes
+  vtkOptiXActorNode
+  vtkOptiXCameraNode
+  vtkOptiXCompositePolyDataMapper2Node
+  vtkOptiXLightNode
+  vtkOptiXPass
+  vtkOptiXPolyDataMapperNode
+  vtkOptiXPtxLoader
+  vtkOptiXRendererNode
+  vtkOptiXViewNodeFactory
+  vtkOptiXWindowNode)
 
-configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/vtkOptiXConfig.h.in"
-  "${CMAKE_BINARY_DIR}/include/vtkOptiXConfig.h"
-  )
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkOptiXConfig.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkOptiXConfig.h"
+  @ONLY)
 
-include_directories(
-    "${CMAKE_BINARY_DIR}/include"
-    )
+set(headers
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkOptiXConfig.h")
 
-set(Module_SRCS
-  vtkOptiXActorNode.cxx
-  vtkOptiXCameraNode.cxx
-  vtkOptiXCompositePolyDataMapper2Node.cxx
-  vtkOptiXLightNode.cxx
-  vtkOptiXPass.cxx
-  vtkOptiXPolyDataMapperNode.cxx
-  vtkOptiXRendererNode.cxx
-  vtkOptiXViewNodeFactory.cxx
-  vtkOptiXWindowNode.cxx
-  vtkOptiXPtxLoader.cxx
-  )
+vtk_module_add_module(VTK::RenderingOptiX
+  CLASSES ${classes}
+  HEADERS ${headers})
 
-vtk_module_library(vtkRenderingOptiX
-  ${Module_SRCS}
-  ${ptx_files}
-  )
-
-target_link_libraries(${vtk-module} LINK_PUBLIC ${optix_LIBRARY})
-
-install(FILES ${ptx_files}
-  DESTINATION lib/ptx )
+vtk_module_link(VTK::RenderingOptiX
+  PRIVATE
+    vtkRenderingOptiX-ptx
+    optix)

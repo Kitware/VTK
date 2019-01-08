@@ -1,0 +1,15 @@
+NAME
+  VTK::FiltersTopology
+LIBRARY_NAME
+  vtkFiltersTopology
+KIT
+  VTK::Filters
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+TEST_DEPENDS
+  VTK::IOLegacy
+  VTK::TestingRendering

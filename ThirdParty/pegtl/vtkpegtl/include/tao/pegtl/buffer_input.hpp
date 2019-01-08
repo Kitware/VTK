@@ -5,6 +5,7 @@
 #define TAO_PEGTL_BUFFER_INPUT_HPP
 
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <memory>
 #include <string>
@@ -105,9 +106,9 @@ namespace tao
             return m_current.data[ offset ];
          }
 
-         unsigned char peek_byte( const std::size_t offset = 0 ) const noexcept
+         std::uint8_t peek_byte( const std::size_t offset = 0 ) const noexcept
          {
-            return static_cast< unsigned char >( peek_char( offset ) );
+            return static_cast< std::uint8_t >( peek_char( offset ) );
          }
 
          void bump( const std::size_t in_count = 1 ) noexcept
@@ -175,6 +176,7 @@ namespace tao
          iterator_t m_current;
          char* m_end;
          const Source m_source;
+         void* internal_state = nullptr;
       };
 
    }  // namespace TAO_PEGTL_NAMESPACE

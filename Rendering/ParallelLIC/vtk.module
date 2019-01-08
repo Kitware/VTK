@@ -1,0 +1,19 @@
+NAME
+  VTK::RenderingParallelLIC
+LIBRARY_NAME
+  vtkRenderingParallelLIC
+KIT
+  VTK::Parallel
+IMPLEMENTS
+  VTK::RenderingLICOpenGL2
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::ParallelMPI
+  VTK::RenderingLICOpenGL2
+  VTK::RenderingOpenGL2
+PRIVATE_DEPENDS
+  VTK::IOLegacy
+  VTK::ParallelCore
+  VTK::RenderingCore
+  VTK::glew

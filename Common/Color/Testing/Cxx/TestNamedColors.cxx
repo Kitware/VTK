@@ -27,7 +27,7 @@
 
 const int NUMBER_OF_SYNONYMS = 81;
 const int NUMBER_OF_COLORS = 283;
-const int PRINT_SELF_STRING_SIZE = 9243;
+const int PRINT_SELF_STRING_SIZE = 9242;
 // For comparing unsigned char converted to double precision.
 const double EPS1 = 0.004; // 1/255 = 0.0039
 // For comparing two double precision numbers.

@@ -297,19 +297,14 @@ set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/include/exodusII_cfg.h"
   "${CMAKE_CURRENT_BINARY_DIR}/include/exodus_config.h")
 
-vtk_add_library(vtkexodusII ${sources} ${headers})
-target_link_libraries(vtkexodusII PUBLIC ${vtknetcdf_LIBRARIES})
-if (NOT VTK_INSTALL_NO_DEVELOPMENT)
-  install(FILES
-    ${headers}
-    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtkexodusII/include"
-    COMPONENT Development)
-endif()
-
-target_compile_definitions(vtkexodusII
+vtk_module_add_module(VTK::exodusII
+  SOURCES ${sources}
+  HEADERS ${headers}
+  HEADERS_SUBDIR "vtkexodusII/include")
+target_compile_definitions(exodusII
   PRIVATE
     exoIIc_EXPORTS)
-target_include_directories(vtkexodusII
+target_include_directories(exodusII
   PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>")

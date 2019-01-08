@@ -47,32 +47,27 @@ typedef struct H5SM_master_table_t H5SM_master_table_t;
 /******************************/
 
 /* Generally useful shared message routines */
-H5_DLL herr_t H5SM_init(H5F_t *f, H5P_genplist_t *fc_plist,
-    const H5O_loc_t *ext_loc, hid_t dxpl_id);
-H5_DLL htri_t H5SM_can_share(H5F_t *f, hid_t dxpl_id, H5SM_master_table_t *table,
+H5_DLL herr_t H5SM_init(H5F_t *f, H5P_genplist_t *fc_plist, const H5O_loc_t *ext_loc);
+H5_DLL htri_t H5SM_can_share(H5F_t *f, H5SM_master_table_t *table,
     ssize_t *sohm_index_num, unsigned type_id, const void *mesg);
-H5_DLL htri_t H5SM_try_share(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh,
-    unsigned defer_flags, unsigned type_id, void *mesg, unsigned *mesg_flags);
-H5_DLL herr_t H5SM_delete(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh,
-    H5O_shared_t *sh_mesg);
-H5_DLL herr_t H5SM_get_info(const H5O_loc_t *ext_loc, H5P_genplist_t *fc_plist,
-    hid_t dxpl_id);
-H5_DLL htri_t H5SM_type_shared(H5F_t *f, unsigned type_id, hid_t dxpl_id);
-H5_DLL herr_t H5SM_get_fheap_addr(H5F_t *f, hid_t dxpl_id, unsigned type_id,
-    haddr_t *fheap_addr);
+H5_DLL htri_t H5SM_try_share(H5F_t *f, H5O_t *open_oh, unsigned defer_flags,
+    unsigned type_id, void *mesg, unsigned *mesg_flags);
+H5_DLL herr_t H5SM_delete(H5F_t *f, H5O_t *open_oh, H5O_shared_t *sh_mesg);
+H5_DLL herr_t H5SM_get_info(const H5O_loc_t *ext_loc, H5P_genplist_t *fc_plist);
+H5_DLL htri_t H5SM_type_shared(H5F_t *f, unsigned type_id);
+H5_DLL herr_t H5SM_get_fheap_addr(H5F_t *f, unsigned type_id, haddr_t *fheap_addr);
 H5_DLL herr_t H5SM_reconstitute(H5O_shared_t *sh_mesg, H5F_t *f,
     unsigned msg_type_id, H5O_fheap_id_t heap_id);
-H5_DLL herr_t H5SM_get_refcount(H5F_t *f, hid_t dxpl_id, unsigned type_id,
+H5_DLL herr_t H5SM_get_refcount(H5F_t *f, unsigned type_id,
     const H5O_shared_t *sh_mesg, hsize_t *ref_count);
-H5_DLL herr_t H5SM_ih_size(H5F_t *f, hid_t dxpl_id, hsize_t *hdr_size, H5_ih_info_t *ih_info);
+H5_DLL herr_t H5SM_ih_size(H5F_t *f, hsize_t *hdr_size, H5_ih_info_t *ih_info);
 
 
 /* Debugging routines */
-H5_DLL herr_t H5SM_table_debug(H5F_t *f, hid_t dxpl_id, haddr_t table_addr,
-    FILE *stream, int indent, int fwidth, unsigned table_vers,
-    unsigned num_indexes);
-H5_DLL herr_t H5SM_list_debug(H5F_t *f, hid_t dxpl_id, haddr_t list_addr,
-    FILE *stream, int indent, int fwidth, haddr_t table_addr);
+H5_DLL herr_t H5SM_table_debug(H5F_t *f, haddr_t table_addr, FILE *stream,
+    int indent, int fwidth, unsigned table_vers, unsigned num_indexes);
+H5_DLL herr_t H5SM_list_debug(H5F_t *f, haddr_t list_addr, FILE *stream,
+    int indent, int fwidth, haddr_t table_addr);
 
 #endif /*_H5SMprivate_H*/
 

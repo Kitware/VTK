@@ -8,7 +8,7 @@ readonly name="gl2ps"
 readonly ownership="gl2ps Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/gl2ps.git"
-readonly tag="for/vtk-old"
+readonly tag="for/vtk-20181008-gb92efdf"
 readonly paths="
 gl2ps.c
 gl2ps.h

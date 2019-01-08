@@ -1,0 +1,28 @@
+NAME
+  VTK::RenderingImage
+LIBRARY_NAME
+  vtkRenderingImage
+KIT
+  VTK::Rendering
+GROUPS
+  Imaging
+  Rendering
+DEPENDS
+  VTK::CommonExecutionModel
+  VTK::RenderingCore
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonMath
+  VTK::CommonTransforms
+  VTK::ImagingCore
+TEST_DEPENDS
+  VTK::FiltersModeling
+  VTK::FiltersSources
+  VTK::IOImage
+  VTK::ImagingCore
+  VTK::ImagingSources
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

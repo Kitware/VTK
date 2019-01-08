@@ -14,136 +14,93 @@
 ##
 ##=============================================================================
 
-#ensure we link against our dependencies
-include(module.cmake)
+list(INSERT 0 CMAKE_MODULE_PATH
+  "${VTK_SOURCE_DIR}/ThirdParty/vtkm/vtkvtkm/vtk-m/CMake")
 
-vtk_module_dep_includes(vtkVTKm)
-list(APPEND CMAKE_MODULE_PATH "${VTK_SOURCE_DIR}/ThirdParty/vtkm/vtk-m/CMake")
+set(sources)
+set(headers)
+set(private_headers)
 
-set(lib_srcs
-  vtkmlib/PolyDataConverter.cxx
-  vtkmlib/UnstructuredGridConverter.cxx
-  vtkmlib/ArrayConverters.cxx
-  vtkmlib/CellSetConverters.cxx
-  vtkmlib/ImageDataConverter.cxx
-  vtkmlib/Storage.cxx
-  )
+set(lib_classes
+  vtkmlib/ArrayConverters
+  vtkmlib/CellSetConverters
+  vtkmlib/ImageDataConverter
+  vtkmlib/PolyDataConverter
+  vtkmlib/Storage
+  vtkmlib/UnstructuredGridConverter)
 
-#needed to properly setup language wrappers
-set(headers
-  vtkmAverageToCells.h
-  vtkmAverageToPoints.h
-  vtkmCleanGrid.h
-  vtkmClip.h
-  vtkmContour.h
-  vtkmCoordinateSystemTransform.h
-  vtkmExternalFaces.h
-  vtkmExtractVOI.h
-  vtkmGradient.h
-  vtkmHistogram.h
-  vtkmLevelOfDetail.h
-  vtkmNDHistogram.h
-  vtkmPointElevation.h
-  vtkmPointTransform.h
-  vtkmPolyDataNormals.h
-  vtkmProbe.h
-  vtkmThreshold.h
-  vtkmTriangleMeshPointNormals.h
-  vtkmWarpScalar.h
-  vtkmWarpVector.h
-  )
+foreach (class IN LISTS lib_classes)
+  list(APPEND sources
+    "${class}.cxx")
+  list(APPEND private_headers
+    "${class}.h")
+endforeach ()
 
-#implementation of the algorithms for cpu accelerators
-set(cpu_accelerator_srcs
-  vtkmAverageToCells.cxx
-  vtkmAverageToPoints.cxx
-  vtkmCellSetExplicit.cxx
-  vtkmCellSetSingleType.cxx
-  vtkmCleanGrid.cxx
-  vtkmClip.cxx
-  vtkmConnectivityExec.cxx
-  vtkmContour.cxx
-  vtkmCoordinateSystemTransform.cxx
-  vtkmExternalFaces.cxx
-  vtkmExtractVOI.cxx
-  vtkmGradient.cxx
-  vtkmHistogram.cxx
-  vtkmLevelOfDetail.cxx
-  vtkmNDHistogram.cxx
-  vtkmPointElevation.cxx
-  vtkmPointTransform.cxx
-  vtkmPolyDataNormals.cxx
-  vtkmProbe.cxx
-  vtkmThreshold.cxx
-  vtkmTriangleMeshPointNormals.cxx
-  vtkmWarpScalar.cxx
-  vtkmWarpVector.cxx
-  vtkmlib/DataSetConverters.cxx
-  vtkmlib/Portals.cxx
-  vtkmlib/ImplicitFunctionConverter.cxx
-  )
+if (TARGET vtkm::cuda)
+  set(vtkm_impl_extension "cu")
+else ()
+  set(vtkm_impl_extension "cxx")
+endif ()
 
-#implementation of the algorithms for gpu accelerators
-set(cuda_accelerator_srcs
-  vtkmAverageToCells.cu
-  vtkmAverageToPoints.cu
-  vtkmCellSetExplicit.cu
-  vtkmCellSetSingleType.cu
-  vtkmCleanGrid.cu
-  vtkmClip.cu
-  vtkmConnectivityExec.cu
-  vtkmContour.cu
-  vtkmCoordinateSystemTransform.cu
-  vtkmExternalFaces.cu
-  vtkmExtractVOI.cu
-  vtkmGradient.cu
-  vtkmHistogram.cu
-  vtkmLevelOfDetail.cu
-  vtkmNDHistogram.cu
-  vtkmPointElevation.cu
-  vtkmPointTransform.cu
-  vtkmPolyDataNormals.cu
-  vtkmProbe.cu
-  vtkmThreshold.cu
-  vtkmTriangleMeshPointNormals.cu
-  vtkmWarpScalar.cu
-  vtkmWarpVector.cu
-  vtkmlib/DataSetConverters.cu
-  vtkmlib/Portals.cu
-  vtkmlib/ImplicitFunctionConverter.cu
-  )
+set(impl_classes
+  vtkmAverageToCells
+  vtkmAverageToPoints
+  vtkmCellSetExplicit
+  vtkmCellSetSingleType
+  vtkmCleanGrid
+  vtkmClip
+  vtkmConnectivityExec
+  vtkmContour
+  vtkmCoordinateSystemTransform
+  vtkmExternalFaces
+  vtkmExtractVOI
+  vtkmGradient
+  vtkmHistogram
+  vtkmLevelOfDetail
+  vtkmNDHistogram
+  vtkmPointElevation
+  vtkmPointTransform
+  vtkmPolyDataNormals
+  vtkmProbe
+  vtkmThreshold
+  vtkmTriangleMeshPointNormals
+  vtkmWarpScalar
+  vtkmWarpVector)
+
+foreach (class IN LISTS impl_classes)
+  list(APPEND sources
+    "${class}.${vtkm_impl_extension}")
+  list(APPEND headers
+    "${class}.h")
+endforeach ()
+
+set(private_impl_classes
+  vtkmlib/DataSetConverters
+  vtkmlib/ImplicitFunctionConverter
+  vtkmlib/Portals)
+
+foreach (class IN LISTS private_impl_classes)
+  list(APPEND sources
+    "${class}.${vtkm_impl_extension}")
+  list(APPEND private_headers
+    "${class}.h")
+endforeach ()
+
+list(APPEND private_headers
+  vtkmlib/DataSetConverters.h
+  vtkmlib/Portals.hxx
+  vtkmlib/PortalTraits.h
+  vtkmlib/Storage.hxx)
 
 set(VTKM_FILTER_INCLUDE_AOS ${VTK_DISPATCH_AOS_ARRAYS})
 set(VTKM_FILTER_INCLUDE_SOA ${VTK_DISPATCH_SOA_ARRAYS})
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/vtkmConfig.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfig.h" @ONLY)
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkmConfig.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfig.h"
+  @ONLY)
 
-# ====================
-# Important for wrapping and install rules for vtkmlib
-#  - SKIP_HEADER_INSTALL is enabled as we need to install these headers
-#    to the vtkmlib directory and not the root include directory as vtk
-#    normally does
-# ====================
-set_source_files_properties(
-  vtkmlib/PolyDataConverter
-  vtkmlib/UnstructuredGridConverter
-  vtkmlib/ArrayConverters
-  vtkmlib/CellSetConverters
-  vtkmlib/DataSetConverters
-  vtkmlib/ImageDataConverter
-  vtkmlib/Storage
-  vtkmlib/Portals
-  vtkmlib/ImplicitFunctionConverter
-  PROPERTIES
-    SKIP_HEADER_INSTALL 1
-  )
-
-set(${vtk-module}_HDRS
-  vtkmTags.h
-  vtkmFilterPolicy.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkmConfig.h
-  )
-
+list(APPEND headers
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfig.h")
 
 # The VTK-m project uses large amounts of memory to compile as it does lots
 # of template expansion. To reduce the amount of tension on the machine when
@@ -154,69 +111,61 @@ set(${vtk-module}_HDRS
 # 2GB of memory.
 cmake_host_system_information(RESULT vtkm_mem_ QUERY TOTAL_PHYSICAL_MEMORY)
 math(EXPR vtkm_pool_size "(${vtkm_mem_}/2)/2048")
-if(vtkm_pool_size EQUAL 0)
+if (vtkm_pool_size EQUAL 0)
   set(vtkm_pool_size 1)
-endif()
-set_property(GLOBAL APPEND PROPERTY JOB_POOLS vtkm_pool=${vtkm_pool_size})
+endif ()
+set_property(GLOBAL APPEND
+  PROPERTY
+    JOB_POOLS vtkm_pool=${vtkm_pool_size})
 
-if(TARGET vtkm::cuda)
-  #we are building with CUDA support
-  cmake_minimum_required(VERSION 3.9...3.12 FATAL_ERROR)
+if (TARGET vtkm::cuda)
   enable_language(CUDA)
 
-  # Workaround cmake issue #7519 which causes the c++11 flag set for VTK-m using
-  # target_compile_features to not work.
+  # XXX(cmake#7519): Workaround for CMake which causes the c++11 flag set for
+  # VTK-m using target_compile_features to not work.
   if (CMAKE_VERSION VERSION_LESS 3.11)
     set(CMAKE_CUDA_STANDARD 11)
     set(CMAKE_CUDA_STANDARD_REQUIRED True)
   endif()
 
-  get_target_property(arch_flags vtkm::cuda VTKm_CUDA_Architecture_Flags)
-  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} ${arch_flags}")
+  get_property(arch_flags
+    TARGET    vtkm::cuda
+    PROPERTY  VTKm_CUDA_Architecture_Flags)
+  string(APPEND CMAKE_CUDA_FLAGS " ${arch_flags}")
 
   # Temporarily suppress "has address taken but no possible call to it" warnings,
   # until we figure out its implications.
   # We are disabling all warnings as nvlink has no known way to suppress
   # individual warning types.
-  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xnvlink -w")
+  string(APPEND CMAKE_CUDA_FLAGS " -Xnvlink -w")
+endif ()
 
-  vtk_module_library(vtkAcceleratorsVTKm
-                     ${headers}
-                     ${lib_srcs}
-                     ${cuda_accelerator_srcs}
-                     )
-  set_target_properties(vtkAcceleratorsVTKm PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-  target_compile_options(vtkAcceleratorsVTKm
+vtk_module_add_module(VTK::AcceleratorsVTKm
+  SOURCES ${sources}
+  HEADERS ${headers}
+  PRIVATE_HEADERS ${private_headers})
+vtk_module_set_property(VTK::AcceleratorsVTKm
+  PROPERTY  JOB_POOL_COMPILE
+  VALUE     vtkm_pool)
+
+if (TARGET vtkm::cuda)
+  vtk_module_set_property(VTK::AcceleratorsVTKm
+    PROPERTY  CUDA_SEPARABLE_COMPILATION
+    VALUE     ON)
+  vtk_module_compile_options(VTK::AcceleratorsVTKm
     PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe --diag_suppress=extra_semicolon>)
-else()
-  vtk_module_library(vtkAcceleratorsVTKm
-                     ${headers}
-                     ${lib_srcs}
-                     ${cpu_accelerator_srcs}
-                     )
-endif()
-
-set_property(TARGET vtkAcceleratorsVTKm PROPERTY JOB_POOL_COMPILE vtkm_pool)
-target_link_libraries(vtkAcceleratorsVTKm PRIVATE vtkVTKm)
+endif ()
 
 if (MSVC)
-  #C4702 Generates numerous false positives with template code about
-  #      unreachable code
-  #C4512 Generates numerous warning that implicit assignment operators can't
-  #      be constructed. This is understood and we don't care.
-  #C4510 Generates numerous warning that implicit constructors can't
-  #      be constructed. This is understood and we don't care.
-  target_compile_options(vtkAcceleratorsVTKm PRIVATE -wd4702 -wd4512 -wd4510)
-endif()
-
-
-
-#install the required headers to make your own vtkm-vtk filter
-if(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  install(DIRECTORY
-    ${CMAKE_CURRENT_SOURCE_DIR}/vtkmlib
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}
-    COMPONENT Development
-    FILES_MATCHING PATTERN "*.h*"
-    )
-endif()
+  vtk_module_compile_options(VTK::AcceleratorsVTKm
+    PRIVATE
+      # Generates numerous false positives with template code about unreachable
+      # code
+      /wd4702
+      # Generates numerous warning that implicit assignment operators can't be
+      # constructed. This is understood and we don't care.
+      /wd4512
+      # Generates numerous warning that implicit constructors can't be
+      # constructed. This is understood and we don't care.
+      /wd4510)
+endif ()

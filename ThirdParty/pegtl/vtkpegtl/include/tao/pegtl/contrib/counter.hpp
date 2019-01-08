@@ -4,10 +4,8 @@
 #ifndef TAO_PEGTL_CONTRIB_COUNTER_HPP
 #define TAO_PEGTL_CONTRIB_COUNTER_HPP
 
-#include <cassert>
 #include <map>
 #include <string>
-#include <utility>
 
 #include "../config.hpp"
 #include "../normal.hpp"

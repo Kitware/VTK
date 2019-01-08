@@ -293,29 +293,16 @@ add_library( ${PROJ_CORE_TARGET}
                     ${ALL_LIBPROJ_HEADERS}
                     ${PROJ_RESOURCES}  )
 else ()
-vtk_add_library(vtklibproj ${ALL_LIBPROJ_SOURCES} ${ALL_LIBPROJ_HEADERS})
-if (NOT VTK_INSTALL_NO_DEVELOPMENT)
-  install(FILES
-    ${ALL_LIBPROJ_HEADERS}
-    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtklibproj/src"
-    COMPONENT Development)
-endif()
-target_include_directories(vtklibproj
-  PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>")
-set(PROJ_CORE_TARGET vtklibproj)
+vtk_module_add_module(VTK::libproj
+  SOURCES ${ALL_LIBPROJ_SOURCES}
+  HEADERS ${ALL_LIBPROJ_HEADERS}
+  HEADERS_SUBDIR "vtklibproj/src")
+set(PROJ_CORE_TARGET libproj)
 
 include(GenerateExportHeader)
-generate_export_header(vtklibproj
+generate_export_header(libproj
   EXPORT_MACRO_NAME vtklibproj_EXPORT
   EXPORT_FILE_NAME  vtklibproj_export.h)
-
-if (DEFINED VTK_CUSTOM_LIBRARY_SUFFIX)
-  set(_lib_suffix "${VTK_CUSTOM_LIBRARY_SUFFIX}")
-else ()
-  set(_lib_suffix "-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
-endif ()
-set_property(TARGET vtklibproj PROPERTY OUTPUT_NAME vtkproj${_lib_suffix})
 endif ()
 
 
@@ -350,11 +337,7 @@ endif ()
 ##############################################
 set(PROJ_LIBRARIES ${PROJ_CORE_TARGET} )
 if(UNIX)
-    find_library(M_LIB m)
-    mark_as_advanced(M_LIB)
-    if(M_LIB)
-      TARGET_LINK_LIBRARIES(${PROJ_CORE_TARGET} PRIVATE ${M_LIB})
-    endif()
+    TARGET_LINK_LIBRARIES(${PROJ_CORE_TARGET} PRIVATE m)
 endif(UNIX)
 if(USE_THREAD AND Threads_FOUND AND CMAKE_USE_PTHREADS_INIT)
    TARGET_LINK_LIBRARIES(${PROJ_CORE_TARGET} PRIVATE ${CMAKE_THREAD_LIBS_INIT})

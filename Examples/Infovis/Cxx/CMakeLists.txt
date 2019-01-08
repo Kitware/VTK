@@ -1,56 +1,81 @@
 cmake_minimum_required(VERSION 3.3...3.12 FATAL_ERROR)
-
 project(Infovis)
 
-find_package(VTK REQUIRED)
-# List of VTK_Modules required from VTK
-# for all examples in this directory and its subdirectories to work.
-set(VTK_Modules
-  vtkCommonCore
-  vtkFiltersSources
-  vtkIOInfovis
-  vtkIOSQL
-  vtkInfovisLayout
-  vtkInteractionStyle
-  vtkRenderingLabel
-  vtkRendering${VTK_RENDERING_BACKEND}
-  vtkViewsInfovis
-)
-if(TARGET vtkGUISupportQt AND
-   TARGET vtkViewsQt)
-  set(VTK_Modules ${VTK_Modules}
-    vtkGUISupportQt
-    vtkViewsQt
-  )
-endif()
+set(vtk_modules
+find_package(VTK
+  COMPONENTS
+    FiltersSources
+    IOInfovis
+    InfovisCore
+    InfovisLayout
+    InteractionStyle
+    RenderingCore
+    RenderingLabel
+    RenderingOpenGL2)
+  OPTIONAL_COMPONENTS
+    FiltersStatistics
+    GUISupportQt
+    IOSQL
+    ViewsInfovis
+    ViewsQt)
+if (NOT VTK_FOUND)
+  message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")
+  return ()
+endif ()
 
-vtk_module_config(VTK
-  ${VTK_Modules}
-)
-include(${VTK_USE_FILE})
+add_executable(TreeLayout
+  TreeLayout.cxx)
+target_link_libraries(TreeLayout
+  PRIVATE
+    ${vtk_modules})
 
-add_executable(TreeLayout TreeLayout.cxx)
-target_link_libraries(TreeLayout ${VTK_LIBRARIES})
+vtk_module_autoinit(
+  TARGETS TreeLayout
+  MODULES ${vtk_modules})
 
-if(vtkViewsInfovis_LOADED)
-  add_executable(HelloWorld HelloWorld.cxx)
-  target_link_libraries(HelloWorld ${VTK_LIBRARIES})
+if (TARGET VTK::ViewsInfovis)
+  add_executable(HelloWorld
+    HelloWorld.cxx)
+  target_link_libraries(HelloWorld
+    PRIVATE
+      ${vtk_modules}
+      vtkViewsInfovis)
 
-  add_executable(Theme Theme.cxx)
-  target_link_libraries(Theme ${VTK_LIBRARIES})
+  add_executable(Theme
+    Theme.cxx)
+  target_link_libraries(Theme
+    PRIVATE
+      ${vtk_modules}
+      vtkViewsInfovis)
 
-  add_executable(CreateTree CreateTree.cxx)
-  target_link_libraries(CreateTree ${VTK_LIBRARIES})
+  add_executable(CreateTree
+    CreateTree.cxx)
+  target_link_libraries(CreateTree
+    PRIVATE
+      ${vtk_modules}
+      vtkViewsInfovis)
 
-  add_executable(MultiView MultiView.cxx)
-  target_link_LIBRARIES(MultiView ${VTK_LIBRARIES})
-endif()
+  add_executable(MultiView
+    MultiView.cxx)
+  target_link_libraries(MultiView
+    PRIVATE
+      ${vtk_modules}
+      vtkViewsInfovis)
 
-# If Qt is enabled include the QT based examples
-if(vtkGUISupportQt_LOADED AND vtkViewsQt_LOADED)
+  vtk_module_autoinit(
+    TARGETS HelloWorld
+            Theme
+            CreateTree
+            MultiView
+    MODULES ${vtk_modules}
+            vtkViewsInfovis)
+endif ()
+
+# If Qt is enabled include the Qt based examples
+if (TARGET VTK::GUISupportQt AND TARGET VTK::ViewsQt)
   add_subdirectory(EasyView)
   add_subdirectory(CustomLinkView)
-  if(vtkIOSQL_LOADED)
+  if (TARGET VTK::IOSQL AND TARGET VTK::FiltersStatistics)
     add_subdirectory(StatsView)
-  endif()
-endif()
+  endif ()
+endif ()

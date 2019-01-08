@@ -18,9 +18,6 @@
 
 #include "vtkRenderingOpenGLConfigure.h" // for COCOA, X11, WIN32
 
-#cmakedefine HAVE_LIMITS_H
-#cmakedefine HAVE_UNISTD_H
-
 // This widget requires access to structures that are normally
 // not visible to Tcl/Tk applications. For this reason you must
 // have access to tkInt.h

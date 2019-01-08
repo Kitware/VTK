@@ -33,6 +33,7 @@
 /* Headers */
 /***********/
 #include "H5private.h"		/* Generic Functions			*/
+#include "H5CXprivate.h"        /* API Contexts                         */
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5Fprivate.h"         /* File access				*/
 #include "H5FDpkg.h"		/* File Drivers				*/
@@ -91,9 +92,8 @@
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FD_locate_signature(H5FD_io_info_t *fdio_info, haddr_t *sig_addr)
+H5FD_locate_signature(H5FD_t *file, haddr_t *sig_addr)
 {
-    H5FD_t         *file;
     haddr_t         addr, eoa, eof;
     uint8_t         buf[H5F_SIGNATURE_LEN];
     unsigned        n, maxpow;
@@ -101,8 +101,7 @@ H5FD_locate_signature(H5FD_io_info_t *fdio_info, haddr_t *sig_addr)
 
     FUNC_ENTER_NOAPI_NOINIT
 
-    HDassert(fdio_info);
-    file = fdio_info->file;
+    /* Sanity checks */
     HDassert(file);
 
     /* Find the least N such that 2^N is larger than the file size */
@@ -123,7 +122,7 @@ H5FD_locate_signature(H5FD_io_info_t *fdio_info, haddr_t *sig_addr)
         addr = (8 == n) ? 0 : (haddr_t)1 << n;
         if(H5FD_set_eoa(file, H5FD_MEM_SUPER, addr + H5F_SIGNATURE_LEN) < 0)
             HGOTO_ERROR(H5E_IO, H5E_CANTINIT, FAIL, "unable to set EOA value for file signature")
-        if(H5FD_read(fdio_info, H5FD_MEM_SUPER, addr, (size_t)H5F_SIGNATURE_LEN, buf) < 0)
+        if(H5FD_read(file, H5FD_MEM_SUPER, addr, (size_t)H5F_SIGNATURE_LEN, buf) < 0)
             HGOTO_ERROR(H5E_IO, H5E_CANTINIT, FAIL, "unable to read file signature")
         if(!HDmemcmp(buf, H5F_SIGNATURE, (size_t)H5F_SIGNATURE_LEN))
             break;
@@ -161,47 +160,20 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FD_read(H5FD_io_info_t *fdio_info, H5FD_mem_t type, haddr_t addr,
-    size_t size, void *buf/*out*/)
+H5FD_read(H5FD_t *file, H5FD_mem_t type, haddr_t addr, size_t size,
+    void *buf/*out*/)
 {
-    H5FD_t      *file;
-    H5P_genplist_t *io_dxpl;
-    haddr_t     eoa = HADDR_UNDEF;
-    herr_t      ret_value = SUCCEED;       /* Return value */
+    hid_t dxpl_id;                      /* DXPL for operation */
+    herr_t ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
-    HDassert(fdio_info);
-    file = fdio_info->file;
+    /* Sanity checks */
     HDassert(file && file->cls);
-    HDassert(TRUE == H5P_class_isa(H5P_CLASS(fdio_info->meta_dxpl), H5P_CLS_DATASET_XFER_g));
-    HDassert(TRUE == H5P_class_isa(H5P_CLASS(fdio_info->raw_dxpl), H5P_CLS_DATASET_XFER_g));
     HDassert(buf);
 
-    /* Set up proper DXPL for I/O */
-    if(H5FD_MEM_DRAW == type)
-        io_dxpl = fdio_info->raw_dxpl;
-    else
-        io_dxpl = fdio_info->meta_dxpl;
-
-    /* Sanity check the dxpl type against the mem type */
-#ifdef H5_DEBUG_BUILD
-    {
-        H5FD_dxpl_type_t dxpl_type;    /* Property indicating the type of the internal dxpl */
-
-        /* get the dxpl type */
-        if(H5P_get(io_dxpl, H5FD_DXPL_TYPE_NAME, &dxpl_type) < 0)
-            HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "can't retrieve dxpl type")
-
-        /* we shouldn't be here if the dxpl is labeled with NO I/O */
-        HDassert(H5FD_NOIO_DXPL != dxpl_type);
-
-        if(H5FD_MEM_DRAW == type)
-            HDassert(H5FD_RAWDATA_DXPL == dxpl_type);
-        else
-            HDassert(H5FD_METADATA_DXPL == dxpl_type);
-    }
-#endif /* H5_DEBUG_BUILD */
+    /* Get proper DXPL for I/O */
+    dxpl_id = H5CX_get_dxpl();
 
 #ifndef H5_HAVE_PARALLEL
     /* Do not return early for Parallel mode since the I/O could be a */
@@ -211,9 +183,6 @@ H5FD_read(H5FD_io_info_t *fdio_info, H5FD_mem_t type, haddr_t addr,
         HGOTO_DONE(SUCCEED)
 #endif /* H5_HAVE_PARALLEL */
 
-    if(HADDR_UNDEF == (eoa = (file->cls->get_eoa)(file, type)))
-	HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "driver get_eoa request failed")
-
     /* 
      * If the file is open for SWMR read access, allow access to data past
      * the end of the allocated space (the 'eoa').  This is done because the
@@ -221,11 +190,18 @@ H5FD_read(H5FD_io_info_t *fdio_info, H5FD_mem_t type, haddr_t addr,
      * objects being written within the file by the application performing
      * SWMR write operations.
      */
-    if(!(file->access_flags & H5F_ACC_SWMR_READ) && ((addr + file->base_addr + size) > eoa))
-        HGOTO_ERROR(H5E_ARGS, H5E_OVERFLOW, FAIL, "addr overflow, addr = %llu, size = %llu, eoa = %llu", (unsigned long long)(addr + file->base_addr), (unsigned long long)size, (unsigned long long)eoa)
+    if(!(file->access_flags & H5F_ACC_SWMR_READ)) {
+        haddr_t     eoa;
+
+        if(HADDR_UNDEF == (eoa = (file->cls->get_eoa)(file, type)))
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "driver get_eoa request failed")
+
+         if((addr + file->base_addr + size) > eoa)
+            HGOTO_ERROR(H5E_ARGS, H5E_OVERFLOW, FAIL, "addr overflow, addr = %llu, size = %llu, eoa = %llu", (unsigned long long)(addr + file->base_addr), (unsigned long long)size, (unsigned long long)eoa)
+    } /* end if */
 
     /* Dispatch to driver */
-    if((file->cls->read)(file, type, H5P_PLIST_ID(io_dxpl), addr + file->base_addr, size, buf) < 0)
+    if((file->cls->read)(file, type, dxpl_id, addr + file->base_addr, size, buf) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_READERROR, FAIL, "driver read request failed")
 
 done:
@@ -247,47 +223,21 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FD_write(const H5FD_io_info_t *fdio_info, H5FD_mem_t type, haddr_t addr,
-    size_t size, const void *buf)
+H5FD_write(H5FD_t *file, H5FD_mem_t type, haddr_t addr, size_t size,
+    const void *buf)
 {
-    H5FD_t      *file;
-    H5P_genplist_t *io_dxpl;
-    haddr_t     eoa = HADDR_UNDEF;
-    herr_t      ret_value = SUCCEED;       /* Return value */
+    hid_t dxpl_id;                      /* DXPL for operation */
+    haddr_t eoa = HADDR_UNDEF;          /* EOA for file */
+    herr_t ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
-    HDassert(fdio_info);
-    file = fdio_info->file;
+    /* Sanity checks */
     HDassert(file && file->cls);
-    HDassert(TRUE == H5P_class_isa(H5P_CLASS(fdio_info->meta_dxpl), H5P_CLS_DATASET_XFER_g));
-    HDassert(TRUE == H5P_class_isa(H5P_CLASS(fdio_info->raw_dxpl), H5P_CLS_DATASET_XFER_g));
     HDassert(buf);
 
-    /* Set up proper DXPL for I/O */
-    if(H5FD_MEM_DRAW == type)
-        io_dxpl = fdio_info->raw_dxpl;
-    else
-        io_dxpl = fdio_info->meta_dxpl;
-
-    /* Sanity check the dxpl type against the mem type */
-#ifdef H5_DEBUG_BUILD
-    {
-        H5FD_dxpl_type_t dxpl_type;    /* Property indicating the type of the internal dxpl */
-
-        /* get the dxpl type */
-        if(H5P_get(io_dxpl, H5FD_DXPL_TYPE_NAME, &dxpl_type) < 0)
-            HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "can't retrieve dxpl type")
-
-        /* we shouldn't be here if the dxpl is labeled with NO I/O */
-        HDassert(H5FD_NOIO_DXPL != dxpl_type);
-
-        if(H5FD_MEM_DRAW == type)
-            HDassert(H5FD_RAWDATA_DXPL == dxpl_type);
-        else
-            HDassert(H5FD_METADATA_DXPL == dxpl_type);
-    }
-#endif /* H5_DEBUG_BUILD */
+    /* Get proper DXPL for I/O */
+    dxpl_id = H5CX_get_dxpl();
 
 #ifndef H5_HAVE_PARALLEL
     /* Do not return early for Parallel mode since the I/O could be a */
@@ -304,7 +254,7 @@ H5FD_write(const H5FD_io_info_t *fdio_info, H5FD_mem_t type, haddr_t addr,
                     (unsigned long long)(addr+ file->base_addr), (unsigned long long)size, (unsigned long long)eoa)
 
     /* Dispatch to driver */
-    if((file->cls->write)(file, type, H5P_PLIST_ID(io_dxpl), addr + file->base_addr, size, buf) < 0)
+    if((file->cls->write)(file, type, dxpl_id, addr + file->base_addr, size, buf) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_WRITEERROR, FAIL, "driver write request failed")
 
 done:
@@ -432,4 +382,39 @@ H5FD_get_eof(const H5FD_t *file, H5FD_mem_t type)
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD_get_eof() */
+
+
+/*-------------------------------------------------------------------------
+* Function:    H5FD_driver_query
+*
+* Purpose: Similar to H5FD_query(), but intended for cases when we don't
+*          have a file available (e.g. before one is opened). Since we
+*          can't use the file to get the driver, the driver is passed in
+*          as a parameter.
+*
+* Return:  SUCCEED/FAIL
+*
+* Programmer:  Jacob Gruber
+*              Wednesday, August 17, 2011
+*
+*-------------------------------------------------------------------------
+*/
+herr_t
+H5FD_driver_query(const H5FD_class_t *driver, unsigned long *flags/*out*/)
+{
+    herr_t ret_value = SUCCEED;          /* Return value */
+
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    HDassert(driver);
+    HDassert(flags);
+
+    /* Check for the driver to query and then query it */
+    if(driver->query)
+        ret_value = (driver->query)(NULL, flags);
+    else 
+        *flags = 0;
+
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5FD_driver_query() */
 

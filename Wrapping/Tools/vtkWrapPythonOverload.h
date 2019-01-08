@@ -38,3 +38,4 @@ int *vtkWrapPython_ArgCountToOverloadMap(
   int fnum, int is_vtkobject, int *nmax, int *overlap);
 
 #endif /* vtkWrapPythonOverload_h */
+/* VTK-HeaderTest-Exclude: vtkWrapPythonOverload.h */

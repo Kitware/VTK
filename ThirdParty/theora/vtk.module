@@ -1,0 +1,7 @@
+NAME
+  VTK::theora
+LIBRARY_NAME
+  vtktheora
+DEPENDS
+  VTK::ogg
+THIRD_PARTY

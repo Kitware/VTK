@@ -21,6 +21,8 @@ namespace tao
          template< result_on_found R, typename Peek, typename Peek::data_t Lo, typename Peek::data_t Hi >
          struct range
          {
+            static_assert( Lo <= Hi, "invalid range detected" );
+
             using analyze_t = analysis::generic< analysis::rule_type::ANY >;
 
             template< int Eol >
