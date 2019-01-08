@@ -16,7 +16,7 @@ namespace tao
       namespace internal
       {
          template< typename Cond, typename... Rules >
-         using star_must = star< if_must< Cond, Rules... > >;
+         using star_must = star< if_must< false, Cond, Rules... > >;
 
       }  // namespace internal
 

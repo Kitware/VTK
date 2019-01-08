@@ -65,7 +65,7 @@ namespace tao
          struct memoize_sequence
          {
             static_assert( N < T( 1 << 20 ), "N too large" );
-            using type = typename generate_sequence< false, false >::template f< T, ( N < T( 1 << 1 ) ) ? T( 1 << 1 ) : ( N < T( 1 << 2 ) ) ? T( 1 << 2 ) : ( N < T( 1 << 3 ) ) ? T( 1 << 3 ) : ( N < T( 1 << 4 ) ) ? T( 1 << 4 ) : ( N < T( 1 << 5 ) ) ? T( 1 << 5 ) : ( N < T( 1 << 6 ) ) ? T( 1 << 6 ) : ( N < T( 1 << 7 ) ) ? T( 1 << 7 ) : ( N < T( 1 << 8 ) ) ? T( 1 << 8 ) : ( N < T( 1 << 9 ) ) ? T( 1 << 9 ) : ( N < T( 1 << 10 ) ) ? T( 1 << 10 ) : T( 1 << 20 ), N, 0 >;
+            using type = typename generate_sequence< false, false >::template f< T, ( N < T( 1 << 1 ) ) ? T( 1 << 1 ) : ( N < T( 1 << 2 ) ) ? T( 1 << 2 ) : ( N < T( 1 << 3 ) ) ? T( 1 << 3 ) : ( N < T( 1 << 4 ) ) ? T( 1 << 4 ) : ( N < T( 1 << 5 ) ) ? T( 1 << 5 ) : ( N < T( 1 << 6 ) ) ? T( 1 << 6 ) : ( N < T( 1 << 7 ) ) ? T( 1 << 7 ) : ( N < T( 1 << 8 ) ) ? T( 1 << 8 ) : ( N < T( 1 << 9 ) ) ? T( 1 << 9 ) : ( N < T( 1 << 10 ) ) ? T( 1 << 10 ) : ( N < T( 1 << 11 ) ) ? T( 1 << 11 ) : ( N < T( 1 << 12 ) ) ? T( 1 << 12 ) : ( N < T( 1 << 13 ) ) ? T( 1 << 13 ) : ( N < T( 1 << 14 ) ) ? T( 1 << 14 ) : ( N < T( 1 << 15 ) ) ? T( 1 << 15 ) : ( N < T( 1 << 16 ) ) ? T( 1 << 16 ) : ( N < T( 1 << 17 ) ) ? T( 1 << 17 ) : ( N < T( 1 << 18 ) ) ? T( 1 << 18 ) : ( N < T( 1 << 19 ) ) ? T( 1 << 19 ) : T( 1 << 20 ), N, 0 >;
          };
 
          template< typename T, T N >

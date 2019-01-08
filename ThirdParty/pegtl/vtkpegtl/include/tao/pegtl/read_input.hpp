@@ -68,6 +68,11 @@ namespace tao
          void operator=( read_input&& ) = delete;
       };
 
+#ifdef __cpp_deduction_guides
+      template< typename... Ts >
+      explicit read_input( Ts&&... )->read_input<>;
+#endif
+
    }  // namespace TAO_PEGTL_NAMESPACE
 
 }  // namespace tao

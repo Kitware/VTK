@@ -25,9 +25,9 @@ namespace tao
             std::FILE* file;
             if(::fopen_s( &file, filename, "rb" ) == 0 )
 #elif defined( __MINGW32__ )
-            if( auto* file = std::fopen( filename, "rb" ) )
+            if( auto* file = std::fopen( filename, "rb" ) )  // NOLINT(cppcoreguidelines-owning-memory)
 #else
-            if( auto* file = std::fopen( filename, "rbe" ) )
+            if( auto* file = std::fopen( filename, "rbe" ) )  // NOLINT(cppcoreguidelines-owning-memory)
 #endif
             {
                return file;
@@ -39,7 +39,7 @@ namespace tao
          {
             void operator()( FILE* f ) const noexcept
             {
-               std::fclose( f );
+               std::fclose( f );  // NOLINT(cppcoreguidelines-owning-memory)
             }
          };
 

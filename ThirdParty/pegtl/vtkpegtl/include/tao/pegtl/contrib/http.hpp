@@ -129,7 +129,7 @@ namespace tao
 
          struct chunk_ext_name : token {};
          struct chunk_ext_val : sor< quoted_string, token > {};
-         struct chunk_ext : star< if_must< one< ';' >, chunk_ext_name, if_must< one< '=' >, chunk_ext_val > > > {};
+         struct chunk_ext : star_must< one< ';' >, chunk_ext_name, if_must< one< '=' >, chunk_ext_val > > {};
 
          struct chunk_data : until< at< abnf::CRLF >, abnf::OCTET > {};
 

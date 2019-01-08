@@ -28,7 +28,7 @@ namespace tao
       struct eof : internal::eof {};
       struct failure : internal::trivial< false > {};
       template< typename Rule, typename... Actions > struct if_apply : internal::if_apply< Rule, Actions... > {};
-      template< typename Cond, typename... Thens > struct if_must : internal::if_must< Cond, Thens... > {};
+      template< typename Cond, typename... Thens > struct if_must : internal::if_must< false, Cond, Thens... > {};
       template< typename Cond, typename Then, typename Else > struct if_must_else : internal::if_must_else< Cond, Then, Else > {};
       template< typename Cond, typename Then, typename Else > struct if_then_else : internal::if_then_else< Cond, Then, Else > {};
       template< typename Rule, typename Sep, typename Pad = void > struct list : internal::list< Rule, internal::pad< Sep, Pad > > {};
@@ -41,6 +41,7 @@ namespace tao
       template< typename... Rules > struct must : internal::must< Rules... > {};
       template< typename... Rules > struct not_at : internal::not_at< Rules... > {};
       template< typename... Rules > struct opt : internal::opt< Rules... > {};
+      template< typename Cond, typename... Rules > struct opt_must : internal::if_must< true, Cond, Rules... > {};
       template< typename Rule, typename Pad1, typename Pad2 = Pad1 > struct pad : internal::pad< Rule, Pad1, Pad2 > {};
       template< typename Rule, typename Pad > struct pad_opt : internal::pad_opt< Rule, Pad > {};
       template< typename Rule, typename... Rules > struct plus : internal::plus< Rule, Rules... > {};

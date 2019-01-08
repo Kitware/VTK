@@ -5,6 +5,7 @@
 #define TAO_PEGTL_INTERNAL_ACTION_INPUT_HPP
 
 #include <cstddef>
+#include <cstdint>
 #include <string>
 
 #include "iterator.hpp"
@@ -89,9 +90,9 @@ namespace tao
                return begin()[ offset ];
             }
 
-            unsigned char peek_byte( const std::size_t offset = 0 ) const noexcept
+            std::uint8_t peek_byte( const std::size_t offset = 0 ) const noexcept
             {
-               return static_cast< unsigned char >( peek_char( offset ) );
+               return static_cast< std::uint8_t >( peek_char( offset ) );
             }
 
             TAO_PEGTL_NAMESPACE::position position() const

@@ -9,6 +9,7 @@
 #include "../config.hpp"
 
 #include "input_pair.hpp"
+#include "read_uint.hpp"
 
 namespace tao
 {
@@ -16,7 +17,8 @@ namespace tao
    {
       namespace internal
       {
-         struct peek_utf32
+         template< typename R >
+         struct peek_utf32_impl
          {
             using data_t = char32_t;
             using pair_t = input_pair< char32_t >;
@@ -28,14 +30,17 @@ namespace tao
             {
                const std::size_t s = in.size( 4 );
                if( s >= 4 ) {
-                  const char32_t t = *static_cast< const char32_t* >( static_cast< const void* >( in.current() ) );
-                  if( ( 0 <= t ) && ( t <= 0x10ffff ) ) {
+                  const char32_t t = R::read( in.current() );
+                  if( ( 0 <= t ) && ( t <= 0x10ffff ) && !( t >= 0xd800 && t <= 0xdfff ) ) {
                      return { t, 4 };
                   }
                }
                return { 0, 0 };
             }
          };
+
+         using peek_utf32_be = peek_utf32_impl< read_uint32_be >;
+         using peek_utf32_le = peek_utf32_impl< read_uint32_le >;
 
       }  // namespace internal
 
