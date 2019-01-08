@@ -88,8 +88,8 @@ macro(findpkg_finish PREFIX)
     set_target_properties(TBB::${TARGET} PROPERTIES
       IMPORTED_LOCATION "${${PREFIX}_LIBRARY}"
       IMPORTED_LOCATION_DEBUG "${${PREFIX}_LIBRARY_DEBUG}"
-      IMPORTED_LOCATION_RELEASE "${${PREFIX}_LIBRARY_RELEASE}")
-    target_include_directories(TBB::${TARGET} INTERFACE "${${PREFIX}_INCLUDE_DIR}")
+      IMPORTED_LOCATION_RELEASE "${${PREFIX}_LIBRARY_RELEASE}"
+      INTERFACE_INCLUDE_DIRECTORIES "${${PREFIX}_INCLUDE_DIR}")
 
    #mark the following variables as internal variables
    mark_as_advanced(${PREFIX}_INCLUDE_DIR
