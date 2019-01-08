@@ -3,6 +3,7 @@ project(DataManipulation)
 
 find_package(VTK
   COMPONENTS
+    CommonColor
     FiltersGeometry
     RenderingCore)
 if (NOT VTK_FOUND)
