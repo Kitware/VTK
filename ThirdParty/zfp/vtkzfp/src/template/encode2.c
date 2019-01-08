@@ -15,7 +15,7 @@ static void
 _t2(gather_partial, Scalar, 2)(Scalar* q, const Scalar* p, uint nx, uint ny, int sx, int sy)
 {
   uint x, y;
-  for (y = 0; y < ny; y++, p += sy - nx * sx) {
+  for (y = 0; y < ny; y++, p += sy - (ptrdiff_t)nx * sx) {
     for (x = 0; x < nx; x++, p += sx)
       q[4 * y + x] = *p;
     _t1(pad_block, Scalar)(q + 4 * y, nx, 1);

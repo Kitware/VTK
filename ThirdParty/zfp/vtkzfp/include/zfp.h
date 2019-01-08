@@ -1,7 +1,7 @@
 /*
-** Copyright (c) 2014-2017, Lawrence Livermore National Security, LLC.
+** Copyright (c) 2014-2018, Lawrence Livermore National Security, LLC.
 ** Produced at the Lawrence Livermore National Laboratory.
-** Written by Peter Lindstrom.
+** Authors: Peter Lindstrom, Markus Salasoo, Matt Larsen.
 ** LLNL-CODE-663824.
 ** All rights reserved.
 **
@@ -76,7 +76,7 @@
 /* library version information */
 #define ZFP_VERSION_MAJOR 0 /* library major version number */
 #define ZFP_VERSION_MINOR 5 /* library minor version number */
-#define ZFP_VERSION_PATCH 2 /* library patch version number */
+#define ZFP_VERSION_PATCH 4 /* library patch version number */
 #define ZFP_VERSION_RELEASE ZFP_VERSION_PATCH
 
 /* codec version number (see also zfp_codec_version) */
@@ -95,8 +95,8 @@
   _zfp_str(ZFP_VERSION_PATCH)
 
 /* default compression parameters */
-#define ZFP_MIN_BITS     0 /* minimum number of bits per block */
-#define ZFP_MAX_BITS  4171 /* maximum number of bits per block */
+#define ZFP_MIN_BITS     1 /* minimum number of bits per block */
+#define ZFP_MAX_BITS 16651 /* maximum number of bits per block */
 #define ZFP_MAX_PREC    64 /* maximum precision supported */
 #define ZFP_MIN_EXP  -1074 /* minimum floating-point base-2 exponent */
 
@@ -116,14 +116,47 @@
 
 /* types ------------------------------------------------------------------- */
 
+/* execution policy */
+typedef enum {
+  zfp_exec_serial = 0, /* serial execution (default) */
+  zfp_exec_omp    = 1, /* OpenMP multi-threaded execution */
+  zfp_exec_cuda   = 2  /* CUDA parallel execution */
+} zfp_exec_policy;
+
+/* OpenMP execution parameters */
+typedef struct {
+  uint threads;    /* number of requested threads */
+  uint chunk_size; /* number of blocks per chunk (1D only) */
+} zfp_exec_params_omp;
+
+/* execution parameters */
+typedef union {
+  zfp_exec_params_omp omp; /* OpenMP parameters */
+} zfp_exec_params;
+
+typedef struct {
+  zfp_exec_policy policy; /* execution policy (serial, omp, ...) */
+  zfp_exec_params params; /* execution parameters */
+} zfp_execution;
+
 /* compressed stream; use accessors to get/set members */
 typedef struct {
-  uint minbits;      /* minimum number of bits to store per block */
-  uint maxbits;      /* maximum number of bits to store per block */
-  uint maxprec;      /* maximum number of bit planes to store */
-  int minexp;        /* minimum floating point bit plane number to store */
-  bitstream* stream; /* compressed bit stream */
+  uint minbits;       /* minimum number of bits to store per block */
+  uint maxbits;       /* maximum number of bits to store per block */
+  uint maxprec;       /* maximum number of bit planes to store */
+  int minexp;         /* minimum floating point bit plane number to store */
+  bitstream* stream;  /* compressed bit stream */
+  zfp_execution exec; /* execution policy and parameters */
 } zfp_stream;
+
+/* compression mode */
+typedef enum {
+  zfp_mode_null            = 0, /* an invalid configuration of the 4 params */
+  zfp_mode_expert          = 1, /* expert mode (4 params set manually) */
+  zfp_mode_fixed_rate      = 2, /* fixed rate mode */
+  zfp_mode_fixed_precision = 3, /* fixed precision mode */
+  zfp_mode_fixed_accuracy  = 4  /* fixed accuracy mode */
+} zfp_mode;
 
 /* scalar type */
 typedef enum {
@@ -136,10 +169,10 @@ typedef enum {
 
 /* uncompressed array; use accessors to get/set members */
 typedef struct {
-  zfp_type type;   /* scalar type (e.g. int32, double) */
-  uint nx, ny, nz; /* sizes (zero for unused dimensions) */
-  int sx, sy, sz;  /* strides (zero for contiguous array a[nz][ny][nx]) */
-  void* data;      /* pointer to array data */
+  zfp_type type;       /* scalar type (e.g. int32, double) */
+  uint nx, ny, nz, nw; /* sizes (zero for unused dimensions) */
+  int sx, sy, sz, sw;  /* strides (zero for contiguous array a[nw][nz][ny][nx]) */
+  void* data;          /* pointer to array data */
 } zfp_field;
 
 #ifdef __cplusplus
@@ -179,6 +212,12 @@ zfp_stream_close(
 bitstream*                 /* bit stream associated with compressed stream */
 zfp_stream_bit_stream(
   const zfp_stream* stream /* compressed stream */
+);
+
+/* returns enum of compression mode */
+zfp_mode                     /* enum for compression mode */
+zfp_stream_compression_mode(
+  const zfp_stream* zfp      /* compressed stream */
 );
 
 /* get all compression parameters in a compact representation */
@@ -243,8 +282,9 @@ zfp_stream_set_accuracy(
   double tolerance    /* desired error tolerance */
 );
 
-/* set all compression parameters from compact representation (expert mode) */
-int                   /* nonzero upon success */
+/* set all compression parameters from compact representation */
+/* compression params are only set on stream upon success */
+zfp_mode              /* non (zfp_mode_null) upon success */
 zfp_stream_set_mode(
   zfp_stream* stream, /* compressed stream */
   uint64 mode         /* 12- or 64-bit encoding of parameters */
@@ -258,6 +298,47 @@ zfp_stream_set_params(
   uint maxbits,       /* maximum number of bits per 4^d block */
   uint maxprec,       /* maximum precision (# bit planes coded) */
   int minexp          /* minimum base-2 exponent; error <= 2^minexp */
+);
+
+/* high-level API: execution policy ---------------------------------------- */
+
+/* current execution policy */
+zfp_exec_policy
+zfp_stream_execution(
+  const zfp_stream* stream /* compressed stream */
+);
+
+/* number of OpenMP threads to use */
+uint                       /* number of threads (0 for default) */
+zfp_stream_omp_threads(
+  const zfp_stream* stream /* compressed stream */
+);
+
+/* number of blocks per OpenMP chunk (1D only) */
+uint                       /* number of blocks per chunk (0 for default) */
+zfp_stream_omp_chunk_size(
+  const zfp_stream* stream /* compressed stream */
+);
+
+/* set execution policy */
+int                      /* nonzero upon success */
+zfp_stream_set_execution(
+  zfp_stream* stream,    /* compressed stream */
+  zfp_exec_policy policy /* execution policy */
+);
+
+/* set OpenMP execution policy and number of threads */
+int                   /* nonzero upon success */
+zfp_stream_set_omp_threads(
+  zfp_stream* stream, /* compressed stream */
+  uint threads        /* number of OpenMP threads to use (0 for default) */
+);
+
+/* set OpenMP execution policy and number of blocks per chunk (1D only) */
+int                   /* nonzero upon success */
+zfp_stream_set_omp_chunk_size(
+  zfp_stream* stream, /* compressed stream */
+  uint chunk_size     /* number of blocks per chunk (0 for default) */
 );
 
 /* high-level API: uncompressed array construction/destruction ------------- */
@@ -291,6 +372,17 @@ zfp_field_3d(
   uint nx,       /* number of scalars in x dimension */
   uint ny,       /* number of scalars in y dimension */
   uint nz        /* number of scalars in z dimension */
+);
+
+/* allocate metadata for 4D field f[nw][nz][ny][nx] */
+zfp_field*       /* allocated field metadata */
+zfp_field_4d(
+  void* pointer, /* pointer to uncompressed scalars (may be NULL) */
+  zfp_type type, /* scalar type */
+  uint nx,       /* number of scalars in x dimension */
+  uint ny,       /* number of scalars in y dimension */
+  uint nz,       /* number of scalars in z dimension */
+  uint nw        /* number of scalars in w dimension */
 );
 
 /* deallocate field metadata */
@@ -385,6 +477,16 @@ zfp_field_set_size_3d(
   uint nz           /* number of scalars in z dimension */
 );
 
+/* set 4D field size */
+void
+zfp_field_set_size_4d(
+  zfp_field* field, /* field metadata */
+  uint nx,          /* number of scalars in x dimension */
+  uint ny,          /* number of scalars in y dimension */
+  uint nz,          /* number of scalars in z dimension */
+  uint nw           /* number of scalars in w dimension */
+);
+
 /* set 1D field stride in number of scalars */
 void
 zfp_field_set_stride_1d(
@@ -409,6 +511,16 @@ zfp_field_set_stride_3d(
   int sz            /* stride in z dimension: &f[1][0][0] - &f[0][0][0] */
 );
 
+/* set 4D field strides in number of scalars */
+void
+zfp_field_set_stride_4d(
+  zfp_field* field, /* field metadata */
+  int sx,           /* stride in x dimension: &f[0][0][0][1] - &f[0][0][0][0] */
+  int sy,           /* stride in y dimension: &f[0][0][1][0] - &f[0][0][0][0] */
+  int sz,           /* stride in z dimension: &f[0][1][0][0] - &f[0][0][0][0] */
+  int sw            /* stride in w dimension: &f[1][0][0][0] - &f[0][0][0][0] */
+);
+
 /* set field scalar type and dimensions */
 int                 /* nonzero upon success */
 zfp_field_set_metadata(
@@ -419,14 +531,14 @@ zfp_field_set_metadata(
 /* high-level API: compression and decompression --------------------------- */
 
 /* compress entire field (nonzero return value upon success) */
-size_t                   /* actual number of bytes of compressed storage */
+size_t                   /* cumulative number of bytes of compressed storage */
 zfp_compress(
   zfp_stream* stream,    /* compressed stream */
   const zfp_field* field /* field metadata */
 );
 
 /* decompress entire field (nonzero return value upon success) */
-int                   /* nonzero upon success */
+size_t                /* cumulative number of bytes of compressed storage */
 zfp_decompress(
   zfp_stream* stream, /* compressed stream */
   zfp_field* field    /* field metadata */
@@ -528,6 +640,22 @@ uint zfp_encode_partial_block_strided_int64_3(zfp_stream* stream, const int64* p
 uint zfp_encode_partial_block_strided_float_3(zfp_stream* stream, const float* p, uint nx, uint ny, uint nz, int sx, int sy, int sz);
 uint zfp_encode_partial_block_strided_double_3(zfp_stream* stream, const double* p, uint nx, uint ny, uint nz, int sx, int sy, int sz);
 
+/* encode 4D contiguous block of 4x4x4x4 values */
+uint zfp_encode_block_int32_4(zfp_stream* stream, const int32* block);
+uint zfp_encode_block_int64_4(zfp_stream* stream, const int64* block);
+uint zfp_encode_block_float_4(zfp_stream* stream, const float* block);
+uint zfp_encode_block_double_4(zfp_stream* stream, const double* block);
+
+/* encode 4D complete or partial block from strided array */
+uint zfp_encode_block_strided_int32_4(zfp_stream* stream, const int32* p, int sx, int sy, int sz, int sw);
+uint zfp_encode_block_strided_int64_4(zfp_stream* stream, const int64* p, int sx, int sy, int sz, int sw);
+uint zfp_encode_block_strided_float_4(zfp_stream* stream, const float* p, int sx, int sy, int sz, int sw);
+uint zfp_encode_block_strided_double_4(zfp_stream* stream, const double* p, int sx, int sy, int sz, int sw);
+uint zfp_encode_partial_block_strided_int32_4(zfp_stream* stream, const int32* p, uint nx, uint ny, uint nz, uint nw, int sx, int sy, int sz, int sw);
+uint zfp_encode_partial_block_strided_int64_4(zfp_stream* stream, const int64* p, uint nx, uint ny, uint nz, uint nw, int sx, int sy, int sz, int sw);
+uint zfp_encode_partial_block_strided_float_4(zfp_stream* stream, const float* p, uint nx, uint ny, uint nz, uint nw, int sx, int sy, int sz, int sw);
+uint zfp_encode_partial_block_strided_double_4(zfp_stream* stream, const double* p, uint nx, uint ny, uint nz, uint nw, int sx, int sy, int sz, int sw);
+
 /* low-level API: decoder -------------------------------------------------- */
 
 /*
@@ -583,6 +711,22 @@ uint zfp_decode_partial_block_strided_int32_3(zfp_stream* stream, int32* p, uint
 uint zfp_decode_partial_block_strided_int64_3(zfp_stream* stream, int64* p, uint nx, uint ny, uint nz, int sx, int sy, int sz);
 uint zfp_decode_partial_block_strided_float_3(zfp_stream* stream, float* p, uint nx, uint ny, uint nz, int sx, int sy, int sz);
 uint zfp_decode_partial_block_strided_double_3(zfp_stream* stream, double* p, uint nx, uint ny, uint nz, int sx, int sy, int sz);
+
+/* decode 4D contiguous block of 4x4x4x4 values */
+uint zfp_decode_block_int32_4(zfp_stream* stream, int32* block);
+uint zfp_decode_block_int64_4(zfp_stream* stream, int64* block);
+uint zfp_decode_block_float_4(zfp_stream* stream, float* block);
+uint zfp_decode_block_double_4(zfp_stream* stream, double* block);
+
+/* decode 4D complete or partial block from strided array */
+uint zfp_decode_block_strided_int32_4(zfp_stream* stream, int32* p, int sx, int sy, int sz, int sw);
+uint zfp_decode_block_strided_int64_4(zfp_stream* stream, int64* p, int sx, int sy, int sz, int sw);
+uint zfp_decode_block_strided_float_4(zfp_stream* stream, float* p, int sx, int sy, int sz, int sw);
+uint zfp_decode_block_strided_double_4(zfp_stream* stream, double* p, int sx, int sy, int sz, int sw);
+uint zfp_decode_partial_block_strided_int32_4(zfp_stream* stream, int32* p, uint nx, uint ny, uint nz, uint nw, int sx, int sy, int sz, int sw);
+uint zfp_decode_partial_block_strided_int64_4(zfp_stream* stream, int64* p, uint nx, uint ny, uint nz, uint nw, int sx, int sy, int sz, int sw);
+uint zfp_decode_partial_block_strided_float_4(zfp_stream* stream, float* p, uint nx, uint ny, uint nz, uint nw, int sx, int sy, int sz, int sw);
+uint zfp_decode_partial_block_strided_double_4(zfp_stream* stream, double* p, uint nx, uint ny, uint nz, uint nw, int sx, int sy, int sz, int sw);
 
 /* low-level API: utility functions ---------------------------------------- */
 

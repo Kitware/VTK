@@ -13,7 +13,18 @@ namespace zfp {
 template < typename Scalar, class Codec = zfp::codec<Scalar> >
 class array2 : public array {
 public:
-  array2() : array(2, Codec::type), cache(0) {}
+  // forward declarations
+  class reference;
+  class pointer;
+  class iterator;
+  class view;
+  #include "zfp/reference2.h"
+  #include "zfp/pointer2.h"
+  #include "zfp/iterator2.h"
+  #include "zfp/view2.h"
+
+  // default constructor
+  array2() : array(2, Codec::type) {}
 
   // constructor of nx * ny array using rate bits per value, at least
   // csize bytes of cache, and optionally initialized from flat array p
@@ -25,6 +36,36 @@ public:
     resize(nx, ny, p == 0);
     if (p)
       set(p);
+  }
+
+  // copy constructor--performs a deep copy
+  array2(const array2& a)
+  {
+    deep_copy(a);
+  }
+
+  // construction from view--perform deep copy of (sub)array
+  template <class View>
+  array2(const View& v) :
+    array(2, Codec::type),
+    cache(lines(0, v.size_x(), v.size_y()))
+  {
+    set_rate(v.rate());
+    resize(v.size_x(), v.size_y(), true);
+    // initialize array in its preferred order
+    for (iterator it = begin(); it != end(); ++it)
+      *it = v(it.i(), it.j());
+  }
+
+  // virtual destructor
+  virtual ~array2() {}
+
+  // assignment operator--performs a deep copy
+  array2& operator=(const array2& a)
+  {
+    if (this != &a)
+      deep_copy(a);
+    return *this;
   }
 
   // total number of elements in array
@@ -80,7 +121,7 @@ public:
     for (typename Cache<CacheLine>::const_iterator p = cache.first(); p; p++) {
       if (p->tag.dirty()) {
         uint b = p->tag.index() - 1;
-        encode(b, p->line->a);
+        encode(b, p->line->data());
       }
       cache.flush(p->line);
     }
@@ -110,125 +151,12 @@ public:
     cache.clear();
   }
 
-  class pointer;
-
-  // reference to a single array value
-  class reference {
-  public:
-    operator Scalar() const { return array->get(i, j); }
-    reference operator=(const reference& r) { array->set(i, j, r.operator Scalar()); return *this; }
-    reference operator=(Scalar val) { array->set(i, j, val); return *this; }
-    reference operator+=(Scalar val) { array->add(i, j, val); return *this; }
-    reference operator-=(Scalar val) { array->sub(i, j, val); return *this; }
-    reference operator*=(Scalar val) { array->mul(i, j, val); return *this; }
-    reference operator/=(Scalar val) { array->div(i, j, val); return *this; }
-    pointer operator&() const { return pointer(*this); }
-    // swap two array elements via proxy references
-    friend void swap(reference a, reference b)
-    {
-      Scalar x = a.operator Scalar();
-      Scalar y = b.operator Scalar();
-      b.operator=(x);
-      a.operator=(y);
-    }
-  protected:
-    friend class array2;
-    friend class iterator;
-    explicit reference(array2* array, uint i, uint j) : array(array), i(i), j(j) {}
-    array2* array;
-    uint i, j;
-  };
-
-  // pointer to a single value in flattened array
-  class pointer {
-  public:
-    pointer() : ref(0, 0, 0) {}
-    pointer operator=(const pointer& p) { ref.array = p.ref.array; ref.i = p.ref.i; ref.j = p.ref.j; return *this; }
-    reference operator*() const { return ref; }
-    reference operator[](ptrdiff_t d) const { return *operator+(d); }
-    pointer& operator++() { increment(); return *this; }
-    pointer& operator--() { decrement(); return *this; }
-    pointer operator++(int) { pointer p = *this; increment(); return p; }
-    pointer operator--(int) { pointer p = *this; decrement(); return p; }
-    pointer operator+=(ptrdiff_t d) { set(index() + d); return *this; }
-    pointer operator-=(ptrdiff_t d) { set(index() - d); return *this; }
-    pointer operator+(ptrdiff_t d) const { pointer p = *this; p += d; return p; }
-    pointer operator-(ptrdiff_t d) const { pointer p = *this; p -= d; return p; }
-    ptrdiff_t operator-(const pointer& p) const { return index() - p.index(); }
-    bool operator==(const pointer& p) const { return ref.array == p.ref.array && ref.i == p.ref.i && ref.j == p.ref.j; }
-    bool operator!=(const pointer& p) const { return !operator==(p); }
-  protected:
-    friend class array2;
-    friend class reference;
-    explicit pointer(reference r) : ref(r) {}
-    explicit pointer(array2* array, uint i, uint j) : ref(array, i, j) {}
-    ptrdiff_t index() const { return ref.i + ref.array->nx * ref.j; }
-    void set(ptrdiff_t index) { ref.array->ij(ref.i, ref.j, index); }
-    void increment()
-    {
-      if (++ref.i == ref.array->nx) {
-        ref.i = 0;
-        ref.j++;
-      }
-    }
-    void decrement()
-    {
-      if (!ref.i--) {
-        ref.i = ref.array->nx - 1;
-        ref.j--;
-      }
-    }
-    reference ref;
-  };
-
-  // forward iterator that visits array block by block
-  class iterator {
-  public:
-    // typedefs for STL compatibility
-    typedef Scalar value_type;
-    typedef ptrdiff_t difference_type;
-    typedef typename array2::reference reference;
-    typedef typename array2::pointer pointer;
-    typedef std::forward_iterator_tag iterator_category;
-
-    iterator() : ref(0, 0, 0) {}
-    iterator operator=(const iterator& it) { ref.array = it.ref.array; ref.i = it.ref.i; ref.j = it.ref.j; return *this; }
-    reference operator*() const { return ref; }
-    iterator& operator++() { increment(); return *this; }
-    iterator operator++(int) { iterator it = *this; increment(); return it; }
-    bool operator==(const iterator& it) const { return ref.array == it.ref.array && ref.i == it.ref.i && ref.j == it.ref.j; }
-    bool operator!=(const iterator& it) const { return !operator==(it); }
-    uint i() const { return ref.i; }
-    uint j() const { return ref.j; }
-  protected:
-    friend class array2;
-    explicit iterator(array2* array, uint i, uint j) : ref(array, i, j) {}
-    void increment()
-    {
-      ref.i++;
-      if (!(ref.i & 3u) || ref.i == ref.array->nx) {
-        ref.i = (ref.i - 1) & ~3u;
-        ref.j++;
-        if (!(ref.j & 3u) || ref.j == ref.array->ny) {
-          ref.j = (ref.j - 1) & ~3u;
-          // done with block; advance to next
-          if ((ref.i += 4) >= ref.array->nx) {
-            ref.i = 0;
-            if ((ref.j += 4) >= ref.array->ny)
-              ref.j = ref.array->ny;
-          }
-        }
-      }
-    }
-    reference ref;
-  };
-
   // (i, j) accessors
-  const Scalar& operator()(uint i, uint j) const { return get(i, j); }
+  Scalar operator()(uint i, uint j) const { return get(i, j); }
   reference operator()(uint i, uint j) { return reference(this, i, j); }
 
   // flat index accessors
-  const Scalar& operator[](uint index) const
+  Scalar operator[](uint index) const
   {
     uint i, j;
     ij(i, j, index);
@@ -249,9 +177,10 @@ protected:
   // cache line representing one block of decompressed values
   class CacheLine {
   public:
-    friend class array2;
-    const Scalar& operator()(uint i, uint j) const { return a[index(i, j)]; }
+    Scalar operator()(uint i, uint j) const { return a[index(i, j)]; }
     Scalar& operator()(uint i, uint j) { return a[index(i, j)]; }
+    const Scalar* data() const { return a; }
+    Scalar* data() { return a; }
     // copy cache line
     void get(Scalar* p, int sx, int sy) const
     {
@@ -269,7 +198,7 @@ protected:
         uint nx = 4 - (shape & 3u); shape >>= 2;
         uint ny = 4 - (shape & 3u); shape >>= 2;
         const Scalar* q = a;
-        for (uint y = 0; y < ny; y++, p += sy - nx * sx, q += 4 - nx)
+        for (uint y = 0; y < ny; y++, p += sy - (ptrdiff_t)nx * sx, q += 4 - nx)
           for (uint x = 0; x < nx; x++, p += sx, q++)
             *p = *q;
       }
@@ -279,10 +208,19 @@ protected:
     Scalar a[16];
   };
 
-  // inspector
-  const Scalar& get(uint i, uint j) const
+  // perform a deep copy
+  void deep_copy(const array2& a)
   {
-    CacheLine* p = line(i, j, false);
+    // copy base class members
+    array::deep_copy(a);
+    // copy cache
+    cache = a.cache;
+  }
+
+  // inspector
+  Scalar get(uint i, uint j) const
+  {
+    const CacheLine* p = line(i, j, false);
     return (*p)(i, j);
   }
 
@@ -309,9 +247,9 @@ protected:
     if (c != b) {
       // write back occupied cache line if it is dirty
       if (t.dirty())
-        encode(c, p->a);
+        encode(c, p->data());
       // fetch cache line
-      decode(b, p->a);
+      decode(b, p->data());
     }
     return p;
   }
@@ -319,31 +257,31 @@ protected:
   // encode block with given index
   void encode(uint index, const Scalar* block) const
   {
-    stream_wseek(stream->stream, index * blkbits);
-    Codec::encode_block_2(stream, block, shape ? shape[index] : 0);
-    stream_flush(stream->stream);
+    stream_wseek(zfp->stream, index * blkbits);
+    Codec::encode_block_2(zfp, block, shape ? shape[index] : 0);
+    stream_flush(zfp->stream);
   }
 
   // encode block with given index from strided array
   void encode(uint index, const Scalar* p, int sx, int sy) const
   {
-    stream_wseek(stream->stream, index * blkbits);
-    Codec::encode_block_strided_2(stream, p, shape ? shape[index] : 0, sx, sy);
-    stream_flush(stream->stream);
+    stream_wseek(zfp->stream, index * blkbits);
+    Codec::encode_block_strided_2(zfp, p, shape ? shape[index] : 0, sx, sy);
+    stream_flush(zfp->stream);
   }
 
   // decode block with given index
   void decode(uint index, Scalar* block) const
   {
-    stream_rseek(stream->stream, index * blkbits);
-    Codec::decode_block_2(stream, block, shape ? shape[index] : 0);
+    stream_rseek(zfp->stream, index * blkbits);
+    Codec::decode_block_2(zfp, block, shape ? shape[index] : 0);
   }
 
   // decode block with given index to strided array
   void decode(uint index, Scalar* p, int sx, int sy) const
   {
-    stream_rseek(stream->stream, index * blkbits);
-    Codec::decode_block_strided_2(stream, p, shape ? shape[index] : 0, sx, sy);
+    stream_rseek(zfp->stream, index * blkbits);
+    Codec::decode_block_strided_2(zfp, p, shape ? shape[index] : 0, sx, sy);
   }
 
   // block index for (i, j)
@@ -360,7 +298,7 @@ protected:
   // number of cache lines corresponding to size (or suggested size if zero)
   static uint lines(size_t size, uint nx, uint ny)
   {
-    uint n = uint((size ? size : 8 * nx * sizeof(Scalar)) / sizeof(CacheLine));
+    uint n = uint(((size ? size : 8 * nx * sizeof(Scalar)) + sizeof(CacheLine) - 1) / sizeof(CacheLine));
     return std::max(n, 1u);
   }
 
