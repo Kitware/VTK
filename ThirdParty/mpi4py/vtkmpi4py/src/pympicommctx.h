@@ -126,18 +126,24 @@ static int PyMPI_Commctx_inter(MPI_Comm comm, MPI_Comm *dupcomm, int *tag,
   if (commctx->localcomm == MPI_COMM_NULL) {
     int localsize, remotesize, mergerank;
     MPI_Comm mergecomm = MPI_COMM_NULL;
-    MPI_Group localgroup = MPI_GROUP_NULL;
     ierr = MPI_Comm_size(comm, &localsize); CHKERR(ierr);
     ierr = MPI_Comm_remote_size(comm, &remotesize); CHKERR(ierr);
     ierr = MPI_Intercomm_merge(comm, localsize>remotesize, &mergecomm); CHKERR(ierr);
     ierr = MPI_Comm_rank(mergecomm, &mergerank); CHKERR(ierr);
+    commctx->low_group = ((localsize>remotesize) ? 0 :
+                          (localsize<remotesize) ? 1 :
+                          (mergerank<localsize));
+#if (MPI_VERSION > 2) || (MPI_VERSION == 2 && MPI_SUBVERSION >= 2)
+  {
+    MPI_Group localgroup = MPI_GROUP_NULL;
     ierr = MPI_Comm_group(comm, &localgroup); CHKERR(ierr);
     ierr = MPI_Comm_create(mergecomm, localgroup, &commctx->localcomm); CHKERR(ierr);
     ierr = MPI_Group_free(&localgroup); CHKERR(ierr);
+  }
+#else
+    ierr = MPI_Comm_split(mergecomm, commctx->low_group, 0, &commctx->localcomm); CHKERR(ierr);
+#endif
     ierr = MPI_Comm_free(&mergecomm); CHKERR(ierr);
-    commctx->low_group = (localsize>remotesize) ? 0 :
-                         (localsize<remotesize) ? 1 :
-                         (mergerank<localsize);
   }
   if (dupcomm)
     *dupcomm = commctx->dupcomm;

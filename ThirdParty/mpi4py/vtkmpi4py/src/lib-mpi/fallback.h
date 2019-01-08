@@ -669,7 +669,6 @@ static int PyMPI_Type_size_x(MPI_Datatype datatype,
   int size_ = MPI_UNDEFINED;
   ierr = MPI_Type_size(datatype, &size_);
   if (ierr != MPI_SUCCESS) return ierr;
-  if (!size) return MPI_ERR_ARG; /* XXX */
   *size = (MPI_Count) size_;
   return MPI_SUCCESS;
 }
@@ -686,8 +685,6 @@ static int PyMPI_Type_get_extent_x(MPI_Datatype datatype,
   MPI_Aint lb_ = MPI_UNDEFINED, extent_ = MPI_UNDEFINED;
   ierr = MPI_Type_get_extent(datatype, &lb_, &extent_);
   if (ierr != MPI_SUCCESS) return ierr;
-  if (!lb)     return MPI_ERR_ARG; /* XXX */
-  if (!extent) return MPI_ERR_ARG; /* XXX */
   *lb     = (MPI_Count) lb_;
   *extent = (MPI_Count) extent_;
   return MPI_SUCCESS;
@@ -705,8 +702,6 @@ static int PyMPI_Type_get_true_extent_x(MPI_Datatype datatype,
   MPI_Aint lb_ = MPI_UNDEFINED, extent_ = MPI_UNDEFINED;
   ierr = MPI_Type_get_true_extent(datatype, &lb_, &extent_);
   if (ierr != MPI_SUCCESS) return ierr;
-  if (!lb)     return MPI_ERR_ARG; /* XXX */
-  if (!extent) return MPI_ERR_ARG; /* XXX */
   *lb     = (MPI_Count) lb_;
   *extent = (MPI_Count) extent_;
   return MPI_SUCCESS;
@@ -724,7 +719,6 @@ static int PyMPI_Get_elements_x(MPI_Status *status,
   int elements_ = MPI_UNDEFINED;
   ierr = MPI_Get_elements(status, datatype, &elements_);
   if (ierr != MPI_SUCCESS) return ierr;
-  if (!elements) return MPI_ERR_ARG; /* XXX */
   *elements = (MPI_Count) elements_;
   return MPI_SUCCESS;
 }
@@ -746,20 +740,18 @@ static int PyMPI_Status_set_elements_x(MPI_Status *status,
 #endif
 
 #ifndef PyMPI_HAVE_MPI_Aint_add
-MPI_Aint PyMPI_Aint_add(MPI_Aint base, MPI_Aint disp)
+static MPI_Aint PyMPI_Aint_add(MPI_Aint base, MPI_Aint disp)
 {
-  (void)PyMPI_Aint_add; /* unused */
-  return base + disp;
+  return (MPI_Aint) ((char*)base + disp);
 }
 #undef  MPI_Aint_add
 #define MPI_Aint_add PyMPI_Aint_add
 #endif
 
 #ifndef PyMPI_HAVE_MPI_Aint_diff
-MPI_Aint PyMPI_Aint_diff(MPI_Aint addr1, MPI_Aint addr2)
+static MPI_Aint PyMPI_Aint_diff(MPI_Aint addr1, MPI_Aint addr2)
 {
-  (void)PyMPI_Aint_diff; /* unused */
-  return addr1 - addr2;
+  return (MPI_Aint) ((char*)addr1 - (char*)addr2);
 }
 #undef  MPI_Aint_diff
 #define MPI_Aint_diff PyMPI_Aint_diff

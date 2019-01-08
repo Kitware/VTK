@@ -29,7 +29,9 @@
 #undef PyMPI_HAVE_MPI_File_write_at
 #undef PyMPI_HAVE_MPI_File_write_at_all
 #undef PyMPI_HAVE_MPI_File_iread_at
+#undef PyMPI_HAVE_MPI_File_iread_at_all
 #undef PyMPI_HAVE_MPI_File_iwrite_at
+#undef PyMPI_HAVE_MPI_File_iwrite_at_all
 #undef PyMPI_HAVE_MPI_SEEK_SET
 #undef PyMPI_HAVE_MPI_SEEK_CUR
 #undef PyMPI_HAVE_MPI_SEEK_END
@@ -42,7 +44,9 @@
 #undef PyMPI_HAVE_MPI_File_write
 #undef PyMPI_HAVE_MPI_File_write_all
 #undef PyMPI_HAVE_MPI_File_iread
+#undef PyMPI_HAVE_MPI_File_iread_all
 #undef PyMPI_HAVE_MPI_File_iwrite
+#undef PyMPI_HAVE_MPI_File_iwrite_all
 #undef PyMPI_HAVE_MPI_File_read_shared
 #undef PyMPI_HAVE_MPI_File_write_shared
 #undef PyMPI_HAVE_MPI_File_iread_shared
