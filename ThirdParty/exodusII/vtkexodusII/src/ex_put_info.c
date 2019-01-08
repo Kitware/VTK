@@ -123,14 +123,6 @@ int ex_put_info(int exoid, int num_info, char *info[])
     status = nc_inq_dimid(rootid, DIM_NUM_INFO, &num_info_dim);
     if (status != NC_NOERR) {
 
-      /*   inquire previously defined dimensions  */
-      if ((status = nc_inq_dimid(rootid, DIM_LIN, &lindim)) != NC_NOERR) {
-        snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get line string length in file id %d",
-                 rootid);
-        ex_err(__func__, errmsg, status);
-        EX_FUNC_LEAVE(EX_FATAL);
-      }
-
       /* put file into define mode  */
       if ((status = nc_redef(rootid)) != NC_NOERR) {
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed put file id %d into define mode", rootid);
@@ -151,6 +143,14 @@ int ex_put_info(int exoid, int num_info, char *info[])
           ex_err(__func__, errmsg, status);
         }
 
+        goto error_ret; /* exit define mode and return */
+      }
+
+      /* create line length dimension */
+      if ((status = nc_def_dim(rootid, DIM_LIN, (MAX_LINE_LENGTH + 1), &lindim)) != NC_NOERR) {
+        snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to define line length in file id %d",
+                 rootid);
+        ex_err(__func__, errmsg, status);
         goto error_ret; /* exit define mode and return */
       }
 

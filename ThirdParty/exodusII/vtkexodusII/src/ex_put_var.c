@@ -211,21 +211,6 @@ int ex_put_var(int exoid, int time_step, ex_entity_type var_type, int var_index,
 
   ex_check_valid_file_id(exoid, __func__);
 
-#if !defined EXODUS_IN_SIERRA
-  /* Verify that time_step is within bounds */
-  {
-    int num_time_steps = ex_inquire_int(exoid, EX_INQ_TIME);
-    if (time_step <= 0 || time_step > num_time_steps) {
-      snprintf(errmsg, MAX_ERR_LENGTH,
-               "ERROR: time_step is out-of-range. Value = %d, valid "
-               "range is 1 to %d in file id %d",
-               time_step, num_time_steps, exoid);
-      ex_err(__func__, errmsg, EX_BADPARAM);
-      EX_FUNC_LEAVE(EX_FATAL);
-    }
-  }
-#endif
-
   switch (var_type) {
   case EX_GLOBAL:
     if (num_entries_this_obj <= 0) {

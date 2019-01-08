@@ -55,8 +55,7 @@
 
 /*!
 The function ex_put_map() writes out the optional element order map to
-the database. See #ElementOrderMap for a description of the element
-order map. The function ex_put_init() must be invoked before this call
+the database. The function ex_put_init() must be invoked before this call
 is made.
 
 In case of an error, ex_put_map() returns a negative number; a warning

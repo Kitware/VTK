@@ -48,8 +48,7 @@ properties to element blocks, node sets, or side sets. The property
 arrays are initialized to zero (0). Although this function is
 optional, since ex_put_prop() will allocate space within the data file
 if it hasn't been previously allocated, it is more efficient to use
-ex_put_prop_names() if there is more than one property to store. \see
-Efficiency for a discussion of efficiency issues.
+ex_put_prop_names() if there is more than one property to store.
 
 \return In case of an error, ex_put_prop_names() returns a negative number; a
 warning will return a positive number.  Possible causes of errors
