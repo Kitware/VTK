@@ -98,7 +98,7 @@ class METAIO_EXPORT MetaTubeGraph : public MetaObject
 
     //    NPoints(...)
     //       Required Field
-    //       Number of points wich compose the tube
+    //       Number of points which compose the tube
     void  NPoints(int npnt);
     int   NPoints(void) const;
 

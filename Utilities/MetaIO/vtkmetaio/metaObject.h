@@ -63,7 +63,7 @@ class METAIO_EXPORT MetaObject
 
       MET_DistanceUnitsEnumType m_DistanceUnits;   // "DistanceUnits = mm"
 
-      float m_ElementSpacing[10];   // "ElementSpacing = "   0,0,0
+      double m_ElementSpacing[10];   // "ElementSpacing = "   0,0,0
 
       float m_Color[4];             // "Color = "            1.0, 0.0, 0.0, 1.0
 
@@ -218,10 +218,11 @@ class METAIO_EXPORT MetaObject
       //    ElementSpacing(...)
       //       Optional Field
       //       Physical Spacing (in same units as position)
-      const float * ElementSpacing(void) const;
-      float ElementSpacing(int _i) const;
+      const double * ElementSpacing(void) const;
+      double ElementSpacing(int _i) const;
+      void  ElementSpacing(const double * _elementSpacing);
       void  ElementSpacing(const float * _elementSpacing);
-      void  ElementSpacing(int _i, float _value);
+      void  ElementSpacing(int _i, double _value);
 
       //    Name(...)
       //       Optional Field

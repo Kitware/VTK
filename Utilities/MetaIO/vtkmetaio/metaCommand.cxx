@@ -63,7 +63,7 @@ ExtractDateFromCVS(METAIO_STL::string date)
     {
     newdate += date[i];
     }
-  return newdate.c_str();
+  return newdate;
 }
 
 void MetaCommand::DisableDeprecatedWarnings()
@@ -86,7 +86,7 @@ ExtractVersionFromCVS(METAIO_STL::string version)
     {
     newversion += version[i];
     }
-  return newversion.c_str();
+  return newversion;
 }
 
 void MetaCommand::
@@ -127,7 +127,7 @@ SetOption(METAIO_STL::string name,
               << " is expecting a shortTag of exactly one character."
               << " You should use the SetOptionLongTag(optionName,longTagName)"
               << " if you want to use a longer tag. The longtag will be"
-              << " refered as --LongTag and the short tag as -ShortTag."
+              << " referred to as --LongTag and the short tag as -ShortTag."
               << " Replace -" << shortTag.c_str()
               << " by --" << shortTag.c_str()
               << METAIO_STREAM::endl;
@@ -174,7 +174,7 @@ SetOption(METAIO_STL::string name,
               << " is expecting a shortTag of exactly one character."
               << " You should use the SetOptionLongTag(optionName,longTagName)"
               << " if you want to use a longer tag. The longtag will be "
-              << " refered as --LongTag and the short tag as -ShortTag "
+              << " referred to as --LongTag and the short tag as -ShortTag "
               << " Replace -" << shortTag.c_str()
               << " by --" << shortTag.c_str()
               << METAIO_STREAM::endl;
@@ -708,7 +708,7 @@ ListOptions()
       {
       METAIO_STREAM::cout << "   Required: false" << METAIO_STREAM::endl;
       }
-    METAIO_STREAM::cout << "   Number of expeted values: "
+    METAIO_STREAM::cout << "   Number of expected values: "
                         << (*it).fields.size()
                         << METAIO_STREAM::endl;
 
@@ -1098,6 +1098,8 @@ ParseXML(const char* buffer)
   while(buf.size() > 0)
     {
     Option option;
+    option.userDefined = false;
+    option.complete = false;
     option.name = this->GetXML(buf.c_str(),"name",0);
     option.tag = this->GetXML(buf.c_str(),"tag",0);
     option.longtag = this->GetXML(buf.c_str(),"longtag",0);
@@ -1485,7 +1487,7 @@ ExportGAD(bool dynamic)
   file << METAIO_STREAM::endl;
 
   unsigned int order = 1;
-  // Write out the input data to be transfered
+  // Write out the input data to be transferred
   OptionVector::const_iterator it = options.begin();
   while(it != options.end())
     {
@@ -1638,7 +1640,7 @@ ExportGAD(bool dynamic)
   file << " </componentAction>" << METAIO_STREAM::endl;
   order++;
   file << METAIO_STREAM::endl;
-  // Write out the input data to be transfered
+  // Write out the input data to be transferred
   it = options.begin();
   while(it != options.end())
     {
@@ -2344,7 +2346,7 @@ bool MetaCommand::LoadArgumentsFromXML(const char* filename,
     }
   if (xmlStrcmp(cur->name, (const xmlChar *) "MetaCommand"))
     {
-    METAIO_STREAM::cerr << "document of the wrong type. Root node shoule be MetaCommand" << METAIO_STREAM::endl;
+    METAIO_STREAM::cerr << "document of the wrong type. Root node should be MetaCommand" << METAIO_STREAM::endl;
     xmlFreeDoc(doc);
     return false;
     }
