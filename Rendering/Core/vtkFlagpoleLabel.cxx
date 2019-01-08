@@ -421,6 +421,8 @@ void vtkFlagpoleLabel::GenerateQuad(vtkRenderer *ren)
   // determine scaling, the default is 1.0 = 1000 texels across the screen
   double scale = this->FlagSize*0.001;
   vtkCamera *cam = ren->GetActiveCamera();
+  double pos[3];
+  cam->GetPosition(pos);
   if (cam->GetParallelProjection())
   {
     double cscale = cam->GetParallelScale();
@@ -429,8 +431,6 @@ void vtkFlagpoleLabel::GenerateQuad(vtkRenderer *ren)
   else
   {
     double vangle = cam->GetViewAngle();
-    double pos[3];
-    cam->GetPosition(pos);
     double dist = sqrt(vtkMath::Distance2BetweenPoints(pos,this->TopPosition));
     dist *= 2.0*tan(vtkMath::RadiansFromDegrees(vangle/2.0));
     scale = scale*dist;
@@ -449,8 +449,13 @@ void vtkFlagpoleLabel::GenerateQuad(vtkRenderer *ren)
   vtkMath::Normalize(up);
 
   // right is the cross of up and vpn
-  double vpn[3];
-  cam->GetViewPlaneNormal(vpn);
+  double vpn[3] =
+  {
+    pos[0] - this->TopPosition[0],
+    pos[1] - this->TopPosition[1],
+    pos[2] - this->TopPosition[2]\
+  };
+  vtkMath::Normalize(vpn);
   vtkMath::Cross(up, vpn, right);
   vtkMath::Normalize(right);
 
