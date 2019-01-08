@@ -1,5 +1,3 @@
-project(vtktheora)
-
 set(sources
   # encoder
   lib/analyze.c
@@ -38,34 +36,30 @@ set(headers
   include/theora/theoradec.h
   include/theora/theoraenc.h
   include/theora/vtk_theora_mangle.h
-  "${CMAKE_CURRENT_BINARY_DIR}/include/vtktheora_export.h")
+  "${CMAKE_CURRENT_BINARY_DIR}/vtktheora_export.h")
 
-vtk_add_library(vtktheora ${sources} ${headers})
-target_link_libraries(vtktheora ${vtkogg_LIBRARIES})
-if (NOT VTK_INSTALL_NO_DEVELOPMENT)
-  install(FILES
-    ${headers}
-    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtktheora/include/theora"
-    COMPONENT Development)
-endif()
-target_include_directories(vtktheora
+vtk_module_add_module(VTK::theora
+  SOURCES ${sources}
+  HEADERS ${headers}
+  HEADERS_SUBDIR "vtktheora/include/theora")
+target_include_directories(theora
   PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>")
-set_target_properties(vtktheora
+set_target_properties(theora
   PROPERTIES
     C_VISIBILITY_PRESET "hidden")
 
 include(GenerateExportHeader)
-generate_export_header(vtktheora
+generate_export_header(theora
   EXPORT_MACRO_NAME VTKTHEORA_EXPORT
-  EXPORT_FILE_NAME  include/vtktheora_export.h)
+  EXPORT_FILE_NAME  vtktheora_export.h)
 
 include(CheckCCompilerFlag)
 function (vtktheora_suppress_warning warning)
   check_c_compiler_flag("-Wno-${warning}" "have_flag_${warning}")
   if (have_flag_${warning})
-    target_compile_options(vtktheora
+    target_compile_options(theora
       PRIVATE
         "-Wno-${warning}")
   endif ()
