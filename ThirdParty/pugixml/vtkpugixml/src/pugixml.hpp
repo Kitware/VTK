@@ -1,7 +1,7 @@
 /**
- * pugixml parser - version 1.8
+ * pugixml parser - version 1.9
  * --------------------------------------------------------
- * Copyright (C) 2006-2016, by Arseny Kapoulkine (arseny.kapoulkine@gmail.com)
+ * Copyright (C) 2006-2018, by Arseny Kapoulkine (arseny.kapoulkine@gmail.com)
  * Report bugs and download new versions at http://pugixml.org/
  *
  * This library is distributed under the MIT License. See notice at the end
@@ -13,7 +13,7 @@
 
 #ifndef PUGIXML_VERSION
 // Define version macro; evaluates to major * 100 + minor so that it's safe to use in less-than comparisons
-#	define PUGIXML_VERSION 180
+#	define PUGIXML_VERSION 190
 #endif
 
 #include "vtk_pugixml_mangle.h"
@@ -35,7 +35,7 @@
 
 // Include exception header for XPath
 #if !defined(PUGIXML_NO_XPATH) && !defined(PUGIXML_NO_EXCEPTIONS)
-#       include <exception>
+#	include <exception>
 #endif
 
 // Include STL headers
@@ -105,9 +105,18 @@
 #	endif
 #endif
 
+// Some functions can not be noexcept in compact mode
+#ifdef PUGIXML_COMPACT
+#	define PUGIXML_NOEXCEPT_IF_NOT_COMPACT
+#else
+#	define PUGIXML_NOEXCEPT_IF_NOT_COMPACT PUGIXML_NOEXCEPT
+#endif
+
 // If C++ is 2011 or higher, add 'override' qualifiers
 #ifndef PUGIXML_OVERRIDE
 #	if __cplusplus >= 201103
+#		define PUGIXML_OVERRIDE override
+#	elif defined(_MSC_VER) && _MSC_VER >= 1700
 #		define PUGIXML_OVERRIDE override
 #	else
 #		define PUGIXML_OVERRIDE
@@ -655,8 +664,8 @@ namespace pugi
 		xpath_node_set select_nodes(const xpath_query& query) const;
 
 		// (deprecated: use select_node instead) Select single node by evaluating XPath query.
-		xpath_node select_single_node(const char_t* query, xpath_variable_set* variables = 0) const;
-		xpath_node select_single_node(const xpath_query& query) const;
+		PUGIXML_DEPRECATED xpath_node select_single_node(const char_t* query, xpath_variable_set* variables = 0) const;
+		PUGIXML_DEPRECATED xpath_node select_single_node(const xpath_query& query) const;
 
 	#endif
 
@@ -1007,6 +1016,7 @@ namespace pugi
 
 		void _create();
 		void _destroy();
+		void _move(xml_document& rhs) PUGIXML_NOEXCEPT_IF_NOT_COMPACT;
 
 	public:
 		// Default constructor, makes empty document
@@ -1014,6 +1024,12 @@ namespace pugi
 
 		// Destructor, invalidates all node/attribute handles to this document
 		~xml_document();
+
+	#ifdef PUGIXML_HAS_MOVE
+		// Move semantics support
+		xml_document(xml_document&& rhs) PUGIXML_NOEXCEPT_IF_NOT_COMPACT;
+		xml_document& operator=(xml_document&& rhs) PUGIXML_NOEXCEPT_IF_NOT_COMPACT;
+	#endif
 
 		// Removes all nodes, leaving the empty document
 		void reset();
@@ -1028,7 +1044,7 @@ namespace pugi
 	#endif
 
 		// (deprecated: use load_string instead) Load document from zero-terminated string. No encoding conversions are applied.
-		xml_parse_result load(const char_t* contents, unsigned int options = parse_default);
+		PUGIXML_DEPRECATED xml_parse_result load(const char_t* contents, unsigned int options = parse_default);
 
 		// Load document from zero-terminated string. No encoding conversions are applied.
 		xml_parse_result load_string(const char_t* contents, unsigned int options = parse_default);
@@ -1155,8 +1171,8 @@ namespace pugi
 
 	#ifdef PUGIXML_HAS_MOVE
 		// Move semantics support
-		xpath_variable_set(xpath_variable_set&& rhs);
-		xpath_variable_set& operator=(xpath_variable_set&& rhs);
+		xpath_variable_set(xpath_variable_set&& rhs) PUGIXML_NOEXCEPT;
+		xpath_variable_set& operator=(xpath_variable_set&& rhs) PUGIXML_NOEXCEPT;
 	#endif
 
 		// Add a new variable or get the existing one, if the types match
@@ -1199,8 +1215,8 @@ namespace pugi
 
 	#ifdef PUGIXML_HAS_MOVE
 		// Move semantics support
-		xpath_query(xpath_query&& rhs);
-		xpath_query& operator=(xpath_query&& rhs);
+		xpath_query(xpath_query&& rhs) PUGIXML_NOEXCEPT;
+		xpath_query& operator=(xpath_query&& rhs) PUGIXML_NOEXCEPT;
 	#endif
 
 		// Get query expression return type
@@ -1349,8 +1365,8 @@ namespace pugi
 
 	#ifdef PUGIXML_HAS_MOVE
 		// Move semantics support
-		xpath_node_set(xpath_node_set&& rhs);
-		xpath_node_set& operator=(xpath_node_set&& rhs);
+		xpath_node_set(xpath_node_set&& rhs) PUGIXML_NOEXCEPT;
+		xpath_node_set& operator=(xpath_node_set&& rhs) PUGIXML_NOEXCEPT;
 	#endif
 
 		// Get collection type
@@ -1384,7 +1400,7 @@ namespace pugi
 		xpath_node* _end;
 
 		void _assign(const_iterator begin, const_iterator end, type_t type);
-		void _move(xpath_node_set& rhs);
+		void _move(xpath_node_set& rhs) PUGIXML_NOEXCEPT;
 	};
 #endif
 
@@ -1442,7 +1458,7 @@ namespace std
 #endif
 
 /**
- * Copyright (c) 2006-2016 Arseny Kapoulkine
+ * Copyright (c) 2006-2018 Arseny Kapoulkine
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation

@@ -1,5 +1,5 @@
 if (FALSE) # XXX(kitware): VTK handles minimum CMake versions.
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8.12)
 endif ()
 
 project(pugixml)
@@ -62,34 +62,39 @@ if(BUILD_SHARED_LIBS)
 else()
 	add_library(pugixml STATIC ${HEADERS} ${SOURCES})
 endif()
+
+# Export symbols for shared library builds
+if(BUILD_SHARED_LIBS AND MSVC)
+	target_compile_definitions(pugixml PRIVATE "PUGIXML_API=__declspec(dllexport)")
+endif()
+
 else ()
-  vtk_add_library(vtkpugixml ${SOURCES} ${HEADERS})
-  if (NOT VTK_INSTALL_NO_DEVELOPMENT)
-    install(FILES
-      ${HEADERS}
-      DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtkpugixml/src"
-      COMPONENT Development)
-  endif()
-  target_include_directories(vtkpugixml
-    PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>")
+vtk_module_add_module(VTK::pugixml
+  SOURCES ${SOURCES}
+  HEADERS ${HEADERS}
+  HEADERS_SUBDIR "vtkpugixml/src")
+target_compile_features(pugixml
+  PUBLIC
+    cxx_std_11)
 endif ()
 
-# pugi already does export header management using PUGIXML_API
-
-if (FALSE) # XXX(kitware): VTK handles installation.
 # Enable C++11 long long for compilers that are capable of it
 if(NOT ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} STRLESS 3.1 AND ";${CMAKE_CXX_COMPILE_FEATURES};" MATCHES ";cxx_long_long_type;")
 	target_compile_features(pugixml PUBLIC cxx_long_long_type)
 endif()
 
-set_target_properties(pugixml PROPERTIES VERSION 1.8 SOVERSION 1)
+if (FALSE) # XXX(kitware): VTK handles installation.
+set_target_properties(pugixml PROPERTIES VERSION 1.9 SOVERSION 1)
 get_target_property(PUGIXML_VERSION_STRING pugixml VERSION)
 
 if(BUILD_PKGCONFIG)
 	# Install library into its own directory under LIBDIR
 	set(INSTALL_SUFFIX /pugixml-${PUGIXML_VERSION_STRING})
 endif()
+
+target_include_directories(pugixml PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src>
+	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}${INSTALL_SUFFIX}>)
 
 install(TARGETS pugixml EXPORT pugixml-config
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}${INSTALL_SUFFIX}
