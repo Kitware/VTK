@@ -298,6 +298,17 @@ set(_MPI_XL_Fortran_COMPILER_NAMES         mpixlf95   mpixlf95_r mpxlf95 mpxlf95
                                            mpixlf77   mpixlf77_r mpxlf77 mpxlf77_r
                                            mpixlf     mpixlf_r   mpxlf   mpxlf_r)
 
+# XXX(cmake-3.9.0): Support CMake 3.8.0 `separate_arguments` signature.
+if (CMAKE_VERSION VERSION_LESS "3.9.0")
+  if (WIN32 AND NOT CYGWIN)
+    set(_MPI_parse_kind WINDOWS_COMMAND)
+  else ()
+    set(_MPI_parse_kind UNIX_COMMAND)
+  endif ()
+else ()
+  set(_MPI_parse_kind NATIVE_COMMAND)
+endif ()
+
 # Prepend vendor-specific compiler wrappers to the list. If we don't know the compiler,
 # attempt all of them.
 # By attempting vendor-specific compiler names first, we should avoid situations where the compiler wrapper
@@ -332,9 +343,9 @@ unset(_MPIEXEC_NAMES_BASE)
 
 function (_MPI_check_compiler LANG QUERY_FLAG OUTPUT_VARIABLE RESULT_VARIABLE)
   if(DEFINED MPI_${LANG}_COMPILER_FLAGS)
-    separate_arguments(_MPI_COMPILER_WRAPPER_OPTIONS NATIVE_COMMAND "${MPI_${LANG}_COMPILER_FLAGS}")
+    separate_arguments(_MPI_COMPILER_WRAPPER_OPTIONS ${_MPI_parse_kind} "${MPI_${LANG}_COMPILER_FLAGS}")
   else()
-    separate_arguments(_MPI_COMPILER_WRAPPER_OPTIONS NATIVE_COMMAND "${MPI_COMPILER_FLAGS}")
+    separate_arguments(_MPI_COMPILER_WRAPPER_OPTIONS ${_MPI_parse_kind} "${MPI_COMPILER_FLAGS}")
   endif()
   execute_process(
     COMMAND ${MPI_${LANG}_COMPILER} ${_MPI_COMPILER_WRAPPER_OPTIONS} ${QUERY_FLAG}
@@ -477,7 +488,7 @@ function (_MPI_interrogate_compiler lang)
   if (NOT MPI_ALL_INCLUDE_PATHS)
     _MPI_check_compiler(${LANG} "-showme:incdirs" MPI_INCDIRS_CMDLINE MPI_INCDIRS_COMPILER_RETURN)
     if(MPI_INCDIRS_COMPILER_RETURN)
-      separate_arguments(MPI_ALL_INCLUDE_PATHS NATIVE_COMMAND "${MPI_INCDIRS_CMDLINE}")
+      separate_arguments(MPI_ALL_INCLUDE_PATHS ${_MPI_parse_kind} "${MPI_INCDIRS_CMDLINE}")
     endif()
   endif()
 
@@ -495,7 +506,7 @@ function (_MPI_interrogate_compiler lang)
   if (NOT MPI_ALL_LINK_PATHS)
     _MPI_check_compiler(${LANG} "-showme:libdirs" MPI_LIBDIRS_CMDLINE MPI_LIBDIRS_COMPILER_RETURN)
     if(MPI_LIBDIRS_COMPILER_RETURN)
-      separate_arguments(MPI_ALL_LINK_PATHS NATIVE_COMMAND "${MPI_LIBDIRS_CMDLINE}")
+      separate_arguments(MPI_ALL_LINK_PATHS ${_MPI_parse_kind} "${MPI_LIBDIRS_CMDLINE}")
     endif()
   endif()
 
@@ -1096,7 +1107,7 @@ if(NOT MPI_IGNORE_LEGACY_VARIABLES)
     unset(MPI_${LANG}_EXTRA_COMPILE_DEFINITIONS)
     unset(MPI_${LANG}_EXTRA_COMPILE_OPTIONS)
     if(MPI_${LANG}_COMPILE_FLAGS)
-      separate_arguments(MPI_SEPARATE_FLAGS NATIVE_COMMAND "${MPI_${LANG}_COMPILE_FLAGS}")
+      separate_arguments(MPI_SEPARATE_FLAGS ${_MPI_parse_kind} "${MPI_${LANG}_COMPILE_FLAGS}")
       foreach(_MPI_FLAG IN LISTS MPI_SEPARATE_FLAGS)
         if("${_MPI_FLAG}" MATCHES "^ *[-/D]([^ ]+)")
           list(APPEND MPI_${LANG}_EXTRA_COMPILE_DEFINITIONS "${CMAKE_MATCH_1}")

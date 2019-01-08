@@ -342,7 +342,7 @@ endif ()
 
 # We can't check for the target since we're before VTK::CommonDataModel in the
 # dependency graph.
-if (VTK_MODULE_ENABLE_VTK::CommonDataModel)
+if (VTK_MODULE_ENABLE_VTK_CommonDataModel)
   list(APPEND vtk_include_dirs
     "${CMAKE_CURRENT_BINARY_DIR}/../DataModel")
   set_property(SOURCE vtkInformationDataObjectKey.cxx
@@ -470,9 +470,11 @@ vtk_module_add_module(VTK::CommonCore
   SOURCES           ${sources}
   TEMPLATES         ${templates}
   HEADERS           ${headers})
-vtk_module_include(VTK::CommonCore
-  PRIVATE
-    ${vtk_include_dirs})
+if (vtk_include_dirs)
+  vtk_module_include(VTK::CommonCore
+    PRIVATE
+      ${vtk_include_dirs})
+endif ()
 vtk_module_link(VTK::CommonCore
   PUBLIC
     Threads::Threads

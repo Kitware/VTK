@@ -247,6 +247,9 @@ function (vtk_module_wrap_java)
     _vtk_module_get_module_property("${_vtk_java_module}"
       PROPERTY  "library_name"
       VARIABLE  _vtk_java_exclude_wrap)
+    _vtk_module_get_module_property("${_vtk_java_module}"
+      PROPERTY  "library_name"
+      VARIABLE  _vtk_java_library_name)
     _vtk_module_wrap_java_library("${_vtk_java_library_name}" "${_vtk_java_module}")
 
     if (TARGET "${_vtk_java_library_name}Java")

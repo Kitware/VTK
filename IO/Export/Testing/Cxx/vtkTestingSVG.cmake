@@ -24,7 +24,7 @@ function(vtk_add_svg_test)
     )
     set_tests_properties("${_vtk_build_test}Cxx-${TName}-RasterizePNG"
       PROPERTIES
-        DEPENDS "vtkIOExportCxx-${TName}"
+        DEPENDS "${_vtk_build_test}Cxx-${TName}"
         REQUIRED_FILES "${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}.svg"
         LABELS "${vtkIOExport_TEST_LABELS}"
     )
@@ -46,9 +46,9 @@ function(vtk_add_svg_test)
         -V "DATA{../Data/Baseline/${TName}-rasterRef.png,:}"
         --test-file "${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}-raster.png"
     )
-    set_tests_properties("vtkIOExportCxx-${TName}-VerifyRasterizedPNG"
+    set_tests_properties("${_vtk_build_test}Cxx-${TName}-VerifyRasterizedPNG"
       PROPERTIES
-        DEPENDS "vtkIOExportCxx-${TName}-RasterizePNG"
+        DEPENDS "${_vtk_build_test}Cxx-${TName}-RasterizePNG"
         REQUIRED_FILES "${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}-raster.png"
         LABELS "${_vtk_build_test_labels}"
         )

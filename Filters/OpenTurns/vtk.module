@@ -10,6 +10,8 @@ DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel
   VTK::FiltersCore
+PRIVATE_DEPENDS
+  VTK::ImagingCore
 TEST_DEPENDS
   VTK::IOInfovis
   VTK::RenderingContextOpenGL2

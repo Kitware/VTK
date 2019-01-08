@@ -21,7 +21,7 @@ vtk_object_factory_configure(
 vtk_module_add_module(VTK::FiltersOpenTurns
   CLASSES ${classes}
   SOURCES ${vtk_object_factory_source}
-  PRIVATE ${vtk_object_factory_header})
+  PRIVATE_HEADERS ${vtk_object_factory_header})
 
 vtk_module_link(VTK::FiltersOpenTurns
   PRIVATE
