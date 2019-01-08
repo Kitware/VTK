@@ -167,6 +167,51 @@ namespace diy
       void*             block_;
       Link*             link_;
       IExchangeInfo*    iexchange_;         // not used for iexchange presently, but later could trigger some special behavior
+
+    public:
+      template<class T>
+      void enqueue(const BlockID&     to,
+              const T&                x,
+              void (*save)(BinaryBuffer&, const T&) = &::diy::save<T>) const
+      {
+          diy::Master::Proxy::enqueue(to, x, save);
+          if (iexchange_)
+              master()->icommunicate(iexchange_);
+      }
+
+      template<class T>
+      void enqueue(const BlockID&     to,
+              const T*                x,
+              size_t                  n,
+              void (*save)(BinaryBuffer&, const T&) = &::diy::save<T>) const
+      {
+          diy::Master::Proxy::enqueue(to, x, n, save);
+          if (iexchange_)
+              master()->icommunicate(iexchange_);
+      }
+
+      template<class T>
+      void dequeue(int                from,
+              T&                      x,
+              void (*load)(BinaryBuffer&, T&) = &::diy::load<T>) const
+      {
+          // TODO: uncomment if necessary, try first without icommunicating on dequeue
+//           if (iexchange_)
+//               master()->icommunicate(iexchange_);
+          diy::Master::Proxy::dequeue(from, x, load);
+      }
+
+      template<class T>
+      void dequeue(int                from,
+              T*                      x,
+              size_t                  n,
+              void (*load)(BinaryBuffer&, T&) = &::diy::load<T>) const
+      {
+          // TODO: uncomment if necessary, try first without icommunicating on dequeue
+//           if (iexchange_)
+//               master()->icommunicate(iexchange_);
+          diy::Master::Proxy::dequeue(from, x, n, load);
+      }
   };
 }                                           // diy namespace
 

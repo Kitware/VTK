@@ -670,6 +670,8 @@ void
 diy::Master::
 iexchange_(const ICallback<Block>& f)
 {
+    auto scoped = prof.scoped("iexchange");
+
     // prepare for next round
     incoming_.erase(exchange_round_);
     ++exchange_round_;
@@ -684,10 +686,13 @@ iexchange_(const ICallback<Block>& f)
     {
         for (size_t i = 0; i < size(); i++)     // for all blocks
         {
+
             icommunicate(&iexchange);            // TODO: separate comm thread std::thread t(icommunicate);
             ProxyWithLink cp = proxy(i, &iexchange);
 
+            prof << "callback";
             bool done = f(block<Block>(i), cp);
+            prof >> "callback";
 
             int nundeq_after = 0;
             int nunenq_after = 0;
@@ -731,6 +736,7 @@ void
 diy::Master::
 comm_exchange(GidSendOrder& gid_order, IExchangeInfo* iexchange)
 {
+    auto scoped = prof.scoped("comm-exchange");
     send_outgoing_queues(gid_order, false, iexchange);
     while(nudge());                   // kick requests
     check_incoming_queues(iexchange);
@@ -832,6 +838,8 @@ void
 diy::Master::
 icommunicate(IExchangeInfo* iexchange)
 {
+    auto scoped = prof.scoped("icommunicate");
+
     log->debug("Entering icommunicate()");
 
     // lock out other threads
@@ -861,6 +869,8 @@ send_outgoing_queues(GidSendOrder&   gid_order,
                      bool            remote,                     // TODO: are remote and iexchange mutually exclusive? If so, use single enum?
                      IExchangeInfo*  iexchange)
 {
+    auto scoped = prof.scoped("send-outgoing-queues");
+
     while (inflight_sends().size() < gid_order.limit && !gid_order.empty())
     {
         int from = gid_order.pop();
@@ -1071,6 +1081,8 @@ void
 diy::Master::
 check_incoming_queues(IExchangeInfo* iexchange)
 {
+    auto scoped = prof.scoped("check-incoming-queues");
+
     mpi::optional<mpi::status> ostatus = comm_.iprobe(mpi::any_source, mpi::any_tag);
     while (ostatus)
     {

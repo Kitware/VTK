@@ -74,7 +74,9 @@ file(const communicator& comm__, const std::string& filename, int mode)
 : comm_(comm__)
 {
 #ifndef DIY_NO_MPI
-  MPI_File_open(comm__, const_cast<char*>(filename.c_str()), mode, MPI_INFO_NULL, &fh);
+  int ret = MPI_File_open(comm__, const_cast<char*>(filename.c_str()), mode, MPI_INFO_NULL, &fh);
+  if (ret)
+      throw std::runtime_error("DIY cannot open file: " + filename);
 #else
   DIY_UNUSED(comm__);
   DIY_UNUSED(filename);
