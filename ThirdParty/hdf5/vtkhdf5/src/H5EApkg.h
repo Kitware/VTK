@@ -396,7 +396,7 @@ H5_DLL herr_t H5EA__destroy_flush_depend(H5AC_info_t *parent_entry,
 /* Header routines */
 H5_DLL H5EA_hdr_t *H5EA__hdr_alloc(H5F_t *f);
 H5_DLL herr_t H5EA__hdr_init(H5EA_hdr_t *hdr, void *ctx_udata);
-H5_DLL haddr_t H5EA__hdr_create(H5F_t *f, hid_t dxpl_id, const H5EA_create_t *cparam,
+H5_DLL haddr_t H5EA__hdr_create(H5F_t *f, const H5EA_create_t *cparam,
     void *ctx_udata);
 H5_DLL void *H5EA__hdr_alloc_elmts(H5EA_hdr_t *hdr, size_t nelmts);
 H5_DLL herr_t H5EA__hdr_free_elmts(H5EA_hdr_t *hdr, size_t nelmts, void *elmts);
@@ -405,71 +405,65 @@ H5_DLL herr_t H5EA__hdr_decr(H5EA_hdr_t *hdr);
 H5_DLL herr_t H5EA__hdr_fuse_incr(H5EA_hdr_t *hdr);
 H5_DLL size_t H5EA__hdr_fuse_decr(H5EA_hdr_t *hdr);
 H5_DLL herr_t H5EA__hdr_modified(H5EA_hdr_t *hdr);
-H5_DLL H5EA_hdr_t *H5EA__hdr_protect(H5F_t *f, hid_t dxpl_id, haddr_t ea_addr,
+H5_DLL H5EA_hdr_t *H5EA__hdr_protect(H5F_t *f, haddr_t ea_addr,
     void *ctx_udata, unsigned flags);
-H5_DLL herr_t H5EA__hdr_unprotect(H5EA_hdr_t *hdr, hid_t dxpl_id, unsigned cache_flags);
-H5_DLL herr_t H5EA__hdr_delete(H5EA_hdr_t *hdr, hid_t dxpl_id);
+H5_DLL herr_t H5EA__hdr_unprotect(H5EA_hdr_t *hdr, unsigned cache_flags);
+H5_DLL herr_t H5EA__hdr_delete(H5EA_hdr_t *hdr);
 H5_DLL herr_t H5EA__hdr_dest(H5EA_hdr_t *hdr);
 
 /* Index block routines */
 H5_DLL H5EA_iblock_t *H5EA__iblock_alloc(H5EA_hdr_t *hdr);
-H5_DLL haddr_t H5EA__iblock_create(H5EA_hdr_t *hdr, hid_t dxpl_id,
-    hbool_t *stats_changed);
-H5_DLL H5EA_iblock_t *H5EA__iblock_protect(H5EA_hdr_t *hdr, hid_t dxpl_id,
-    unsigned flags);
-H5_DLL herr_t H5EA__iblock_unprotect(H5EA_iblock_t *iblock, hid_t dxpl_id,
-    unsigned cache_flags);
-H5_DLL herr_t H5EA__iblock_delete(H5EA_hdr_t *hdr, hid_t dxpl_id);
+H5_DLL haddr_t H5EA__iblock_create(H5EA_hdr_t *hdr, hbool_t *stats_changed);
+H5_DLL H5EA_iblock_t *H5EA__iblock_protect(H5EA_hdr_t *hdr, unsigned flags);
+H5_DLL herr_t H5EA__iblock_unprotect(H5EA_iblock_t *iblock, unsigned cache_flags);
+H5_DLL herr_t H5EA__iblock_delete(H5EA_hdr_t *hdr);
 H5_DLL herr_t H5EA__iblock_dest(H5EA_iblock_t *iblock);
 
 /* Super block routines */
 H5_DLL H5EA_sblock_t *H5EA__sblock_alloc(H5EA_hdr_t *hdr, H5EA_iblock_t *parent,
     unsigned sblk_idx);
-H5_DLL haddr_t H5EA__sblock_create(H5EA_hdr_t *hdr, hid_t dxpl_id,
-    H5EA_iblock_t *parent, hbool_t *stats_changed, unsigned sblk_idx);
-H5_DLL H5EA_sblock_t *H5EA__sblock_protect(H5EA_hdr_t *hdr, hid_t dxpl_id,
-    H5EA_iblock_t *parent, haddr_t sblk_addr, unsigned sblk_idx, 
-    unsigned flags);
-H5_DLL herr_t H5EA__sblock_unprotect(H5EA_sblock_t *sblock, hid_t dxpl_id,
-    unsigned cache_flags);
-H5_DLL herr_t H5EA__sblock_delete(H5EA_hdr_t *hdr, hid_t dxpl_id,
-    H5EA_iblock_t *parent, haddr_t sblk_addr, unsigned sblk_idx);
+H5_DLL haddr_t H5EA__sblock_create(H5EA_hdr_t *hdr, H5EA_iblock_t *parent,
+    hbool_t *stats_changed, unsigned sblk_idx);
+H5_DLL H5EA_sblock_t *H5EA__sblock_protect(H5EA_hdr_t *hdr, H5EA_iblock_t *parent,
+    haddr_t sblk_addr, unsigned sblk_idx, unsigned flags);
+H5_DLL herr_t H5EA__sblock_unprotect(H5EA_sblock_t *sblock, unsigned cache_flags);
+H5_DLL herr_t H5EA__sblock_delete(H5EA_hdr_t *hdr, H5EA_iblock_t *parent,
+    haddr_t sblk_addr, unsigned sblk_idx);
 H5_DLL herr_t H5EA__sblock_dest(H5EA_sblock_t *sblock);
 
 /* Data block routines */
 H5_DLL H5EA_dblock_t *H5EA__dblock_alloc(H5EA_hdr_t *hdr, void *parent,
     size_t nelmts);
-H5_DLL haddr_t H5EA__dblock_create(H5EA_hdr_t *hdr, hid_t dxpl_id, void *parent,
+H5_DLL haddr_t H5EA__dblock_create(H5EA_hdr_t *hdr, void *parent,
     hbool_t *stats_changed, hsize_t dblk_off, size_t nelmts);
 H5_DLL unsigned H5EA__dblock_sblk_idx(const H5EA_hdr_t *hdr, hsize_t idx);
-H5_DLL H5EA_dblock_t *H5EA__dblock_protect(H5EA_hdr_t *hdr, hid_t dxpl_id,
-    void *parent, haddr_t dblk_addr, size_t dblk_nelmts, unsigned flags);
-H5_DLL herr_t H5EA__dblock_unprotect(H5EA_dblock_t *dblock, hid_t dxpl_id,
-    unsigned cache_flags);
-H5_DLL herr_t H5EA__dblock_delete(H5EA_hdr_t *hdr, hid_t dxpl_id, void *parent,
+H5_DLL H5EA_dblock_t *H5EA__dblock_protect(H5EA_hdr_t *hdr, void *parent,
+    haddr_t dblk_addr, size_t dblk_nelmts, unsigned flags);
+H5_DLL herr_t H5EA__dblock_unprotect(H5EA_dblock_t *dblock, unsigned cache_flags);
+H5_DLL herr_t H5EA__dblock_delete(H5EA_hdr_t *hdr, void *parent,
     haddr_t dblk_addr, size_t dblk_nelmts);
 H5_DLL herr_t H5EA__dblock_dest(H5EA_dblock_t *dblock);
 
 /* Data block page routines */
 H5_DLL H5EA_dblk_page_t *H5EA__dblk_page_alloc(H5EA_hdr_t *hdr, H5EA_sblock_t *parent);
-H5_DLL herr_t H5EA__dblk_page_create(H5EA_hdr_t *hdr, hid_t dxpl_id,
-    H5EA_sblock_t *parent, haddr_t addr);
-H5_DLL H5EA_dblk_page_t *H5EA__dblk_page_protect(H5EA_hdr_t *hdr, hid_t dxpl_id,
+H5_DLL herr_t H5EA__dblk_page_create(H5EA_hdr_t *hdr, H5EA_sblock_t *parent,
+    haddr_t addr);
+H5_DLL H5EA_dblk_page_t *H5EA__dblk_page_protect(H5EA_hdr_t *hdr, 
     H5EA_sblock_t *parent, haddr_t dblk_page_addr, unsigned flags);
 H5_DLL herr_t H5EA__dblk_page_unprotect(H5EA_dblk_page_t *dblk_page,
-    hid_t dxpl_id, unsigned cache_flags);
+    unsigned cache_flags);
 H5_DLL herr_t H5EA__dblk_page_dest(H5EA_dblk_page_t *dblk_page);
 
 /* Debugging routines for dumping file structures */
-H5_DLL herr_t H5EA__hdr_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr,
+H5_DLL herr_t H5EA__hdr_debug(H5F_t *f, haddr_t addr,
     FILE *stream, int indent, int fwidth, const H5EA_class_t *cls, haddr_t obj_addr);
-H5_DLL herr_t H5EA__iblock_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr,
+H5_DLL herr_t H5EA__iblock_debug(H5F_t *f, haddr_t addr,
     FILE *stream, int indent, int fwidth, const H5EA_class_t *cls,
     haddr_t hdr_addr, haddr_t obj_addr);
-H5_DLL herr_t H5EA__sblock_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr,
+H5_DLL herr_t H5EA__sblock_debug(H5F_t *f, haddr_t addr,
     FILE *stream, int indent, int fwidth, const H5EA_class_t *cls,
     haddr_t hdr_addr, unsigned sblk_idx, haddr_t obj_addr);
-H5_DLL herr_t H5EA__dblock_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr,
+H5_DLL herr_t H5EA__dblock_debug(H5F_t *f, haddr_t addr,
     FILE *stream, int indent, int fwidth, const H5EA_class_t *cls,
     haddr_t hdr_addr, size_t dblk_nelmts, haddr_t obj_addr);
 

@@ -50,7 +50,7 @@ typedef int H5Z_filter_t;
                                          * unlimited amount, but currently each
                                          * filter uses a bit in a 32-bit field,
                                          * so the format would have to be
-                                         * changed to accomodate that)
+                                         * changed to accommodate that)
                                          */
 
 /* Flags for filter definition (stored) */
@@ -129,8 +129,8 @@ typedef H5Z_cb_return_t (*H5Z_filter_func_t)(H5Z_filter_t filter, void* buf,
 
 /* Structure for filter callback property */
 typedef struct H5Z_cb_t {
-    H5Z_filter_func_t func;
-    void*              op_data;
+    H5Z_filter_func_t   func;
+    void                *op_data;
 } H5Z_cb_t;
 
 #ifdef __cplusplus
@@ -206,14 +206,14 @@ typedef size_t (*H5Z_func_t)(unsigned int flags, size_t cd_nelmts,
  * contain a pointers to the filter function and timing statistics.
  */
 typedef struct H5Z_class2_t {
-    int version;                /* Version number of the H5Z_class_t struct */
-    H5Z_filter_t id;		/* Filter ID number			     */
-    unsigned encoder_present;   /* Does this filter have an encoder? */
-    unsigned decoder_present;   /* Does this filter have a decoder? */
-    const char	*name;		/* Comment for debugging		     */
-    H5Z_can_apply_func_t can_apply; /* The "can apply" callback for a filter */
-    H5Z_set_local_func_t set_local; /* The "set local" callback for a filter */
-    H5Z_func_t filter;		/* The actual filter function		     */
+    int version;                    /* Version number of the H5Z_class_t struct     */
+    H5Z_filter_t id;                /* Filter ID number                             */
+    unsigned encoder_present;       /* Does this filter have an encoder?            */
+    unsigned decoder_present;       /* Does this filter have a decoder?             */
+    const char	*name;              /* Comment for debugging                        */
+    H5Z_can_apply_func_t can_apply; /* The "can apply" callback for a filter        */
+    H5Z_set_local_func_t set_local; /* The "set local" callback for a filter        */
+    H5Z_func_t filter;              /* The actual filter function                   */
 } H5Z_class2_t;
 
 H5_DLL herr_t H5Zregister(const void *cls);

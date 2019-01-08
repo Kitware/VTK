@@ -32,14 +32,14 @@
 
 
 /* PRIVATE PROTOTYPES */
-static void *H5O_name_decode(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh,
-    unsigned mesg_flags, unsigned *ioflags, const uint8_t *p);
+static void *H5O__name_decode(H5F_t *f, H5O_t *open_oh, unsigned mesg_flags,
+    unsigned *ioflags, size_t p_size, const uint8_t *p);
 static herr_t H5O_name_encode(H5F_t *f, hbool_t disable_shared, uint8_t *p, const void *_mesg);
 static void *H5O_name_copy(const void *_mesg, void *_dest);
 static size_t H5O_name_size(const H5F_t *f, hbool_t disable_shared, const void *_mesg);
-static herr_t H5O_name_reset(void *_mesg);
-static herr_t H5O_name_debug(H5F_t *f, hid_t dxpl_id, const void *_mesg, FILE * stream,
-			     int indent, int fwidth);
+static herr_t H5O__name_reset(void *_mesg);
+static herr_t H5O__name_debug(H5F_t *f, const void *_mesg, FILE * stream,
+    int indent, int fwidth);
 
 /* This message derives from H5O message class */
 const H5O_msg_class_t H5O_MSG_NAME[1] = {{
@@ -47,11 +47,11 @@ const H5O_msg_class_t H5O_MSG_NAME[1] = {{
     "name",                 	/*message name for debugging    */
     sizeof(H5O_name_t),     	/*native message size           */
     0,				/* messages are sharable?       */
-    H5O_name_decode,        	/*decode message                */
+    H5O__name_decode,        	/*decode message                */
     H5O_name_encode,        	/*encode message                */
     H5O_name_copy,          	/*copy the native value         */
     H5O_name_size,          	/*raw message size              */
-    H5O_name_reset,         	/*free internal memory          */
+    H5O__name_reset,         	/*free internal memory          */
     NULL,			/* free method			*/
     NULL,		        /* file delete method		*/
     NULL,			/* link method			*/
@@ -62,12 +62,12 @@ const H5O_msg_class_t H5O_MSG_NAME[1] = {{
     NULL,			/* post copy native value to file    */
     NULL,			/* get creation index		*/
     NULL,			/* set creation index		*/
-    H5O_name_debug         	/*debug the message             */
+    H5O__name_debug         	/*debug the message             */
 }};
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_name_decode
+ * Function:    H5O__name_decode
  *
  * Purpose:     Decode a name message and return a pointer to a new
  *              native message struct.
@@ -83,13 +83,14 @@ const H5O_msg_class_t H5O_MSG_NAME[1] = {{
  *-------------------------------------------------------------------------
  */
 static void *
-H5O_name_decode(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, H5O_t H5_ATTR_UNUSED *open_oh,
-    unsigned H5_ATTR_UNUSED mesg_flags, unsigned H5_ATTR_UNUSED *ioflags, const uint8_t *p)
+H5O__name_decode(H5F_t H5_ATTR_UNUSED *f, H5O_t H5_ATTR_UNUSED *open_oh,
+    unsigned H5_ATTR_UNUSED mesg_flags, unsigned H5_ATTR_UNUSED *ioflags,
+    size_t H5_ATTR_UNUSED p_size, const uint8_t *p)
 {
     H5O_name_t          *mesg;
     void                *ret_value = NULL;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(f);
@@ -105,13 +106,12 @@ H5O_name_decode(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, H5O_t H5_
     ret_value = mesg;
 
 done:
-    if(NULL == ret_value) {
+    if(NULL == ret_value)
         if(mesg)
             mesg = (H5O_name_t *)H5MM_xfree(mesg);
-    } /* end if */
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_name_decode() */
+} /* end H5O__name_decode() */
 
 
 /*-------------------------------------------------------------------------
@@ -237,7 +237,7 @@ H5O_name_size(const H5F_t H5_ATTR_UNUSED *f, hbool_t H5_ATTR_UNUSED disable_shar
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_name_reset
+ * Function:    H5O__name_reset
  *
  * Purpose:     Frees internal pointers and resets the message to an
  *              initial state.
@@ -248,16 +248,14 @@ H5O_name_size(const H5F_t H5_ATTR_UNUSED *f, hbool_t H5_ATTR_UNUSED disable_shar
  *              matzke@llnl.gov
  *              Aug 12 1997
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_name_reset(void *_mesg)
+H5O__name_reset(void *_mesg)
 {
     H5O_name_t             *mesg = (H5O_name_t *) _mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* check args */
     HDassert(mesg);
@@ -266,11 +264,11 @@ H5O_name_reset(void *_mesg)
     mesg->s = (char *)H5MM_xfree(mesg->s);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5O_name_reset() */
+} /* end H5O__name_reset() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_name_debug
+ * Function:    H5O__name_debug
  *
  * Purpose:     Prints debugging info for the message.
  *
@@ -285,8 +283,8 @@ H5O_name_reset(void *_mesg)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_name_debug(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, const void *_mesg, FILE *stream,
-	       int indent, int fwidth)
+H5O__name_debug(H5F_t H5_ATTR_UNUSED *f, const void *_mesg, FILE *stream,
+    int indent, int fwidth)
 {
     const H5O_name_t	*mesg = (const H5O_name_t *)_mesg;
 
@@ -304,4 +302,5 @@ H5O_name_debug(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, const void
             mesg->s);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-}
+} /* end H5O__name_debug() */
+

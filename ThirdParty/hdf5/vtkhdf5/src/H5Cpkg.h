@@ -58,7 +58,7 @@
  * We maintain doubly linked lists of instances of H5C_cache_entry_t for a
  * variety of reasons -- protected list, LRU list, and the clean and dirty
  * LRU lists at present.  The following macros support linking and unlinking
- * of instances of H5C_cache_entry_t by both their regular and auxilary next
+ * of instances of H5C_cache_entry_t by both their regular and auxiliary next
  * and previous pointers.
  *
  * The size and length fields are also maintained.
@@ -2006,7 +2006,7 @@ if ( ( (cache_ptr)->index_size !=                                           \
  *		a bit more performance out of the cache.
  *
  *		At least for the first cut, I am leaving the comments and
- *		white space in the macro.  If they cause dificulties with
+ *		white space in the macro.  If they cause difficulties with
  *		the pre-processor, I'll have to remove them.
  *
  *		JRM - 7/28/04
@@ -2117,7 +2117,7 @@ if ( ( (cache_ptr)->index_size !=                                           \
  *		a bit more performance out of the cache.
  *
  *		At least for the first cut, I am leaving the comments and
- *		white space in the macro.  If they cause dificulties with
+ *		white space in the macro.  If they cause difficulties with
  *		pre-processor, I'll have to remove them.
  *
  *		JRM - 7/28/04
@@ -2375,7 +2375,7 @@ if ( ( (cache_ptr)->index_size !=                                           \
  *		a bit more performance out of the cache.
  *
  *		At least for the first cut, I am leaving the comments and
- *		white space in the macro.  If they cause dificulties with
+ *		white space in the macro.  If they cause difficulties with
  *		pre-processor, I'll have to remove them.
  *
  *		JRM - 7/28/04
@@ -2513,7 +2513,7 @@ if ( ( (cache_ptr)->index_size !=                                           \
  *		a bit more performance out of the cache.
  *
  *		At least for the first cut, I am leaving the comments and
- *		white space in the macro.  If they cause dificulties with
+ *		white space in the macro.  If they cause difficulties with
  *		pre-processor, I'll have to remove them.
  *
  *		JRM - 7/28/04
@@ -3057,7 +3057,7 @@ if ( ( (cache_ptr)->index_size !=                                           \
  *		squeeze a bit more performance out of the cache.
  *
  *		At least for the first cut, I am leaving the comments and
- *		white space in the macro.  If they cause dificulties with
+ *		white space in the macro.  If they cause difficulties with
  *		pre-processor, I'll have to remove them.
  *
  *		JRM - 7/28/04
@@ -3892,7 +3892,7 @@ typedef struct H5C_tag_info_t {
  *      2) A pinned entry can be accessed or modified at any time.
  *         This places an additional burden on the associated pre-serialize
  *	   and serialize callbacks, which must ensure the the entry is in 
- *	   a consistant state before creating an image of it.
+ *	   a consistent state before creating an image of it.
  *
  *      3) A pinned entry can be marked as dirty (and possibly
  *         change size) while it is unprotected.
@@ -4604,7 +4604,7 @@ typedef struct H5C_tag_info_t {
  * improper behavior if the next entry in the list is the target of one on 
  * these operations.
  *
- * The following fields are use to count such occurances.  They are used 
+ * The following fields are use to count such occurrences.  They are used 
  * both in tests (to verify that the scan has been restarted), and to 
  * obtain estimates of how frequently these restarts occur.
  *
@@ -4624,7 +4624,7 @@ typedef struct H5C_tag_info_t {
  *		than the target entry as the result of call(s) to the
  *		pre_serialize or serialize callbacks.
  *
- *		Note that at present, this condition can only be triggerd
+ *		Note that at present, this condition can only be triggered
  *		by a call to H5C_serialize_single_entry().
  *
  * The remaining stats are collected only when both H5C_COLLECT_CACHE_STATS
@@ -4746,6 +4746,7 @@ struct H5C_t {
     H5C_cache_entry_t *		LRU_head_ptr;
     H5C_cache_entry_t *		LRU_tail_ptr;
 
+#if H5C_MAINTAIN_CLEAN_AND_DIRTY_LRU_LISTS
     /* Fields for clean LRU list of entries */
     uint32_t                    cLRU_list_len;
     size_t                      cLRU_list_size;
@@ -4757,6 +4758,7 @@ struct H5C_t {
     size_t                      dLRU_list_size;
     H5C_cache_entry_t *		dLRU_head_ptr;
     H5C_cache_entry_t *	        dLRU_tail_ptr;
+#endif /* H5C_MAINTAIN_CLEAN_AND_DIRTY_LRU_LISTS */
 
 #ifdef H5_HAVE_PARALLEL
     /* Fields for collective metadata reads */
@@ -4920,31 +4922,29 @@ typedef int (*H5C_tag_iter_cb_t)(H5C_cache_entry_t *entry, void *ctx);
 /******************************/
 /* Package Private Prototypes */
 /******************************/
-H5_DLL herr_t H5C__prep_image_for_file_close(H5F_t *f, hid_t dxpl_id,
-    hbool_t *image_generated);
-H5_DLL herr_t H5C__deserialize_prefetched_entry(H5F_t *f, hid_t dxpl_id,
-    H5C_t * cache_ptr, H5C_cache_entry_t** entry_ptr_ptr, 
-    const H5C_class_t * type, haddr_t addr, void * udata);
+H5_DLL herr_t H5C__prep_image_for_file_close(H5F_t *f, hbool_t *image_generated);
+H5_DLL herr_t H5C__deserialize_prefetched_entry(H5F_t *f, H5C_t * cache_ptr,
+    H5C_cache_entry_t** entry_ptr_ptr, const H5C_class_t * type, haddr_t addr,
+    void * udata);
 
 /* General routines */
-H5_DLL herr_t H5C__flush_single_entry(H5F_t *f, hid_t dxpl_id,
-    H5C_cache_entry_t *entry_ptr, unsigned flags);
-H5_DLL herr_t H5C__generate_cache_image(H5F_t *f, hid_t dxpl_id, H5C_t *cache_ptr);
-H5_DLL herr_t H5C__load_cache_image(H5F_t *f, hid_t dxpl_id);
+H5_DLL herr_t H5C__flush_single_entry(H5F_t *f, H5C_cache_entry_t *entry_ptr,
+    unsigned flags);
+H5_DLL herr_t H5C__generate_cache_image(H5F_t *f, H5C_t *cache_ptr);
+H5_DLL herr_t H5C__load_cache_image(H5F_t *f);
 H5_DLL herr_t H5C__mark_flush_dep_serialized(H5C_cache_entry_t * entry_ptr);
 H5_DLL herr_t H5C__mark_flush_dep_unserialized(H5C_cache_entry_t * entry_ptr);
-H5_DLL herr_t H5C__make_space_in_cache(H5F_t * f, hid_t dxpl_id,
-    size_t  space_needed, hbool_t write_permitted);
-H5_DLL herr_t H5C__flush_marked_entries(H5F_t * f, hid_t dxpl_id);
+H5_DLL herr_t H5C__make_space_in_cache(H5F_t * f, size_t  space_needed,
+    hbool_t write_permitted);
+H5_DLL herr_t H5C__flush_marked_entries(H5F_t * f);
 H5_DLL herr_t H5C__generate_image(H5F_t *f, H5C_t *cache_ptr,
-    H5C_cache_entry_t *entry_ptr, hid_t dxpl_id);
-H5_DLL herr_t H5C__serialize_cache(H5F_t *f, hid_t dxpl_id);
+    H5C_cache_entry_t *entry_ptr);
+H5_DLL herr_t H5C__serialize_cache(H5F_t *f);
 H5_DLL herr_t H5C__iter_tagged_entries(H5C_t *cache, haddr_t tag, hbool_t match_global,
     H5C_tag_iter_cb_t cb, void *cb_ctx);
 
 /* Routines for operating on entry tags */
-H5_DLL herr_t H5C__tag_entry(H5C_t * cache_ptr, H5C_cache_entry_t * entry_ptr,
-    hid_t dxpl_id);
+H5_DLL herr_t H5C__tag_entry(H5C_t * cache_ptr, H5C_cache_entry_t * entry_ptr);
 H5_DLL herr_t H5C__untag_entry(H5C_t *cache, H5C_cache_entry_t *entry);
 
 /* Testing functions */

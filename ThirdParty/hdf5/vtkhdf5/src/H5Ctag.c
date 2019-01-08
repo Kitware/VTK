@@ -37,6 +37,7 @@
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5ACprivate.h"        /* Metadata cache                       */
 #include "H5Cpkg.h"		/* Cache				*/
+#include "H5CXprivate.h"        /* API Contexts                         */
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5Fpkg.h"		/* Files				*/
 #include "H5Iprivate.h"		/* IDs			  		*/
@@ -54,8 +55,7 @@
 
 /* Typedef for tagged entry iterator callback context - evict tagged entries */
 typedef struct {
-    H5F_t * f;                          /* File pointer for evicting entry */
-    hid_t dxpl_id;                      /* DXPL for evicting entry */
+    H5F_t *f;                           /* File pointer for evicting entry */
     hbool_t evicted_entries_last_pass;  /* Flag to indicate that an entry 
                                          * was evicted when iterating over 
                                          * cache 
@@ -72,8 +72,7 @@ typedef struct {
 
 /* Typedef for tagged entry iterator callback context - expunge tag type metadata */
 typedef struct {
-    H5F_t * f;                          /* File pointer for evicting entry */
-    hid_t dxpl_id;                      /* DXPL for evicting entry */
+    H5F_t *f;                           /* File pointer for evicting entry */
     int type_id;                        /* Cache entry type to expunge */
     unsigned flags;                     /* Flags for expunging entry */
 } H5C_tag_iter_ettm_ctx_t;
@@ -178,7 +177,7 @@ H5C_get_ignore_tags(const H5C_t *cache_ptr)
  *
  * Function:    H5C__tag_entry
  *
- * Purpose:     Tags an entry with the provided tag (contained in the dxpl_id).
+ * Purpose:     Tags an entry with the provided tag (contained in the API context).
  *              If sanity checking is enabled, this function will perform 
  *              validation that a proper tag is contained within the provided 
  *              data access property list id before application.
@@ -191,9 +190,8 @@ H5C_get_ignore_tags(const H5C_t *cache_ptr)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C__tag_entry(H5C_t *cache, H5C_cache_entry_t *entry, hid_t dxpl_id)
+H5C__tag_entry(H5C_t *cache, H5C_cache_entry_t *entry)
 {
-    H5P_genplist_t *dxpl;       /* dataset transfer property list */
     H5C_tag_info_t *tag_info;	/* Points to a tag info struct */
     haddr_t tag;                /* Tag value */
     herr_t ret_value = SUCCEED;  /* Return value */
@@ -205,18 +203,13 @@ H5C__tag_entry(H5C_t *cache, H5C_cache_entry_t *entry, hid_t dxpl_id)
     HDassert(entry != NULL);
     HDassert(cache->magic == H5C__H5C_T_MAGIC);
 
-    /* Get the dataset transfer property list */
-    if(NULL == (dxpl = (H5P_genplist_t *)H5I_object_verify(dxpl_id, H5I_GENPROP_LST)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a property list")
-
-    /* Get the tag from the DXPL */
-    if((H5P_get(dxpl, H5AC_TAG_NAME, &tag)) < 0)
-	HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "unable to query property value")
+    /* Get the tag */
+    tag = H5CX_get_tag();
 
     if(cache->ignore_tags) {
         /* if we're ignoring tags, it's because we're running
            tests on internal functions and may not have inserted a tag 
-           value into a given dxpl_id before creating some metadata. Thus,
+           value into a given API context before creating some metadata. Thus,
            in this case only, if a tag value has not been set, we can
            arbitrarily set it to something for the sake of passing the tests. 
            If the tag value is set, then we'll just let it get assigned without
@@ -475,12 +468,12 @@ H5C__evict_tagged_entries_cb(H5C_cache_entry_t *entry, void *_ctx)
         ctx->pinned_entries_need_evicted = TRUE;
     else if(!entry->prefetched_dirty) {
         /* Evict the Entry */
-        if(H5C__flush_single_entry(ctx->f, ctx->dxpl_id, entry, H5C__FLUSH_INVALIDATE_FLAG | H5C__FLUSH_CLEAR_ONLY_FLAG | H5C__DEL_FROM_SLIST_ON_DESTROY_FLAG) < 0)
+        if(H5C__flush_single_entry(ctx->f, entry, H5C__FLUSH_INVALIDATE_FLAG | H5C__FLUSH_CLEAR_ONLY_FLAG | H5C__DEL_FROM_SLIST_ON_DESTROY_FLAG) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, H5_ITER_ERROR, "Entry eviction failed.")
         ctx->evicted_entries_last_pass = TRUE;
-    } else {
+    } /* end else-if */
+    else
         ctx->skipped_pf_dirty_entries = TRUE;
-    }
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -501,7 +494,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C_evict_tagged_entries(H5F_t * f, hid_t dxpl_id, haddr_t tag, hbool_t match_global)
+H5C_evict_tagged_entries(H5F_t * f, haddr_t tag, hbool_t match_global)
 {
     H5C_t *cache;                   /* Pointer to cache structure */
     H5C_tag_iter_evict_ctx_t ctx;   /* Context for iterator callback */
@@ -519,7 +512,6 @@ H5C_evict_tagged_entries(H5F_t * f, hid_t dxpl_id, haddr_t tag, hbool_t match_gl
 
     /* Construct context for iterator callbacks */
     ctx.f = f;
-    ctx.dxpl_id = dxpl_id;
 
     /* Start evicting entries */
     do {
@@ -721,7 +713,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5C_flush_tagged_entries(H5F_t * f, hid_t dxpl_id, haddr_t tag)
+H5C_flush_tagged_entries(H5F_t *f, haddr_t tag)
 {
     /* Variable Declarations */
     H5C_t      *cache_ptr = NULL;
@@ -741,7 +733,7 @@ H5C_flush_tagged_entries(H5F_t * f, hid_t dxpl_id, haddr_t tag)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "Can't mark tagged entries")
 
     /* Flush all marked entries */
-    if(H5C__flush_marked_entries(f, dxpl_id) < 0)
+    if(H5C__flush_marked_entries(f) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "Can't flush marked entries")
 
 done:
@@ -820,7 +812,7 @@ H5C__expunge_tag_type_metadata_cb(H5C_cache_entry_t *entry, void *_ctx)
 
     /* Found one with the same tag and type id */
     if(entry->type->id == ctx->type_id)
-        if(H5C_expunge_entry(ctx->f, ctx->dxpl_id, entry->type, entry->addr, ctx->flags) < 0)
+        if(H5C_expunge_entry(ctx->f, entry->type, entry->addr, ctx->flags) < 0)
             HGOTO_ERROR(H5E_CACHE, H5E_CANTEXPUNGE, H5_ITER_ERROR, "can't expunge entry")
 
 done:
@@ -843,8 +835,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t 
-H5C_expunge_tag_type_metadata(H5F_t *f, hid_t dxpl_id, haddr_t tag, int type_id,
-    unsigned flags)
+H5C_expunge_tag_type_metadata(H5F_t *f, haddr_t tag, int type_id, unsigned flags)
 {
     H5C_t *cache;                       /* Pointer to cache structure */
     H5C_tag_iter_ettm_ctx_t ctx;        /* Context for iterator callback */
@@ -862,7 +853,6 @@ H5C_expunge_tag_type_metadata(H5F_t *f, hid_t dxpl_id, haddr_t tag, int type_id,
 
     /* Construct context for iterator callbacks */
     ctx.f = f;
-    ctx.dxpl_id = dxpl_id;
     ctx.type_id = type_id;
     ctx.flags = flags;
 

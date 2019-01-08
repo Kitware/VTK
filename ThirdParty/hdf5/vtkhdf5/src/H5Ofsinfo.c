@@ -32,13 +32,14 @@
 #include "H5Opkg.h"             /* Object headers	*/
 
 /* PRIVATE PROTOTYPES */
-static void *H5O_fsinfo_decode(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh, unsigned mesg_flags, unsigned *ioflags, const uint8_t *p);
+static void *H5O_fsinfo_decode(H5F_t *f, H5O_t *open_oh, unsigned mesg_flags,
+        unsigned *ioflags, size_t p_size, const uint8_t *p);
 static herr_t H5O_fsinfo_encode(H5F_t *f, hbool_t disable_shared, uint8_t *p, const void *_mesg);
 static void *H5O_fsinfo_copy(const void *_mesg, void *_dest);
 static size_t H5O_fsinfo_size(const H5F_t *f, hbool_t disable_shared, const void *_mesg);
-static herr_t H5O_fsinfo_free(void *mesg);
-static herr_t H5O_fsinfo_debug(H5F_t *f, hid_t dxpl_id, const void *_mesg,
-    FILE * stream, int indent, int fwidth);
+static herr_t H5O__fsinfo_free(void *mesg);
+static herr_t H5O__fsinfo_debug(H5F_t *f, const void *_mesg, FILE * stream,
+    int indent, int fwidth);
 
 /* This message derives from H5O message class */
 const H5O_msg_class_t H5O_MSG_FSINFO[1] = {{
@@ -51,7 +52,7 @@ const H5O_msg_class_t H5O_MSG_FSINFO[1] = {{
     H5O_fsinfo_copy,          	/* copy the native value         	*/
     H5O_fsinfo_size,          	/* size of free-space manager info message */
     NULL,                   	/* default reset method         	*/
-    H5O_fsinfo_free,	        /* free method				*/
+    H5O__fsinfo_free,	        /* free method				*/
     NULL,        		/* file delete method			*/
     NULL,			/* link method				*/
     NULL,			/* set share method			*/
@@ -61,7 +62,7 @@ const H5O_msg_class_t H5O_MSG_FSINFO[1] = {{
     NULL,			/* post copy native value to file	*/
     NULL,			/* get creation index			*/
     NULL,			/* set creation index			*/
-    H5O_fsinfo_debug          	/* debug the message            	*/
+    H5O__fsinfo_debug          	/* debug the message            	*/
 }};
 
 /* Current version of free-space manager info information */
@@ -85,8 +86,9 @@ H5FL_DEFINE_STATIC(H5O_fsinfo_t);
  *-------------------------------------------------------------------------
  */
 static void *
-H5O_fsinfo_decode(H5F_t *f, hid_t dxpl_id, H5O_t H5_ATTR_UNUSED *open_oh,
-    unsigned H5_ATTR_UNUSED mesg_flags, unsigned H5_ATTR_UNUSED *ioflags, const uint8_t *p)
+H5O_fsinfo_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh,
+    unsigned H5_ATTR_UNUSED mesg_flags, unsigned H5_ATTR_UNUSED *ioflags,
+    size_t H5_ATTR_UNUSED p_size, const uint8_t *p)
 {
     H5O_fsinfo_t    *fsinfo = NULL;     /* File space info message */
     H5F_mem_page_t  ptype;              /* Memory type for iteration */
@@ -307,9 +309,9 @@ H5O_fsinfo_size(const H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, const voi
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_fsinfo_free
+ * Function:    H5O__fsinfo_free
  *
- * Purpose:     Free's the message
+ * Purpose:     Frees the message
  *
  * Return:      Non-negative on success/Negative on failure
  *
@@ -318,20 +320,20 @@ H5O_fsinfo_size(const H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, const voi
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_fsinfo_free(void *mesg)
+H5O__fsinfo_free(void *mesg)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     HDassert(mesg);
 
     mesg = H5FL_FREE(H5O_fsinfo_t, mesg);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5O_fsinfo_free() */
+} /* end H5O__fsinfo_free() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_fsinfo_debug
+ * Function:    H5O__fsinfo_debug
  *
  * Purpose:     Prints debugging info for a message.
  *
@@ -342,13 +344,13 @@ H5O_fsinfo_free(void *mesg)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_fsinfo_debug(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, const void *_mesg, FILE * stream,
-	       int indent, int fwidth)
+H5O__fsinfo_debug(H5F_t H5_ATTR_UNUSED *f, const void *_mesg, FILE * stream,
+    int indent, int fwidth)
 {
     const H5O_fsinfo_t	*fsinfo = (const H5O_fsinfo_t *) _mesg;
     H5F_mem_page_t  ptype;      /* Free-space types for iteration */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* check args */
     HDassert(f);
@@ -402,5 +404,5 @@ H5O_fsinfo_debug(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, const vo
     } /* end if */
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5O_fsinfo_debug() */
+} /* end H5O__fsinfo_debug() */
 

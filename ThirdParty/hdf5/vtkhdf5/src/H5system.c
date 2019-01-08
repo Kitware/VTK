@@ -294,13 +294,13 @@ HDfprintf(FILE *stream, const char *fmt, ...)
                         unsigned short x = (unsigned short)va_arg(ap, unsigned int);
                         n = fprintf(stream, format_templ, x);
                     } else if(!*modifier) {
-                        unsigned int x = va_arg(ap, unsigned int); /*lint !e732 Loss of sign not really occuring */
+                        unsigned int x = va_arg(ap, unsigned int); /*lint !e732 Loss of sign not really occurring */
                         n = fprintf(stream, format_templ, x);
                     } else if(!HDstrcmp(modifier, "l")) {
-                        unsigned long x = va_arg(ap, unsigned long); /*lint !e732 Loss of sign not really occuring */
+                        unsigned long x = va_arg(ap, unsigned long); /*lint !e732 Loss of sign not really occurring */
                         n = fprintf(stream, format_templ, x);
                     } else {
-                        uint64_t x = va_arg(ap, uint64_t); /*lint !e732 Loss of sign not really occuring */
+                        uint64_t x = va_arg(ap, uint64_t); /*lint !e732 Loss of sign not really occurring */
                         n = fprintf(stream, format_templ, x);
                     }
                     break;
@@ -333,7 +333,7 @@ HDfprintf(FILE *stream, const char *fmt, ...)
 
                 case 'a':
                     {
-                        haddr_t x = va_arg(ap, haddr_t); /*lint !e732 Loss of sign not really occuring */
+                        haddr_t x = va_arg(ap, haddr_t); /*lint !e732 Loss of sign not really occurring */
 
                         if(H5F_addr_defined(x)) {
                             len = 0;
@@ -387,7 +387,7 @@ HDfprintf(FILE *stream, const char *fmt, ...)
                 case 's':
                 case 'p':
                     {
-                        char *x = va_arg(ap, char*); /*lint !e64 Type mismatch not really occuring */
+                        char *x = va_arg(ap, char*); /*lint !e64 Type mismatch not really occurring */
                         n = fprintf(stream, format_templ, x);
                     }
                     break;
@@ -977,7 +977,7 @@ Wround(double arg)
 float
 Wroundf(float arg)
 {
-    return arg < 0.0F ? HDceil(arg - 0.5F) : HDfloor(arg + 0.5F);
+    return (float)(arg < 0.0F ? HDceil(arg - 0.5F) : HDfloor(arg + 0.5F));
 }
 
 #endif /* H5_HAVE_WIN32_API */
@@ -1043,7 +1043,7 @@ H5_build_extpath(const char *name, char **extpath /*out*/)
          * Unix: does not apply
          */
         if(H5_CHECK_ABS_DRIVE(name)) {
-            drive = name[0] - 'A' + 1;
+            drive = HDtoupper(name[0]) - 'A' + 1;
             retcwd = HDgetdcwd(drive, cwdpath, MAX_PATH_LEN);
             HDstrncpy(new_name, &name[2], name_len);
         } /* end if */
@@ -1077,8 +1077,8 @@ H5_build_extpath(const char *name, char **extpath /*out*/)
 
             HDstrncpy(full_path, cwdpath, cwdlen + 1);
             if(!H5_CHECK_DELIMITER(cwdpath[cwdlen - 1]))
-                HDstrncat(full_path, H5_DIR_SEPS, HDstrlen(H5_DIR_SEPS));
-            HDstrncat(full_path, new_name, HDstrlen(new_name));
+                HDstrcat(full_path, H5_DIR_SEPS);
+            HDstrcat(full_path, new_name);
         } /* end if */
     } /* end else */
 
@@ -1236,4 +1236,50 @@ H5_get_time(void)
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5_get_time() */
 
+
+#ifdef H5_HAVE_WIN32_API
+
+#define H5_WIN32_ENV_VAR_BUFFER_SIZE    32767
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5_expand_windows_env_vars()
+ *
+ * Purpose:     Replaces windows environment variables of the form %foo%
+ *              with user-specific values.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5_expand_windows_env_vars(char **env_var)
+{
+    long    n_chars = 0;
+    char   *temp_buf = NULL;
+    herr_t  ret_value = SUCCEED;    /* Return value */
+
+    FUNC_ENTER_NOAPI_NOINIT
+
+    /* Allocate buffer for expanded environment variable string */
+    if (NULL == (temp_buf = (char *)H5MM_calloc((size_t)H5_WIN32_ENV_VAR_BUFFER_SIZE)))
+        HGOTO_ERROR(H5E_PLUGIN, H5E_CANTALLOC, FAIL, "can't allocate memory for expanded path")
+
+    /* Expand the environment variable string */
+    if ((n_chars = ExpandEnvironmentStringsA(*env_var, temp_buf, H5_WIN32_ENV_VAR_BUFFER_SIZE)) > H5_WIN32_ENV_VAR_BUFFER_SIZE)
+        HGOTO_ERROR(H5E_PLUGIN, H5E_NOSPACE, FAIL, "expanded path is too long")
+
+    if (0 == n_chars)
+        HGOTO_ERROR(H5E_PLUGIN, H5E_CANTGET, FAIL, "failed to expand path")
+
+    *env_var = (char *)H5MM_xfree(*env_var);
+    *env_var = temp_buf;
+
+done:
+    if (FAIL == ret_value && temp_buf)
+        temp_buf = (char *)H5MM_xfree(temp_buf);
+
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5_expand_windows_env_vars() */
+#endif /* H5_HAVE_WIN32_API */
 

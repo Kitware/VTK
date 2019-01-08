@@ -67,8 +67,8 @@ static ssize_t H5D__compact_readvv(const H5D_io_info_t *io_info,
 static ssize_t H5D__compact_writevv(const H5D_io_info_t *io_info,
     size_t dset_max_nseq, size_t *dset_curr_seq, size_t dset_size_arr[], hsize_t dset_offset_arr[],
     size_t mem_max_nseq, size_t *mem_curr_seq, size_t mem_size_arr[], hsize_t mem_offset_arr[]);
-static herr_t H5D__compact_flush(H5D_t *dset, hid_t dxpl_id);
-static herr_t H5D__compact_dest(H5D_t *dset, hid_t dxpl_id);
+static herr_t H5D__compact_flush(H5D_t *dset);
+static herr_t H5D__compact_dest(H5D_t *dset);
 
 
 /*********************/
@@ -117,7 +117,7 @@ H5FL_BLK_EXTERN(type_conv);
  *-------------------------------------------------------------------------
  */
 herr_t
-H5D__compact_fill(const H5D_t *dset, hid_t dxpl_id)
+H5D__compact_fill(const H5D_t *dset)
 {
     H5D_fill_buf_info_t fb_info;        /* Dataset's fill buffer info */
     hbool_t     fb_info_init = FALSE;   /* Whether the fill value buffer has been initialized */
@@ -126,7 +126,6 @@ H5D__compact_fill(const H5D_t *dset, hid_t dxpl_id)
     FUNC_ENTER_PACKAGE
 
     /* Check args */
-    HDassert(TRUE == H5P_isa_class(dxpl_id, H5P_DATASET_XFER));
     HDassert(dset && H5D_COMPACT == dset->shared->layout.type);
     HDassert(dset->shared->layout.storage.u.compact.buf);
     HDassert(dset->shared->type);
@@ -137,14 +136,14 @@ H5D__compact_fill(const H5D_t *dset, hid_t dxpl_id)
     if(H5D__fill_init(&fb_info, dset->shared->layout.storage.u.compact.buf,
             NULL, NULL, NULL, NULL,
             &dset->shared->dcpl_cache.fill, dset->shared->type,
-            dset->shared->type_id, (size_t)0, dset->shared->layout.storage.u.compact.size, dxpl_id) < 0)
+            dset->shared->type_id, (size_t)0, dset->shared->layout.storage.u.compact.size) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "can't initialize fill buffer info")
     fb_info_init = TRUE;
 
     /* Check for VL datatype & non-default fill value */
     if(fb_info.has_vlen_fill_type)
         /* Fill the buffer with VL datatype fill values */
-        if(H5D__fill_refill_vl(&fb_info, fb_info.elmts_per_buf, dxpl_id) < 0)
+        if(H5D__fill_refill_vl(&fb_info, fb_info.elmts_per_buf) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTCONVERT, FAIL, "can't refill fill value buffer")
 
 done:
@@ -357,7 +356,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5D__compact_flush(H5D_t *dset, hid_t dxpl_id)
+H5D__compact_flush(H5D_t *dset)
 {
     herr_t ret_value = SUCCEED;       /* Return value */
 
@@ -368,9 +367,11 @@ H5D__compact_flush(H5D_t *dset, hid_t dxpl_id)
 
     /* Check if the buffered compact information is dirty */
     if(dset->shared->layout.storage.u.compact.dirty) {
-        if(H5O_msg_write(&(dset->oloc), H5O_LAYOUT_ID, 0, H5O_UPDATE_TIME, &(dset->shared->layout), dxpl_id) < 0)
-            HGOTO_ERROR(H5E_FILE, H5E_CANTINIT, FAIL, "unable to update layout message")
         dset->shared->layout.storage.u.compact.dirty = FALSE;
+        if(H5O_msg_write(&(dset->oloc), H5O_LAYOUT_ID, 0, H5O_UPDATE_TIME, &(dset->shared->layout)) < 0) {
+            dset->shared->layout.storage.u.compact.dirty = TRUE;
+            HGOTO_ERROR(H5E_FILE, H5E_CANTINIT, FAIL, "unable to update layout message")
+        }
     } /* end if */
 
 done:
@@ -391,7 +392,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5D__compact_dest(H5D_t *dset, hid_t H5_ATTR_UNUSED dxpl_id)
+H5D__compact_dest(H5D_t *dset)
 {
     FUNC_ENTER_STATIC_NOERR
 
@@ -418,9 +419,8 @@ H5D__compact_dest(H5D_t *dset, hid_t H5_ATTR_UNUSED dxpl_id)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5D__compact_copy(H5F_t *f_src, H5O_storage_compact_t *storage_src, H5F_t *f_dst,
-    H5O_storage_compact_t *storage_dst, H5T_t *dt_src, H5O_copy_t *cpy_info,
-    hid_t dxpl_id)
+H5D__compact_copy(H5F_t *f_src, H5O_storage_compact_t *_storage_src, H5F_t *f_dst,
+    H5O_storage_compact_t *storage_dst, H5T_t *dt_src, H5O_copy_t *cpy_info)
 {
     hid_t       tid_src = -1;           /* Datatype ID for source datatype */
     hid_t       tid_dst = -1;           /* Datatype ID for destination datatype */
@@ -429,6 +429,8 @@ H5D__compact_copy(H5F_t *f_src, H5O_storage_compact_t *storage_src, H5F_t *f_dst
     void       *bkg = NULL;             /* Temporary buffer for copying data */
     void       *reclaim_buf = NULL;     /* Buffer for reclaiming data */
     hid_t       buf_sid = -1;           /* ID for buffer dataspace */
+    H5D_shared_t    *shared_fo = (H5D_shared_t *)cpy_info->shared_fo;   /* Pointer to the shared struct for dataset object */
+    H5O_storage_compact_t *storage_src = _storage_src;  /* Pointer to storage_src */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_PACKAGE
@@ -440,6 +442,10 @@ H5D__compact_copy(H5F_t *f_src, H5O_storage_compact_t *storage_src, H5F_t *f_dst
     HDassert(storage_dst);
     HDassert(storage_dst->buf);
     HDassert(dt_src);
+
+    /* If the dataset is open in the file, point to "layout" in the shared struct */
+    if(shared_fo != NULL)
+        storage_src = &(shared_fo->layout.storage.u.compact);
 
     /* Create datatype ID for src datatype, so it gets freed */
     if((tid_src = H5I_register(H5I_DATATYPE, dt_src, FALSE)) < 0)
@@ -462,7 +468,7 @@ H5D__compact_copy(H5F_t *f_src, H5O_storage_compact_t *storage_src, H5F_t *f_dst
         if(NULL == (dt_mem = H5T_copy(dt_src, H5T_COPY_TRANSIENT)))
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "unable to copy")
         if((tid_mem = H5I_register(H5I_DATATYPE, dt_mem, FALSE)) < 0) {
-            H5T_close(dt_mem);
+            (void)H5T_close_real(dt_mem);
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, FAIL, "unable to register memory datatype")
         } /* end if */
 
@@ -470,18 +476,18 @@ H5D__compact_copy(H5F_t *f_src, H5O_storage_compact_t *storage_src, H5F_t *f_dst
         if(NULL == (dt_dst = H5T_copy(dt_src, H5T_COPY_TRANSIENT)))
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "unable to copy")
         if(H5T_set_loc(dt_dst, f_dst, H5T_LOC_DISK) < 0) {
-            H5T_close(dt_dst);
+            (void)H5T_close_real(dt_dst);
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "cannot mark datatype on disk")
         } /* end if */
         if((tid_dst = H5I_register(H5I_DATATYPE, dt_dst, FALSE)) < 0) {
-            H5T_close(dt_dst);
+            (void)H5T_close_real(dt_dst);
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, FAIL, "unable to register destination file datatype")
         } /* end if */
 
         /* Set up the conversion functions */
-        if(NULL == (tpath_src_mem = H5T_path_find(dt_src, dt_mem, NULL, NULL, dxpl_id, FALSE)))
+        if(NULL == (tpath_src_mem = H5T_path_find(dt_src, dt_mem)))
             HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to convert between src and mem datatypes")
-        if(NULL == (tpath_mem_dst = H5T_path_find(dt_mem, dt_dst, NULL, NULL, dxpl_id, FALSE)))
+        if(NULL == (tpath_mem_dst = H5T_path_find(dt_mem, dt_dst)))
             HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to convert between mem and dst datatypes")
 
         /* Determine largest datatype size */
@@ -529,7 +535,7 @@ H5D__compact_copy(H5F_t *f_src, H5O_storage_compact_t *storage_src, H5F_t *f_dst
             HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
 
         /* Convert from source file to memory */
-        if(H5T_convert(tpath_src_mem, tid_src, tid_mem, nelmts, (size_t)0, (size_t)0, buf, bkg, dxpl_id) < 0)
+        if(H5T_convert(tpath_src_mem, tid_src, tid_mem, nelmts, (size_t)0, (size_t)0, buf, bkg) < 0)
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "datatype conversion failed")
 
         /* Copy into another buffer, to reclaim memory later */
@@ -539,12 +545,12 @@ H5D__compact_copy(H5F_t *f_src, H5O_storage_compact_t *storage_src, H5F_t *f_dst
         HDmemset(bkg, 0, buf_size);
 
         /* Convert from memory to destination file */
-        if(H5T_convert(tpath_mem_dst, tid_mem, tid_dst, nelmts, (size_t)0, (size_t)0, buf, bkg, dxpl_id) < 0)
+        if(H5T_convert(tpath_mem_dst, tid_mem, tid_dst, nelmts, (size_t)0, (size_t)0, buf, bkg) < 0)
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "datatype conversion failed")
 
         HDmemcpy(storage_dst->buf, buf, storage_dst->size);
 
-        if(H5D_vlen_reclaim(tid_mem, buf_space, dxpl_id, reclaim_buf) < 0)
+        if(H5D_vlen_reclaim(tid_mem, buf_space, reclaim_buf) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_BADITER, FAIL, "unable to reclaim variable-length data")
     } /* end if */
     else if(H5T_get_class(dt_src, FALSE) == H5T_REFERENCE) {
@@ -557,7 +563,7 @@ H5D__compact_copy(H5F_t *f_src, H5O_storage_compact_t *storage_src, H5F_t *f_dst
                 ref_count = storage_src->size / H5T_get_size(dt_src);
 
                 /* Copy objects referenced in source buffer to destination file and set destination elements */
-                if(H5O_copy_expand_ref(f_src, storage_src->buf, dxpl_id, f_dst,
+                if(H5O_copy_expand_ref(f_src, storage_src->buf, f_dst,
                         storage_dst->buf, ref_count, H5T_get_ref_type(dt_src), cpy_info) < 0)
                     HGOTO_ERROR(H5E_DATASET, H5E_CANTCOPY, FAIL, "unable to copy reference attribute")
             } /* end if */

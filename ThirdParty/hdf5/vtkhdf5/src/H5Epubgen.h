@@ -56,6 +56,7 @@ extern "C" {
 #define H5E_NONE_MAJOR       (H5OPEN H5E_NONE_MAJOR_g)
 #define H5E_SLIST            (H5OPEN H5E_SLIST_g)
 #define H5E_ARGS             (H5OPEN H5E_ARGS_g)
+#define H5E_CONTEXT          (H5OPEN H5E_CONTEXT_g)
 #define H5E_EARRAY           (H5OPEN H5E_EARRAY_g)
 #define H5E_PLINE            (H5OPEN H5E_PLINE_g)
 #define H5E_ERROR            (H5OPEN H5E_ERROR_g)
@@ -90,6 +91,7 @@ H5_DLLVAR hid_t H5E_ATOM_g;          /* Object atom */
 H5_DLLVAR hid_t H5E_NONE_MAJOR_g;    /* No error */
 H5_DLLVAR hid_t H5E_SLIST_g;         /* Skip Lists */
 H5_DLLVAR hid_t H5E_ARGS_g;          /* Invalid arguments to routine */
+H5_DLLVAR hid_t H5E_CONTEXT_g;       /* API Context */
 H5_DLLVAR hid_t H5E_EARRAY_g;        /* Extensible Array */
 H5_DLLVAR hid_t H5E_PLINE_g;         /* Data filters */
 H5_DLLVAR hid_t H5E_ERROR_g;         /* Error API */
@@ -337,9 +339,13 @@ H5_DLLVAR hid_t H5E_CANTSORT_g;      /* Can't sort objects */
 #define H5E_MPI              (H5OPEN H5E_MPI_g)
 #define H5E_MPIERRSTR        (H5OPEN H5E_MPIERRSTR_g)
 #define H5E_CANTRECV         (H5OPEN H5E_CANTRECV_g)
+#define H5E_CANTGATHER       (H5OPEN H5E_CANTGATHER_g)
+#define H5E_NO_INDEPENDENT   (H5OPEN H5E_NO_INDEPENDENT_g)
 H5_DLLVAR hid_t H5E_MPI_g;           /* Some MPI function failed */
 H5_DLLVAR hid_t H5E_MPIERRSTR_g;     /* MPI Error String */
 H5_DLLVAR hid_t H5E_CANTRECV_g;      /* Can't receive data */
+H5_DLLVAR hid_t H5E_CANTGATHER_g;    /* Can't gather data */
+H5_DLLVAR hid_t H5E_NO_INDEPENDENT_g; /* Can't perform independent IO */
 
 /* Dataspace errors */
 #define H5E_CANTCLIP         (H5OPEN H5E_CANTCLIP_g)

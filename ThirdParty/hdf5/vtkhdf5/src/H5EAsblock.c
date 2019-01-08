@@ -186,8 +186,8 @@ END_FUNC(PKG)   /* end H5EA__sblock_alloc() */
  */
 BEGIN_FUNC(PKG, ERR,
 haddr_t, HADDR_UNDEF, HADDR_UNDEF,
-H5EA__sblock_create(H5EA_hdr_t *hdr, hid_t dxpl_id, H5EA_iblock_t *parent,
-    hbool_t *stats_changed, unsigned sblk_idx))
+H5EA__sblock_create(H5EA_hdr_t *hdr, H5EA_iblock_t *parent, hbool_t *stats_changed,
+    unsigned sblk_idx))
 
     /* Local variables */
     H5EA_sblock_t *sblock = NULL;       /* Extensible array super block */
@@ -210,7 +210,7 @@ H5EA__sblock_create(H5EA_hdr_t *hdr, hid_t dxpl_id, H5EA_iblock_t *parent,
     sblock->block_off = hdr->sblk_info[sblk_idx].start_idx;
 
     /* Allocate space for the super block on disk */
-    if(HADDR_UNDEF == (sblock_addr = H5MF_alloc(hdr->f, H5FD_MEM_EARRAY_SBLOCK, dxpl_id, (hsize_t)sblock->size)))
+    if(HADDR_UNDEF == (sblock_addr = H5MF_alloc(hdr->f, H5FD_MEM_EARRAY_SBLOCK, (hsize_t)sblock->size)))
 	H5E_THROW(H5E_CANTALLOC, "file allocation failed for extensible array super block")
     sblock->addr = sblock_addr;
 
@@ -218,13 +218,13 @@ H5EA__sblock_create(H5EA_hdr_t *hdr, hid_t dxpl_id, H5EA_iblock_t *parent,
     H5VM_array_fill(sblock->dblk_addrs, &tmp_addr, sizeof(haddr_t), sblock->ndblks);
 
     /* Cache the new extensible array super block */
-    if(H5AC_insert_entry(hdr->f, dxpl_id, H5AC_EARRAY_SBLOCK, sblock_addr, sblock, H5AC__NO_FLAGS_SET) < 0)
+    if(H5AC_insert_entry(hdr->f, H5AC_EARRAY_SBLOCK, sblock_addr, sblock, H5AC__NO_FLAGS_SET) < 0)
 	H5E_THROW(H5E_CANTINSERT, "can't add extensible array super block to cache")
     inserted = TRUE;
 
     /* Add super block as child of 'top' proxy */
     if(hdr->top_proxy) {
-        if(H5AC_proxy_entry_add_child(hdr->top_proxy, hdr->f, dxpl_id, sblock) < 0)
+        if(H5AC_proxy_entry_add_child(hdr->top_proxy, hdr->f, sblock) < 0)
             H5E_THROW(H5E_CANTSET, "unable to add extensible array entry as child of array proxy")
         sblock->top_proxy = hdr->top_proxy;
     } /* end if */
@@ -248,7 +248,7 @@ CATCH
                     H5E_THROW(H5E_CANTREMOVE, "unable to remove extensible array super block from cache")
 
             /* Release super block's disk space */
-            if(H5F_addr_defined(sblock->addr) && H5MF_xfree(hdr->f, H5FD_MEM_EARRAY_SBLOCK, dxpl_id, sblock->addr, (hsize_t)sblock->size) < 0)
+            if(H5F_addr_defined(sblock->addr) && H5MF_xfree(hdr->f, H5FD_MEM_EARRAY_SBLOCK, sblock->addr, (hsize_t)sblock->size) < 0)
                 H5E_THROW(H5E_CANTFREE, "unable to release extensible array super block")
 
             /* Destroy super block */
@@ -274,7 +274,7 @@ END_FUNC(PKG)   /* end H5EA__sblock_create() */
  */
 BEGIN_FUNC(PKG, ERR,
 H5EA_sblock_t *, NULL, NULL,
-H5EA__sblock_protect(H5EA_hdr_t *hdr, hid_t dxpl_id, H5EA_iblock_t *parent,
+H5EA__sblock_protect(H5EA_hdr_t *hdr, H5EA_iblock_t *parent,
     haddr_t sblk_addr, unsigned sblk_idx, unsigned flags))
 
     /* Local variables */
@@ -295,13 +295,13 @@ H5EA__sblock_protect(H5EA_hdr_t *hdr, hid_t dxpl_id, H5EA_iblock_t *parent,
     udata.sblk_addr = sblk_addr;
 
     /* Protect the super block */
-    if(NULL == (sblock = (H5EA_sblock_t *)H5AC_protect(hdr->f, dxpl_id, H5AC_EARRAY_SBLOCK, sblk_addr, &udata, flags)))
+    if(NULL == (sblock = (H5EA_sblock_t *)H5AC_protect(hdr->f, H5AC_EARRAY_SBLOCK, sblk_addr, &udata, flags)))
         H5E_THROW(H5E_CANTPROTECT, "unable to protect extensible array super block, address = %llu", (unsigned long long)sblk_addr)
 
     /* Create top proxy, if it doesn't exist */
     if(hdr->top_proxy && NULL == sblock->top_proxy) {
         /* Add super block as child of 'top' proxy */
-        if(H5AC_proxy_entry_add_child(hdr->top_proxy, hdr->f, dxpl_id, sblock) < 0)
+        if(H5AC_proxy_entry_add_child(hdr->top_proxy, hdr->f, sblock) < 0)
             H5E_THROW(H5E_CANTSET, "unable to add extensible array entry as child of array proxy")
         sblock->top_proxy = hdr->top_proxy;
     } /* end if */
@@ -313,7 +313,7 @@ CATCH
     /* Clean up on error */
     if(!ret_value) {
         /* Release the super block, if it was protected */
-        if(sblock && H5AC_unprotect(hdr->f, dxpl_id, H5AC_EARRAY_SBLOCK, sblock->addr, sblock, H5AC__NO_FLAGS_SET) < 0)
+        if(sblock && H5AC_unprotect(hdr->f, H5AC_EARRAY_SBLOCK, sblock->addr, sblock, H5AC__NO_FLAGS_SET) < 0)
             H5E_THROW(H5E_CANTUNPROTECT, "unable to unprotect extensible array super block, address = %llu", (unsigned long long)sblock->addr)
     } /* end if */
 
@@ -335,7 +335,7 @@ END_FUNC(PKG)   /* end H5EA__sblock_protect() */
  */
 BEGIN_FUNC(PKG, ERR,
 herr_t, SUCCEED, FAIL,
-H5EA__sblock_unprotect(H5EA_sblock_t *sblock, hid_t dxpl_id, unsigned cache_flags))
+H5EA__sblock_unprotect(H5EA_sblock_t *sblock, unsigned cache_flags))
 
     /* Local variables */
 
@@ -343,7 +343,7 @@ H5EA__sblock_unprotect(H5EA_sblock_t *sblock, hid_t dxpl_id, unsigned cache_flag
     HDassert(sblock);
 
     /* Unprotect the super block */
-    if(H5AC_unprotect(sblock->hdr->f, dxpl_id, H5AC_EARRAY_SBLOCK, sblock->addr, sblock, cache_flags) < 0)
+    if(H5AC_unprotect(sblock->hdr->f, H5AC_EARRAY_SBLOCK, sblock->addr, sblock, cache_flags) < 0)
         H5E_THROW(H5E_CANTUNPROTECT, "unable to unprotect extensible array super block, address = %llu", (unsigned long long)sblock->addr)
 
 CATCH
@@ -366,7 +366,7 @@ END_FUNC(PKG)   /* end H5EA__sblock_unprotect() */
  */
 BEGIN_FUNC(PKG, ERR,
 herr_t, SUCCEED, FAIL,
-H5EA__sblock_delete(H5EA_hdr_t *hdr, hid_t dxpl_id, H5EA_iblock_t *parent,
+H5EA__sblock_delete(H5EA_hdr_t *hdr, H5EA_iblock_t *parent,
     haddr_t sblk_addr, unsigned sblk_idx))
 
     /* Local variables */
@@ -378,7 +378,7 @@ H5EA__sblock_delete(H5EA_hdr_t *hdr, hid_t dxpl_id, H5EA_iblock_t *parent,
     HDassert(H5F_addr_defined(sblk_addr));
 
     /* Protect super block */
-    if(NULL == (sblock = H5EA__sblock_protect(hdr, dxpl_id, parent, sblk_addr, sblk_idx, H5AC__NO_FLAGS_SET)))
+    if(NULL == (sblock = H5EA__sblock_protect(hdr, parent, sblk_addr, sblk_idx, H5AC__NO_FLAGS_SET)))
         H5E_THROW(H5E_CANTPROTECT, "unable to protect extensible array super block, address = %llu", (unsigned long long)sblk_addr)
 
     /* Iterate over data blocks */
@@ -386,7 +386,7 @@ H5EA__sblock_delete(H5EA_hdr_t *hdr, hid_t dxpl_id, H5EA_iblock_t *parent,
         /* Check for data block existing */
         if(H5F_addr_defined(sblock->dblk_addrs[u])) {
             /* Delete data block */
-            if(H5EA__dblock_delete(hdr, dxpl_id, sblock, sblock->dblk_addrs[u], sblock->dblk_nelmts) < 0)
+            if(H5EA__dblock_delete(hdr, sblock, sblock->dblk_addrs[u], sblock->dblk_nelmts) < 0)
                 H5E_THROW(H5E_CANTDELETE, "unable to delete extensible array data block")
             sblock->dblk_addrs[u] = HADDR_UNDEF;
         } /* end if */
@@ -394,7 +394,7 @@ H5EA__sblock_delete(H5EA_hdr_t *hdr, hid_t dxpl_id, H5EA_iblock_t *parent,
 
 CATCH
     /* Finished deleting super block in metadata cache */
-    if(sblock && H5EA__sblock_unprotect(sblock, dxpl_id, H5AC__DIRTIED_FLAG | H5AC__DELETED_FLAG | H5AC__FREE_FILE_SPACE_FLAG) < 0)
+    if(sblock && H5EA__sblock_unprotect(sblock, H5AC__DIRTIED_FLAG | H5AC__DELETED_FLAG | H5AC__FREE_FILE_SPACE_FLAG) < 0)
         H5E_THROW(H5E_CANTUNPROTECT, "unable to release extensible array super block")
 
 END_FUNC(PKG)   /* end H5EA__sblock_delete() */

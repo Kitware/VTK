@@ -18,6 +18,8 @@
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5Fpkg.h"             /* File access				*/
+#include "H5Iprivate.h"        /* IDs */
+#include "H5Pprivate.h"        /* Property lists */
 
 /* PRIVATE PROTOTYPES */
 
@@ -40,9 +42,10 @@
  *-------------------------------------------------------------------------
  */
 H5F_t *
-H5F_fake_alloc(uint8_t sizeof_size)
+H5F_fake_alloc(uint8_t sizeof_size, hid_t fapl_id)
 {
     H5F_t *f = NULL;            /* Pointer to fake file struct */
+    H5P_genplist_t *plist;      /* Property list */
     H5F_t *ret_value = NULL;    /* Return value */
 
     FUNC_ENTER_NOAPI(NULL)
@@ -58,6 +61,16 @@ H5F_fake_alloc(uint8_t sizeof_size)
         f->shared->sizeof_size = H5F_OBJ_SIZE_SIZE;
     else
         f->shared->sizeof_size = sizeof_size;
+
+    /* Set low/high bounds according to the setting in fapl_id */
+    /* See H5F_new() in H5Fint.c */
+    if(NULL == (plist = (H5P_genplist_t *)H5I_object(fapl_id)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "not file access property list")
+
+    if(H5P_get(plist, H5F_ACS_LIBVER_LOW_BOUND_NAME, &(f->shared->low_bound)) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, NULL, "can't get 'low' bound for library format versions")
+    if(H5P_get(plist, H5F_ACS_LIBVER_HIGH_BOUND_NAME, &(f->shared->high_bound)) < 0)
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, NULL, "can't get 'high' bound for library format versions")
 
     /* Set return value */
     ret_value = f;

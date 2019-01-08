@@ -64,15 +64,15 @@ static void * H5C__epoch_marker_deserialize(const void * image_ptr,
     size_t len, void * udata, hbool_t * dirty_ptr);
 static herr_t H5C__epoch_marker_image_len(const void * thing,
     size_t *image_len_ptr);
-static herr_t H5C__epoch_marker_pre_serialize(H5F_t *f,
-    hid_t dxpl_id, void * thing, haddr_t addr, size_t len,
-    haddr_t * new_addr_ptr, size_t * new_len_ptr, unsigned * flags_ptr);
+static herr_t H5C__epoch_marker_pre_serialize(H5F_t *f, void *thing,
+    haddr_t addr, size_t len, haddr_t *new_addr_ptr, size_t *new_len_ptr,
+    unsigned *flags_ptr);
 static herr_t H5C__epoch_marker_serialize(const H5F_t *f,
     void * image_ptr, size_t len, void * thing);
 static herr_t H5C__epoch_marker_notify(H5C_notify_action_t action, void *thing);
 static herr_t H5C__epoch_marker_free_icr(void * thing);
 static herr_t H5C__epoch_marker_fsf_size(const void H5_ATTR_UNUSED * thing, 
-    size_t H5_ATTR_UNUSED * fsf_size_ptr);
+    hsize_t H5_ATTR_UNUSED * fsf_size_ptr);
 
 
 /*********************/
@@ -180,7 +180,7 @@ H5C__epoch_marker_image_len(const void H5_ATTR_UNUSED *thing,
 
 
 static herr_t
-H5C__epoch_marker_pre_serialize(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id,
+H5C__epoch_marker_pre_serialize(H5F_t H5_ATTR_UNUSED *f,
     void H5_ATTR_UNUSED *thing, haddr_t H5_ATTR_UNUSED addr, size_t H5_ATTR_UNUSED len,
     haddr_t H5_ATTR_UNUSED *new_addr_ptr, size_t H5_ATTR_UNUSED *new_len_ptr,
     unsigned H5_ATTR_UNUSED *flags_ptr)
@@ -229,7 +229,7 @@ H5C__epoch_marker_free_icr(void H5_ATTR_UNUSED * thing)
 
 
 static herr_t 
-H5C__epoch_marker_fsf_size(const void H5_ATTR_UNUSED * thing, size_t H5_ATTR_UNUSED *fsf_size_ptr)
+H5C__epoch_marker_fsf_size(const void H5_ATTR_UNUSED * thing, hsize_t H5_ATTR_UNUSED *fsf_size_ptr)
 {
     FUNC_ENTER_STATIC_NOERR /* Yes, even though this pushes an error on the stack */
 

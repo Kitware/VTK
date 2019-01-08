@@ -51,12 +51,11 @@
 /* Package Private Prototypes */
 /******************************/
 
-H5_DLL herr_t H5L_create_ud(const H5G_loc_t *link_loc, const char *link_name,
+H5_DLL herr_t H5L__create_ud(const H5G_loc_t *link_loc, const char *link_name,
     const void * ud_data, size_t ud_data_size, H5L_type_t type,
-    hid_t lcpl_id, hid_t lapl_id, hid_t dxpl_id);
-H5_DLL herr_t H5L_link_copy_file(H5F_t *dst_file, hid_t dxpl_id,
-    const H5O_link_t *_src_lnk, const H5O_loc_t *src_oloc, H5O_link_t *dst_lnk,
-    H5O_copy_t *cpy_info);
+    hid_t lcpl_id);
+H5_DLL herr_t H5L__link_copy_file(H5F_t *dst_file, const H5O_link_t *_src_lnk,
+    const H5O_loc_t *src_oloc, H5O_link_t *dst_lnk, H5O_copy_t *cpy_info);
 
 #endif /* _H5Lpkg_H */
 

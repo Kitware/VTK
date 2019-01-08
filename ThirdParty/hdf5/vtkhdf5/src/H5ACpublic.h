@@ -39,7 +39,7 @@ extern "C" {
  * structure H5AC_cache_config_t
  *
  * H5AC_cache_config_t is a public structure intended for use in public APIs.
- * At least in its initial incarnation, it is basicaly a copy of struct
+ * At least in its initial incarnation, it is basically a copy of struct
  * H5C_auto_size_ctl_t, minus the report_fcn field, and plus the
  * dirty_bytes_threshold field.
  *
@@ -68,65 +68,65 @@ extern "C" {
  *      version number, or an error will be flagged.
  *
  * rpt_fcn_enabled: Boolean field used to enable and disable the default
- *	reporting function.  This function is invoked every time the
- *	automatic cache resize code is run, and reports on its activities.
+ *    reporting function.  This function is invoked every time the
+ *    automatic cache resize code is run, and reports on its activities.
  *
- *	This is a debugging function, and should normally be turned off.
+ *    This is a debugging function, and should normally be turned off.
  *
  * open_trace_file: Boolean field indicating whether the trace_file_name
- * 	field should be used to open a trace file for the cache.
+ *     field should be used to open a trace file for the cache.
  *
  *      *** DEPRECATED *** Use H5Fstart/stop logging functions instead
  *
- * 	The trace file is a debuging feature that allow the capture of
- * 	top level metadata cache requests for purposes of debugging and/or
- * 	optimization.  This field should normally be set to FALSE, as
- * 	trace file collection imposes considerable overhead.
+ *     The trace file is a debuging feature that allow the capture of
+ *     top level metadata cache requests for purposes of debugging and/or
+ *     optimization.  This field should normally be set to FALSE, as
+ *     trace file collection imposes considerable overhead.
  *
- * 	This field should only be set to TRUE when the trace_file_name
- * 	contains the full path of the desired trace file, and either
- * 	there is no open trace file on the cache, or the close_trace_file
- * 	field is also TRUE.
+ *     This field should only be set to TRUE when the trace_file_name
+ *     contains the full path of the desired trace file, and either
+ *     there is no open trace file on the cache, or the close_trace_file
+ *     field is also TRUE.
  *
  * close_trace_file: Boolean field indicating whether the current trace
- * 	file (if any) should be closed.
+ *     file (if any) should be closed.
  *
  *      *** DEPRECATED *** Use H5Fstart/stop logging functions instead
  *
- * 	See the above comments on the open_trace_file field.  This field
- * 	should be set to FALSE unless there is an open trace file on the
- * 	cache that you wish to close.
+ *     See the above comments on the open_trace_file field.  This field
+ *     should be set to FALSE unless there is an open trace file on the
+ *     cache that you wish to close.
  *
  * trace_file_name: Full path of the trace file to be opened if the
- * 	open_trace_file field is TRUE.
+ *     open_trace_file field is TRUE.
  *
  *      *** DEPRECATED *** Use H5Fstart/stop logging functions instead
  *
- * 	In the parallel case, an ascii representation of the mpi rank of
- * 	the process will be appended to the file name to yield a unique
- * 	trace file name for each process.
+ *     In the parallel case, an ascii representation of the mpi rank of
+ *     the process will be appended to the file name to yield a unique
+ *     trace file name for each process.
  *
- * 	The length of the path must not exceed H5AC__MAX_TRACE_FILE_NAME_LEN
- * 	characters.
+ *     The length of the path must not exceed H5AC__MAX_TRACE_FILE_NAME_LEN
+ *     characters.
  *
  * evictions_enabled:  Boolean field used to either report the current
- * 	evictions enabled status of the cache, or to set the cache's
- *	evictions enabled status.
+ *     evictions enabled status of the cache, or to set the cache's
+ *    evictions enabled status.
  *
- * 	In general, the metadata cache should always be allowed to
- * 	evict entries.  However, in some cases it is advantageous to
- * 	disable evictions briefly, and thereby postpone metadata
- * 	writes.  However, this must be done with care, as the cache
- * 	can grow quickly.  If you do this, re-enable evictions as
- * 	soon as possible and monitor cache size.
+ *     In general, the metadata cache should always be allowed to
+ *     evict entries.  However, in some cases it is advantageous to
+ *     disable evictions briefly, and thereby postpone metadata
+ *     writes.  However, this must be done with care, as the cache
+ *     can grow quickly.  If you do this, re-enable evictions as
+ *     soon as possible and monitor cache size.
  *
- * 	At present, evictions can only be disabled if automatic
- * 	cache resizing is also disabled (that is, ( incr_mode ==
- *	H5C_incr__off ) && ( decr_mode == H5C_decr__off )).  There
- *	is no logical reason why this should be so, but it simplifies
- *	implementation and testing, and I can't think of any reason
- *	why it would be desireable.  If you can think of one, I'll
- *	revisit the issue.
+ *     At present, evictions can only be disabled if automatic
+ *     cache resizing is also disabled (that is, ( incr_mode ==
+ *    H5C_incr__off ) && ( decr_mode == H5C_decr__off )).  There
+ *    is no logical reason why this should be so, but it simplifies
+ *    implementation and testing, and I can't think of any reason
+ *    why it would be desireable.  If you can think of one, I'll
+ *    revisit the issue.
  *
  * set_initial_size: Boolean flag indicating whether the size of the
  *      initial size of the cache is to be set to the value given in
@@ -212,7 +212,7 @@ extern "C" {
  *
  * flash_incr_mode:  Instance of the H5C_cache_flash_incr_mode enumerated
  *      type whose value indicates whether and by which algorithm we should
- *      make flash increases in the size of the cache to accomodate insertion
+ *      make flash increases in the size of the cache to accommodate insertion
  *      of large entries and large increases in the size of a single entry.
  *
  *      The addition of the flash increment mode was occasioned by performance
@@ -366,80 +366,80 @@ extern "C" {
  *
  * PHDF5 uses several strategies to prevent such inconsistencies in metadata,
  * all of which use the fact that the same stream of dirty metadata is seen
- * by all processes for purposes of synchronization.  This is done by 
+ * by all processes for purposes of synchronization.  This is done by
  * having each process count the number of bytes of dirty metadata generated,
- * and then running a "sync point" whenever this count exceeds a user 
+ * and then running a "sync point" whenever this count exceeds a user
  * specified threshold (see dirty_bytes_threshold below).
  *
- * The current metadata write strategy is indicated by the 
+ * The current metadata write strategy is indicated by the
  * metadata_write_strategy field.  The possible values of this field, along
  * with the associated metadata write strategies are discussed below.
  *
  * dirty_bytes_threshold:  Threshold of dirty byte creation used to
- * 	synchronize updates between caches. (See above for outline and
- *	motivation.)
+ *     synchronize updates between caches. (See above for outline and
+ *    motivation.)
  *
- *	This value MUST be consistant across all processes accessing the
- *	file.  This field is ignored unless HDF5 has been compiled for
- *	parallel.
+ *    This value MUST be consistent across all processes accessing the
+ *    file.  This field is ignored unless HDF5 has been compiled for
+ *    parallel.
  *
  * metadata_write_strategy: Integer field containing a code indicating the
- *	desired metadata write strategy.  The valid values of this field
- *	are enumerated and discussed below:
+ *    desired metadata write strategy.  The valid values of this field
+ *    are enumerated and discussed below:
  *
  *
- *	H5AC_METADATA_WRITE_STRATEGY__PROCESS_0_ONLY:
+ *    H5AC_METADATA_WRITE_STRATEGY__PROCESS_0_ONLY:
  *
- *	When metadata_write_strategy is set to this value, only process 
- *	zero is allowed to write dirty metadata to disk.  All other 
- *	processes must retain dirty metadata until they are informed at
- *	a sync point that the dirty metadata in question has been written
- *	to disk.
+ *    When metadata_write_strategy is set to this value, only process
+ *    zero is allowed to write dirty metadata to disk.  All other
+ *    processes must retain dirty metadata until they are informed at
+ *    a sync point that the dirty metadata in question has been written
+ *    to disk.
  *
- *	When the sync point is reached (or when there is a user generated
- *	flush), process zero flushes sufficient entries to bring it into
- *	complience with its min clean size (or flushes all dirty entries in
- *	the case of a user generated flush), broad casts the list of 
- *	entries just cleaned to all the other processes, and then exits
- *	the sync point.
+ *    When the sync point is reached (or when there is a user generated
+ *    flush), process zero flushes sufficient entries to bring it into
+ *    complience with its min clean size (or flushes all dirty entries in
+ *    the case of a user generated flush), broad casts the list of
+ *    entries just cleaned to all the other processes, and then exits
+ *    the sync point.
  *
- *	Upon receipt of the broadcast, the other processes mark the indicated
- *	entries as clean, and leave the sync point as well.
+ *    Upon receipt of the broadcast, the other processes mark the indicated
+ *    entries as clean, and leave the sync point as well.
  *
  *
- *	H5AC_METADATA_WRITE_STRATEGY__DISTRIBUTED:
+ *    H5AC_METADATA_WRITE_STRATEGY__DISTRIBUTED:
  *
- *	In the distributed metadata write strategy, process zero still makes
- *	the decisions as to what entries should be flushed, but the actual 
- *	flushes are distributed across the processes in the computation to 
- *	the extent possible.
+ *    In the distributed metadata write strategy, process zero still makes
+ *    the decisions as to what entries should be flushed, but the actual
+ *    flushes are distributed across the processes in the computation to
+ *    the extent possible.
  *
- *	In this strategy, when a sync point is triggered (either by dirty
- *	metadata creation or manual flush), all processes enter a barrier.
+ *    In this strategy, when a sync point is triggered (either by dirty
+ *    metadata creation or manual flush), all processes enter a barrier.
  *
- *	On the other side of the barrier, process 0 constructs an ordered
- *	list of the entries to be flushed, and then broadcasts this list
- *	to the caches in all the processes.
+ *    On the other side of the barrier, process 0 constructs an ordered
+ *    list of the entries to be flushed, and then broadcasts this list
+ *    to the caches in all the processes.
  *
- *	All processes then scan the list of entries to be flushed, flushing
- *	some, and marking the rest as clean.  The algorithm for this purpose
- *	ensures that each entry in the list is flushed exactly once, and 
- *	all are marked clean in each cache.
+ *    All processes then scan the list of entries to be flushed, flushing
+ *    some, and marking the rest as clean.  The algorithm for this purpose
+ *    ensures that each entry in the list is flushed exactly once, and
+ *    all are marked clean in each cache.
  *
- *	Note that in the case of a flush of the cache, no message passing
- *	is necessary, as all processes have the same list of dirty entries, 
- *	and all of these entries must be flushed.  Thus in this case it is 
- *	sufficient for each process to sort its list of dirty entries after 
- *	leaving the initial barrier, and use this list as if it had been 
- *	received from process zero.
+ *    Note that in the case of a flush of the cache, no message passing
+ *    is necessary, as all processes have the same list of dirty entries,
+ *    and all of these entries must be flushed.  Thus in this case it is
+ *    sufficient for each process to sort its list of dirty entries after
+ *    leaving the initial barrier, and use this list as if it had been
+ *    received from process zero.
  *
- *	To avoid possible messages from the past/future, all caches must
- *	wait until all caches are done before leaving the sync point.
- *      
+ *    To avoid possible messages from the past/future, all caches must
+ *    wait until all caches are done before leaving the sync point.
+ *
  ****************************************************************************/
 
-#define H5AC__CURR_CACHE_CONFIG_VERSION 	1
-#define H5AC__MAX_TRACE_FILE_NAME_LEN		1024
+#define H5AC__CURR_CACHE_CONFIG_VERSION     1
+#define H5AC__MAX_TRACE_FILE_NAME_LEN        1024
 
 #define H5AC_METADATA_WRITE_STRATEGY__PROCESS_0_ONLY    0
 #define H5AC_METADATA_WRITE_STRATEGY__DISTRIBUTED       1
@@ -449,9 +449,9 @@ typedef struct H5AC_cache_config_t
     /* general configuration fields: */
     int                      version;
 
-    hbool_t		     rpt_fcn_enabled;
+    hbool_t             rpt_fcn_enabled;
 
-    hbool_t		     open_trace_file;
+    hbool_t             open_trace_file;
     hbool_t                  close_trace_file;
     char                     trace_file_name[H5AC__MAX_TRACE_FILE_NAME_LEN + 1];
 
@@ -510,7 +510,7 @@ typedef struct H5AC_cache_config_t
  *
  * structure H5AC_cache_image_config_t
  *
- * H5AC_cache_image_ctl_t is a public structure intended for use in public 
+ * H5AC_cache_image_ctl_t is a public structure intended for use in public
  * APIs.  At least in its initial incarnation, it is a copy of struct
  * H5C_cache_image_ctl_t.
  *
@@ -524,41 +524,41 @@ typedef struct H5AC_cache_config_t
  * generate_image:  Boolean flag indicating whether a cache image should
  *      be created on file close.
  *
- * save_resize_status:	Boolean flag indicating whether the cache image 
- *	should include the adaptive cache resize configuration and status.
- *	Note that this field is ignored at present.
+ * save_resize_status:    Boolean flag indicating whether the cache image
+ *    should include the adaptive cache resize configuration and status.
+ *    Note that this field is ignored at present.
  *
- * entry_ageout:	Integer field indicating the maximum number of 
- *	times a prefetched entry can appear in subsequent cache images.
- *	This field exists to allow the user to avoid the buildup of 
- *	infrequently used entries in long sequences of cache images.
+ * entry_ageout:    Integer field indicating the maximum number of
+ *    times a prefetched entry can appear in subsequent cache images.
+ *    This field exists to allow the user to avoid the buildup of
+ *    infrequently used entries in long sequences of cache images.
  *
- *	The value of this field must lie in the range
- *	H5AC__CACHE_IMAGE__ENTRY_AGEOUT__NONE (-1) to 
- *	H5AC__CACHE_IMAGE__ENTRY_AGEOUT__MAX (100).
+ *    The value of this field must lie in the range
+ *    H5AC__CACHE_IMAGE__ENTRY_AGEOUT__NONE (-1) to
+ *    H5AC__CACHE_IMAGE__ENTRY_AGEOUT__MAX (100).
  *
- *	H5AC__CACHE_IMAGE__ENTRY_AGEOUT__NONE means that no limit 
- *	is imposed on number of times a prefeteched entry can appear
- *	in subsequent cache images.
+ *    H5AC__CACHE_IMAGE__ENTRY_AGEOUT__NONE means that no limit
+ *    is imposed on number of times a prefeteched entry can appear
+ *    in subsequent cache images.
  *
- *	A value of 0 prevents prefetched entries from being included 
- *	in cache images.
+ *    A value of 0 prevents prefetched entries from being included
+ *    in cache images.
  *
- *	Positive integers restrict prefetched entries to the specified
- *	number of appearances.
+ *    Positive integers restrict prefetched entries to the specified
+ *    number of appearances.
  *
- *	Note that the number of subsequent cache images that a prefetched
- *	entry has appeared in is tracked in an 8 bit field.  Thus, while
- *	H5AC__CACHE_IMAGE__ENTRY_AGEOUT__MAX can be increased from its 
- *	current value, any value in excess of 255 will be the functional 
- *	equivalent of H5AC__CACHE_IMAGE__ENTRY_AGEOUT__NONE.
+ *    Note that the number of subsequent cache images that a prefetched
+ *    entry has appeared in is tracked in an 8 bit field.  Thus, while
+ *    H5AC__CACHE_IMAGE__ENTRY_AGEOUT__MAX can be increased from its
+ *    current value, any value in excess of 255 will be the functional
+ *    equivalent of H5AC__CACHE_IMAGE__ENTRY_AGEOUT__NONE.
  *
  ****************************************************************************/
 
-#define H5AC__CURR_CACHE_IMAGE_CONFIG_VERSION 	1
+#define H5AC__CURR_CACHE_IMAGE_CONFIG_VERSION     1
 
-#define H5AC__CACHE_IMAGE__ENTRY_AGEOUT__NONE	-1
-#define H5AC__CACHE_IMAGE__ENTRY_AGEOUT__MAX	100
+#define H5AC__CACHE_IMAGE__ENTRY_AGEOUT__NONE    -1
+#define H5AC__CACHE_IMAGE__ENTRY_AGEOUT__MAX    100
 
 typedef struct H5AC_cache_image_config_t {
     int                                 version;

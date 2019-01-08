@@ -224,7 +224,10 @@ herr_t
 H5G__ent_to_link(H5O_link_t *lnk, const H5HL_t *heap,
     const H5G_entry_t *ent, const char *name)
 {
-    FUNC_ENTER_PACKAGE_NOERR
+    hbool_t dup_soft = FALSE;           /* xstrdup the symbolic link name or not */
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_PACKAGE
 
     /* check arguments */
     HDassert(lnk);
@@ -236,18 +239,21 @@ H5G__ent_to_link(H5O_link_t *lnk, const H5HL_t *heap,
     lnk->cset = H5F_DEFAULT_CSET;
     lnk->corder = 0;
     lnk->corder_valid = FALSE;       /* Creation order not valid for this link */
-    lnk->name = H5MM_xstrdup(name);
-    HDassert(lnk->name);
+    if((lnk->name = H5MM_xstrdup(name)) == NULL)
+        HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to duplicate link name")
 
     /* Object is a symbolic or hard link */
     if(ent->type == H5G_CACHED_SLINK) {
         const char *s;          /* Pointer to link value */
 
-        s = (const char *)H5HL_offset_into(heap, ent->cache.slink.lval_offset);
-        HDassert(s);
+        if((s = (const char *)H5HL_offset_into(heap, ent->cache.slink.lval_offset)) == NULL)
+            HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to get symbolic link name")
 
         /* Copy the link value */
-        lnk->u.soft.name = H5MM_xstrdup(s);
+        if((lnk->u.soft.name = H5MM_xstrdup(s)) == NULL)
+            HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to duplicate symbolic link name")
+
+        dup_soft = TRUE;
 
         /* Set link type */
         lnk->type = H5L_TYPE_SOFT;
@@ -260,7 +266,14 @@ H5G__ent_to_link(H5O_link_t *lnk, const H5HL_t *heap,
         lnk->type = H5L_TYPE_HARD;
     } /* end else */
 
-    FUNC_LEAVE_NOAPI(SUCCEED)
+done:
+    if(ret_value < 0) {
+        if(lnk->name)
+            H5MM_xfree(lnk->name);
+        if(ent->type == H5G_CACHED_SLINK && dup_soft)
+            H5MM_xfree(lnk->u.soft.name);
+    }
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5G__ent_to_link() */
 
 
@@ -540,8 +553,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G__link_name_replace(H5F_t *file, hid_t dxpl_id, H5RS_str_t *grp_full_path_r,
-    const H5O_link_t *lnk)
+H5G__link_name_replace(H5F_t *file, H5RS_str_t *grp_full_path_r, const H5O_link_t *lnk)
 {
     H5RS_str_t *obj_path_r = NULL;      /* Full path for link being removed */
     herr_t ret_value = SUCCEED;         /* Return value */
@@ -554,7 +566,7 @@ H5G__link_name_replace(H5F_t *file, hid_t dxpl_id, H5RS_str_t *grp_full_path_r,
     /* Search the open IDs and replace names for unlinked object */
     if(grp_full_path_r) {
         obj_path_r = H5G_build_fullpath_refstr_str(grp_full_path_r, lnk->name);
-        if(H5G_name_replace(lnk, H5G_NAME_DELETE, file, obj_path_r, NULL, NULL, dxpl_id) < 0)
+        if(H5G_name_replace(lnk, H5G_NAME_DELETE, file, obj_path_r, NULL, NULL) < 0)
             HGOTO_ERROR(H5E_SYM, H5E_CANTDELETE, FAIL, "unable to replace name")
     } /* end if */
 

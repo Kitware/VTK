@@ -92,15 +92,15 @@
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F_block_read(const H5F_t *f, H5FD_mem_t type, haddr_t addr, size_t size,
-    hid_t dxpl_id, void *buf/*out*/)
+H5F_block_read(H5F_t *f, H5FD_mem_t type, haddr_t addr, size_t size,
+    void *buf/*out*/)
 {
-    H5F_io_info2_t fio_info;            /* I/O info for operation */
     H5FD_mem_t  map_type;               /* Mapped memory type */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
+    /* Sanity checks */
     HDassert(f);
     HDassert(f->shared);
     HDassert(buf);
@@ -113,23 +113,8 @@ H5F_block_read(const H5F_t *f, H5FD_mem_t type, haddr_t addr, size_t size,
     /* Treat global heap as raw data */
     map_type = (type == H5FD_MEM_GHEAP) ? H5FD_MEM_DRAW : type;
 
-    /* Set up the I/O info object */
-    fio_info.f = f;
-    if(H5FD_MEM_DRAW == type) {
-        if(NULL == (fio_info.meta_dxpl = (H5P_genplist_t *)H5I_object(H5AC_ind_read_dxpl_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get property list")
-        if(NULL == (fio_info.raw_dxpl = (H5P_genplist_t *)H5I_object(dxpl_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get property list")
-    } /* end if */
-    else {
-        if(NULL == (fio_info.meta_dxpl = (H5P_genplist_t *)H5I_object(dxpl_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get property list")
-        if(NULL == (fio_info.raw_dxpl = (H5P_genplist_t *)H5I_object(H5AC_rawdata_dxpl_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get property list")
-    } /* end else */
-
     /* Pass through page buffer layer */
-    if(H5PB_read(&fio_info, map_type, addr, size, buf) < 0)
+    if(H5PB_read(f, map_type, addr, size, buf) < 0)
         HGOTO_ERROR(H5E_IO, H5E_READERROR, FAIL, "read through page buffer failed")
 
 done:
@@ -153,15 +138,15 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F_block_write(const H5F_t *f, H5FD_mem_t type, haddr_t addr, size_t size,
-    hid_t dxpl_id, const void *buf)
+H5F_block_write(H5F_t *f, H5FD_mem_t type, haddr_t addr, size_t size,
+    const void *buf)
 {
-    H5F_io_info2_t fio_info;            /* I/O info for operation */
     H5FD_mem_t  map_type;               /* Mapped memory type */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
+    /* Sanity checks */
     HDassert(f);
     HDassert(f->shared);
     HDassert(H5F_INTENT(f) & H5F_ACC_RDWR);
@@ -175,23 +160,8 @@ H5F_block_write(const H5F_t *f, H5FD_mem_t type, haddr_t addr, size_t size,
     /* Treat global heap as raw data */
     map_type = (type == H5FD_MEM_GHEAP) ? H5FD_MEM_DRAW : type;
 
-    /* Set up the I/O info object */
-    fio_info.f = f;
-    if(H5FD_MEM_DRAW == type) {
-        if(NULL == (fio_info.meta_dxpl = (H5P_genplist_t *)H5I_object(H5AC_ind_read_dxpl_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get property list")
-        if(NULL == (fio_info.raw_dxpl = (H5P_genplist_t *)H5I_object(dxpl_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get property list")
-    } /* end if */
-    else {
-        if(NULL == (fio_info.meta_dxpl = (H5P_genplist_t *)H5I_object(dxpl_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get property list")
-        if(NULL == (fio_info.raw_dxpl = (H5P_genplist_t *)H5I_object(H5AC_rawdata_dxpl_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get property list")
-    } /* end else */
-
     /* Pass through page buffer layer */
-    if(H5PB_write(&fio_info, map_type, addr, size, buf) < 0)
+    if(H5PB_write(f, map_type, addr, size, buf) < 0)
         HGOTO_ERROR(H5E_IO, H5E_WRITEERROR, FAIL, "write through page buffer failed")
 
 done:
@@ -213,30 +183,22 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F_flush_tagged_metadata(H5F_t * f, haddr_t tag, hid_t dxpl_id)
+H5F_flush_tagged_metadata(H5F_t *f, haddr_t tag)
 {
-    H5F_io_info2_t fio_info;             /* I/O info for operation */
     herr_t ret_value = SUCCEED;
 
     FUNC_ENTER_NOAPI(FAIL)
 
     /* Use tag to search for and flush associated metadata */
-    if(H5AC_flush_tagged_metadata(f, tag, dxpl_id)<0)
+    if(H5AC_flush_tagged_metadata(f, tag) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTFLUSH, FAIL, "unable to flush tagged metadata")
 
-    /* Set up I/O info for operation */
-    fio_info.f = f;
-    if(NULL == (fio_info.meta_dxpl = (H5P_genplist_t *)H5I_object(dxpl_id)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get property list")
-    if(NULL == (fio_info.raw_dxpl = (H5P_genplist_t *)H5I_object(H5AC_rawdata_dxpl_id)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get property list")
-
     /* Flush and reset the accumulator */
-    if(H5F__accum_reset(&fio_info, TRUE) < 0)
+    if(H5F__accum_reset(f, TRUE) < 0)
         HGOTO_ERROR(H5E_IO, H5E_CANTRESET, FAIL, "can't reset accumulator")
 
     /* Flush file buffers to disk. */
-    if(H5FD_flush(f->shared->lf, dxpl_id, FALSE) < 0)
+    if(H5FD_flush(f->shared->lf, FALSE) < 0)
         HGOTO_ERROR(H5E_IO, H5E_WRITEERROR, FAIL, "low level flush failed")
 
 done:
@@ -257,14 +219,14 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F_evict_tagged_metadata(H5F_t * f, haddr_t tag, hid_t dxpl_id)
+H5F_evict_tagged_metadata(H5F_t *f, haddr_t tag)
 {
     herr_t ret_value = SUCCEED;
 
     FUNC_ENTER_NOAPI(FAIL)
 
     /* Evict the object's metadata */
-    if(H5AC_evict_tagged_metadata(f, tag, TRUE, dxpl_id) < 0)
+    if(H5AC_evict_tagged_metadata(f, tag, TRUE) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTEXPUNGE, FAIL, "unable to evict tagged metadata")
 
 done:
@@ -285,7 +247,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F__evict_cache_entries(H5F_t *f, hid_t dxpl_id)
+H5F__evict_cache_entries(H5F_t *f)
 {
     herr_t ret_value = SUCCEED;
 
@@ -295,7 +257,7 @@ H5F__evict_cache_entries(H5F_t *f, hid_t dxpl_id)
     HDassert(f->shared);
 
     /* Evict all except pinned entries in the cache */
-    if(H5AC_evict(f, dxpl_id) < 0)
+    if(H5AC_evict(f) < 0)
         HGOTO_ERROR(H5E_CACHE, H5E_CANTEXPUNGE, FAIL, "unable to evict all except pinned entries")
 
 #ifndef NDEBUG

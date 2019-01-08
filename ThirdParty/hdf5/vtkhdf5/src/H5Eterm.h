@@ -50,6 +50,7 @@ H5E_ATOM_g=
 H5E_NONE_MAJOR_g=    
 H5E_SLIST_g=    
 H5E_ARGS_g=    
+H5E_CONTEXT_g=    
 H5E_EARRAY_g=    
 H5E_PLINE_g=    
 H5E_ERROR_g=    
@@ -194,7 +195,9 @@ H5E_CANTSORT_g=
 /* Parallel MPI errors */    
 H5E_MPI_g=    
 H5E_MPIERRSTR_g=    
-H5E_CANTRECV_g=
+H5E_CANTRECV_g=    
+H5E_CANTGATHER_g=    
+H5E_NO_INDEPENDENT_g=
 
 /* Dataspace errors */    
 H5E_CANTCLIP_g=    

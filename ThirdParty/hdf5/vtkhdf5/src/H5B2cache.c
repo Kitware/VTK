@@ -715,7 +715,11 @@ H5B2__cache_int_deserialize(const void *_image, size_t H5_ATTR_UNUSED len,
     for(u = 0; u < (unsigned)(internal->nrec + 1); u++) {
         /* Decode node pointer */
         H5F_addr_decode(udata->f, (const uint8_t **)&image, &(int_node_ptr->addr));
-        UINT64DECODE_VAR(image, int_node_ptr->node_nrec, udata->hdr->max_nrec_size);
+        uint64_t nrec;
+        UINT64DECODE_VAR(image, nrec, udata->hdr->max_nrec_size);
+        if (nrec >= UINT16_MAX)
+            nrec = UINT16_MAX;
+        int_node_ptr->node_nrec = (uint16_t)nrec;
         if(udata->depth > 1)
             UINT64DECODE_VAR(image, int_node_ptr->all_nrec, udata->hdr->node_info[udata->depth - 1].cum_max_nrec_size)
         else

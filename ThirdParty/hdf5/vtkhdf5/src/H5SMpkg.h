@@ -96,7 +96,7 @@
 #define H5SM_B2_SPLIT_PERCENT 100
 #define H5SM_B2_MERGE_PERCENT 40
 
-#define H5SM_LIST_VERSION	0	/* Verion of Shared Object Header Message List Indexes */
+#define H5SM_LIST_VERSION	0	/* Version of Shared Object Header Message List Indexes */
 
 /****************************/
 /* Package Typedefs         */
@@ -199,7 +199,6 @@ struct H5SM_master_table_t {
 /* Typedef for searching an index (list or B-tree) */
 typedef struct {
     H5F_t *file;                        /* File in which sharing is happening */
-    hid_t dxpl_id;                      /* DXPL for sharing messages in heap */
     H5HF_t *fheap;    			/* The heap for this message type, open. */
     void *encoding; 		        /* The message encoded, or NULL */
     size_t encoding_size; 		/* Size of the encoding, or 0 */
@@ -224,7 +223,6 @@ typedef struct {
 typedef struct {
     H5SM_mesg_key_t *key;       /* IN: key for message being incremented */
     H5O_fheap_id_t fheap_id;    /* OUT: fheap ID of record */
-    hid_t dxpl_id;
 } H5SM_incr_ref_opdata;
 
 /* v2 B-tree client callback context */
@@ -280,8 +278,7 @@ herr_t H5SM_list_free(H5SM_list_t *list);
 
 /* Testing functions */
 #ifdef H5SM_TESTING
-H5_DLL herr_t H5SM_get_mesg_count_test(H5F_t *f, hid_t dxpl_id, unsigned type_id,
-    size_t *mesg_count);
+H5_DLL herr_t H5SM__get_mesg_count_test(H5F_t *f, unsigned type_id, size_t *mesg_count);
 #endif /* H5SM_TESTING */
 
 #endif /* _H5SMpkg_H */

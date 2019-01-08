@@ -32,16 +32,16 @@
 
 
 /* PRIVATE PROTOTYPES */
-static void *H5O_refcount_decode(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh,
-    unsigned mesg_flags, unsigned *ioflags, const uint8_t *p);
+static void *H5O__refcount_decode(H5F_t *f, H5O_t *open_oh, unsigned mesg_flags,
+    unsigned *ioflags, size_t p_size, const uint8_t *p);
 static herr_t H5O_refcount_encode(H5F_t *f, hbool_t disable_shared, uint8_t *p, const void *_mesg);
 static void *H5O_refcount_copy(const void *_mesg, void *_dest);
 static size_t H5O_refcount_size(const H5F_t *f, hbool_t disable_shared, const void *_mesg);
-static herr_t H5O_refcount_free(void *_mesg);
+static herr_t H5O__refcount_free(void *_mesg);
 static herr_t H5O_refcount_pre_copy_file(H5F_t *file_src, const void *mesg_src,
     hbool_t *deleted, const H5O_copy_t *cpy_info, void *udata);
-static herr_t H5O_refcount_debug(H5F_t *f, hid_t dxpl_id, const void *_mesg,
-			     FILE * stream, int indent, int fwidth);
+static herr_t H5O__refcount_debug(H5F_t *f, const void *_mesg, FILE * stream,
+    int indent, int fwidth);
 
 /* This message derives from H5O message class */
 const H5O_msg_class_t H5O_MSG_REFCOUNT[1] = {{
@@ -49,12 +49,12 @@ const H5O_msg_class_t H5O_MSG_REFCOUNT[1] = {{
     "refcount",                	/*message name for debugging    */
     sizeof(H5O_refcount_t),    	/*native message size           */
     0,				/* messages are sharable?       */
-    H5O_refcount_decode,	/*decode message                */
+    H5O__refcount_decode,	/*decode message                */
     H5O_refcount_encode,	/*encode message                */
     H5O_refcount_copy,		/*copy the native value         */
     H5O_refcount_size,		/*size of symbol table entry    */
     NULL,                   	/*default reset method          */
-    H5O_refcount_free,	        /* free method			*/
+    H5O__refcount_free,	        /* free method			*/
     NULL,			/* file delete method		*/
     NULL,			/* link method			*/
     NULL, 			/*set share method		*/
@@ -64,7 +64,7 @@ const H5O_msg_class_t H5O_MSG_REFCOUNT[1] = {{
     NULL,			/* post copy native value to file */
     NULL,			/* get creation index		*/
     NULL,			/* set creation index		*/
-    H5O_refcount_debug         	/*debug the message             */
+    H5O__refcount_debug        	/*debug the message             */
 }};
 
 /* Current version of ref. count information */
@@ -75,7 +75,7 @@ H5FL_DEFINE_STATIC(H5O_refcount_t);
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_refcount_decode
+ * Function:    H5O__refcount_decode
  *
  * Purpose:     Decode a message and return a pointer to a newly allocated one.
  *
@@ -89,13 +89,14 @@ H5FL_DEFINE_STATIC(H5O_refcount_t);
  *-------------------------------------------------------------------------
  */
 static void *
-H5O_refcount_decode(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, H5O_t H5_ATTR_UNUSED *open_oh,
-    unsigned H5_ATTR_UNUSED mesg_flags, unsigned H5_ATTR_UNUSED *ioflags, const uint8_t *p)
+H5O__refcount_decode(H5F_t H5_ATTR_UNUSED *f, H5O_t H5_ATTR_UNUSED *open_oh,
+    unsigned H5_ATTR_UNUSED mesg_flags, unsigned H5_ATTR_UNUSED *ioflags,
+    size_t H5_ATTR_UNUSED p_size, const uint8_t *p)
 {
     H5O_refcount_t *refcount = NULL;    /* Reference count */
     void *ret_value = NULL;             /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(f);
@@ -120,7 +121,7 @@ done:
         refcount = H5FL_FREE(H5O_refcount_t, refcount);
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_refcount_decode() */
+} /* end H5O__refcount_decode() */
 
 
 /*-------------------------------------------------------------------------
@@ -231,9 +232,9 @@ H5O_refcount_size(const H5F_t H5_ATTR_UNUSED *f, hbool_t H5_ATTR_UNUSED disable_
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_refcount_free
+ * Function:	H5O__refcount_free
  *
- * Purpose:	Free's the message
+ * Purpose:	Frees the message
  *
  * Return:	Non-negative on success/Negative on failure
  *
@@ -243,16 +244,16 @@ H5O_refcount_size(const H5F_t H5_ATTR_UNUSED *f, hbool_t H5_ATTR_UNUSED disable_
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_refcount_free(void *mesg)
+H5O__refcount_free(void *mesg)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     HDassert(mesg);
 
     mesg = H5FL_FREE(H5O_refcount_t, mesg);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5O_refcount_free() */
+} /* end H5O__refcount_free() */
 
 
 /*-------------------------------------------------------------------------
@@ -289,7 +290,7 @@ H5O_refcount_pre_copy_file(H5F_t H5_ATTR_UNUSED *file_src, const void H5_ATTR_UN
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_refcount_debug
+ * Function:    H5O__refcount_debug
  *
  * Purpose:     Prints debugging info for a message.
  *
@@ -302,12 +303,12 @@ H5O_refcount_pre_copy_file(H5F_t H5_ATTR_UNUSED *file_src, const void H5_ATTR_UN
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_refcount_debug(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, const void *_mesg, FILE * stream,
-	       int indent, int fwidth)
+H5O__refcount_debug(H5F_t H5_ATTR_UNUSED *f, const void *_mesg, FILE * stream,
+   int indent, int fwidth)
 {
     const H5O_refcount_t       *refcount = (const H5O_refcount_t *) _mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* check args */
     HDassert(f);
@@ -320,5 +321,5 @@ H5O_refcount_debug(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, const 
 	      "Number of links:", (unsigned)*refcount);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5O_refcount_debug() */
+} /* end H5O__refcount_debug() */
 

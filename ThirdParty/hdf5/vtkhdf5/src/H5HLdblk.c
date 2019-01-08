@@ -178,7 +178,7 @@ END_FUNC(PKG) /* end H5HL__dblk_dest() */
  */
 BEGIN_FUNC(PKG, ERR,
 herr_t, SUCCEED, FAIL,
-H5HL__dblk_realloc(H5F_t *f, hid_t dxpl_id, H5HL_t *heap, size_t new_heap_size))
+H5HL__dblk_realloc(H5F_t *f, H5HL_t *heap, size_t new_heap_size))
 
     H5HL_dblk_t *dblk;                  /* Local heap data block */
     haddr_t old_addr;                   /* Old location of heap data block */
@@ -193,12 +193,12 @@ H5HL__dblk_realloc(H5F_t *f, hid_t dxpl_id, H5HL_t *heap, size_t new_heap_size))
     old_addr = heap->dblk_addr;
     old_heap_size = heap->dblk_size;
     H5_CHECK_OVERFLOW(old_heap_size, size_t, hsize_t);
-    if(FAIL == H5MF_xfree(f, H5FD_MEM_LHEAP, dxpl_id, old_addr, (hsize_t)old_heap_size))
+    if(FAIL == H5MF_xfree(f, H5FD_MEM_LHEAP, old_addr, (hsize_t)old_heap_size))
         H5E_THROW(H5E_CANTFREE, "can't free old local heap data");
 
     /* Allocate new space on disk */
     H5_CHECK_OVERFLOW(new_heap_size, size_t, hsize_t);
-    if(HADDR_UNDEF == (new_addr = H5MF_alloc(f, H5FD_MEM_LHEAP, dxpl_id, (hsize_t)new_heap_size)))
+    if(HADDR_UNDEF == (new_addr = H5MF_alloc(f, H5FD_MEM_LHEAP, (hsize_t)new_heap_size)))
         H5E_THROW(H5E_CANTALLOC, "unable to allocate file space for local heap");
 
     /* Update heap info*/
@@ -240,7 +240,7 @@ H5HL__dblk_realloc(H5F_t *f, hid_t dxpl_id, H5HL_t *heap, size_t new_heap_size))
                 H5E_THROW(H5E_CANTRESIZE, "unable to resize heap prefix in cache");
 
             /* Insert data block into cache (pinned) */
-            if(FAIL == H5AC_insert_entry(f, dxpl_id, H5AC_LHEAP_DBLK, new_addr, dblk, H5AC__PIN_ENTRY_FLAG))
+            if(FAIL == H5AC_insert_entry(f, H5AC_LHEAP_DBLK, new_addr, dblk, H5AC__PIN_ENTRY_FLAG))
                 H5E_THROW(H5E_CANTINIT, "unable to cache local heap data block");
                 
             dblk = NULL;
@@ -257,7 +257,7 @@ H5HL__dblk_realloc(H5F_t *f, hid_t dxpl_id, H5HL_t *heap, size_t new_heap_size))
                 H5E_THROW(H5E_CANTRESIZE, "unable to resize heap data block in cache");
 
             /* Relocate the heap data block in the cache */
-            if(FAIL == H5AC_move_entry(f, H5AC_LHEAP_DBLK, old_addr, new_addr, dxpl_id))
+            if(FAIL == H5AC_move_entry(f, H5AC_LHEAP_DBLK, old_addr, new_addr))
                 H5E_THROW(H5E_CANTMOVE, "unable to move heap data block in cache");
 
         } /* end else */

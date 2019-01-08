@@ -34,6 +34,7 @@ H5TS_once_t H5TS_first_init_g = PTHREAD_ONCE_INIT;
 #endif /* H5_HAVE_WIN_THREADS */
 H5TS_key_t H5TS_errstk_key_g;
 H5TS_key_t H5TS_funcstk_key_g;
+H5TS_key_t H5TS_apictx_key_g;
 H5TS_key_t H5TS_cancel_key_g;
 
 
@@ -108,6 +109,9 @@ H5TS_pthread_first_thread_init(void)
 
     /* initialize key for thread-specific function stacks */
     pthread_key_create(&H5TS_funcstk_key_g, H5TS_key_destructor);
+
+    /* initialize key for thread-specific API contexts */
+    pthread_key_create(&H5TS_apictx_key_g, H5TS_key_destructor);
 
     /* initialize key for thread cancellability mechanism */
     pthread_key_create(&H5TS_cancel_key_g, H5TS_key_destructor);
@@ -262,8 +266,7 @@ H5TS_cancel_count_inc(void)
         cancel_counter = (H5TS_cancel_t *)HDcalloc(1, sizeof(H5TS_cancel_t));
 
         if (!cancel_counter) {
-            H5E_push_stack(NULL, "H5TS_cancel_count_inc", __FILE__, __LINE__,
-                H5E_ERR_CLS_g, H5E_RESOURCE, H5E_NOSPACE, "memory allocation failed");
+            HERROR(H5E_RESOURCE, H5E_NOSPACE, "memory allocation failed");
             return FAIL;
         }
 
@@ -356,6 +359,10 @@ H5TS_win32_process_enter(PINIT_ONCE InitOnce, PVOID Parameter, PVOID *lpContex)
         ret_value = FALSE;
 #endif /* H5_HAVE_CODESTACK */
 
+    /* Set up thread local storage */
+    if(TLS_OUT_OF_INDEXES == (H5TS_apictx_key_g = TlsAlloc()))
+        ret_value = FALSE;
+
     return ret_value;
 } /* H5TS_win32_process_enter() */
 #endif /* H5_HAVE_WIN_THREADS */
@@ -426,6 +433,9 @@ H5TS_win32_process_exit(void)
     TlsFree(H5TS_funcstk_key_g);
 #endif /* H5_HAVE_CODESTACK */
 
+    /* Clean up per-process thread local storage */
+    TlsFree(H5TS_apictx_key_g);
+
     return;
 } /* H5TS_win32_process_exit() */
 #endif /* H5_HAVE_WIN_THREADS */
@@ -468,6 +478,11 @@ H5TS_win32_thread_exit(void)
     if(lpvData)
         LocalFree((HLOCAL)lpvData);
 #endif /* H5_HAVE_CODESTACK */
+
+    /* Clean up per-thread thread local storage */
+    lpvData = TlsGetValue(H5TS_apictx_key_g);
+    if(lpvData)
+        LocalFree((HLOCAL)lpvData);
 
     return ret_value;
 } /* H5TS_win32_thread_exit() */

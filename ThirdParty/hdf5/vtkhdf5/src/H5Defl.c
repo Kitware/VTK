@@ -143,7 +143,7 @@ H5D__efl_construct(H5F_t *f, H5D_t *dset)
 
     /*
      * The maximum size of the dataset cannot exceed the storage size.
-     * Also, only the slowest varying dimension of a simple data space
+     * Also, only the slowest varying dimension of a simple dataspace
      * can be extendible (currently only for external data storage).
      */
 
@@ -288,7 +288,7 @@ H5D__efl_read(const H5O_efl_t *efl, const H5D_t *dset, haddr_t addr, size_t size
             HGOTO_ERROR(H5E_EFL, H5E_OVERFLOW, FAIL, "external file address overflowed")
         if(H5_combine_path(dset->shared->extfile_prefix, efl->slot[u].name, &full_name) < 0)
             HGOTO_ERROR(H5E_EFL, H5E_NOSPACE, FAIL, "can't build external file name")
-        if((fd = HDopen(full_name, O_RDONLY, 0)) < 0)
+        if((fd = HDopen(full_name, O_RDONLY)) < 0)
             HGOTO_ERROR(H5E_EFL, H5E_CANTOPENFILE, FAIL, "unable to open external raw data file")
         if(HDlseek(fd, (HDoff_t)(efl->slot[u].offset + (HDoff_t)skip), SEEK_SET) < 0)
             HGOTO_ERROR(H5E_EFL, H5E_SEEKERROR, FAIL, "unable to seek in external raw data file")
@@ -380,7 +380,7 @@ H5D__efl_write(const H5O_efl_t *efl, const H5D_t *dset, haddr_t addr, size_t siz
             HGOTO_ERROR(H5E_EFL, H5E_OVERFLOW, FAIL, "external file address overflowed")
         if(H5_combine_path(dset->shared->extfile_prefix, efl->slot[u].name, &full_name) < 0)
             HGOTO_ERROR(H5E_EFL, H5E_NOSPACE, FAIL, "can't build external file name")
-        if((fd = HDopen(full_name, O_CREAT | O_RDWR, 0666)) < 0) {
+        if((fd = HDopen(full_name, O_CREAT | O_RDWR, H5_POSIX_CREATE_MODE_RW)) < 0) {
             if(HDaccess(full_name, F_OK) < 0)
                 HGOTO_ERROR(H5E_EFL, H5E_CANTOPENFILE, FAIL, "external raw data file does not exist")
             else
@@ -597,7 +597,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5D__efl_bh_info(H5F_t *f, hid_t dxpl_id, H5O_efl_t *efl, hsize_t *heap_size)
+H5D__efl_bh_info(H5F_t *f, H5O_efl_t *efl, hsize_t *heap_size)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
@@ -610,7 +610,7 @@ H5D__efl_bh_info(H5F_t *f, hid_t dxpl_id, H5O_efl_t *efl, hsize_t *heap_size)
     HDassert(heap_size);
 
     /* Get the size of the local heap for EFL's file list */
-    if(H5HL_heapsize(f, dxpl_id, efl->heap_addr, heap_size) < 0)
+    if(H5HL_heapsize(f, efl->heap_addr, heap_size) < 0)
         HGOTO_ERROR(H5E_EFL, H5E_CANTINIT, FAIL, "unable to retrieve local heap info")
 
 done:

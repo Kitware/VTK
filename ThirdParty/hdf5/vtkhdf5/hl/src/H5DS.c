@@ -160,11 +160,11 @@ herr_t H5DSattach_scale(hid_t did,
         return FAIL;
 
     /* get info for the dataset in the parameter list */
-    if(H5Oget_info(did, &oi1) < 0)
+    if(H5Oget_info2(did, &oi1, H5O_INFO_BASIC) < 0)
         return FAIL;
 
     /* get info for the scale in the parameter list */
-    if(H5Oget_info(dsid, &oi2) < 0)
+    if(H5Oget_info2(dsid, &oi2, H5O_INFO_BASIC) < 0)
         return FAIL;
 
     /* same object, not valid */
@@ -324,11 +324,11 @@ herr_t H5DSattach_scale(hid_t did,
                 goto out;
 
             /* get info for DS in the parameter list */
-            if(H5Oget_info(dsid, &oi1) < 0)
+            if(H5Oget_info2(dsid, &oi1, H5O_INFO_BASIC) < 0)
                 goto out;
 
             /* get info for this DS */
-            if(H5Oget_info(dsid_j, &oi2) < 0)
+            if(H5Oget_info2(dsid_j, &oi2, H5O_INFO_BASIC) < 0)
                 goto out;
 
             /* same object, so this DS scale is already in this DIM IDX */
@@ -609,11 +609,11 @@ herr_t H5DSdetach_scale(hid_t did,
         return FAIL;
 
     /* get info for the dataset in the parameter list */
-    if(H5Oget_info(did, &did_oi) < 0)
+    if(H5Oget_info2(did, &did_oi, H5O_INFO_BASIC) < 0)
         return FAIL;
 
     /* get info for the scale in the parameter list */
-    if(H5Oget_info(dsid, &dsid_oi) < 0)
+    if(H5Oget_info2(dsid, &dsid_oi, H5O_INFO_BASIC) < 0)
         return FAIL;
 
     /* same object, not valid */
@@ -696,7 +696,7 @@ herr_t H5DSdetach_scale(hid_t did,
                 goto out;
 
             /* get info for this DS */
-            if(H5Oget_info(dsid_j, &tmp_oi) < 0)
+            if(H5Oget_info2(dsid_j, &tmp_oi, H5O_INFO_BASIC) < 0)
                 goto out;
 
             /* Close the dereferenced dataset */
@@ -806,7 +806,7 @@ herr_t H5DSdetach_scale(hid_t did,
                 goto out;
 
             /* get info for this dataset */
-            if(H5Oget_info(did_i, &tmp_oi) < 0)
+            if(H5Oget_info2(did_i, &tmp_oi, H5O_INFO_BASIC) < 0)
                 goto out;
 
             /* close the dereferenced dataset */
@@ -973,11 +973,11 @@ htri_t H5DSis_attached(hid_t did,
         return FAIL;
 
     /* get info for the dataset in the parameter list */
-    if(H5Oget_info(did, &oi1) < 0)
+    if(H5Oget_info2(did, &oi1, H5O_INFO_BASIC) < 0)
         return FAIL;
 
     /* get info for the scale in the parameter list */
-    if(H5Oget_info(dsid, &oi2) < 0)
+    if(H5Oget_info2(dsid, &oi2, H5O_INFO_BASIC) < 0)
         return FAIL;
 
     /* same object, not valid */
@@ -1054,11 +1054,11 @@ htri_t H5DSis_attached(hid_t did,
                 goto out;
 
             /* get info for DS in the parameter list */
-            if(H5Oget_info(dsid, &oi1) < 0)
+            if(H5Oget_info2(dsid, &oi1, H5O_INFO_BASIC) < 0)
                 goto out;
 
             /* get info for this DS */
-            if(H5Oget_info(dsid_j, &oi2) < 0)
+            if(H5Oget_info2(dsid_j, &oi2, H5O_INFO_BASIC) < 0)
                 goto out;
 
             /* same object */
@@ -1144,11 +1144,11 @@ htri_t H5DSis_attached(hid_t did,
                     goto out;
 
                 /* get info for dataset in the parameter list */
-                if(H5Oget_info(did, &oi3) < 0)
+                if(H5Oget_info2(did, &oi3, H5O_INFO_BASIC) < 0)
                     goto out;
 
                 /* get info for this dataset */
-                if(H5Oget_info(did_i, &oi4) < 0)
+                if(H5Oget_info2(did_i, &oi4, H5O_INFO_BASIC) < 0)
                     goto out;
 
                 /* same object */

@@ -89,7 +89,7 @@
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FS_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent, int fwidth)
+H5FS_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth)
 {
     H5FS_t      *fspace = NULL;         /* Free space header info */
     H5FS_hdr_cache_ud_t cache_udata;    /* User-data for cache callback */
@@ -116,7 +116,7 @@ H5FS_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent, int 
     /*
      * Load the free space header.
      */
-    if(NULL == (fspace = (H5FS_t *)H5AC_protect(f, dxpl_id, H5AC_FSPACE_HDR, addr, &cache_udata, H5AC__READ_ONLY_FLAG)))
+    if(NULL == (fspace = (H5FS_t *)H5AC_protect(f, H5AC_FSPACE_HDR, addr, &cache_udata, H5AC__READ_ONLY_FLAG)))
         HGOTO_ERROR(H5E_FSPACE, H5E_CANTLOAD, FAIL, "unable to load free space header")
 
     /* Print opening message */
@@ -167,7 +167,7 @@ H5FS_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent, int 
         fspace->alloc_sect_size);
 
 done:
-    if(fspace && H5AC_unprotect(f, dxpl_id, H5AC_FSPACE_HDR, addr, fspace, H5AC__NO_FLAGS_SET) < 0)
+    if(fspace && H5AC_unprotect(f, H5AC_FSPACE_HDR, addr, fspace, H5AC__NO_FLAGS_SET) < 0)
         HDONE_ERROR(H5E_FSPACE, H5E_PROTECT, FAIL, "unable to release free space header")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -225,7 +225,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FS_sects_debug(H5F_t *f, hid_t dxpl_id, haddr_t H5_ATTR_UNUSED addr, FILE *stream, int indent, int fwidth,
+H5FS_sects_debug(H5F_t *f, haddr_t H5_ATTR_UNUSED addr, FILE *stream, int indent, int fwidth,
     haddr_t fs_addr, haddr_t client_addr)
 {
     H5FS_t	    *fspace = NULL;         /* Free space header info */
@@ -256,7 +256,7 @@ H5FS_sects_debug(H5F_t *f, hid_t dxpl_id, haddr_t H5_ATTR_UNUSED addr, FILE *str
     /*
      * Load the free space header.
      */
-    if(NULL == (fspace = (H5FS_t *)H5AC_protect(f, dxpl_id, H5AC_FSPACE_HDR, fs_addr, &cache_udata, H5AC__READ_ONLY_FLAG)))
+    if(NULL == (fspace = (H5FS_t *)H5AC_protect(f, H5AC_FSPACE_HDR, fs_addr, &cache_udata, H5AC__READ_ONLY_FLAG)))
         HGOTO_ERROR(H5E_FSPACE, H5E_CANTLOAD, FAIL, "unable to load free space header")
 
     /* Retrieve the client id */
@@ -266,7 +266,7 @@ H5FS_sects_debug(H5F_t *f, hid_t dxpl_id, haddr_t H5_ATTR_UNUSED addr, FILE *str
     /* (set the "deleted" flag for the unprotect, so the cache entry is removed
      *  and reloaded later, with the correct client information -QAK)
      */
-    if(H5AC_unprotect(f, dxpl_id, H5AC_FSPACE_HDR, fs_addr, fspace, H5AC__DELETED_FLAG) < 0)
+    if(H5AC_unprotect(f, H5AC_FSPACE_HDR, fs_addr, fspace, H5AC__DELETED_FLAG) < 0)
         HDONE_ERROR(H5E_FSPACE, H5E_PROTECT, FAIL, "unable to release free space header")
     fspace = NULL;
 
@@ -278,12 +278,12 @@ H5FS_sects_debug(H5F_t *f, hid_t dxpl_id, haddr_t H5_ATTR_UNUSED addr, FILE *str
      */
     switch(client) {
         case H5FS_CLIENT_FHEAP_ID:
-            if(H5HF_sects_debug(f, dxpl_id, client_addr, stream, indent + 3, MAX(0, fwidth - 3)) < 0)
+            if(H5HF_sects_debug(f, client_addr, stream, indent + 3, MAX(0, fwidth - 3)) < 0)
                 HGOTO_ERROR(H5E_FSPACE, H5E_SYSTEM, FAIL, "unable to dump fractal heap free space sections")
             break;
 
         case H5FS_CLIENT_FILE_ID:
-            if(H5MF_sects_debug(f, dxpl_id, fs_addr, stream, indent + 3, MAX(0, fwidth - 3)) < 0)
+            if(H5MF_sects_debug(f, fs_addr, stream, indent + 3, MAX(0, fwidth - 3)) < 0)
                 HGOTO_ERROR(H5E_FSPACE, H5E_SYSTEM, FAIL, "unable to dump file free space sections")
             break;
 
@@ -294,7 +294,7 @@ H5FS_sects_debug(H5F_t *f, hid_t dxpl_id, haddr_t H5_ATTR_UNUSED addr, FILE *str
     } /* end switch */
 
 done:
-    if(fspace && H5AC_unprotect(f, dxpl_id, H5AC_FSPACE_HDR, fs_addr, fspace, H5AC__NO_FLAGS_SET) < 0)
+    if(fspace && H5AC_unprotect(f, H5AC_FSPACE_HDR, fs_addr, fspace, H5AC__NO_FLAGS_SET) < 0)
         HDONE_ERROR(H5E_FSPACE, H5E_PROTECT, FAIL, "unable to release free space header")
 
     FUNC_LEAVE_NOAPI(ret_value)

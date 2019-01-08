@@ -64,12 +64,6 @@ typedef struct H5D_farray_ctx_t {
     size_t chunk_size_len;      /* Size of chunk sizes in the file (bytes) */
 } H5D_farray_ctx_t;
 
-/* User data for chunk callbacks */
-typedef struct H5D_farray_ud_t {
-    H5F_t *f;                   /* File pointer for operation */
-    hid_t dxpl_id;              /* DXPL ID for operation */
-} H5D_farray_ud_t;
-
 /* Fixed Array callback info for iteration over chunks */
 typedef struct H5D_farray_it_ud_t {
     H5D_chunk_common_ud_t common;       /* Common info for Fixed Array user data (must be first) */
@@ -105,8 +99,7 @@ static herr_t H5D__farray_decode(const void *raw, void *elmt, size_t nelmts,
     void *ctx);
 static herr_t H5D__farray_debug(FILE *stream, int indent, int fwidth,
     hsize_t idx, const void *elmt);
-static void *H5D__farray_crt_dbg_context(H5F_t *f, hid_t dxpl_id,
-    haddr_t obj_addr);
+static void *H5D__farray_crt_dbg_context(H5F_t *f, haddr_t obj_addr);
 static herr_t H5D__farray_dst_dbg_context(void *dbg_ctx);
 
 /* Fixed array class callbacks for chunks w/filters */
@@ -136,7 +129,7 @@ static herr_t H5D__farray_idx_delete(const H5D_chk_idx_info_t *idx_info);
 static herr_t H5D__farray_idx_copy_setup(const H5D_chk_idx_info_t *idx_info_src,
     const H5D_chk_idx_info_t *idx_info_dst);
 static herr_t H5D__farray_idx_copy_shutdown(H5O_storage_chunk_t *storage_src,
-    H5O_storage_chunk_t *storage_dst, hid_t dxpl_id);
+    H5O_storage_chunk_t *storage_dst);
 static herr_t H5D__farray_idx_size(const H5D_chk_idx_info_t *idx_info,
     hsize_t *size);
 static herr_t H5D__farray_idx_reset(H5O_storage_chunk_t *storage, hbool_t reset_addr);
@@ -464,7 +457,7 @@ H5D__farray_debug(FILE *stream, int indent, int fwidth, hsize_t idx,
  *-------------------------------------------------------------------------
  */
 static void *
-H5D__farray_crt_dbg_context(H5F_t *f, hid_t dxpl_id, haddr_t obj_addr)
+H5D__farray_crt_dbg_context(H5F_t *f, haddr_t obj_addr)
 {
     H5D_farray_ctx_ud_t	*dbg_ctx = NULL;   /* Context for fixed array callback */
     H5O_loc_t obj_loc;          /* Pointer to an object's location */
@@ -493,7 +486,7 @@ H5D__farray_crt_dbg_context(H5F_t *f, hid_t dxpl_id, haddr_t obj_addr)
     obj_opened = TRUE;
 
     /* Read the layout message */
-    if(NULL == H5O_msg_read(&obj_loc, H5O_LAYOUT_ID, &layout, dxpl_id))
+    if(NULL == H5O_msg_read(&obj_loc, H5O_LAYOUT_ID, &layout))
         HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, NULL, "can't get layout info")
 
     /* close the object header */
@@ -515,10 +508,9 @@ done:
             dbg_ctx = H5FL_FREE(H5D_farray_ctx_ud_t, dbg_ctx);
 
         /* Close object header */
-        if(obj_opened) {
+        if(obj_opened)
             if(H5O_close(&obj_loc, NULL) < 0)
                 HDONE_ERROR(H5E_DATASET, H5E_CANTCLOSEOBJ, NULL, "can't close object header")
-        } /* end if */
     } /* end if */
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -757,7 +749,7 @@ H5D__farray_idx_depend(const H5D_chk_idx_info_t *idx_info)
     oloc.addr = idx_info->storage->u.farray.dset_ohdr_addr;
 
     /* Get header */
-    if(NULL == (oh = H5O_protect(&oloc, idx_info->dxpl_id, H5AC__READ_ONLY_FLAG, TRUE)))
+    if(NULL == (oh = H5O_protect(&oloc, H5AC__READ_ONLY_FLAG, TRUE)))
         HGOTO_ERROR(H5E_DATASET, H5E_CANTPROTECT, FAIL, "unable to protect object header")
 
     /* Retrieve the dataset's object header proxy */
@@ -765,12 +757,12 @@ H5D__farray_idx_depend(const H5D_chk_idx_info_t *idx_info)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "unable to get dataset object header proxy")
 
     /* Make the fixed array a child flush dependency of the dataset's object header proxy */
-    if(H5FA_depend(idx_info->storage->u.farray.fa, idx_info->dxpl_id, oh_proxy) < 0)
+    if(H5FA_depend(idx_info->storage->u.farray.fa, oh_proxy) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTDEPEND, FAIL, "unable to create flush dependency on object header proxy")
 
 done:
     /* Release the object header from the cache */
-    if(oh && H5O_unprotect(&oloc, idx_info->dxpl_id, oh, H5AC__NO_FLAGS_SET) < 0)
+    if(oh && H5O_unprotect(&oloc, oh, H5AC__NO_FLAGS_SET) < 0)
         HDONE_ERROR(H5E_DATASET, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -843,7 +835,7 @@ H5D__farray_idx_open(const H5D_chk_idx_info_t *idx_info)
     udata.chunk_size = idx_info->layout->size;
 
     /* Open the fixed array for the chunk index */
-    if(NULL == (idx_info->storage->u.farray.fa = H5FA_open(idx_info->f, idx_info->dxpl_id, idx_info->storage->idx_addr, &udata)))
+    if(NULL == (idx_info->storage->u.farray.fa = H5FA_open(idx_info->f, idx_info->storage->idx_addr, &udata)))
 	HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "can't open fixed array")
 
      /* Check for SWMR writes to the file */
@@ -920,7 +912,7 @@ H5D__farray_idx_create(const H5D_chk_idx_info_t *idx_info)
     udata.chunk_size = idx_info->layout->size;
     
     /* Create the fixed array for the chunk index */
-    if(NULL == (idx_info->storage->u.farray.fa = H5FA_create(idx_info->f, idx_info->dxpl_id, &cparam, &udata)))
+    if(NULL == (idx_info->storage->u.farray.fa = H5FA_create(idx_info->f, &cparam, &udata)))
 	HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "can't create fixed array")
 
     /* Get the address of the fixed array in file */
@@ -1015,12 +1007,12 @@ H5D__farray_idx_insert(const H5D_chk_idx_info_t *idx_info, H5D_chunk_ud_t *udata
         elmt.filter_mask = udata->filter_mask;
 
         /* Set the info for the chunk */
-        if(H5FA_set(fa, idx_info->dxpl_id, udata->chunk_idx, &elmt) < 0)
+        if(H5FA_set(fa, udata->chunk_idx, &elmt) < 0)
 	    HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "can't set chunk info")
     } /* end if */
     else {
         /* Set the address for the chunk */
-        if(H5FA_set(fa, idx_info->dxpl_id, udata->chunk_idx, &udata->chunk_block.offset) < 0)
+        if(H5FA_set(fa, udata->chunk_idx, &udata->chunk_block.offset) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "can't set chunk address")
     } /* end else */
 
@@ -1082,7 +1074,7 @@ H5D__farray_idx_get_addr(const H5D_chk_idx_info_t *idx_info, H5D_chunk_ud_t *uda
         H5D_farray_filt_elmt_t elmt;            /* Fixed array element */
 
         /* Get the information for the chunk */
-        if(H5FA_get(fa, idx_info->dxpl_id, idx, &elmt) < 0)
+        if(H5FA_get(fa, idx, &elmt) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't get chunk info")
 
         /* Set the info for the chunk */
@@ -1092,7 +1084,7 @@ H5D__farray_idx_get_addr(const H5D_chk_idx_info_t *idx_info, H5D_chunk_ud_t *uda
     } /* end if */
     else {
         /* Get the address for the chunk */
-        if(H5FA_get(fa, idx_info->dxpl_id, idx, &udata->chunk_block.offset) < 0)
+        if(H5FA_get(fa, idx, &udata->chunk_block.offset) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't get chunk address")
 
         /* Update the other (constant) information for the chunk */
@@ -1234,7 +1226,7 @@ H5D__farray_idx_iterate(const H5D_chk_idx_info_t *idx_info,
 	udata.udata = chunk_udata;
 	
         /* Iterate over the fixed array elements */
-	if((ret_value = H5FA_iterate(fa, idx_info->dxpl_id, H5D__farray_idx_iterate_cb, &udata)) < 0)
+	if((ret_value = H5FA_iterate(fa, H5D__farray_idx_iterate_cb, &udata)) < 0)
 	    HERROR(H5E_DATASET, H5E_BADITER, "unable to iterate over fixed array chunk index");
     } /* end if */
 
@@ -1293,14 +1285,14 @@ H5D__farray_idx_remove(const H5D_chk_idx_info_t *idx_info, H5D_chunk_common_ud_t
         H5D_farray_filt_elmt_t elmt;            /* Fixed array element */
 
         /* Get the info about the chunk for the index */
-        if(H5FA_get(fa, idx_info->dxpl_id, idx, &elmt) < 0)
+        if(H5FA_get(fa, idx, &elmt) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't get chunk info")
 
         /* Remove raw data chunk from file if not doing SWMR writes */
         HDassert(H5F_addr_defined(elmt.addr));
         if(!(H5F_INTENT(idx_info->f) & H5F_ACC_SWMR_WRITE)) {
             H5_CHECK_OVERFLOW(elmt.nbytes, /*From: */uint32_t, /*To: */hsize_t);
-            if(H5MF_xfree(idx_info->f, H5FD_MEM_DRAW, idx_info->dxpl_id, elmt.addr, (hsize_t)elmt.nbytes) < 0)
+            if(H5MF_xfree(idx_info->f, H5FD_MEM_DRAW, elmt.addr, (hsize_t)elmt.nbytes) < 0)
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "unable to free chunk")
         } /* end if */
 
@@ -1308,27 +1300,27 @@ H5D__farray_idx_remove(const H5D_chk_idx_info_t *idx_info, H5D_chunk_common_ud_t
         elmt.addr = HADDR_UNDEF;
         elmt.nbytes = 0;
         elmt.filter_mask = 0;
-        if(H5FA_set(fa, idx_info->dxpl_id, idx, &elmt) < 0)
+        if(H5FA_set(fa, idx, &elmt) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "unable to reset chunk info")
     } /* end if */
     else {
         haddr_t     addr = HADDR_UNDEF;     /* Chunk address */
 
         /* Get the address of the chunk for the index */
-        if(H5FA_get(fa, idx_info->dxpl_id, idx, &addr) < 0)
+        if(H5FA_get(fa, idx, &addr) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't get chunk address")
 
         /* Remove raw data chunk from file if not doing SWMR writes */
         HDassert(H5F_addr_defined(addr));
         if(!(H5F_INTENT(idx_info->f) & H5F_ACC_SWMR_WRITE)) {
             H5_CHECK_OVERFLOW(idx_info->layout->size, /*From: */uint32_t, /*To: */hsize_t);
-            if(H5MF_xfree(idx_info->f, H5FD_MEM_DRAW, idx_info->dxpl_id, addr, (hsize_t)idx_info->layout->size) < 0)
+            if(H5MF_xfree(idx_info->f, H5FD_MEM_DRAW, addr, (hsize_t)idx_info->layout->size) < 0)
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "unable to free chunk")
         } /* end if */
 
         /* Reset the address of the chunk for the index */
         addr = HADDR_UNDEF;
-        if(H5FA_set(fa, idx_info->dxpl_id, idx, &addr) < 0)
+        if(H5FA_set(fa, idx, &addr) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "unable to reset chunk address")
     } /* end else */
 
@@ -1353,7 +1345,7 @@ done:
 static int
 H5D__farray_idx_delete_cb(const H5D_chunk_rec_t *chunk_rec, void *_udata)
 {
-    H5D_farray_ud_t *udata = (H5D_farray_ud_t *)_udata;         /* User data for callback */
+    H5F_t *f = (H5F_t *)_udata;         /* User data for callback */
     int ret_value = H5_ITER_CONT;       /* Return value */
 
     FUNC_ENTER_STATIC
@@ -1362,12 +1354,11 @@ H5D__farray_idx_delete_cb(const H5D_chunk_rec_t *chunk_rec, void *_udata)
     HDassert(chunk_rec);
     HDassert(H5F_addr_defined(chunk_rec->chunk_addr));
     HDassert(chunk_rec->nbytes > 0);
-    HDassert(udata);
-    HDassert(udata->f);
+    HDassert(f);
 
     /* Remove raw data chunk from file */
     H5_CHECK_OVERFLOW(chunk_rec->nbytes, /*From: */uint32_t, /*To: */hsize_t);
-    if(H5MF_xfree(udata->f, H5FD_MEM_DRAW, udata->dxpl_id, chunk_rec->chunk_addr, (hsize_t)chunk_rec->nbytes) < 0)
+    if(H5MF_xfree(f, H5FD_MEM_DRAW, chunk_rec->chunk_addr, (hsize_t)chunk_rec->nbytes) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTFREE, H5_ITER_ERROR, "unable to free chunk")
 
 done:
@@ -1405,19 +1396,14 @@ H5D__farray_idx_delete(const H5D_chk_idx_info_t *idx_info)
 
     /* Check if the index data structure has been allocated */
     if(H5F_addr_defined(idx_info->storage->idx_addr)) {
-        H5D_farray_ud_t udata;      /* User data for callback */
         H5D_farray_ctx_ud_t ctx_udata;  /* User data for fixed array open call */
 
-	/* Initialize user data for callback */
-	udata.f = idx_info->f;
-	udata.dxpl_id = idx_info->dxpl_id;
-
 	/* Iterate over the chunk addresses in the fixed array, deleting each chunk */
-        if(H5D__farray_idx_iterate(idx_info, H5D__farray_idx_delete_cb, &udata) < 0)
+        if(H5D__farray_idx_iterate(idx_info, H5D__farray_idx_delete_cb, idx_info->f) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_BADITER, FAIL, "unable to iterate over chunk addresses")
 
         /* Close fixed array */
-        if(H5FA_close(idx_info->storage->u.farray.fa, idx_info->dxpl_id) < 0)
+        if(H5FA_close(idx_info->storage->u.farray.fa) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTCLOSEOBJ, FAIL, "unable to close fixed array")
         idx_info->storage->u.farray.fa = NULL;
 
@@ -1426,7 +1412,7 @@ H5D__farray_idx_delete(const H5D_chk_idx_info_t *idx_info)
         ctx_udata.chunk_size = idx_info->layout->size;
 
         /* Delete fixed array */
-        if(H5FA_delete(idx_info->f, idx_info->dxpl_id, idx_info->storage->idx_addr, &ctx_udata) < 0)
+        if(H5FA_delete(idx_info->f, idx_info->storage->idx_addr, &ctx_udata) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTDELETE, FAIL, "unable to delete chunk fixed array")
         idx_info->storage->idx_addr = HADDR_UNDEF;
     } /* end if */
@@ -1478,7 +1464,7 @@ H5D__farray_idx_copy_setup(const H5D_chk_idx_info_t *idx_info_src,
             HGOTO_ERROR(H5E_DATASET, H5E_CANTOPENOBJ, FAIL, "can't open fixed array")
 
     /* Set copied metadata tag */
-    H5_BEGIN_TAG(idx_info_dst->dxpl_id, H5AC__COPIED_TAG, FAIL);
+    H5_BEGIN_TAG(H5AC__COPIED_TAG);
 
     /* Create the fixed array that describes chunked storage in the dest. file */
     if(H5D__farray_idx_create(idx_info_dst) < 0)
@@ -1486,7 +1472,7 @@ H5D__farray_idx_copy_setup(const H5D_chk_idx_info_t *idx_info_src,
     HDassert(H5F_addr_defined(idx_info_dst->storage->idx_addr));
 
     /* Reset metadata tag */
-    H5_END_TAG(FAIL);
+    H5_END_TAG
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1507,7 +1493,7 @@ done:
  */
 static herr_t
 H5D__farray_idx_copy_shutdown(H5O_storage_chunk_t *storage_src,
-    H5O_storage_chunk_t *storage_dst, hid_t dxpl_id)
+    H5O_storage_chunk_t *storage_dst)
 {
     herr_t      ret_value = SUCCEED;       /* Return value */
 
@@ -1520,10 +1506,10 @@ H5D__farray_idx_copy_shutdown(H5O_storage_chunk_t *storage_src,
     HDassert(storage_dst->u.farray.fa);
 
     /* Close fixed arrays */
-    if(H5FA_close(storage_src->u.farray.fa, dxpl_id) < 0)
+    if(H5FA_close(storage_src->u.farray.fa) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTCLOSEOBJ, FAIL, "unable to close fixed array")
     storage_src->u.farray.fa = NULL;
-    if(H5FA_close(storage_dst->u.farray.fa, dxpl_id) < 0)
+    if(H5FA_close(storage_dst->u.farray.fa) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTCLOSEOBJ, FAIL, "unable to close fixed array")
     storage_dst->u.farray.fa = NULL;
 
@@ -1579,7 +1565,7 @@ H5D__farray_idx_size(const H5D_chk_idx_info_t *idx_info, hsize_t *index_size)
 
 done:
     if(idx_info->storage->u.farray.fa) {
-        if(H5FA_close(idx_info->storage->u.farray.fa, idx_info->dxpl_id) < 0)
+        if(H5FA_close(idx_info->storage->u.farray.fa) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTCLOSEOBJ, FAIL, "unable to close fixed array")
         idx_info->storage->u.farray.fa = NULL;
     } /* end if */
@@ -1676,7 +1662,7 @@ H5D__farray_idx_dest(const H5D_chk_idx_info_t *idx_info)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTOPENOBJ, FAIL, "can't patch fixed array file pointer")
 
         /* Close fixed array */
-        if(H5FA_close(idx_info->storage->u.farray.fa, idx_info->dxpl_id) < 0)
+        if(H5FA_close(idx_info->storage->u.farray.fa) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTCLOSEOBJ, FAIL, "unable to close fixed array")
         idx_info->storage->u.farray.fa = NULL;
     } /* end if */

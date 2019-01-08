@@ -123,7 +123,7 @@ H5HF_stat_info(const H5HF_t *fh, H5HF_stat_t *stats)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5HF_size(const H5HF_t *fh, hid_t dxpl_id, hsize_t *heap_size)
+H5HF_size(const H5HF_t *fh, hsize_t *heap_size)
 {
     H5HF_hdr_t *hdr;                    /* Fractal heap header */
     H5B2_t      *bt2 = NULL;            /* v2 B-tree handle for index */
@@ -148,30 +148,30 @@ H5HF_size(const H5HF_t *fh, hid_t dxpl_id, hsize_t *heap_size)
 
     /* Check for indirect blocks for managed objects */
     if(H5F_addr_defined(hdr->man_dtable.table_addr) && hdr->man_dtable.curr_root_rows != 0)
-        if(H5HF_man_iblock_size(hdr->f, dxpl_id, hdr, hdr->man_dtable.table_addr, hdr->man_dtable.curr_root_rows, NULL, 0, heap_size) < 0)
+        if(H5HF__man_iblock_size(hdr->f, hdr, hdr->man_dtable.table_addr, hdr->man_dtable.curr_root_rows, NULL, 0, heap_size) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "unable to get fractal heap storage info for indirect block")
 
     /* Check for B-tree storage of huge objects in fractal heap */
     if(H5F_addr_defined(hdr->huge_bt2_addr)) {
         /* Open the huge object index v2 B-tree */
-        if(NULL == (bt2 = H5B2_open(hdr->f, dxpl_id, hdr->huge_bt2_addr, hdr->f)))
+        if(NULL == (bt2 = H5B2_open(hdr->f, hdr->huge_bt2_addr, hdr->f)))
             HGOTO_ERROR(H5E_HEAP, H5E_CANTOPENOBJ, FAIL, "unable to open v2 B-tree for tracking 'huge' objects")
 
         /* Get the B-tree storage */
-        if(H5B2_size(bt2, dxpl_id, heap_size) < 0)
+        if(H5B2_size(bt2, heap_size) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't retrieve B-tree storage info")
     } /* end if */
 
     /* Get storage for free-space tracking info */
     if(H5F_addr_defined(hdr->fs_addr)) {
-        if(H5HF_space_size(hdr, dxpl_id, &meta_size) < 0)
+        if(H5HF__space_size(hdr, &meta_size) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't retrieve FS meta storage info")
 	*heap_size += meta_size;
     } /* end if */
 
 done:
     /* Release resources */
-    if(bt2 && H5B2_close(bt2, dxpl_id) < 0)
+    if(bt2 && H5B2_close(bt2) < 0)
         HDONE_ERROR(H5E_HEAP, H5E_CANTCLOSEOBJ, FAIL, "can't close v2 B-tree for tracking 'huge' objects")
 
     FUNC_LEAVE_NOAPI(ret_value)

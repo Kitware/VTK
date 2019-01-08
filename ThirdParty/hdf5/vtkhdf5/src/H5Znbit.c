@@ -286,7 +286,7 @@ H5Z_calc_parms_array(const H5T_t *type, size_t *cd_values_actual_nparms)
 
 done:
     if(dtype_base)
-        if(H5T_close(dtype_base) < 0)
+        if(H5T_close_real(dtype_base) < 0)
             HDONE_ERROR(H5E_PLINE, H5E_CLOSEERROR, FAIL, "Unable to close base datatype")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -385,14 +385,14 @@ H5Z_calc_parms_compound(const H5T_t *type, size_t *cd_values_actual_nparms)
         } /* end switch */
 
         /* Close member datatype */
-        if(H5T_close(dtype_member) < 0)
+        if(H5T_close_real(dtype_member) < 0)
             HGOTO_ERROR(H5E_PLINE, H5E_CLOSEERROR, FAIL, "Unable to close member datatype")
         dtype_member = NULL;
     } /* end for */
 
 done:
     if(dtype_member)
-        if(H5T_close(dtype_member) < 0)
+        if(H5T_close_real(dtype_member) < 0)
             HDONE_ERROR(H5E_PLINE, H5E_CLOSEERROR, FAIL, "Unable to close member datatype")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -558,7 +558,7 @@ H5Z_set_parms_array(const H5T_t *type, unsigned *cd_values_index,
     H5T_t *dtype_base = NULL;      /* Array datatype's base datatype */
     H5T_class_t dtype_base_class;  /* Array datatype's base datatype's class */
     size_t dtype_size;             /* Array datatype's size (in bytes) */
-    htri_t is_vlstring;            /* flag indicating if datatype is varible-length string */
+    htri_t is_vlstring;            /* flag indicating if datatype is variable-length string */
     herr_t ret_value=SUCCEED;      /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
@@ -633,7 +633,7 @@ H5Z_set_parms_array(const H5T_t *type, unsigned *cd_values_index,
 
 done:
     if(dtype_base)
-        if(H5T_close(dtype_base) < 0)
+        if(H5T_close_real(dtype_base) < 0)
             HDONE_ERROR(H5E_PLINE, H5E_CLOSEERROR, FAIL, "Unable to close base datatype")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -667,7 +667,7 @@ H5Z_set_parms_compound(const H5T_t *type, unsigned *cd_values_index,
     size_t dtype_member_offset;     /* Compound datatype's current member datatype's offset (in bytes) */
     size_t dtype_next_member_offset;/* Compound datatype's next member datatype's offset (in bytes) */
     size_t dtype_size;              /* Compound datatype's size (in bytes) */
-    htri_t is_vlstring;             /* flag indicating if datatype is varible-length string */
+    htri_t is_vlstring;             /* flag indicating if datatype is variable-length string */
     unsigned u;                     /* Local index variable */
     herr_t ret_value = SUCCEED;     /* Return value */
 
@@ -774,14 +774,14 @@ H5Z_set_parms_compound(const H5T_t *type, unsigned *cd_values_index,
         } /* end switch */
 
         /* Close member datatype */
-        if(H5T_close(dtype_member) < 0)
+        if(H5T_close_real(dtype_member) < 0)
             HGOTO_ERROR(H5E_PLINE, H5E_CLOSEERROR, FAIL, "Unable to close member datatype")
         dtype_member = NULL;
     } /* end for */
 
 done:
     if(dtype_member)
-        if(H5T_close(dtype_member) < 0)
+        if(H5T_close_real(dtype_member) < 0)
             HDONE_ERROR(H5E_PLINE, H5E_CLOSEERROR, FAIL, "Unable to close member datatype")
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -888,7 +888,7 @@ H5Z_set_local_nbit(hid_t dcpl_id, hid_t type_id, hid_t space_id)
 
     /* Get dataspace */
     if(NULL == (ds = (H5S_t *)H5I_object_verify(space_id, H5I_DATASPACE)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a data space")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataspace")
 
     /* Get total number of elements in the chunk */
     if((npoints = H5S_GET_EXTENT_NPOINTS(ds)) < 0)

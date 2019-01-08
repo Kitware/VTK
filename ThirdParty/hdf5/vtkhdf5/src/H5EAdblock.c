@@ -160,8 +160,8 @@ END_FUNC(PKG)   /* end H5EA__dblock_alloc() */
  */
 BEGIN_FUNC(PKG, ERR,
 haddr_t, HADDR_UNDEF, HADDR_UNDEF,
-H5EA__dblock_create(H5EA_hdr_t *hdr, hid_t dxpl_id, void *parent,
-    hbool_t *stats_changed, hsize_t dblk_off, size_t nelmts))
+H5EA__dblock_create(H5EA_hdr_t *hdr, void *parent, hbool_t *stats_changed,
+    hsize_t dblk_off, size_t nelmts))
 
     /* Local variables */
     H5EA_dblock_t *dblock = NULL;       /* Extensible array data block */
@@ -184,7 +184,7 @@ H5EA__dblock_create(H5EA_hdr_t *hdr, hid_t dxpl_id, void *parent,
     dblock->block_off = dblk_off;
 
     /* Allocate space for the data block on disk */
-    if(HADDR_UNDEF == (dblock_addr = H5MF_alloc(hdr->f, H5FD_MEM_EARRAY_DBLOCK, dxpl_id, (hsize_t)dblock->size)))
+    if(HADDR_UNDEF == (dblock_addr = H5MF_alloc(hdr->f, H5FD_MEM_EARRAY_DBLOCK, (hsize_t)dblock->size)))
 	H5E_THROW(H5E_CANTALLOC, "file allocation failed for extensible array data block")
     dblock->addr = dblock_addr;
 
@@ -195,13 +195,13 @@ H5EA__dblock_create(H5EA_hdr_t *hdr, hid_t dxpl_id, void *parent,
             H5E_THROW(H5E_CANTSET, "can't set extensible array data block elements to class's fill value")
 
     /* Cache the new extensible array data block */
-    if(H5AC_insert_entry(hdr->f, dxpl_id, H5AC_EARRAY_DBLOCK, dblock_addr, dblock, H5AC__NO_FLAGS_SET) < 0)
+    if(H5AC_insert_entry(hdr->f, H5AC_EARRAY_DBLOCK, dblock_addr, dblock, H5AC__NO_FLAGS_SET) < 0)
 	H5E_THROW(H5E_CANTINSERT, "can't add extensible array data block to cache")
     inserted = TRUE;
 
     /* Add data block as child of 'top' proxy */
     if(hdr->top_proxy) {
-        if(H5AC_proxy_entry_add_child(hdr->top_proxy, hdr->f, dxpl_id, dblock) < 0)
+        if(H5AC_proxy_entry_add_child(hdr->top_proxy, hdr->f, dblock) < 0)
             H5E_THROW(H5E_CANTSET, "unable to add extensible array entry as child of array proxy")
         dblock->top_proxy = hdr->top_proxy;
     } /* end if */
@@ -228,7 +228,7 @@ CATCH
                     H5E_THROW(H5E_CANTREMOVE, "unable to remove extensible array data block from cache")
 
             /* Release data block's disk space */
-            if(H5F_addr_defined(dblock->addr) && H5MF_xfree(hdr->f, H5FD_MEM_EARRAY_DBLOCK, dxpl_id, dblock->addr, (hsize_t)dblock->size) < 0)
+            if(H5F_addr_defined(dblock->addr) && H5MF_xfree(hdr->f, H5FD_MEM_EARRAY_DBLOCK, dblock->addr, (hsize_t)dblock->size) < 0)
                 H5E_THROW(H5E_CANTFREE, "unable to release extensible array data block")
 
             /* Destroy data block */
@@ -292,8 +292,8 @@ END_FUNC(PKG)   /* end H5EA__dblock_sblk_idx() */
  */
 BEGIN_FUNC(PKG, ERR,
 H5EA_dblock_t *, NULL, NULL,
-H5EA__dblock_protect(H5EA_hdr_t *hdr, hid_t dxpl_id, void *parent,
-    haddr_t dblk_addr, size_t dblk_nelmts, unsigned flags))
+H5EA__dblock_protect(H5EA_hdr_t *hdr, void *parent, haddr_t dblk_addr,
+    size_t dblk_nelmts, unsigned flags))
 
     /* Local variables */
     H5EA_dblock_t *dblock;              /* Extensible array data block */
@@ -314,13 +314,13 @@ H5EA__dblock_protect(H5EA_hdr_t *hdr, hid_t dxpl_id, void *parent,
     udata.dblk_addr = dblk_addr;
 
     /* Protect the data block */
-    if(NULL == (dblock = (H5EA_dblock_t *)H5AC_protect(hdr->f, dxpl_id, H5AC_EARRAY_DBLOCK, dblk_addr, &udata, flags)))
+    if(NULL == (dblock = (H5EA_dblock_t *)H5AC_protect(hdr->f, H5AC_EARRAY_DBLOCK, dblk_addr, &udata, flags)))
         H5E_THROW(H5E_CANTPROTECT, "unable to protect extensible array data block, address = %llu", (unsigned long long)dblk_addr)
 
     /* Create top proxy, if it doesn't exist */
     if(hdr->top_proxy && NULL == dblock->top_proxy) {
         /* Add data block as child of 'top' proxy */
-        if(H5AC_proxy_entry_add_child(hdr->top_proxy, hdr->f, dxpl_id, dblock) < 0)
+        if(H5AC_proxy_entry_add_child(hdr->top_proxy, hdr->f, dblock) < 0)
             H5E_THROW(H5E_CANTSET, "unable to add extensible array entry as child of array proxy")
         dblock->top_proxy = hdr->top_proxy;
     } /* end if */
@@ -333,7 +333,7 @@ CATCH
     /* Clean up on error */
     if(!ret_value) {
         /* Release the data block, if it was protected */
-        if(dblock && H5AC_unprotect(hdr->f, dxpl_id, H5AC_EARRAY_DBLOCK, dblock->addr, dblock, H5AC__NO_FLAGS_SET) < 0)
+        if(dblock && H5AC_unprotect(hdr->f, H5AC_EARRAY_DBLOCK, dblock->addr, dblock, H5AC__NO_FLAGS_SET) < 0)
             H5E_THROW(H5E_CANTUNPROTECT, "unable to unprotect extensible array data block, address = %llu", (unsigned long long)dblock->addr)
     } /* end if */
 
@@ -355,7 +355,7 @@ END_FUNC(PKG)   /* end H5EA__dblock_protect() */
  */
 BEGIN_FUNC(PKG, ERR,
 herr_t, SUCCEED, FAIL,
-H5EA__dblock_unprotect(H5EA_dblock_t *dblock, hid_t dxpl_id, unsigned cache_flags))
+H5EA__dblock_unprotect(H5EA_dblock_t *dblock, unsigned cache_flags))
 
     /* Local variables */
 
@@ -363,7 +363,7 @@ H5EA__dblock_unprotect(H5EA_dblock_t *dblock, hid_t dxpl_id, unsigned cache_flag
     HDassert(dblock);
 
     /* Unprotect the data block */
-    if(H5AC_unprotect(dblock->hdr->f, dxpl_id, H5AC_EARRAY_DBLOCK, dblock->addr, dblock, cache_flags) < 0)
+    if(H5AC_unprotect(dblock->hdr->f, H5AC_EARRAY_DBLOCK, dblock->addr, dblock, cache_flags) < 0)
         H5E_THROW(H5E_CANTUNPROTECT, "unable to unprotect extensible array data block, address = %llu", (unsigned long long)dblock->addr)
 
 CATCH
@@ -386,8 +386,8 @@ END_FUNC(PKG)   /* end H5EA__dblock_unprotect() */
  */
 BEGIN_FUNC(PKG, ERR,
 herr_t, SUCCEED, FAIL,
-H5EA__dblock_delete(H5EA_hdr_t *hdr, hid_t dxpl_id, void *parent,
-    haddr_t dblk_addr, size_t dblk_nelmts))
+H5EA__dblock_delete(H5EA_hdr_t *hdr, void *parent, haddr_t dblk_addr,
+    size_t dblk_nelmts))
 
     /* Local variables */
     H5EA_dblock_t *dblock = NULL;       /* Pointer to data block */
@@ -399,7 +399,7 @@ H5EA__dblock_delete(H5EA_hdr_t *hdr, hid_t dxpl_id, void *parent,
     HDassert(dblk_nelmts > 0);
 
     /* Protect data block */
-    if(NULL == (dblock = H5EA__dblock_protect(hdr, dxpl_id, parent, dblk_addr, dblk_nelmts, H5AC__NO_FLAGS_SET)))
+    if(NULL == (dblock = H5EA__dblock_protect(hdr, parent, dblk_addr, dblk_nelmts, H5AC__NO_FLAGS_SET)))
         H5E_THROW(H5E_CANTPROTECT, "unable to protect extensible array data block, address = %llu", (unsigned long long)dblk_addr)
 
     /* Check if this is a paged data block */
@@ -418,7 +418,7 @@ H5EA__dblock_delete(H5EA_hdr_t *hdr, hid_t dxpl_id, void *parent,
         for(u = 0; u < npages; u++) {
             /* Evict the data block page from the metadata cache */
             /* (OK to call if it doesn't exist in the cache) */
-            if(H5AC_expunge_entry(hdr->f, dxpl_id, H5AC_EARRAY_DBLK_PAGE, dblk_page_addr, H5AC__NO_FLAGS_SET) < 0)
+            if(H5AC_expunge_entry(hdr->f, H5AC_EARRAY_DBLK_PAGE, dblk_page_addr, H5AC__NO_FLAGS_SET) < 0)
                 H5E_THROW(H5E_CANTEXPUNGE, "unable to remove array data block page from metadata cache")
 
             /* Advance to next page address */
@@ -428,7 +428,7 @@ H5EA__dblock_delete(H5EA_hdr_t *hdr, hid_t dxpl_id, void *parent,
 
 CATCH
     /* Finished deleting data block in metadata cache */
-    if(dblock && H5EA__dblock_unprotect(dblock, dxpl_id, H5AC__DIRTIED_FLAG | H5AC__DELETED_FLAG | H5AC__FREE_FILE_SPACE_FLAG) < 0)
+    if(dblock && H5EA__dblock_unprotect(dblock, H5AC__DIRTIED_FLAG | H5AC__DELETED_FLAG | H5AC__FREE_FILE_SPACE_FLAG) < 0)
         H5E_THROW(H5E_CANTUNPROTECT, "unable to release extensible array data block")
 
 END_FUNC(PKG)   /* end H5EA__dblock_delete() */

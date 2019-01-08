@@ -329,7 +329,7 @@ static void H5Z_print(H5Z_node *tree, FILE *stream);
 }
 
 /* The difference of this macro from H5Z_XFORM_DO_OP3 is that it handles the operations when the left operand is empty, like -x or +x.  
- * The reason that it's seperated from H5Z_XFORM_DO_OP3 is because compilers don't accept operations like *x or /x.  So in H5Z_do_op, 
+ * The reason that it's separated from H5Z_XFORM_DO_OP3 is because compilers don't accept operations like *x or /x.  So in H5Z_do_op, 
  * these two macros are called in different ways. (SLU 2012/3/20) 
  */
 #define H5Z_XFORM_DO_OP6(OP)                                                                                                                    \
@@ -967,7 +967,7 @@ done:
 
 /*-------------------------------------------------------------------------
  * Function:    H5Z_new_node
- * Purpose:     Create and initilize a new H5Z_node structure.
+ * Purpose:     Create and initialize a new H5Z_node structure.
  * Return:      Success:    Valid H5Z_node ptr
  *              NULLure:    NULL
  * Programmer:  Bill Wendling
@@ -999,7 +999,7 @@ done:
  * Purpose: 	If the transform is trivial, this function applies it.
  * 		Otherwise, it calls H5Z_xform_eval_full to do the full
  * 		transform.
- * Return:      SUCCEED if transform applied succesfully, FAIL otherwise
+ * Return:      SUCCEED if transform applied successfully, FAIL otherwise
  * Programmer:  Leon Arber
  * 		5/1/04
  * Modifications:
@@ -1485,7 +1485,7 @@ H5Z_xform_reduce_tree(H5Z_node* tree)
  * Purpose:     If the root of the tree passed in points to a simple
  *              arithmetic operation and the left and right subtrees are both
  *              integer or floating point values, this function does that
- *              operation, free the left and rigt subtrees, and replaces
+ *              operation, free the left and right subtrees, and replaces
  *              the root with the result of the operation.
  * Return:      None.
  * Programmer:  Leon Arber

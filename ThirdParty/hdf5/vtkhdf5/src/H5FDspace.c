@@ -33,6 +33,7 @@
 /* Headers */
 /***********/
 #include "H5private.h"		/* Generic Functions			*/
+#include "H5CXprivate.h"        /* API Contexts                         */
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5Fprivate.h"         /* File access				*/
 #include "H5FDpkg.h"		/* File Drivers				*/
@@ -99,9 +100,7 @@ H5FL_DEFINE(H5FD_free_t);
 static haddr_t
 H5FD_extend(H5FD_t *file, H5FD_mem_t type, hsize_t size)
 {
-    hsize_t orig_size = size;   /* Original allocation size */
     haddr_t eoa;                /* Address of end-of-allocated space */
-    hsize_t extra;        	/* Extra space to allocate, to align request */
     haddr_t ret_value = HADDR_UNDEF;    /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
@@ -133,7 +132,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5FD_alloc_real
+ * Function:    H5FD__alloc_real
  *
  * Purpose:     Allocate space in the file with the VFD
  *              Note: the handling of alignment is moved up from each driver to
@@ -148,8 +147,8 @@ done:
  *-------------------------------------------------------------------------
  */
 haddr_t
-H5FD_alloc_real(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, hsize_t size, 
-    haddr_t *frag_addr, hsize_t *frag_size)
+H5FD__alloc_real(H5FD_t *file, H5FD_mem_t type, hsize_t size, haddr_t *frag_addr,
+    hsize_t *frag_size)
 {
     hsize_t orig_size = size;   /* Original allocation size */
     haddr_t eoa;                /* Address of end-of-allocated space */
@@ -158,7 +157,7 @@ H5FD_alloc_real(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, hsize_t size,
     hbool_t use_alloc_size;     /* Just pass alloc size to the driver */
     haddr_t ret_value = HADDR_UNDEF;    /* Return value */
 
-    FUNC_ENTER_NOAPI(HADDR_UNDEF)
+    FUNC_ENTER_PACKAGE
 #ifdef H5FD_ALLOC_DEBUG
 HDfprintf(stderr, "%s: type = %u, size = %Hu\n", FUNC, (unsigned)type, size);
 #endif /* H5FD_ALLOC_DEBUG */
@@ -198,7 +197,7 @@ HDfprintf(stderr, "%s: type = %u, size = %Hu\n", FUNC, (unsigned)type, size);
     /* For the multi/split driver: the size passed down to the alloc callback is the original size from H5FD_alloc() */
     /* For all other drivers: the size passed down to the alloc callback is the size + [possibly] alignment size */
     if(file->cls->alloc) {
-        ret_value = (file->cls->alloc)(file, type, dxpl_id, use_alloc_size ? size : size + extra);
+        ret_value = (file->cls->alloc)(file, type, H5CX_get_dxpl(), use_alloc_size ? size : size + extra);
         if(!H5F_addr_defined(ret_value))
             HGOTO_ERROR(H5E_VFL, H5E_NOSPACE, HADDR_UNDEF, "driver allocation request failed")
     } /* end if */
@@ -224,7 +223,7 @@ done:
 HDfprintf(stderr, "%s: ret_value = %a\n", FUNC, ret_value);
 #endif /* H5FD_ALLOC_DEBUG */
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5FD_alloc_real() */
+} /* end H5FD__alloc_real() */
 
 
 /*-------------------------------------------------------------------------
@@ -246,7 +245,7 @@ HDfprintf(stderr, "%s: ret_value = %a\n", FUNC, ret_value);
  *-------------------------------------------------------------------------
  */
 haddr_t
-H5FD_alloc(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, H5F_t *f, hsize_t size,
+H5FD_alloc(H5FD_t *file, H5FD_mem_t type, H5F_t *f, hsize_t size,
     haddr_t *frag_addr, hsize_t *frag_size)
 {
     haddr_t ret_value = HADDR_UNDEF;    /* Return value */
@@ -260,12 +259,12 @@ H5FD_alloc(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, H5F_t *f, hsize_t size,
     HDassert(size > 0);
 
     /* Call the real 'alloc' routine */
-    ret_value = H5FD_alloc_real(file, dxpl_id, type, size, frag_addr, frag_size);
+    ret_value = H5FD__alloc_real(file, type, size, frag_addr, frag_size);
     if(!H5F_addr_defined(ret_value))
         HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, HADDR_UNDEF, "real 'alloc' request failed")
 
     /* Mark EOA info dirty in cache, so change will get encoded */
-    if(H5F_eoa_dirty(f, dxpl_id) < 0)
+    if(H5F_eoa_dirty(f) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTMARKDIRTY, HADDR_UNDEF, "unable to mark EOA info as dirty")
 
 done:
@@ -287,7 +286,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FD_free_real(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, haddr_t addr, hsize_t size)
+H5FD_free_real(H5FD_t *file, H5FD_mem_t type, haddr_t addr, hsize_t size)
 {
     herr_t      ret_value = SUCCEED;       /* Return value */
 
@@ -319,7 +318,7 @@ HDfprintf(stderr, "%s: type = %u, addr = %a, size = %Hu\n", FUNC, (unsigned)type
 #ifdef H5FD_ALLOC_DEBUG
 HDfprintf(stderr, "%s: Letting VFD free space\n", FUNC);
 #endif /* H5FD_ALLOC_DEBUG */
-        if((file->cls->free)(file, type, dxpl_id, addr, size) < 0)
+        if((file->cls->free)(file, type, H5CX_get_dxpl(), addr, size) < 0)
             HGOTO_ERROR(H5E_VFL, H5E_CANTFREE, FAIL, "driver free request failed")
     } /* end if */
     /* Check if this free block is at the end of file allocated space.
@@ -371,8 +370,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FD_free(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, H5F_t *f,
-    haddr_t addr, hsize_t size)
+H5FD_free(H5FD_t *file, H5FD_mem_t type, H5F_t *f, haddr_t addr, hsize_t size)
 {
     herr_t      ret_value = SUCCEED;       /* Return value */
 
@@ -385,11 +383,11 @@ H5FD_free(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, H5F_t *f,
     HDassert(size > 0);
 
     /* Call the real 'free' routine */
-    if(H5FD_free_real(file, dxpl_id, type, addr, size) < 0)
+    if(H5FD_free_real(file, type, addr, size) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTFREE, FAIL, "real 'free' request failed")
 
     /* Mark EOA info dirty in cache, so change will get encoded */
-    if(H5F_eoa_dirty(f, dxpl_id) < 0)
+    if(H5F_eoa_dirty(f) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTMARKDIRTY, FAIL, "unable to mark EOA info as dirty")
 
 done:
@@ -416,8 +414,8 @@ done:
  *-------------------------------------------------------------------------
  */
 htri_t
-H5FD_try_extend(H5FD_t *file, H5FD_mem_t type, H5F_t *f, hid_t dxpl_id,
-    haddr_t blk_end, hsize_t extra_requested)
+H5FD_try_extend(H5FD_t *file, H5FD_mem_t type, H5F_t *f, haddr_t blk_end,
+    hsize_t extra_requested)
 {
     haddr_t eoa;                /* End of allocated space in file */
     htri_t ret_value = FALSE;   /* Return value */
@@ -445,7 +443,7 @@ H5FD_try_extend(H5FD_t *file, H5FD_mem_t type, H5F_t *f, hid_t dxpl_id,
             HGOTO_ERROR(H5E_VFL, H5E_CANTEXTEND, FAIL, "driver extend request failed")
 
         /* Mark EOA info dirty in cache, so change will get encoded */
-        if(H5F_eoa_dirty(f, dxpl_id) < 0)
+        if(H5F_eoa_dirty(f) < 0)
             HGOTO_ERROR(H5E_VFL, H5E_CANTMARKDIRTY, FAIL, "unable to mark EOA info as dirty")
 
         /* Indicate success */

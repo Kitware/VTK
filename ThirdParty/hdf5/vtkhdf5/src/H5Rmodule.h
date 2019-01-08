@@ -10,13 +10,9 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/*
- * Programmer:	Quincey Koziol <koziol@hdfgroup.org>
- *		Saturday, September 12, 2015
- *
- * Purpose:	This file contains declarations which define macros for the
- *		H5R package.  Including this header means that the source file
- *		is part of the H5R package.
+/* Purpose: This file contains declarations which define macros for the
+ *          H5R package.  Including this header means that the source file
+ *          is part of the H5R package.
  */
 #ifndef _H5Rmodule_H
 #define _H5Rmodule_H
@@ -30,5 +26,4 @@
 #define H5_MY_PKG_INIT  YES
 
 #endif /* _H5Rmodule_H */
-
 

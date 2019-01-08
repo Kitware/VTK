@@ -189,7 +189,7 @@ typedef struct H5G_entry_t H5G_entry_t;
 H5_DLL struct H5O_loc_t *H5G_oloc(H5G_t *grp);
 H5_DLL H5G_name_t * H5G_nameof(H5G_t *grp);
 H5_DLL H5F_t *H5G_fileof(H5G_t *grp);
-H5_DLL H5G_t *H5G_open(const H5G_loc_t *loc, hid_t dxpl_id);
+H5_DLL H5G_t *H5G_open(const H5G_loc_t *loc);
 H5_DLL herr_t H5G_close(H5G_t *grp);
 H5_DLL herr_t H5G_get_shared_count(H5G_t *grp);
 H5_DLL herr_t H5G_mount(H5G_t *grp);
@@ -208,14 +208,12 @@ H5_DLL char *H5G_normalize(const char *name);
  * Group hierarchy traversal routines
  */
 H5_DLL herr_t H5G_traverse(const H5G_loc_t *loc, const char *name,
-    unsigned target, H5G_traverse_t op, void *op_data, hid_t lapl_id,
-    hid_t dxpl_id);
+    unsigned target, H5G_traverse_t op, void *op_data);
 H5_DLL herr_t H5G_iterate(hid_t loc_id, const char *group_name,
     H5_index_t idx_type, H5_iter_order_t order, hsize_t skip, hsize_t *last_lnk,
-    const H5G_link_iterate_t *lnk_op, void *op_data, hid_t lapl_id, hid_t dxpl_id);
+    const H5G_link_iterate_t *lnk_op, void *op_data);
 H5_DLL herr_t H5G_visit(hid_t loc_id, const char *group_name,
-    H5_index_t idx_type, H5_iter_order_t order, H5L_iterate_t op, void *op_data,
-    hid_t lapl_id, hid_t dxpl_id);
+    H5_index_t idx_type, H5_iter_order_t order, H5L_iterate_t op, void *op_data);
 
 /* 
  * Functions that understand links in groups
@@ -227,23 +225,23 @@ H5_DLL herr_t H5G_link_to_info(const struct H5O_link_t *lnk, H5L_info_t *linfo);
  */
 H5_DLL herr_t H5G_obj_insert(const struct H5O_loc_t *grp_oloc, const char *name,
     struct H5O_link_t *obj_lnk, hbool_t adj_link, H5O_type_t obj_type,
-    const void *crt_info, hid_t dxpl_id);
+    const void *crt_info);
 H5_DLL ssize_t H5G_obj_get_name_by_idx(const struct H5O_loc_t *oloc, H5_index_t idx_type,
-    H5_iter_order_t order, hsize_t n, char* name, size_t size, hid_t dxpl_id);
+    H5_iter_order_t order, hsize_t n, char* name, size_t size);
 H5_DLL herr_t H5G_obj_remove(const struct H5O_loc_t *oloc, H5RS_str_t *grp_full_path_r,
-    const char *name, hid_t dxpl_id);
+    const char *name);
 H5_DLL herr_t H5G_obj_remove_by_idx(const struct H5O_loc_t *grp_oloc, H5RS_str_t *grp_full_path_r,
-    H5_index_t idx_type, H5_iter_order_t order, hsize_t n, hid_t dxpl_id);
+    H5_index_t idx_type, H5_iter_order_t order, hsize_t n);
 H5_DLL herr_t H5G_obj_lookup_by_idx(const struct H5O_loc_t *grp_oloc, H5_index_t idx_type,
-    H5_iter_order_t order, hsize_t n, struct H5O_link_t *lnk, hid_t dxpl_id);
-H5_DLL hid_t H5G_get_create_plist(H5G_t *grp);
+    H5_iter_order_t order, hsize_t n, struct H5O_link_t *lnk);
+H5_DLL hid_t H5G_get_create_plist(const H5G_t *grp);
 
 /*
  * These functions operate on symbol table nodes.
  */
 H5_DLL herr_t H5G_node_close(const H5F_t *f);
-H5_DLL herr_t H5G_node_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream,
-			      int indent, int fwidth, haddr_t heap);
+H5_DLL herr_t H5G_node_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent,
+    int fwidth, haddr_t heap);
 
 /*
  * These functions operate on group object locations.
@@ -257,14 +255,14 @@ H5_DLL herr_t H5G_ent_decode(const H5F_t *f, const uint8_t **pp, H5G_entry_t *en
 H5_DLL herr_t H5G_name_set(const H5G_name_t *loc, H5G_name_t *obj, const char *name);
 H5_DLL herr_t H5G_name_replace(const struct H5O_link_t *lnk, H5G_names_op_t op,
     H5F_t *src_file, H5RS_str_t *src_full_path_r, H5F_t *dst_file,
-    H5RS_str_t *dst_full_path_r, hid_t dxpl_id);
+    H5RS_str_t *dst_full_path_r);
 H5_DLL herr_t H5G_name_reset(H5G_name_t *name);
 H5_DLL herr_t H5G_name_copy(H5G_name_t *dst, const H5G_name_t *src, H5_copy_depth_t depth);
 H5_DLL herr_t H5G_name_free(H5G_name_t *name);
 H5_DLL ssize_t H5G_get_name(const H5G_loc_t *loc, char *name/*out*/, size_t size,
-    hbool_t *cached, hid_t lapl_id, hid_t dxpl_id);
-H5_DLL ssize_t H5G_get_name_by_addr(hid_t fid, hid_t lapl_id, hid_t dxpl_id,
-    const struct H5O_loc_t *loc, char* name, size_t size);
+    hbool_t *cached);
+H5_DLL ssize_t H5G_get_name_by_addr(hid_t fid, const struct H5O_loc_t *loc,
+        char* name, size_t size);
 H5_DLL H5RS_str_t *H5G_build_fullpath_refstr_str(H5RS_str_t *path_r, const char *name);
 
 /*
@@ -273,26 +271,24 @@ H5_DLL H5RS_str_t *H5G_build_fullpath_refstr_str(H5RS_str_t *path_r, const char 
 H5_DLL herr_t H5G_loc(hid_t loc_id, H5G_loc_t *loc);
 H5_DLL herr_t H5G_loc_copy(H5G_loc_t *dst, const H5G_loc_t *src, H5_copy_depth_t depth);
 H5_DLL herr_t H5G_loc_find(const H5G_loc_t *loc, const char *name,
-    H5G_loc_t *obj_loc/*out*/, hid_t lapl_id, hid_t dxpl_id);
-H5_DLL herr_t H5G_loc_find_by_idx(H5G_loc_t *loc, const char *group_name,
+    H5G_loc_t *obj_loc/*out*/);
+H5_DLL herr_t H5G_loc_find_by_idx(const H5G_loc_t *loc, const char *group_name,
     H5_index_t idx_type, H5_iter_order_t order, hsize_t n,
-    H5G_loc_t *obj_loc/*out*/, hid_t lapl_id, hid_t dxpl_id);
-H5_DLL htri_t H5G_loc_exists(const H5G_loc_t *loc, const char *name,
-    hid_t lapl_id, hid_t dxpl_id);
-H5_DLL herr_t H5G_loc_info(H5G_loc_t *loc, const char *name,
-    hbool_t want_ih_info, H5O_info_t *oinfo/*out*/, hid_t lapl_id,
-    hid_t dxpl_id);
-H5_DLL herr_t H5G_loc_set_comment(H5G_loc_t *loc, const char *name,
-    const char *comment, hid_t lapl_id, hid_t dxpl_id);
-H5_DLL ssize_t H5G_loc_get_comment(H5G_loc_t *loc, const char *name,
-    char *comment/*out*/, size_t bufsize, hid_t lapl_id, hid_t dxpl_id);
+    H5G_loc_t *obj_loc/*out*/);
+H5_DLL htri_t H5G_loc_exists(const H5G_loc_t *loc, const char *name);
+H5_DLL herr_t H5G_loc_info(const H5G_loc_t *loc, const char *name,
+    H5O_info_t *oinfo/*out*/, unsigned fields);
+H5_DLL herr_t H5G_loc_set_comment(const H5G_loc_t *loc, const char *name,
+    const char *comment);
+H5_DLL ssize_t H5G_loc_get_comment(const H5G_loc_t *loc, const char *name,
+    char *comment/*out*/, size_t bufsize);
 H5_DLL herr_t H5G_loc_reset(H5G_loc_t *loc);
 H5_DLL herr_t H5G_loc_free(H5G_loc_t *loc);
 
 /*
  * These functions operate on the root group
  */
-H5_DLL herr_t H5G_mkroot(H5F_t *f, hid_t dxpl_id, hbool_t create_root);
+H5_DLL herr_t H5G_mkroot(H5F_t *f, hbool_t create_root);
 H5_DLL herr_t H5G_root_loc(H5F_t *f, H5G_loc_t *loc);
 H5_DLL herr_t H5G_root_free(H5G_t *grp);
 H5_DLL H5G_t *H5G_rootof(H5F_t *f);

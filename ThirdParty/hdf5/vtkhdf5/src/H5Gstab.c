@@ -69,7 +69,6 @@ typedef struct H5G_bt_it_gtbi_t {
     /* downward */
     H5G_bt_it_idx_common_t common; /* Common information for "by index" lookup  */
     H5F_t       *f;             /* Pointer to file that symbol table is in */
-    hid_t       dxpl_id;        /* DXPL for operation */
 
     /* upward */
     H5G_obj_t    type;          /*member type to be returned                 */
@@ -134,7 +133,7 @@ typedef struct H5G_bt_it_lbi_t {
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G__stab_create_components(H5F_t *f, H5O_stab_t *stab, size_t size_hint, hid_t dxpl_id)
+H5G__stab_create_components(H5F_t *f, H5O_stab_t *stab, size_t size_hint)
 {
     H5HL_t *heap = NULL;            /* Pointer to local heap */
     size_t name_offset;	            /* Offset of "" name */
@@ -150,19 +149,19 @@ H5G__stab_create_components(H5F_t *f, H5O_stab_t *stab, size_t size_hint, hid_t 
     HDassert(size_hint > 0);
 
     /* Create the B-tree */
-    if(H5B_create(f, dxpl_id, H5B_SNODE, NULL, &(stab->btree_addr)/*out*/) < 0)
+    if(H5B_create(f, H5B_SNODE, NULL, &(stab->btree_addr)/*out*/) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "can't create B-tree")
 
     /* Create symbol table private heap */
-    if(H5HL_create(f, dxpl_id, size_hint, &(stab->heap_addr)/*out*/) < 0)
+    if(H5HL_create(f, size_hint, &(stab->heap_addr)/*out*/) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "can't create heap")
 
     /* Pin the heap down in memory */
-    if(NULL == (heap = H5HL_protect(f, dxpl_id, stab->heap_addr, H5AC__NO_FLAGS_SET)))
+    if(NULL == (heap = H5HL_protect(f, stab->heap_addr, H5AC__NO_FLAGS_SET)))
         HGOTO_ERROR(H5E_SYM, H5E_PROTECT, FAIL, "unable to protect symbol table heap")
 
     /* Insert name into the heap */
-    if(UFAIL == (name_offset = H5HL_insert(f, dxpl_id, heap, (size_t)1, "")))
+    if(UFAIL == (name_offset = H5HL_insert(f, heap, (size_t)1, "")))
         HGOTO_ERROR(H5E_SYM, H5E_CANTINSERT, FAIL, "can't insert name into heap")
 
     /*
@@ -201,14 +200,13 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G__stab_create(H5O_loc_t *grp_oloc, hid_t dxpl_id, const H5O_ginfo_t *ginfo,
-    H5O_stab_t *stab)
+H5G__stab_create(H5O_loc_t *grp_oloc, const H5O_ginfo_t *ginfo, H5O_stab_t *stab)
 {
     size_t      heap_hint;              /* Local heap size hint */
     size_t      size_hint;              /* Local heap size hint */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_PACKAGE_TAG(dxpl_id, grp_oloc->addr, FAIL)
+    FUNC_ENTER_PACKAGE_TAG(grp_oloc->addr)
 
     /*
      * Check arguments.
@@ -226,18 +224,18 @@ H5G__stab_create(H5O_loc_t *grp_oloc, hid_t dxpl_id, const H5O_ginfo_t *ginfo,
     size_hint = MAX(heap_hint, H5HL_SIZEOF_FREE(grp_oloc->file) + 2);
 
     /* Go create the B-tree & local heap */
-    if(H5G__stab_create_components(grp_oloc->file, stab, size_hint, dxpl_id) < 0)
+    if(H5G__stab_create_components(grp_oloc->file, stab, size_hint) < 0)
 	HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "can't create symbol table components")
 
     /*
      * Insert the symbol table message into the object header and the symbol
      * table entry.
      */
-    if(H5O_msg_create(grp_oloc, H5O_STAB_ID, 0, H5O_UPDATE_TIME, stab, dxpl_id) < 0)
+    if(H5O_msg_create(grp_oloc, H5O_STAB_ID, 0, H5O_UPDATE_TIME, stab) < 0)
 	HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "can't create message")
 
 done:
-    FUNC_LEAVE_NOAPI_TAG(ret_value, FAIL)
+    FUNC_LEAVE_NOAPI_TAG(ret_value)
 } /* end H5G__stab_create() */
 
 
@@ -258,8 +256,7 @@ done:
  */
 herr_t
 H5G__stab_insert_real(H5F_t *f, const H5O_stab_t *stab, const char *name,
-    H5O_link_t *obj_lnk, H5O_type_t obj_type, const void *crt_info,
-    hid_t dxpl_id)
+    H5O_link_t *obj_lnk, H5O_type_t obj_type, const void *crt_info)
 {
     H5HL_t       *heap = NULL;          /* Pointer to local heap */
     H5G_bt_ins_t udata;		        /* Data to pass through B-tree	*/
@@ -274,7 +271,7 @@ H5G__stab_insert_real(H5F_t *f, const H5O_stab_t *stab, const char *name,
     HDassert(obj_lnk);
 
     /* Pin the heap down in memory */
-    if(NULL == (heap = H5HL_protect(f, dxpl_id, stab->heap_addr, H5AC__NO_FLAGS_SET)))
+    if(NULL == (heap = H5HL_protect(f, stab->heap_addr, H5AC__NO_FLAGS_SET)))
         HGOTO_ERROR(H5E_SYM, H5E_PROTECT, FAIL, "unable to protect symbol table heap")
 
     /* Initialize data to pass through B-tree */
@@ -285,7 +282,7 @@ H5G__stab_insert_real(H5F_t *f, const H5O_stab_t *stab, const char *name,
     udata.crt_info = crt_info;
 
     /* Insert into symbol table */
-    if(H5B_insert(f, dxpl_id, H5B_SNODE, stab->btree_addr, &udata) < 0)
+    if(H5B_insert(f, H5B_SNODE, stab->btree_addr, &udata) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTINSERT, FAIL, "unable to insert entry")
 
 done:
@@ -314,13 +311,12 @@ done:
  */
 herr_t
 H5G__stab_insert(const H5O_loc_t *grp_oloc, const char *name,
-    H5O_link_t *obj_lnk, H5O_type_t obj_type, const void *crt_info,
-    hid_t dxpl_id)
+    H5O_link_t *obj_lnk, H5O_type_t obj_type, const void *crt_info)
 {
     H5O_stab_t		stab;		/* Symbol table message		*/
     herr_t              ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_PACKAGE_TAG(dxpl_id, grp_oloc->addr, FAIL)
+    FUNC_ENTER_PACKAGE_TAG(grp_oloc->addr)
 
     /* check arguments */
     HDassert(grp_oloc && grp_oloc->file);
@@ -328,15 +324,14 @@ H5G__stab_insert(const H5O_loc_t *grp_oloc, const char *name,
     HDassert(obj_lnk);
 
     /* Retrieve symbol table message */
-    if(NULL == H5O_msg_read(grp_oloc, H5O_STAB_ID, &stab, dxpl_id))
+    if(NULL == H5O_msg_read(grp_oloc, H5O_STAB_ID, &stab))
         HGOTO_ERROR(H5E_SYM, H5E_BADMESG, FAIL, "not a symbol table")
 
-    if(H5G__stab_insert_real(grp_oloc->file, &stab, name, obj_lnk, obj_type,
-            crt_info, dxpl_id) < 0)
+    if(H5G__stab_insert_real(grp_oloc->file, &stab, name, obj_lnk, obj_type, crt_info) < 0)
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, H5_ITER_ERROR, "unable to insert the name")
 
 done:
-    FUNC_LEAVE_NOAPI_TAG(ret_value, H5_ITER_ERROR)
+    FUNC_LEAVE_NOAPI_TAG(ret_value)
 } /* end H5G__stab_insert() */
 
 
@@ -353,7 +348,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G__stab_remove(const H5O_loc_t *loc, hid_t dxpl_id, H5RS_str_t *grp_full_path_r,
+H5G__stab_remove(const H5O_loc_t *loc, H5RS_str_t *grp_full_path_r,
     const char *name)
 {
     H5HL_t      *heap = NULL;           /* Pointer to local heap */
@@ -367,11 +362,11 @@ H5G__stab_remove(const H5O_loc_t *loc, hid_t dxpl_id, H5RS_str_t *grp_full_path_
     HDassert(name && *name);
 
     /* Read in symbol table message */
-    if(NULL == H5O_msg_read(loc, H5O_STAB_ID, &stab, dxpl_id))
+    if(NULL == H5O_msg_read(loc, H5O_STAB_ID, &stab))
         HGOTO_ERROR(H5E_SYM, H5E_BADMESG, FAIL, "not a symbol table")
 
     /* Pin the heap down in memory */
-    if(NULL == (heap = H5HL_protect(loc->file, dxpl_id, stab.heap_addr, H5AC__NO_FLAGS_SET)))
+    if(NULL == (heap = H5HL_protect(loc->file, stab.heap_addr, H5AC__NO_FLAGS_SET)))
         HGOTO_ERROR(H5E_SYM, H5E_PROTECT, FAIL, "unable to protect symbol table heap")
 
     /* Initialize data to pass through B-tree */
@@ -380,7 +375,7 @@ H5G__stab_remove(const H5O_loc_t *loc, hid_t dxpl_id, H5RS_str_t *grp_full_path_
     udata.grp_full_path_r = grp_full_path_r;
 
     /* Remove from symbol table */
-    if(H5B_remove(loc->file, dxpl_id, H5B_SNODE, stab.btree_addr, &udata) < 0)
+    if(H5B_remove(loc->file, H5B_SNODE, stab.btree_addr, &udata) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to remove entry")
 
 done:
@@ -405,7 +400,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G__stab_remove_by_idx(const H5O_loc_t *grp_oloc, hid_t dxpl_id, H5RS_str_t *grp_full_path_r,
+H5G__stab_remove_by_idx(const H5O_loc_t *grp_oloc, H5RS_str_t *grp_full_path_r,
     H5_iter_order_t order, hsize_t n)
 {
     H5HL_t      *heap = NULL;           /* Pointer to local heap */
@@ -420,16 +415,16 @@ H5G__stab_remove_by_idx(const H5O_loc_t *grp_oloc, hid_t dxpl_id, H5RS_str_t *gr
     HDassert(grp_oloc && grp_oloc->file);
 
     /* Look up name of link to remove, by index */
-    if(H5G__stab_lookup_by_idx(grp_oloc, order, n, &obj_lnk, dxpl_id) < 0)
+    if(H5G__stab_lookup_by_idx(grp_oloc, order, n, &obj_lnk) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't get link information")
     lnk_copied = TRUE;
 
     /* Read in symbol table message */
-    if(NULL == H5O_msg_read(grp_oloc, H5O_STAB_ID, &stab, dxpl_id))
+    if(NULL == H5O_msg_read(grp_oloc, H5O_STAB_ID, &stab))
         HGOTO_ERROR(H5E_SYM, H5E_BADMESG, FAIL, "not a symbol table")
 
     /* Pin the heap down in memory */
-    if(NULL == (heap = H5HL_protect(grp_oloc->file, dxpl_id, stab.heap_addr, H5AC__NO_FLAGS_SET)))
+    if(NULL == (heap = H5HL_protect(grp_oloc->file, stab.heap_addr, H5AC__NO_FLAGS_SET)))
         HGOTO_ERROR(H5E_SYM, H5E_PROTECT, FAIL, "unable to protect symbol table heap")
 
     /* Initialize data to pass through B-tree */
@@ -438,7 +433,7 @@ H5G__stab_remove_by_idx(const H5O_loc_t *grp_oloc, hid_t dxpl_id, H5RS_str_t *gr
     udata.grp_full_path_r = grp_full_path_r;
 
     /* Remove link from symbol table */
-    if(H5B_remove(grp_oloc->file, dxpl_id, H5B_SNODE, stab.btree_addr, &udata) < 0)
+    if(H5B_remove(grp_oloc->file, H5B_SNODE, stab.btree_addr, &udata) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to remove entry")
 
 done:
@@ -464,12 +459,10 @@ done:
  * Programmer:	Quincey Koziol
  *              Thursday, March 20, 2003
  *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G__stab_delete(H5F_t *f, hid_t dxpl_id, const H5O_stab_t *stab)
+H5G__stab_delete(H5F_t *f, const H5O_stab_t *stab)
 {
     H5HL_t *heap = NULL;                /* Pointer to local heap */
     H5G_bt_rm_t	udata;		        /*data to pass through B-tree	*/
@@ -483,7 +476,7 @@ H5G__stab_delete(H5F_t *f, hid_t dxpl_id, const H5O_stab_t *stab)
     HDassert(H5F_addr_defined(stab->heap_addr));
 
     /* Pin the heap down in memory */
-    if(NULL == (heap = H5HL_protect(f, dxpl_id, stab->heap_addr, H5AC__NO_FLAGS_SET)))
+    if(NULL == (heap = H5HL_protect(f, stab->heap_addr, H5AC__NO_FLAGS_SET)))
         HGOTO_ERROR(H5E_SYM, H5E_PROTECT, FAIL, "unable to protect symbol table heap")
 
     /* Set up user data for B-tree deletion */
@@ -491,7 +484,7 @@ H5G__stab_delete(H5F_t *f, hid_t dxpl_id, const H5O_stab_t *stab)
     udata.common.heap = heap;
 
     /* Delete entire B-tree */
-    if(H5B_delete(f, dxpl_id, H5B_SNODE, stab->btree_addr, &udata) < 0)
+    if(H5B_delete(f, H5B_SNODE, stab->btree_addr, &udata) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTDELETE, FAIL, "unable to delete symbol table B-tree")
 
     /* Release resources */
@@ -500,7 +493,7 @@ H5G__stab_delete(H5F_t *f, hid_t dxpl_id, const H5O_stab_t *stab)
     heap = NULL;
 
     /* Delete local heap for names */
-    if(H5HL_delete(f, dxpl_id, stab->heap_addr) < 0)
+    if(H5HL_delete(f, stab->heap_addr) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTDELETE, FAIL, "unable to delete symbol table heap")
 
 done:
@@ -525,7 +518,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G__stab_iterate(const H5O_loc_t *oloc, hid_t dxpl_id, H5_iter_order_t order,
+H5G__stab_iterate(const H5O_loc_t *oloc, H5_iter_order_t order,
     hsize_t skip, hsize_t *last_lnk, H5G_lib_iterate_t op, void *op_data)
 {
     H5HL_t *heap = NULL;                        /* Local heap for group */
@@ -533,18 +526,18 @@ H5G__stab_iterate(const H5O_loc_t *oloc, hid_t dxpl_id, H5_iter_order_t order,
     H5G_link_table_t ltable = {0, NULL};        /* Link table */
     herr_t ret_value = FAIL;                    /* Return value */
 
-    FUNC_ENTER_PACKAGE_TAG(dxpl_id, oloc->addr, FAIL)
+    FUNC_ENTER_PACKAGE_TAG(oloc->addr)
 
     /* Sanity check */
     HDassert(oloc);
     HDassert(op);
 
     /* Get the B-tree info */
-    if(NULL == H5O_msg_read(oloc, H5O_STAB_ID, &stab, dxpl_id))
+    if(NULL == H5O_msg_read(oloc, H5O_STAB_ID, &stab))
 	HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to determine local heap address")
 
     /* Pin the heap down in memory */
-    if(NULL == (heap = H5HL_protect(oloc->file, dxpl_id, stab.heap_addr, H5AC__READ_ONLY_FLAG)))
+    if(NULL == (heap = H5HL_protect(oloc->file, stab.heap_addr, H5AC__READ_ONLY_FLAG)))
         HGOTO_ERROR(H5E_SYM, H5E_PROTECT, FAIL, "unable to protect symbol table heap")
 
     /* Check on iteration order */
@@ -560,7 +553,7 @@ H5G__stab_iterate(const H5O_loc_t *oloc, hid_t dxpl_id, H5_iter_order_t order,
         udata.op_data = op_data;
 
         /* Iterate over the group members */
-        if((ret_value = H5B_iterate(oloc->file, dxpl_id, H5B_SNODE, stab.btree_addr, H5G__node_iterate, &udata)) < 0)
+        if((ret_value = H5B_iterate(oloc->file, H5B_SNODE, stab.btree_addr, H5G__node_iterate, &udata)) < 0)
             HERROR(H5E_SYM, H5E_CANTNEXT, "iteration operator failed");
 
         /* Check for too high of a starting index (ex post facto :-) */
@@ -577,7 +570,7 @@ H5G__stab_iterate(const H5O_loc_t *oloc, hid_t dxpl_id, H5_iter_order_t order,
         udata.ltable = &ltable;
 
         /* Iterate over the group members */
-        if(H5B_iterate(oloc->file, dxpl_id, H5B_SNODE, stab.btree_addr, H5G__node_build_table, &udata) < 0)
+        if(H5B_iterate(oloc->file, H5B_SNODE, stab.btree_addr, H5G__node_build_table, &udata) < 0)
             HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to build link table")
 
         /* Check for skipping out of bounds */
@@ -600,7 +593,7 @@ done:
     if(ltable.lnks && H5G__link_release_table(&ltable) < 0)
         HDONE_ERROR(H5E_SYM, H5E_CANTFREE, FAIL, "unable to release link table")
 
-    FUNC_LEAVE_NOAPI_TAG(ret_value, FAIL)
+    FUNC_LEAVE_NOAPI_TAG(ret_value)
 } /* end H5G__stab_iterate() */
 
 
@@ -617,12 +610,12 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G__stab_count(H5O_loc_t *oloc, hsize_t *num_objs, hid_t dxpl_id)
+H5G__stab_count(const H5O_loc_t *oloc, hsize_t *num_objs)
 {
     H5O_stab_t		stab;		        /* Info about symbol table */
     herr_t		ret_value = SUCCEED;
 
-    FUNC_ENTER_PACKAGE_TAG(dxpl_id, oloc->addr, FAIL)
+    FUNC_ENTER_PACKAGE_TAG(oloc->addr)
 
     /* Sanity check */
     HDassert(oloc);
@@ -632,15 +625,15 @@ H5G__stab_count(H5O_loc_t *oloc, hsize_t *num_objs, hid_t dxpl_id)
     *num_objs = 0;
 
     /* Get the B-tree info */
-    if(NULL == H5O_msg_read(oloc, H5O_STAB_ID, &stab, dxpl_id))
+    if(NULL == H5O_msg_read(oloc, H5O_STAB_ID, &stab))
 	HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to determine local heap address")
 
     /* Iterate over the group members */
-    if(H5B_iterate(oloc->file, dxpl_id, H5B_SNODE, stab.btree_addr, H5G__node_sumup, num_objs) < 0)
+    if(H5B_iterate(oloc->file, H5B_SNODE, stab.btree_addr, H5G__node_sumup, num_objs) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "iteration operator failed")
 
 done:
-    FUNC_LEAVE_NOAPI_TAG(ret_value, FAIL)
+    FUNC_LEAVE_NOAPI_TAG(ret_value)
 } /* end H5G__stab_count() */
 
 
@@ -657,8 +650,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G__stab_bh_size(H5F_t *f, hid_t dxpl_id, const H5O_stab_t *stab,
-    H5_ih_info_t *bh_info)
+H5G__stab_bh_size(H5F_t *f, const H5O_stab_t *stab, H5_ih_info_t *bh_info)
 {
     hsize_t     snode_size;             /* Symbol table node size */
     H5B_info_t  bt_info;                /* B-tree node info */
@@ -675,14 +667,14 @@ H5G__stab_bh_size(H5F_t *f, hid_t dxpl_id, const H5O_stab_t *stab,
     snode_size = 0;
 
     /* Get the B-tree & symbol table node size info */
-    if(H5B_get_info(f, dxpl_id, H5B_SNODE, stab->btree_addr, &bt_info, H5G__node_iterate_size, &snode_size) < 0)
+    if(H5B_get_info(f, H5B_SNODE, stab->btree_addr, &bt_info, H5G__node_iterate_size, &snode_size) < 0)
         HGOTO_ERROR(H5E_BTREE, H5E_CANTINIT, FAIL, "iteration operator failed")
 
     /* Add symbol table & B-tree node sizes to index info */
     bh_info->index_size += snode_size + bt_info.size;
 
     /* Get the size of the local heap for the group */
-    if(H5HL_heapsize(f, dxpl_id, stab->heap_addr, &(bh_info->heap_size)) < 0)
+    if(H5HL_heapsize(f, stab->heap_addr, &(bh_info->heap_size)) < 0)
         HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, FAIL, "iteration operator failed")
 
 done:
@@ -707,11 +699,12 @@ done:
 static herr_t
 H5G_stab_get_name_by_idx_cb(const H5G_entry_t *ent, void *_udata)
 {
-    H5G_bt_it_gnbi_t	*udata = (H5G_bt_it_gnbi_t *)_udata;
+    H5G_bt_it_gnbi_t    *udata = (H5G_bt_it_gnbi_t *)_udata;
     size_t name_off;                    /* Offset of name in heap */
     const char *name;                   /* Pointer to name string in heap */
+    herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_NOAPI_NOINIT
 
     /* Sanity check */
     HDassert(ent);
@@ -719,12 +712,15 @@ H5G_stab_get_name_by_idx_cb(const H5G_entry_t *ent, void *_udata)
 
     /* Get name offset in heap */
     name_off = ent->name_off;
-    name = (const char *)H5HL_offset_into(udata->heap, name_off);
-    HDassert(name);
-    udata->name = H5MM_strdup(name);
-    HDassert(udata->name);
 
-    FUNC_LEAVE_NOAPI(SUCCEED)
+    if((name = (const char *)H5HL_offset_into(udata->heap, name_off)) == NULL)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "unable to get symbol table link name")
+
+    if((udata->name = H5MM_strdup(name)) == NULL)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "unable to duplicate symbol table link name")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5G_stab_get_name_by_idx_cb */
 
 
@@ -743,7 +739,7 @@ H5G_stab_get_name_by_idx_cb(const H5G_entry_t *ent, void *_udata)
  */
 ssize_t
 H5G__stab_get_name_by_idx(const H5O_loc_t *oloc, H5_iter_order_t order, hsize_t n,
-    char* name, size_t size, hid_t dxpl_id)
+    char* name, size_t size)
 {
     H5HL_t *heap = NULL;        /* Pointer to local heap */
     H5O_stab_t	stab;	        /* Info about local heap & B-tree */
@@ -760,11 +756,11 @@ H5G__stab_get_name_by_idx(const H5O_loc_t *oloc, H5_iter_order_t order, hsize_t 
     HDassert(oloc);
 
     /* Get the B-tree & local heap info */
-    if(NULL == H5O_msg_read(oloc, H5O_STAB_ID, &stab, dxpl_id))
+    if(NULL == H5O_msg_read(oloc, H5O_STAB_ID, &stab))
 	HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to determine local heap address")
 
     /* Pin the heap down in memory */
-    if(NULL == (heap = H5HL_protect(oloc->file, dxpl_id, stab.heap_addr, H5AC__READ_ONLY_FLAG)))
+    if(NULL == (heap = H5HL_protect(oloc->file, stab.heap_addr, H5AC__READ_ONLY_FLAG)))
         HGOTO_ERROR(H5E_SYM, H5E_PROTECT, FAIL, "unable to protect symbol table heap")
 
     /* Remap index for decreasing iteration order */
@@ -772,7 +768,7 @@ H5G__stab_get_name_by_idx(const H5O_loc_t *oloc, H5_iter_order_t order, hsize_t 
         hsize_t nlinks = 0;           /* Number of links in group */
 
         /* Iterate over the symbol table nodes, to count the links */
-        if(H5B_iterate(oloc->file, dxpl_id, H5B_SNODE, stab.btree_addr, H5G__node_sumup, &nlinks) < 0)
+        if(H5B_iterate(oloc->file, H5B_SNODE, stab.btree_addr, H5G__node_sumup, &nlinks) < 0)
             HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "iteration operator failed")
 
         /* Map decreasing iteration order index to increasing iteration order index */
@@ -788,7 +784,7 @@ H5G__stab_get_name_by_idx(const H5O_loc_t *oloc, H5_iter_order_t order, hsize_t 
     udata_valid = TRUE;
 
     /* Iterate over the group members */
-    if(H5B_iterate(oloc->file, dxpl_id, H5B_SNODE, stab.btree_addr, H5G__node_by_idx, &udata) < 0)
+    if(H5B_iterate(oloc->file, H5B_SNODE, stab.btree_addr, H5G__node_by_idx, &udata) < 0)
 	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "iteration operator failed")
 
     /* If we don't know the name now, we almost certainly went out of bounds */
@@ -800,9 +796,8 @@ H5G__stab_get_name_by_idx(const H5O_loc_t *oloc, H5_iter_order_t order, hsize_t 
 
     /* Copy the name into the user's buffer, if given */
     if(name) {
-        HDstrncpy(name, udata.name, MIN((size_t)(ret_value + 1), size));
-        if((size_t)ret_value >= size)
-            name[size - 1]='\0';
+        HDstrncpy(name, udata.name, size);
+        name[size - 1]='\0';
     } /* end if */
 
 done:
@@ -865,8 +860,7 @@ done:
  *-------------------------------------------------------------------------
  */
 htri_t
-H5G__stab_lookup(const H5O_loc_t *grp_oloc, const char *name, H5O_link_t *lnk,
-    hid_t dxpl_id)
+H5G__stab_lookup(const H5O_loc_t *grp_oloc, const char *name, H5O_link_t *lnk)
 {
     H5HL_t *heap = NULL;                /* Pointer to local heap */
     H5G_bt_lkp_t bt_udata;              /* Data to pass through B-tree	*/
@@ -882,11 +876,11 @@ H5G__stab_lookup(const H5O_loc_t *grp_oloc, const char *name, H5O_link_t *lnk,
     HDassert(lnk);
 
     /* Retrieve the symbol table message for the group */
-    if(NULL == H5O_msg_read(grp_oloc, H5O_STAB_ID, &stab, dxpl_id))
+    if(NULL == H5O_msg_read(grp_oloc, H5O_STAB_ID, &stab))
         HGOTO_ERROR(H5E_SYM, H5E_BADMESG, FAIL, "can't read message")
 
     /* Pin the heap down in memory */
-    if(NULL == (heap = H5HL_protect(grp_oloc->file, dxpl_id, stab.heap_addr, H5AC__READ_ONLY_FLAG)))
+    if(NULL == (heap = H5HL_protect(grp_oloc->file, stab.heap_addr, H5AC__READ_ONLY_FLAG)))
         HGOTO_ERROR(H5E_SYM, H5E_PROTECT, FAIL, "unable to protect symbol table heap")
 
     /* Set up user data to pass to 'find' operation callback */
@@ -901,7 +895,7 @@ H5G__stab_lookup(const H5O_loc_t *grp_oloc, const char *name, H5O_link_t *lnk,
     bt_udata.op_data = &udata;
 
     /* Search the B-tree */
-    if((ret_value = H5B_find(grp_oloc->file, dxpl_id, H5B_SNODE, stab.btree_addr, &bt_udata)) < 0)
+    if((ret_value = H5B_find(grp_oloc->file, H5B_SNODE, stab.btree_addr, &bt_udata)) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "not found")
 
 done:
@@ -941,8 +935,8 @@ H5G_stab_lookup_by_idx_cb(const H5G_entry_t *ent, void *_udata)
     HDassert(udata && udata->heap);
 
     /* Get a pointer to the link name */
-    name = (const char *)H5HL_offset_into(udata->heap, ent->name_off);
-    HDassert(name);
+    if((name = (const char *)H5HL_offset_into(udata->heap, ent->name_off)) == NULL)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "unable to get symbol table link name")
 
     /* Convert the entry to a link */
     if(H5G__ent_to_link(udata->lnk, udata->heap, ent, name) < 0)
@@ -969,7 +963,7 @@ done:
  */
 herr_t
 H5G__stab_lookup_by_idx(const H5O_loc_t *grp_oloc, H5_iter_order_t order, hsize_t n,
-    H5O_link_t *lnk, hid_t dxpl_id)
+    H5O_link_t *lnk)
 {
     H5HL_t *heap = NULL;                /* Pointer to local heap */
     H5G_bt_it_lbi_t udata;              /* Iteration information */
@@ -983,11 +977,11 @@ H5G__stab_lookup_by_idx(const H5O_loc_t *grp_oloc, H5_iter_order_t order, hsize_
     HDassert(lnk);
 
     /* Get the B-tree & local heap info */
-    if(NULL == H5O_msg_read(grp_oloc, H5O_STAB_ID, &stab, dxpl_id))
+    if(NULL == H5O_msg_read(grp_oloc, H5O_STAB_ID, &stab))
 	HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to determine local heap address")
 
     /* Pin the heap down in memory */
-    if(NULL == (heap = H5HL_protect(grp_oloc->file, dxpl_id, stab.heap_addr, H5AC__READ_ONLY_FLAG)))
+    if(NULL == (heap = H5HL_protect(grp_oloc->file, stab.heap_addr, H5AC__READ_ONLY_FLAG)))
         HGOTO_ERROR(H5E_SYM, H5E_PROTECT, FAIL, "unable to protect symbol table heap")
 
     /* Remap index for decreasing iteration order */
@@ -995,7 +989,7 @@ H5G__stab_lookup_by_idx(const H5O_loc_t *grp_oloc, H5_iter_order_t order, hsize_
         hsize_t nlinks = 0;           /* Number of links in group */
 
         /* Iterate over the symbol table nodes, to count the links */
-        if(H5B_iterate(grp_oloc->file, dxpl_id, H5B_SNODE, stab.btree_addr, H5G__node_sumup, &nlinks) < 0)
+        if(H5B_iterate(grp_oloc->file, H5B_SNODE, stab.btree_addr, H5G__node_sumup, &nlinks) < 0)
             HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "iteration operator failed")
 
         /* Map decreasing iteration order index to increasing iteration order index */
@@ -1011,7 +1005,7 @@ H5G__stab_lookup_by_idx(const H5O_loc_t *grp_oloc, H5_iter_order_t order, hsize_
     udata.found = FALSE;
 
     /* Iterate over the group members */
-    if(H5B_iterate(grp_oloc->file, dxpl_id, H5B_SNODE, stab.btree_addr, H5G__node_by_idx, &udata) < 0)
+    if(H5B_iterate(grp_oloc->file, H5B_SNODE, stab.btree_addr, H5G__node_by_idx, &udata) < 0)
 	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "iteration operator failed")
 
     /* If we didn't find the link, we almost certainly went out of bounds */
@@ -1051,24 +1045,24 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G__stab_valid(H5O_loc_t *grp_oloc, hid_t dxpl_id, H5O_stab_t *alt_stab)
+H5G__stab_valid(H5O_loc_t *grp_oloc, H5O_stab_t *alt_stab)
 {
     H5O_stab_t  stab;                   /* Current symbol table */
     H5HL_t      *heap = NULL;           /* Pointer to local heap */
     hbool_t     changed = FALSE;        /* Whether stab has been modified */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
-    FUNC_ENTER_PACKAGE_TAG(dxpl_id, grp_oloc->addr, FAIL)
+    FUNC_ENTER_PACKAGE_TAG(grp_oloc->addr)
 
     /* Read the symbol table message */
-    if(NULL == H5O_msg_read(grp_oloc, H5O_STAB_ID, &stab, dxpl_id))
+    if(NULL == H5O_msg_read(grp_oloc, H5O_STAB_ID, &stab))
         HGOTO_ERROR(H5E_SYM, H5E_BADMESG, FAIL, "unable to read symbol table message");
 
     /* Check if the symbol table message's b-tree address is valid */
-    if(H5B_valid(grp_oloc->file, dxpl_id, H5B_SNODE, stab.btree_addr) < 0) {
+    if(H5B_valid(grp_oloc->file, H5B_SNODE, stab.btree_addr) < 0) {
         /* Address is invalid, try the b-tree address in the alternate symbol
          * table message */
-        if(!alt_stab || H5B_valid(grp_oloc->file, dxpl_id, H5B_SNODE, alt_stab->btree_addr) < 0)
+        if(!alt_stab || H5B_valid(grp_oloc->file, H5B_SNODE, alt_stab->btree_addr) < 0)
             HGOTO_ERROR(H5E_BTREE, H5E_NOTFOUND, FAIL, "unable to locate b-tree")
         else {
             /* The alternate symbol table's b-tree address is valid.  Adjust the
@@ -1079,10 +1073,10 @@ H5G__stab_valid(H5O_loc_t *grp_oloc, hid_t dxpl_id, H5O_stab_t *alt_stab)
     } /* end if */
 
     /* Check if the symbol table message's heap address is valid */
-    if(NULL == (heap = H5HL_protect(grp_oloc->file, dxpl_id, stab.heap_addr, H5AC__READ_ONLY_FLAG))) {
+    if(NULL == (heap = H5HL_protect(grp_oloc->file, stab.heap_addr, H5AC__READ_ONLY_FLAG))) {
         /* Address is invalid, try the heap address in the alternate symbol
          * table message */
-        if(!alt_stab || NULL == (heap = H5HL_protect(grp_oloc->file, dxpl_id, alt_stab->heap_addr, H5AC__READ_ONLY_FLAG)))
+        if(!alt_stab || NULL == (heap = H5HL_protect(grp_oloc->file, alt_stab->heap_addr, H5AC__READ_ONLY_FLAG)))
             HGOTO_ERROR(H5E_HEAP, H5E_NOTFOUND, FAIL, "unable to locate heap")
         else {
             /* The alternate symbol table's heap address is valid.  Adjust the
@@ -1095,7 +1089,7 @@ H5G__stab_valid(H5O_loc_t *grp_oloc, hid_t dxpl_id, H5O_stab_t *alt_stab)
     /* Update the symbol table message and clear errors if necessary */
     if(changed) {
         H5E_clear_stack(NULL);
-        if(H5O_msg_write(grp_oloc, H5O_STAB_ID, 0, H5O_UPDATE_TIME | H5O_UPDATE_FORCE, &stab, dxpl_id) < 0)
+        if(H5O_msg_write(grp_oloc, H5O_STAB_ID, 0, H5O_UPDATE_TIME | H5O_UPDATE_FORCE, &stab) < 0)
             HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to correct symbol table message")
     } /* end if */
 
@@ -1104,7 +1098,7 @@ done:
     if(heap && H5HL_unprotect(heap) < 0)
         HDONE_ERROR(H5E_SYM, H5E_PROTECT, FAIL, "unable to unprotect symbol table heap")
 
-    FUNC_LEAVE_NOAPI_TAG(ret_value, FAIL)
+    FUNC_LEAVE_NOAPI_TAG(ret_value)
 } /* end H5G__stab_valid */
 #endif /* H5_STRICT_FORMAT_CHECKS */
 
@@ -1157,7 +1151,7 @@ H5G_stab_get_type_by_idx_cb(const H5G_entry_t *ent, void *_udata)
                 tmp_oloc.addr = ent->header;
 
                 /* Get the type of the object */
-                if(H5O_obj_type(&tmp_oloc, &obj_type, udata->dxpl_id) < 0)
+                if(H5O_obj_type(&tmp_oloc, &obj_type) < 0)
                     HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't get object type")
                 udata->type = H5G_map_obj_type(obj_type);
             }
@@ -1185,19 +1179,19 @@ done:
  *-------------------------------------------------------------------------
  */
 H5G_obj_t
-H5G__stab_get_type_by_idx(H5O_loc_t *oloc, hsize_t idx, hid_t dxpl_id)
+H5G__stab_get_type_by_idx(H5O_loc_t *oloc, hsize_t idx)
 {
     H5O_stab_t		stab;	        /* Info about local heap & B-tree */
     H5G_bt_it_gtbi_t	udata;          /* User data for B-tree callback */
     H5G_obj_t		ret_value = H5G_UNKNOWN;        /* Return value */
 
-    FUNC_ENTER_PACKAGE_TAG(dxpl_id, oloc->addr, H5G_UNKNOWN)
+    FUNC_ENTER_PACKAGE_TAG(oloc->addr)
 
     /* Sanity check */
     HDassert(oloc);
 
     /* Get the B-tree & local heap info */
-    if(NULL == H5O_msg_read(oloc, H5O_STAB_ID, &stab, dxpl_id))
+    if(NULL == H5O_msg_read(oloc, H5O_STAB_ID, &stab))
 	HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, H5G_UNKNOWN, "unable to determine local heap address")
 
     /* Set iteration information */
@@ -1205,11 +1199,10 @@ H5G__stab_get_type_by_idx(H5O_loc_t *oloc, hsize_t idx, hid_t dxpl_id)
     udata.common.num_objs = 0;
     udata.common.op = H5G_stab_get_type_by_idx_cb;
     udata.f = oloc->file;
-    udata.dxpl_id = dxpl_id;
     udata.type = H5G_UNKNOWN;
 
     /* Iterate over the group members */
-    if(H5B_iterate(oloc->file, dxpl_id, H5B_SNODE, stab.btree_addr, H5G__node_by_idx, &udata) < 0)
+    if(H5B_iterate(oloc->file, H5B_SNODE, stab.btree_addr, H5G__node_by_idx, &udata) < 0)
 	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5G_UNKNOWN, "iteration operator failed")
 
     /* If we don't know the type now, we almost certainly went out of bounds */
@@ -1220,7 +1213,7 @@ H5G__stab_get_type_by_idx(H5O_loc_t *oloc, hsize_t idx, hid_t dxpl_id)
     ret_value = udata.type;
 
 done:
-    FUNC_LEAVE_NOAPI_TAG(ret_value, H5G_UNKNOWN)
+    FUNC_LEAVE_NOAPI_TAG(ret_value)
 } /* end H5G__stab_get_type_by_idx() */
 #endif /* H5_NO_DEPRECATED_SYMBOLS */
 

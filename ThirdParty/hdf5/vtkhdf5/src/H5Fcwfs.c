@@ -159,7 +159,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F_cwfs_find_free_heap(H5F_t *f, hid_t dxpl_id, size_t need, haddr_t *addr)
+H5F_cwfs_find_free_heap(H5F_t *f, size_t need, haddr_t *addr)
 {
     unsigned    cwfsno;                 /* Local index for iterating over collections */
     hbool_t     found = FALSE;          /* Flag to indicate a heap with enough space was found */
@@ -210,11 +210,11 @@ H5F_cwfs_find_free_heap(H5F_t *f, hid_t dxpl_id, size_t need, haddr_t *addr)
             if((H5HG_SIZE(f->shared->cwfs[cwfsno]) + new_need) <= H5HG_MAXSIZE) {
                 htri_t was_extended;        /* Whether the heap was extended */
 
-                was_extended = H5MF_try_extend(f, dxpl_id, H5FD_MEM_GHEAP, H5HG_ADDR(f->shared->cwfs[cwfsno]), (hsize_t)H5HG_SIZE(f->shared->cwfs[cwfsno]), (hsize_t)new_need);
+                was_extended = H5MF_try_extend(f, H5FD_MEM_GHEAP, H5HG_ADDR(f->shared->cwfs[cwfsno]), (hsize_t)H5HG_SIZE(f->shared->cwfs[cwfsno]), (hsize_t)new_need);
                 if(was_extended < 0)
                     HGOTO_ERROR(H5E_HEAP, H5E_CANTEXTEND, FAIL, "error trying to extend heap")
                 else if(was_extended == TRUE) {
-                    if(H5HG_extend(f, dxpl_id, H5HG_ADDR(f->shared->cwfs[cwfsno]), new_need) < 0)
+                    if(H5HG_extend(f, H5HG_ADDR(f->shared->cwfs[cwfsno]), new_need) < 0)
                         HGOTO_ERROR(H5E_HEAP, H5E_CANTRESIZE, FAIL, "unable to extend global heap collection")
                     *addr = H5HG_ADDR(f->shared->cwfs[cwfsno]);
                     found = TRUE;

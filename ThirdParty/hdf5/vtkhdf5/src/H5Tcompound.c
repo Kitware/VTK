@@ -27,6 +27,7 @@
 /* Headers */
 /***********/
 #include "H5private.h"		/*generic functions			  */
+#include "H5CXprivate.h"        /*API Contexts                            */
 #include "H5Eprivate.h"		/*error handling			  */
 #include "H5Iprivate.h"		/*ID functions		   		  */
 #include "H5MMprivate.h"	/*memory management			  */
@@ -215,23 +216,27 @@ H5Tget_member_type(hid_t type_id, unsigned membno)
     H5T_t	*memb_dt = NULL;        /* Member datatype */
     hid_t	ret_value;              /* Return value */
 
-    FUNC_ENTER_API(FAIL)
+    FUNC_ENTER_API(H5I_INVALID_HID)
     H5TRACE2("i", "iIu", type_id, membno);
 
     /* Check args */
     if(NULL == (dt = (H5T_t *)H5I_object_verify(type_id, H5I_DATATYPE)) || H5T_COMPOUND != dt->shared->type)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a compound datatype")
+	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not a compound datatype")
     if(membno >= dt->shared->u.compnd.nmembs)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid member number")
+	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "invalid member number")
+
+    /* Retrieve the datatype for the member */
     if(NULL == (memb_dt = H5T_get_member_type(dt, membno, H5T_COPY_REOPEN)))
-	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "unable to retrieve member type")
+	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, H5I_INVALID_HID, "unable to retrieve member type")
+
+    /* Get an ID for the datatype */
     if((ret_value = H5I_register(H5I_DATATYPE, memb_dt, TRUE)) < 0)
-	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, FAIL, "unable register datatype atom")
+	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTREGISTER, H5I_INVALID_HID, "unable register datatype atom")
 
 done:
     if(ret_value < 0)
         if(memb_dt && H5T_close(memb_dt) < 0)
-            HDONE_ERROR(H5E_DATATYPE, H5E_CANTCLOSEOBJ, FAIL, "can't close datatype")
+            HDONE_ERROR(H5E_DATATYPE, H5E_CANTCLOSEOBJ, H5I_INVALID_HID, "can't close datatype")
 
     FUNC_LEAVE_API(ret_value)
 } /* end H5Tget_member_type() */
@@ -406,7 +411,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5T__insert(H5T_t *parent, const char *name, size_t offset, const H5T_t *member)
+H5T__insert(H5T_t *parent, const char *name, size_t offset, H5T_t *member)
 {
     unsigned	idx;                        /* Index of member to insert */
     size_t	total_size;

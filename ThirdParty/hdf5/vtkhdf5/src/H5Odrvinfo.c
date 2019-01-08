@@ -27,14 +27,14 @@
 #include "H5Opkg.h"             /* Object headers			*/
 #include "H5MMprivate.h"	/* Memory management			*/
 
-static void  *H5O_drvinfo_decode(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh,
-    unsigned mesg_flags, unsigned *ioflags, const uint8_t *p);
+static void  *H5O_drvinfo_decode(H5F_t *f, H5O_t *open_oh, unsigned mesg_flags,
+    unsigned *ioflags, size_t p_size, const uint8_t *p);
 static herr_t H5O_drvinfo_encode(H5F_t *f, hbool_t disable_shared, uint8_t *p, const void *_mesg);
 static void  *H5O_drvinfo_copy(const void *_mesg, void *_dest);
 static size_t H5O_drvinfo_size(const H5F_t *f, hbool_t disable_shared, const void *_mesg);
-static herr_t H5O_drvinfo_reset(void *_mesg);
-static herr_t H5O_drvinfo_debug(H5F_t *f, hid_t dxpl_id, const void *_mesg, FILE *stream,
-			     int indent, int fwidth);
+static herr_t H5O__drvinfo_reset(void *_mesg);
+static herr_t H5O__drvinfo_debug(H5F_t *f, const void *_mesg, FILE *stream,
+    int indent, int fwidth);
 
 /* This message derives from H5O message class */
 const H5O_msg_class_t H5O_MSG_DRVINFO[1] = {{
@@ -46,7 +46,7 @@ const H5O_msg_class_t H5O_MSG_DRVINFO[1] = {{
     H5O_drvinfo_encode,		/*encode message                        */
     H5O_drvinfo_copy,           /*copy the native value                 */
     H5O_drvinfo_size,		/*raw message size			*/
-    H5O_drvinfo_reset,          /*free internal memory			*/
+    H5O__drvinfo_reset,         /*free internal memory			*/
     NULL,                       /* free method				*/
     NULL,			/* file delete method			*/
     NULL,			/* link method				*/
@@ -57,7 +57,7 @@ const H5O_msg_class_t H5O_MSG_DRVINFO[1] = {{
     NULL,			/* post copy native value to file	*/
     NULL,			/* get creation index		        */
     NULL,			/* set creation index		        */
-    H5O_drvinfo_debug           /*debug the message			*/
+    H5O__drvinfo_debug           /*debug the message			*/
 }};
 
 /* Current version of driver info information */
@@ -79,8 +79,9 @@ const H5O_msg_class_t H5O_MSG_DRVINFO[1] = {{
  *-------------------------------------------------------------------------
  */
 static void *
-H5O_drvinfo_decode(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, H5O_t H5_ATTR_UNUSED *open_oh,
-    unsigned H5_ATTR_UNUSED mesg_flags, unsigned H5_ATTR_UNUSED *ioflags, const uint8_t *p)
+H5O_drvinfo_decode(H5F_t H5_ATTR_UNUSED *f, H5O_t H5_ATTR_UNUSED *open_oh,
+    unsigned H5_ATTR_UNUSED mesg_flags, unsigned H5_ATTR_UNUSED *ioflags,
+    size_t H5_ATTR_UNUSED p_size, const uint8_t *p)
 {
     H5O_drvinfo_t	*mesg;          /* Native message */
     void		*ret_value = NULL;      /* Return value */
@@ -245,7 +246,7 @@ H5O_drvinfo_size(const H5F_t H5_ATTR_UNUSED *f, hbool_t H5_ATTR_UNUSED disable_s
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5O_drvinfo_reset
+ * Function:    H5O__drvinfo_reset
  *
  * Purpose:     Frees internal pointers and resets the message to an
  *              initial state.
@@ -259,11 +260,11 @@ H5O_drvinfo_size(const H5F_t H5_ATTR_UNUSED *f, hbool_t H5_ATTR_UNUSED disable_s
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_drvinfo_reset(void *_mesg)
+H5O__drvinfo_reset(void *_mesg)
 {
     H5O_drvinfo_t *mesg = (H5O_drvinfo_t *) _mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* check args */
     HDassert(mesg);
@@ -272,11 +273,11 @@ H5O_drvinfo_reset(void *_mesg)
     mesg->buf = (uint8_t *)H5MM_xfree(mesg->buf);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5O_drvinfo_reset() */
+} /* end H5O__drvinfo_reset() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_drvinfo_debug
+ * Function:	H5O__drvinfo_debug
  *
  * Purpose:	Prints debugging info for the message.
  *
@@ -288,12 +289,12 @@ H5O_drvinfo_reset(void *_mesg)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_drvinfo_debug(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, const void *_mesg, FILE *stream,
+H5O__drvinfo_debug(H5F_t H5_ATTR_UNUSED *f, const void *_mesg, FILE *stream,
     int indent, int fwidth)
 {
     const H5O_drvinfo_t *mesg = (const H5O_drvinfo_t *)_mesg;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* Sanity check */
     HDassert(f);
@@ -308,6 +309,6 @@ H5O_drvinfo_debug(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, const v
 	      "Buffer size:", mesg->len);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5O_drvinfo_debug() */
+} /* end H5O__drvinfo_debug() */
 
 

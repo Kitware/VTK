@@ -75,7 +75,7 @@
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5F_alloc
+ * Function:    H5F__alloc
  *
  * Purpose:     Wrapper for H5FD_alloc, to make certain EOA changes are
  *		reflected in superblock.
@@ -93,11 +93,11 @@
  *-------------------------------------------------------------------------
  */
 haddr_t
-H5F_alloc(H5F_t *f, hid_t dxpl_id, H5F_mem_t type, hsize_t size, haddr_t *frag_addr, hsize_t *frag_size)
+H5F__alloc(H5F_t *f, H5F_mem_t type, hsize_t size, haddr_t *frag_addr, hsize_t *frag_size)
 {
     haddr_t     ret_value = 0;          /* Return value */
 
-    FUNC_ENTER_NOAPI(HADDR_UNDEF)
+    FUNC_ENTER_PACKAGE
 
     /* check args */
     HDassert(f);
@@ -120,21 +120,21 @@ H5F_alloc(H5F_t *f, hid_t dxpl_id, H5F_mem_t type, hsize_t size, haddr_t *frag_a
     } /* end if */
 
     /* Call the file driver 'alloc' routine */
-    ret_value = H5FD_alloc(f->shared->lf, dxpl_id, type, f, size, frag_addr, frag_size);
+    ret_value = H5FD_alloc(f->shared->lf, type, f, size, frag_addr, frag_size);
     if(!H5F_addr_defined(ret_value))
         HGOTO_ERROR(H5E_FILE, H5E_CANTALLOC, HADDR_UNDEF, "file driver 'alloc' request failed")
 
     /* Mark EOA dirty */
-    if(H5F_eoa_dirty(f, dxpl_id) < 0)
+    if(H5F_eoa_dirty(f) < 0)
         HGOTO_ERROR(H5E_FILE, H5E_CANTMARKDIRTY, HADDR_UNDEF, "unable to mark EOA as dirty")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5F_alloc() */
+} /* end H5F__alloc() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5F_free
+ * Function:    H5F__free
  *
  * Purpose:     Wrapper for H5FD_free, to make certain EOA changes are
  *		reflected in superblock.
@@ -152,11 +152,11 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F_free(H5F_t *f, hid_t dxpl_id, H5FD_mem_t type, haddr_t addr, hsize_t size)
+H5F__free(H5F_t *f, H5FD_mem_t type, haddr_t addr, hsize_t size)
 {
     herr_t      ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* Check args */
     HDassert(f);
@@ -166,20 +166,20 @@ H5F_free(H5F_t *f, hid_t dxpl_id, H5FD_mem_t type, haddr_t addr, hsize_t size)
     HDassert(size > 0);
 
     /* Call the file driver 'free' routine */
-    if(H5FD_free(f->shared->lf, dxpl_id, type, f, addr, size) < 0)
+    if(H5FD_free(f->shared->lf, type, f, addr, size) < 0)
         HGOTO_ERROR(H5E_FILE, H5E_CANTFREE, FAIL, "file driver 'free' request failed")
 
     /* Mark EOA dirty */
-    if(H5F_eoa_dirty(f, dxpl_id) < 0)
+    if(H5F_eoa_dirty(f) < 0)
         HGOTO_ERROR(H5E_FILE, H5E_CANTMARKDIRTY, FAIL, "unable to mark EOA as dirty")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5F_free() */
+} /* end H5F__free() */
 
 
 /*-------------------------------------------------------------------------
- * Function:    H5F_try_extend
+ * Function:    H5F__try_extend
  *
  * Purpose:	Extend a block at the end of the file, if possible.
  *
@@ -197,11 +197,11 @@ done:
  *-------------------------------------------------------------------------
  */
 htri_t
-H5F_try_extend(H5F_t *f, hid_t dxpl_id, H5FD_mem_t type, haddr_t blk_end, hsize_t extra_requested)
+H5F__try_extend(H5F_t *f, H5FD_mem_t type, haddr_t blk_end, hsize_t extra_requested)
 {
     htri_t ret_value = FALSE;   /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_PACKAGE
 
     /* check args */
     HDassert(f);
@@ -211,7 +211,7 @@ H5F_try_extend(H5F_t *f, hid_t dxpl_id, H5FD_mem_t type, haddr_t blk_end, hsize_
     HDassert(extra_requested > 0);
 
     /* Extend the object by extending the underlying file */
-    if((ret_value = H5FD_try_extend(f->shared->lf, type, f, dxpl_id, blk_end, extra_requested)) < 0)
+    if((ret_value = H5FD_try_extend(f->shared->lf, type, f, blk_end, extra_requested)) < 0)
         HGOTO_ERROR(H5E_FILE, H5E_CANTEXTEND, FAIL, "driver try extend request failed")
 
     /* H5FD_try_extend() updates driver message and marks the superblock
@@ -220,5 +220,5 @@ H5F_try_extend(H5F_t *f, hid_t dxpl_id, H5FD_mem_t type, haddr_t blk_end, hsize_
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5F_try_extend() */
+} /* end H5F__try_extend() */
 

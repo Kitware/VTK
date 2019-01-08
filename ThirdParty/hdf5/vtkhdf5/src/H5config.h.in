@@ -196,23 +196,8 @@
 /* Define to 1 if you have the `z' library (-lz). */
 #undef HAVE_LIBZ
 
-/* Define to 1 if you have the `llround' function. */
-#undef HAVE_LLROUND
-
-/* Define to 1 if you have the `llroundf' function. */
-#undef HAVE_LLROUNDF
-
 /* Define to 1 if you have the `longjmp' function. */
 #undef HAVE_LONGJMP
-
-/* Define to 1 if you have the `lround' function. */
-#undef HAVE_LROUND
-
-/* Define to 1 if you have the `lroundf' function. */
-#undef HAVE_LROUNDF
-
-/* Define to 1 if you have the `lstat' function. */
-#undef HAVE_LSTAT
 
 /* Define to 1 if you have the <mach/mach_time.h> header file. */
 #undef HAVE_MACH_MACH_TIME_H
@@ -246,12 +231,6 @@
 
 /* Define to 1 if you have the `rand_r' function. */
 #undef HAVE_RAND_R
-
-/* Define to 1 if you have the `round' function. */
-#undef HAVE_ROUND
-
-/* Define to 1 if you have the `roundf' function. */
-#undef HAVE_ROUNDF
 
 /* Define to 1 if you have the `setjmp' function. */
 #undef HAVE_SETJMP
@@ -331,9 +310,6 @@
 /* Define to 1 if you have the <sys/resource.h> header file. */
 #undef HAVE_SYS_RESOURCE_H
 
-/* Define to 1 if you have the <sys/socket.h> header file. */
-#undef HAVE_SYS_SOCKET_H
-
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #undef HAVE_SYS_STAT_H
 
@@ -372,9 +348,6 @@
 
 /* Define to 1 if you have the `vasprintf' function. */
 #undef HAVE_VASPRINTF
-
-/* Define to 1 if you have the `vsnprintf' function. */
-#undef HAVE_VSNPRINTF
 
 /* Define to 1 if you have the `waitpid' function. */
 #undef HAVE_WAITPID
@@ -599,6 +572,9 @@
 
 /* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
 #undef TIME_WITH_SYS_TIME
+
+/* Define using v1.10 public API symbols by default */
+#undef USE_110_API_DEFAULT
 
 /* Define using v1.6 public API symbols by default */
 #undef USE_16_API_DEFAULT

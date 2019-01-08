@@ -178,8 +178,7 @@ END_FUNC(PKG)   /* end H5FA__hdr_init() */
  */
 BEGIN_FUNC(PKG, ERR,
 haddr_t, HADDR_UNDEF, HADDR_UNDEF,
-H5FA__hdr_create(H5F_t *f, hid_t dxpl_id, const H5FA_create_t *cparam,
-    void *ctx_udata))
+H5FA__hdr_create(H5F_t *f, const H5FA_create_t *cparam, void *ctx_udata))
 
     /* Local variables */
     H5FA_hdr_t *hdr = NULL;     /* Fixed array header */
@@ -215,7 +214,7 @@ H5FA__hdr_create(H5F_t *f, hid_t dxpl_id, const H5FA_create_t *cparam,
         H5E_THROW(H5E_CANTINIT, "initialization failed for fixed array header")
 
     /* Allocate space for the header on disk */
-    if(HADDR_UNDEF == (hdr->addr = H5MF_alloc(f, H5FD_MEM_FARRAY_HDR, dxpl_id, (hsize_t)hdr->size)))
+    if(HADDR_UNDEF == (hdr->addr = H5MF_alloc(f, H5FD_MEM_FARRAY_HDR, (hsize_t)hdr->size)))
         H5E_THROW(H5E_CANTALLOC, "file allocation failed for Fixed Array header")
 
     /* Create 'top' proxy for extensible array entries */
@@ -224,13 +223,13 @@ H5FA__hdr_create(H5F_t *f, hid_t dxpl_id, const H5FA_create_t *cparam,
             H5E_THROW(H5E_CANTCREATE, "can't create fixed array entry proxy")
 
     /* Cache the new Fixed Array header */
-    if(H5AC_insert_entry(f, dxpl_id, H5AC_FARRAY_HDR, hdr->addr, hdr, H5AC__NO_FLAGS_SET) < 0)
+    if(H5AC_insert_entry(f, H5AC_FARRAY_HDR, hdr->addr, hdr, H5AC__NO_FLAGS_SET) < 0)
         H5E_THROW(H5E_CANTINSERT, "can't add fixed array header to cache")
     inserted = TRUE;
 
     /* Add header as child of 'top' proxy */
     if(hdr->top_proxy)
-        if(H5AC_proxy_entry_add_child(hdr->top_proxy, f, dxpl_id, hdr) < 0)
+        if(H5AC_proxy_entry_add_child(hdr->top_proxy, f, hdr) < 0)
             H5E_THROW(H5E_CANTSET, "unable to add fixed array entry as child of array proxy")
 
     /* Set address of array header to return */
@@ -246,7 +245,7 @@ CATCH
                     H5E_THROW(H5E_CANTREMOVE, "unable to remove fixed array header from cache")
 
             /* Release header's disk space */
-            if(H5F_addr_defined(hdr->addr) && H5MF_xfree(f, H5FD_MEM_FARRAY_HDR, dxpl_id, hdr->addr, (hsize_t)hdr->size) < 0)
+            if(H5F_addr_defined(hdr->addr) && H5MF_xfree(f, H5FD_MEM_FARRAY_HDR, hdr->addr, (hsize_t)hdr->size) < 0)
                 H5E_THROW(H5E_CANTFREE, "unable to free Fixed Array header")
 
             /* Destroy header */
@@ -421,8 +420,7 @@ END_FUNC(PKG)   /* end H5FA__hdr_modified() */
  */
 BEGIN_FUNC(PKG, ERR,
 H5FA_hdr_t *, NULL, NULL,
-H5FA__hdr_protect(H5F_t *f, hid_t dxpl_id, haddr_t fa_addr, void *ctx_udata,
-    unsigned flags))
+H5FA__hdr_protect(H5F_t *f, haddr_t fa_addr, void *ctx_udata, unsigned flags))
 
     /* Local variables */
     H5FA_hdr_t *hdr;            /* Fixed array header */
@@ -441,7 +439,7 @@ H5FA__hdr_protect(H5F_t *f, hid_t dxpl_id, haddr_t fa_addr, void *ctx_udata,
     udata.ctx_udata = ctx_udata;
 
     /* Protect the header */
-    if(NULL == (hdr = (H5FA_hdr_t *)H5AC_protect(f, dxpl_id, H5AC_FARRAY_HDR, fa_addr, &udata, flags)))
+    if(NULL == (hdr = (H5FA_hdr_t *)H5AC_protect(f, H5AC_FARRAY_HDR, fa_addr, &udata, flags)))
         H5E_THROW(H5E_CANTPROTECT, "unable to protect fixed array header, address = %llu", (unsigned long long)fa_addr)
     hdr->f = f;   /* (Must be set again here, in case the header was already in the cache -QAK) */
 
@@ -452,7 +450,7 @@ H5FA__hdr_protect(H5F_t *f, hid_t dxpl_id, haddr_t fa_addr, void *ctx_udata,
             H5E_THROW(H5E_CANTCREATE, "can't create fixed array entry proxy")
 
         /* Add header as child of 'top' proxy */
-        if(H5AC_proxy_entry_add_child(hdr->top_proxy, f, dxpl_id, hdr) < 0)
+        if(H5AC_proxy_entry_add_child(hdr->top_proxy, f, hdr) < 0)
             H5E_THROW(H5E_CANTSET, "unable to add fixed array entry as child of array proxy")
     } /* end if */
 
@@ -479,7 +477,7 @@ END_FUNC(PKG)   /* end H5FA__hdr_protect() */
  */
 BEGIN_FUNC(PKG, ERR,
 herr_t, SUCCEED, FAIL,
-H5FA__hdr_unprotect(H5FA_hdr_t *hdr, hid_t dxpl_id, unsigned cache_flags))
+H5FA__hdr_unprotect(H5FA_hdr_t *hdr, unsigned cache_flags))
 
     /* Local variables */
 
@@ -487,7 +485,7 @@ H5FA__hdr_unprotect(H5FA_hdr_t *hdr, hid_t dxpl_id, unsigned cache_flags))
     HDassert(hdr);
 
     /* Unprotect the header */
-    if(H5AC_unprotect(hdr->f, dxpl_id, H5AC_FARRAY_HDR, hdr->addr, hdr, cache_flags) < 0)
+    if(H5AC_unprotect(hdr->f, H5AC_FARRAY_HDR, hdr->addr, hdr, cache_flags) < 0)
         H5E_THROW(H5E_CANTUNPROTECT, "unable to unprotect fixed array hdr, address = %llu", (unsigned long long)hdr->addr)
 
 CATCH
@@ -509,7 +507,7 @@ END_FUNC(PKG)   /* end H5EA__hdr_unprotect() */
  */
 BEGIN_FUNC(PKG, ERR,
 herr_t, SUCCEED, FAIL,
-H5FA__hdr_delete(H5FA_hdr_t *hdr, hid_t dxpl_id))
+H5FA__hdr_delete(H5FA_hdr_t *hdr))
 
     /* Local variables */
     unsigned cache_flags = H5AC__NO_FLAGS_SET;  /* Flags for unprotecting header */
@@ -535,7 +533,7 @@ H5FA__hdr_delete(H5FA_hdr_t *hdr, hid_t dxpl_id))
     /* Check for Fixed Array Data block */
     if(H5F_addr_defined(hdr->dblk_addr)) {
         /* Delete Fixed Array Data block */
-        if(H5FA__dblock_delete(hdr, dxpl_id, hdr->dblk_addr) < 0)
+        if(H5FA__dblock_delete(hdr, hdr->dblk_addr) < 0)
             H5E_THROW(H5E_CANTDELETE, "unable to delete fixed array data block")
     } /* end if */
 
@@ -545,7 +543,7 @@ H5FA__hdr_delete(H5FA_hdr_t *hdr, hid_t dxpl_id))
 CATCH
 
     /* Unprotect the header, deleting it if an error hasn't occurred */
-    if(H5AC_unprotect(hdr->f, dxpl_id, H5AC_FARRAY_HDR, hdr->addr, hdr, cache_flags) < 0)
+    if(H5AC_unprotect(hdr->f, H5AC_FARRAY_HDR, hdr->addr, hdr, cache_flags) < 0)
         H5E_THROW(H5E_CANTUNPROTECT, "unable to release fixed array header")
 
 END_FUNC(PKG)   /* end H5FA__hdr_delete() */
