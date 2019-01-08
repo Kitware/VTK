@@ -125,6 +125,8 @@ license you like.
 #endif
 #endif
 
+#include "vtkjsoncpp_config.h"
+
 #ifdef JSON_IN_CPPTL
 #define JSON_API CPPTL_API
 #elif defined(JSON_DLL_BUILD)

@@ -14,26 +14,24 @@ configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/json/vtkjsoncpp_config.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/json/vtkjsoncpp_config.h")
 
-vtk_add_library(vtkjsoncpp ${sources} ${headers})
-
-if (NOT VTK_INSTALL_NO_DEVELOPMENT)
-  install(FILES
-    ${headers}
-    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtkjsoncpp/json"
-    COMPONENT Development)
-endif()
-
+vtk_module_add_module(VTK::jsoncpp
+  SOURCES ${sources}
+  HEADERS ${headers}
+  HEADERS_SUBDIR vtkjsoncpp/json)
 if (VTK_REQUIRE_LARGE_FILE_SUPPORT)
-  target_compile_definitions(vtkjsoncpp
+  target_compile_definitions(jsoncpp
     PRIVATE
       _LARGEFILE_SOURCE
       _LARGEFILE64_SOURCE
       _LARGE_FILES
       _FILE_OFFSET_BITS=64)
 endif ()
-target_include_directories(vtkjsoncpp
+target_include_directories(jsoncpp
   PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/json>")
-set_target_properties(vtkjsoncpp
+target_compile_features(jsoncpp
+  PUBLIC
+    cxx_std_11)
+set_target_properties(jsoncpp
   PROPERTIES
     DEFINE_SYMBOL JSON_DLL_BUILD)
