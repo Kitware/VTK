@@ -384,7 +384,12 @@ XdmfCoreItemFactory::generateHeavyDataControllers(const std::map<std::string, st
       std::map<std::string, std::string>::const_iterator seekIter =
         itemProperties.find("Seek");
       if(seekIter != itemProperties.end()) {
-        seek = std::atoi(seekIter->second.c_str());
+        unsigned long long lseek = strtoull(seekIter->second.c_str(), NULL, 0);
+        seek = static_cast<unsigned int>(lseek);
+        if (static_cast<unsigned long long>(seek) != lseek) {
+          XdmfError::message(XdmfError::FATAL,
+                             "Seek offset is too large for unsigned int");
+        }
       }
 
       const std::string binaryPath = getFullHeavyDataPath(contentVals[contentIndex],
@@ -429,7 +434,13 @@ XdmfCoreItemFactory::generateHeavyDataControllers(const std::map<std::string, st
         }
 
         if (dataspaceVector.size() == 5) {
-          seek = atoi(dataspaceVector[0].c_str());
+          unsigned long long lseek = strtoull
+            (dataspaceVector[0].c_str(), NULL, 0);
+          seek = static_cast<unsigned int>(lseek);
+          if (static_cast<unsigned long long>(seek) != lseek) {
+            XdmfError::message(XdmfError::FATAL,
+                               "Seek offset is too large for unsigned int");
+          }
           dimtokens = boost::tokenizer<>(dataspaceVector[1]);
           for(boost::tokenizer<>::const_iterator iter = dimtokens.begin();
               iter != dimtokens.end();

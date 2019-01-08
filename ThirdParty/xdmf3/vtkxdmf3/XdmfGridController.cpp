@@ -189,6 +189,7 @@ XdmfGridControllerRead(XDMFGRIDCONTROLLER * controller)
   }
   catch (...)
   {
+    return NULL;
   }
 }
 

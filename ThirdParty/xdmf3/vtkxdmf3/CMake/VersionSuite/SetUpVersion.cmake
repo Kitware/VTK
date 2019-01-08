@@ -5,8 +5,12 @@
 
 # This allows you to turn on and off the auto
 # update of the (project name)Version.hpp file
+if (FALSE) # XXX(kitware): force settings
 SET(VERSION_CONTROL_AUTOUPDATE OFF CACHE BOOL "Automaticaly Update The Version")
 MARK_AS_ADVANCED(VERSION_CONTROL_AUTOUPDATE)
+else ()
+set(VERSION_CONTROL_AUTOUPDATE OFF)
+endif ()
 
 # We need to make sure we have the header file
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/CMake/VersionSuite)
@@ -62,7 +66,7 @@ MACRO(VersionWrite vProjectName export_name)
     FOREACH(il ${include_list})
         SET(includes "${includes}\n\#include \"${il}\"")
     ENDFOREACH()
-    FILE(WRITE ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${vProjectName}Version.hpp
+    FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${vProjectName}Version.hpp
 "/* Current Version of ${vProjectName}
  * Major is: ${vMajor}
  * Minor is: ${vMinor}
@@ -73,7 +77,7 @@ ${includes}
 extern ${export_name} ProjectVersion ${vProjectName}Version;\n"
     )
 
-        FILE(WRITE ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${vProjectName}Version.cpp
+        FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${vProjectName}Version.cpp
 "/* Current Version of ${vProjectName}
  * Make sure to include this file in your built sources
  */

@@ -21,7 +21,7 @@
 /*                                                                           */
 /*****************************************************************************/
 
-#include <hdf5.h>
+#include <vtk_hdf5.h>
 #include <sstream>
 #include "XdmfArray.hpp"
 #include "XdmfArrayType.hpp"
