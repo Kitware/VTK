@@ -1,10 +1,11 @@
-# KISSFFT for VTK
+# kissfft fork for VTK
 
-This branch contains changes required to embed kissfft library into VTK. This
-includes the following changes.
+This branch contains changes required to embed kissfft into VTK. This includes
+changes made primarily to the build system to allow it to be embedded into
+another source tree as well as a header to facilitate mangling of the symbols
+to avoid conflicts with other copies of the library within a single process.
 
-1. remove source files and directories not needed.
-2. add CMakeLists.txt for build/install rules (note, unlike upstream,
-   we are packaging headers/sources from `tools` subdir in the same library.
-3. add `kiss_fft_exports.h` to handle symbol exports
-4. added `vtk_kissfft_mangle.h` header for mangling exported symbols.
+  * ignore whitespace errors
+  * integrate with VTK's module system
+  * mangle symbols
+  * export symbols
