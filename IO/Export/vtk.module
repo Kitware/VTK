@@ -27,6 +27,7 @@ PRIVATE_DEPENDS
 TEST_DEPENDS
   VTK::ChartsCore
   VTK::CommonColor
+  VTK::FiltersModeling
   VTK::IOParallel
   VTK::InteractionImage
   VTK::InteractionStyle
