@@ -534,16 +534,17 @@ function (vtk_module_scan)
     # Handle cache entries and determine the enabled state of the module from
     # the relevant cache variables.
     if (_vtk_build_use_option)
-      set("VTK_MODULE_ENABLE_${_vtk_scan_module_name}" "DEFAULT"
+      string(REPLACE "::" "_" _vtk_scan_module_name_safe "${_vtk_scan_module_name}")
+      set("VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}" "DEFAULT"
         CACHE STRING "Enable the ${_vtk_scan_module_name} module. ${${_vtk_scan_module_name}_DESCRIPTION}")
-      mark_as_advanced("VTK_MODULE_ENABLE_${_vtk_scan_module_name}")
-      set_property(CACHE "VTK_MODULE_ENABLE_${_vtk_scan_module_name}"
+      mark_as_advanced("VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}")
+      set_property(CACHE "VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}"
         PROPERTY
           STRINGS "YES;WANT;DONT_WANT;NO;DEFAULT")
-      _vtk_module_verify_enable_value("VTK_MODULE_ENABLE_${_vtk_scan_module_name}")
+      _vtk_module_verify_enable_value("VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}")
 
-      if (NOT VTK_MODULE_ENABLE_${_vtk_scan_module_name} STREQUAL "DEFAULT")
-        set("_vtk_scan_enable_${_vtk_scan_module_name}" "${VTK_MODULE_ENABLE_${_vtk_scan_module_name}}")
+      if (NOT VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe} STREQUAL "DEFAULT")
+        set("_vtk_scan_enable_${_vtk_scan_module_name}" "${VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}}")
       endif ()
 
       # Check the state of any groups the module belongs to.
@@ -564,7 +565,7 @@ function (vtk_module_scan)
               TYPE "${_vtk_scan_option_default_type}")
         endif ()
 
-        if (NOT VTK_MODULE_ENABLE_${_vtk_scan_module_name} STREQUAL "DEFAULT")
+        if (NOT VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe} STREQUAL "DEFAULT")
           continue ()
         endif ()
 
@@ -584,7 +585,7 @@ function (vtk_module_scan)
         endif ()
       endforeach ()
 
-      set_property(CACHE "VTK_MODULE_ENABLE_${_vtk_scan_module_name}"
+      set_property(CACHE "VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}"
         PROPERTY
           TYPE "${_vtk_scan_option_default_type}")
     endif ()
@@ -593,8 +594,8 @@ function (vtk_module_scan)
     # are basically invisible.
     if (DEFINED ${_vtk_scan_module_name}_CONDITION)
       if (NOT (${${_vtk_scan_module_name}_CONDITION}))
-        if (DEFINED "VTK_MODULE_ENABLE_${_vtk_scan_module_name}")
-          set_property(CACHE "VTK_MODULE_ENABLE_${_vtk_scan_module_name}"
+        if (DEFINED "VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}")
+          set_property(CACHE "VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}"
             PROPERTY
               TYPE INTERNAL)
         endif ()
@@ -3711,17 +3712,18 @@ function (vtk_module_third_party)
       "${_vtk_third_party_UNPARSED_ARGUMENTS}")
   endif ()
 
-  option("VTK_MODULE_USE_EXTERNAL_${_vtk_build_module}"
+  string(REPLACE "::" "_" _vtk_build_module_safe "${_vtk_build_module}")
+  option("VTK_MODULE_USE_EXTERNAL_${_vtk_build_module_safe}"
     "Use externally provided ${_vtk_build_module}"
     ${_vtk_build_USE_EXTERNAL})
-  mark_as_advanced("VTK_MODULE_USE_EXTERNAL_${_vtk_build_module}")
+  mark_as_advanced("VTK_MODULE_USE_EXTERNAL_${_vtk_build_module_safe}")
   get_property(_vtk_third_party_library_name GLOBAL
     PROPERTY "_vtk_module_${_vtk_build_module}_library_name")
   set("VTK_MODULE_USE_EXTERNAL_${_vtk_third_party_library_name}"
-    "${VTK_MODULE_USE_EXTERNAL_${_vtk_build_module}}"
+    "${VTK_MODULE_USE_EXTERNAL_${_vtk_build_module_safe}}"
     PARENT_SCOPE)
 
-  if (VTK_MODULE_USE_EXTERNAL_${_vtk_build_module})
+  if (VTK_MODULE_USE_EXTERNAL_${_vtk_build_module_safe})
     # XXX(cmake): https://gitlab.kitware.com/cmake/cmake/issues/16364.
     # Unset a variable which CMake doesn't like when switching between real
     # libraries (internal) and interface libraries (external).
