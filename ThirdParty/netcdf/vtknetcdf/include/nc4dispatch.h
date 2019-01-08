@@ -126,7 +126,8 @@ NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
                int *shufflep, int *deflatep, int *deflate_levelp,
                int *fletcher32p, int *contiguousp, size_t *chunksizesp, 
                int *no_fill, void *fill_valuep, int *endiannessp, 
-	       int *options_maskp, int *pixels_per_blockp);
+	       unsigned int* idp, size_t* nparamsp, unsigned int* params
+	       );
 
 extern int
 NC4_inq_varid(int ncid, const char *name, int *varidp);
@@ -248,6 +249,9 @@ NC4_def_var_fill(int, int, int, const void *);
 
 extern int
 NC4_def_var_endian(int, int, int);
+
+extern int
+NC4_def_var_filter(int, int, unsigned int, size_t, const unsigned int*);
 
 extern int
 NC4_set_var_chunk_cache(int, int, size_t, size_t, float);

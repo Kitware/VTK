@@ -31,12 +31,6 @@
 /* default chunk size in bytes */
 #cmakedefine DEFAULT_CHUNK_SIZE @DEFAULT_CHUNK_SIZE@
 
-/* set this only when building a DLL under MinGW */
-#cmakedefine DLL_EXPORT
-
-/* set this only when building a DLL under MinGW */
-#cmakedefine DLL_NETCDF
-
 /* if true, enable CDF5 Support */
 #cmakedefine ENABLE_CDF5
 
@@ -54,9 +48,6 @@
 
 /* if true, use _FillValue for NC_ERANGE data elements */
 #cmakedefine ERANGE_FILL
-
-/* if true, run extra tests which may not work yet */
-#cmakedefine EXTRA_TESTS
 
 /* use HDF5 1.6 API */
 #cmakedefine H5_USE_16_API
@@ -92,6 +83,9 @@
    */
 #cmakedefine HAVE_DECL_ISNAN
 
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#undef HAVE_DLFCN_H
+
 /* Define to 1 if you have the <fcntl.h> header file. */
 #cmakedefine HAVE_FCNTL_H
 
@@ -113,6 +107,27 @@
 /* Define to 1 if you have the `gettimeofday' function. */
 #cmakedefine HAVE_GETTIMEOFDAY
 
+/* Define to 1 if you have the `H5free_memory' function. */
+#undef HAVE_H5FREE_MEMORY
+
+/* Define to 1 if you have the `H5Pget_fapl_mpio' function. */
+#undef HAVE_H5PGET_FAPL_MPIO
+
+/* Define to 1 if you have the `H5Pget_fapl_mpiposix' function. */
+#undef HAVE_H5PGET_FAPL_MPIPOSIX
+
+/* Define to 1 if you have the `H5Pset_all_coll_metadata_ops' function. */
+#undef HAVE_H5PSET_ALL_COLL_METADATA_OPS
+
+/* Define to 1 if you have the `H5Pset_deflate' function. */
+#undef HAVE_H5PSET_DEFLATE
+
+/* Define to 1 if you have the `H5Pset_libver_bounds' function. */
+#undef HAVE_H5PSET_LIBVER_BOUNDS
+
+/* Define to 1 if you have the `H5Z_SZIP' function. */
+#undef HAVE_H5Z_SZIP
+
 /* Define to 1 if you have the <hdf5.h> header file. */
 #cmakedefine HAVE_HDF5_H
 
@@ -125,8 +140,8 @@
 /* Define to 1 if you have the `df' library (-ldf). */
 #cmakedefine HAVE_LIBDF
 
-/* Define to 1 if you have the `dl' library (-ldl). */
-#cmakedefine HAVE_LIBDL
+/* Define to 1 if you have the <libgen.h> header file. */
+#cmakedefine HAVE_LIBGEN_H
 
 /* Define to 1 if you have the `jpeg' library (-ljpeg). */
 #cmakedefine HAVE_LIBJPEG
@@ -155,8 +170,17 @@
 /* Define to 1 if you have the `memmove' function. */
 #cmakedefine HAVE_MEMMOVE
 
+/* Define to 1 if you have the <memory.h> header file. */
+#undef HAVE_MEMORY_H
+
+/* Define to 1 if you have the <mfhdf.h> header file. */
+#undef HAVE_MFHDF_H
+
 /* Define to 1 if you have the `mkstemp' function. */
 #cmakedefine HAVE_MKSTEMP
+
+/* Define to 1 if you have the `mktemp' function. */
+#undef HAVE_MKTEMP
 
 /* Define to 1 if you have the `MPI_Comm_f2c' function. */
 #cmakedefine HAVE_MPI_COMM_F2C
@@ -166,6 +190,12 @@
 
 /* Define to 1 if you have the `random' function. */
 #cmakedefine HAVE_RANDOM
+
+/* Define to 1 if the system has the type `schar'. */
+#undef HAVE_SCHAR
+
+/* Define to 1 if the system has the type `size_t'. */
+#undef HAVE_SIZE_T
 
 /* Define to 1 if you have the `snprintf' function. */
 #cmakedefine HAVE_SNPRINTF
@@ -206,6 +236,10 @@
 /* Define to 1 if `st_blksize' is a member of `struct stat'. */
 #cmakedefine HAVE_STRUCT_STAT_ST_BLKSIZE
 
+/* Define to 1 if your `struct stat' has `st_blksize'. Deprecated, use
+   `HAVE_STRUCT_STAT_ST_BLKSIZE' instead. */
+#undef HAVE_ST_BLKSIZE
+
 /* Define to 1 if you have the `sysconf' function. */
 #cmakedefine HAVE_SYSCONF
 
@@ -230,8 +264,14 @@
 /* Define to 1 if the system has the type `uint'. */
 #cmakedefine HAVE_UINT
 
+/* Define to 1 if the system has the type `uint64'. */
+#undef HAVE_UINT64
+
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H
+
+/* Define to 1 if the system has the type `unsigned long long int'. */
+#undef HAVE_UNSIGNED_LONG_LONG_INT
 
 /* Define to 1 if the system has the type `ushort'. */
 #cmakedefine HAVE_USHORT
@@ -324,6 +364,9 @@
 /* The size of `size_t', as computed by sizeof. */
 #cmakedefine SIZEOF_SIZE_T @SIZEOF_SIZE_T@
 
+/* The size of `ssize_t', as computed by sizeof. */
+#undef SIZEOF_SSIZE_T
+
 /* The size of `uchar', as computed by sizeof. */
 #cmakedefine SIZEOF_UCHAR @SIZEOF_UCHAR@
 
@@ -347,6 +390,17 @@
 
 /* The size of `void*', as computed by sizeof. */
 #cmakedefine SIZEOF_VOIDP @SIZEOF_VOIDP@
+
+/* If using the C implementation of alloca, define if you know the
+   direction of stack growth for your system; otherwise it will be
+   automatically deduced at runtime.
+	STACK_DIRECTION > 0 => grows toward higher addresses
+	STACK_DIRECTION < 0 => grows toward lower addresses
+	STACK_DIRECTION = 0 => direction of growth unknown */
+#undef STACK_DIRECTION
+
+/* Define to 1 if you have the ANSI C header files. */
+#undef STDC_HEADERS
 
 /* Place to put very large netCDF test files. */
 #cmakedefine TEMP_LARGE
@@ -402,6 +456,9 @@
 
 /* if true, use stdio instead of posixio */
 #cmakedefine USE_STDIO
+
+/* if true, enable strict null byte header padding */
+#undef USE_STRICT_NULL_BYTE_HEADER_PADDING
 
 /* if true, compile in szip compression in netCDF-4 variables */
 #cmakedefine USE_SZIP

@@ -39,7 +39,6 @@ main(int argc, char** argv)
     int failcount = 0;
 
     for(test=PATHTESTS;test->path;test++) {
-	int ret = 0;
 	char* cvt = NCpathcvt(test->path);
 	if(cvt == NULL) {
 	    fprintf(stderr,"TEST returned NULL: %s\n",test->path);
