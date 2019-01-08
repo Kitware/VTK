@@ -603,6 +603,15 @@ function (vtk_module_scan)
       endif ()
     endif ()
 
+    if (NOT DEFINED "_vtk_scan_enable_${_vtk_scan_module_name}" AND
+        VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe} STREQUAL "DEFAULT")
+      if (_vtk_scan_WANT_BY_DEFAULT)
+        set("_vtk_scan_enable_${_vtk_scan_module_name}" "WANT")
+      else ()
+        set("_vtk_scan_enable_${_vtk_scan_module_name}" "DONT_WANT")
+      endif ()
+    endif ()
+
     list(APPEND _vtk_scan_all_modules
       "${_vtk_scan_module_name}")
     set("_vtk_scan_${_vtk_scan_module_name}_all_depends"
