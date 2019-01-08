@@ -183,7 +183,7 @@ inline int vtkMPICommunicatorCheckSize(vtkIdType length)
   if (length > VTK_INT_MAX)
   {
     vtkGenericWarningMacro(<< "This operation not yet supported for more than "
-                           << VTK_INT_MAX << " bytes");
+                           << VTK_INT_MAX << " objects");
     return 0;
   }
   else
