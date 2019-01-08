@@ -85,7 +85,7 @@ macro(findpkg_finish PREFIX)
     endif ()
 
     add_library(TBB::${TARGET} UNKNOWN IMPORTED)
-    set_target_propertes(TBB::${TARGET} PROPERTIES
+    set_target_properties(TBB::${TARGET} PROPERTIES
       IMPORTED_LOCATION "${${PREFIX}_LIBRARY}"
       IMPORTED_LOCATION_DEBUG "${${PREFIX}_LIBRARY_DEBUG}"
       IMPORTED_LOCATION_RELEASE "${${PREFIX}_LIBRARY_RELEASE}")
