@@ -13,14 +13,14 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on macOS with cppcheck 1.85 with the flags below.
+// at least on macOS with cppcheck 1.86 with the flags below.
 
 // To run:
 // cd /path/to/VTK/
 // cppcheck --platform=unspecified --enable=style -q --library=qt --library=posix --library=gnu --library=bsd --library=windows --suppressions-list=CMake/VTKcppcheckSuppressions.txt --template='{id},{file}:{line},{severity},{message}' -j8 -I Common/Core .
 // or
 // cd /path/to/VTK-bin/
-// cppcheck --project=compile_commands.json --platform=unspecified --enable=style -q --library=qt --library=posix --library=gnu --library=bsd --library=windows --suppressions-list=../VTK/CMake/VTKcppcheckSuppressions.txt --template='{id},{file}:{line},{severity},{message}'
+// cppcheck --project=compile_commands.json --platform=unspecified --enable=style -q --library=qt --library=posix --library=gnu --library=bsd --library=windows --suppressions-list=../VTK/CMake/VTKcppcheckSuppressions.txt --template='{id},{file}:{line},{severity},{message}' -j8
 
 // Suppress everything from ThirdParty.
 *:ThirdParty/*
@@ -32,7 +32,6 @@
 *:Remote/WikiExamples/*
 
 // If cppcheck itself crashes, well, that's its problem, ignore that.
-// <https://>
 cppcheckError
 
 // When analyzing different define possibilities, it will sometimes hit a #error line
@@ -50,6 +49,9 @@ strtokCalled
 
 // VTK assumes IEEE 754 floats, so this warning isn't useful.
 memsetClassFloat
+
+// Gives too many false positives with << stream operator.
+shiftNegative
 
 // These are too stylistic
 useStlAlgorithm
@@ -590,14 +592,21 @@ redundantAssignment:*/Testing/*
 // 13 warnings
 useInitializationList:*
 
-// False positives.
+// False positive: Condition 'this->FileIndex<0' is always true
+// <https://trac.cppcheck.net/ticket/8924>
+knownConditionTrueFalse:IO/AMR/vtkAMRFlashReaderInternal.cxx
+
+// False positive: Deallocation of an auto-variable results in undefined behaviour
+// <https://trac.cppcheck.net/ticket/8923>
+autovarInvalidDeallocation:Wrapping/Tools/vtkParseHierarchy.c
+
+// False positive: Code 'C++ cast <...' is invalid C code
+// <https://trac.cppcheck.net/ticket/8925>
+syntaxError:Rendering/OpenGL2/vtkCocoaGLView.mm
+
+// Not technically a false positive, but there's no bug here and no clear way to rework the code in a good way
+redundantAssignment:Wrapping/Tools/lex.yy.c
 redundantAssignment:Wrapping/Tools/vtkParsePreprocess.c
-
-// False positive: <https://trac.cppcheck.net/ticket/8367>
-CastIntegerToAddressAtReturn:Common/ExecutionModel/vtkAlgorithm.h
-
-// False positive: struct member is never used.
-unusedStructMember:Common/Core/Testing/Cxx/TestArrayFreeFunctions.cxx
 
 // 4 warnings, should fix!
 invalidPointerCast:Rendering/GL2PSOpenGL2/vtkOpenGLGL2PSHelperImpl.cxx
