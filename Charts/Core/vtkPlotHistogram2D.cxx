@@ -25,8 +25,10 @@
 
 #include "vtkObjectFactory.h"
 
+#include <algorithm>
+
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPlotHistogram2D);
+vtkStandardNewMacro(vtkPlotHistogram2D)
 
 //-----------------------------------------------------------------------------
 vtkPlotHistogram2D::vtkPlotHistogram2D()
@@ -89,18 +91,11 @@ void vtkPlotHistogram2D::GetBounds(double bounds[4])
 {
   if (this->Input)
   {
-    int *extent = this->Input->GetExtent();
-    bounds[0] = this->Input->GetOrigin()[0];
-    bounds[1] = bounds[0] +
-        (extent[1] - extent[0] + 1) * this->Input->GetSpacing()[0];
-
-    bounds[2] = this->Input->GetOrigin()[1];
-    bounds[3] = bounds[2] +
-        (extent[3] - extent[2] + 1) * this->Input->GetSpacing()[1];
+    std::copy(this->Input->GetBounds(), this->Input->GetBounds() + 4, bounds);
   }
   else
   {
-    bounds[0] = bounds[1] = bounds[2] = bounds[3] = 0.0;
+    std::fill(bounds, bounds + 4, 0.);
   }
 }
 
@@ -174,8 +169,8 @@ vtkStdString vtkPlotHistogram2D::GetTooltipLabel(const vtkVector2d &plotPos,
   this->GetBounds(bounds);
   int width = this->Input->GetExtent()[1] - this->Input->GetExtent()[0] + 1;
   int height = this->Input->GetExtent()[3] - this->Input->GetExtent()[2] + 1;
-  int pointX = seriesIndex % width;
-  int pointY = seriesIndex / width;
+  int pointX = seriesIndex % width + this->Input->GetExtent()[0];
+  int pointY = seriesIndex / width + this->Input->GetExtent()[2];
 
   // Parse TooltipLabelFormat and build tooltipLabel
   bool escapeNext = false;
@@ -252,13 +247,14 @@ void vtkPlotHistogram2D::GenerateHistogram()
   this->Output->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
 
   int dimension = this->Input->GetDimensions()[0] * this->Input->GetDimensions()[1];
-  double *input = reinterpret_cast<double *>(this->Input->GetScalarPointer());
+  void* const input = this->Input->GetScalarPointer();
+  const int inputType = this->Input->GetScalarType();
   unsigned char *output =
-    reinterpret_cast<unsigned char*>(this->Output->GetScalarPointer(0,0,0));
+    reinterpret_cast<unsigned char*>(this->Output->GetScalarPointer());
 
   if (this->TransferFunction)
   {
-    this->TransferFunction->MapScalarsThroughTable2(input, output, VTK_DOUBLE,
+    this->TransferFunction->MapScalarsThroughTable2(input, output, inputType,
                                                     dimension, 1, 4);
   }
 }
