@@ -20,7 +20,7 @@ function(vtk_add_svg_test)
         "-DPNGFILE=${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}-raster.png"
         "-DCONVERTER=${VTK_WKHTMLTOIMAGE_EXECUTABLE}"
         -DREMOVESVG=1
-        -P "${vtkTestingSVG_SOURCE_DIR}/RasterizeSVG.cmake"
+        -P "${VTK_SOURCE_DIR}/CMake/RasterizeSVG.cmake"
     )
     set_tests_properties("${_vtk_build_test}Cxx-${TName}-RasterizePNG"
       PROPERTIES
