@@ -16,6 +16,7 @@ TEST_DEPENDS
   VTK::ChartsCore
   VTK::FiltersModeling
   VTK::ImagingCore
+  VTK::InteractionStyle
   VTK::RenderingContextOpenGL2
   VTK::TestingRendering
   VTK::ViewsContext2D
