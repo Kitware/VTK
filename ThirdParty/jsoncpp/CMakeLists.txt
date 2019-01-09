@@ -19,10 +19,11 @@ if (VTK_MODULE_USE_EXTERNAL_vtkjsoncpp)
   else ()
     set (JsonCpp_FORWARDING_HEADER_NAME "forwards.h")
   endif ()
+  include(vtkDetectLibraryType)
+  vtk_detect_library_shared(vtkjsoncpp JsonCpp::JsonCpp)
+else ()
+  set(vtkjsoncpp_is_shared "${BUILD_SHARED_LIBS}")
 endif ()
-
-include(vtkDetectLibraryType)
-vtk_detect_library_shared(vtkjsoncpp JsonCpp::JsonCpp)
 
 set(VTK_JSONCPP_SHARED "${vtkjsoncpp_is_shared}")
 
