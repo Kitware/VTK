@@ -1,4 +1,12 @@
-vtk_add_test_cxx(vtkAcceleratorsVtkmCxxTests tests
+
+if(NOT TARGET vtkm::cuda)
+  set(conditional_tests
+    TestVTKMLevelOfDetail.cxx
+    )
+endif()
+
+
+vtk_add_test_cxx(vtkAcceleratorsVTKmCxxTests tests
   TestVTKMCleanGrid.cxx
   TestVTKMCoordinateSystemTransform.cxx,NO_VALID
   TestVTKMClip.cxx
@@ -8,7 +16,6 @@ vtk_add_test_cxx(vtkAcceleratorsVtkmCxxTests tests
   TestVTKMGradient.cxx,NO_VALID
   TestVTKMGradientAndVorticity.cxx,NO_VALID
   TestVTKMHistogram.cxx,NO_VALID
-  TestVTKMLevelOfDetail.cxx
   TestVTKMMarchingCubes.cxx
   TestVTKMMarchingCubes2.cxx
   TestVTKMNDHistogram.cxx,NO_VALID
@@ -21,7 +28,21 @@ vtk_add_test_cxx(vtkAcceleratorsVtkmCxxTests tests
   TestVTKMTriangleMeshPointNormals.cxx
   TestVTKMWarpScalar.cxx
   TestVTKMWarpVector.cxx
+  ${conditional_tests}
   )
-vtk_test_cxx_executable(vtkAcceleratorsVtkmCxxTests tests
+
+
+
+if (TARGET vtkm::cuda)
+  #the enable_language call is scoped! so we have to re-enable
+  #cuda in the test directory
+  enable_language(CUDA)
+  foreach(src IN LISTS tests)
+    set_source_files_properties(${src}.cxx PROPERTIES LANGUAGE "CUDA")
+  endforeach()
+endif()
+
+
+vtk_test_cxx_executable(vtkAcceleratorsVTKmCxxTests tests
   RENDERING_FACTORY
   )
