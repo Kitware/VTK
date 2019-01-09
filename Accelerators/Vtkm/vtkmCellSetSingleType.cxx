@@ -28,6 +28,7 @@
 namespace
 {
 
+
 // Converts [0, rconnSize) to [0, connSize), skipping cell length entries.
 struct SingleTypeRConnToConn
 {
@@ -187,6 +188,18 @@ template VTKACCELERATORSVTKM_EXPORT
 template VTKACCELERATORSVTKM_EXPORT
   vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagOpenMP>
     vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagOpenMP,
+      vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
+#endif
+
+#ifdef VTKM_ENABLE_CUDA
+template VTKACCELERATORSVTKM_EXPORT
+  vtkm::exec::ConnectivityVTKSingleType<vtkm::cont::DeviceAdapterTagCuda>
+    vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagCuda,
+      vtkm::TopologyElementTagPoint, vtkm::TopologyElementTagCell) const;
+
+template VTKACCELERATORSVTKM_EXPORT
+  vtkm::exec::ReverseConnectivityVTK<vtkm::cont::DeviceAdapterTagCuda>
+    vtkmCellSetSingleType::PrepareForInput(vtkm::cont::DeviceAdapterTagCuda,
       vtkm::TopologyElementTagCell, vtkm::TopologyElementTagPoint) const;
 #endif
 }

@@ -19,28 +19,11 @@ list(INSERT 0 CMAKE_MODULE_PATH
 
 set(sources)
 set(headers)
-set(private_headers)
-
-set(lib_classes
-  vtkmlib/ArrayConverters
-  vtkmlib/CellSetConverters
-  vtkmlib/ImageDataConverter
-  vtkmlib/PolyDataConverter
-  vtkmlib/Storage
-  vtkmlib/UnstructuredGridConverter)
-
-foreach (class IN LISTS lib_classes)
-  list(APPEND sources
-    "${class}.cxx")
-  list(APPEND private_headers
-    "${class}.h")
-endforeach ()
-
-if (TARGET vtkm::cuda)
-  set(vtkm_impl_extension "cu")
-else ()
-  set(vtkm_impl_extension "cxx")
-endif ()
+set(private_headers
+  vtkmlib/DataSetConverters.h
+  vtkmlib/Portals.hxx
+  vtkmlib/PortalTraits.h
+  vtkmlib/Storage.hxx)
 
 set(impl_classes
   vtkmAverageToCells
@@ -65,32 +48,36 @@ set(impl_classes
   vtkmThreshold
   vtkmTriangleMeshPointNormals
   vtkmWarpScalar
-  vtkmWarpVector)
-
-foreach (class IN LISTS impl_classes)
-  list(APPEND sources
-    "${class}.${vtkm_impl_extension}")
-  list(APPEND headers
-    "${class}.h")
-endforeach ()
+  vtkmWarpVector
+  )
 
 set(private_impl_classes
+  vtkmlib/ArrayConverters
+  vtkmlib/CellSetConverters
+  vtkmlib/ImageDataConverter
+  vtkmlib/PolyDataConverter
+  vtkmlib/Storage
+  vtkmlib/UnstructuredGridConverter
   vtkmlib/DataSetConverters
   vtkmlib/ImplicitFunctionConverter
   vtkmlib/Portals)
 
-foreach (class IN LISTS private_impl_classes)
-  list(APPEND sources
-    "${class}.${vtkm_impl_extension}")
-  list(APPEND private_headers
-    "${class}.h")
+foreach (class IN LISTS impl_classes)
+  list(APPEND sources "${class}.cxx")
+  list(APPEND headers "${class}.h")
 endforeach ()
 
-list(APPEND private_headers
-  vtkmlib/DataSetConverters.h
-  vtkmlib/Portals.hxx
-  vtkmlib/PortalTraits.h
-  vtkmlib/Storage.hxx)
+foreach (class IN LISTS private_impl_classes)
+  list(APPEND sources "${class}.cxx")
+  list(APPEND private_headers "${class}.h")
+endforeach ()
+
+if (TARGET vtkm::cuda)
+  set_source_files_properties(${sources} PROPERTIES LANGUAGE "CUDA")
+  #The vtkmlib/CellSetConverters need to be built always as CXX
+  #as the worklets used by them require access to vtk classes
+  set_source_files_properties(vtkmlib/CellSetConverters.cxx PROPERTIES LANGUAGE "CXX")
+endif ()
 
 set(VTKM_FILTER_INCLUDE_AOS ${VTK_DISPATCH_AOS_ARRAYS})
 set(VTKM_FILTER_INCLUDE_SOA ${VTK_DISPATCH_SOA_ARRAYS})
@@ -153,7 +140,7 @@ if (TARGET vtkm::cuda)
     PROPERTY  CUDA_SEPARABLE_COMPILATION
     VALUE     ON)
   vtk_module_compile_options(VTK::AcceleratorsVTKm
-    PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe --diag_suppress=extra_semicolon>)
+    PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe --diag_suppress=extra_semicolon>)
 endif ()
 
 if (MSVC)
