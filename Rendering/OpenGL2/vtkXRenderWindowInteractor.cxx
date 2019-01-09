@@ -503,6 +503,19 @@ void vtkXRenderWindowInteractor::UpdateSize(int x,int y)
 }
 
 //-------------------------------------------------------------------------
+void vtkXRenderWindowInteractor::UpdateSizeNoXResize(int x,int y)
+{
+  // if the size changed send this on to the RenderWindow
+  if ((x != this->Size[0])||(y != this->Size[1]))
+  {
+    this->Size[0] = x;
+    this->Size[1] = y;
+    static_cast<vtkXOpenGLRenderWindow *>(this->RenderWindow)->SetSizeNoXResize(x, y);
+  }
+}
+
+
+//-------------------------------------------------------------------------
 void vtkXRenderWindowInteractorTimer(XtPointer client_data,
                                      XtIntervalId *id)
 {
@@ -617,7 +630,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       if (width != me->Size[0] || height != me->Size[1])
       {
         bool resizeSmaller=width<=me->Size[0] && height<=me->Size[1];
-        me->UpdateSize(width, height);
+        me->UpdateSizeNoXResize(width, height);
         xp = (reinterpret_cast<XButtonEvent*>(event))->x;
         yp = (reinterpret_cast<XButtonEvent*>(event))->y;
         me->SetEventPosition(xp, me->Size[1] - yp - 1);

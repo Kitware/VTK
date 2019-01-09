@@ -182,6 +182,13 @@ protected:
   vtkXRenderWindowInteractor();
   ~vtkXRenderWindowInteractor() override;
 
+  /**
+   * Update the Size data member and set the associated RenderWindow's
+   * size but do not resize the XWindow.
+   */
+  void UpdateSizeNoXResize(int,int);
+
+
   //Using static here to avoid destroying context when many apps are open:
   static XtAppContext App;
   static int NumAppInitialized;
