@@ -16,6 +16,7 @@ if (VTK_WRAP_PYTHON)
     Data/blow.vtk
     Data/combq.bin
     Data/combxyz.bin
+    Data/cube-with-time.vtu
     Data/fran_cut.vtk
     Data/headsq/,REGEX:.*
     Data/vehicle_data.csv)
