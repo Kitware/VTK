@@ -182,7 +182,7 @@ int vtkDebugLeaks::PrintCurrentLeaks()
   if(vtkDebugLeaks::MemoryTable->IsEmpty())
   {
     // Log something anyway, so users know vtkDebugLeaks is active/working.
-    cout << "vtkDebugLeaks has found no leaks.\n";
+    cerr << "vtkDebugLeaks has found no leaks.\n";
     return 0;
   }
 
