@@ -432,17 +432,10 @@ void vtkXOpenGLRenderWindow::SetShowWindow(bool val)
       vtkDebugMacro(" Mapping the xwindow\n");
       XMapWindow(this->DisplayId, this->WindowId);
       XSync(this->DisplayId,False);
-      XWindowAttributes winattr;
-      XGetWindowAttributes(this->DisplayId,
-                           this->WindowId,&winattr);
       // guarantee that the window is mapped before the program continues
       // on to do the OpenGL rendering.
-      while (winattr.map_state == IsUnmapped)
-      {
-        XGetWindowAttributes(this->DisplayId,
-                             this->WindowId,&winattr);
-        XSync(this->DisplayId,False);
-      }
+      XEvent e;
+      XIfEvent(this->DisplayId, &e, XEventTypeEquals<MapNotify>, nullptr);
       this->Mapped = 1;
     }
     else
@@ -450,17 +443,8 @@ void vtkXOpenGLRenderWindow::SetShowWindow(bool val)
       vtkDebugMacro(" UnMapping the xwindow\n");
       XUnmapWindow(this->DisplayId, this->WindowId);
       XSync(this->DisplayId,False);
-      XWindowAttributes winattr;
-      XGetWindowAttributes(this->DisplayId,
-                           this->WindowId,&winattr);
-      // guarantee that the window is mapped before the program continues
-      // on to do the OpenGL rendering.
-      while (winattr.map_state != IsUnmapped)
-      {
-        XGetWindowAttributes(this->DisplayId,
-                             this->WindowId,&winattr);
-        XSync(this->DisplayId,False);
-      }
+      XEvent e;
+      XIfEvent(this->DisplayId, &e, XEventTypeEquals<UnmapNotify>, nullptr);
       this->Mapped = 0;
     }
   }
@@ -1003,24 +987,9 @@ void vtkXOpenGLRenderWindow::SetSize(int width,int height)
                     static_cast<unsigned int>(width),
                     static_cast<unsigned int>(height));
       // this is an async call so we wait until we
-      // know it has been resized. To avoid infinite
-      // loops we put in a count limit just to be safe
-      XWindowAttributes attribs;
-      int count = 20000;
-      do
-      {
-        XSync(this->DisplayId,False);
-
-        //  Find the current window size
-        XGetWindowAttributes(this->DisplayId,
-                             this->WindowId, &attribs);
-        count--;
-      }
-      while (count && (attribs.width != width || attribs.height != height));
-      if (!count)
-      {
-        vtkWarningMacro("warning window did not resize in the allotted time");
-      }
+      // know it has been resized.
+      XEvent e;
+      XIfEvent(this->DisplayId, &e, XEventTypeEquals<ConfigureNotify>, nullptr);
     }
 
     this->Modified();
