@@ -6,7 +6,7 @@ set(VTK_PYTHON_VERSION 2 CACHE STRING
   "Python version to use")
 set_property(CACHE VTK_PYTHON_VERSION
   PROPERTY
-    STRINGS "2;2.7;3;3.3;3.4;3.5;3.6;3.7;")
+    STRINGS "2;3")
 
 # Force reset of hints file location in cache if it was moved
 if(VTK_WRAP_HINTS AND NOT EXISTS ${VTK_WRAP_HINTS})
