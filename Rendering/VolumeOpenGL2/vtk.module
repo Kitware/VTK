@@ -4,6 +4,8 @@ LIBRARY_NAME
   vtkRenderingVolumeOpenGL2
 KIT
   VTK::OpenGL
+GROUPS
+  Rendering
 IMPLEMENTS
   VTK::RenderingVolume
 DEPENDS
