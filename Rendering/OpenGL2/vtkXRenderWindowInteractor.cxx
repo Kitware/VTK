@@ -36,6 +36,13 @@
 
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
+template<int EventType>
+int XEventTypeEquals (Display*, XEvent* event, XPointer)
+{
+  return event->type == EventType;
+}
+
+
 // Map between the X native id to our own integer count id.  Note this
 // is separate from the TimerMap in the vtkRenderWindowInteractor
 // superclass.  This is used to avoid passing 64-bit values back
@@ -367,11 +374,16 @@ void vtkXRenderWindowInteractor::Initialize()
       XMapWindow(this->DisplayId, XtWindow(this->Top));
     }
     XSync(this->DisplayId,False);
+
+    if (ren->GetShowWindow())
+    {
+      // Wait for the MapNotify event
+      XEvent e;
+      XIfEvent(this->DisplayId, &e, XEventTypeEquals<MapNotify>, nullptr);
+    }
   }
   else
   {
-    XWindowAttributes attribs;
-
     XtRealizeWidget(this->Top);
     XSync(this->DisplayId,False);
     ren->SetWindowId(XtWindow(this->Top));
@@ -381,14 +393,15 @@ void vtkXRenderWindowInteractor::Initialize()
       XMapWindow(this->DisplayId, XtWindow(this->Top));
     }
     XSync(this->DisplayId,False);
-
-    //  Find the current window size
-    XGetWindowAttributes(this->DisplayId,
-                         XtWindow(this->Top), &attribs);
-    size[0] = attribs.width;
-    size[1] = attribs.height;
-    ren->SetSize(size[0], size[1]);
   }
+  XWindowAttributes attribs;
+  //  Find the current window size
+  XGetWindowAttributes(this->DisplayId,
+                       XtWindow(this->Top), &attribs);
+
+  size[0] = attribs.width;
+  size[1] = attribs.height;
+  ren->SetSize(size[0], size[1]);
 
   this->WindowId = XtWindow(this->Top);
 

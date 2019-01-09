@@ -256,6 +256,13 @@ GLXFBConfig vtkXOpenGLRenderWindowGetDesiredFBConfig(
   return ( None );
 }
 
+template<int EventType>
+int XEventTypeEquals (Display*, XEvent* event, XPointer)
+{
+  return event->type == EventType;
+}
+
+
 XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
 {
   XVisualInfo   *v = nullptr;
@@ -709,15 +716,14 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     vtkDebugMacro(" Mapping the xwindow\n");
     XMapWindow(this->DisplayId, this->WindowId);
     XSync(this->DisplayId,False);
+    XEvent e;
+    XIfEvent(this->DisplayId, &e, XEventTypeEquals<MapNotify>, nullptr);
     XGetWindowAttributes(this->DisplayId,
                          this->WindowId,&winattr);
-    // guarantee that the window is mapped before the program continues
-    // on to do the OpenGL rendering.
-    while (winattr.map_state == IsUnmapped)
-    {
-      XGetWindowAttributes(this->DisplayId,
-                           this->WindowId,&winattr);
-    }
+    // if the specified window size is bigger than the screen size,
+    // we have to reset the window size to the screen size
+    width = winattr.width;
+    height = winattr.height;
     this->Mapped = 1;
   }
   // free the visual info
