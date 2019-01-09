@@ -22,6 +22,12 @@ configure_file(
   "${vtk_cmake_build_dir}/vtk-config.cmake"
   @ONLY)
 
+# For convenience, a file is written to the top of the build tree. At some
+# point, this should probably be deprecated and warn when it is used.
+file(GENERATE
+  OUTPUT  "${CMAKE_BINARY_DIR}/vtk-config.cmake"
+  CONTENT "include(\"${vtk_cmake_build_dir}/vtk-config.cmake\")\n")
+
 option(VTK_RELOCATABLE_INSTALL "Do not embed hard-coded paths into the install" ON)
 mark_as_advanced(VTK_RELOCATABLE_INSTALL)
 if (VTK_RELOCATABLE_INSTALL)
