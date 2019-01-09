@@ -87,10 +87,19 @@ macro(findpkg_finish PREFIX TARGET_NAME)
     if (NOT TARGET "TBB::${TARGET_NAME}")
       add_library(TBB::${TARGET_NAME} UNKNOWN IMPORTED)
       set_target_properties(TBB::${TARGET_NAME} PROPERTIES
-        IMPORTED_LOCATION "${${PREFIX}_LIBRARY}"
-        IMPORTED_LOCATION_DEBUG "${${PREFIX}_LIBRARY_DEBUG}"
-        IMPORTED_LOCATION_RELEASE "${${PREFIX}_LIBRARY_RELEASE}"
         INTERFACE_INCLUDE_DIRECTORIES "${${PREFIX}_INCLUDE_DIR}")
+      if (${PREFIX}_LIBRARY_DEBUG AND ${PREFIX}_LIBRARY_RELEASE)
+        set_target_properties(TBB::${TARGET_NAME} PROPERTIES
+          IMPORTED_LOCATION "${${PREFIX}_LIBRARY_RELEASE}"
+          IMPORTED_LOCATION_DEBUG "${${PREFIX}_LIBRARY_DEBUG}"
+          IMPORTED_LOCATION_RELEASE "${${PREFIX}_LIBRARY_RELEASE}")
+      elseif (${PREFIX}_LIBRARY_RELEASE)
+        set_target_properties(TBB::${TARGET_NAME} PROPERTIES
+          IMPORTED_LOCATION "${${PREFIX}_LIBRARY_RELEASE}")
+      elseif (${PREFIX}_LIBRARY_DEBUG)
+        set_target_properties(TBB::${TARGET_NAME} PROPERTIES
+          IMPORTED_LOCATION "${${PREFIX}_LIBRARY_DEBUG}")
+      endif ()
     endif ()
 
    #mark the following variables as internal variables
