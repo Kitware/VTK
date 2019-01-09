@@ -322,7 +322,7 @@ vtk_module_scan(
   [UNRECOGNIZED_MODULES     <variable>]
   [WANT_BY_DEFAULT          <ON|OFF>]
   [HIDE_MODULES_FROM_CACHE  <ON|OFF>]
-  [ENABLE_TESTS             <ON|OFF|DEFAULT>])
+  [ENABLE_TESTS             <ON|OFF|WANT|DEFAULT>])
 ```
 
 The `MODULE_FILES` and `PROVIDES_MODULES` arguments are required. Modules which
@@ -347,10 +347,11 @@ modules may not add themselves to kits declared prior. The arguments are as foll
   * `HIDE_MODULES_FROM_CACHE`: (Defaults to `OFF`) Whether or not to hide the
     control variables from the cache or not. If enabled, modules will not be
     built unless they are required elsewhere.
-  * `ENABLE_TESTS`: (Defaults to `DEFAULT`) Whether or not modules required by
+  * `ENABLE_TESTS`: (Defaults to `WANT`) Whether or not modules required by
     the tests for the scanned modules should be enabled or not.
     - `ON`: Modules listed as `TEST_DEPENDS` will be required.
     - `OFF`: Test modules will not be considered.
+    - `WANT`: Test dependencies will enable modules if possible.
     - `DEFAULT`: Test modules will be enabled if their required dependencies
       are satisfied and skipped otherwise.
 
@@ -437,15 +438,16 @@ function (vtk_module_scan)
   endif ()
 
   if (NOT DEFINED _vtk_scan_ENABLE_TESTS)
-    set(_vtk_scan_ENABLE_TESTS "DEFAULT")
+    set(_vtk_scan_ENABLE_TESTS "WANT")
   endif ()
 
   if (NOT (_vtk_scan_ENABLE_TESTS STREQUAL "ON" OR
            _vtk_scan_ENABLE_TESTS STREQUAL "OFF" OR
+           _vtk_scan_ENABLE_TESTS STREQUAL "WANT" OR
            _vtk_scan_ENABLE_TESTS STREQUAL "DEFAULT"))
     message(FATAL_ERROR
-      "The `ENABLE_TESTS` argument must be one of `ON`, `OFF`, or `DEFAULT`. "
-      "Received `${_vtk_scan_ENABLE_TESTS}`.")
+      "The `ENABLE_TESTS` argument must be one of `ON`, `OFF`, `WANT`, or "
+      "`DEFAULT`. " "Received `${_vtk_scan_ENABLE_TESTS}`.")
   endif ()
 
   if (NOT _vtk_scan_MODULE_FILES)
@@ -763,12 +765,18 @@ function (vtk_module_scan)
 
       # Grab any test dependencies that are required.
       set(_vtk_scan_test_depends)
+      set(_vtk_scan_test_wants)
       if (NOT ${_vtk_scan_module}_THIRD_PARTY)
         if (_vtk_scan_ENABLE_TESTS STREQUAL "ON")
           set_property(GLOBAL APPEND
             PROPERTY
               "_vtk_module_test_modules" "${_vtk_scan_module}")
           set(_vtk_scan_test_depends "${${_vtk_scan_module}_TEST_DEPENDS}")
+        elseif (_vtk_scan_ENABLE_TESTS STREQUAL "WANT")
+          set_property(GLOBAL APPEND
+            PROPERTY
+              "_vtk_module_test_modules" "${_vtk_scan_module}")
+          set(_vtk_scan_test_wants "_vtk_scan_wants_marker;${${_vtk_scan_module}_TEST_DEPENDS}")
         elseif (_vtk_scan_ENABLE_TESTS STREQUAL "DEFAULT")
           set_property(GLOBAL APPEND
             PROPERTY
@@ -782,13 +790,22 @@ function (vtk_module_scan)
       endif ()
 
       # Add all dependent modules to the list of required or provided modules.
-      foreach (_vtk_scan_module_depend IN LISTS "${_vtk_scan_module}_DEPENDS" "${_vtk_scan_module}_PRIVATE_DEPENDS" _vtk_scan_test_depends)
+      set(_vtk_scan_is_wanting 0)
+      foreach (_vtk_scan_module_depend IN LISTS "${_vtk_scan_module}_DEPENDS" "${_vtk_scan_module}_PRIVATE_DEPENDS" _vtk_scan_test_depends _vtk_scan_test_wants)
+        if (_vtk_scan_module_depend STREQUAL "_vtk_scan_wants_marker")
+          set(_vtk_scan_is_wanting 1)
+          continue ()
+        endif ()
         # Though we need to error if this would cause a disabled module to be
         # provided.
         list(FIND _vtk_scan_disabled_modules "${_vtk_scan_module_depend}" _vtk_scan_idx)
         if (NOT _vtk_scan_idx EQUAL -1)
-          message(FATAL_ERROR
-            "The ${_vtk_scan_module} module requires the disabled module ${_vtk_scan_module_depend}.")
+          if (_vtk_scan_is_wanting)
+            continue ()
+          else ()
+            message(FATAL_ERROR
+              "The ${_vtk_scan_module} module requires the disabled module ${_vtk_scan_module_depend}.")
+          endif ()
         endif ()
 
         set("_vtk_scan_provide_${_vtk_scan_module_depend}" ON)
