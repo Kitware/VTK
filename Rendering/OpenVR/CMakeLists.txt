@@ -1,9 +1,7 @@
 vtk_module_find_package(PACKAGE OpenVR)
 
 set(classes
-  vtkAvatarHead
-  vtkAvatarLeftHand
-  vtkAvatarRightHand
+  vtkOpenGLAvatar
   vtkOpenVRCamera
   vtkOpenVRControlsHelper
   vtkOpenVRDefaultOverlay
@@ -49,8 +47,8 @@ foreach (geometry_file IN LISTS geometry_files)
     SOURCE_OUTPUT source
     BINARY
     NUL_TERMINATE)
-  list(APPEND sources "${source}")
-  list(APPEND headers "${source}")
+  list(APPEND geometry_sources "${source}")
+  list(APPEND geometry_headers "${header}")
 endforeach ()
 
 vtk_object_factory_declare(
@@ -63,8 +61,8 @@ vtk_object_factory_configure(
 
 vtk_module_add_module(VTK::RenderingOpenVR
   CLASSES ${classes}
-  SOURCES "${dashboard_source}" "${vtk_object_factory_source}" ${geometry_sources}
-  PRIVATE_HEADERS "${dashboard_header}" "${vtk_object_factory_header}" ${geometry_headers})
+  SOURCES "${dashboard_source}" ${vtk_object_factory_source} ${geometry_sources}
+  PRIVATE_HEADERS "${dashboard_header}" ${vtk_object_factory_header} ${geometry_headers})
 vtk_module_link(VTK::RenderingOpenVR
   PUBLIC
     OpenVR::OpenVR)
