@@ -1,7 +1,7 @@
 
-find_package( OptiX REQUIRED QUIET )
+find_package( OptiX REQUIRED )
 # TODO: Use CMake's built-in Cuda support instead.
-find_package( CUDA 4.0 REQUIRED QUIET )
+find_package( CUDA 4.0 REQUIRED )
 
 include_directories(
     "${OptiX_INCLUDE}"

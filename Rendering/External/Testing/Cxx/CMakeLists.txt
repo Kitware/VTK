@@ -1,5 +1,5 @@
 # TODO: Make FindGLUT use imported targets.
-find_package(GLUT REQUIRED QUIET)
+find_package(GLUT REQUIRED)
 include_directories(${GLUT_INCLUDE_DIR})
 
 vtk_add_test_cxx(vtkRenderingExternalCxxTests tests

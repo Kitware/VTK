@@ -1,4 +1,4 @@
-find_package(Java REQUIRED QUIET COMPONENTS Runtime Development)
+find_package(Java REQUIRED COMPONENTS Runtime Development)
 
 set(java_simple_test_names
   ConcurrencyGC

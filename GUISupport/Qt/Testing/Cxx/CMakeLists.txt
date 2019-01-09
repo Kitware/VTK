@@ -26,7 +26,7 @@ if(NOT VTK_LEGACY_REMOVE)
   endif()
 endif()
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 vtk_test_cxx_executable(vtkGUISupportQtCxxTests tests
   QTestApp.cxx)

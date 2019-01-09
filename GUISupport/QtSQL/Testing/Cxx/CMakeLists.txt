@@ -3,7 +3,7 @@ vtk_add_test_cxx(vtkGUISupportQtSQLCxxTests tests
   TestQtSQLDatabase.cxx
   )
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 vtk_test_cxx_executable(vtkGUISupportQtSQLCxxTests tests)
 target_link_libraries(vtkGUISupportQtSQLCxxTests

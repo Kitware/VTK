@@ -79,7 +79,7 @@ if (VTK_BUILD_QT_DESIGNER_PLUGIN)
   if (Qt5_VERSION VERSION_LESS "5.5.0")
     set(qt_component Designer)
   endif ()
-  find_package(Qt5 COMPONENTS ${qt_component} REQUIRED QUIET)
+  find_package(Qt5 COMPONENTS ${qt_component} REQUIRED)
   qt5_wrap_cpp(PluginMocSrcs ${PluginMocHeaders} TARGET QVTKWidgetPlugin)
 
   # add QVTK plugin from sources

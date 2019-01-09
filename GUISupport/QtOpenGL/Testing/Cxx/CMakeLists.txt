@@ -3,7 +3,7 @@ vtk_add_test_cxx(vtkGUISupportQtOpenGLCxxTests tests
   TestQVTKWidget2.cxx,NO_DATA
   )
 
-find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED QUIET)
+find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 qt5_wrap_cpp(moc_srcs QTestMainWindow.h)
 vtk_test_cxx_executable(vtkGUISupportQtOpenGLCxxTests tests
   QTestMainWindow.cxx
