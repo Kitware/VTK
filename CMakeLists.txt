@@ -103,11 +103,11 @@ mark_as_advanced(VTK_ENABLE_KITS)
 
 option(VTK_USE_MPI "Support MPI" OFF)
 
-set(VTK_BUILD_TESTING "DEFAULT"
+set(VTK_BUILD_TESTING "WANT"
   CACHE STRING "Build all modules by default")
 set_property(CACHE VTK_BUILD_TESTING
   PROPERTY
-    STRINGS "ON;OFF;DEFAULT")
+    STRINGS "ON;OFF;WANT")
 
 include(vtkEncodeString)
 
