@@ -736,8 +736,13 @@ function (vtk_module_scan)
         endif ()
       endforeach ()
     elseif (_vtk_scan_enable_${_vtk_scan_module} STREQUAL "DONT_WANT")
-      # Do nothing. We don't want to provide these modules, but we also don't
-      # want to disable them.
+      # Check for disabled dependencies and disable if so.
+      foreach (_vtk_scan_module_depend IN LISTS "${_vtk_scan_module}_DEPENDS" "${_vtk_scan_module}_PRIVATE_DEPENDS" _vtk_scan_test_depends)
+        if (DEFINED "_vtk_scan_provide_${_vtk_scan_module_depend}" AND NOT _vtk_scan_provide_${_vtk_scan_module_depend})
+          set("_vtk_scan_provide_${_vtk_scan_module}" OFF)
+          break ()
+        endif ()
+      endforeach ()
     elseif (_vtk_scan_enable_${_vtk_scan_module} STREQUAL "NO")
       # Disable the module.
       set("_vtk_scan_provide_${_vtk_scan_module}" OFF)
