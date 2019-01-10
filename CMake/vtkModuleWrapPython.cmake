@@ -427,12 +427,12 @@ vtk_module_wrap_python(
     These modules will have a `INTERFACE_vtk_module_python_package` property
     set on them which is the name that should be given to `import` statements
     in Python code.
-  * `BUILD_STATIC`: Defaults to `BUILD_SHARED_LIBS`. Note that shared modules
-    with a static build is not completely supported. For static Python module
-    builds, a header named `<TARGET>.h` will be available with a function `void
-    <TARGET>_load()` which will add all Python modules created by this call to
-    the imported module table. For shared Python module builds, the same
-    function is provided, but it is a no-op.
+  * `BUILD_STATIC`: Defaults to `${BUILD_SHARED_LIBS}`. Note that shared
+    modules with a static build is not completely supported. For static Python
+    module builds, a header named `<TARGET>.h` will be available with a
+    function `void <TARGET>_load()` which will add all Python modules created
+    by this call to the imported module table. For shared Python module builds,
+    the same function is provided, but it is a no-op.
   * `MODULE_DESTINATION`: Modules will be placed in this location in the
     build tree. The install tree should remove `$<CONFIGURATION>` bits, but it
     currently does not. See `vtk_module_python_default_destination` for the
