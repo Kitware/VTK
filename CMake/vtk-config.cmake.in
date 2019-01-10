@@ -28,6 +28,9 @@ The following variables are provided by this module:
 [VTK module API]: TODO: Link to hosted documentation.
 #]==]
 
+cmake_policy(PUSH)
+cmake_policy(VERSION 3.8...3.12)
+
 set(CMAKE_MODULE_PATH_save "${CMAKE_MODULE_PATH}")
 list(APPEND CMAKE_MODULE_PATH
   "${CMAKE_CURRENT_LIST_DIR}")
@@ -179,3 +182,5 @@ unset(CMAKE_PREFIX_PATH_save)
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH_save}")
 unset(CMAKE_MODULE_PATH_save)
+
+cmake_policy(POP)
