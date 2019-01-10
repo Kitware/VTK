@@ -678,7 +678,7 @@ int vtkStructuredGridLIC2D::RequestData(
 
   // transfer lic from texture to vtk array
   vtkPixelExtent magLicExtent(magWidth, magHeight);
-  vtkIdType nOutTups = magLicExtent.Size();
+  vtkIdType nOutTups = static_cast<vtkIdType>(magLicExtent.Size());
 
   vtkFloatArray *licOut = vtkFloatArray::New();
   licOut->SetNumberOfComponents(3);
