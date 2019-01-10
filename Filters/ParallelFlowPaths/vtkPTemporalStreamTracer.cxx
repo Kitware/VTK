@@ -151,7 +151,7 @@ void vtkPTemporalStreamTracer::AssignUniqueIds(
   }
 
   vtkIdType ParticleCountOffset = 0;
-  vtkIdType numParticles = LocalSeedPoints.size();
+  vtkIdType numParticles = static_cast<vtkIdType>(LocalSeedPoints.size());
   if (this->UpdateNumPieces>1) {
     vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast(
       this->Controller->GetCommunicator());
@@ -200,7 +200,7 @@ void vtkPTemporalStreamTracer::TransmitReceiveParticles(
   //
   // We must allocate buffers for all processor particles
   //
-  vtkIdType OurParticles = sending.size();
+  vtkIdType OurParticles = static_cast<vtkIdType>(sending.size());
   vtkIdType TotalParticles = 0;
   // setup arrays used by the AllGatherV call.
   std::vector<vtkIdType> recvLengths(this->UpdateNumPieces, 0);

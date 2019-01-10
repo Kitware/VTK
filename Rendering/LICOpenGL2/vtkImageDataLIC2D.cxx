@@ -624,7 +624,7 @@ int vtkImageDataLIC2D::RequestData(
   #endif
 
   // transfer lic from texture to vtk array
-  vtkIdType nOutTups = magLicExtent.Size();
+  vtkIdType nOutTups = static_cast<vtkIdType>(magLicExtent.Size());
   vtkFloatArray *licOut = vtkFloatArray::New();
   licOut->SetNumberOfComponents(3);
   licOut->SetNumberOfTuples(nOutTups);

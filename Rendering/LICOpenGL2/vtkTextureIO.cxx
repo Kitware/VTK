@@ -53,7 +53,7 @@ vtkFloatArray *DownloadTexture(
 
   vtkFloatArray *ta = vtkFloatArray::New();
   ta->SetNumberOfComponents(tnc);
-  ta->SetNumberOfTuples(subExt.Size());
+  ta->SetNumberOfTuples(static_cast<vtkIdType>(subExt.Size()));
   ta->SetName("tex");
   float *pTa = ta->GetPointer(0);
 
