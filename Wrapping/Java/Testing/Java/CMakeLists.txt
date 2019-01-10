@@ -47,7 +47,7 @@ set(vtk_test_classpath
   "${vtk_jar_file}${classpath_separator}${vtk_java_class_output}")
 
 if (TARGET VTK::RenderingOpenGL2)
-  ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}"
+  ExternalData_add_test(VTKData
     NAME    vtkJavaTests-Regression
     COMMAND "${Java_JAVA_EXECUTABLE}"
             -classpath "${vtk_test_classpath}"
