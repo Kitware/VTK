@@ -293,6 +293,11 @@ set(vtk_cmake_build_dir
   "${CMAKE_CURRENT_BINARY_DIR}/${vtk_cmake_destination}")
 include(vtkInstallCMakePackage)
 
+cmake_dependent_option(VTK_ENABLE_CDASH_THIRD_PARTY_WARNINGS
+  "Suppress warnings from third-party libraries from showing on CDash" OFF
+  "VTK_BUILD_TESTING" OFF)
+mark_as_advanced(VTK_ENABLE_CDASH_THIRD_PARTY_WARNINGS)
+
 configure_file(
   "${vtk_cmake_dir}/CTestCustom.cmake.in"
   "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake"
