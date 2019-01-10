@@ -356,10 +356,10 @@ findpkg_finish(TBB_MALLOC_PROXY tbbmalloc_proxy)
 if(NOT TBB_VERSION)
 
  #only read the start of the file
- file(READ
+ file(STRINGS
       "${TBB_INCLUDE_DIR}/tbb/tbb_stddef.h"
       TBB_VERSION_CONTENTS
-      LIMIT 2048)
+      REGEX "VERSION")
 
   string(REGEX REPLACE
     ".*#define TBB_VERSION_MAJOR ([0-9]+).*" "\\1"
