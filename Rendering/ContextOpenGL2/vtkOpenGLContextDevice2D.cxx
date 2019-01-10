@@ -892,11 +892,11 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
       newDistances[i*12+10] = distances[i*2+2];
     }
 
-    this->BuildVBO(cbo, &(newVerts[0]), newVerts.size()/2,
+    this->BuildVBO(cbo, &(newVerts[0]), static_cast<int>(newVerts.size()/2),
       colors ? &(newColors[0]) : nullptr, nc, &(newDistances[0]));
 
     PreDraw(*cbo, GL_TRIANGLES, newVerts.size() / 2);
-    glDrawArrays(GL_TRIANGLES, 0, newVerts.size()/2);
+    glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(newVerts.size()/2));
     PostDraw(*cbo, this->Renderer, this->Pen->GetColor());
   }
   else
@@ -1035,10 +1035,10 @@ void vtkOpenGLContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
       newDistances[i*6+10] = distances[i*2+2];
     }
 
-    this->BuildVBO(cbo, &(newVerts[0]), newVerts.size()/2,
+    this->BuildVBO(cbo, &(newVerts[0]), static_cast<int>(newVerts.size()/2),
       colors ? &(newColors[0]) : nullptr, nc, &(newDistances[0]));
     PreDraw(*cbo, GL_TRIANGLES, newVerts.size() / 2);
-    glDrawArrays(GL_TRIANGLES, 0, newVerts.size()/2);
+    glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(newVerts.size()/2));
     PostDraw(*cbo, this->Renderer, this->Pen->GetColor());
   }
   else
@@ -1277,7 +1277,7 @@ void vtkOpenGLContextDevice2D::CoreDrawTriangles(std::vector<float> &tverts,
     this->SetTexture(this->Brush->GetTexture(),
                      this->Brush->GetTextureProperties());
     this->Storage->Texture->Render(this->Renderer);
-    texCoord = this->Storage->TexCoords(&(tverts[0]), tverts.size()/2);
+    texCoord = this->Storage->TexCoords(&(tverts[0]), static_cast<int>(tverts.size()/2));
 
     int tunit = vtkOpenGLTexture::SafeDownCast(this->Storage->Texture)->GetTextureUnit();
     cbo->Program->SetUniformi("texture1", tunit);
@@ -1306,13 +1306,13 @@ void vtkOpenGLContextDevice2D::CoreDrawTriangles(std::vector<float> &tverts,
   cbo->Program->SetUniform4uc("vertexColor",
       this->Brush->GetColor());
 
-  this->BuildVBO(cbo, &(tverts[0]), tverts.size()/2, colors, numComp,
+  this->BuildVBO(cbo, &(tverts[0]), static_cast<int>(tverts.size()/2), colors, numComp,
     texCoord);
 
   this->SetMatrices(cbo->Program);
 
   PreDraw(*cbo, GL_TRIANGLES, tverts.size() / 2);
-  glDrawArrays(GL_TRIANGLES, 0, tverts.size()/2);
+  glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(tverts.size()/2));
   PostDraw(*cbo, this->Renderer, this->Brush->GetColor());
 
   // free everything
@@ -2832,7 +2832,7 @@ void vtkOpenGLContextDevice2D::DrawImageGL2PS(float p[2], vtkImageData *input)
   scalars->SetNumberOfTuples(s->GetNumberOfTuples());
   for (size_t i = 0; i < numVals; ++i)
   {
-    scalars->SetValue(i, vals[i] / 255.f);
+    scalars->SetValue(static_cast<vtkIdType>(i), vals[i] / 255.f);
   }
   image->GetPointData()->SetScalars(scalars);
 

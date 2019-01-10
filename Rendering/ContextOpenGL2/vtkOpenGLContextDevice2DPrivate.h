@@ -781,7 +781,8 @@ private:
 
     if (cacheItem->Lines.size() > 0)
     {
-      this->Device->DrawLines(&cacheItem->Lines[0], cacheItem->Lines.size() / 2,
+      this->Device->DrawLines(&cacheItem->Lines[0],
+        static_cast<int>(cacheItem->Lines.size() / 2),
         static_cast<unsigned char*>(cacheItem->LineColors->GetVoidPointer(0)),
         cacheItem->LineColors->GetNumberOfComponents());
     }
