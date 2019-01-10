@@ -2927,6 +2927,27 @@ function (vtk_module_add_module name)
             "${_vtk_add_module_private_depend}")
         endif ()
       endforeach ()
+
+      # Add the `DEFINE_SYMBOL` for all other modules within the same kit which
+      # have already been processed because the direct dependencies are not
+      # sufficient: export symbols from any included header needs to be
+      # correct. Since modules are built in topological order, a module can
+      # only possibly include modules in the kit which have already been built.
+      get_property(_vtk_add_module_kit_modules GLOBAL
+        PROPERTY  "_vtk_kit_${_vtk_add_module_build_with_kit}_kit_modules")
+      list(REMOVE_ITEM _vtk_add_module_kit_modules "${_vtk_build_module}")
+      foreach (_vtk_add_module_kit_module IN LISTS _vtk_add_module_kit_modules)
+        get_property(_vtk_add_module_kit_module_target_name GLOBAL
+          PROPERTY "_vtk_module_${_vtk_add_module_kit_module}_target_name")
+        if (TARGET "${_vtk_add_module_kit_module_target_name}-objects")
+          get_property(_vtk_add_module_kit_module_define_symbol
+            TARGET    "${_vtk_add_module_kit_module_target_name}-objects"
+            PROPERTY  DEFINE_SYMBOL)
+          target_compile_definitions("${_vtk_add_module_real_target}"
+            PRIVATE
+              "${_vtk_add_module_kit_module_define_symbol}")
+        endif ()
+      endforeach ()
     else ()
       set(_vtk_add_module_depends_link ${_vtk_add_module_depends})
       set(_vtk_add_module_private_depends_link ${_vtk_add_module_private_depends})
