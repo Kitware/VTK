@@ -597,9 +597,9 @@ function (vtk_module_wrap_python)
 
     string(APPEND _vtk_python_all_modules_include_content
 "#if PY_VERSION_HEX < 0x03000000
-#define PY_IMPORT(module) PyImport_AppendInittab(#module, init ## module)
+#define PY_IMPORT(module) PyImport_AppendInittab(\"${_vtk_python_PYTHON_PACKAGE}.\" #module, init ## module)
 #else
-#define PY_IMPORT(module) PyImport_AppendInittab(#module, PyInit_ ## module)
+#define PY_IMPORT(module) PyImport_AppendInittab(\"${_vtk_python_PYTHON_PACKAGE}.\" #module, PyInit_ ## module)
 #endif
 
 static void ${_vtk_python_TARGET_NAME}_load() {\n")
