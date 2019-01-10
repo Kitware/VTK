@@ -102,12 +102,8 @@ void vtkOpenGLImageGradient::ThreadedRequestData(
   vtkImageData **outData,
   int outExt[6], int vtkNotUsed(id))
 {
-  void *inPtr;
-
   vtkDataArray *inArray = this->GetInputArrayToProcess(0,inputVector);
   outData[0]->GetPointData()->GetScalars()->SetName(inArray->GetName());
-
-  inPtr = inArray->GetVoidPointer(0);
 
   // The output scalar type must be double to store proper gradients.
   if(outData[0]->GetScalarType() != VTK_DOUBLE)
