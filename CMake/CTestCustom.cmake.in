@@ -4,6 +4,20 @@ list(APPEND CTEST_CUSTOM_WARNING_MATCH
   "{standard input}:[0-9][0-9]*: Warning: ")
 
 list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
+  # Java compilation warnings that don't matter.
+  "^1 warning$"
+  "bootstrap class path not set in conjunction with -source"
+
+  # C4275 carries with it a note that we don't care about. std::exception is
+  # the main culprit here.
+  "vcruntime_exception.h.*: note: see declaration of 'std::exception'"
+
+  # GetVersion is deprecated, but its use is OK.
+  "sysinfoapi.h.*: note: see declaration of 'GetVersion'"
+
+  # Suppress notes from template instantiation backtraces.
+  "note: see reference to class template instantiation"
+
   # Qt headers cause C4127 warnings with MSVC. Nothing we can do to fix them.
   "[Qq]t([Cc]ore|[Gg]ui).*(warning|note)"
   # Qt has some functions marked as `__forceinline` which MSVC refuses to inline.
