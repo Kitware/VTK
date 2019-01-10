@@ -55,17 +55,23 @@ if (BUILD_TESTING)
   if (TARGET VTK::TestingRendering)
     ######## Regression Testing ########
     set(vtk-example IOExamples)
+    set(_vtk_build_TEST_INPUT_DATA_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Testing")
+    set(_vtk_build_TEST_DATA_TARGET "IOData")
+    set(ExternalData_BINARY_ROOT "${_vtk_build_TEST_OUTPUT_DATA_DIRECTORY}")
+    vtk_module_test_data(
+      Data/golf.csv)
     set(TestDumpXMLFile_ARGS "DATA{${VTK_TEST_INPUT_DIR}/cow.vtp}")
     set(TestParticleReader_ARGS
-      "${_vtk_build_TEST_DATA_OUTPUT_DIRECTORY}/Data/golf.csv"
-      ${_vtk_build_TEST_OUTPUT_DIRECTORY}/TestParticleReader.vtp)
-    vtk_add_test_cxx(${vtk-example}CxxTests tests
+      "${ExternalData_BINARY_ROOT}/Data/golf.csv"
+      ${ExternalData_BINARY_ROOT}/TestParticleReader.vtp)
+    vtk_add_test_cxx(IOExampleCxxTests tests
       NO_DATA NO_VALID NO_OUTPUT
       TestParticleReader.cxx
       TestDumpXMLFile.cxx
       )
-    vtk_test_cxx_executable(${vtk-example}CxxTests tests
+    vtk_test_cxx_executable(IOExampleCxxTests tests
       RENDERING_FACTORY
       )
+    ExternalData_Add_Target(${_vtk_build_TEST_DATA_TARGET})
   endif ()
 endif ()

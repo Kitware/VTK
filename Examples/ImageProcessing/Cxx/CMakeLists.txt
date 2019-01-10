@@ -49,9 +49,12 @@ if (BUILD_TESTING)
   if (TARGET VTK::TestingRendering)
     ######## Regression Testing ########
     set(_vtk_test_module ImageProcessingExamples)
+    set(_vtk_build_TEST_INPUT_DATA_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Testing")
+    set(_vtk_build_TEST_DATA_TARGET "ImageProcessingData")
+    set(ExternalData_BINARY_ROOT "${_vtk_build_TEST_OUTPUT_DATA_DIRECTORY}")
     vtk_module_test_data(
       Data/headsq/quarter/,REGEX:.*)
-    set(TestImageSlicing_ARGS ${_vtk_build_TEST_DATA_OUTPUT_DIRECTORY}/Data/headsq/quarter)
+    set(TestImageSlicing_ARGS ${ExternalData_BINARY_ROOT}/Data/headsq/quarter)
     set(TestImageBenchmark_ARGS
       "--threads" "2" "--filter" "resize:kernelsize=4")
     vtk_add_test_cxx(ImageProcessingExamplesCxxTests tests
@@ -61,5 +64,6 @@ if (BUILD_TESTING)
     vtk_test_cxx_executable(ImageProcessingExamplesCxxTests tests
       RENDERING_FACTORY
       )
+    ExternalData_Add_Target(${_vtk_build_TEST_DATA_TARGET})
   endif ()
 endif ()
