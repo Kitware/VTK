@@ -13,7 +13,7 @@
 #include <algorithm>
 
 #ifdef _WIN32
-const static char * Slash = "\\";
+const static char * Slash = "\\/";
 #else
 const static char * Slash = "/";
 #endif
