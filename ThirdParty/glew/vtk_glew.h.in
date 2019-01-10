@@ -29,7 +29,7 @@
 #endif
 
 #cmakedefine01 VTK_GLEW_SHARED
-#if !VTK_GLEW_SHARED
+#if !VTK_GLEW_SHARED && !defined(GLEW_STATIC)
 #define GLEW_STATIC
 #endif
 
