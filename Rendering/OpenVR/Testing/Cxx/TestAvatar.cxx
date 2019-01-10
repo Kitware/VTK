@@ -15,12 +15,9 @@
 #include "vtkActor.h"
 #include "vtkAvatar.h"
 #include "vtkCamera.h"
-#include "vtkImageGridSource.h"
 #include "vtkInteractorStyleTrackballCamera.h"
-#include "vtkLookupTable.h"
 #include "vtkNew.h"
 #include "vtkOpenGLPolyDataMapper.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkPLYReader.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
@@ -28,10 +25,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkShaderProgram.h"
-#include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
-#include "vtkTexture.h"
 
 #include "vtkLight.h"
 
