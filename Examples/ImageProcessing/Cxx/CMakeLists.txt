@@ -15,7 +15,8 @@ find_package(VTK
     ImagingStatistics
     ImagingStencil
     InteractionStyle
-    RenderingCore)
+    RenderingCore
+    RenderingOpenGL2)
 if (NOT VTK_FOUND)
   message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")
   return ()
@@ -46,24 +47,30 @@ vtk_module_autoinit(
   MODULES ${VTK_LIBRARIES})
 
 if (BUILD_TESTING)
+  include(CTest)
   if (TARGET VTK::TestingRendering)
     ######## Regression Testing ########
-    set(_vtk_test_module ImageProcessingExamples)
-    set(_vtk_build_TEST_INPUT_DATA_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Testing")
-    set(_vtk_build_TEST_DATA_TARGET "ImageProcessingData")
-    set(ExternalData_BINARY_ROOT "${_vtk_build_TEST_OUTPUT_DATA_DIRECTORY}")
-    vtk_module_test_data(
-      Data/headsq/quarter/,REGEX:.*)
-    set(TestImageSlicing_ARGS ${ExternalData_BINARY_ROOT}/Data/headsq/quarter)
-    set(TestImageBenchmark_ARGS
-      "--threads" "2" "--filter" "resize:kernelsize=4")
-    vtk_add_test_cxx(ImageProcessingExamplesCxxTests tests
-      TestImageBenchmark.cxx,NO_VALID,NO_DATA,NO_OUTPUT
-      TestImageSlicing.cxx
-      )
-    vtk_test_cxx_executable(ImageProcessingExamplesCxxTests tests
-      RENDERING_FACTORY
-      )
-    ExternalData_Add_Target(${_vtk_build_TEST_DATA_TARGET})
+    include(ExternalData)
+
+    ExternalData_add_test(ImageProcessingData
+      NAME    "ImageProcessingExampleCxx-ImageBenchmark"
+      COMMAND ImageBenchmark
+              --threads 2
+              --filter resize:kernelsize=4
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+    # FIXME: This test doesn't exit.
+    if (FALSE)
+      ExternalData_Expand_Arguments(ImageProcessingData _
+        DATA{${CMAKE_CURRENT_SOURCE_DIR}/Testing/Data/headsq/,REGEX:.*})
+
+      ExternalData_add_test(ImageProcessingData
+        NAME    "ImageProcessingExampleCxx-ImageSlicing"
+        COMMAND ImageSlicing
+                ${CMAKE_CURRENT_BINARY_DIR}/ExternalData/Testing/Data/headsq/quarter
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    endif ()
+
+    ExternalData_Add_Target(ImageProcessingData)
   endif ()
 endif ()
