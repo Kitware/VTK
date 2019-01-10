@@ -27,11 +27,11 @@ if (PYTHON_EXECUTABLE)
         $<TARGET_FILE:vtkRenderingParallel-TestClientServerRendering>
         --port 12367
         --server
-      -D ${_vtk_build_TEST_DATA_DIRECTORY}
+      -D ${_vtk_build_TEST_OUTPUT_DATA_DIRECTORY}
         --process
         $<TARGET_FILE:vtkRenderingParallel-TestClientServerRendering>
         --port 12367
-        -D ${_vtk_build_TEST_DATA_DIRECTORY}
+        -D ${_vtk_build_TEST_OUTPUT_DATA_DIRECTORY}
         -T ${_vtk_build_TEST_OUTPUT_DIRECTORY}
         -V "DATA{../Data/Baseline/TestClientServerRendering.png,:}"
   )

@@ -40,7 +40,7 @@ function(vtk_add_svg_test)
     ExternalData_add_test(VTKData
       NAME ${_vtk_build_test}Cxx-${TName}-VerifyRasterizedPNG
       COMMAND "vtkRenderingGL2PSOpenGL2CxxTests" PNGCompare
-        -D "${_vtk_build_TEST_DATA_DIRECTORY}"
+        -D "${_vtk_build_TEST_OUTPUT_DATA_DIRECTORY}"
         -T "${_vtk_build_TEST_OUTPUT_DIRECTORY}"
         -E "${_error_threshold}"
         -V "DATA{../Data/Baseline/${TName}-rasterRef.png,:}"

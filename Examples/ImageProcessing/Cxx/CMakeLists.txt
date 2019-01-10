@@ -51,7 +51,7 @@ if (BUILD_TESTING)
     set(_vtk_test_module ImageProcessingExamples)
     vtk_module_test_data(
       Data/headsq/quarter/,REGEX:.*)
-    set(TestImageSlicing_ARGS ${_vtk_build_TEST_DATA_DIRECTORY}/Data/headsq/quarter)
+    set(TestImageSlicing_ARGS ${_vtk_build_TEST_DATA_OUTPUT_DIRECTORY}/Data/headsq/quarter)
     set(TestImageBenchmark_ARGS
       "--threads" "2" "--filter" "resize:kernelsize=4")
     vtk_add_test_cxx(ImageProcessingExamplesCxxTests tests
