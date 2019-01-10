@@ -31,6 +31,33 @@ The following variables are provided by this module:
 cmake_policy(PUSH)
 cmake_policy(VERSION 3.8...3.12)
 
+set(_vtk_temp_variables)
+set(_vtk_real_components)
+foreach (_vtk_component IN LISTS "${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS")
+  if (_vtk_component MATCHES "^vtk" AND NOT _vtk_component STREQUAL "vtksys")
+    string(SUBSTRING "${_vtk_component}" 3 -1 _vtk_actual_component)
+    if (NOT ${CMAKE_FIND_PACKAGE_NAME}_FIND_QUIETLY)
+      message(DEPRECATION
+        "The new name for the '${_vtk_component}' component is "
+        "'${_vtk_actual_component}'")
+    endif ()
+    list(APPEND _vtk_real_components
+      "${_vtk_actual_component}")
+    list(APPEND _vtk_temp_variables
+      "${CMAKE_FIND_PACKAGE_NAME}_FIND_REQUIRED_${_vtk_actual_component}")
+    set("${CMAKE_FIND_PACKAGE_NAME}_FIND_REQUIRED_${_vtk_actual_component}"
+      "${${CMAKE_FIND_PACKAGE_NAME}_FIND_REQUIRED_${_vtk_component}}")
+    unset(_vtk_actual_component)
+  else ()
+    list(APPEND _vtk_real_components
+      "${_vtk_component}")
+  endif ()
+endforeach ()
+unset(_vtk_component)
+set("${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS"
+  ${_vtk_real_components})
+unset(_vtk_real_components)
+
 set(CMAKE_MODULE_PATH_save "${CMAKE_MODULE_PATH}")
 list(APPEND CMAKE_MODULE_PATH
   "${CMAKE_CURRENT_LIST_DIR}")
@@ -182,5 +209,11 @@ unset(CMAKE_PREFIX_PATH_save)
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH_save}")
 unset(CMAKE_MODULE_PATH_save)
+
+foreach (_vtk_temp_variable IN LISTS _vtk_temp_variables)
+  unset("${_vtk_temp_variable}")
+endforeach ()
+unset(_vtk_temp_variable)
+unset(_vtk_temp_variables)
 
 cmake_policy(POP)
