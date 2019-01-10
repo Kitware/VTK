@@ -19,12 +19,12 @@ PRIVATE_DEPENDS
   VTK::IOXML
   VTK::ParallelCore
 TEST_DEPENDS
+  VTK::CommonColor
   VTK::FiltersCore
+  VTK::FiltersGeometry
   VTK::IOAMR
   VTK::ImagingCore
   VTK::TestingCore
+  VTK::TestingRendering
   VTK::RenderingCore
   VTK::RenderingOpenGL2
-  VTK::TestingRendering
-  VTK::FiltersGeometry
-  VTK::CommonColor

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestImageToAMR.cxx
+  Module:    TestAMRSliceFilterCellData.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -65,7 +65,7 @@ int TestAMRSliceFilterCellData(int argc, char *argv[])
 
     vtkNew<vtkLookupTable> lut;
     lut->SetNumberOfColors(256);
-    for(int i = 0; i < lut->GetNumberOfColors(); ++i)
+    for (int i = 0; i < lut->GetNumberOfColors(); ++i)
     {
         std::array<double, 4> color;
         colormap->GetColor(static_cast<double>(i) / lut->GetNumberOfColors(), color.data());
