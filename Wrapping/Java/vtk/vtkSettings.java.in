@@ -46,6 +46,6 @@ public class vtkSettings
 
   public static String[] GetKits()
     {
-    return vtkSettings.Split("@_vtk_java_all_wrapped_modules@", ";");
+    return vtkSettings.Split("@vtk_java_wrapped_module_libraries@", ";");
     }
 }

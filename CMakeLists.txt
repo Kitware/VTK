@@ -252,7 +252,6 @@ vtk_module_graphviz(
   PRIVATE_DEPENDENCIES OFF
   OUTPUT  "modules.dot")
 
-ExternalData_Add_Target(VTKData)
 # Create target to download data from the VTKData group.  This must come after
 # all tests have been added that reference the group, so we put it last.
 if(VTK_DATA_EXCLUDE_FROM_ALL)
@@ -289,9 +288,16 @@ if (VTK_WRAP_JAVA)
   add_subdirectory(Wrapping/Java)
 endif ()
 
+ExternalData_Add_Target(VTKData)
+
 set(vtk_cmake_build_dir
   "${CMAKE_CURRENT_BINARY_DIR}/${vtk_cmake_destination}")
 include(vtkInstallCMakePackage)
+
+cmake_dependent_option(VTK_ENABLE_CDASH_THIRD_PARTY_WARNINGS
+  "Suppress warnings from third-party libraries from showing on CDash" OFF
+  "VTK_BUILD_TESTING" OFF)
+mark_as_advanced(VTK_ENABLE_CDASH_THIRD_PARTY_WARNINGS)
 
 configure_file(
   "${vtk_cmake_dir}/CTestCustom.cmake.in"

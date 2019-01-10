@@ -87,10 +87,19 @@ macro(findpkg_finish PREFIX TARGET_NAME)
     if (NOT TARGET "TBB::${TARGET_NAME}")
       add_library(TBB::${TARGET_NAME} UNKNOWN IMPORTED)
       set_target_properties(TBB::${TARGET_NAME} PROPERTIES
-        IMPORTED_LOCATION "${${PREFIX}_LIBRARY}"
-        IMPORTED_LOCATION_DEBUG "${${PREFIX}_LIBRARY_DEBUG}"
-        IMPORTED_LOCATION_RELEASE "${${PREFIX}_LIBRARY_RELEASE}"
         INTERFACE_INCLUDE_DIRECTORIES "${${PREFIX}_INCLUDE_DIR}")
+      if (${PREFIX}_LIBRARY_DEBUG AND ${PREFIX}_LIBRARY_RELEASE)
+        set_target_properties(TBB::${TARGET_NAME} PROPERTIES
+          IMPORTED_LOCATION "${${PREFIX}_LIBRARY_RELEASE}"
+          IMPORTED_LOCATION_DEBUG "${${PREFIX}_LIBRARY_DEBUG}"
+          IMPORTED_LOCATION_RELEASE "${${PREFIX}_LIBRARY_RELEASE}")
+      elseif (${PREFIX}_LIBRARY_RELEASE)
+        set_target_properties(TBB::${TARGET_NAME} PROPERTIES
+          IMPORTED_LOCATION "${${PREFIX}_LIBRARY_RELEASE}")
+      elseif (${PREFIX}_LIBRARY_DEBUG)
+        set_target_properties(TBB::${TARGET_NAME} PROPERTIES
+          IMPORTED_LOCATION "${${PREFIX}_LIBRARY_DEBUG}")
+      endif ()
     endif ()
 
    #mark the following variables as internal variables
@@ -347,10 +356,10 @@ findpkg_finish(TBB_MALLOC_PROXY tbbmalloc_proxy)
 if(NOT TBB_VERSION)
 
  #only read the start of the file
- file(READ
+ file(STRINGS
       "${TBB_INCLUDE_DIR}/tbb/tbb_stddef.h"
       TBB_VERSION_CONTENTS
-      LIMIT 2048)
+      REGEX "VERSION")
 
   string(REGEX REPLACE
     ".*#define TBB_VERSION_MAJOR ([0-9]+).*" "\\1"

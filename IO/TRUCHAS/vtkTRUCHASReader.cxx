@@ -924,7 +924,7 @@ int vtkTRUCHASReader::RequestData(
   }
 
   #define MAX_NAME 1024
-  char array_name[MAX_NAME];
+  char array_name[MAX_NAME + 1];
   std::map<std::string, int>::iterator nit;
   for (nit = this->Internals->array_names.begin();
        nit != this->Internals->array_names.end();

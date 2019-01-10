@@ -30,19 +30,19 @@ list(APPEND tests
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::ImagingCoreCxx-AddStencilData
   COMMAND vtkImagingCoreCxxTests TestImageStencilData 1
-    -D ${_vtk_build_TEST_DATA_DIRECTORY}
+    -D ${_vtk_build_TEST_OUTPUT_DATA_DIRECTORY}
     -T ${_vtk_build_TEST_OUTPUT_DIRECTORY}
     -V DATA{../Data/Baseline/TestAddStencilData.png,:})
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::ImagingCoreCxx-SubtractStencilData
   COMMAND vtkImagingCoreCxxTests TestImageStencilData 2
-    -D ${_vtk_build_TEST_DATA_DIRECTORY}
+    -D ${_vtk_build_TEST_OUTPUT_DATA_DIRECTORY}
     -T ${_vtk_build_TEST_OUTPUT_DIRECTORY}
     -V DATA{../Data/Baseline/TestSubtractStencilData.png,:})
 ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
   NAME VTK::ImagingCoreCxx-ClipStencilData
   COMMAND vtkImagingCoreCxxTests TestImageStencilData 3
-    -D ${_vtk_build_TEST_DATA_DIRECTORY}
+    -D ${_vtk_build_TEST_OUTPUT_DATA_DIRECTORY}
     -T ${_vtk_build_TEST_OUTPUT_DIRECTORY}
     -V DATA{../Data/Baseline/TestClipStencilData.png,:})
 

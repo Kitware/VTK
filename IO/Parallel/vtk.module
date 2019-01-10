@@ -32,6 +32,7 @@ TEST_DEPENDS
   VTK::ImagingCore
   VTK::InteractionImage
   VTK::ParallelMPI
+  VTK::RenderingOpenGL2
   VTK::RenderingParallel
   VTK::TestingCore
   VTK::TestingRendering

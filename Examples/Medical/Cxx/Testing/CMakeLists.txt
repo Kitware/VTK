@@ -1,5 +1,5 @@
 set(_vtk_build_test Medical)
-set(_vtk_build_TEST_DATA_DIRECTORY
+set(_vtk_build_TEST_OUTPUT_DATA_DIRECTORY
   "${CMAKE_CURRENT_SOURCE_DIR}")
 set(_vtk_build_TEST_OUTPUT_DIRECTORY
   "${CMAKE_BINARY_DIR}/Testing/Temporary")

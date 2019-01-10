@@ -389,7 +389,7 @@ bool vtkODBCDatabase::Open(const char *password)
   status = SQLDriverConnect(this->Internals->Connection,
                             nullptr,
                             (SQLCHAR *)(connectionString.c_str()),
-                            connectionString.size(),
+                            static_cast<SQLSMALLINT>(connectionString.size()),
                             connectionOut,
                             1024,
                             &cb,
@@ -499,7 +499,7 @@ vtkStringArray *vtkODBCDatabase::GetTables()
 
     status = SQLTables(statement, nullptr, 0, nullptr, 0, nullptr, 0,
                        (SQLCHAR *)(tableType.c_str()),
-                       tableType.size());
+                       static_cast<SQLSMALLINT>(tableType.size()));
 
     if (status != SQL_SUCCESS)
     {
@@ -570,7 +570,7 @@ vtkStringArray *vtkODBCDatabase::GetRecord(const char *table)
                       nullptr, // schema
                       0,
                       (SQLCHAR *)(table),
-                      strlen(table),
+                      static_cast<SQLSMALLINT>(strlen(table)),
                       nullptr, // column
                       0);
 

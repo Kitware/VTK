@@ -461,6 +461,9 @@ void vtkInteractorStyle::StartState(int newstate)
     if ( this->UseTimers &&
          !(this->TimerId=rwi->CreateRepeatingTimer(this->TimerDuration)) )
     {
+      // FIXME: This comment doesn't match the logic of the code. There is one
+      // test failing with it like it is, but more failing if the comparison is
+      // inverted.
       // vtkTestingInteractor cannot create timers
       if (std::string(rwi->GetClassName()) != "vtkTestingInteractor")
       {
@@ -481,6 +484,9 @@ void vtkInteractorStyle::StopState()
     vtkRenderWindow *renwin = rwi->GetRenderWindow();
     renwin->SetDesiredUpdateRate(rwi->GetStillUpdateRate());
     if (this->UseTimers &&
+        // FIXME: This comment doesn't match the logic of the code. There is
+        // one test failing with it like it is, but more failing if the
+        // comparison is inverted.
         // vtkTestingInteractor cannot create timers
         std::string(rwi->GetClassName()) != "vtkTestingInteractor" &&
         !rwi->DestroyTimer(this->TimerId))

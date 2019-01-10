@@ -41,7 +41,7 @@ int CheckIfIDExists(vtkTextProperty* property, std::set<size_t> & ids)
 //----------------------------------------------------------------------------
 int TestFreeTypeTools(int, char *[])
 {
-  size_t result = EXIT_SUCCESS;
+  int result = EXIT_SUCCESS;
   std::set<size_t> ids;
 
   vtkSmartPointer<vtkTextProperty> property =

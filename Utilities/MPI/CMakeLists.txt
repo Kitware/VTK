@@ -6,9 +6,11 @@ vtk_module_third_party_external(
   LIBRARIES     MPI_C_LIBRARIES
   DEFINITIONS   MPI_C_COMPILE_DEFINITIONS)
 
-set_property(TARGET MPI::MPI_C APPEND
-  PROPERTY
-    INTERFACE_COMPILE_DEFINITIONS "MPICH_SKIP_MPICXX;OMPI_SKIP_MPICXX;_MPICC_H")
+vtk_module_definitions(VTK::mpi
+  INTERFACE
+    MPICH_SKIP_MPICXX
+    OMPI_SKIP_MPICXX
+    _MPICC_H)
 
 if (APPLE AND TARGET MPI::MPI_C)
   # On macOS, MPI might have the `-Wl,-flat_namespace` option in it (mpich has

@@ -112,9 +112,12 @@ foreach (java_file IN LISTS java_sources)
 endforeach ()
 
 set(vtk_java_native_libraries)
+set(vtk_java_wrapped_module_libraries)
 foreach (_vtk_java_module IN LISTS vtk_java_wrapped_modules)
   get_property(_vtk_java_library_name GLOBAL
     PROPERTY "_vtk_module_${_vtk_java_module}_library_name")
+  list(APPEND vtk_java_wrapped_module_libraries
+    "${_vtk_java_library_name}")
   get_property(_vtk_module_java_files
     TARGET    "${_vtk_java_library_name}Java"
     PROPERTY  "_vtk_module_java_files")

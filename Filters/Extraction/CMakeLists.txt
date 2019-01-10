@@ -1,7 +1,6 @@
 set(classes
   vtkBlockSelector
   vtkConvertSelection
-  vtkExtractArraysOverTime
   vtkExtractBlock
   vtkExtractCells
   vtkExtractCellsByType

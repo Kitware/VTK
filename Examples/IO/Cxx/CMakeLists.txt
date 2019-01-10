@@ -52,20 +52,24 @@ if (TARGET VTK::IOExport AND TARGET VTK::IOImport)
 endif ()
 
 if (BUILD_TESTING)
+  include(CTest)
   if (TARGET VTK::TestingRendering)
     ######## Regression Testing ########
-    set(vtk-example IOExamples)
-    set(TestDumpXMLFile_ARGS "DATA{${VTK_TEST_INPUT_DIR}/cow.vtp}")
-    set(TestParticleReader_ARGS
-      "${_vtk_build_TEST_DATA_DIRECTORY}/Data/golf.csv"
-      ${_vtk_build_TEST_OUTPUT_DIRECTORY}/TestParticleReader.vtp)
-    vtk_add_test_cxx(${vtk-example}CxxTests tests
-      NO_DATA NO_VALID NO_OUTPUT
-      TestParticleReader.cxx
-      TestDumpXMLFile.cxx
-      )
-    vtk_test_cxx_executable(${vtk-example}CxxTests tests
-      RENDERING_FACTORY
-      )
+    include(ExternalData)
+
+    ExternalData_add_test(IOData
+      NAME    "IOExampleCxx-TestDumpXMLFile"
+      COMMAND DumpXMLFile
+              DATA{${CMAKE_CURRENT_SOURCE_DIR}/Testing/Data/cow.vtp}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+    ExternalData_add_test(IOData
+      NAME    "IOExampleCxx-TestParticleReader"
+      COMMAND ParticleReader
+              DATA{${CMAKE_CURRENT_SOURCE_DIR}/Testing/Data/golf.csv}
+              ${CMAKE_CURRENT_BINARY_DIR}/Testing/Temporary/TestParticleReader.vtp
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+    ExternalData_Add_Target(IOData)
   endif ()
 endif ()
