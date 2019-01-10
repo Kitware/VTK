@@ -28,9 +28,9 @@ function (_vtk_module_wrap_java_sources module sources java_sources)
   set(_vtk_java_init_data_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}-java-init.data")
 
   set(_vtk_java_genex_compile_definitions
-    "$<TARGET_PROPERTY:${module},COMPILE_DEFINITIONS>")
+    "$<TARGET_PROPERTY:${_vtk_java_target_name},COMPILE_DEFINITIONS>")
   set(_vtk_java_genex_include_directories
-    "$<TARGET_PROPERTY:${module},INCLUDE_DIRECTORIES>")
+    "$<TARGET_PROPERTY:${_vtk_java_target_name},INCLUDE_DIRECTORIES>")
   file(GENERATE
     OUTPUT  "${_vtk_java_args_file}"
     CONTENT "$<$<BOOL:${_vtk_java_genex_compile_definitions}>:\n-D\"$<JOIN:${_vtk_java_genex_compile_definitions},\"\n-D\">\">\n
