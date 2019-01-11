@@ -268,8 +268,8 @@ vtkODBCBoundParameter *vtkBuildODBCBoundParameter<const char *>(const char *data
   param->DataTypeC = SQL_C_CHAR;
   param->DataTypeSQL = SQL_VARCHAR;
   param->BufferSize = strlen(data_value);
-  param->DataLength = strlen(data_value);
-  param->SetData(data_value, strlen(data_value));
+  param->DataLength = static_cast<unsigned long>(strlen(data_value));
+  param->SetData(data_value, static_cast<unsigned long>(strlen(data_value)));
 
   return param;
 }
@@ -345,7 +345,7 @@ bool vtkODBCQueryInternals::PrepareQuery(const char *queryString,
   // ugh, I hate having to use const_cast
   status = SQLPrepare(this->Statement,
                       reinterpret_cast<SQLCHAR *>(const_cast<char *>(queryString)),
-                      strlen(queryString));
+                      static_cast<SQLINTEGER>(strlen(queryString)));
 
   if (status != SQL_SUCCESS)
   {
@@ -425,7 +425,7 @@ bool vtkODBCQueryInternals::BindParametersToStatement()
   }
 
   this->ClearBoundParameters();
-  unsigned long numParams = this->UserParameterList.size();
+  SQLUSMALLINT numParams = static_cast<SQLUSMALLINT>(this->UserParameterList.size());
   for (SQLUSMALLINT i = 0; i < numParams; ++i)
   {
     if (this->UserParameterList[i])
@@ -1860,7 +1860,7 @@ bool
 vtkODBCQuery::BindParameter(int index, const char *data, size_t length)
 {
   this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(data,
-                                                                       length,
+                                                                       static_cast<unsigned long>(length),
                                                                        false));
   return true;
 }
@@ -1871,7 +1871,7 @@ bool
 vtkODBCQuery::BindParameter(int index, const void *data, size_t length)
 {
   this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(reinterpret_cast<const char *>(data),
-                                                                       length,
+                                                                       static_cast<unsigned long>(length),
                                                                        true));
   return true;
 }
