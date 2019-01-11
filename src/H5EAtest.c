@@ -284,6 +284,8 @@ H5EA__test_decode(const void *_raw, void *_elmt, size_t nelmts, void *_ctx))
     /* Local variables */
 #ifndef NDEBUG
     H5EA__test_ctx_t *ctx = (H5EA__test_ctx_t *)_ctx;   /* Callback context to destroy */
+#else
+    (void)_ctx;
 #endif /* NDEBUG */
     uint64_t *elmt = (uint64_t *)_elmt;     /* Convenience pointer to native elements */
     const uint8_t *raw = (const uint8_t *)_raw; /* Convenience pointer to raw elements */

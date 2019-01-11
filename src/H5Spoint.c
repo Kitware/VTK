@@ -775,7 +775,7 @@ done:
  REVISION LOG
 --------------------------------------------------------------------------*/
 static herr_t
-H5S_point_set_version(const H5S_t *space, hsize_t bounds_end[], H5F_t *f, uint32_t *version)
+H5S_point_set_version(const H5S_t *space, hsize_t bounds_end[], H5F_t H5_ATTR_UNUSED *f, uint32_t *version)
 {
     hbool_t exceed = FALSE;
     unsigned u;
@@ -825,11 +825,8 @@ done:
  REVISION LOG
 --------------------------------------------------------------------------*/
 static herr_t
-H5S_point_set_info_size(const H5S_t *space, hsize_t H5_ATTR_UNUSED bounds_end[], uint32_t H5_ATTR_UNUSED version, uint8_t H5_ATTR_UNUSED *point_size)
+H5S_point_set_info_size(const H5S_t H5_ATTR_UNUSED *space, hsize_t H5_ATTR_UNUSED bounds_end[], uint32_t H5_ATTR_UNUSED version, uint8_t H5_ATTR_UNUSED *point_size)
 {
-    hsize_t max_size = 0;
-    unsigned u;
-
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     HDassert(version == H5S_POINT_VERSION_1);

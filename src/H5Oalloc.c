@@ -137,6 +137,8 @@ if(chunkno > 0) {
     /* Make certain that object header is protected */
     HDassert(chk_proxy_status & H5AC_ES__IS_PROTECTED);
 } /* end if */
+#else
+    (void)f;
 #endif /* NDEBUG */
 
     /* Check for existing null message in chunk */

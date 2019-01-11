@@ -604,6 +604,8 @@ H5O__shared_copy_file(H5F_t *file_src, H5F_t *file_dst,
     HDassert(shared_dst);
     HDassert(recompute_size);
     HDassert(cpy_info);
+    (void)file_src;
+    (void)cpy_info;
 
     /* Committed shared messages create a shared message at the destination
      * and also copy the committed object that they point to.
