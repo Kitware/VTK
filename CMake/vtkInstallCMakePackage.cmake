@@ -6,6 +6,13 @@ if (NOT (DEFINED vtk_cmake_dir AND
     "vtkInstallCMakePackage is missing input variables.")
 endif ()
 
+set(vtk_all_components)
+foreach (vtk_module IN LISTS vtk_modules)
+  string(REPLACE "VTK::" "" vtk_component "${vtk_module}")
+  list(APPEND vtk_all_components
+    "${vtk_component}")
+endforeach ()
+
 if (TARGET "VTK::vtkm")
   set(vtk_has_vtkm ON)
 else ()
