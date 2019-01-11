@@ -133,7 +133,7 @@ int ex_put_prop_names(int exoid, ex_entity_type obj_type, int num_props, char **
   size_t    name_length, prop_name_len;
   char *    name;
   long long vals[1];
-  int       max_name_len = 0;
+  size_t    max_name_len = 0;
   int       int_type     = NC_INT;
 
   char errmsg[MAX_ERR_LENGTH];

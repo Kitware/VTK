@@ -109,17 +109,17 @@ int ex_mutex_unlock(EX_mutex_t *mutex)
 
 EX_errval_t *exerrval_get(void)
 {
-  EX_errval_t *ex_errval = (EX_errval_t *)pthread_getspecific(EX_errval_key_g);
-  if (!ex_errval) {
+  EX_errval_t *ex_errval_local = (EX_errval_t *)pthread_getspecific(EX_errval_key_g);
+  if (!ex_errval_local) {
     /*
      * First time thread calls library - create new value and associate
      * with key
      */
-    ex_errval = (EX_errval_t *)calloc(1, sizeof(EX_errval_t));
-    pthread_setspecific(EX_errval_key_g, (void *)ex_errval);
+    ex_errval_local = (EX_errval_t *)calloc(1, sizeof(EX_errval_t));
+    pthread_setspecific(EX_errval_key_g, (void *)ex_errval_local);
   }
 
-  return ex_errval;
+  return ex_errval_local;
 }
 #else
 void ex_dummy() {}
