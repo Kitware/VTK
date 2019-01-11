@@ -16,7 +16,7 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   "sysinfoapi.h.*: note: see declaration of 'GetVersion'"
 
   # Suppress notes from template instantiation backtraces.
-  "note: see reference to class template instantiation"
+  "note: see reference to (class|function) template instantiation"
 
   # Qt headers cause C4127 warnings with MSVC. Nothing we can do to fix them.
   "[Qq]t([Cc]ore|[Gg]ui).*(warning|note)"
