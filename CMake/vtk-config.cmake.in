@@ -22,9 +22,10 @@ The following variables are provided by this module:
   * `VTK_PYTHONPATH`: Where VTK's Python modules live. Unset if Python is not
     available.
   * `VTK_LIBRARIES`: The list of modules specified by `COMPONENTS` and
-    `OPTIONAL_COMPONENTS`. This may be used in `MODULES` arguments in the API
-    (e.g., `vtk_module_autoinit`). All modules are also targets and may be
-    linked to using `target_link_libraries`.
+    `OPTIONAL_COMPONENTS`. However, if no components are specified, all
+    available components are added to this variable. This may be used in
+    `MODULES` arguments in the API (e.g., `vtk_module_autoinit`). All modules
+    are also targets and may be linked to using `target_link_libraries`.
 
 [VTK module API]: TODO: Link to hosted documentation.
 #]==]
@@ -199,12 +200,19 @@ set("${CMAKE_FIND_PACKAGE_NAME}_LIBRARIES")
 if (NOT DEFINED "${CMAKE_FIND_PACKAGE_NAME}_FOUND")
   # If nothing went wrong, we've successfully found the package.
   set("${CMAKE_FIND_PACKAGE_NAME}_FOUND" 1)
+  set(_vtk_found_components
+    ${${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS})
+  if (NOT _vtk_found_components)
+    set(_vtk_found_components
+      ${${CMAKE_FIND_PACKAGE_NAME}_AVAILABLE_COMPONENTS})
+  endif ()
   # Build the `_LIBRARIES` variable.
-  foreach (_vtk_component IN LISTS "${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS")
+  foreach (_vtk_component IN LISTS _vtk_found_components)
     list(APPEND "${CMAKE_FIND_PACKAGE_NAME}_LIBRARIES"
       "${CMAKE_FIND_PACKAGE_NAME}::${_vtk_component}")
   endforeach ()
   unset(_vtk_component)
+  unset(_vtk_found_components)
 endif ()
 
 set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH_save}")
