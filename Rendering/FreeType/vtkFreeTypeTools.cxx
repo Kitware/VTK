@@ -1164,8 +1164,8 @@ bool vtkFreeTypeTools::LookupFace(vtkTextProperty *tprop, FT_Library lib,
     family = VTK_ARIAL;
   }
 
-  FT_Long length = EmbeddedFonts
-    [family][tprop->GetBold()][tprop->GetItalic()].length;
+  FT_Long length = static_cast<FT_Long>(EmbeddedFonts
+    [family][tprop->GetBold()][tprop->GetItalic()].length);
   FT_Byte *ptr = EmbeddedFonts
     [family][tprop->GetBold()][tprop->GetItalic()].ptr;
 
@@ -1565,7 +1565,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
   metaData.maxLineWidth = std::max(metaData.maxLineWidth,
                                    metaData.lineMetrics.back().width);
 
-  int numLines = metaData.lineMetrics.size();
+  size_t numLines = metaData.lineMetrics.size();
   T heightString;
   if (metaData.textProperty->GetUseTightBoundingBox() && numLines == 1)
   {
