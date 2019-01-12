@@ -29,6 +29,10 @@ int TestExtractThresholdsMultiBlock(int vtkNotUsed(argc), char* vtkNotUsed(argv)
 {
   vtkNew<vtkSphereSource> sphere;
 
+  // To test that the point precision matches in the extracted data
+  // (default point precision is float).
+  sphere->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
+
   // Block 1: has PointId point data array
   vtkNew<vtkIdFilter> spherePointIDSource;
   spherePointIDSource->SetIdsArrayName("PointId");
@@ -135,6 +139,16 @@ int TestExtractThresholdsMultiBlock(int vtkNotUsed(argc), char* vtkNotUsed(argv)
   if (vtkDataSet::SafeDownCast(extracted->GetBlock(1))->GetNumberOfCells() != 11)
   {
     std::cerr << "Unexpected number of cells in extracted selection" << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (!vtkPointSet::SafeDownCast(extracted->GetBlock(1)))
+  {
+    std::cerr << "Block 1 was not a vtkPointSet, but a " << extracted->GetBlock(1)->GetClassName() << " instead." << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (vtkPointSet::SafeDownCast(extracted->GetBlock(1))->GetPoints()->GetData()->GetDataType() != VTK_DOUBLE)
+  {
+    std::cerr << "Output for block 1 should have points with double precision" << std::endl;
     return EXIT_FAILURE;
   }
 
