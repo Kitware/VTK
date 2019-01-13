@@ -16,6 +16,8 @@ set(sources
 
 set(headers
   vtkParse.h
+  vtkParseData.h
+  vtkParseString.h
   vtkParseType.h)
 
 set_property(SOURCE vtkParseMain.c
