@@ -46,7 +46,7 @@ int TestOpenFOAMReaderRegEx(int argc, char* argv[])
 
   // Now, this is what we expect to be read from the OpenFOAM test case.
   // Every time a field at a given patch is read and verified, its data
-  // are erased from this data structure, until at the end it shoud remain
+  // are erased from this data structure, until at the end it should remain
   // totally empty.
   std::map<std::string,std::map<std::string, std::vector<double>>> expected_data =
   {

@@ -549,7 +549,7 @@ bool vtkHyperTreeGridNonOrientedMooreSuperCursorLight::GetCornerCursors( unsigne
       cursorIdx = CornerNeighborCursorsTable3D[c][l];
       break;
     default:
-      vtkErrorMacro("unexpected neigborhood");
+      vtkErrorMacro("unexpected neighborhood");
       return false;
   } // switch ( N )
 

@@ -50,7 +50,7 @@ public:
   /**
    * Reads the given file of materials and creates the in memory data
    * structures needed to display objects with them. Returns false only if
-   * file could not be meaningfully interpretted.
+   * file could not be meaningfully interpreted.
    */
   bool ReadFile(const char*FileName);
 
@@ -62,7 +62,7 @@ public:
   /**
    * DeSerialize contents from an in memory buffer as ReadFile does from a
    * file or set of files. Returns false only if buffer could not be
-   * meaningfully interpretted.
+   * meaningfully interpreted.
    */
   bool ReadBuffer(const char*Buffer);
 

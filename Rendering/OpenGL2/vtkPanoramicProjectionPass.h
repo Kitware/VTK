@@ -16,7 +16,7 @@
  * @class   vtkPanoramicProjectionPass
  * @brief   Render pass that render the scene in a cubemap and project
  * these six renderings to a single quad.
- * There are currently two differents projections implemented (Equirectangular and Azimuthal).
+ * There are currently two different projections implemented (Equirectangular and Azimuthal).
  * This pass can be used to produce images that can be visualize with specific devices that re-maps
  * the distorted image to a panoramic view (for instance VR headsets, domes, panoramic screens)
  *

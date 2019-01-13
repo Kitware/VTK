@@ -130,7 +130,7 @@ protected:
   double Plane[4];
 
   /**
-   * Decide wether output mesh should be a computed on dual grid
+   * Decide whether output mesh should be a computed on dual grid
    */
   int Dual;
 

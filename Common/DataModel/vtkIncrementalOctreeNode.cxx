@@ -255,7 +255,7 @@ void vtkIncrementalOctreeNode::SeperateExactlyDuplicatePointsFromNewInsertion
   vtkIncrementalOctreeNode * duplic = this;
   vtkIncrementalOctreeNode * single = this;
 
-  // the coordiate of the duplicate points: note pntIds == this->PointIdSet
+  // the coordinate of the duplicate points: note pntIds == this->PointIdSet
   points->GetPoint(  pntIds->GetId( 0 ),  dupPnt  );
 
   while ( duplic == single ) // as long as separation has not been achieved

@@ -86,7 +86,7 @@ protected:
                                        int &localAssignedCount) override;
 
   /**
-   * give each one a uniqu ID. We need to use MPI to find out
+   * give each one a unique ID. We need to use MPI to find out
    * who is using which numbers.
    */
   virtual void AssignUniqueIds(

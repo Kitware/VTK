@@ -218,7 +218,7 @@ public:
                             vtkIdType &numUniqueEdges);
 
   /**
-   * This method contructs the edge locator to be used when searching for
+   * This method constructs the edge locator to be used when searching for
    * edges. Basically it does a sort of the provided numEdges edges (which
    * likely contains duplicates), and builds an offset table to provide rapid
    * access to edge (v0,v1). The sort is performed via a parallel

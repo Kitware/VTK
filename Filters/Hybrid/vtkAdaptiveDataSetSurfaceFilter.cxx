@@ -443,12 +443,12 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTreeNot3D(
     if ( this->CircleSelection )
     {
       //JB On determine si la maille correspondant au current node of the tree
-      //JB is going to be renedered.
+      //JB is going to be rendered.
       //JB Pour cela, on fait une premiere approximation en considerant la maille
       //JB carre qui l'englobe en conservant la meme origine et en fixant sa demi-largeur
       //JB a la valeur maximale entre les valeurs de demi-largeur et demi-longueur.
       double half = std::max( halfAxis1, halfAxis2 );
-      //JB This cell must to be rendered si le centre de cette maille se trouve a moins de
+      //JB This cell must be rendered si le centre de cette maille se trouve a moins de
       //JB Radius + half * sqrt(2) du camera focal point. Radius est le rayon minimal du cercle
       //JB centre sur la camera focal point couvrant la fenetre de rendu.
       //JB Le centre de la maille se trouve a Origin + half, par direction.
@@ -466,7 +466,7 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTreeNot3D(
     if ( insideBB && this->BBSelection )
     {
       //JB On determine si la maille correspondant au current node of the tree
-      //JB is going to be renedered.
+      //JB is going to be rendered.
       //JB Pour cela, on verifie si la maille est dans une boite englobante correspondant a la
       //JB projection de l'ecran dans le monde du maillage.
       insideBB = ( ( originAxis1 + 2 * halfAxis1 >= this->WindowBounds[0] )

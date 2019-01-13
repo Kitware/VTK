@@ -1342,7 +1342,7 @@ endfunction ()
 #[==[.md INTERNAL
 ## VTK module properties
 
-The VTK module system leverages CMake's target propogation and storage. As
+The VTK module system leverages CMake's target propagation and storage. As
 such, there are a number of properties added to the targets representing
 modules. These properties are intended for use by the module system and
 associated functionality. In particular, more properties may be available by
@@ -1378,12 +1378,12 @@ mentioned in the previous section.
     is used by the autoinit subsystem and generally is not required.
   * `implementable`: If set, this module provides registries which may be
     populated by dependent modules. It is used to check the `implements`
-    property to help minimize unnecessary work from the autoinit sybsystem.
+    property to help minimize unnecessary work from the autoinit subsystem.
   * `needs_autoinit`: If set, linking to this module requires the autoinit
     subsystem to ensure that registries in modules are fully populated.
   * `headers`: Paths to the public headers from the module. These are the
     headers which should be handled by language wrappers.
-  * `hierarchy`: The path to the hierarchy file describing inheritence of the
+  * `hierarchy`: The path to the hierarchy file describing inheritance of the
     classes for use in language wrappers.
 
 In order to add new module properties to a module, the
@@ -1433,7 +1433,7 @@ _vtk_module_export_properties(
 The `MODULE`, `BUILD_FILE`, and `INSTALL_FILE` arguments are required. The
 `MODULE` argument holds the name of the module that will have properties
 exported. The `BUILD_FILE` and `INSTALL_FILE` paths are *appended to*. As such,
-when setting up these files, it should be preceeded with:
+when setting up these files, it should be preceded with:
 
 ```cmake
 file(WRITE "${build_file}")
@@ -2695,7 +2695,7 @@ the associated files are not installed or available for wrapping.
   * `SOURCES`: A list of source files which require compilation.
   * `HEADERS`: A list of header files which will be available for wrapping and
     installed.
-  * `TEMPLATES`: A list of tempalte files which will be installed.
+  * `TEMPLATES`: A list of template files which will be installed.
 #]==]
 function (vtk_module_add_module name)
   if (NOT name STREQUAL _vtk_build_module)

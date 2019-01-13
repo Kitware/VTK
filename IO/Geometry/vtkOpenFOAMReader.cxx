@@ -4337,7 +4337,7 @@ void vtkFoamEntry::Read(vtkFoamIOobject& io)
         // keyword nor list type specifier (i. e. `0()';
         // e. g. simpleEngine/0/polyMesh/pointZones) requires special
         // care (one with nonuniform prefix is treated within
-        // vtkFoamEntryValue::read()). still this causes errornous
+        // vtkFoamEntryValue::read()). still this causes erroneous
         // behavior for `0 nonuniform 0()' but this should be extremely
         // rare
         if (lastValue.GetType() == vtkFoamToken::EMPTYLIST && secondLastValue

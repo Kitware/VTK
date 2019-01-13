@@ -471,7 +471,7 @@ static void vtkThreadSleep(double time)
     {
       if (i == 0 && count % 100 == 0)
       {
-        cerr << "dropped frames, now beind by " << remaining << " seconds\n";
+        cerr << "dropped frames, now behind by " << remaining << " seconds\n";
       }
       break;
     }

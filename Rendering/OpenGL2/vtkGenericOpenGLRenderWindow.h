@@ -162,7 +162,7 @@ public:
   void SetIsPicking(vtkTypeBool isPicking) override;
 
   /**
-   * Overriden to invoke vtkCommand::CursorChangedEvent
+   * Overridden to invoke vtkCommand::CursorChangedEvent
    */
   void SetCurrentCursor(int cShape) override;
 

@@ -2836,7 +2836,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
 
   /*
-    Computes the area of the intersection between the plane, orthognal to the 'normal' vector,
+    Computes the area of the intersection between the plane, orthogonal to the 'normal' vector,
     that passes through P1 (resp. P2), and the given tetrahedron.
     the resulting area function, is a function of the intersection area given the distance of the cutting plane to the origin.
   */

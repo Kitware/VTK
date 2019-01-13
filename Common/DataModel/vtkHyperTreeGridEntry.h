@@ -16,8 +16,8 @@
  * @class   vtkHyperTreeGridEntry
  * @brief   Entries are cache data for cursors
  *
- * Entries are relevant for cursor/supercursor developpers. Filters
- * developpers should have a look at cursors/supercursors documentation.
+ * Entries are relevant for cursor/supercursor developers. Filters
+ * developers should have a look at cursors/supercursors documentation.
  * (cf. vtkHyperTreeGridNonOrientedCursor). When writing a new cursor or
  * supercursor the choice of the entry is very important: it will drive
  * the performance and memory cost. This is even more important for
