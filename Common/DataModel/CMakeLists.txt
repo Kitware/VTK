@@ -236,6 +236,7 @@ set(headers
   vtkDispatcher.h
   vtkDispatcher_Private.h
   vtkDoubleDispatcher.h
+  vtkHyperTreeGridTools.h
   vtkIntersectionCounter.h
   vtkRect.h
   vtkVector.h
