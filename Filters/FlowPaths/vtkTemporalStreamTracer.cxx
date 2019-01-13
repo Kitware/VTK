@@ -298,7 +298,7 @@ int vtkTemporalStreamTracer::RequestUpdateExtent(
     this->ActualTimeStep = std::find_if(
       this->OutputTimeValues.begin(),
       this->OutputTimeValues.end(),
-      std::bind2nd( WithinTolerance( ), requestedTimeValue ))
+      std::bind( WithinTolerance( ), std::placeholders::_1, requestedTimeValue ))
       - this->OutputTimeValues.begin();
     if (this->ActualTimeStep>=this->OutputTimeValues.size())
     {
