@@ -267,6 +267,7 @@ set(headers
   vtkMappedDataArray.h
   vtkMathUtilities.h
   vtkMersenneTwister.h
+  vtkMeta.h
   vtkNew.h
   vtkSetGet.h
   vtkSmartPointer.h
