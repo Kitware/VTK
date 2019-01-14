@@ -382,7 +382,7 @@ protected:
     {
     }
 
-    ~XdmfGridImpl()
+    virtual ~XdmfGridImpl()
     {
     }
 

@@ -411,7 +411,7 @@ XdmfRectilinearGrid::read()
       // Copy stucture from read grid to this grid
       copyGrid(grid);
     }
-    else if (shared_ptr<XdmfGrid> grid = shared_dynamic_cast<XdmfGrid>(mGridController->read()))
+    else if (shared_dynamic_cast<XdmfGrid>(mGridController->read()))
     {
       XdmfError::message(XdmfError::FATAL, "Error: Grid Type Mismatch");
     }

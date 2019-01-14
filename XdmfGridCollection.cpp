@@ -261,7 +261,7 @@ XdmfGridCollection::read()
         this->insert(grid->getMap(i));
       }
     }
-    else if (shared_ptr<XdmfGrid> grid = shared_dynamic_cast<XdmfGrid>(mGridController->read()))
+    else if (shared_dynamic_cast<XdmfGrid>(mGridController->read()))
     {
       XdmfError::message(XdmfError::FATAL, "Error: Grid Type Mismatch");
     }

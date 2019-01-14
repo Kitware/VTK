@@ -1531,9 +1531,10 @@ XdmfHDF5Writer::write(XdmfArray & array)
                                        NULL) ;
 
           if(status < 0) {
-            XdmfError::message(XdmfError::FATAL,
-                               "H5Dset_extent returned failure in "
-                               "XdmfHDF5Writer::write -- status: " + status);
+            std::stringstream sstr;
+            sstr << "H5Dset_extent returned failure in "
+                    "XdmfHDF5Writer::write -- status: " << status;
+            XdmfError::message(XdmfError::FATAL, sstr.str());
           }
         }
 
@@ -1545,9 +1546,10 @@ XdmfHDF5Writer::write(XdmfArray & array)
                           curArray);
 
         if(status < 0) {
-          XdmfError::message(XdmfError::FATAL,
-                             "H5Dwrite returned failure in XdmfHDF5Writer::write "
-                             "-- status: " + status);
+          std::stringstream sstr;
+          sstr << "H5Dwrite returned failure in XdmfHDF5Writer::write "
+                  "-- status: " << status;
+          XdmfError::message(XdmfError::FATAL, sstr.str());
         }
 
         if(dataspace != H5S_ALL) {

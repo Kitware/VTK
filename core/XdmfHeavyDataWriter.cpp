@@ -241,6 +241,7 @@ void XdmfHeavyDataWriterSetMode(XDMFHEAVYDATAWRITER * writer, int mode, int * st
       newMode = XdmfHeavyDataWriter::Hyperslab;
       break;
     default:
+      newMode = XdmfHeavyDataWriter::Default;
       XdmfError::message(XdmfError::FATAL,
                          "Error: Invalid heavy writer mode.");
   }
